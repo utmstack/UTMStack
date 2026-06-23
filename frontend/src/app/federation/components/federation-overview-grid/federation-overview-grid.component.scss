@@ -47,3 +47,111 @@
 @keyframes federation-overview-spin {
   to { transform: rotate(360deg); }
 }
+
+
+
+.overview-create-card {
+  cursor:pointer;
+  position:relative;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  height: 100%;
+  min-height: 320px;
+
+  &__icon {
+    font-size: 48px;
+    color: #6b7280;
+    opacity: 0.6;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: #232f3e;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  &__rows {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__row-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__row-meters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    min-width: 0;
+    justify-items: center;
+  }
+
+  &__gauge {
+    display: block;
+    min-width: 0;
+
+    ::ng-deep .reading-block {
+      font-size: 14px !important;
+      font-weight: 600;
+    }
+
+    ::ng-deep .reading-label {
+      font-size: 10px !important;
+      color: #475569;
+    }
+  }
+
+  &__empty {
+    flex: 1 1 auto;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    text-align: center;
+    padding: 16px;
+  }
+
+  &__empty-title {
+    font-weight: 600;
+    color: #232f3e;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  &__empty-msg {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  &__nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    border-top: 1px solid #f1f3f5;
+    padding-top: 10px;
+  }
+}

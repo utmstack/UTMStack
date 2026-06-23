@@ -23,6 +23,27 @@
       [entry]="entry"
       [severityEntry]="severityFor(entry)"
       (select)="onSelect(entry, $event)">
+      <div class="federation-instance-actions ml-2 d-flex align-items-center">
+        <button type="button"
+                class="btn btn-sm btn-link p-1"
+                title="Edit"
+                (click)="openEdit(entry, $event)">
+          <i class="icon-pencil"></i>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-link p-1 text-danger"
+                title="Remove"
+                [disabled]="pendingDeleteId === entry.id"
+                (click)="remove(entry, $event)">
+          <i class="icon-trash"></i>
+        </button>
+      </div>
     </app-instance-overview-card>
+
+    <div class="overview-create-card" (click)="openCreate($event)">
+      <i class="icon-plus3 overview-create-card__icon"></i>
+    </div>
+
+
   </div>
 </div>
