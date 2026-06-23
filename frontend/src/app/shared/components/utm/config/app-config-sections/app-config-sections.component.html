@@ -82,6 +82,7 @@
                  [id]="'sectionParam'+conf.id"
                  [required]="conf.confParamRequired"
                  [disabled]="checkDisable(conf)"
+                 [placeholder]="conf.confParamPlaceholder || ''"
                  [type]="conf.confParamDatatype" class="form-control pr-5">
 
           <i *ngIf="allowCopy(conf)"
