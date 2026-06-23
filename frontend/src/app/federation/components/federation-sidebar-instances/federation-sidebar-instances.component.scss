@@ -112,4 +112,36 @@
   .invisible {
     visibility: hidden;
   }
+
+  .dropdown-divider {
+    margin: 6px 0;
+  }
+
+  .federation-instance-manage {
+    cursor: pointer;
+    padding: 8px 12px;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    color: #232f3e;
+    gap: 8px;
+    font-weight: 500;
+
+    &:hover,
+    &:focus {
+      background-color: rgba(35, 47, 62, 0.06);
+      outline: none;
+    }
+  }
+
+  .federation-instance-manage__icon {
+    font-size: 14px;
+    flex: 0 0 auto;
+    color: #475569;
+  }
+
+  .federation-instance-manage__label {
+    font-size: 13px;
+  }
 }
