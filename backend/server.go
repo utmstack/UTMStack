@@ -69,13 +69,15 @@ func requestLogger() gin.HandlerFunc {
 		if logSkipPaths[c.Request.URL.Path] {
 			return
 		}
-		catcher.Info("http", map[string]any{
-			"method":     c.Request.Method,
-			"path":       c.Request.URL.Path,
-			"status":     c.Writer.Status(),
-			"latency_ms": time.Since(start).Milliseconds(),
-			"client_ip":  c.ClientIP(),
-		})
+		if status := c.Writer.Status(); status >= 400 {
+			catcher.Error("http", fmt.Errorf("status %d", status), map[string]any{
+				"method":     c.Request.Method,
+				"path":       c.Request.URL.Path,
+				"status":     status,
+				"latency_ms": time.Since(start).Milliseconds(),
+				"client_ip":  c.ClientIP(),
+			})
+		}
 	}
 }
 

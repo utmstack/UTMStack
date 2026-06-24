@@ -73,7 +73,7 @@ func loadConfig() *config {
 		dbName:     env.String("DB_NAME", "utmstack", false),
 		dbUser:     env.String("DB_USER", "postgres", false),
 		dbPass:     env.String("DB_PASS", "", false),
-		dbLogLevel: env.String("DB_LOG_LEVEL", "warn", false),
+		dbLogLevel: env.String("DB_LOG_LEVEL", "silent", false),
 
 		esHost:     env.String("ELASTICSEARCH_HOST", "localhost", false),
 		esPort:     env.Int("ELASTICSEARCH_PORT", 9200, false),

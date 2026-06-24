@@ -62,7 +62,22 @@ func (r *pgDatasourceRepository) Count(ctx context.Context) (int64, error) {
 	return r.db.Count(ctx, new(domain.Datasource))
 }
 
+func dedupBySourceRef(items []domain.Datasource) []domain.Datasource {
+	seen := make(map[string]int, len(items))
+	out := make([]domain.Datasource, 0, len(items))
+	for _, item := range items {
+		if idx, ok := seen[item.SourceRef]; ok {
+			out[idx] = item
+		} else {
+			seen[item.SourceRef] = len(out)
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
 func (r *pgDatasourceRepository) UpsertBatch(ctx context.Context, items []domain.Datasource) error {
+	items = dedupBySourceRef(items)
 	if len(items) == 0 {
 		return nil
 	}
@@ -77,6 +92,7 @@ func (r *pgDatasourceRepository) UpsertBatch(ctx context.Context, items []domain
 }
 
 func (r *pgDatasourceRepository) RegisterBatch(ctx context.Context, items []domain.Datasource) error {
+	items = dedupBySourceRef(items)
 	if len(items) == 0 {
 		return nil
 	}
