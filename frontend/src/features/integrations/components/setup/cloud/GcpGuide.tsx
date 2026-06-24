@@ -32,7 +32,7 @@ const STEPS: GcpStep[] = [
   { key: 'downloadKey', img: `${IMG}/downloadkey.png` },
 ]
 
-const MAPPING_KEYS = ['projectId', 'subscription', 'jsonKey'] as const
+const MAPPING_KEYS = ['projectId', 'topicId', 'subscription', 'jsonKey'] as const
 
 export function GcpGuide({ integration }: { integration: Integration }) {
   const { t } = useTranslation()
