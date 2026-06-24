@@ -11,7 +11,6 @@ import {stringParamToQueryParams} from '../../../../util/query-params-to-filter.
 import {filter, takeUntil, tap} from 'rxjs/operators';
 import {OpenAlertsService} from '../../../../../data-management/alert-management/shared/services/open-alerts.service';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
-import {FederationModeService} from '../../../../../federation/services/federation-mode.service';
 
 @Component({
   selector: 'app-header-menu-navigation',
@@ -33,8 +32,7 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
               private menuBehavior: MenuBehavior,
               private openAlertsService: OpenAlertsService,
               private menuService: MenuService,
-              private toast: UtmToastService,
-              private federationModeService: FederationModeService) {
+              private toast: UtmToastService) {
   }
 
   ngOnInit() {
@@ -74,9 +72,6 @@ export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   }
 
   loadMenus() {
-    if (this.federationModeService.isActive) {
-      return;
-    }
     this.menuService.getMenuStructure(true).subscribe(reponse => {
       this.menus = reponse.body;
       this.defaultStructureMenu = reponse.body;
