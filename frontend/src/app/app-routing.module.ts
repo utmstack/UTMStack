@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from './core/auth/user-route-access-service';
+import {FederationDisabledGuard} from './federation/guards/federation-disabled.guard';
 import {
   FederationEmailConfigPageComponent
 } from './federation/pages/email-config/federation-email-config.page.component';
@@ -74,7 +75,8 @@ const routes: Routes = [
   {
     path: 'app-management',
     loadChildren: './app-management/app-management.module#AppManagementModule',
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService, FederationDisabledGuard],
+    canActivateChild: [FederationDisabledGuard],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
