@@ -169,7 +169,6 @@ const routes: Routes = [
       {
         path: 'email-config',
         component: FederationEmailConfigPageComponent,
-        canActivate: [UserRouteAccessService],
         data: {authorities: [ADMIN_ROLE]}
       }
     ]

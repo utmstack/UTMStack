@@ -187,7 +187,6 @@ export class AccountService {
         }
         const redirectTo = (account.authorities.includes(ADMIN_ROLE) && account.email === ADMIN_DEFAULT_EMAIL)
           ? '/getting-started' : !!path ? path : '/dashboard/overview';
-        console.log(redirectTo);
         this.router.navigate([redirectTo], {queryParams})
           .then(() => this.spinner.hide());
       } else {
