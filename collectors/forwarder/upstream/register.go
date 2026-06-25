@@ -11,23 +11,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-type versionFile struct {
-	Version string `json:"version"`
-}
-
-func getForwarderVersion() (string, error) {
-	versionPath := "version.json"
-	data, err := os.ReadFile(versionPath)
-	if err != nil {
-		return "1.0.0", nil
-	}
-	var v versionFile
-	if err := json.Unmarshal(data, &v); err != nil {
-		return "1.0.0", nil
-	}
-	return v.Version, nil
-}
-
 func RegisterCollector(cnf *config.Config, UTMKey string) error {
 	connection, err := GetAgentManagerConnection(cnf)
 	if err != nil {
@@ -49,15 +32,21 @@ func RegisterCollector(cnf *config.Config, UTMKey string) error {
 		return fmt.Errorf("error getting os info: %v", err)
 	}
 
-	version, err := getForwarderVersion()
+	var v struct {
+		Version string `json:"version"`
+	}
+	data, err := os.ReadFile(config.VersionPath)
 	if err != nil {
-		return fmt.Errorf("error getting version: %v", err)
+		return fmt.Errorf("error reading version file: %v", err)
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return fmt.Errorf("error parsing version file: %v", err)
 	}
 
 	request := &RegisterRequest{
 		Ip:        ip,
 		Hostname:  osInfo.Hostname,
-		Version:   version,
+		Version:   v.Version,
 		Collector: CollectorModule_FORWARDER,
 	}
 

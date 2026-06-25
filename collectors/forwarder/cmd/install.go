@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"
 	"github.com/utmstack/UTMStack/collectors/forwarder/serv"
+	"github.com/utmstack/UTMStack/collectors/forwarder/updates"
 	"github.com/utmstack/UTMStack/collectors/forwarder/upstream"
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
@@ -29,6 +30,13 @@ var installCmd = &cobra.Command{
 		fmt.Print("Checking server connection ... ")
 		if err := utils.ArePortsReachable(cnf.Server, config.AgentManagerPort, config.LogAuthProxyPort); err != nil {
 			fmt.Println("\nError trying to connect to server: ", err)
+			os.Exit(1)
+		}
+		fmt.Println("[OK]")
+
+		fmt.Print("Downloading version info ... ")
+		if err := updates.DownloadVersion(cnf.Server, cnf.SkipCertValidation); err != nil {
+			fmt.Println("\nError downloading version info: ", err)
 			os.Exit(1)
 		}
 		fmt.Println("[OK]")

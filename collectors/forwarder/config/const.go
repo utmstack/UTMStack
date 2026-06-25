@@ -10,8 +10,11 @@ import (
 var REPLACE_KEY string
 
 var (
-	AgentManagerPort = "9000"
-	LogAuthProxyPort = "50051"
+	AgentManagerPort  = "9000"
+	LogAuthProxyPort  = "50051"
+	DependenciesPort  = "9001"
+	DependUrl         = "https://%s:%s/private/dependencies/collector/%s"
+	VersionPath       = filepath.Join(fs.GetExecutablePath(), "version.json")
 
 	CollectorLogFile  = filepath.Join(fs.GetExecutablePath(), "logs", "utmstack_forwarder.log")
 	UUIDFileName      = filepath.Join(fs.GetExecutablePath(), "collector-uuid.yml")
