@@ -1,0 +1,19 @@
+# Rule version v1.2.0 (validated 2026-06-24)
+dataTypes:
+  - wineventlog
+name: 'Windows: LOLBin Proxy Execution / Ingress Tool Transfer'
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: T1218 - System Binary Proxy Execution
+adversary: origin
+description: Detects living-off-the-land binaries used for proxy execution or download (mshta http, regsvr32 squiblydoo, certutil -urlcache/-decode, bitsadmin /transfer, wmic process call create, msbuild, installutil, mavinject).
+references:
+  - https://attack.mitre.org/techniques/T1218/
+where: |
+  equals("log.eventCode", 4688) && regexMatch("log.data.CommandLine", "(?i)(mshta.*http|mshta.*vbscript|mshta.*javascript|regsvr32.*scrobj|regsvr32.*/i:http|rundll32.*javascript:|rundll32.*url[.]dll|certutil.*(-urlcache|-decode|-encode|-split|-verifyctl).*(http|[.]exe|[.]dll|[.]txt|[.]bin)|bitsadmin.*/transfer.*http|wmic.*/node:.*process.*call.*create|installutil.*/(u|logfile=)|regasm.*/u|mavinject.*/injectrunning|cmstp.*/s)")
+groupBy:
+  - dataSource
+deduplicateBy: []

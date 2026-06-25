@@ -15,9 +15,8 @@ description: "Identifies an unexpected file being modified by dns.exe, the proce
 references:
   - "https://attack.mitre.org/tactics/TA0001/"
   - "https://attack.mitre.org/techniques/T1133/"
-where: equals("log.eventCode", 4663) &&
-       contains("log.eventDataProcessName", "dns.exe") && !regexMatch("log.eventDataFileName", "(dns\\.log$|\\.dns$|\\Windows\\System32\\dns\\)") &&
-       regexMatch("log.eventDataFileName", "\\.(dll|exe|bat|ps1|vbs)$")
+where: |
+  equals("log.eventCode", 4663) && contains("log.eventDataProcessName", "dns.exe") && !regexMatch("log.eventDataObjectName", "(dns[.]log$|[.]dns$|Windows.System32.dns.)") && regexMatch("log.eventDataObjectName", "[.](dll|exe|bat|ps1|vbs)$")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []
