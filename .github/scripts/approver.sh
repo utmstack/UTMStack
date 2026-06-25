@@ -390,7 +390,7 @@ if ! $deps_failed && ! $ai_blocked && $authorized; then
             echo "::warning::APPROVER_TOKEN not set — cannot enable auto-merge"
         else
             echo "Enabling auto-merge for #$PR_NUMBER (target: $BASE_REF, method: $MERGE_METHOD)"
-            GH_TOKEN="$APPROVER_TOKEN" gh pr merge "$PR_NUMBER" \
+            GH_TOKEN="$GITHUB_TOKEN" gh pr merge "$PR_NUMBER" \
                 --auto "--${MERGE_METHOD}" \
                 --repo "$GITHUB_REPOSITORY" \
                 || echo "::warning::Failed to enable auto-merge (already enabled? branch protection mismatch?)"
