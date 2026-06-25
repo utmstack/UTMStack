@@ -1,0 +1,19 @@
+# Rule version v1.2.0 (validated 2026-06-24)
+dataTypes:
+  - wineventlog
+name: 'Windows: Office Application Spawned Command or Script Interpreter'
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Execution
+technique: 'T1204.002 - User Execution: Malicious File'
+adversary: origin
+description: Detects an Office/document application (winword, excel, outlook, etc.) spawning a command or script interpreter - a classic macro/phishing payload execution chain.
+references:
+  - https://attack.mitre.org/techniques/T1204/002/
+where: |
+  equals("log.eventCode", 4688) && regexMatch("log.data.ParentProcessName", "(?i)(winword|excel|powerpnt|outlook|onenote|msaccess|mspub|wordpad).exe$") && regexMatch("log.data.NewProcessName", "(?i)(cmd|powershell|pwsh|wscript|cscript|mshta|rundll32|regsvr32|bitsadmin|certutil|curl).exe$")
+groupBy:
+  - dataSource
+deduplicateBy: []
