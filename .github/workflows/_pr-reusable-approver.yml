@@ -46,7 +46,7 @@ on:
         description: "PAT with read:org for team-membership checks. Falls back to the App token if absent (App must have Organization → Members: Read)."
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
