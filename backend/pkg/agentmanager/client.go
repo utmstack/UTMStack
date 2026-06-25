@@ -140,6 +140,23 @@ func (c *AgentManagerClient) DeleteAgent(ctx context.Context, agentID uint32, ag
 	return resp, nil
 }
 
+func (c *AgentManagerClient) ForgetAgent(ctx context.Context, agentID uint32) error {
+	if agentID == 0 {
+		return nil
+	}
+	agents, _, err := c.ListAgents(ctx, fmt.Sprintf("id.Is=%d", agentID))
+	if err != nil {
+		return fmt.Errorf("agentmanager: ForgetAgent lookup %d: %w", agentID, err)
+	}
+	if len(agents) == 0 {
+		return nil
+	}
+	if _, err := c.DeleteAgent(ctx, agentID, agents[0].GetAgentKey()); err != nil {
+		return fmt.Errorf("agentmanager: ForgetAgent delete %d: %w", agentID, err)
+	}
+	return nil
+}
+
 func (c *AgentManagerClient) GetConnectionKey(ctx context.Context) (string, error) {
 	resp, err := c.panelService.GetConnectionKey(ctx, &agent.ConnectionKeyRequest{})
 	if err != nil {

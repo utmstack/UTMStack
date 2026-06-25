@@ -2,22 +2,35 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	"github.com/utmstack/utmstack/backend/modules/datasources/dto"
+	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 type datasourceUsecase struct {
-	repo      connectors.DatasourceRepository
-	projector connectors.AssetProjector // may be nil (projection disabled)
+	repo         connectors.DatasourceRepository
+	projector    connectors.AssetProjector
+	agentManager *agentmanager.AgentManagerClient
 }
 
-func NewDatasourceUsecase(repo connectors.DatasourceRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
-	return &datasourceUsecase{repo: repo, projector: projector}
+func NewDatasourceUsecase(
+	repo connectors.DatasourceRepository,
+	projector connectors.AssetProjector,
+	agentManager *agentmanager.AgentManagerClient,
+) connectors.DatasourceUsecase {
+	return &datasourceUsecase{
+		repo:         repo,
+		projector:    projector,
+		agentManager: agentManager,
+	}
 }
 
 func (u *datasourceUsecase) GetByID(ctx context.Context, id uint64) (*dto.DatasourceDTO, error) {
@@ -138,6 +151,24 @@ func (u *datasourceUsecase) UpdateSensitivity(ctx context.Context, req dto.Updat
 }
 
 func (u *datasourceUsecase) Delete(ctx context.Context, id uint64) error {
+	source, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if source == nil {
+		return domain.ErrNotFound
+	}
+
+	if source.SourceKind == "agent" {
+		agentID, err := agentIDFromMetadata(source.Metadata)
+		if err != nil {
+			return err
+		}
+		if err := u.agentManager.ForgetAgent(ctx, agentID); err != nil {
+			return err
+		}
+	}
+
 	if err := u.repo.Delete(ctx, id); err != nil {
 		return err
 	}
@@ -170,6 +201,25 @@ func (u *datasourceUsecase) ProjectAssets(ctx context.Context) error {
 		assets = append(assets, a)
 	}
 	return u.projector.ProjectAssets(assets)
+}
+
+func agentIDFromMetadata(raw []byte) (uint32, error) {
+	if len(raw) == 0 {
+		return 0, fmt.Errorf("agent metadata is empty")
+	}
+	var m map[string]string
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return 0, fmt.Errorf("decode agent metadata: %w", err)
+	}
+	v, ok := m["agentId"]
+	if !ok || v == "" {
+		return 0, fmt.Errorf("agent metadata missing agentId")
+	}
+	n, err := strconv.ParseUint(v, 10, 32)
+	if err != nil {
+		return 0, fmt.Errorf("parse agentId %q: %w", v, err)
+	}
+	return uint32(n), nil
 }
 
 // clampCIA bounds a sensitivity axis to the valid 0–3 range.
