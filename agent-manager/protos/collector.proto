@@ -15,6 +15,7 @@ service CollectorService {
 enum CollectorModule{
   AS_400 = 0;
   UTMSTACK = 1;
+  FORWARDER = 2;
 }
 
 message RegisterRequest {
