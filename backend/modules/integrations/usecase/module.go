@@ -3,24 +3,31 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
+
+	os_connectors "github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	os_dto "github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 type moduleUsecase struct {
 	repo          connectors.ModuleRepository
 	tenantFileTog connectors.TenantFileToggler
+	opensearch    os_connectors.IndexPatternUsecase
 }
 
 func NewModuleUsecase(
 	repo connectors.ModuleRepository,
 	tenantFile connectors.TenantFileToggler,
+	opensearch os_connectors.IndexPatternUsecase,
 ) connectors.ModuleUsecase {
 	return &moduleUsecase{
 		repo:          repo,
 		tenantFileTog: tenantFile,
+		opensearch: opensearch,
 	}
 }
 
@@ -128,6 +135,16 @@ func (u *moduleUsecase) Create(ctx context.Context, req dto.CreateModuleRequest)
 		ModuleActive:      false,
 		IsSystem:          false,
 	}
+
+	pattern:="custom-"+strings.ReplaceAll(strings.Trim(strings.ToLower(req.ModuleName),"")," ","-")+"-*"
+
+	if _,err:= u.opensearch.Create(ctx,os_dto.CreateIndexPatternRequest{
+		Pattern: pattern,
+		PatternModule: &req.ModuleName,
+	});err!=nil{
+		return nil, err
+	}
+
 	if err := u.repo.Save(ctx, m); err != nil {
 		return nil, err
 	}

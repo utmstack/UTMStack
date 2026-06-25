@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -133,6 +135,58 @@ func (r *osGatewayRepo) Indices(ctx context.Context, pattern string) ([]dto.Inde
 		})
 	}
 	return out, nil
+}
+
+func (r *osGatewayRepo) EnsureIndexPattern(ctx context.Context, pattern string) error {
+	return ensureIndexPattern(ctx, pattern)
+}
+
+func ensureIndexPattern(ctx context.Context, pattern string) error {
+	if pattern == "" {
+		return errors.New("opensearch: pattern is empty")
+	}
+	name := templateNameFor(pattern)
+	if name == "" {
+		return fmt.Errorf("opensearch: pattern %q has no valid template name", pattern)
+	}
+	path := "_index_template/" + name
+
+	_, status, err := osdk.DoRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return err
+	}
+	if status == http.StatusOK {
+		return nil
+	}
+	if status != http.StatusNotFound {
+		return fmt.Errorf("opensearch: probe %q: status %d", path, status)
+	}
+
+	body := map[string]any{
+		"index_patterns": []string{pattern},
+		"priority":       0,
+		"template": map[string]any{
+			"settings": map[string]any{
+				"index.mapping.total_fields.limit": 50000,
+				"number_of_shards":                 3,
+				"number_of_replicas":               0,
+			},
+		},
+	}
+	data, status, err := osdk.DoRequest(ctx, http.MethodPut, path, body)
+	if err != nil {
+		return err
+	}
+	if status < 200 || status >= 300 {
+		return fmt.Errorf("opensearch: create index pattern %q: status %d: %s", pattern, status, string(data))
+	}
+	return nil
+}
+
+func templateNameFor(pattern string) string {
+	n := strings.ReplaceAll(pattern, "*", "")
+	n = strings.Trim(n, "-_.")
+	return n
 }
 
 func (r *osGatewayRepo) DeleteIndices(ctx context.Context, indices []string) error {

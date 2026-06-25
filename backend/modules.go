@@ -162,13 +162,15 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, billingMod.License(), agentClient)
 
+	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
+	notificationsMod := notifications.NewModule(db, auditMod.Logger())
+
 	integrationsMod := integrations.NewModule(db, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
 		dsUC,
+		opensearchMod.GetIndexPatternUsecase(),
 	)
 
-	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
-	notificationsMod := notifications.NewModule(db, auditMod.Logger())
 
 	if cfg.esHost != "" && cfg.diskGuardEnabled {
 		opensearchMod.SetSpaceGuard(
