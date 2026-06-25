@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {filter, tap} from 'rxjs/operators';
+import {IncidentOriginTypeEnum} from '../../../../shared/enums/incident-response/incident-origin-type.enum';
 import {AgentType} from '../../../../shared/types/agent/agent.type';
 import {IncidentCommandType} from '../../../../shared/types/incident/incident-command.type';
 import {AgentSidebarService} from '../agent-sidebar/agent-sidebar.service';
@@ -25,7 +26,7 @@ export class InteractiveConsoleComponent implements OnInit {
           this.websocketCommand = {
             command: '',
             originId: agent.id.toString(),
-            originType: 'SOAR-CONSOLE',
+            originType: IncidentOriginTypeEnum.SOAR_CONSOLE,
             reason: 'Interactive console command',
           };
         }));
