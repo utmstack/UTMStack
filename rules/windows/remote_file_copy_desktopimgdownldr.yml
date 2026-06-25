@@ -15,9 +15,8 @@ description: "Identifies the desktopimgdownldr utility being used to download a 
 references:
   - "https://attack.mitre.org/tactics/TA0011/"
   - "https://attack.mitre.org/techniques/T1105/"
-where: equals("log.eventCode", 4663) &&
-       contains("log.eventDataProcessName", "desktopimgdownldr.exe") && !regexMatch("log.eventDataObjectName", "(:\\Windows\\Web\\|:\\ProgramData\\Microsoft\\Windows\\SystemData\\)") &&
-       regexMatch("log.eventDataObjectName", "\\.(exe|dll|bat|ps1|zip|rar|7z)$")
+where: |
+  equals("log.eventCode", 4663) && contains("log.eventDataProcessName", "desktopimgdownldr.exe") && !regexMatch("log.eventDataObjectName", "(Windows.Web.|ProgramData.Microsoft.Windows.SystemData.)") && regexMatch("log.eventDataObjectName", "[.](exe|dll|bat|ps1|zip|rar|7z)$")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []
