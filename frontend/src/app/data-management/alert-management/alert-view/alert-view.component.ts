@@ -208,6 +208,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         filter(incident => !!incident),
         tap(() => this.refreshAlerts())
       ).subscribe();
+
+    this.alertActionRefreshService.refreshAlerts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refreshAlerts());
   }
 
   refreshAlerts() {

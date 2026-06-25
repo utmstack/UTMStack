@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {AlertUpdateHistoryBehavior} from '../../../../data-management/alert-management/shared/behavior/alert-update-history.behavior';
 import {
   AlertActionRefreshService
@@ -14,7 +16,12 @@ import {
   ALERT_SEVERITY_FIELD,
   ALERT_STATUS_FIELD
 } from '../../../../shared/constants/alert/alert-field.constant';
+import {MAIN_INDEX_PATTERN} from '../../../../shared/constants/main-index-pattern.constant';
+import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
+import {ElasticDataService} from '../../../../shared/services/elasticsearch/elastic-data.service';
 import {UtmIncidentService} from '../../../../shared/services/incidents/utm-incident.service';
+import {UtmAlertType} from '../../../../shared/types/alert/utm-alert.type';
+import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.type';
 import {NewIncidentAlert} from '../../../../shared/types/incident/new-incident.type';
 import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.type';
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
@@ -45,6 +52,7 @@ export class AddAlertToIncidentComponent implements OnInit {
               private utmToastService: UtmToastService,
               private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
               private alertActionRefreshService: AlertActionRefreshService,
+              private elasticDataService: ElasticDataService,
               private fb: FormBuilder) {
 
   }
@@ -54,12 +62,41 @@ export class AddAlertToIncidentComponent implements OnInit {
     this.initForm();
     this.getIncidents();
     if (this.alerts.length > 0) {
-      this.totalItems = this.alerts.length;
-      this.convertAlertsToIncidentAlerts(this.alerts).then((incidentAlerts) => {
-        this.alertList = incidentAlerts;
-        this.formIncident.controls.alertList.setValue(this.alertList);
+      this.fetchFreshAlerts(this.alerts).subscribe(freshAlerts => {
+        const nonLinked = freshAlerts.filter(alert => !alert.isIncident);
+        if (nonLinked.length === 0) {
+          this.notifyAllLinkedAndClose();
+          return;
+        }
+        this.alerts = nonLinked;
+        this.totalItems = nonLinked.length;
+        this.convertAlertsToIncidentAlerts(nonLinked).then((incidentAlerts) => {
+          this.alertList = incidentAlerts;
+          this.formIncident.controls.alertList.setValue(this.alertList);
+        });
       });
     }
+  }
+
+  private fetchFreshAlerts(alerts: UtmAlertType[]): Observable<UtmAlertType[]> {
+    const ids = alerts.map(alert => alert.id);
+    const filters: ElasticFilterType[] = [
+      {field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS_ONE_OF, value: ids}
+    ];
+    return this.elasticDataService.search(1, ids.length, ids.length, MAIN_INDEX_PATTERN, filters)
+      .pipe(map(res => res.body || []));
+  }
+
+  private notifyAllLinkedAndClose() {
+    const multiple = this.alerts.length > 1;
+    this.utmToastService.showError(
+      multiple ? 'Alerts associated with incident' : 'Alert associated with incident',
+      multiple
+        ? 'The selected alerts are already linked to an incident. The list has been refreshed.'
+        : 'The selected alert is already linked to an incident. The list has been refreshed.'
+    );
+    this.alertActionRefreshService.requestRefreshAlerts();
+    this.activeModal.close();
   }
 
   getIncidents() {

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -24,14 +24,6 @@ description: |
   5. Review other persistence mechanisms on the host
   6. If unauthorized, remove the cron entry and investigate the source of compromise
 where: |
-  (contains("log.process", "crontab") || contains("log.process", "cron") || contains("log.process", "atd")) &&
-  (contains("log.message", "REPLACE") ||
-   contains("log.message", "INSTALL") ||
-   contains("log.message", "cron.d") ||
-   contains("log.message", "crontab") ||
-   contains("log.message", "at job") ||
-   (contains("log.message", "EDIT") && contains("log.message", "crontab")) ||
-   (contains("log.message", "BEGIN EDIT") || contains("log.message", "END EDIT")))
-groupBy:
-  - origin.host
-  - origin.user
+  contains("origin.process", "crontab") && (contains("log.message", "REPLACE") || contains("log.message", "INSTALL") || contains("log.message", "LIST") || contains("log.message", "EDIT"))
+deduplicateBy:
+  - dataSource
