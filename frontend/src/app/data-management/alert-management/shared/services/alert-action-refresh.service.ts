@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.type';
 
 
@@ -14,6 +14,9 @@ export class AlertActionRefreshService {
   private alertTagRuleCreatedBehavior = new BehaviorSubject<boolean>(false);
   alertTagRuleCreated$ = this.alertTagRuleCreatedBehavior.asObservable();
 
+  private refreshAlertsSubject = new Subject<void>();
+  refreshAlerts$ = this.refreshAlertsSubject.asObservable();
+
   constructor() {
   }
 
@@ -23,6 +26,10 @@ export class AlertActionRefreshService {
 
   alertTagRuleCreated(refresh: boolean) {
     this.alertTagRuleCreatedBehavior.next(refresh);
+  }
+
+  requestRefreshAlerts() {
+    this.refreshAlertsSubject.next();
   }
 
   clearValues() {

@@ -103,7 +103,6 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
     this.alertFiltersBehavior.$filters
       .pipe(
         debounceTime(150),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         takeUntil(this.destroy$)
       )
       .subscribe((filters: ElasticFilterType[]) => {
