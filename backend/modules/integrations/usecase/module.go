@@ -180,5 +180,16 @@ func (u *moduleUsecase) Delete(ctx context.Context, id int64) error {
 	if m.IsSystem {
 		return domain.ErrSystemModule
 	}
+	results,_,err :=u.opensearch.List(ctx,os_dto.IndexPatternFilters{
+		ModuleEquals: &m.ModuleName,
+	})
+	if err != nil {
+		return err
+	}
+	if len(results) == 0{
+		return fmt.Errorf("module %s index pattern not found.",m.ModuleName)
+	}
+	pattern:=results[0]
+	u.opensearch.Delete(ctx,pattern.ID)
 	return u.repo.Delete(ctx, id)
 }
