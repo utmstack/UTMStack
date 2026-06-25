@@ -120,7 +120,7 @@
 
         <div class="workflow-timeline mb-3">
 
-          <div *ngFor="let action of workflow; let first = first" class="action-wrapper d-flex flex-column w-100">
+          <div *ngFor="let action of workflow; let first = first; let i = index" class="action-wrapper d-flex flex-column w-100">
             <!-- Action block -->
             <div class="action-block cursor-pointer d-flex flex-column w-100 p-2" style="height: 120px;">
 
@@ -130,7 +130,7 @@
                   <app-action-conditional
                     *ngIf="!first"
                     [option]="action.conditional"
-                    (optionChange)="updateAction(action, $event)">
+                    (optionChange)="updateAction(action, i, $event)">
                   </app-action-conditional>
                   <div style="min-height: 37px" class="d-flex flex-column justify-content-start icon-cross2 font-size-xs cursor-pointer ml-2"
                     (click)="removeAction(action)">
