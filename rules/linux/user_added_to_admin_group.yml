@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -14,7 +14,7 @@ description: "Detects when a user has been added to the administrators group (su
 references:
   - "https://attack.mitre.org/tactics/TA0004"
   - "https://attack.mitre.org/techniques/T1484/"
-where: regexMatch("log.message", "(((adduser|useradd|usermod)(.+)([Aa]dded user|new user|add)(.+)to(.+)group)(.+)sudo)") && contains("log.message", "usermod -aG sudo")
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  regexMatch("origin.command", "(usermod.*-aG.*sudo|usermod.*-aG.*admin|gpasswd -a .* sudo|adduser .* sudo)")
+deduplicateBy:
+  - dataSource

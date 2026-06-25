@@ -1,4 +1,4 @@
-# Rule version v1.0.1
+# Rule version v1.0.2
 
 dataTypes:
   - "linux"
@@ -15,35 +15,18 @@ description: "Identifies multiple SSH login failures followed by a successful on
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
-where: equals("action", "system.auth") && regexMatch("log.message", "([Ss]ession opened)") && exists("origin.user") && exists("log.hostId")
+where: |
+  contains("log.message", "Failed password") || (equals("action", "USER_AUTH") && contains("log.userauth.result", "fail"))
 afterEvents:
   - indexPattern: v11-log-linux-*
     with:
-      - field: origin.user
+      - field: dataSource.keyword
         operator: filter_term
-        value: '{{.origin.user}}'
-      - field: log.hostId
-        operator: filter_term
-        value: '{{.log.hostId}}'
+        value: '{{.dataSource}}'
       - field: log.message
         operator: filter_match
         value: 'Failed password'
     within: 15m
     count: 10
-    or:
-      - indexPattern: v11-log-linux-*
-        with:
-          - field: origin.user
-            operator: filter_term
-            value: '{{.origin.user}}'
-          - field: log.hostId
-            operator: filter_term
-            value: '{{.log.hostId}}'
-          - field: log.message
-            operator: filter_match
-            value: 'authentication failure'
-        within: 15m
-        count: 10
-groupBy:
-  - origin.ip
-  - origin.user
+deduplicateBy:
+  - dataSource

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -25,16 +25,6 @@ description: |
   6. Perform full incident response on the compromised host
   7. Block the C2 IP address at the network perimeter
 where: |
-  regexMatch("log.message", "(?i)bash\\s+-i\\s+>&\\s+/dev/tcp/") ||
-  regexMatch("log.message", "(?i)python[23]?\\s+-c\\s+.*socket.*connect") ||
-  regexMatch("log.message", "(?i)nc\\s+(-e|--exec|-c)\\s+") ||
-  regexMatch("log.message", "(?i)ncat\\s+(-e|--exec)\\s+") ||
-  regexMatch("log.message", "(?i)socat\\s+.*exec.*tcp") ||
-  regexMatch("log.message", "(?i)perl\\s+-e\\s+.*socket.*INET") ||
-  regexMatch("log.message", "(?i)php\\s+-r\\s+.*fsockopen") ||
-  regexMatch("log.message", "(?i)ruby\\s+-rsocket\\s+-e") ||
-  regexMatch("log.message", "(?i)mkfifo\\s+.*nc\\s+") ||
-  regexMatch("log.message", "(?i)\\b0<&\\d+-;exec\\s+\\d+<>/dev/tcp/")
-groupBy:
-  - origin.host
-  - origin.ip
+  regexMatch("origin.command", "(bash -i.*/dev/tcp|python.* -c .*socket.*connect|nc .*-e|ncat .*-e|socat.*exec.*tcp|perl.*-e.*socket|php.*-r.*fsockopen|ruby.*-rsocket)")
+deduplicateBy:
+  - dataSource
