@@ -17,7 +17,8 @@ impact:
   confidentiality: 2
   integrity: 3
   availability: 0
-where: equals("log.Workload", "AzureActiveDirectory") && oneOf("action", ["Add member to group.", "Add delegated permission grant.", "Add app role assignment grant to user."])
+where: equals("log.Workload", "AzureActiveDirectory") && oneOf("action", ["Add member to group.", "Add delegated permission grant.", "Add member to role."]) &&
+      equals("actionResult", "Success")
 groupBy:
   - adversary.user
   - lastEvent.log.ObjectId
