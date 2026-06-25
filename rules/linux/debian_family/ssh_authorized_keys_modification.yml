@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -25,10 +25,6 @@ description: |
   6. Remove unauthorized keys and rotate affected credentials
   7. Monitor for subsequent SSH connections from unknown sources
 where: |
-  (contains("log.message", "authorized_keys") || contains("log.message", "authorized_keys2")) &&
-  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
-   contains("log.message", "changed") || contains("log.process", "sshd") ||
-   contains("log.message", ".ssh") && contains("log.message", "write"))
-groupBy:
-  - origin.host
-  - origin.user
+  contains("origin.command", "authorized_keys")
+deduplicateBy:
+  - dataSource

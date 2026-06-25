@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -25,23 +25,6 @@ description: |
   6. Consider isolating the affected container and host system
   7. Update container security policies and runtime configurations as needed
 where: |
-  (oneOf("origin.process", ["docker", "podman", "crio", "containerd"]) ||
-   oneOf("origin.process", ["dockerd", "podman", "crio", "containerd"]) ||
-   oneOf("log.service", ["docker", "podman", "crio", "containerd"]) ||
-   oneOf("log.process_name", ["dockerd", "podman", "crio", "containerd"])) &&
-  (
-    contains("log.message", "container escape") ||
-    contains("log.message", "privilege escalation") ||
-    contains("log.message", "unauthorized pull") ||
-    contains("log.message", "runtime manipulation") ||
-    contains("log.message", "seccomp violation") ||
-    contains("log.message", "AppArmor violation") ||
-    contains("log.message", "SELinux denial") ||
-    (equals("action", "exec") && contains("log.command", "/proc/self/exe")) ||
-    (equals("action", "mount") && contains("log.path", "/sys")) ||
-    equals("log.event_type", "container_breakout") ||
-    (oneOf("log.syscall", ["mount", "pivot_root", "chroot"]) && equals("log.result", "denied"))
-  )
-groupBy:
-  - lastEvent.log.container_id
-  - origin.host
+  regexMatch("origin.command", "(docker|podman) (run|create|exec).*(--privileged|--pid=host|--net=host|/var/run/docker.sock|-v /:)") || (contains("origin.command", "nsenter") && contains("origin.command", "--target"))
+deduplicateBy:
+  - dataSource
