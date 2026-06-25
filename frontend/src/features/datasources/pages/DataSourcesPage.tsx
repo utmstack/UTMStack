@@ -215,13 +215,16 @@ export function DataSourcesPage() {
     // Per-tab counts for the health summary + tab badges. Cheap size:1 queries
     // that only read total_items; reflect global health (no search/group filter).
     const staleIso = new Date(Date.now() - IDLE_MS).toISOString()
-    const [cAll, cAgent, cPuller, cDirect, cOffline] = await Promise.allSettled([
+    const [cAll, cAgent, cPuller, cDirect, cOffline,cNotConnected] = await Promise.allSettled([
       svc.list({ page: 1, size: 1 }),
       svc.list({ page: 1, size: 1, kind: 'agent' }),
       svc.list({ page: 1, size: 1, kind: 'puller' }),
       svc.list({ page: 1, size: 1, kind: 'direct' }),
       svc.list({ page: 1, size: 1, staleBefore: staleIso }),
+      svc.list({ page: 1, size: 1, pingNull: true }),
     ])
+
+
     const tot = (r: PromiseSettledResult<ListResponse<Datasource>>) =>
       r.status === 'fulfilled' ? r.value.total_items ?? 0 : 0
     setCounts({
@@ -229,7 +232,7 @@ export function DataSourcesPage() {
       agent: tot(cAgent),
       puller: tot(cPuller),
       direct: tot(cDirect),
-      offline: tot(cOffline),
+      offline: tot(cOffline)+tot(cNotConnected),
     })
   }, [])
 
@@ -528,6 +531,7 @@ function HealthSummary({ counts }: { counts: Record<TabId, number> }) {
   ]
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-card px-4 py-2.5">
+
       {items.map((it) => (
         <div key={it.key} className="flex items-center gap-2 text-sm">
           <span className={cn('h-2 w-2 rounded-full', it.dot)} />
