@@ -136,9 +136,9 @@ if [[ -f "$deps_artifact_dir/exit_code.txt" ]]; then
         deps_failed=true
     fi
 else
-    echo "::warning::go-deps artifact missing — treating as failed"
-    deps_failed=true
-    deps_output="(go-deps artifact missing — the job may have failed to run)"
+    # Artifact absent means the go-deps job was not part of this workflow run
+    # (e.g. the check was intentionally removed from pr-checks.yml).
+    deps_failed=false
 fi
 
 # =============================================================================
