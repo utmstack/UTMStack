@@ -2854,7 +2854,9 @@
           "fileLoaded": "Archivo cargado",
           "invalidJson": "No se pudo procesar el archivo como JSON.",
           "createError": "No se pudo crear el tenant. Inténtalo de nuevo.",
-          "updateError": "No se pudo actualizar el tenant. Inténtalo de nuevo."
+          "updateError": "No se pudo actualizar el tenant. Inténtalo de nuevo.",
+          "createSuccess": "Tenant creado correctamente.",
+          "updateSuccess": "Tenant actualizado correctamente."
         },
         "google": {
           "sections": {

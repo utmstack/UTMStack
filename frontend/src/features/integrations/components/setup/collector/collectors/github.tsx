@@ -18,7 +18,7 @@ function GithubGuide({ module: _module }: { module: Integration }) {
     <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="github" hideTLS>
       <Section title={t(`${ROOT}.step1.title`)} step={2}>
         <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step1.body`)}</p>
-        <CodeBlock code="/opt/utmstack-forwarder/utmstack_forwarder enable-integration github https" />
+        <CodeBlock code="sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration github https" />
         <p className="mt-2 rounded-md bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-400">
           {t(`${ROOT}.step1.tokenNote`)}
         </p>

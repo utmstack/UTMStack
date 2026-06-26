@@ -27,6 +27,7 @@ export interface ListParams {
   groupId?: number
   label?: string // matches the comma-separated labels column (ILIKE %label%)
   staleBefore?: string // RFC3339 → last_ping_at.lt.<iso> (the "offline" filter)
+  pingNull?:boolean,
   sort?: string // e.g. "last_ping_at.desc"
 }
 
@@ -43,6 +44,7 @@ export const datasourcesHttpService = {
       p.groupId != null ? `group_id.eq.${p.groupId}` : null,
       p.label ? `labels.like.${p.label}` : null,
       p.staleBefore ? `last_ping_at.lt.${p.staleBefore}` : null,
+      p.pingNull ? `last_ping_at.null` : null,
     ])
     if (filter) q.set('search_query', filter)
     return api.get<ListResponse<Datasource>>(`/datasources?${q.toString()}`)
