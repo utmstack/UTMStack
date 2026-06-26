@@ -19,7 +19,7 @@ export const logExplorerHttpService = {
   // Active index patterns for the selector (few — fetch all).
   patterns: async (): Promise<IndexPattern[]> => {
     const { data } = await api.getPaged<IndexPattern[]>(
-      '/opensearch/index-patterns?isActive.equals=true&page=0&size=200&sort=pattern,asc'
+      '/opensearch/index-patterns?isActive.equals=true&page=0&size=2000&sort=pattern,asc'
     )
     return data ?? []
   },

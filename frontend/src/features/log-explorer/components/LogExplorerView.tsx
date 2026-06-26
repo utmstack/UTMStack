@@ -5,11 +5,9 @@ import {
   Braces,
   Calendar,
   Check,
-  ChevronDown,
   ChevronRight,
   Columns3,
   Code2,
-  Database,
   Download,
   Bookmark,
   Filter,
@@ -38,6 +36,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
+import { IndexPatternSelector } from './IndexPatternSelector'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
@@ -601,44 +600,10 @@ function QueryBar({
   onExport: () => void
 }) {
   const { t } = useTranslation()
-  const [patternOpen, setPatternOpen] = useState(false)
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
-      {/* Index pattern selector */}
-      <Dropdown
-        open={patternOpen}
-        onOpenChange={setPatternOpen}
-        trigger={
-          <>
-            <Database size={13} className="text-muted-foreground" />
-            <span className="font-mono">{pattern?.pattern ?? '—'}</span>
-            <ChevronDown size={12} className="text-muted-foreground" />
-          </>
-        }
-      >
-        <div className="border-b border-border px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
-          {t('logExplorer.query.indexPatterns')}
-        </div>
-        {patterns.length === 0 && (
-          <div className="px-3 py-2 text-xs text-muted-foreground">{t('logExplorer.query.noPatterns')}</div>
-        )}
-        {patterns.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => {
-              onPattern(p)
-              setPatternOpen(false)
-            }}
-            className={cn(
-              'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
-              p.id === pattern?.id ? 'bg-muted/60' : 'hover:bg-muted/60'
-            )}
-          >
-            <span className="font-mono">{p.pattern}</span>
-          </button>
-        ))}
-      </Dropdown>
+      <IndexPatternSelector patterns={patterns} pattern={pattern} onPattern={onPattern} />
 
       <div className="h-5 w-px bg-border" />
 
@@ -697,54 +662,6 @@ function QueryBar({
         <Play size={12} className="mr-1.5" />
         {t('logExplorer.query.run')}
       </Button>
-    </div>
-  )
-}
-
-function Dropdown({
-  open,
-  onOpenChange,
-  trigger,
-  align = 'left',
-  children,
-}: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  trigger: React.ReactNode
-  align?: 'left' | 'right'
-  children: React.ReactNode
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onOpenChange(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [open, onOpenChange])
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => onOpenChange(!open)}
-        className={cn(
-          'flex h-9 items-center gap-2 rounded-md px-3 text-sm transition-colors',
-          open ? 'bg-muted' : 'hover:bg-muted'
-        )}
-      >
-        {trigger}
-      </button>
-      {open && (
-        <div
-          className={cn(
-            'absolute top-full z-30 mt-1 max-h-80 w-72 overflow-y-auto rounded-md border border-border bg-popover shadow-lg',
-            align === 'right' ? 'right-0' : 'left-0'
-          )}
-        >
-          {children}
-        </div>
-      )}
     </div>
   )
 }
