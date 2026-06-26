@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -15,6 +16,19 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/pkg/constants"
 )
+
+var (
+	reInvalidPatternChars = regexp.MustCompile(`[^a-z0-9_\-*]+`)
+	reCollapsePatternDash = regexp.MustCompile(`-+`)
+)
+
+func sanitizePattern(pattern string) string {
+	s := strings.ToLower(strings.TrimSpace(pattern))
+	s = reInvalidPatternChars.ReplaceAllString(s, "-")
+	s = reCollapsePatternDash.ReplaceAllString(s, "-")
+	s = strings.Trim(s, "-_")
+	return s
+}
 
 type osGatewayRepo struct {
 	mapper *osdk.FieldMapper
@@ -139,32 +153,34 @@ func (r *osGatewayRepo) Indices(ctx context.Context, pattern string) ([]dto.Inde
 }
 
 func (r *osGatewayRepo) EnsureIndexPattern(ctx context.Context, pattern string) error {
-	return ensureIndexPattern(ctx, pattern)
+	_, err := ensureIndexPattern(ctx, pattern)
+	return err
 }
 
-func ensureIndexPattern(ctx context.Context, pattern string) error {
-	if pattern == "" {
-		return errors.New("opensearch: pattern is empty")
+func ensureIndexPattern(ctx context.Context, pattern string) (string, error) {
+	sanitized := sanitizePattern(pattern)
+	if sanitized == "" || sanitized == "*" {
+		return "", errors.New("opensearch: pattern is empty")
 	}
-	name := templateNameFor(pattern)
+	name := templateNameFor(sanitized)
 	if name == "" {
-		return fmt.Errorf("opensearch: pattern %q has no valid template name", pattern)
+		return "", fmt.Errorf("opensearch: pattern %q has no valid template name", sanitized)
 	}
 	path := "_index_template/" + name
 
 	_, status, err := osdk.DoRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if status == http.StatusOK {
-		return nil
+		return sanitized, nil
 	}
 	if status != http.StatusNotFound {
-		return fmt.Errorf("opensearch: probe %q: status %d", path, status)
+		return "", fmt.Errorf("opensearch: probe %q: status %d", path, status)
 	}
 
 	body := map[string]any{
-		"index_patterns": []string{pattern},
+		"index_patterns": []string{sanitized},
 		"priority":       0,
 		"template": map[string]any{
 			"settings": map[string]any{
@@ -176,12 +192,12 @@ func ensureIndexPattern(ctx context.Context, pattern string) error {
 	}
 	data, status, err := osdk.DoRequest(ctx, http.MethodPut, path, body)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if status < 200 || status >= 300 {
-		return fmt.Errorf("opensearch: create index pattern %q: status %d: %s", pattern, status, string(data))
+		return "", fmt.Errorf("opensearch: create index pattern %q: status %d: %s", sanitized, status, string(data))
 	}
-	return nil
+	return sanitized, nil
 }
 
 func templateNameFor(pattern string) string {

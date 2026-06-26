@@ -40,13 +40,13 @@ func (u *indexPatternUsecase) Create(ctx context.Context, req dto.CreateIndexPat
 	}
 	systemFalse := false
 
-	if req.Pattern =="" && req.PatternModule!=nil {
-        normalized:=strings.ReplaceAll(strings.Trim(strings.ToLower(*req.PatternModule),"")," ","-")
-		req.Pattern=fmt.Sprintf("%s-%s-*",constants.CUSTOM_INDEX_PREFIX,normalized)
+	if req.Pattern == "" && req.PatternModule != nil {
+		normalized := strings.ReplaceAll(strings.Trim(strings.ToLower(*req.PatternModule), ""), " ", "-")
+		req.Pattern = fmt.Sprintf("%s-%s-*", constants.CUSTOM_INDEX_PREFIX, normalized)
 	}
 
-	if req.Pattern =="" || req.Pattern ==" "{
-		return nil,errInvalidPattern
+	if req.Pattern == "" || req.Pattern == " " {
+		return nil, errInvalidPattern
 	}
 
 	p := &domain.UtmIndexPattern{
