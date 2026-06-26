@@ -64,6 +64,11 @@ export function CloudTenantForm({
           setName('')
           setConfig(emptyConfig(fields))
           onSaved()
+          toast.success(
+            isEditing
+              ? t('integrations.setup.cloud.tenants.updateSuccess')
+              : t('integrations.setup.cloud.tenants.createSuccess'),
+          )
         },
         onError: (err) => {
           const fallback = isEditing

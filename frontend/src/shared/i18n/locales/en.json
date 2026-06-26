@@ -2852,7 +2852,9 @@
           "fileLoaded": "File loaded",
           "invalidJson": "Could not parse the file as JSON.",
           "createError": "Could not create the tenant. Please try again.",
-          "updateError": "Could not update the tenant. Please try again."
+          "updateError": "Could not update the tenant. Please try again.",
+          "createSuccess": "Tenant created successfully.",
+          "updateSuccess": "Tenant updated successfully."
         },
         "google": {
           "intro": {
