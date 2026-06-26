@@ -197,6 +197,7 @@ export function DataSourcesPage() {
 
   // Side data (groups, usage, ingestion stats) — load once + on manual refresh.
   const loadAux = useCallback(async () => {
+    setLoading(true)
     const [g, u, totals, tl] = await Promise.allSettled([
       svc.groups(),
       svc.usage(),
@@ -216,12 +217,12 @@ export function DataSourcesPage() {
     // that only read total_items; reflect global health (no search/group filter).
     const staleIso = new Date(Date.now() - IDLE_MS).toISOString()
     const [cAll, cAgent, cPuller, cDirect, cOffline,cNotConnected] = await Promise.allSettled([
-      svc.list({ page: 1, size: 1 }),
-      svc.list({ page: 1, size: 1, kind: 'agent' }),
-      svc.list({ page: 1, size: 1, kind: 'puller' }),
-      svc.list({ page: 1, size: 1, kind: 'direct' }),
-      svc.list({ page: 1, size: 1, staleBefore: staleIso }),
-      svc.list({ page: 1, size: 1, pingNull: true }),
+      svc.list({ page: 1, size: 1 ,groupId: groupId??undefined }),
+      svc.list({ page: 1, size: 1, kind: 'agent' ,groupId: groupId??undefined }),
+      svc.list({ page: 1, size: 1, kind: 'puller',groupId: groupId??undefined }),
+      svc.list({ page: 1, size: 1, kind: 'direct',groupId: groupId??undefined}),
+      svc.list({ page: 1, size: 1, staleBefore: staleIso,groupId: groupId??undefined }),
+      svc.list({ page: 1, size: 1, pingNull: true,groupId: groupId??undefined }),
     ])
 
 
@@ -234,7 +235,8 @@ export function DataSourcesPage() {
       direct: tot(cDirect),
       offline: tot(cOffline)+tot(cNotConnected),
     })
-  }, [])
+    setLoading(false)
+  }, [groupId,setLoading])
 
   useEffect(() => {
     void loadAux()
@@ -258,8 +260,8 @@ export function DataSourcesPage() {
   )
 
   const refresh = () => {
-    void load()
     void loadAux()
+    void load()
   }
 
   const events24h = (name: string) => stats[name]?.count ?? 0
