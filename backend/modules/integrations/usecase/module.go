@@ -161,15 +161,21 @@ func (u *moduleUsecase) Create(ctx context.Context, req dto.CreateModuleRequest)
 		IsSystem:          false,
 	}
 
-	if _,err:= u.opensearch.Create(ctx,os_dto.CreateIndexPatternRequest{
-		PatternModule: &req.ModuleName,
-	});err!=nil{
-		return nil, err
-	}
 
 	if err := u.repo.Save(ctx, m); err != nil {
 		return nil, err
 	}
+
+	if _,err:= u.opensearch.Create(ctx,os_dto.CreateIndexPatternRequest{
+		PatternModule: &req.ModuleName,
+	});err!=nil{
+		//opensearch insertion fails, rolling back database
+		if err:=u.repo.Delete(ctx,m.ID);err!=nil{
+		  catcher.Error("failed to remove module after index pattern creation fail", err, map[string]any{"module":m.ModuleName} )
+		}
+		return nil, err
+	}
+
 	resp := dto.FromModule(*m)
 	return &resp, nil
 }
