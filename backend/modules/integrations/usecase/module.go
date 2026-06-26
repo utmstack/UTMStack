@@ -190,6 +190,8 @@ func (u *moduleUsecase) Delete(ctx context.Context, id int64) error {
 		return fmt.Errorf("module %s index pattern not found.",m.ModuleName)
 	}
 	pattern:=results[0]
-	u.opensearch.Delete(ctx,pattern.ID)
+	if err:=u.opensearch.Delete(ctx,pattern.ID);err!=nil{
+		return err
+	}
 	return u.repo.Delete(ctx, id)
 }

@@ -165,13 +165,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
 	notificationsMod := notifications.NewModule(db, auditMod.Logger())
 
-	integrationsMod := integrations.NewModule(db, cipher,
-		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
-		dsUC,
-		opensearchMod.GetIndexPatternUsecase(),
-	)
-
-
 	if cfg.esHost != "" && cfg.diskGuardEnabled {
 		opensearchMod.SetSpaceGuard(
 			func(ctx context.Context, critical bool, msg string) error {
@@ -186,6 +179,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		)
 	}
 
+
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false))
@@ -197,6 +191,13 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		auditMod.Logger(),
 	)
 	adauditMod := adaudit.NewModule(db)
+
+	//loaded after opensearch has fully loaded
+	integrationsMod := integrations.NewModule(db, cipher,
+		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
+		dsUC,
+		opensearchMod.GetIndexPatternUsecase(),
+	)
 
 	var mcpModule *mcpmod.Module
 	if cfg.mcpEnabled {
