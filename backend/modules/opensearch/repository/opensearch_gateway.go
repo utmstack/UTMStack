@@ -13,6 +13,7 @@ import (
 	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
+	"github.com/utmstack/utmstack/backend/pkg/constants"
 )
 
 type osGatewayRepo struct {
@@ -167,9 +168,9 @@ func ensureIndexPattern(ctx context.Context, pattern string) error {
 		"priority":       0,
 		"template": map[string]any{
 			"settings": map[string]any{
-				"index.mapping.total_fields.limit": 50000,
-				"number_of_shards":                 3,
-				"number_of_replicas":               0,
+				"index.mapping.total_fields.limit": constants.OS_INDEX_FIELD_LIMIT,
+				"number_of_shards":                 constants.OS_INDEX_NUMBER_OF_SHARDS,
+				"number_of_replicas":               constants.OS_INDEX_NUMBER_OF_REPLICAS,
 			},
 		},
 	}

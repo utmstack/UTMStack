@@ -1,0 +1,7 @@
+package constants
+
+const (
+	OS_INDEX_FIELD_LIMIT       = 50000
+	OS_INDEX_NUMBER_OF_SHARDS  = 3
+	OS_INDEX_NUMBER_OF_REPLICAS = 0
+)

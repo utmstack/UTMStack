@@ -3,14 +3,18 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
+	"github.com/utmstack/utmstack/backend/pkg/constants"
 )
 
 var errIDMustBeAbsent = errors.New("id must be absent on create")
+var errInvalidPattern = errors.New("invalid pattern")
 
 type indexPatternUsecase struct {
 	repo    connectors.IndexPatternRepository
@@ -35,6 +39,16 @@ func (u *indexPatternUsecase) Create(ctx context.Context, req dto.CreateIndexPat
 		isActive = *req.IsActive
 	}
 	systemFalse := false
+
+	if req.Pattern =="" || req.Pattern ==" "{
+		return nil,errInvalidPattern
+	}
+
+	if req.Pattern =="" && req.PatternModule!=nil {
+        normalized:=strings.ReplaceAll(strings.Trim(strings.ToLower(*req.PatternModule),"")," ","-")
+		req.Pattern=fmt.Sprintf("%s-%s-*",constants.CUSTOM_INDEX_PREFIX,normalized)
+	}
+
 
 	p := &domain.UtmIndexPattern{
 		Pattern:       req.Pattern,

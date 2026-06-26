@@ -9,6 +9,7 @@ import (
 	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	"github.com/utmstack/utmstack/backend/modules/opensearch/dto"
+	"github.com/utmstack/utmstack/backend/pkg/constants"
 )
 
 // ISMClient performs Index State Management (and snapshot/mapping) calls against
@@ -78,8 +79,6 @@ func (c *ISMClient) UpdatePolicy(ctx context.Context, policy domain.IndexPolicy,
 	return nil
 }
 
-const fieldLimit = 50000
-
 func (c *ISMClient) EnsureFieldLimitTemplate(ctx context.Context, patterns []string) error {
 	if len(patterns) == 0 {
 		return nil
@@ -90,9 +89,9 @@ func (c *ISMClient) EnsureFieldLimitTemplate(ctx context.Context, patterns []str
 		"priority":       0,
 		"template": map[string]any{
 			"settings": map[string]any{
-				"index.mapping.total_fields.limit": fieldLimit,
-				"number_of_shards":                 3,
-				"number_of_replicas":               0,
+				"index.mapping.total_fields.limit": constants.OS_INDEX_FIELD_LIMIT,
+				"number_of_shards":                 constants.OS_INDEX_NUMBER_OF_SHARDS,
+				"number_of_replicas":               constants.OS_INDEX_NUMBER_OF_REPLICAS,
 			},
 		},
 	}
@@ -108,7 +107,7 @@ func (c *ISMClient) EnsureFieldLimitTemplate(ctx context.Context, patterns []str
 
 func (c *ISMClient) RaiseFieldLimit(ctx context.Context, pattern string) error {
 	path := fmt.Sprintf("%s/_settings", pattern)
-	body := map[string]any{"index.mapping.total_fields.limit": fieldLimit}
+	body := map[string]any{"index.mapping.total_fields.limit": constants.OS_INDEX_FIELD_LIMIT}
 	data, status, err := c.do(ctx, http.MethodPut, path, body)
 	if err != nil {
 		return err

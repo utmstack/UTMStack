@@ -15,8 +15,11 @@ func (p Params) Normalized() (page, size int) {
 	if page < 0 {
 		page = 0
 	}
-	if size < 1 || size > MaxPageSize {
+	if size < 1 {
 		size = DefaultPageSize
+	}
+	if size > MaxPageSize {
+		size = MaxPageSize
 	}
 	return page, size
 }
