@@ -63,7 +63,7 @@ func (u *moduleUsecase) ActivateDeactivate(ctx context.Context, req dto.ModuleAc
 	if err != nil {
 		return nil,err
 	}
-	if count > 0 {
+	if count > 0 && len(results)>0 {
 		//if module has index patterns
 		pattern:=results[0]
 
@@ -209,7 +209,7 @@ func (u *moduleUsecase) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	if count == 0{
+	if count == 0 || len(results)==0{
 		return fmt.Errorf("module %s index pattern not found.",m.ModuleName)
 	}
 
