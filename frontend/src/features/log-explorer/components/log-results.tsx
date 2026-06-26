@@ -135,7 +135,7 @@ export function ResultsHeader({
   const { t } = useTranslation()
   return (
     <div
-      className="grid items-center gap-3 border-b border-border/70 bg-muted/20 px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+      className="sticky top-0 z-10 grid items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
       style={{ gridTemplateColumns: gridTemplate(columns, autoColumns) }}
     >
       <div />
@@ -390,19 +390,16 @@ export function LogResults({
   docs,
   columns = [],
   onAdd,
-  onRemoveColumn,
   emptyText,
 }: {
   docs: LogDocument[]
   columns?: string[]
   onAdd?: (f: FilterType) => void
-  onRemoveColumn?: (c: string) => void
   emptyText?: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <ResultsHeader columns={columns} onRemoveColumn={onRemoveColumn} />
+    <div className="overflow-auto rounded-lg border border-border bg-card">
       {docs.length === 0 ? (
         <div className="px-6 py-12 text-center text-sm text-muted-foreground">{emptyText ?? '—'}</div>
       ) : (

@@ -13,17 +13,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   checks: write
 
 jobs:
-  go_deps:
-    name: Go deps
-    uses: ./.github/workflows/_pr-reusable-go-deps.yml
-    secrets:
-      API_SECRET: ${{ secrets.API_SECRET }}
-
   ai_review:
     name: AI review
     uses: ./.github/workflows/_pr-reusable-ai-review.yml
@@ -34,7 +28,6 @@ jobs:
   approver:
     name: Approver
     needs:
-      - go_deps
       - ai_review
     uses: ./.github/workflows/_pr-reusable-approver.yml
     with:
@@ -48,7 +41,6 @@ jobs:
     name: All checks passed
     if: always()
     needs:
-      - go_deps
       - ai_review
       - approver
     runs-on: ubuntu-24.04

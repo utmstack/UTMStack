@@ -507,8 +507,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               />
             )}
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
-              <ResultsHeader columns={columns} autoColumns={autoColumns} onRemoveColumn={toggleColumn} />
-              <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
+              <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
+                <ResultsHeader columns={columns} autoColumns={autoColumns} onRemoveColumn={toggleColumn} />
                 {loading && rows.length === 0 ? (
                   <RowMessage>
                     <Loader2 className="h-4 w-4 animate-spin" /> {t('logExplorer.results.searching')}
