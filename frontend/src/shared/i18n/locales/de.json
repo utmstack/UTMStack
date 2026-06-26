@@ -2852,7 +2852,9 @@
           "fileLoaded": "Datei geladen",
           "invalidJson": "Die Datei konnte nicht als JSON gelesen werden.",
           "createError": "Der Mandant konnte nicht erstellt werden. Bitte erneut versuchen.",
-          "updateError": "Der Mandant konnte nicht aktualisiert werden. Bitte erneut versuchen."
+          "updateError": "Der Mandant konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+          "createSuccess": "Mandant erfolgreich erstellt.",
+          "updateSuccess": "Mandant erfolgreich aktualisiert."
         },
         "google": {
           "sections": {
