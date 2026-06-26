@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/elastic/go-libaudit/v2 v2.6.2
-	github.com/elastic/go-sysinfo v1.15.4
+	github.com/elastic/go-sysinfo v1.15.5
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
@@ -19,7 +19,7 @@ require (
 	golang.org/x/sys v0.46.0
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 )
 
 replace github.com/utmstack/UTMStack/shared => ../shared
