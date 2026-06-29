@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: collector.proto
 
-package agent
+package upstream
 
 import (
 	context "context"

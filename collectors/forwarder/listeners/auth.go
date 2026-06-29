@@ -9,6 +9,7 @@ import (
 	"fmt"
 	stdhttp "net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -88,6 +89,11 @@ func GenerateTokenFile(path string) (string, error) {
 		return "", fmt.Errorf("generate token: %w", err)
 	}
 	token := hex.EncodeToString(b)
+	if dir := filepath.Dir(path); dir != "" {
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			return "", fmt.Errorf("write token file: create dir: %w", err)
+		}
+	}
 	if err := os.WriteFile(path, []byte(token+"\n"), 0600); err != nil {
 		return "", fmt.Errorf("write token file: %w", err)
 	}
