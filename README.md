@@ -1,7 +1,7 @@
 > [!IMPORTANT]
 > ## ⚠️ UPGRADE NOTIFICATION and UTMStack v10 End-of-Life Notice
 >
-> **UTMStack v10 will be sunset on December 5, 2026 (6 months from now).**
+> **UTMStack v10 will be sunset on December 5, 2026.**
 >
 > As of today, **v10 is no longer receiving any new features** and will only receive critical fixes until the sunset date. After December 5, 2026, v10 will no longer be supported.
 >
@@ -22,7 +22,7 @@
 <a href="https://github.com/utmstack/UTMStack/releases/"><img src="https://img.shields.io/github/release/utmstack/utmstack">
 <a href="https://github.com/utmstack/UTMStack/issues"><img src="https://img.shields.io/github/issues-raw/utmstack/utmstack">
 <a href="https://github.com/utmstack/UTMStack/commits/main"><img src="https://img.shields.io/github/commit-activity/m/utmstack/utmstack">
-<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ad-aures/castopod?color=blue">
+<a href="https://github.com/utmstack/UTMStack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/utmstack/utmstack?color=blue">
 <a href="https://discord.gg/ZznvZ8xcHh"><img src="https://img.shields.io/discord/1154016563775672400.svg?logo=discord">
 </p>
 
