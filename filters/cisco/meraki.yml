@@ -505,7 +505,7 @@ pipeline:
           params:
             key: actionResult
             value: 'accepted'
-          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events" && (contains("log.genericEvent", "queued due to no phase 1") || contains("log.genericEvent", "queued due to no phase1") || || contains("log.genericEvent", "established"))'
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && log.merakiGroup=="events" && (contains("log.genericEvent", "queued due to no phase 1") || contains("log.genericEvent", "queued due to no phase1") || contains("log.genericEvent", "established"))'
       # ........................................
       # Event: event spanning-tree guard state change in Meraki MS Switches
       - grok:
