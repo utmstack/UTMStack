@@ -1,20 +1,23 @@
-import { useEffect, useState } from 'react'
-import { ChevronDown, ExternalLink, Flame, UserPlus, X } from 'lucide-react'
+import { useState } from 'react'
+import { Flame, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { TFunction } from 'i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
-import { usersHttpService } from '@/features/team/services/team-http.service'
-import type { UserListItem } from '@/features/team/types/team.types'
-import { SEV_META, ST_META, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_META, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
-import { STATUS_BY_INT, type Alert, type AlertTag, type Side } from '../types/alert.types'
+import { type Alert, type AlertTag } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
-import { Menu, Row, Section, TagChip } from './ui-primitives'
+import { Section } from './section'
+import { Row } from './row'
+import { TagChip } from './tag-chip'
 import { AlertTagEditor } from './alert-tag-editor'
 import { AlertAiAssessment } from './alert-ai-assessment'
 import { AlertRelatedEvents } from './alert-related-events'
 import { StatusChangeMenu } from './status-change-menu'
+import { TechniqueValue } from './technique-value'
+import { AssigneeMenu } from './assignee-menu'
+import { PartyCard } from './party-card'
+import { HistoryTab } from './history-tab'
 
 type Tab = 'summary' | 'parties' | 'events' | 'history'
 
@@ -256,191 +259,4 @@ export function AlertDrawer({
       </div>
     </div>
   )
-}
-
-// Renders the MITRE technique as a link to attack.mitre.org when it carries a
-// technique id (e.g. "T1110 - Brute Force" or "T1059.001 - PowerShell").
-function TechniqueValue({ technique }: { technique?: string }) {
-  if (!technique) return <span className="font-mono">—</span>
-  const m = technique.match(/T\d{4}(?:\.\d{3})?/i)
-  if (!m) return <span className="font-mono">{technique}</span>
-  const id = m[0].toUpperCase()
-  const path = id.replace('.', '/')
-  return (
-    <a
-      href={`https://attack.mitre.org/techniques/${path}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 font-mono text-primary hover:underline"
-    >
-      {technique}
-      <ExternalLink size={11} className="shrink-0" />
-    </a>
-  )
-}
-
-// Assign / reassign / clear an alert's owner. Loads the user list lazily on first
-// open so the dropdown isn't fetched for every alert row.
-function AssigneeMenu({ current, onAssign }: { current?: string; onAssign: (assignee: string) => void }) {
-  const { t } = useTranslation()
-  const [users, setUsers] = useState<UserListItem[] | null>(null)
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    if (!loaded) return
-    let cancelled = false
-    usersHttpService
-      .list({ page_size: 200 })
-      .then((r) => {
-        if (!cancelled) setUsers(r.data ?? [])
-      })
-      .catch(() => {
-        if (!cancelled) setUsers([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [loaded])
-
-  const label = (u: UserListItem) =>
-    [u.first_name, u.last_name].filter(Boolean).join(' ') || u.login
-
-  return (
-    <div onMouseEnter={() => setLoaded(true)} onFocusCapture={() => setLoaded(true)} onClickCapture={() => setLoaded(true)}>
-      <Menu
-        trigger={
-          <>
-            <UserPlus size={13} className="mr-1.5" />
-            {current ? current : t('alerts.drawer.assign')}
-            <ChevronDown size={12} className="ml-1" />
-          </>
-        }
-      >
-        {users == null ? (
-          <div className="px-3 py-2 text-xs text-muted-foreground">{t('alerts.drawer.loadingUsers')}</div>
-        ) : (
-          <>
-            {users.map((u) => (
-              <button
-                key={u.id}
-                onClick={() => onAssign(label(u))}
-                className={cn(
-                  'block w-full px-3 py-1.5 text-left text-sm hover:bg-muted',
-                  current === label(u) && 'font-semibold text-primary'
-                )}
-              >
-                {label(u)}
-              </button>
-            ))}
-            {current && (
-              <button
-                onClick={() => onAssign('')}
-                className="block w-full border-t border-border px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted"
-              >
-                {t('alerts.drawer.unassign')}
-              </button>
-            )}
-          </>
-        )}
-      </Menu>
-    </div>
-  )
-}
-
-function PartyCard({ title, ep, accent }: { title: string; ep?: Side; accent?: boolean }) {
-  const { t } = useTranslation()
-  return (
-    <div className={cn('rounded-lg border bg-card p-4', accent ? 'border-red-500/30' : 'border-border')}>
-      <h4 className="mb-3 text-sm font-semibold">{title}</h4>
-      {!ep ? (
-        <p className="text-xs text-muted-foreground">{t('alerts.party.noData')}</p>
-      ) : (
-        <dl className="grid grid-cols-[80px_1fr] gap-y-2 text-xs">
-          {ep.ip && <Row k={t('alerts.party.ip')}><span className="font-mono">{ep.ip}</span></Row>}
-          {ep.host && <Row k={t('alerts.party.host')}><span className="font-mono">{ep.host}</span></Row>}
-          {ep.user && <Row k={t('alerts.party.user')}><span className="font-mono">{ep.user}</span></Row>}
-          {ep.domain && <Row k={t('alerts.party.domain')}><span className="font-mono">{ep.domain}</span></Row>}
-          {ep.geolocation?.country && (
-            <Row k={t('alerts.party.country')}>
-              {flagEmoji(ep.geolocation.countryCode)} {ep.geolocation.country}
-              {ep.geolocation.city ? ` · ${ep.geolocation.city}` : ''}
-            </Row>
-          )}
-        </dl>
-      )}
-    </div>
-  )
-}
-
-function HistoryTab({ alert: a }: { alert: Alert }) {
-  const { t } = useTranslation()
-  const history = a.history ?? []
-  if (history.length === 0) return <p className="text-xs text-muted-foreground">{t('alerts.history.empty')}</p>
-  return (
-    <div className="space-y-2">
-      {history
-        .slice()
-        .reverse()
-        .map((h, i) => {
-          const detail = historyDetail(h, t)
-          return (
-            <div key={i} className="rounded-md border border-border bg-card px-3 py-2 text-xs">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-medium">{actionLabel(h.action, t)}</span>
-                <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(h.timestamp)}</span>
-              </div>
-              {(detail || h.user) && (
-                <div className="mt-0.5 text-muted-foreground">
-                  {detail}
-                  {h.user && (
-                    <span>
-                      {detail ? ' · ' : ''}
-                      {t('alerts.history.by', { user: h.user })}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          )
-        })}
-    </div>
-  )
-}
-
-const ACTION_KEYS = ['UPDATE_STATUS', 'UPDATE_TAGS', 'UPDATE_NOTES', 'UPDATE_SOLUTION', 'MARK_AS_INCIDENT']
-function actionLabel(a: string | undefined, t: TFunction) {
-  if (a && ACTION_KEYS.includes(a)) return t(`alerts.history.actions.${a}`)
-  return (a ?? 'change').replace(/_/g, ' ').toLowerCase()
-}
-
-// A clean one-line detail — never dumps the raw AI assessment or the newValue JSON.
-function historyDetail(h: { message?: string; newValue?: string }, t: TFunction): string {
-  const msg = (h.message ?? '').trim()
-  if (msg && !isAiNote(msg) && !msg.startsWith('{')) return msg
-  try {
-    const v = JSON.parse(h.newValue || '{}') as Record<string, unknown>
-    const parts: string[] = []
-    if (typeof v.status === 'number') {
-      const stKey = STATUS_BY_INT[v.status]
-      parts.push(
-        t('alerts.history.detail.statusTo', { status: stKey ? t(`alerts.status.${stKey}`) : String(v.status) })
-      )
-    }
-    if (v.tags != null)
-      parts.push(
-        t('alerts.history.detail.tags', {
-          tags: Array.isArray(v.tags) ? (v.tags as string[]).join(', ') : String(v.tags),
-        })
-      )
-    if (typeof v.statusObservation === 'string' && v.statusObservation)
-      parts.push(
-        isAiNote(v.statusObservation)
-          ? t('alerts.history.detail.aiAdded')
-          : t('alerts.history.detail.observationAdded')
-      )
-    if (v.notes != null && !isAiNote(String(v.notes))) parts.push(t('alerts.history.detail.notesUpdated'))
-    return parts.join(' · ')
-  } catch {
-    return ''
-  }
 }
