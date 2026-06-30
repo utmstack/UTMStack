@@ -70,9 +70,4 @@ export const AWS_FIELDS: CloudConfigField[] = [
     labelKey: `${ROOT}.fields.region.label`,
     placeholder: 'us-east-1',
   },
-  {
-    key: 'aws_log_group_name',
-    labelKey: `${ROOT}.fields.logGroupName.label`,
-    placeholder: 'utmstack',
-  },
 ]
