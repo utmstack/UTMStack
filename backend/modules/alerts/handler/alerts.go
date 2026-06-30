@@ -185,3 +185,37 @@ func (h *AlertHandler) CountOpenAlerts(c *gin.Context) {
 	// Java returns bare Long — match that contract.
 	c.JSON(http.StatusOK, resp.Count)
 }
+
+// @Summary     List echoes of an alert
+// @Description Returns the child alerts (parentId == :id) of a parent alert, paginated and sorted.
+// @Tags        Alerts
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id        path  string true  "Parent alert id"
+// @Param       page      query int    false "Page number (1-based, default 1)"
+// @Param       size      query int    false "Page size (default 20, max 100)"
+// @Param       sortBy    query string false "Sort field (default @timestamp)"
+// @Param       sortOrder query string false "Sort order: asc|desc (default desc)"
+// @Success     200 {array} domain.UtmAlert
+// @Header      200 {string} X-Total-Count "Total matching echoes"
+// @Failure     400 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /utm-alerts/{id}/echoes [get]
+func (h *AlertHandler) ListEchoes(c *gin.Context) {
+	parentID := c.Param("id")
+	if parentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing alert id"})
+		return
+	}
+	page := queryInt(c, "page", 1)
+	size := queryInt(c, "size", 20)
+	sortBy := c.Query("sortBy")
+	sortOrder := c.DefaultQuery("sortOrder", "desc")
+
+	items, total, err := h.usecase.ListEchoes(c.Request.Context(), parentID, page, size, sortBy, sortOrder)
+	if err != nil {
+		writeAlertError(c, err)
+		return
+	}
+	writePagedArray(c, items, total)
+}
