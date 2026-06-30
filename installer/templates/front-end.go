@@ -8,7 +8,7 @@ const FrontEnd string = `server {
     location / {
       root /usr/share/nginx/html;
       index index.html index.htm;
-      try_files $uri $uri/ /index.html =404;
+      try_files $uri /index.html =404;
     }
 
     set $utmstack_backend http://backend:8080;
@@ -31,6 +31,18 @@ const FrontEnd string = `server {
     	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     	proxy_set_header X-Forwarded-Proto $scheme;
 	}
+
+    location ~ ^/api/v1/soar/ws/ {
+        proxy_pass $utmstack_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 900;
+    }
 
     location /api {
         proxy_pass  $utmstack_backend;
