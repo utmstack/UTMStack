@@ -8,12 +8,13 @@ import { usersHttpService } from '@/features/team/services/team-http.service'
 import type { UserListItem } from '@/features/team/types/team.types'
 import { SEV_META, ST_META, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
-import { STATUS_BY_INT, STATUS_INT, type Alert, type AlertTag, type Side, type StatusKey } from '../types/alert.types'
+import { STATUS_BY_INT, type Alert, type AlertTag, type Side } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
 import { Menu, Row, Section, TagChip } from './ui-primitives'
 import { AlertTagEditor } from './alert-tag-editor'
 import { AlertAiAssessment } from './alert-ai-assessment'
 import { AlertRelatedEvents } from './alert-related-events'
+import { StatusChangeMenu } from './status-change-menu'
 
 type Tab = 'summary' | 'parties' | 'events' | 'history'
 
@@ -99,23 +100,7 @@ export function AlertDrawer({
 
           {/* Actions */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Menu trigger={<>{t('alerts.drawer.setStatus')} <ChevronDown size={12} /></>}>
-              {(['open', 'in_review', 'completed'] as StatusKey[]).map((k) => (
-                <button
-                  key={k}
-                  onClick={() => onStatus(STATUS_INT[k], '', false)}
-                  className="block w-full px-3 py-1.5 text-left text-sm hover:bg-muted"
-                >
-                  {t(`alerts.status.${k}`)}
-                </button>
-              ))}
-              <button
-                onClick={() => onStatus(STATUS_INT.completed, 'Marked as false positive', true)}
-                className="block w-full border-t border-border px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted"
-              >
-                {t('alerts.drawer.completeFalsePositive')}
-              </button>
-            </Menu>
+            <StatusChangeMenu status={statusKey(a)} variant="action" onStatus={onStatus} />
             <AlertTagEditor
               tags={tags}
               catalog={tagCatalog}

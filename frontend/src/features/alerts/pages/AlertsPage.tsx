@@ -248,8 +248,8 @@ export function AlertsPage() {
               ) : alerts.length === 0 ? (
                 <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('alerts.list.empty')}</div>
               ) : (
-                alerts.map((a) => (
-                  <Fragment key={a.id}>
+                alerts.map((a,index) => (
+                  <Fragment key={`${a.id}-${index}`}>
                     <AlertRow
                       alert={a}
                       tagCatalog={tagCatalog}
@@ -263,6 +263,7 @@ export function AlertsPage() {
                         })
                       }
                       onToggleEchoes={() => toggleEchoes(a.id)}
+                      onStatus={(s, obs, fp) => void applyStatus([a.id], s, obs, fp)}
                     />
                     {expandedEchoes.has(a.id) && <EchoesTimeline parentId={a.id} />}
                   </Fragment>

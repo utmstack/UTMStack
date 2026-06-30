@@ -1,10 +1,11 @@
 import { ArrowRight, Sparkles, Tag, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_META, ST_META, TABLE_COLS, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_META, TABLE_COLS, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag, Side } from '../types/alert.types'
 import { EchoesChip } from './echoes-chip'
+import { StatusChangeMenu } from './status-change-menu'
 import { TagChip } from './ui-primitives'
 
 export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: boolean; onTogglePage: () => void }) {
@@ -39,6 +40,7 @@ export function AlertRow({
   onOpen,
   onCreateRule,
   onToggleEchoes,
+  onStatus,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
@@ -48,10 +50,9 @@ export function AlertRow({
   onOpen: () => void
   onCreateRule: (alert: Alert) => void
   onToggleEchoes: () => void
+  onStatus: (status: number, observation: string, fp: boolean) => void
 }) {
   const { t } = useTranslation()
-  const stm = ST_META[statusKey(a)]
-  const stmLabel = t(`alerts.status.${statusKey(a)}`)
   const sk = sevKey(a)
   const sev = SEV_META[sk]
   return (
@@ -128,10 +129,8 @@ export function AlertRow({
           )}
         </div>
       </div>
-      <div>
-        <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset', stm.pill)}>
-          {stmLabel}
-        </span>
+      <div onClick={(e) => e.stopPropagation()}>
+        <StatusChangeMenu status={statusKey(a)} variant="pill" onStatus={onStatus} />
       </div>
       <div className="truncate font-mono text-[11px] text-muted-foreground" title={a.technique}>
         {a.technique || '—'}
