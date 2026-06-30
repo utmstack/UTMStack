@@ -3981,12 +3981,20 @@
       "technique": "Técnica",
       "sourceAdversary": "Origen → Adversario",
       "risk": "Riesgo",
+      "echoes": "Ecos",
       "time": "Hora",
       "riskHint": "Puntuación de riesgo (0–100), coloreada por severidad"
     },
     "row": {
       "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta",
-      "assignedTo": "Asignado a {{user}}"
+      "assignedTo": "Asignado a {{user}}",
+      "echoesTooltip": "{{count}} ecos — haz clic para expandir",
+      "echoesEmpty": "Sin ecos registrados"
+    },
+    "echoes": {
+      "title": "{{count}} ecos",
+      "empty": "No hay ecos registrados para esta alerta.",
+      "loadError": "No se pudieron cargar los ecos."
     },
     "list": {
       "loading": "Cargando alertas…",

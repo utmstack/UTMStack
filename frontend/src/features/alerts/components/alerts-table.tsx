@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { SEV_META, ST_META, TABLE_COLS, TS, absTime, flagEmoji, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag, Side } from '../types/alert.types'
+import { EchoesChip } from './echoes-chip'
 import { TagChip } from './ui-primitives'
 
 export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: boolean; onTogglePage: () => void }) {
@@ -22,6 +23,7 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
       <div>{t('alerts.table.technique')}</div>
       <div>{t('alerts.table.sourceAdversary')}</div>
       <div className="text-center" title={t('alerts.table.riskHint')}>{t('alerts.table.risk')}</div>
+      <div className="text-center">{t('alerts.table.echoes')}</div>
       <div className="text-center">{t('alerts.table.time')}</div>
       <div />
     </div>
@@ -32,16 +34,20 @@ export function AlertRow({
   alert: a,
   tagCatalog,
   checked,
+  expanded,
   onToggle,
   onOpen,
   onCreateRule,
+  onToggleEchoes,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
   checked: boolean
+  expanded: boolean
   onToggle: () => void
   onOpen: () => void
   onCreateRule: (alert: Alert) => void
+  onToggleEchoes: () => void
 }) {
   const { t } = useTranslation()
   const stm = ST_META[statusKey(a)]
@@ -141,6 +147,9 @@ export function AlertRow({
         >
           {riskOf(a)}
         </span>
+      </div>
+      <div className="flex justify-center">
+        <EchoesChip count={a.echoes ?? 0} expanded={expanded} onClick={onToggleEchoes} />
       </div>
       <div className="text-center font-mono text-[11px] text-muted-foreground" title={absTime(a[TS])}>{relativeTime(a[TS])}</div>
     </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +29,7 @@ import { AlertsVolumeCard } from '../components/alerts-volume-card'
 import { AlertsBreakdownCard } from '../components/alerts-breakdown-card'
 import { AlertsBulkBar } from '../components/alerts-bulk-bar'
 import { AlertsTableHeader, AlertRow } from '../components/alerts-table'
+import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
 import { AlertIncidentModal } from '../components/alert-incident-modal'
 import { Center } from '../components/ui-primitives'
@@ -48,8 +49,17 @@ export function AlertsPage() {
   const [pageSize] = useState(50)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
   const [incidentTargets, setIncidentTargets] = useState<Alert[] | null>(null)
+
+  const toggleEchoes = (id: string) =>
+    setExpandedEchoes((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   // SOC-AI chat navigation: seed the filters + time window the agent emitted.
   const location = useLocation()
@@ -239,19 +249,23 @@ export function AlertsPage() {
                 <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('alerts.list.empty')}</div>
               ) : (
                 alerts.map((a) => (
-                  <AlertRow
-                    key={a.id}
-                    alert={a}
-                    tagCatalog={tagCatalog}
-                    checked={selected.has(a.id)}
-                    onToggle={() => toggleSel(a.id)}
-                    onOpen={() => setOpenAlert(a)}
-                    onCreateRule={(alert) =>
-                      navigate('/threat-management/alerts/tagging-rules', {
-                        state: { createWithConditions: alertToRuleConditions(alert) },
-                      })
-                    }
-                  />
+                  <Fragment key={a.id}>
+                    <AlertRow
+                      alert={a}
+                      tagCatalog={tagCatalog}
+                      checked={selected.has(a.id)}
+                      expanded={expandedEchoes.has(a.id)}
+                      onToggle={() => toggleSel(a.id)}
+                      onOpen={() => setOpenAlert(a)}
+                      onCreateRule={(alert) =>
+                        navigate('/threat-management/alerts/tagging-rules', {
+                          state: { createWithConditions: alertToRuleConditions(alert) },
+                        })
+                      }
+                      onToggleEchoes={() => toggleEchoes(a.id)}
+                    />
+                    {expandedEchoes.has(a.id) && <EchoesTimeline parentId={a.id} />}
+                  </Fragment>
                 ))
               )}
               {alerts.length > 0 && (

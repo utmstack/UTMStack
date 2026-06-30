@@ -3954,12 +3954,20 @@
       "technique": "Technique",
       "sourceAdversary": "Source → Adversary",
       "risk": "Risk",
+      "echoes": "Echoes",
       "time": "Time",
       "riskHint": "Risk score (0–100), colored by severity"
     },
     "row": {
       "createRuleFromAlert": "Create a tag from this alert",
-      "assignedTo": "Assigned to {{user}}"
+      "assignedTo": "Assigned to {{user}}",
+      "echoesTooltip": "{{count}} echoes — click to expand",
+      "echoesEmpty": "No echoes recorded"
+    },
+    "echoes": {
+      "title": "{{count}} echoes",
+      "empty": "No echoes recorded for this alert.",
+      "loadError": "Could not load echoes."
     },
     "list": {
       "loading": "Loading alerts…",

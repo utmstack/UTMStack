@@ -75,7 +75,7 @@ export const PAGE_SIZE_DEFAULT = 20
 export const SELECT_CLS =
   'h-9 cursor-pointer rounded-md border border-input bg-background/40 px-2 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
-export const TABLE_COLS = '6px 24px  1fr 130px 150px 250px 40px 30px '
+export const TABLE_COLS = '6px 24px  1fr 130px 150px 250px 40px 60px 30px '
 
 export function relativeTime(iso?: string) {
   if (!iso) return '—'
