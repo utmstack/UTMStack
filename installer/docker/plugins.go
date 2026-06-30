@@ -21,6 +21,7 @@ type PluginConfig struct {
 	PostgreSQL    PostgreConfig    `yaml:"postgresql,omitempty"`
 	ServerName    string           `yaml:"serverName,omitempty"`
 	InternalKey   string           `yaml:"internalKey,omitempty"`
+	EncryptionKey string           `yaml:"encryptionKey,omitempty"`
 	Env           string           `yaml:"env,omitempty"`
 	AgentManager  string           `yaml:"agentManager,omitempty"`
 	Backend       string           `yaml:"backend,omitempty"`
@@ -82,6 +83,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		},
 		ServerName:    conf.ServerName,
 		InternalKey:   conf.InternalKey,
+		EncryptionKey: conf.InternalKey,
 		Env:           conf.Branch,
 		AgentManager:  "10.21.199.3:9000",
 		Backend:       "http://backend:8080",
