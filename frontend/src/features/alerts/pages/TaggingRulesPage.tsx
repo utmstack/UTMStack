@@ -217,7 +217,11 @@ export function TaggingRulesPage() {
           onClose={() => {
             setOpen(null)
             setOpenInEdit(false)
-            setRedirectAfter(null)
+            if(redirectAfter){
+              const dest = redirectAfter
+              setRedirectAfter(null)
+              navigate(dest)
+            }
           }}
           onSubmit={(input, id) => submit(input, id ?? open.id)}
           onDelete={remove}
@@ -234,7 +238,11 @@ export function TaggingRulesPage() {
             setCreating(false)
             setCreatingWith([])
             setCreatingConditions([])
-            setRedirectAfter(null)
+            if(redirectAfter){
+              const dest = redirectAfter
+              setRedirectAfter(null)
+              navigate(dest)
+            }
           }}
           onSubmit={(input) => submit(input)}
           onCreateTag={createTag}
