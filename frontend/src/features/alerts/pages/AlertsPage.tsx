@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -28,10 +28,12 @@ import { AlertsStatusTabs } from '../components/alerts-status-tabs'
 import { AlertsVolumeCard } from '../components/alerts-volume-card'
 import { AlertsBreakdownCard } from '../components/alerts-breakdown-card'
 import { AlertsBulkBar } from '../components/alerts-bulk-bar'
-import { AlertsTableHeader, AlertRow } from '../components/alerts-table'
+import { AlertsTableHeader, ALERTS_TABLE_COLUMN_COUNT } from '../components/alerts-table-header'
+import { AlertRow } from '../components/alert-row'
+import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
 import { AlertIncidentModal } from '../components/alert-incident-modal'
-import { Center } from '../components/ui-primitives'
+import { Center } from '../components/center'
 
 export function AlertsPage() {
   const { t } = useTranslation()
@@ -48,8 +50,17 @@ export function AlertsPage() {
   const [pageSize] = useState(50)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
   const [incidentTargets, setIncidentTargets] = useState<Alert[] | null>(null)
+
+  const toggleEchoes = (id: string) =>
+    setExpandedEchoes((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   // SOC-AI chat navigation: seed the filters + time window the agent emitted.
   const location = useLocation()
@@ -214,7 +225,7 @@ export function AlertsPage() {
             />
           )}
 
-          <div className={`mt-3 flex min-h-0 flex-1 flex-col overflow-hidden  rounded-xl border border-border bg-card  ${loading && '[&_*]:cursor-wait'}`}
+          <div className={`mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card ${loading && '[&_*]:cursor-wait'}`}
           onClickCapture={(ev)=>{
             if(loading){
               ev.stopPropagation();
@@ -222,38 +233,65 @@ export function AlertsPage() {
             }
           }}
           >
-            <AlertsTableHeader allChecked={allChecked} onTogglePage={togglePage} />
-            <div className="min-h-0 flex-1 overflow-y-auto ">
-              {loading && alerts.length === 0 ? (
-                <Center>
-                  <Loader2 className="h-4 w-4 animate-spin" /> {t('alerts.list.loading')}
-                </Center>
-              ) : error ? (
-                <Center>
-                  <AlertTriangle size={16} className="text-amber-500" /> {t('alerts.list.loadError')}
-                  <Button variant="outline" size="sm" className="ml-2" onClick={refresh}>
-                    {t('alerts.list.retry')}
-                  </Button>
-                </Center>
-              ) : alerts.length === 0 ? (
-                <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('alerts.list.empty')}</div>
-              ) : (
-                alerts.map((a) => (
-                  <AlertRow
-                    key={a.id}
-                    alert={a}
-                    tagCatalog={tagCatalog}
-                    checked={selected.has(a.id)}
-                    onToggle={() => toggleSel(a.id)}
-                    onOpen={() => setOpenAlert(a)}
-                    onCreateRule={(alert) =>
-                      navigate('/threat-management/alerts/tagging-rules', {
-                        state: { createWithConditions: alertToRuleConditions(alert) },
-                      })
-                    }
-                  />
-                ))
-              )}
+            <div className="min-h-0 flex-1 overflow-auto">
+              <table className="min-w-full border-collapse">
+                <AlertsTableHeader allChecked={allChecked} onTogglePage={togglePage} />
+                <tbody>
+                  {loading && alerts.length === 0 ? (
+                    <tr>
+                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT}>
+                        <Center>
+                          <Loader2 className="h-4 w-4 animate-spin" /> {t('alerts.list.loading')}
+                        </Center>
+                      </td>
+                    </tr>
+                  ) : error ? (
+                    <tr>
+                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT}>
+                        <Center>
+                          <AlertTriangle size={16} className="text-amber-500" /> {t('alerts.list.loadError')}
+                          <Button variant="outline" size="sm" className="ml-2" onClick={refresh}>
+                            {t('alerts.list.retry')}
+                          </Button>
+                        </Center>
+                      </td>
+                    </tr>
+                  ) : alerts.length === 0 ? (
+                    <tr>
+                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT} className="px-6 py-16 text-center text-sm text-muted-foreground">
+                        {t('alerts.list.empty')}
+                      </td>
+                    </tr>
+                  ) : (
+                    alerts.map((a, index) => (
+                      <Fragment key={`${a.id}-${index}`}>
+                        <AlertRow
+                          alert={a}
+                          tagCatalog={tagCatalog}
+                          checked={selected.has(a.id)}
+                          expanded={expandedEchoes.has(a.id)}
+                          onToggle={() => toggleSel(a.id)}
+                          onOpen={() => setOpenAlert(a)}
+                          onCreateRule={(alert) =>
+                            navigate('/threat-management/alerts/tagging-rules', {
+                              state: { createWithConditions: alertToRuleConditions(alert) },
+                            })
+                          }
+                          onToggleEchoes={() => toggleEchoes(a.id)}
+                          onStatus={(s, obs, fp) => void applyStatus([a.id], s, obs, fp)}
+                        />
+                        {expandedEchoes.has(a.id) && (
+                          <tr>
+                            <td colSpan={ALERTS_TABLE_COLUMN_COUNT} className="border-b border-border/50 p-0">
+                              <EchoesTimeline parentId={a.id} />
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    ))
+                  )}
+                </tbody>
+              </table>
               {alerts.length > 0 && (
                 <InfiniteScrollSentinel
                   onReach={() => setPage((p) => p + 1)}

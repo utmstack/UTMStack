@@ -3893,12 +3893,20 @@
       "technique": "Tecnica",
       "sourceAdversary": "Origine → Avversario",
       "risk": "Rischio",
+      "echoes": "Echi",
       "time": "Ora",
       "riskHint": "Punteggio di rischio (0–100), colorato in base alla gravità"
     },
     "row": {
       "createRuleFromAlert": "Crea un'etichetta da questo avviso",
-      "assignedTo": "Assegnato a {{user}}"
+      "assignedTo": "Assegnato a {{user}}",
+      "echoesTooltip": "{{count}} echi — clicca per espandere",
+      "echoesEmpty": "Nessun eco registrato"
+    },
+    "echoes": {
+      "title": "{{count}} echi",
+      "empty": "Nessun eco registrato per questo avviso.",
+      "loadError": "Impossibile caricare gli echi."
     },
     "list": {
       "loading": "Caricamento avvisi…",

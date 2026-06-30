@@ -100,6 +100,37 @@ func osSearchSources(ctx context.Context, index string, query map[string]any, si
 	return docs, nil
 }
 
+// osSearchPage runs a paged + sorted search and returns the raw source docs
+// alongside the matching total count.
+func osSearchPage(ctx context.Context, index string, query map[string]any, from, size int, sortBy, sortOrder string) ([]json.RawMessage, int64, error) {
+	body := map[string]any{
+		"from":             from,
+		"size":             size,
+		"track_total_hits": true,
+	}
+	if query != nil {
+		body["query"] = query
+	}
+	if sortBy != "" {
+		body["sort"] = []map[string]any{
+			{sortBy: map[string]any{"order": sortOrder}},
+		}
+	}
+	res, err := osdk.RawSearch(ctx, []string{index}, body)
+	if err != nil {
+		return nil, 0, err
+	}
+	docs := make([]json.RawMessage, 0, len(res.Hits.Hits))
+	for _, h := range res.Hits.Hits {
+		b, err := json.Marshal(h.Source)
+		if err != nil {
+			return nil, 0, err
+		}
+		docs = append(docs, b)
+	}
+	return docs, res.Hits.Total.Value, nil
+}
+
 func osCount(ctx context.Context, index string, query map[string]any) (int64, error) {
 	body := map[string]any{"size": 0, "track_total_hits": true}
 	if query != nil {

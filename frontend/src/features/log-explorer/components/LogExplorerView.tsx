@@ -37,6 +37,7 @@ import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
 import { IndexPatternSelector } from './IndexPatternSelector'
+import { SqlQueryEditor } from './SqlQueryEditor'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
@@ -442,6 +443,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           onSqlMode={(v) => setSqlMode(v)}
           sqlInput={sqlInput}
           onSqlInput={setSqlInput}
+          fields={fields}
           range={range}
           onRange={(r) => setRange(r)}
           onRun={submit}
@@ -576,6 +578,7 @@ function QueryBar({
   onSqlMode,
   sqlInput,
   onSqlInput,
+  fields,
   range,
   onRange,
   onRun,
@@ -592,6 +595,7 @@ function QueryBar({
   onSqlMode: (b: boolean) => void
   sqlInput: string
   onSqlInput: (q: string) => void
+  fields: IndexField[]
   range: TimeRange
   onRange: (r: TimeRange) => void
   onRun: () => void
@@ -610,12 +614,13 @@ function QueryBar({
       {/* Search input — free text or SQL */}
       <div className="relative min-w-[300px] flex-1">
         {sqlMode ? (
-          <Input
+          <SqlQueryEditor
             value={sqlInput}
-            onChange={(e) => onSqlInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && onRun()}
-            placeholder="SELECT * FROM &quot;v11-log-*&quot; ORDER BY @timestamp DESC"
-            className="h-9 border-0 bg-transparent font-mono text-xs shadow-none focus-visible:ring-0"
+            onChange={onSqlInput}
+            onRun={onRun}
+            fields={fields}
+            patterns={patterns}
+            placeholder={'SELECT * FROM "v11-log-*" ORDER BY @timestamp DESC'}
           />
         ) : (
           <>

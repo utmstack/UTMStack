@@ -25,6 +25,7 @@ type AlertUsecase interface {
 	ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error
 	CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlertsResponse, error)
 	RelatedLogs(ctx context.Context, alertID string) (*dto.RelatedLogsResponse, error)
+	ListEchoes(ctx context.Context, parentID string, page, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error)
 	SetCorrelationResolver(r CorrelationResolver)
 }
 

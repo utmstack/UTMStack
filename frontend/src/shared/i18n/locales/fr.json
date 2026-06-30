@@ -3893,12 +3893,20 @@
       "technique": "Technique",
       "sourceAdversary": "Source → Adversaire",
       "risk": "Risque",
+      "echoes": "Échos",
       "time": "Heure",
       "riskHint": "Score de risque (0–100), coloré selon la gravité"
     },
     "row": {
       "createRuleFromAlert": "Créer une étiquette à partir de cette alerte",
-      "assignedTo": "Attribuée à {{user}}"
+      "assignedTo": "Attribuée à {{user}}",
+      "echoesTooltip": "{{count}} échos — cliquez pour développer",
+      "echoesEmpty": "Aucun écho enregistré"
+    },
+    "echoes": {
+      "title": "{{count}} échos",
+      "empty": "Aucun écho enregistré pour cette alerte.",
+      "loadError": "Impossible de charger les échos."
     },
     "list": {
       "loading": "Chargement des alertes…",

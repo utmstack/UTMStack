@@ -67,6 +67,7 @@ export interface Alert {
   assignee?: string
   history?: AlertHistoryEntry[]
   events?: AlertEventItem[]
+  echoes?: number
 }
 
 /**
