@@ -81,7 +81,6 @@ export function SqlQueryEditor({ value, onChange, onRun, fields, patterns, place
   const preRef = useRef<HTMLPreElement>(null)
   const [height, setHeight] = useState<number>(MIN_HEIGHT)
   const [open, setOpen] = useState(false)
-  const [lastTimeout, setLastTimeout] = useState(-1)
   const [items, setItems] = useState<Suggestion[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [anchor, setAnchor] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
@@ -204,15 +203,7 @@ export function SqlQueryEditor({ value, onChange, onRun, fields, patterns, place
 
 
   useEffect(() => {
-    if(lastTimeout >=0){
-      clearTimeout(lastTimeout)
-    }
-
-    setLastTimeout(
-      setTimeout(()=>{
       if (document.activeElement === textareaRef.current) refreshSuggestions()
-    },300)
-     )
   }, [value, refreshSuggestions])
 
   useEffect(() => {
