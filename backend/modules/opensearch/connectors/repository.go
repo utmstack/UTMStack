@@ -12,6 +12,7 @@ type GatewayRepository interface {
 	PropertyValuesWithCount(ctx context.Context, index, field string, filters map[string]any, top int, orderByCount, sortAsc bool) (map[string]int64, error)
 	IndexProperties(ctx context.Context, pattern string) ([]dto.IndexPropertyType, error)
 	Indices(ctx context.Context, pattern string) ([]dto.IndexInfo, error)
+	EnsureIndexPattern(ctx context.Context, pattern string) error
 	DeleteIndices(ctx context.Context, indices []string) error
 	Search(ctx context.Context, index string, query map[string]any, from, size int, sortField, sortOrder string) ([]map[string]any, int64, error)
 	Count(ctx context.Context, index string, query map[string]any) (int64, error)

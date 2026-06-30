@@ -5,6 +5,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	ds_connectors "github.com/utmstack/utmstack/backend/modules/datasources/connectors"
+	os_connectors "github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/repository"
 	"github.com/utmstack/utmstack/backend/modules/integrations/usecase"
@@ -17,16 +18,23 @@ type Module struct {
 	tenants   *usecase.TenantUsecase
 	modules   connectors.ModuleUsecase
 	bootstrap *usecase.Bootstrap
+	opensearch os_connectors.IndexPatternUsecase
 }
 
-func NewModule(db *gorm.DB, cipher connectors.Cipher, tenantDir string, datasources ds_connectors.DatasourceUsecase) *Module {
+func NewModule(
+	db *gorm.DB,
+	cipher connectors.Cipher,
+	tenantDir string,
+	datasources ds_connectors.DatasourceUsecase,
+	opensearch os_connectors.IndexPatternUsecase,
+) *Module {
 	store := repository.NewTenantStore(tenantDir)
 	schema := repository.NewCodeSchemaProvider() // field schema lives in code
 	verif := verifier.NewBackendVerifier()
 
 	moduleRepo := repository.NewModuleRepository(db)
 	// store doubles as the tenant-file toggler: enable/disable <module>.yaml(.disabled).
-	moduleUC := usecase.NewModuleUsecase(moduleRepo, store)
+	moduleUC := usecase.NewModuleUsecase(moduleRepo, store,opensearch)
 
 	return &Module{
 		db:        db,

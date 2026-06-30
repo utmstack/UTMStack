@@ -1450,6 +1450,8 @@
     "query": {
       "indexPatterns": "Index patterns",
       "noPatterns": "Нет patterns",
+      "noPatternsMatch": "Нет подходящих patterns",
+      "filterPatterns": "Фильтр patterns…",
       "searchPlaceholder": "Поиск по всем полям…",
       "refresh": "Обновить",
       "exportCsv": "Экспорт CSV",

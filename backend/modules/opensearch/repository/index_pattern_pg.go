@@ -19,6 +19,11 @@ func NewIndexPatternRepository(db *gorm.DB) connectors.IndexPatternRepository {
 }
 
 func (r *pgIndexPatternRepository) Create(ctx context.Context, p *domain.UtmIndexPattern) error {
+	sanitized, err := ensureIndexPattern(ctx, p.Pattern)
+	if err != nil {
+		return err
+	}
+	p.Pattern = sanitized
 	return r.db.WithContext(ctx).Create(p).Error
 }
 

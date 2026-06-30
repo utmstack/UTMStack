@@ -3,24 +3,30 @@ package usecase
 import (
 	"context"
 	"fmt"
-
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
+
+	os_connectors "github.com/utmstack/utmstack/backend/modules/opensearch/connectors"
+	os_dto "github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 )
 
 type moduleUsecase struct {
 	repo          connectors.ModuleRepository
 	tenantFileTog connectors.TenantFileToggler
+	opensearch    os_connectors.IndexPatternUsecase
 }
 
 func NewModuleUsecase(
 	repo connectors.ModuleRepository,
 	tenantFile connectors.TenantFileToggler,
+	opensearch os_connectors.IndexPatternUsecase,
 ) connectors.ModuleUsecase {
 	return &moduleUsecase{
 		repo:          repo,
 		tenantFileTog: tenantFile,
+		opensearch: opensearch,
 	}
 }
 
@@ -51,6 +57,32 @@ func (u *moduleUsecase) ActivateDeactivate(ctx context.Context, req dto.ModuleAc
 		return nil, err
 	}
 
+	results,count,err :=u.opensearch.List(ctx,os_dto.IndexPatternFilters{
+		ModuleEquals: &module.ModuleName,
+	})
+	if err != nil {
+		return nil,err
+	}
+	if count > 0 && len(results)>0 {
+		//if module has index patterns
+		pattern:=results[0]
+
+		if _,err := u.opensearch.Update(ctx,os_dto.UpdateIndexPatternRequest{
+			ID: pattern.ID,
+			Pattern: pattern.Pattern,
+			PatternModule: pattern.PatternModule,
+			IsActive: &fresh.ModuleActive,
+			PatternSystem:pattern.PatternSystem,
+		});err!=nil{
+			catcher.Error("failed to toggle is active for module's index pattern, rolling back", err, map[string]any{"module":module.ModuleName,"pattern":pattern} )
+			module.ModuleActive = !active
+			if err_ := u.repo.Save(ctx, module); err_ != nil {
+				catcher.Error("failed to change module status after index pattern activation toggle", err, map[string]any{"module":module.ModuleName,"pattern":pattern} )
+				return nil, err
+			}
+			return nil,err
+		}
+	}
 	resp := dto.FromModule(*fresh)
 	return &resp, nil
 }
@@ -128,9 +160,22 @@ func (u *moduleUsecase) Create(ctx context.Context, req dto.CreateModuleRequest)
 		ModuleActive:      false,
 		IsSystem:          false,
 	}
+
+
 	if err := u.repo.Save(ctx, m); err != nil {
 		return nil, err
 	}
+
+	if _,err:= u.opensearch.Create(ctx,os_dto.CreateIndexPatternRequest{
+		PatternModule: &req.ModuleName,
+	});err!=nil{
+		//opensearch insertion fails, rolling back database
+		if err:=u.repo.Delete(ctx,m.ID);err!=nil{
+		  catcher.Error("failed to remove module after index pattern creation fail", err, map[string]any{"module":m.ModuleName} )
+		}
+		return nil, err
+	}
+
 	resp := dto.FromModule(*m)
 	return &resp, nil
 }
@@ -163,5 +208,30 @@ func (u *moduleUsecase) Delete(ctx context.Context, id int64) error {
 	if m.IsSystem {
 		return domain.ErrSystemModule
 	}
-	return u.repo.Delete(ctx, id)
+
+	results,count,err :=u.opensearch.List(ctx,os_dto.IndexPatternFilters{
+		ModuleEquals: &m.ModuleName,
+	})
+	if err != nil {
+		return err
+	}
+	if count == 0 || len(results)==0{
+		return fmt.Errorf("module %s index pattern not found.",m.ModuleName)
+	}
+
+	err= u.repo.Delete(ctx, id)
+	if err!=nil{
+		return err
+	}
+
+	pattern:=results[0]
+	if err:=u.opensearch.Delete(ctx,pattern.ID);err!=nil{
+		//if index patter deletion fails integration must be restored
+		if err:=u.repo.Save(ctx,m);err!=nil{
+			catcher.Error("failed to restore module after index pattern remove fail", err, map[string]any{"module":m.ModuleName} )
+		}
+		return err
+	}
+
+	return nil
 }

@@ -1554,6 +1554,8 @@
     "query": {
       "indexPatterns": "Index patterns",
       "noPatterns": "Nessun pattern",
+      "noPatternsMatch": "Nessun pattern corrispondente",
+      "filterPatterns": "Filtra pattern…",
       "searchPlaceholder": "Cerca in tutti i campi…",
       "refresh": "Aggiorna",
       "exportCsv": "Esporta CSV",
