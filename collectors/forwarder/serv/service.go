@@ -88,7 +88,7 @@ func (p *program) run() {
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "key", cnf.CollectorKey)
 	ctx = metadata.AppendToOutgoingContext(ctx, "id", strconv.Itoa(int(cnf.CollectorID)))
-	ctx = metadata.AppendToOutgoingContext(ctx, "type", "agent")
+	ctx = metadata.AppendToOutgoingContext(ctx, "type", "collector")
 
 	p.goSafe("StartPing", func() {
 		upstream.StartPing(cnf, ctx)
