@@ -33,6 +33,7 @@ export const alertsHttpService = {
       top: String(MAX),
       sortBy: '@timestamp',
       sortOrder: 'desc',
+      includeChildren:'true'
     })
     return api.postPaged<Alert[]>(`/opensearch/search?${q.toString()}`, filters)
   },
@@ -90,6 +91,13 @@ export const alertsHttpService = {
   },
 
   countOpen: () => api.get<number>('/utm-alerts/count-open-alerts'),
+
+  // Paginated child "echoes" of a parent alert (the dedup children the main
+  // list hides). Backend sorts newest-first by default.
+  echoes: (parentId: string, page: number, size: number) =>
+    api.getPaged<Alert[]>(
+      `/utm-alerts/${encodeURIComponent(parentId)}/echoes?page=${page}&size=${size}`,
+    ),
 
   // All logs the Event Processor correlated for this alert (reproduced server-side
   // without the engine's 10-hit cap) — for the "view all related logs" deep-link.

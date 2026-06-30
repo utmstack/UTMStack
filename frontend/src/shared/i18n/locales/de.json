@@ -3893,12 +3893,20 @@
       "technique": "Technik",
       "sourceAdversary": "Quelle → Angreifer",
       "risk": "Risiko",
+      "echoes": "Echos",
       "time": "Zeit",
       "riskHint": "Risikobewertung (0–100), farblich nach Schweregrad"
     },
     "row": {
       "createRuleFromAlert": "Tag aus dieser Warnung erstellen",
-      "assignedTo": "Zugewiesen an {{user}}"
+      "assignedTo": "Zugewiesen an {{user}}",
+      "echoesTooltip": "{{count}} Echos — klicken zum Erweitern",
+      "echoesEmpty": "Keine Echos vorhanden"
+    },
+    "echoes": {
+      "title": "{{count}} Echos",
+      "empty": "Für diese Warnung wurden keine Echos erfasst.",
+      "loadError": "Echos konnten nicht geladen werden."
     },
     "list": {
       "loading": "Warnungen werden geladen…",

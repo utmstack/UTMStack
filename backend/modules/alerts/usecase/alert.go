@@ -160,6 +160,29 @@ func (u *alertUsecase) CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlert
 	return &dto.CountOpenAlertsResponse{Count: count}, nil
 }
 
+func (u *alertUsecase) ListEchoes(ctx context.Context, parentID string, page, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error) {
+	if parentID == "" {
+		return nil, 0, domain.ErrMissingAlertID
+	}
+	if page < 1 {
+		page = 1
+	}
+	if size < 1 {
+		size = 20
+	}
+	if size > 100 {
+		size = 100
+	}
+	if sortBy == "" {
+		sortBy = "@timestamp"
+	}
+	if sortOrder != "asc" && sortOrder != "desc" {
+		sortOrder = "desc"
+	}
+	from := (page - 1) * size
+	return u.repo.ListEchoes(ctx, parentID, from, size, sortBy, sortOrder)
+}
+
 // ---------------------------------------------------------------------------
 // Internal helpers for HistoryEntry construction
 // ---------------------------------------------------------------------------
