@@ -11,6 +11,7 @@ import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { TaggingRulesTable } from '../components/tagging-rules-table'
 import { TaggingRuleDrawer } from '../components/tagging-rule-drawer'
+import { TaggingRulesEmptyCard } from '../components/tagging-rules-empty-card'
 import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
 import type { AlertTag, FilterType, TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
 
@@ -184,19 +185,19 @@ export function TaggingRulesPage() {
       </div>
 
       {error ? (
-        <Center>
+        <TaggingRulesEmptyCard>
           <AlertTriangle size={16} className="text-amber-500" />
           {t('taggingRules.loadError')}
           <button onClick={refresh} className="ml-2 text-primary hover:underline">
             {t('taggingRules.retry')}
           </button>
-        </Center>
+        </TaggingRulesEmptyCard>
       ) : loading && rules.length === 0 ? (
-        <Center>
+        <TaggingRulesEmptyCard>
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </Center>
+        </TaggingRulesEmptyCard>
       ) : rules.length === 0 ? (
-        <Center>{t('taggingRules.empty')}</Center>
+        <TaggingRulesEmptyCard>{t('taggingRules.empty')}</TaggingRulesEmptyCard>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto">
           <TaggingRulesTable rules={rules} onOpen={setOpen} />
@@ -217,7 +218,11 @@ export function TaggingRulesPage() {
           onClose={() => {
             setOpen(null)
             setOpenInEdit(false)
-            setRedirectAfter(null)
+            if(redirectAfter){
+              const dest = redirectAfter
+              setRedirectAfter(null)
+              navigate(dest)
+            }
           }}
           onSubmit={(input, id) => submit(input, id ?? open.id)}
           onDelete={remove}
@@ -234,7 +239,11 @@ export function TaggingRulesPage() {
             setCreating(false)
             setCreatingWith([])
             setCreatingConditions([])
-            setRedirectAfter(null)
+            if(redirectAfter){
+              const dest = redirectAfter
+              setRedirectAfter(null)
+              navigate(dest)
+            }
           }}
           onSubmit={(input) => submit(input)}
           onCreateTag={createTag}
@@ -244,10 +253,3 @@ export function TaggingRulesPage() {
   )
 }
 
-function Center({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mt-4 flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">
-      {children}
-    </div>
-  )
-}

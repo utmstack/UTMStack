@@ -19,6 +19,7 @@ type AlertRepository interface {
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status int) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)
+	ListEchoes(ctx context.Context, parentID string, from, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error)
 	GetRawByID(ctx context.Context, alertID string) (json.RawMessage, error)
 	RelatedLogRefs(ctx context.Context, steps []domain.CorrelationStep, anchorTS time.Time, maxSize int) (refs []domain.LogRef, truncated bool, err error)
 }

@@ -1,7 +1,7 @@
 import { ChevronDown, Flame, Tag as TagIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { STATUS_INT, type AlertTag, type StatusKey } from '../types/alert.types'
-import { Menu } from './ui-primitives'
+import { Menu } from './menu'
 
 export function AlertsBulkBar({
   count,

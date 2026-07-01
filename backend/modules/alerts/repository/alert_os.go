@@ -201,3 +201,20 @@ func (r *osAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]dom
 	return alerts, nil
 }
 
+func (r *osAlertRepo) ListEchoes(ctx context.Context, parentID string, from, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error) {
+	query := termQuery("parentId.keyword", parentID)
+	raws, total, err := osSearchPage(ctx, alertIndex, query, from, size, sortBy, sortOrder)
+	if err != nil {
+		return nil, 0, err
+	}
+	alerts := make([]domain.UtmAlert, 0, len(raws))
+	for _, raw := range raws {
+		var a domain.UtmAlert
+		if err := json.Unmarshal(raw, &a); err != nil {
+			continue
+		}
+		alerts = append(alerts, a)
+	}
+	return alerts, total, nil
+}
+
