@@ -1,4 +1,5 @@
 import type {
+  AggregationId,
   BuilderMetric,
   BuilderState,
   FilterRow,
@@ -101,6 +102,74 @@ function buildWhereClause(filters: FilterRow[]): string {
 
 function hasWhereClause(sql: string): boolean {
   return /\bWHERE\b/i.test(sql)
+}
+
+/**
+ * Best-effort inverse of {@link composeSql}. Recognises the exact shapes that
+ * {@link composeSql} emits (metric / dimension-grouped / table SELECTs) and
+ * returns a partial builder patch. Anything the parser doesn't understand — a
+ * hand-rolled WHERE clause, unusual quoting, custom joins — is left alone so
+ * the caller keeps its existing builder state for those fields.
+ *
+ * Filters and chart type are intentionally NOT reversed: WHERE parsing is
+ * fragile and chartType would flip the UI in surprising ways.
+ */
+export function parseSqlToBuilder(sql: string | null | undefined): Partial<BuilderState> | null {
+  if (!sql || !sql.trim()) return null
+  const s = sql.trim()
+
+  const patch: Partial<BuilderState> = {}
+
+  const fromMatch = s.match(/\bFROM\s+([^\s\n;]+)/i)
+  if (fromMatch) {
+    patch.indexPattern = fromMatch[1].replace(/^[`"']|[`"']$/g, '')
+  }
+
+  const selectMatch = s.match(/\bSELECT\s+([\s\S]*?)\s+FROM\b/i)
+  if (!selectMatch) return patch
+  const selectExpr = selectMatch[1].trim()
+
+  const hasGroupBy = /\bGROUP\s+BY\b/i.test(s)
+  const hasAsY = /\bAS\s+y\b/i.test(selectExpr)
+
+  if (hasGroupBy && hasAsY) {
+    const m = selectExpr.match(/^(.+?)\s+AS\s+x\s*,\s*(.+?)\s+AS\s+y$/i)
+    if (m) {
+      const dimExpr = m[1].trim()
+      patch.dimension = dimExpr && dimExpr.toUpperCase() !== 'NULL' ? dimExpr : null
+      const metric = parseMetricExpr(m[2].trim())
+      if (metric) patch.metric = metric
+    }
+  } else if (hasAsY) {
+    const m = selectExpr.match(/^(.+?)\s+AS\s+y$/i)
+    if (m) {
+      const metric = parseMetricExpr(m[1].trim())
+      if (metric) patch.metric = metric
+    }
+  } else if (!hasGroupBy) {
+    // Plain projection — treat as a table SELECT column list.
+    if (selectExpr === '*') {
+      patch.columns = []
+    } else {
+      const cols = selectExpr.split(',').map((c) => c.trim()).filter(Boolean)
+      if (cols.length > 0) patch.columns = cols
+    }
+  }
+
+  return patch
+}
+
+function parseMetricExpr(expr: string): BuilderMetric | null {
+  const clean = expr.trim()
+  if (/^COUNT\(\s*\*\s*\)$/i.test(clean)) return { agg: 'count', field: null }
+  const distinct = clean.match(/^COUNT\(\s*DISTINCT\s+([^)]+?)\s*\)$/i)
+  if (distinct) return { agg: 'count_distinct', field: distinct[1].trim() }
+  const other = clean.match(/^(SUM|AVG|MIN|MAX)\(\s*([^)]+?)\s*\)$/i)
+  if (other) {
+    const agg = other[1].toLowerCase() as AggregationId
+    return { agg, field: other[2].trim() }
+  }
+  return null
 }
 
 export function composeSql(state: BuilderState): string {
