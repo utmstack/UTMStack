@@ -644,6 +644,24 @@
       "title": "Aún no hay tableros",
       "body": "Crea tu primer tablero para ver tus datos de seguridad de un vistazo.",
       "cta": "Crear tablero"
+    },
+    "table": {
+      "col": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "modified": "Modificado"
+      }
+    },
+    "filters": {
+      "addTitle": "Añadir filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Eliminar filtro",
+      "removeConfirm": "¿Eliminar el filtro \"{{label}}\"? Esta acción no se puede deshacer.",
+      "remove": "Eliminar",
+      "editAria": "Editar filtro",
+      "removeAria": "Eliminar filtro",
+      "saving": "Guardando…",
+      "addChip": "Añadir filtro"
     }
   },
   "settings": {

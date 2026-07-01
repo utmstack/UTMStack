@@ -12,15 +12,19 @@ import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/util
 import { hasTimePlaceholder } from '@/features/dashboard/utils/sql-template'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
 import { getChartTypeMeta, type ChartRenderer } from '@/features/dashboard/constants'
-import type { Visualization } from '@/features/dashboard/types'
+import type { FilterType, Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
 export function WidgetRenderer({
   visualization,
   time,
+  filters,
+  refreshSeconds,
 }: {
   visualization: Visualization
   time: TimeRange
+  filters?: FilterType[]
+  refreshSeconds?: number
 }) {
   const { t } = useTranslation()
 
@@ -34,7 +38,7 @@ export function WidgetRenderer({
     : 'echarts'
 
   const hasSql = !!visualization.sqlQuery?.trim()
-  const query = useVisualizationData(hasSql ? visualization : null, time)
+  const query = useVisualizationData(hasSql ? visualization : null, time, filters, refreshSeconds)
 
   if (renderer === 'echarts' && (parsed.error || !parsed.option)) {
     return (

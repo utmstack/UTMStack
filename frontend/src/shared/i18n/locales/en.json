@@ -309,6 +309,7 @@
     "editor": {
       "editing": "Editing",
       "addWidget": "Add widget",
+      "editFilters": "Edit filters",
       "save": "Save",
       "discard": "Discard",
       "newTitle": "New widget",
@@ -568,7 +569,52 @@
       "visualizationUpdated": "Widget updated.",
       "visualizationUpdateFailed": "Could not update widget.",
       "visualizationDeleted": "Widget deleted.",
-      "visualizationDeleteFailed": "Could not delete widget."
+      "visualizationDeleteFailed": "Could not delete widget.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
+    },
+    "filters": {
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "addChip": "Add filter",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "indexPattern": "Index pattern",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      },
+      "addTitle": "Add filter",
+      "editTitle": "Edit filter",
+      "removeTitle": "Remove filter",
+      "removeConfirm": "Remove filter \"{{label}}\"? This cannot be undone.",
+      "remove": "Remove",
+      "editAria": "Edit filter",
+      "removeAria": "Remove filter",
+      "saving": "Saving…"
+    },
+    "refresh": {
+      "tooltip": "Auto-refresh interval",
+      "off": "Off",
+      "10s": "10s",
+      "30s": "30s",
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m"
     },
     "newDashboard": {
       "title": "New dashboard",
@@ -644,6 +690,13 @@
       "title": "No dashboards yet",
       "body": "Create your first dashboard to see your security data at a glance.",
       "cta": "Create dashboard"
+    },
+    "table": {
+      "col": {
+        "name": "Name",
+        "description": "Description",
+        "modified": "Modified"
+      }
     }
   },
   "settings": {

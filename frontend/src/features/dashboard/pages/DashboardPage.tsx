@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LayoutDashboard, Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -13,55 +13,53 @@ import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
 import { DashboardEditorBar } from '@/features/dashboard/components/DashboardEditorBar'
 import { DashboardFormDialog } from '@/features/dashboard/components/DashboardFormDialog'
 import { DashboardTimeRange } from '@/features/dashboard/components/DashboardTimeRange'
+import {
+  DashboardFilterBar,
+  type ChipValueMap,
+} from '@/features/dashboard/components/DashboardFilterBar'
+import { DashboardRefreshSelect } from '@/features/dashboard/components/DashboardRefreshSelect'
 import { AddVisualizationDrawer } from '@/features/dashboard/components/AddVisualizationDrawer'
-import { DashboardTabsBar } from '@/features/dashboard/components/DashboardTabsBar'
+import { DashboardTable } from '@/features/dashboard/components/DashboardTable'
+import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
 import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
 import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
-import type { Dashboard, GridLayoutItem, Visualization } from '@/features/dashboard/types'
+import type {
+  Dashboard,
+  DashboardFilterChip,
+  FilterType,
+  GridLayoutItem,
+  Visualization,
+} from '@/features/dashboard/types'
 import { useQueries } from '@tanstack/react-query'
 import { VISUALIZATIONS_QUERY_KEYS } from '@/features/dashboard/hooks/useVisualizations'
-const DEFAULT_DASHBOARD_KEY = 'utmstack-default-dashboard'
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
   const [formOpen, setFormOpen] = useState<null | { mode: 'create' | 'rename'; target: Dashboard | null }>(
     null
   )
   const [addOpen, setAddOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
+  // Chip *values* are session-only (v11 parity): they clear when the user
+  // switches dashboards. The *config* lives on dashboard.filters and persists.
+  const [chipValues, setChipValues] = useState<ChipValueMap>({})
+  // Auto-refresh interval in seconds; 0 = off. Seeded from dashboard.refreshTime
+  // once the dashboard loads (see effect below); user edits persist via update.
+  const [refreshSeconds, setRefreshSeconds] = useState(0)
+  // When entering the preview from the table's edit action we want the layout
+  // editor to open automatically once the dashboard data is available.
+  const pendingEditRef = useRef(false)
 
-  const dashboards = useDashboards({ page: 0, size: DEFAULT_PAGE_SIZE })
-  const dashboardItems = dashboards.list.data?.data ?? []
-  // No dashboards AND no active search → genuinely empty (show the create CTA).
-  const noDashboards = dashboardItems.length === 0
-
-  // "Default" dashboard (the one shown on entry), persisted per browser.
-  const [defaultId, setDefaultId] = useState<number | null>(() => {
-    if (typeof window === 'undefined') return null
-    const raw = window.localStorage.getItem(DEFAULT_DASHBOARD_KEY)
-    const n = raw == null ? NaN : Number(raw)
-    return Number.isFinite(n) ? n : null
+  const dashboards = useDashboards({
+    page: 0,
+    size: DEFAULT_PAGE_SIZE,
+    name: search || undefined,
   })
-  const setDefaultDashboard = (id: number | null) => {
-    setDefaultId(id)
-    try {
-      if (id == null) window.localStorage.removeItem(DEFAULT_DASHBOARD_KEY)
-      else window.localStorage.setItem(DEFAULT_DASHBOARD_KEY, String(id))
-    } catch {
-      /* ignore */
-    }
-  }
-
-  // On entry land on the default dashboard → else the first one. Keep the
-  // selection valid as the list changes.
-  useEffect(() => {
-    if (dashboardItems.length === 0) return
-    const valid = (id: number | null) => id != null && dashboardItems.some((d) => d.id === id)
-    if (valid(selectedId)) return
-    setSelectedId(valid(defaultId) ? defaultId : dashboardItems[0].id)
-  }, [dashboardItems, selectedId, defaultId])
+  const dashboardItems = dashboards.list.data?.data ?? []
+  const noDashboards = dashboardItems.length === 0 && !search
 
   const selectedDashboard = useDashboard(selectedId)
 
@@ -94,6 +92,39 @@ export function DashboardPage() {
   const initialItems = useMemo(() => toGridItems(layoutRows), [layoutRows])
   const editor = useDashboardEditor(initialItems)
 
+  const chips = useMemo<DashboardFilterChip[]>(
+    () => parseChipConfig(selectedDashboard.data?.filters),
+    [selectedDashboard.data?.filters]
+  )
+
+  // Reset chip *values* whenever the dashboard changes; chip *config* persists.
+  useEffect(() => {
+    setChipValues({})
+  }, [selectedId])
+
+  // Sync local refresh state from the loaded dashboard. Only on dashboard swap;
+  // subsequent user edits win against stale server data during the update trip.
+  useEffect(() => {
+    setRefreshSeconds(selectedDashboard.data?.refreshTime ?? 0)
+  }, [selectedId, selectedDashboard.data?.id])
+
+  const activeFilters = useMemo<FilterType[]>(
+    () => chipsToFilters(chips, chipValues),
+    [chips, chipValues]
+  )
+
+  // Once the selected dashboard resolves after a table "Edit" click, drop into edit mode.
+  useEffect(() => {
+    if (!pendingEditRef.current) return
+    if (!selectedDashboard.data) return
+    if (selectedDashboard.data.systemOwner) {
+      pendingEditRef.current = false
+      return
+    }
+    pendingEditRef.current = false
+    editor.enter()
+  }, [selectedDashboard.data, editor])
+
   const layoutsById = useMemo(() => {
     const m = new Map<string, number>()
     for (const dv of layoutRows) m.set(String(dv.id), dv.id)
@@ -112,6 +143,8 @@ export function DashboardPage() {
       {
         onSuccess: (created) => {
           toast.success(t('dashboards.toast.created'))
+          // Freshly created dashboards drop straight into edit mode.
+          pendingEditRef.current = true
           setSelectedId(created.id)
           setFormOpen(null)
         },
@@ -219,74 +252,160 @@ export function DashboardPage() {
     }
   }
 
+  const openFromTable = (id: number, options?: { edit?: boolean }) => {
+    pendingEditRef.current = !!options?.edit
+    setSelectedId(id)
+  }
+
+  const handleRefreshChange = (next: number) => {
+    setRefreshSeconds(next)
+    const target = selectedDashboard.data
+    if (!target || target.refreshTime === next) return
+    dashboards.updateDashboard.mutate(
+      {
+        id: target.id,
+        name: target.name,
+        description: target.description,
+        config: target.config,
+        filters: target.filters,
+        refreshTime: next,
+      },
+      {
+        onError: (err) => toast.error(err.message ?? t('dashboards.toast.updateFailed')),
+      }
+    )
+  }
+
+  const handleSaveFilters = (next: DashboardFilterChip[]) => {
+    const target = selectedDashboard.data
+    if (!target) return
+    dashboards.updateDashboard.mutate(
+      {
+        id: target.id,
+        name: target.name,
+        description: target.description,
+        config: target.config,
+        filters: JSON.stringify(next),
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('dashboards.toast.filtersSaved'))
+          // Drop any values whose chip was removed/renamed.
+          const validIds = new Set(next.map((c) => c.id))
+          setChipValues((prev) => {
+            const out: ChipValueMap = {}
+            for (const k of Object.keys(prev)) if (validIds.has(k)) out[k] = prev[k]
+            return out
+          })
+        },
+        onError: (err) => toast.error(err.message ?? t('dashboards.toast.filtersSaveFailed')),
+      }
+    )
+  }
+
+  const backToList = () => {
+    if (editor.editing) editor.discard()
+    setSelectedId(null)
+  }
+
   const gridItems: GridLayoutItem[] = editor.editing ? editor.working : initialItems
   const saving =
     layouts.updateLayout.isPending ||
     layouts.deleteLayout.isPending ||
     layouts.createLayout.isPending
 
+  const inPreview = selectedId != null
+  const previewDashboard = selectedDashboard.data ?? null
+  const canEditPreview =
+    previewDashboard != null && !previewDashboard.systemOwner && !editor.editing
+
   return (
     <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col gap-4 px-6 pb-6 pt-3">
-      {!noDashboards && (
-        <DashboardTabsBar
-          dashboards={dashboardItems}
-          selectedId={selectedId}
-          defaultId={defaultId}
-          onSelect={setSelectedId}
-          onSetDefault={setDefaultDashboard}
-          onCreate={() => setFormOpen({ mode: 'create', target: null })}
-          onRename={(d) => setFormOpen({ mode: 'rename', target: d })}
+      {inPreview && previewDashboard && (
+        <DashboardPreviewHeader
+          dashboard={previewDashboard}
+          onBack={backToList}
+          onEdit={canEditPreview ? editor.enter : undefined}
           onDelete={(d) => setPendingDelete(d)}
-          onEdit={
-            selectedDashboard.data && !editor.editing && !selectedDashboard.data.systemOwner
-              ? editor.enter
-              : undefined
-          }
           right={
-            editor.editing ? (
-              <DashboardEditorBar
-                dirty={editor.dirty}
-                saving={saving}
-                onAddWidget={() => setAddOpen(true)}
-                onSave={handleSave}
-                onDiscard={editor.discard}
-              />
-            ) : selectedId != null ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <DashboardRefreshSelect value={refreshSeconds} onChange={handleRefreshChange} />
               <DashboardTimeRange value={time} onChange={setTime} />
-            ) : null
+              {editor.editing && (
+                <DashboardEditorBar
+                  dirty={editor.dirty}
+                  saving={saving}
+                  onAddWidget={() => setAddOpen(true)}
+                  onSave={handleSave}
+                  onDiscard={editor.discard}
+                />
+              )}
+            </div>
           }
         />
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
-        {noDashboards && !dashboards.list.isLoading ? (
-          <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3 text-center">
-            <LayoutDashboard size={32} className="text-muted-foreground/40" />
-            <div>
-              <p className="text-sm font-medium">{t('dashboards.empty.title')}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{t('dashboards.empty.body')}</p>
+      {!inPreview && (
+        <>
+          {noDashboards && !dashboards.list.isLoading ? (
+            <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background/30 p-6 text-center">
+              <LayoutDashboard size={32} className="text-muted-foreground/40" />
+              <div>
+                <p className="text-sm font-medium">{t('dashboards.empty.title')}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t('dashboards.empty.body')}</p>
+              </div>
+              <Button size="sm" onClick={() => setFormOpen({ mode: 'create', target: null })}>
+                <Plus size={14} className="mr-1" /> {t('dashboards.empty.cta')}
+              </Button>
             </div>
-            <Button size="sm" onClick={() => setFormOpen({ mode: 'create', target: null })}>
-              <Plus size={14} className="mr-1" /> {t('dashboards.empty.cta')}
-            </Button>
-          </div>
-        ) : selectedId != null && layouts.list.isLoading ? (
-          <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 size={16} className="animate-spin" />
-            {t('dashboards.page.loading')}
-          </div>
-        ) : selectedId != null && !layouts.list.isLoading ? (
-          <DashboardGrid
-            items={gridItems}
-            layouts={layoutRows}
-            visualizationsById={visualizationsById}
-            time={time}
-            editing={editor.editing}
-            onLayoutChange={editor.replace}
-            onRemoveItem={editor.remove}
-          />
-        ) : null}
-      </div>
+          ) : (
+            <DashboardTable
+              dashboards={dashboardItems}
+              loading={dashboards.list.isLoading}
+              search={search}
+              onSearchChange={setSearch}
+              onSelect={(id) => openFromTable(id)}
+              onCreate={() => setFormOpen({ mode: 'create', target: null })}
+              onEdit={(d) => openFromTable(d.id, { edit: true })}
+              onDelete={(d) => setPendingDelete(d)}
+            />
+          )}
+        </>
+      )}
+
+      {inPreview && previewDashboard && (chips.length > 0 || editor.editing) && (
+        <DashboardFilterBar
+          chips={chips}
+          values={chipValues}
+          onChange={setChipValues}
+          editable={editor.editing}
+          savingChips={dashboards.updateDashboard.isPending}
+          onSaveChips={handleSaveFilters}
+        />
+      )}
+
+      {inPreview && (
+        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
+          {layouts.list.isLoading ? (
+            <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 size={16} className="animate-spin" />
+              {t('dashboards.page.loading')}
+            </div>
+          ) : (
+            <DashboardGrid
+              items={gridItems}
+              layouts={layoutRows}
+              visualizationsById={visualizationsById}
+              time={time}
+              filters={activeFilters}
+              refreshSeconds={refreshSeconds}
+              editing={editor.editing}
+              onLayoutChange={editor.replace}
+              onRemoveItem={editor.remove}
+            />
+          )}
+        </div>
+      )}
 
       <DashboardFormDialog
         open={formOpen?.mode === 'create'}
@@ -329,3 +448,31 @@ export function DashboardPage() {
 }
 
 export default DashboardPage
+
+function parseChipConfig(json: string | undefined | null): DashboardFilterChip[] {
+  if (!json) return []
+  try {
+    const parsed = JSON.parse(json)
+    return Array.isArray(parsed) ? (parsed as DashboardFilterChip[]) : []
+  } catch {
+    return []
+  }
+}
+
+function chipsToFilters(
+  chips: DashboardFilterChip[],
+  values: ChipValueMap
+): FilterType[] {
+  const out: FilterType[] = []
+  for (const chip of chips) {
+    const v = values[chip.id]
+    if (v == null) continue
+    if (Array.isArray(v)) {
+      if (v.length === 0) continue
+      out.push({ field: chip.field, operator: 'IS_ONE_OF_TERMS', value: v })
+    } else if (typeof v === 'string' && v !== '') {
+      out.push({ field: chip.field, operator: 'IS', value: v })
+    }
+  }
+  return out
+}

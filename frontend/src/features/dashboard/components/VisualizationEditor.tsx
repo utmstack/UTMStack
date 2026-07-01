@@ -13,9 +13,11 @@ import { ColumnsPicker } from '@/features/dashboard/components/editor/ColumnsPic
 import { ChartPreviewPanel } from '@/features/dashboard/components/editor/ChartPreviewPanel'
 import { ChartTypeModal } from '@/features/dashboard/components/editor/ChartTypeModal'
 import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatableFields'
+import { useIndexPatterns } from '@/features/dashboard/hooks/useIndexPatterns'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
+import { SqlQueryEditor } from '@/shared/components/sql-editor'
 import { getChartTypeMeta } from '@/features/dashboard/constants'
-import { composeSql } from '@/features/dashboard/utils/sql-builder'
+import { composeSql, parseSqlToBuilder } from '@/features/dashboard/utils/sql-builder'
 import {
   makeInitialBuilder,
   parseBuilderConfig,
@@ -55,21 +57,32 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
   })
 
   const [builder, setBuilder] = useState<BuilderState>(() => {
-    if (initialParsed.builder) return initialParsed.builder
+    // Seed rawSql so the SQL tab and the visual tab start out synchronised —
+    // legacy widgets stored just `sqlQuery`, newer ones round-trip via composeSql.
+    const seedRawSql = (b: BuilderState) => ({
+      ...b,
+      rawSql: b.rawSql && b.rawSql.trim() ? b.rawSql : composeSql({ ...b, rawMode: false }),
+    })
+    if (initialParsed.builder) return seedRawSql(initialParsed.builder)
     if (initial) {
-      return {
+      return seedRawSql({
         ...makeInitialBuilder(),
         chartType: initialChartType ?? 'bar',
-        rawMode: true,
         rawSql: initial.sqlQuery ?? null,
-      }
+      })
     }
-    return { ...makeInitialBuilder(), chartType: initialChartType ?? 'bar' }
+    return seedRawSql({ ...makeInitialBuilder(), chartType: initialChartType ?? 'bar' })
   })
 
   const [name, setName] = useState(initial?.name ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
-  const [tab, setTab] = useState<EditorTab>(() => (builder.rawMode ? 'sql' : 'visual'))
+  // Open on whichever tab the widget was last saved from: legacy widgets
+  // (no builder config) land on SQL because we only have raw SQL for them.
+  const [tab, setTab] = useState<EditorTab>(() => {
+    if (initialParsed.builder?.rawMode) return 'sql'
+    if (initial && !initialParsed.builder) return 'sql'
+    return 'visual'
+  })
   const [chartTypeOpen, setChartTypeOpen] = useState(false)
 
   const {
@@ -77,24 +90,36 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
     groupableFields: groupable,
     isLoading: fieldsLoading,
   } = useAggregatableFields(builder.indexPattern)
+  const indexPatterns = useIndexPatterns()
+  const patternList = useMemo(
+    () => indexPatterns.data?.data ?? [],
+    [indexPatterns.data?.data]
+  )
 
-  const composedSql = useMemo(() => composeSql(builder), [builder])
+  // Visual edits regenerate rawSql so the SQL tab reflects the change on switch,
+  // and SQL edits reverse-parse into the builder so the visual tab reflects it
+  // on switch. See parseSqlToBuilder for the exact fields that round-trip
+  // (filters and chartType are intentionally NOT parsed back from SQL).
+  const applyVisualEdit = (updater: (b: BuilderState) => BuilderState) => {
+    setBuilder((b) => {
+      const next = updater(b)
+      return {
+        ...next,
+        rawMode: false,
+        rawSql: composeSql({ ...next, rawMode: false }),
+      }
+    })
+  }
 
-  const switchTab = (next: EditorTab) => {
-    setTab(next)
-    if (next === 'sql') {
-      setBuilder((b) => ({
-        ...b,
-        rawMode: true,
-        rawSql: b.rawSql && b.rawSql.trim() ? b.rawSql : composedSql,
-      }))
-    } else {
-      setBuilder((b) => ({ ...b, rawMode: false }))
-    }
+  const applySqlEdit = (nextSql: string) => {
+    setBuilder((b) => {
+      const patch = parseSqlToBuilder(nextSql) ?? {}
+      return { ...b, ...patch, rawSql: nextSql, rawMode: true }
+    })
   }
 
   const setChartType = (chartType: ChartTypeId) => {
-    setBuilder((b) => ({ ...b, chartType }))
+    applyVisualEdit((b) => ({ ...b, chartType }))
     if (!builder.configTouched) {
       setOption(getChartTypeMeta(chartType).defaultConfig)
     }
@@ -107,7 +132,7 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
   const { createVisualization, updateVisualization } = useVisualizationMutations()
   const busy = createVisualization.isPending || updateVisualization.isPending
 
-  const sqlForSave = builder.rawMode ? (builder.rawSql ?? '').trim() : composedSql.trim()
+  const sqlForSave = (builder.rawSql ?? '').trim()
 
   const ready =
     name.trim().length > 0 &&
@@ -218,7 +243,7 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
         </div>
       </div>
 
-      <ModeTabs tab={tab} onChange={switchTab} />
+      <ModeTabs tab={tab} onChange={setTab} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
@@ -230,12 +255,14 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
               fieldsLoading={fieldsLoading}
               showMetric={showMetric}
               showDimension={showDimension}
-              onBuilderChange={setBuilder}
+              onBuilderChange={applyVisualEdit}
             />
           ) : (
             <SqlTab
               rawSql={builder.rawSql ?? ''}
-              onChange={(next) => setBuilder((b) => ({ ...b, rawSql: next }))}
+              onChange={applySqlEdit}
+              fields={fields}
+              patterns={patternList}
             />
           )}
         </div>
@@ -352,7 +379,7 @@ function VisualTab({
   fieldsLoading: boolean
   showMetric: boolean
   showDimension: boolean
-  onBuilderChange: React.Dispatch<React.SetStateAction<BuilderState>>
+  onBuilderChange: (updater: (b: BuilderState) => BuilderState) => void
 }) {
   const { t } = useTranslation()
   return (
@@ -433,22 +460,29 @@ function VisualTab({
 function SqlTab({
   rawSql,
   onChange,
+  fields,
+  patterns,
 }: {
   rawSql: string
   onChange: (next: string) => void
+  fields: IndexProperty[]
+  patterns: { pattern: string }[]
 }) {
   const { t } = useTranslation()
   return (
     <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
       <SectionTitle>{t('dashboards.editor.tabs.sql')}</SectionTitle>
-      <textarea
-        value={rawSql}
-        onChange={(e) => onChange(e.target.value)}
-        spellCheck={false}
-        rows={14}
-        placeholder={t('dashboards.editor.sqlPreview.rawPlaceholder') ?? ''}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-      />
+      <div className="rounded-md border border-input bg-background shadow-sm">
+        <SqlQueryEditor
+          value={rawSql}
+          onChange={onChange}
+          fields={fields}
+          patterns={patterns}
+          placeholder={t('dashboards.editor.sqlPreview.rawPlaceholder') ?? undefined}
+          minRows={10}
+          maxRows={20}
+        />
+      </div>
       <p className="text-[10px] text-muted-foreground">
         {t('dashboards.editor.sqlPreview.hint')}
       </p>
