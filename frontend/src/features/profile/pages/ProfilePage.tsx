@@ -211,7 +211,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pt-5 pb-10">
+    <div className="w-full px-6 pt-5 pb-10">
       {/* Hero */}
       <header className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="relative">

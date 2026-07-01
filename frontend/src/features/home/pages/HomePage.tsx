@@ -41,7 +41,7 @@ export function HomePage() {
   const playbooks = useActivePlaybooks()
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-10">
+    <div className="w-full px-6 py-10">
       <ChatHero />
 
       <div className="mt-10 grid grid-cols-12 gap-4">

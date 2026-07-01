@@ -129,7 +129,7 @@ export function AuditPage() {
     }))
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <Header loading={loading} total={pageInfo.total_items} onRefresh={() => load(filters)} />
 
       <div className="mt-6">

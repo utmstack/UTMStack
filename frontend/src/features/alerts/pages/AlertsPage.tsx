@@ -162,7 +162,7 @@ export function AlertsPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <AlertsHeader total={total} openCount={openCount} view={view} onView={setView} />
 
       <div className="mt-3 shrink-0">

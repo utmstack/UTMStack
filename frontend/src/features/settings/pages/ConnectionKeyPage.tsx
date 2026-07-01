@@ -78,7 +78,7 @@ export function ConnectionKeyPage() {
   const hasToken = token !== ''
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <Header />
 
       <div className="mt-6 space-y-5">

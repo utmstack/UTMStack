@@ -90,7 +90,7 @@ export function DateFormatPage() {
   const zoneOptions = useMemo(() => ['system', ...ALL_ZONES], [])
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <header>
         <h1 className="flex items-center gap-2 text-base font-semibold">
           <Clock size={16} strokeWidth={1.75} />

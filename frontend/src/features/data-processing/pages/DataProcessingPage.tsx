@@ -56,7 +56,7 @@ export function DataProcessingPage() {
   const [nonce, setNonce] = useState(0)
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex items-center gap-2">
           <button
