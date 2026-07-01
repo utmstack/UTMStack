@@ -644,6 +644,13 @@
       "title": "No dashboards yet",
       "body": "Create your first dashboard to see your security data at a glance.",
       "cta": "Create dashboard"
+    },
+    "table": {
+      "col": {
+        "name": "Name",
+        "description": "Description",
+        "modified": "Modified"
+      }
     }
   },
   "settings": {

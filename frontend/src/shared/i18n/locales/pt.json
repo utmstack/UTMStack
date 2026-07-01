@@ -644,6 +644,13 @@
       "title": "Ainda não há painéis",
       "body": "Crie seu primeiro painel para ver seus dados de segurança rapidamente.",
       "cta": "Criar painel"
+    },
+    "table": {
+      "col": {
+        "name": "Nome",
+        "description": "Descrição",
+        "modified": "Modificado"
+      }
     }
   },
   "settings": {

@@ -644,6 +644,13 @@
       "title": "Aucun tableau de bord",
       "body": "Créez votre premier tableau de bord pour voir vos données de sécurité d'un coup d'œil.",
       "cta": "Créer un tableau de bord"
+    },
+    "table": {
+      "col": {
+        "name": "Nom",
+        "description": "Description",
+        "modified": "Modifié"
+      }
     }
   },
   "settings": {

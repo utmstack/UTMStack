@@ -644,6 +644,13 @@
       "title": "Ancora nessuna dashboard",
       "body": "Crea la tua prima dashboard per vedere i tuoi dati di sicurezza a colpo d’occhio.",
       "cta": "Crea dashboard"
+    },
+    "table": {
+      "col": {
+        "name": "Nome",
+        "description": "Descrizione",
+        "modified": "Modificato"
+      }
     }
   },
   "settings": {

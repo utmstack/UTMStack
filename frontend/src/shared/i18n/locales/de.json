@@ -644,6 +644,13 @@
       "title": "Noch keine Dashboards",
       "body": "Erstellen Sie Ihr erstes Dashboard, um Ihre Sicherheitsdaten auf einen Blick zu sehen.",
       "cta": "Dashboard erstellen"
+    },
+    "table": {
+      "col": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "modified": "Geändert"
+      }
     }
   },
   "settings": {
