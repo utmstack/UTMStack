@@ -33,7 +33,7 @@
     "animate.css": "^3.7.0",
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.12",
-    "echarts": "^4.4.0",
+    "echarts": "^6.1.0",
     "echarts-gl": "^1.1.1",
     "echarts-leaflet": "^1.1.0",
     "echarts-stat": "^1.1.1",
