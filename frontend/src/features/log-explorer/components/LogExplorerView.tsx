@@ -37,7 +37,7 @@ import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
 import { IndexPatternSelector } from './IndexPatternSelector'
-import { SqlQueryEditor } from './SqlQueryEditor'
+import { SqlQueryEditor } from '@/shared/components/sql-editor'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
