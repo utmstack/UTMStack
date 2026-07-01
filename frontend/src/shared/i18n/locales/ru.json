@@ -653,6 +653,17 @@
         "description": "Описание",
         "modified": "Изменено"
       }
+    },
+    "filters": {
+      "addTitle": "Добавить фильтр",
+      "editTitle": "Изменить фильтр",
+      "removeTitle": "Удалить фильтр",
+      "removeConfirm": "Удалить фильтр «{{label}}»? Это действие нельзя отменить.",
+      "remove": "Удалить",
+      "editAria": "Изменить фильтр",
+      "removeAria": "Удалить фильтр",
+      "saving": "Сохранение…",
+      "addChip": "Добавить фильтр"
     }
   },
   "settings": {

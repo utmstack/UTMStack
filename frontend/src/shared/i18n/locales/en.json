@@ -309,6 +309,7 @@
     "editor": {
       "editing": "Editing",
       "addWidget": "Add widget",
+      "editFilters": "Edit filters",
       "save": "Save",
       "discard": "Discard",
       "newTitle": "New widget",
@@ -568,7 +569,43 @@
       "visualizationUpdated": "Widget updated.",
       "visualizationUpdateFailed": "Could not update widget.",
       "visualizationDeleted": "Widget deleted.",
-      "visualizationDeleteFailed": "Could not delete widget."
+      "visualizationDeleteFailed": "Could not delete widget.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
+    },
+    "filters": {
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "addChip": "Add filter",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "indexPattern": "Index pattern",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      },
+      "addTitle": "Add filter",
+      "editTitle": "Edit filter",
+      "removeTitle": "Remove filter",
+      "removeConfirm": "Remove filter \"{{label}}\"? This cannot be undone.",
+      "remove": "Remove",
+      "editAria": "Edit filter",
+      "removeAria": "Remove filter",
+      "saving": "Saving…"
     },
     "newDashboard": {
       "title": "New dashboard",

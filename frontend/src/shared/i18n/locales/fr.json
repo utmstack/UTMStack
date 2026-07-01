@@ -651,6 +651,17 @@
         "description": "Description",
         "modified": "Modifié"
       }
+    },
+    "filters": {
+      "addTitle": "Ajouter un filtre",
+      "editTitle": "Modifier le filtre",
+      "removeTitle": "Supprimer le filtre",
+      "removeConfirm": "Supprimer le filtre « {{label}} » ? Cette action est irréversible.",
+      "remove": "Supprimer",
+      "editAria": "Modifier le filtre",
+      "removeAria": "Supprimer le filtre",
+      "saving": "Enregistrement…",
+      "addChip": "Ajouter un filtre"
     }
   },
   "settings": {

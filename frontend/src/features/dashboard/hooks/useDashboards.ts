@@ -33,9 +33,12 @@ export function useDashboards(params: DashboardListParams = {}) {
 
   const updateDashboard = useMutation({
     mutationFn: (data: DashboardUpdateInput) => service.updateDashboard(data),
-    onSuccess: (_, vars) => {
+    onSuccess: (updated, vars) => {
+      // Push the server response straight into the cache so consumers observing
+      // the single-dashboard query see the change synchronously — no wait for
+      // the invalidation-triggered refetch to complete.
+      queryClient.setQueryData(DASHBOARDS_QUERY_KEYS.one(vars.id), updated)
       queryClient.invalidateQueries({ queryKey: DASHBOARDS_QUERY_KEYS.all })
-      queryClient.invalidateQueries({ queryKey: DASHBOARDS_QUERY_KEYS.one(vars.id) })
     },
   })
 

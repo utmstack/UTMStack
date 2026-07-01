@@ -96,7 +96,7 @@ function buildWhereClause(filters: FilterRow[]): string {
     if (fragment) parts.push(fragment)
   }
   const userClauses = parts.length > 0 ? `${parts.join(' AND ')} AND ` : ''
-  return `WHERE ${userClauses}{{timeFilter}}`
+  return `WHERE ${userClauses}{{dashboardFilters}}{{timeFilter}}`
 }
 
 function hasWhereClause(sql: string): boolean {

@@ -651,6 +651,17 @@
         "description": "Beschreibung",
         "modified": "Geändert"
       }
+    },
+    "filters": {
+      "addTitle": "Filter hinzufügen",
+      "editTitle": "Filter bearbeiten",
+      "removeTitle": "Filter entfernen",
+      "removeConfirm": "Filter „{{label}}\" entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "remove": "Entfernen",
+      "editAria": "Filter bearbeiten",
+      "removeAria": "Filter entfernen",
+      "saving": "Speichern…",
+      "addChip": "Filter hinzufügen"
     }
   },
   "settings": {

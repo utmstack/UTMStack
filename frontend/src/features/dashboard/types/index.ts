@@ -3,6 +3,7 @@ export interface Dashboard {
   name: string
   description?: string
   config?: string
+  filters?: string
   systemOwner?: boolean
   createdDate?: string
   modifiedDate?: string
@@ -30,6 +31,7 @@ export interface DashboardCreateInput {
   name: string
   description?: string
   config?: string
+  filters?: string
 }
 
 export interface DashboardUpdateInput {
@@ -37,6 +39,7 @@ export interface DashboardUpdateInput {
   name: string
   description?: string
   config?: string
+  filters?: string
 }
 
 export interface VisualizationCreateInput {
@@ -144,6 +147,27 @@ export interface FilterRow {
   field: string
   operator: FilterOperatorId
   value: string | string[] | [string, string] | null
+}
+
+// Runtime shape sent to the backend on /opensearch/search/sql. Mirrors the Go
+// common_models.FilterType — field + operator + value.
+export interface FilterType {
+  field: string
+  operator: FilterOperatorId
+  value: unknown
+}
+
+// Persistent chip config stored on dashboard.filters (JSON blob). Describes a
+// single dropdown in the dashboard filter bar; the *value* the user picks is
+// session-only (not persisted).
+export interface DashboardFilterChip {
+  id: string
+  field: string
+  label: string
+  placeholder?: string
+  indexPattern: string
+  multiple: boolean
+  searchable: boolean
 }
 
 export interface BuilderMetric {

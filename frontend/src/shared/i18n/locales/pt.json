@@ -651,6 +651,17 @@
         "description": "Descrição",
         "modified": "Modificado"
       }
+    },
+    "filters": {
+      "addTitle": "Adicionar filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Remover filtro",
+      "removeConfirm": "Remover o filtro \"{{label}}\"? Esta ação não pode ser desfeita.",
+      "remove": "Remover",
+      "editAria": "Editar filtro",
+      "removeAria": "Remover filtro",
+      "saving": "Salvando…",
+      "addChip": "Adicionar filtro"
     }
   },
   "settings": {

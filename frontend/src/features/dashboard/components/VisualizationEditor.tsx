@@ -13,7 +13,9 @@ import { ColumnsPicker } from '@/features/dashboard/components/editor/ColumnsPic
 import { ChartPreviewPanel } from '@/features/dashboard/components/editor/ChartPreviewPanel'
 import { ChartTypeModal } from '@/features/dashboard/components/editor/ChartTypeModal'
 import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatableFields'
+import { useIndexPatterns } from '@/features/dashboard/hooks/useIndexPatterns'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
+import { SqlQueryEditor } from '@/shared/components/sql-editor'
 import { getChartTypeMeta } from '@/features/dashboard/constants'
 import { composeSql } from '@/features/dashboard/utils/sql-builder'
 import {
@@ -77,6 +79,11 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
     groupableFields: groupable,
     isLoading: fieldsLoading,
   } = useAggregatableFields(builder.indexPattern)
+  const indexPatterns = useIndexPatterns()
+  const patternList = useMemo(
+    () => indexPatterns.data?.data ?? [],
+    [indexPatterns.data?.data]
+  )
 
   const composedSql = useMemo(() => composeSql(builder), [builder])
 
@@ -236,6 +243,8 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
             <SqlTab
               rawSql={builder.rawSql ?? ''}
               onChange={(next) => setBuilder((b) => ({ ...b, rawSql: next }))}
+              fields={fields}
+              patterns={patternList}
             />
           )}
         </div>
@@ -433,22 +442,29 @@ function VisualTab({
 function SqlTab({
   rawSql,
   onChange,
+  fields,
+  patterns,
 }: {
   rawSql: string
   onChange: (next: string) => void
+  fields: IndexProperty[]
+  patterns: { pattern: string }[]
 }) {
   const { t } = useTranslation()
   return (
     <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
       <SectionTitle>{t('dashboards.editor.tabs.sql')}</SectionTitle>
-      <textarea
-        value={rawSql}
-        onChange={(e) => onChange(e.target.value)}
-        spellCheck={false}
-        rows={14}
-        placeholder={t('dashboards.editor.sqlPreview.rawPlaceholder') ?? ''}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-      />
+      <div className="rounded-md border border-input bg-background shadow-sm">
+        <SqlQueryEditor
+          value={rawSql}
+          onChange={onChange}
+          fields={fields}
+          patterns={patterns}
+          placeholder={t('dashboards.editor.sqlPreview.rawPlaceholder') ?? undefined}
+          minRows={10}
+          maxRows={20}
+        />
+      </div>
       <p className="text-[10px] text-muted-foreground">
         {t('dashboards.editor.sqlPreview.hint')}
       </p>

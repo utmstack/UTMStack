@@ -22,6 +22,8 @@ export function useDashboardEditor(initialItems: GridLayoutItem[]) {
   // tracked by a stable string signature, and read the latest array via a ref.
   const itemsRef = useRef(initialItems)
   itemsRef.current = initialItems
+  const pendingRemovalsRef = useRef(pendingRemovals)
+  pendingRemovalsRef.current = pendingRemovals
 
   const signature = useMemo(
     () => JSON.stringify(initialItems.map((it) => [it.i, it.x, it.y, it.w, it.h])),
@@ -29,13 +31,29 @@ export function useDashboardEditor(initialItems: GridLayoutItem[]) {
   )
 
   useEffect(() => {
+    const items = itemsRef.current
     if (!editing) {
-      setWorking(itemsRef.current)
-      setBaseline(itemsRef.current)
+      setWorking(items)
+      setBaseline(items)
       setPendingRemovals([])
+      return
     }
-    // `signature` (a value-based string) stands in for `initialItems`; `itemsRef`
-    // is intentionally not a dependency.
+    // While editing, pick up items that were created externally (e.g. via
+    // "Add widget"): anything present in the fresh layout rows but neither in
+    // working nor pending-removal gets appended so the grid reflects it live.
+    const removedIds = new Set(pendingRemovalsRef.current.map(String))
+    setWorking((curr) => {
+      const known = new Set(curr.map((c) => c.i))
+      const extras = items.filter((it) => !known.has(it.i) && !removedIds.has(it.i))
+      return extras.length ? [...curr, ...extras] : curr
+    })
+    setBaseline((curr) => {
+      const known = new Set(curr.map((c) => c.i))
+      const extras = items.filter((it) => !known.has(it.i) && !removedIds.has(it.i))
+      return extras.length ? [...curr, ...extras] : curr
+    })
+    // `signature` (a value-based string) stands in for `initialItems`; refs
+    // are intentionally not dependencies.
   }, [editing, signature])
 
   const enter = useCallback(() => {
