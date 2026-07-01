@@ -11,9 +11,9 @@ type CapabilityGroup struct {
 var capabilityGroups = []CapabilityGroup{
 	{"alerts", "manage alerts (status, tags, notes, tag rules)", []string{"alerts", "alert_tags", "alert_tag_rules", "adversary"}},
 	{"incidents", "manage incidents", []string{"incidents", "incident_notes", "incident_alerts", "incident_history", "incident_histories"}},
-	{"dashboards", "create and manage dashboards", []string{"dashboards"}},
+	{"dashboards", "create and manage dashboards", []string{"dashboards", "visualizations", "dashboard_layouts"}},
 	{"compliance", "manage compliance frameworks and generate reports", []string{"compliance"}},
-	{"correlation", "manage correlation and event-processing rules", []string{"eventprocessing", "event_processing"}},
+	{"correlation", "manage correlation and event-processing rules", []string{"correlation_rule", "regex_pattern", "tenant_config", "filter"}},
 	{"datasources", "manage data sources", []string{"datasources", "datasource_groups"}},
 }
 
