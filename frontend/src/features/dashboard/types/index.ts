@@ -4,6 +4,8 @@ export interface Dashboard {
   description?: string
   config?: string
   filters?: string
+  // Auto-refresh interval in seconds. 0 (or undefined) disables it.
+  refreshTime?: number
   systemOwner?: boolean
   createdDate?: string
   modifiedDate?: string
@@ -32,6 +34,7 @@ export interface DashboardCreateInput {
   description?: string
   config?: string
   filters?: string
+  refreshTime?: number
 }
 
 export interface DashboardUpdateInput {
@@ -40,6 +43,7 @@ export interface DashboardUpdateInput {
   description?: string
   config?: string
   filters?: string
+  refreshTime?: number
 }
 
 export interface VisualizationCreateInput {

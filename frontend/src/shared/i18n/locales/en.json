@@ -607,6 +607,15 @@
       "removeAria": "Remove filter",
       "saving": "Saving…"
     },
+    "refresh": {
+      "tooltip": "Auto-refresh interval",
+      "off": "Off",
+      "10s": "10s",
+      "30s": "30s",
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m"
+    },
     "newDashboard": {
       "title": "New dashboard",
       "subtitle": "Create a blank dashboard. You can add widgets after it's saved."

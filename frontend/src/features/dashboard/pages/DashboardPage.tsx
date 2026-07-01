@@ -17,6 +17,7 @@ import {
   DashboardFilterBar,
   type ChipValueMap,
 } from '@/features/dashboard/components/DashboardFilterBar'
+import { DashboardRefreshSelect } from '@/features/dashboard/components/DashboardRefreshSelect'
 import { AddVisualizationDrawer } from '@/features/dashboard/components/AddVisualizationDrawer'
 import { DashboardTable } from '@/features/dashboard/components/DashboardTable'
 import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
@@ -45,6 +46,9 @@ export function DashboardPage() {
   // Chip *values* are session-only (v11 parity): they clear when the user
   // switches dashboards. The *config* lives on dashboard.filters and persists.
   const [chipValues, setChipValues] = useState<ChipValueMap>({})
+  // Auto-refresh interval in seconds; 0 = off. Seeded from dashboard.refreshTime
+  // once the dashboard loads (see effect below); user edits persist via update.
+  const [refreshSeconds, setRefreshSeconds] = useState(0)
   // When entering the preview from the table's edit action we want the layout
   // editor to open automatically once the dashboard data is available.
   const pendingEditRef = useRef(false)
@@ -97,6 +101,12 @@ export function DashboardPage() {
   useEffect(() => {
     setChipValues({})
   }, [selectedId])
+
+  // Sync local refresh state from the loaded dashboard. Only on dashboard swap;
+  // subsequent user edits win against stale server data during the update trip.
+  useEffect(() => {
+    setRefreshSeconds(selectedDashboard.data?.refreshTime ?? 0)
+  }, [selectedId, selectedDashboard.data?.id])
 
   const activeFilters = useMemo<FilterType[]>(
     () => chipsToFilters(chips, chipValues),
@@ -247,6 +257,25 @@ export function DashboardPage() {
     setSelectedId(id)
   }
 
+  const handleRefreshChange = (next: number) => {
+    setRefreshSeconds(next)
+    const target = selectedDashboard.data
+    if (!target || target.refreshTime === next) return
+    dashboards.updateDashboard.mutate(
+      {
+        id: target.id,
+        name: target.name,
+        description: target.description,
+        config: target.config,
+        filters: target.filters,
+        refreshTime: next,
+      },
+      {
+        onError: (err) => toast.error(err.message ?? t('dashboards.toast.updateFailed')),
+      }
+    )
+  }
+
   const handleSaveFilters = (next: DashboardFilterChip[]) => {
     const target = selectedDashboard.data
     if (!target) return
@@ -300,6 +329,7 @@ export function DashboardPage() {
           onDelete={(d) => setPendingDelete(d)}
           right={
             <div className="flex flex-wrap items-center gap-2">
+              <DashboardRefreshSelect value={refreshSeconds} onChange={handleRefreshChange} />
               <DashboardTimeRange value={time} onChange={setTime} />
               {editor.editing && (
                 <DashboardEditorBar
@@ -368,6 +398,7 @@ export function DashboardPage() {
               visualizationsById={visualizationsById}
               time={time}
               filters={activeFilters}
+              refreshSeconds={refreshSeconds}
               editing={editor.editing}
               onLayoutChange={editor.replace}
               onRemoveItem={editor.remove}

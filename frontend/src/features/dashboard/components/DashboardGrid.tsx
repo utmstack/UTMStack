@@ -19,6 +19,7 @@ export function DashboardGrid({
   visualizationsById,
   time,
   filters,
+  refreshSeconds,
   editing,
   onLayoutChange,
   onRemoveItem,
@@ -28,6 +29,7 @@ export function DashboardGrid({
   visualizationsById: Map<number, Visualization>
   time: TimeRange
   filters?: FilterType[]
+  refreshSeconds?: number
   editing: boolean
   onLayoutChange?: (items: GridLayoutItem[]) => void
   onRemoveItem?: (id: number) => void
@@ -85,7 +87,12 @@ export function DashboardGrid({
                   onRemove={dv ? () => onRemoveItem?.(dv.id) : undefined}
                 >
                   {viz ? (
-                    <WidgetRenderer visualization={viz} time={time} filters={filters} />
+                    <WidgetRenderer
+                      visualization={viz}
+                      time={time}
+                      filters={filters}
+                      refreshSeconds={refreshSeconds}
+                    />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                       {t('dashboards.grid.missingVisualization')}
