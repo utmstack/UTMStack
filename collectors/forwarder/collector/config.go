@@ -55,6 +55,10 @@ func SyncCollectorConfig() error {
 
 	for key := range cnf.Integrations {
 		if _, exists := config.ProtoPorts[config.DataType(key)]; !exists {
+			integration := cnf.Integrations[key]
+			if integration.HTTP != nil || integration.HTTPS != nil {
+				continue
+			}
 			delete(cnf.Integrations, key)
 			modified = true
 			utils.Logger.Info("Removed obsolete integration from config: %s", key)
@@ -252,8 +256,6 @@ func IsPortBindable(port string, proto string) bool {
 	}
 }
 
-
-
 func ChangeFileIntegrationStatus(logTyp string, isEnabled bool) ([]string, error) {
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
@@ -319,11 +321,11 @@ func GetFileIntegrationPaths(logTyp string) ([]string, error) {
 }
 
 type HTTPIntegrationOptions struct {
-	Proto          string // "http" or "https"
-	Port           string
-	Path           string // URL path, default "/logs"
-	Bind           string // bind address, default "127.0.0.1"
-	Auth           string // "" | "bearer" | "hmac"
+	Proto           string // "http" or "https"
+	Port            string
+	Path            string // URL path, default "/logs"
+	Bind            string // bind address, default "127.0.0.1"
+	Auth            string // "" | "bearer" | "hmac"
 	SignatureHeader string // e.g. "X-Hub-Signature-256"
 }
 
@@ -352,11 +354,11 @@ func EnableHTTPIntegration(logTyp string, opts HTTPIntegrationOptions) error {
 
 	integration := cfg.Integrations[logTyp]
 	httpPort := &schema.HTTPPort{
-		Enabled:        true,
-		Port:           opts.Port,
-		Path:           opts.Path,
-		Bind:           opts.Bind,
-		Auth:           opts.Auth,
+		Enabled:         true,
+		Port:            opts.Port,
+		Path:            opts.Path,
+		Bind:            opts.Bind,
+		Auth:            opts.Auth,
 		SignatureHeader: opts.SignatureHeader,
 	}
 
