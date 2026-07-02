@@ -1,5 +1,5 @@
 import { dump, load } from 'js-yaml'
-import type { Flow, FlowCondition, SaveFlowInput, SoarOperator } from '../types/soar.types'
+import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCondition, type SaveFlowInput, type SoarOperator } from '../types/soar.types'
 
 /** Structured editing state for a flow. `active` is managed by the toggle (not in
  *  the YAML file), so callers preserve it across the code round-trip. */
@@ -25,24 +25,27 @@ const strArray = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : [
 
 function parseCond(c: unknown): FlowCondition {
   const o = isRecord(c) ? c : {}
-  const op = (['IS', 'IS_ONE_OF', 'IS_NOT_ONE_OF'].includes(str(o.operator)) ? o.operator : 'IS') as SoarOperator
+  const op = (SOAR_OPERATORS.includes(str(o.operator) as SoarOperator) ? o.operator : 'IS') as SoarOperator
   return { operator: op, field: str(o.field), value: o.value }
 }
 
 /** Coerce a condition's value to the right shape for its operator. */
 function normalizeCond(c: FlowCondition): FlowCondition {
   const field = c.field.trim()
-  if (c.operator === 'IS') {
-    const v = Array.isArray(c.value) ? c.value[0] : c.value
-    return { operator: 'IS', field, value: str(v) }
+  if (SOAR_NO_VALUE_OPERATORS.includes(c.operator)) {
+    return { operator: c.operator, field, value: '' }
   }
-  const arr = Array.isArray(c.value)
-    ? c.value.map(String)
-    : str(c.value)
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-  return { operator: c.operator, field, value: arr }
+  if (SOAR_MULTI_VALUE_OPERATORS.includes(c.operator)) {
+    const arr = Array.isArray(c.value)
+      ? c.value.map(String)
+      : str(c.value)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+    return { operator: c.operator, field, value: arr }
+  }
+  const v = Array.isArray(c.value) ? c.value[0] : c.value
+  return { operator: c.operator, field, value: str(v) }
 }
 
 export function flowToForm(f?: Flow): FlowFormState {

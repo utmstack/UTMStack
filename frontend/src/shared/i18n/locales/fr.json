@@ -4479,6 +4479,15 @@
     },
     "operator": {
       "IS": "est",
+      "IS_NOT": "n'est pas",
+      "CONTAINS": "contient",
+      "NOT_CONTAINS": "ne contient pas",
+      "EXISTS": "existe",
+      "NOT_EXISTS": "n'existe pas",
+      "START_WITH": "commence par",
+      "NOT_START_WITH": "ne commence pas par",
+      "ENDS_WITH": "se termine par",
+      "NOT_ENDS_WITH": "ne se termine pas par",
       "IS_ONE_OF": "est l'un de",
       "IS_NOT_ONE_OF": "n'est pas l'un de"
     },

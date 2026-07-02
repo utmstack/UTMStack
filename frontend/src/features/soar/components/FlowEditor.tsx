@@ -11,7 +11,7 @@ import { VariablesManager } from '@/features/datasources/components/VariablesMan
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
 import { ALERT_FIELDS, COMMON_PLATFORMS, defaultShellForPlatform, shellsForPlatform } from '../lib/alert-fields'
-import { SOAR_OPERATORS, type Flow, type FlowCondition, type SoarOperator } from '../types/soar.types'
+import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCondition, type SoarOperator } from '../types/soar.types'
 
 const SELECT = 'h-8 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
@@ -381,7 +381,9 @@ function ConditionsEditor({
                 <option key={op} value={op}>{t(`soar.operator.${op}`)}</option>
               ))}
             </select>
-            <Input value={valueStr(c)} readOnly={readOnly} onChange={(e) => setAt(i, { value: e.target.value })} placeholder={c.operator === 'IS' ? t('soar.editor.value') : t('soar.editor.valueList')} className="h-8 min-w-[140px] flex-1 font-mono text-xs" />
+            {!SOAR_NO_VALUE_OPERATORS.includes(c.operator) && (
+              <Input value={valueStr(c)} readOnly={readOnly} onChange={(e) => setAt(i, { value: e.target.value })} placeholder={SOAR_MULTI_VALUE_OPERATORS.includes(c.operator) ? t('soar.editor.valueList') : t('soar.editor.value')} className="h-8 min-w-[140px] flex-1 font-mono text-xs" />
+            )}
             {!readOnly && (
               <button type="button" onClick={() => onChange(conditions.filter((_, k) => k !== i))} className="rounded p-1 text-muted-foreground hover:text-red-500">
                 <X size={13} />

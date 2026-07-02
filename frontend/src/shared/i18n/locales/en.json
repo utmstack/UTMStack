@@ -4643,6 +4643,15 @@
     },
     "operator": {
       "IS": "is",
+      "IS_NOT": "is not",
+      "CONTAINS": "contains",
+      "NOT_CONTAINS": "does not contain",
+      "EXISTS": "exists",
+      "NOT_EXISTS": "does not exist",
+      "START_WITH": "starts with",
+      "NOT_START_WITH": "does not start with",
+      "ENDS_WITH": "ends with",
+      "NOT_ENDS_WITH": "does not end with",
       "IS_ONE_OF": "is one of",
       "IS_NOT_ONE_OF": "is not one of"
     },

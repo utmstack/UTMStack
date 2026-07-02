@@ -1,10 +1,40 @@
 /* Mirrors backend modules/soar dto (rule.go, execution.go). */
 
-export type SoarOperator = 'IS' | 'IS_ONE_OF' | 'IS_NOT_ONE_OF'
-export const SOAR_OPERATORS: SoarOperator[] = ['IS', 'IS_ONE_OF', 'IS_NOT_ONE_OF']
+export type SoarOperator =
+  | 'IS'
+  | 'IS_NOT'
+  | 'CONTAINS'
+  | 'NOT_CONTAINS'
+  | 'EXISTS'
+  | 'NOT_EXISTS'
+  | 'START_WITH'
+  | 'NOT_START_WITH'
+  | 'ENDS_WITH'
+  | 'NOT_ENDS_WITH'
+  | 'IS_ONE_OF'
+  | 'IS_NOT_ONE_OF'
 
-/** A flow condition against an alert field. `value` is a string for IS and a
- *  string[] for IS_ONE_OF / IS_NOT_ONE_OF. */
+export const SOAR_OPERATORS: SoarOperator[] = [
+  'IS',
+  'IS_NOT',
+  'CONTAINS',
+  'NOT_CONTAINS',
+  'EXISTS',
+  'NOT_EXISTS',
+  'START_WITH',
+  'NOT_START_WITH',
+  'ENDS_WITH',
+  'NOT_ENDS_WITH',
+  'IS_ONE_OF',
+  'IS_NOT_ONE_OF',
+]
+
+export const SOAR_MULTI_VALUE_OPERATORS: SoarOperator[] = ['IS_ONE_OF', 'IS_NOT_ONE_OF']
+export const SOAR_NO_VALUE_OPERATORS: SoarOperator[] = ['EXISTS', 'NOT_EXISTS']
+
+/** A flow condition against an alert field. `value` is string[] for
+ *  IS_ONE_OF/IS_NOT_ONE_OF, unused for EXISTS/NOT_EXISTS, and a string
+ *  otherwise. */
 export interface FlowCondition {
   operator: SoarOperator
   field: string

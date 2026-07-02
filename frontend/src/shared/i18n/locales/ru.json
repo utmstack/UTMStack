@@ -4302,6 +4302,15 @@
     },
     "operator": {
       "IS": "равно",
+      "IS_NOT": "не равно",
+      "CONTAINS": "содержит",
+      "NOT_CONTAINS": "не содержит",
+      "EXISTS": "существует",
+      "NOT_EXISTS": "не существует",
+      "START_WITH": "начинается с",
+      "NOT_START_WITH": "не начинается с",
+      "ENDS_WITH": "заканчивается на",
+      "NOT_ENDS_WITH": "не заканчивается на",
       "IS_ONE_OF": "одно из",
       "IS_NOT_ONE_OF": "не одно из"
     },
