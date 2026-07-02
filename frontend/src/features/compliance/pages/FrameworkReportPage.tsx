@@ -5,8 +5,9 @@ import { AlertTriangle, ArrowLeft, Download, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { complianceService } from '../services/compliance-http.service'
-import type { Report } from '../types/compliance.types'
+import type { Report, ReportControlRow } from '../types/compliance.types'
 import { ReportView } from '../components/ReportView'
+import { ControlDetailDrawer } from '../components/ControlDetailDrawer'
 
 export function FrameworkReportPage() {
   const { key = '' } = useParams<{ key: string }>()
@@ -16,6 +17,7 @@ export function FrameworkReportPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [openRow, setOpenRow] = useState<ReportControlRow | null>(null)
 
   const load = useCallback(() => {
     if (!key) return
@@ -79,9 +81,11 @@ export function FrameworkReportPage() {
             <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button>
           </div>
         ) : (
-          <ReportView report={report} />
+          <ReportView report={report} onControlClick={setOpenRow} />
         )}
       </div>
+
+      {openRow && <ControlDetailDrawer row={openRow} onClose={() => setOpenRow(null)} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
-import type { ControlStatus, Report } from '../types/compliance.types'
+import type { ControlStatus, Report, ReportControlRow } from '../types/compliance.types'
 
 export function scoreTone(score: number): string {
   if (score >= 80) return 'text-emerald-500'
@@ -25,7 +25,7 @@ export const STATUS_TONE: Record<ControlStatus, string> = {
 }
 
 /** Renders a compliance report: summary score + per-section control breakdown. */
-export function ReportView({ report }: { report: Report }) {
+export function ReportView({ report, onControlClick }: { report: Report; onControlClick?: (row: ReportControlRow) => void }) {
   const { t } = useTranslation()
   const df = useDateFormat()
   const s = report.summary ?? { compliantPct: 0, total: 0, compliant: 0, nonCompliant: 0, atRisk: 0, notCovered: 0, pending: 0, outOfScope: 0 }
@@ -57,7 +57,14 @@ export function ReportView({ report }: { report: Report }) {
           <div className="border-b border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{sec.name}</div>
           <div>
             {(sec.controls ?? []).map((c) => (
-              <div key={c.controlId} className="flex items-start gap-3 border-b border-border px-4 py-2.5 last:border-0">
+              <div
+                key={c.controlId}
+                onClick={onControlClick ? () => onControlClick(c) : undefined}
+                className={cn(
+                  'flex items-start gap-3 border-b border-border px-4 py-2.5 last:border-0',
+                  onControlClick && 'cursor-pointer transition-colors hover:bg-muted/50',
+                )}
+              >
                 <span className={cn('mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold', STATUS_TONE[c.status])}>
                   {t(`compliance.status.${c.status}`)}
                 </span>
