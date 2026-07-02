@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
 type FlowListFilter struct {
@@ -98,6 +100,7 @@ func loadFlowOverlay(dir string, system bool) ([]*StoredFlow, error) {
 
 		flow, ferr := readFlowFile(path)
 		if ferr != nil {
+			_ = catcher.Error("soar: skipping unparsable flow file", ferr, map[string]any{"path": path})
 			return nil // skip unparsable files rather than failing the whole load
 		}
 
