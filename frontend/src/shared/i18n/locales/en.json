@@ -3706,7 +3706,8 @@
       "threat": "Threat",
       "alerts": "Alerts",
       "targets": "Targets",
-      "lastSeen": "Last seen"
+      "lastSeen": "Last seen",
+      "victims": "Victims"
     },
     "card": {
       "alerts": "Alerts",
@@ -3742,6 +3743,18 @@
       "minutesAgo": "{{count}}m ago",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "User",
+      "port": "Port",
+      "domain": "Domain",
+      "mac": "MAC",
+      "country": "Country",
+      "city": "City",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

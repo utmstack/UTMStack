@@ -3736,7 +3736,8 @@
       "threat": "Bedrohung",
       "alerts": "Alarme",
       "targets": "Ziele",
-      "lastSeen": "Zuletzt gesehen"
+      "lastSeen": "Zuletzt gesehen",
+      "victims": "Opfer"
     },
     "card": {
       "alerts": "Alarme",
@@ -3772,6 +3773,18 @@
       "minutesAgo": "vor {{count}}m",
       "hoursAgo": "vor {{count}}h",
       "daysAgo": "vor {{count}}T"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Benutzer",
+      "port": "Port",
+      "domain": "Domain",
+      "mac": "MAC",
+      "country": "Land",
+      "city": "Stadt",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {
