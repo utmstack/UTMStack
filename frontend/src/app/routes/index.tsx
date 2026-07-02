@@ -24,6 +24,7 @@ import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
+import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
 import { IntegrationsPage } from '@/features/integrations/pages/IntegrationsPage'
 import { AlertingRulesPage } from '@/features/alerting-rules/pages/AlertingRulesPage'
@@ -121,6 +122,7 @@ export function AppRoutes() {
 
         {/* Compliance */}
         <Route path="compliance" element={<CompliancePage />} />
+        <Route path="compliance/frameworks/:key" element={<FrameworkReportPage />} />
         {/* Legacy redirects */}
         <Route path="compliance/new" element={<Navigate to="/compliance" replace />} />
         <Route path="compliance/schedule" element={<Navigate to="/compliance" replace />} />

@@ -4758,6 +4758,7 @@
     "controlsCount": "{{n}} controls",
     "enabledLabel": "Enabled",
     "runReport": "Run report",
+    "backToFrameworks": "Back to frameworks",
     "evaluating": "Evaluating framework…",
     "complianceScore": "Compliance score",
     "generatedAt": "Generated {{date}}",
