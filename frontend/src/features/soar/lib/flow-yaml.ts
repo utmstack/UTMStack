@@ -1,5 +1,5 @@
 import { dump, load } from 'js-yaml'
-import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCondition, type SaveFlowInput, type SoarOperator } from '../types/soar.types'
+import { SOAR_CONDITIONS, SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCommand, type FlowCondition, type SaveFlowInput, type SoarCondition, type SoarOperator } from '../types/soar.types'
 
 /** Structured editing state for a flow. `active` is managed by the toggle (not in
  *  the YAML file), so callers preserve it across the code round-trip. */
@@ -7,7 +7,7 @@ export interface FlowFormState {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: string[]
+  commands: FlowCommand[]
   shell: string
   agentPlatform: string
   defaultAgent: string
@@ -22,6 +22,16 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 const str = (v: unknown): string => (v == null ? '' : String(v))
 const strArray = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : [])
+
+/** Accept either the object form `{command, condition?}` or a legacy bare
+ *  string (older YAML files). Unknown/invalid condition values are dropped. */
+function parseCommand(c: unknown): FlowCommand {
+  if (typeof c === 'string') return { command: c }
+  if (!isRecord(c)) return { command: '' }
+  const command = str(c.command)
+  const cond = str(c.condition)
+  return SOAR_CONDITIONS.includes(cond as SoarCondition) ? { command, condition: cond as SoarCondition } : { command }
+}
 
 function parseCond(c: unknown): FlowCondition {
   const o = isRecord(c) ? c : {}
@@ -53,7 +63,7 @@ export function flowToForm(f?: Flow): FlowFormState {
     name: f?.name ?? '',
     description: f?.description ?? '',
     conditions: f?.conditions?.length ? f.conditions.map((c) => ({ ...c })) : [{ operator: 'IS', field: '', value: '' }],
-    commands: f?.commands?.length ? [...f.commands] : [''],
+    commands: f?.commands?.length ? f.commands.map((c) => ({ ...c })) : [{ command: '' }],
     shell: f?.shell ?? '',
     agentPlatform: f?.agentPlatform ?? '',
     defaultAgent: f?.defaultAgent ?? '',
@@ -63,11 +73,15 @@ export function flowToForm(f?: Flow): FlowFormState {
 }
 
 export function formToInput(f: FlowFormState): SaveFlowInput {
+  const commands = f.commands
+    .map((c) => ({ ...c, command: c.command.trim() }))
+    .filter((c) => c.command)
+    .map((c, i) => (i === 0 ? { command: c.command } : { command: c.command, condition: c.condition ?? 'Always' }))
   return {
     name: f.name.trim(),
     description: f.description.trim(),
     conditions: f.conditions.filter((c) => c.field.trim()).map(normalizeCond),
-    commands: f.commands.map((c) => c.trim()).filter(Boolean),
+    commands,
     active: f.active,
     agentPlatform: f.agentPlatform.trim(),
     defaultAgent: f.defaultAgent.trim(),
@@ -103,12 +117,12 @@ export function yamlToFlowForm(content: string): FlowParseResult {
   if (!isRecord(raw)) return { ok: false, error: 'root must be a flow mapping' }
 
   const conditions = Array.isArray(raw.conditions) ? raw.conditions.map(parseCond) : []
-  const commands = Array.isArray(raw.commands) ? raw.commands.map(String) : []
+  const commands = Array.isArray(raw.commands) ? raw.commands.map(parseCommand) : []
   const form: FlowFormState = {
     name: str(raw.name),
     description: str(raw.description),
     conditions: conditions.length ? conditions : [{ operator: 'IS', field: '', value: '' }],
-    commands: commands.length ? commands : [''],
+    commands: commands.length ? commands : [{ command: '' }],
     shell: str(raw.shell),
     agentPlatform: str(raw.agentPlatform),
     defaultAgent: str(raw.defaultAgent),

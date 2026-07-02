@@ -11,7 +11,7 @@ import { VariablesManager } from '@/features/datasources/components/VariablesMan
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
 import { ALERT_FIELDS, COMMON_PLATFORMS, defaultShellForPlatform, shellsForPlatform } from '../lib/alert-fields'
-import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCondition, type SoarOperator } from '../types/soar.types'
+import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCommand, type FlowCondition, type SoarCondition, type SoarOperator } from '../types/soar.types'
 
 const SELECT = 'h-8 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
@@ -407,9 +407,9 @@ function CommandsEditor({
   onChange,
   t,
 }: {
-  commands: string[]
+  commands: FlowCommand[]
   readOnly?: boolean
-  onChange: (c: string[]) => void
+  onChange: (c: FlowCommand[]) => void
   t: ReturnType<typeof useTranslation>['t']
 }) {
   const refs = useRef<(HTMLInputElement | null)[]>([])
@@ -431,11 +431,11 @@ function CommandsEditor({
   const insert = (token: string) => {
     const idx = Math.min(active, Math.max(0, commands.length - 1))
     const el = refs.current[idx]
-    const cur = commands[idx] ?? ''
+    const cur = commands[idx]?.command ?? ''
     const start = el?.selectionStart ?? cur.length
     const end = el?.selectionEnd ?? cur.length
     const next = cur.slice(0, start) + token + cur.slice(end)
-    onChange(commands.map((c, k) => (k === idx ? next : c)))
+    onChange(commands.map((c, k) => (k === idx ? { ...c, command: next } : c)))
     requestAnimationFrame(() => {
       const e2 = refs.current[idx]
       if (e2) {
@@ -485,31 +485,48 @@ function CommandsEditor({
 
       <div className="space-y-1.5">
         {commands.map((cmd, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{i + 1}</span>
-            <Input
-              ref={(el) => {
-                refs.current[i] = el
-              }}
-              value={cmd}
-              readOnly={readOnly}
-              onFocus={() => setActive(i)}
-              onClick={() => setActive(i)}
-              onChange={(e) => onChange(commands.map((x, k) => (k === i ? e.target.value : x)))}
-              placeholder='net user "$(target.user)" /active:no'
-              className="h-8 flex-1 font-mono text-xs"
-            />
-            {!readOnly && (
-              <button type="button" onClick={() => onChange(commands.filter((_, k) => k !== i))} className="rounded p-1 text-muted-foreground hover:text-red-500">
-                <X size={13} />
-              </button>
+          <div key={i}>
+            {i > 0 && (
+              <div className="relative flex h-10 items-center justify-center">
+                <div className="soar-flow-line absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 rounded-full" />
+                <select
+                  value={cmd.condition ?? 'Always'}
+                  disabled={readOnly}
+                  onChange={(e) => onChange(commands.map((x, k) => (k === i ? { ...x, condition: e.target.value as SoarCondition } : x)))}
+                  className={cn(SELECT, 'relative z-10 h-6 py-0 shadow-sm')}
+                >
+                  <option value="Always">{t('soar.editor.connector.always')}</option>
+                  <option value="OnSuccess">{t('soar.editor.connector.success')}</option>
+                  <option value="OnFailure">{t('soar.editor.connector.failure')}</option>
+                </select>
+              </div>
             )}
+            <div className="flex items-center gap-1.5">
+              <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{i + 1}</span>
+              <Input
+                ref={(el) => {
+                  refs.current[i] = el
+                }}
+                value={cmd.command}
+                readOnly={readOnly}
+                onFocus={() => setActive(i)}
+                onClick={() => setActive(i)}
+                onChange={(e) => onChange(commands.map((x, k) => (k === i ? { ...x, command: e.target.value } : x)))}
+                placeholder='net user "$(target.user)" /active:no'
+                className="h-8 flex-1 font-mono text-xs"
+              />
+              {!readOnly && (
+                <button type="button" onClick={() => onChange(commands.filter((_, k) => k !== i))} className="rounded p-1 text-muted-foreground hover:text-red-500">
+                  <X size={13} />
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
       {!readOnly && (
-        <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => onChange([...commands, ''])}>
+        <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => onChange([...commands, { command: '' }])}>
           <Plus size={12} className="mr-1" /> {t('soar.editor.addCommand')}
         </Button>
       )}

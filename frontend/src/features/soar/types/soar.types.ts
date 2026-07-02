@@ -41,13 +41,24 @@ export interface FlowCondition {
   value: unknown
 }
 
+export type SoarCondition = 'OnSuccess' | 'OnFailure' | 'Always'
+export const SOAR_CONDITIONS: SoarCondition[] = ['OnSuccess', 'OnFailure', 'Always']
+
+/** Join semantic for a command relative to the previous one:
+ *  OnSuccess → `&&`, OnFailure → `||`, Always → `;`. Absent on the first
+ *  command (nothing to chain against). */
+export interface FlowCommand {
+  command: string
+  condition?: SoarCondition
+}
+
 /** An alert-response flow (file-backed YAML). Identity is `relPath`. */
 export interface Flow {
   relPath: string
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: string[]
+  commands: FlowCommand[]
   active: boolean
   agentPlatform: string
   defaultAgent: string
@@ -62,7 +73,7 @@ export interface SaveFlowInput {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: string[]
+  commands: FlowCommand[]
   active: boolean
   agentPlatform: string
   defaultAgent: string
