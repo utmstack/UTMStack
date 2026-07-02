@@ -39,3 +39,12 @@ type ControlStatusOverrideRepository interface {
 	Delete(ctx context.Context, frameworkKey, controlID string) error
 	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
 }
+
+// ControlNoteRepository stores freeform notes per (framework, control). Same
+// upsert-on-unique pattern; ListByFramework returns a controlID → note map for
+// the evaluator to attach to report rows.
+type ControlNoteRepository interface {
+	Upsert(ctx context.Context, n *domain.UtmComplianceControlNote) error
+	Delete(ctx context.Context, frameworkKey, controlID string) error
+	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
+}

@@ -50,6 +50,11 @@ type EvaluatorUsecase interface {
 	// removes the override so the row falls back to the computed status.
 	SetStatusOverride(ctx context.Context, frameworkKey, controlID, status, reason string) error
 	ClearStatusOverride(ctx context.Context, frameworkKey, controlID string) error
+
+	// User notes on (framework, control) — freeform text, surfaced on live report
+	// rows. Empty note deletes the row.
+	SetControlNote(ctx context.Context, frameworkKey, controlID, note string) error
+	ClearControlNote(ctx context.Context, frameworkKey, controlID string) error
 }
 
 type ScheduleUsecase interface {

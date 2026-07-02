@@ -60,4 +60,5 @@ type ReportControlRow struct {
 	Coverage   int    `json:"coverage"`             // # enabled correlation rules covering this control
 	Activity   int    `json:"activity"`             // # alerts from those rules in the window
 	Overridden bool   `json:"overridden,omitempty"` // true when status came from a manual override
+	Note       string `json:"note,omitempty"`       // user note attached to this (framework, control)
 }
