@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, ArrowLeft, Download, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { complianceService } from '../services/compliance-http.service'
 import type { Report, ReportControlRow } from '../types/compliance.types'
 import { ReportView } from '../components/ReportView'
+import { ReportDocument } from '../components/ReportDocument'
 import { ControlDetailDrawer } from '../components/ControlDetailDrawer'
 
 export function FrameworkReportPage() {
@@ -16,8 +16,8 @@ export function FrameworkReportPage() {
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [downloading, setDownloading] = useState(false)
   const [openRow, setOpenRow] = useState<ReportControlRow | null>(null)
+  const [showDoc, setShowDoc] = useState(false)
 
   const load = useCallback(() => {
     if (!key) return
@@ -45,26 +45,6 @@ export function FrameworkReportPage() {
     }
   }
 
-  const download = async () => {
-    if (downloading) return
-    setDownloading(true)
-    try {
-      const blob = await complianceService.downloadFrameworkPdf(key)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${(report?.frameworkName || key).replace(/[^\w -]/g, '').trim() || 'Compliance_Report'}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-    } catch {
-      toast.error(t('compliance.doc.downloadError'))
-    } finally {
-      setDownloading(false)
-    }
-  }
-
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
       <header className="flex shrink-0 items-center justify-between gap-3">
@@ -74,8 +54,8 @@ export function FrameworkReportPage() {
         <div className="min-w-0 flex-1 text-center">
           <h1 className="truncate text-sm font-semibold">{report?.frameworkName || key}</h1>
         </div>
-        <Button size="sm" onClick={() => void download()} disabled={downloading || !report}>
-          {downloading ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
+        <Button size="sm" onClick={() => setShowDoc(true)} disabled={!report}>
+          <Download size={14} className="mr-1.5" />
           {t('compliance.doc.download')}
         </Button>
       </header>
@@ -101,6 +81,14 @@ export function FrameworkReportPage() {
           row={openRow}
           onClose={() => setOpenRow(null)}
           onStatusChanged={reloadAndResyncDrawer}
+        />
+      )}
+
+      {showDoc && report && (
+        <ReportDocument
+          report={report}
+          onClose={() => setShowDoc(false)}
+          onDownloadPdf={() => complianceService.downloadFrameworkPdf(key)}
         />
       )}
     </div>
