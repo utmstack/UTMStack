@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
 import { complianceService } from '../services/compliance-http.service'
 import type { Control, ReportControlRow } from '../types/compliance.types'
-import { STATUS_TONE } from './ReportView'
+import { ControlStatusBadge } from './ControlStatusBadge'
 
 /** Right-side drawer showing full details of a report control row + its library Control. */
-export function ControlDetailDrawer({ row, onClose }: { row: ReportControlRow; onClose: () => void }) {
+export function ControlDetailDrawer({
+  frameworkKey,
+  row,
+  onClose,
+  onStatusChanged,
+}: {
+  frameworkKey: string
+  row: ReportControlRow
+  onClose: () => void
+  onStatusChanged?: () => void
+}) {
   const { t } = useTranslation()
   const [control, setControl] = useState<Control | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,9 +42,7 @@ export function ControlDetailDrawer({ row, onClose }: { row: ReportControlRow; o
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-mono text-[11px] text-muted-foreground">{row.controlId}</span>
-              <span className={cn('rounded px-1.5 py-0.5 text-[10px] font-semibold', STATUS_TONE[row.status])}>
-                {t(`compliance.status.${row.status}`)}
-              </span>
+              <ControlStatusBadge frameworkKey={frameworkKey} row={row} onChanged={onStatusChanged} />
             </div>
             <h2 className="mt-1 truncate text-sm font-semibold">{control?.name || row.name}</h2>
           </div>
@@ -49,7 +56,6 @@ export function ControlDetailDrawer({ row, onClose }: { row: ReportControlRow; o
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-6">
           <section className="grid grid-cols-2 gap-3">
-            <Stat label={t('compliance.status.label', { defaultValue: 'Status' })} value={t(`compliance.status.${row.status}`)} />
             <Stat label={t('compliance.coverageLabel', { defaultValue: 'Coverage' })} value={t('compliance.coverage', { n: row.coverage })} />
             <Stat label={t('compliance.activityLabel', { defaultValue: 'Activity' })} value={t('compliance.activity', { n: row.activity })} />
             <Stat label={t('compliance.evidenceLabel', { defaultValue: 'Evidence' })} value={row.evidence || '—'} />

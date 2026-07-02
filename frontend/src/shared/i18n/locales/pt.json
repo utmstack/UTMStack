@@ -4682,6 +4682,12 @@
     "controlsCount": "{{n}} controles",
     "enabledLabel": "Ativo",
     "runReport": "Executar relatório",
+    "backToFrameworks": "Voltar aos frameworks",
+    "statusAuto": "Auto (avaliado)",
+    "overrideError": "Falha ao atualizar o status",
+    "coverageLabel": "Cobertura",
+    "activityLabel": "Atividade",
+    "evidenceLabel": "Evidência",
     "evaluating": "Avaliando framework…",
     "complianceScore": "Pontuação de compliance",
     "generatedAt": "Gerado {{date}}",
@@ -4694,7 +4700,8 @@
       "AT_RISK": "Em risco",
       "NOT_COVERED": "Sem cobertura",
       "OUT_OF_SCOPE": "Fora do escopo",
-      "PENDING": "Pendente"
+      "PENDING": "Pendente",
+      "label": "Status"
     },
     "toast": {
       "toggleError": "Falha ao mudar o estado do framework",
@@ -4796,6 +4803,8 @@
       "family": "Família",
       "familyName": "Família",
       "scope": "Escopo",
+      "source": "Fonte",
+      "notInLibrary": "Controle não encontrado na biblioteca",
       "scopeOpt": {
         "data": "Dados",
         "governance": "Governança"

@@ -52,6 +52,15 @@ export const complianceService = {
   downloadSnapshotPdf: (id: string) =>
     api.get<Blob>(`/compliance/reports/${encodeURIComponent(id)}/pdf`, { responseType: 'blob' }),
 
+  // Manual (framework, control) status overrides — applied on live evaluations.
+  setControlStatusOverride: (frameworkKey: string, controlId: string, status: string, reason?: string) =>
+    api.put<void>(
+      `/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/status`,
+      { status, reason: reason ?? '' },
+    ),
+  clearControlStatusOverride: (frameworkKey: string, controlId: string) =>
+    api.delete<void>(`/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/status`),
+
   // ── Schedules (Postgres) ─────────────────────────────────────────────────
   listSchedules: (frameworkKey?: string) => {
     const p = new URLSearchParams()

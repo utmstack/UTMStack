@@ -35,6 +35,16 @@ export function FrameworkReportPage() {
 
   const back = () => navigate('/compliance')
 
+  const reloadAndResyncDrawer = async () => {
+    const fresh = await complianceService.liveReport(key).catch(() => null)
+    if (!fresh) return
+    setReport(fresh)
+    if (openRow) {
+      const stillHere = fresh.sections?.flatMap((s) => s.controls ?? []).find((c) => c.controlId === openRow.controlId)
+      if (stillHere) setOpenRow(stillHere)
+    }
+  }
+
   const download = async () => {
     if (downloading) return
     setDownloading(true)
@@ -81,11 +91,18 @@ export function FrameworkReportPage() {
             <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button>
           </div>
         ) : (
-          <ReportView report={report} onControlClick={setOpenRow} />
+          <ReportView report={report} onControlClick={setOpenRow} onStatusChanged={reloadAndResyncDrawer} />
         )}
       </div>
 
-      {openRow && <ControlDetailDrawer row={openRow} onClose={() => setOpenRow(null)} />}
+      {openRow && (
+        <ControlDetailDrawer
+          frameworkKey={key}
+          row={openRow}
+          onClose={() => setOpenRow(null)}
+          onStatusChanged={reloadAndResyncDrawer}
+        />
+      )}
     </div>
   )
 }

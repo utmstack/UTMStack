@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
 import type { ControlStatus, Report, ReportControlRow } from '../types/compliance.types'
+import { ControlStatusBadge } from './ControlStatusBadge'
 
 export function scoreTone(score: number): string {
   if (score >= 80) return 'text-emerald-500'
@@ -25,7 +26,15 @@ export const STATUS_TONE: Record<ControlStatus, string> = {
 }
 
 /** Renders a compliance report: summary score + per-section control breakdown. */
-export function ReportView({ report, onControlClick }: { report: Report; onControlClick?: (row: ReportControlRow) => void }) {
+export function ReportView({
+  report,
+  onControlClick,
+  onStatusChanged,
+}: {
+  report: Report
+  onControlClick?: (row: ReportControlRow) => void
+  onStatusChanged?: () => void
+}) {
   const { t } = useTranslation()
   const df = useDateFormat()
   const s = report.summary ?? { compliantPct: 0, total: 0, compliant: 0, nonCompliant: 0, atRisk: 0, notCovered: 0, pending: 0, outOfScope: 0 }
@@ -65,9 +74,12 @@ export function ReportView({ report, onControlClick }: { report: Report; onContr
                   onControlClick && 'cursor-pointer transition-colors hover:bg-muted/50',
                 )}
               >
-                <span className={cn('mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold', STATUS_TONE[c.status])}>
-                  {t(`compliance.status.${c.status}`)}
-                </span>
+                <ControlStatusBadge
+                  frameworkKey={report.frameworkKey}
+                  row={c}
+                  onChanged={onStatusChanged}
+                  className="mt-0.5"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <span className="font-mono text-[11px] text-muted-foreground">{c.controlId}</span>

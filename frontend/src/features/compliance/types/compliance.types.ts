@@ -81,6 +81,7 @@ export interface ReportControlRow {
   evidence: string
   coverage: number // enabled correlation rules covering this control
   activity: number // alerts from those rules in the window
+  overridden?: boolean // true when status came from a manual override
 }
 
 export interface ReportSection {
