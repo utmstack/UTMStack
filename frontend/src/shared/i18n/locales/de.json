@@ -4458,6 +4458,15 @@
     "loadError": "Flows konnten nicht geladen werden.",
     "retry": "Erneut versuchen",
     "empty": "Keine Flows für diese Ansicht.",
+    "templates": {
+      "title": "Neuen Flow starten",
+      "subtitle": "Wähle eine Aktionsvorlage oder starte bei Null.",
+      "loading": "Vorlagen werden geladen…",
+      "loadError": "Vorlagen konnten nicht geladen werden.",
+      "empty": "Keine Vorlagen verfügbar.",
+      "cancel": "Abbrechen",
+      "scratch": "Bei Null anfangen"
+    },
     "tabs": {
       "flows": "Flows",
       "executions": "Ausführungsverlauf",
@@ -4514,6 +4523,11 @@
       "commands": "Befehle",
       "commandsHint": "Werden der Reihe nach auf dem Agenten ausgeführt. $(field.path) für Alert-Werte, $[variables.NAME] für gespeicherte Variablen.",
       "addCommand": "Befehl hinzufügen",
+      "connector": {
+        "always": "immer",
+        "success": "bei Erfolg",
+        "failure": "bei Fehler"
+      },
       "agentPlatform": "Agent-Plattform",
       "shell": "Shell",
       "shellAuto": "auto",

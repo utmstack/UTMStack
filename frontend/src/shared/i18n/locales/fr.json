@@ -4458,6 +4458,15 @@
     "loadError": "Impossible de charger les flux.",
     "retry": "Réessayer",
     "empty": "Aucun flux ne correspond à cette vue.",
+    "templates": {
+      "title": "Nouveau flux",
+      "subtitle": "Choisis un modèle d'action ou pars de zéro.",
+      "loading": "Chargement des modèles…",
+      "loadError": "Impossible de charger les modèles.",
+      "empty": "Aucun modèle disponible.",
+      "cancel": "Annuler",
+      "scratch": "Partir de zéro"
+    },
     "tabs": {
       "flows": "Flux",
       "executions": "Historique d'exécutions",
@@ -4514,6 +4523,11 @@
       "commands": "Commandes",
       "commandsHint": "Exécutées dans l'ordre sur l'agent. Utilisez $(field.path) pour les valeurs de l'alerte et $[variables.NAME] pour les variables enregistrées.",
       "addCommand": "Ajouter une commande",
+      "connector": {
+        "always": "toujours",
+        "success": "en cas de succès",
+        "failure": "en cas d'échec"
+      },
       "agentPlatform": "Plateforme de l'agent",
       "shell": "Shell",
       "shellAuto": "auto",

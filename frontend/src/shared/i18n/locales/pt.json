@@ -4546,6 +4546,15 @@
     "loadError": "Não foi possível carregar os fluxos.",
     "retry": "Tentar de novo",
     "empty": "Nenhum fluxo corresponde a esta visão.",
+    "templates": {
+      "title": "Novo fluxo",
+      "subtitle": "Escolha um modelo de ação ou comece do zero.",
+      "loading": "Carregando modelos…",
+      "loadError": "Não foi possível carregar os modelos.",
+      "empty": "Nenhum modelo disponível.",
+      "cancel": "Cancelar",
+      "scratch": "Começar do zero"
+    },
     "tabs": {
       "flows": "Fluxos",
       "executions": "Histórico de execuções",
@@ -4602,6 +4611,11 @@
       "commands": "Comandos",
       "commandsHint": "Executam em ordem no agente. Use $(field.path) para valores do alerta e $[variables.NAME] para variáveis salvas.",
       "addCommand": "Adicionar comando",
+      "connector": {
+        "always": "sempre",
+        "success": "em caso de sucesso",
+        "failure": "em caso de falha"
+      },
       "agentPlatform": "Plataforma do agente",
       "shell": "Shell",
       "shellAuto": "auto",

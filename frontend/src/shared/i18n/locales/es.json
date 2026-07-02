@@ -4546,6 +4546,15 @@
     "loadError": "No se pudieron cargar los flujos.",
     "retry": "Reintentar",
     "empty": "Ningún flujo coincide con esta vista.",
+    "templates": {
+      "title": "Nuevo flujo",
+      "subtitle": "Elige una plantilla de acción o empieza desde cero.",
+      "loading": "Cargando plantillas…",
+      "loadError": "No se pudieron cargar las plantillas.",
+      "empty": "No hay plantillas disponibles.",
+      "cancel": "Cancelar",
+      "scratch": "Empezar desde cero"
+    },
     "tabs": {
       "flows": "Flujos",
       "executions": "Historial de ejecuciones",
@@ -4602,6 +4611,11 @@
       "commands": "Comandos",
       "commandsHint": "Se ejecutan en orden en el agente. Usa $(field.path) para valores de la alerta y $[variables.NAME] para variables guardadas.",
       "addCommand": "Agregar comando",
+      "connector": {
+        "always": "siempre",
+        "success": "si tuvo éxito",
+        "failure": "si falló"
+      },
       "agentPlatform": "Plataforma del agente",
       "shell": "Shell",
       "shellAuto": "auto",

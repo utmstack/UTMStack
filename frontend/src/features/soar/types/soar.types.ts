@@ -90,6 +90,21 @@ export interface FlowListQuery {
   size?: number
 }
 
+/** Reusable command template served from `/soar/action-templates`. Selecting
+ *  one seeds the flow-creation form. */
+export interface ActionTemplate {
+  id: number
+  title: string
+  description?: string
+  command: string
+  systemOwner: boolean
+}
+
+export interface ActionTemplateListQuery {
+  page?: number // 0-based
+  size?: number
+}
+
 export type ExecutionStatus = 'EXECUTED' | 'PENDING' | 'FAILED'
 export type NonExecutionCause = 'AGENT_OFFLINE' | 'AGENT_NOT_FOUND' | 'UNKNOWN'
 
