@@ -4597,9 +4597,18 @@
     "backToFrameworks": "Retour aux frameworks",
     "statusAuto": "Auto (évalué)",
     "overrideError": "Impossible de mettre à jour le statut",
+    "noteError": "Impossible d'enregistrer la note",
+    "notes": {
+      "title": "Notes",
+      "placeholder": "Ajouter une note…",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
     "coverageLabel": "Couverture",
     "activityLabel": "Activité",
     "evidenceLabel": "Preuve",
+    "seeMore": "Voir plus",
+    "seeLess": "Voir moins",
     "evaluating": "Évaluation du framework…",
     "complianceScore": "Score de conformité",
     "generatedAt": "Généré {{date}}",

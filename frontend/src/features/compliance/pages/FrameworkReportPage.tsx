@@ -91,7 +91,7 @@ export function FrameworkReportPage() {
             <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button>
           </div>
         ) : (
-          <ReportView report={report} onControlClick={setOpenRow} onStatusChanged={reloadAndResyncDrawer} />
+          <ReportView report={report} onControlClick={setOpenRow} onChanged={reloadAndResyncDrawer} />
         )}
       </div>
 

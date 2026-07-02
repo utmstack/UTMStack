@@ -61,6 +61,15 @@ export const complianceService = {
   clearControlStatusOverride: (frameworkKey: string, controlId: string) =>
     api.delete<void>(`/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/status`),
 
+  // User notes on (framework, control) — freeform text surfaced on report rows.
+  setControlNote: (frameworkKey: string, controlId: string, note: string) =>
+    api.put<void>(
+      `/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/note`,
+      { note },
+    ),
+  clearControlNote: (frameworkKey: string, controlId: string) =>
+    api.delete<void>(`/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/note`),
+
   // ── Schedules (Postgres) ─────────────────────────────────────────────────
   listSchedules: (frameworkKey?: string) => {
     const p = new URLSearchParams()

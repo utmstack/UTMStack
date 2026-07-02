@@ -4597,9 +4597,18 @@
     "backToFrameworks": "Zurück zu Frameworks",
     "statusAuto": "Auto (bewertet)",
     "overrideError": "Status konnte nicht aktualisiert werden",
+    "noteError": "Notiz konnte nicht gespeichert werden",
+    "notes": {
+      "title": "Notizen",
+      "placeholder": "Notiz hinzufügen…",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    },
     "coverageLabel": "Abdeckung",
     "activityLabel": "Aktivität",
     "evidenceLabel": "Nachweis",
+    "seeMore": "Mehr anzeigen",
+    "seeLess": "Weniger anzeigen",
     "evaluating": "Framework wird bewertet…",
     "complianceScore": "Compliance-Score",
     "generatedAt": "Erstellt {{date}}",

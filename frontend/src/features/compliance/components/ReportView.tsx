@@ -3,6 +3,7 @@ import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
 import type { ControlStatus, Report, ReportControlRow } from '../types/compliance.types'
 import { ControlStatusBadge } from './ControlStatusBadge'
+import { ControlNoteBubble } from './ControlNoteBubble'
 
 export function scoreTone(score: number): string {
   if (score >= 80) return 'text-emerald-500'
@@ -29,11 +30,12 @@ export const STATUS_TONE: Record<ControlStatus, string> = {
 export function ReportView({
   report,
   onControlClick,
-  onStatusChanged,
+  onChanged,
 }: {
   report: Report
   onControlClick?: (row: ReportControlRow) => void
-  onStatusChanged?: () => void
+  /** Called after a row-level mutation (status override, note) so the parent can reload. */
+  onChanged?: () => void
 }) {
   const { t } = useTranslation()
   const df = useDateFormat()
@@ -77,7 +79,7 @@ export function ReportView({
                 <ControlStatusBadge
                   frameworkKey={report.frameworkKey}
                   row={c}
-                  onChanged={onStatusChanged}
+                  onChanged={onChanged}
                   className="mt-0.5"
                 />
                 <div className="min-w-0 flex-1">
@@ -87,6 +89,7 @@ export function ReportView({
                   </div>
                   {c.evidence && <p className="mt-0.5 text-[11px] text-muted-foreground">{c.evidence}</p>}
                 </div>
+                <ControlNoteBubble frameworkKey={report.frameworkKey} row={c} onSaved={onChanged} className="shrink-0" />
                 <div className="shrink-0 text-right text-[10px] text-muted-foreground">
                   <div>{t('compliance.coverage', { n: c.coverage })}</div>
                   <div>{t('compliance.activity', { n: c.activity })}</div>

@@ -4420,9 +4420,18 @@
     "backToFrameworks": "К фреймворкам",
     "statusAuto": "Авто (оценено)",
     "overrideError": "Не удалось обновить статус",
+    "noteError": "Не удалось сохранить заметку",
+    "notes": {
+      "title": "Заметки",
+      "placeholder": "Добавить заметку…",
+      "save": "Сохранить",
+      "cancel": "Отмена"
+    },
     "coverageLabel": "Покрытие",
     "activityLabel": "Активность",
     "evidenceLabel": "Свидетельство",
+    "seeMore": "Показать больше",
+    "seeLess": "Показать меньше",
     "evaluating": "Оценка фреймворка…",
     "complianceScore": "Оценка соответствия",
     "generatedAt": "Создан {{date}}",

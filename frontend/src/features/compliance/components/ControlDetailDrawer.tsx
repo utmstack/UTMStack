@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
 import { complianceService } from '../services/compliance-http.service'
 import type { Control, ReportControlRow } from '../types/compliance.types'
 import { ControlStatusBadge } from './ControlStatusBadge'
@@ -58,8 +59,8 @@ export function ControlDetailDrawer({
           <section className="grid grid-cols-2 gap-3">
             <Stat label={t('compliance.coverageLabel', { defaultValue: 'Coverage' })} value={t('compliance.coverage', { n: row.coverage })} />
             <Stat label={t('compliance.activityLabel', { defaultValue: 'Activity' })} value={t('compliance.activity', { n: row.activity })} />
-            <Stat label={t('compliance.evidenceLabel', { defaultValue: 'Evidence' })} value={row.evidence || '—'} />
           </section>
+          <EvidenceBlock text={row.evidence} />
 
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
@@ -137,6 +138,46 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
     <section>
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
       {children}
+    </section>
+  )
+}
+
+// EvidenceBlock spans the full drawer width, clamps evidence to 2 lines by
+// default, and offers a "see more" toggle when the content overflows.
+function EvidenceBlock({ text }: { text: string }) {
+  const { t } = useTranslation()
+  const [expanded, setExpanded] = useState(false)
+  const [truncated, setTruncated] = useState(false)
+  const bodyRef = useRef<HTMLDivElement | null>(null)
+
+  useLayoutEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    // Only meaningful while clamped: scrollHeight > clientHeight means content overflows 2 lines.
+    setTruncated(el.scrollHeight > el.clientHeight + 1)
+  }, [text])
+
+  const value = text || '—'
+  return (
+    <section className="rounded-md border border-border bg-background/40 px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {t('compliance.evidenceLabel', { defaultValue: 'Evidence' })}
+      </div>
+      <div
+        ref={bodyRef}
+        className={cn('mt-0.5 whitespace-pre-wrap break-words text-[13px]', !expanded && 'line-clamp-2')}
+      >
+        {value}
+      </div>
+      {text && (truncated || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-1 text-[11px] font-medium text-primary hover:underline"
+        >
+          {expanded ? t('compliance.seeLess', { defaultValue: 'See less' }) : t('compliance.seeMore', { defaultValue: 'See more' })}
+        </button>
+      )}
     </section>
   )
 }
