@@ -18,12 +18,13 @@ type evaluator struct {
 	coverage   *CoverageIndex
 	alerts     connectors.OpenSearchAlerts
 	store      connectors.ReportStore
-	brand      connectors.BrandingProvider // optional; nil → default UTMStack branding
+	overrides  connectors.ControlStatusOverrideRepository // optional; nil → no manual overrides
+	brand      connectors.BrandingProvider                // optional; nil → default UTMStack branding
 	ent        *Entitlement
 }
 
-func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
-	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, brand: brand, ent: ent}
+func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, overrides connectors.ControlStatusOverrideRepository, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
+	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, overrides: overrides, brand: brand, ent: ent}
 }
 
 func (e *evaluator) reportBrand(ctx context.Context) connectors.ReportBrand {
@@ -111,6 +112,37 @@ func (e *evaluator) SnapshotPDF(ctx context.Context, id string) ([]byte, string,
 	return pdf, snap.FrameworkName, err
 }
 
+func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, controlID, status, reason string) error {
+	if e.overrides == nil {
+		return fmt.Errorf("status overrides not configured")
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	if _, ok := e.frameworks.Get(frameworkKey); !ok {
+		return domain.ErrFrameworkNotFound
+	}
+	if !domain.ValidStatus(status) {
+		return domain.ErrInvalidStatus
+	}
+	return e.overrides.Upsert(ctx, &domain.UtmComplianceControlStatusOverride{
+		FrameworkKey: frameworkKey,
+		ControlID:    controlID,
+		Status:       status,
+		Reason:       reason,
+	})
+}
+
+func (e *evaluator) ClearStatusOverride(ctx context.Context, frameworkKey, controlID string) error {
+	if e.overrides == nil {
+		return nil
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	return e.overrides.Delete(ctx, frameworkKey, controlID)
+}
+
 // activityWindow is how far back the activity dimension counts alerts.
 const activityWindow = -30 * 24 * time.Hour
 
@@ -134,6 +166,16 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 	since := now.Add(activityWindow).Format(time.RFC3339)
 	cache := map[string]domain.ReportControlRow{}
 
+	// Load manual overrides once per evaluation; missing / errored → treat as no overrides.
+	var overrides map[string]string
+	if e.overrides != nil {
+		if m, err := e.overrides.ListByFramework(ctx, fw.Key); err == nil {
+			overrides = m
+		} else {
+			_ = catcher.Error("compliance: loading status overrides failed", err, map[string]any{"framework": fw.Key})
+		}
+	}
+
 	for _, sec := range fw.Sections {
 		rs := domain.ReportSection{Name: sec.Name}
 		seen := map[string]bool{}
@@ -146,6 +188,11 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 				row, cached := cache[cid]
 				if !cached {
 					row = e.evalControl(ctx, cid, since)
+					if s, ok := overrides[cid]; ok && domain.ValidStatus(s) && s != row.Status {
+						row.Evidence = fmt.Sprintf("manual override (was %s)", row.Status)
+						row.Status = s
+						row.Overridden = true
+					}
 					cache[cid] = row
 				}
 				rs.Controls = append(rs.Controls, row)

@@ -14,4 +14,5 @@ var (
 	ErrInvalidID         = errors.New("invalid id/key (must be non-empty and contain no path separators)")
 	ErrFrameworkLocked   = errors.New("this framework requires an Enterprise license")
 	ErrControlLocked     = errors.New("this control requires an Enterprise license")
+	ErrInvalidStatus     = errors.New("invalid control status")
 )

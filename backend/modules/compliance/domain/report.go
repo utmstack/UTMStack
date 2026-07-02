@@ -34,9 +34,6 @@ type ReportSection struct {
 	Controls []ReportControlRow `json:"controls"`
 }
 
-// ReportSnapshot is a stored, point-in-time compliance report (in OpenSearch).
-// The report is DATA: the frontend renders it, the PDF path renders it, and the
-// snapshot is the durable history — no binary PDF is stored.
 type ReportSnapshot struct {
 	ID            string `json:"id"`
 	FrameworkKey  string `json:"frameworkKey"`
@@ -56,10 +53,11 @@ type ReportSnapshotMeta struct {
 }
 
 type ReportControlRow struct {
-	ControlID string `json:"controlId"`
-	Name      string `json:"name"`
-	Status    string `json:"status"` // COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING
-	Evidence  string `json:"evidence"`
-	Coverage  int    `json:"coverage"` // # enabled correlation rules covering this control
-	Activity  int    `json:"activity"` // # alerts from those rules in the window
+	ControlID  string `json:"controlId"`
+	Name       string `json:"name"`
+	Status     string `json:"status"` // COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING
+	Evidence   string `json:"evidence"`
+	Coverage   int    `json:"coverage"`             // # enabled correlation rules covering this control
+	Activity   int    `json:"activity"`             // # alerts from those rules in the window
+	Overridden bool   `json:"overridden,omitempty"` // true when status came from a manual override
 }

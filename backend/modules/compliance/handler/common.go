@@ -22,7 +22,7 @@ func writeError(c *gin.Context, err error) {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrControlExists), errors.Is(err, domain.ErrFrameworkExists):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-	case errors.Is(err, domain.ErrInvalidCron), errors.Is(err, domain.ErrInvalidID):
+	case errors.Is(err, domain.ErrInvalidCron), errors.Is(err, domain.ErrInvalidID), errors.Is(err, domain.ErrInvalidStatus):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
