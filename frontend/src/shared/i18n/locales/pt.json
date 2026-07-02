@@ -3698,7 +3698,8 @@
       "threat": "Ameaça",
       "alerts": "Alertas",
       "targets": "Alvos",
-      "lastSeen": "Visto por último"
+      "lastSeen": "Visto por último",
+      "victims": "Vítimas"
     },
     "card": {
       "alerts": "Alertas",
@@ -3734,6 +3735,18 @@
       "minutesAgo": "há {{count}}m",
       "hoursAgo": "há {{count}}h",
       "daysAgo": "há {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuário",
+      "port": "Porta",
+      "domain": "Domínio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Cidade",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {
