@@ -612,7 +612,15 @@ function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" asChild>
-              <Link to="/log-explorer">
+              <Link
+                to={`/log-explorer?${new URLSearchParams({
+                  dataType: 'wineventlog',
+                  tenantId: user.tenantId,
+                  eventCode: '4720,4726,4624',
+                  eventDataTargetSid: user.sid,
+                  '@timestamp': '30d',
+                }).toString()}`}
+              >
                 <ExternalLink size={14} className="mr-1.5" />
                 {t('userAuditor.drawer.viewInLogs')}
               </Link>
