@@ -1,5 +1,5 @@
 package constants
 
 const(
-	CUSTOM_INDEX_PREFIX = "custom";
+	CUSTOM_INDEX_PREFIX = "v11-log";
 )
