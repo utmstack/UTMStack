@@ -46,8 +46,10 @@ export interface ImportRulesResponse {
 
 /**
  * A correlation (alerting) rule. Identity is `relPath` (YAML-direct). `definition`
- * is the CEL `where` condition (a JSON-encoded string); `afterEvents`/`references`/
+ * is the CEL `where` condition (a JSON-encoded string); `correlation`/`references`/
  * `groupBy`/`deduplicateBy` are arbitrary JSON the backend stores verbatim.
+ * `afterEvents` is the legacy name for `correlation` — still populated by older
+ * backends/rule files, read as a fallback.
  */
 export interface CorrelationRule {
   relPath: string
@@ -61,7 +63,8 @@ export interface CorrelationRule {
   description: string
   references: unknown
   definition: string
-  afterEvents: unknown
+  correlation?: unknown
+  afterEvents?: unknown // legacy: pre-rename field name
   groupBy: unknown
   deduplicateBy: unknown
   ruleLastUpdate?: string
@@ -82,7 +85,7 @@ export interface SaveRuleInput {
   description: string
   references: unknown
   definition: string
-  afterEvents: unknown
+  correlation: unknown
   groupBy: unknown
   deduplicateBy: unknown
   ruleActive: boolean

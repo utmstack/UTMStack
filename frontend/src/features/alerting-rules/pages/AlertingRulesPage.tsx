@@ -529,7 +529,7 @@ function RuleDrawer({
 }
 
 function RuleView({ rule, df, t }: { rule: CorrelationRule; df: ReturnType<typeof useDateFormat>; t: TFunction }) {
-  const steps = ruleToForm(rule).afterEvents
+  const steps = ruleToForm(rule).correlation
   return (
     <div className="space-y-4">
       {rule.description && <Section title={t('alertingRules.view.description')}><RuleDescription text={rule.description} /></Section>}
@@ -547,7 +547,7 @@ function RuleView({ rule, df, t }: { rule: CorrelationRule; df: ReturnType<typeo
         <DefinitionView definition={rule.definition} t={t} />
       </Section>
       {steps.length > 0 && (
-        <Section title={t('alertingRules.view.afterEvents')}>
+        <Section title={t('alertingRules.view.correlationSteps')}>
           <AfterEventsView steps={steps} t={t} />
         </Section>
       )}
@@ -607,7 +607,7 @@ function CelNodeView({ node, t, depth }: { node: CelNode; t: TFunction; depth: n
 }
 
 /** Read-only cards for the correlation (after-events) steps. */
-function AfterEventsView({ steps, t }: { steps: ReturnType<typeof ruleToForm>['afterEvents']; t: TFunction }) {
+function AfterEventsView({ steps, t }: { steps: ReturnType<typeof ruleToForm>['correlation']; t: TFunction }) {
   return (
     <div className="space-y-2">
       {steps.map((s, i) => (
