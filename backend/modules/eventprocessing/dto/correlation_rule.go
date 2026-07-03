@@ -26,7 +26,7 @@ type RuleDataTypeResponse struct {
 
 
 type CorrelationOwner struct{
-	//[deprecated] only keeped for compatibility
+	//[deprecated] only kept for compatibility
 	AfterEventsDef    json.RawMessage `json:"afterEvents"`
 	//
 	CorrelationDef    json.RawMessage `json:"correlation"`

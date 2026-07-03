@@ -265,14 +265,6 @@ func legacyToRule(row *domain.UtmCorrelationRules) Rule {
 		names = append(names, dt.DataType)
 	}
 
-	correlation,err:=row.GetCorrelationDef()
-	if err!=nil{
-		catcher.Error("skipping invalid after events of rule, %s",err,map[string]any{
-			"rule":row.RuleName,
-			"afterEvents":row.AfterEventsDef,
-			"correlation":row.CorrelationDef,
-		})
-	}
 
 	return Rule{
 		Name:          row.RuleName,
@@ -284,7 +276,7 @@ func legacyToRule(row *domain.UtmCorrelationRules) Rule {
 		Impact:        Impact{Confidentiality: row.RuleConfidentiality, Integrity: row.RuleIntegrity, Availability: row.RuleAvailability},
 		Where:         rawToWhere(toRaw(row.RuleDefinitionDef)),
 		References:    rawToAnySlice(toRaw(row.RuleReferencesDef)),
-		Correlation:   rawToAny(toRaw(correlation)),
+		Correlation:   rawToAny(toRaw(row.AfterEventsDef)),
 		GroupBy:       rawToStrSlice(toRaw(row.RuleGroupByDef)),
 		DeduplicateBy: rawToStrSlice(toRaw(row.DeduplicateByDef)),
 	}
