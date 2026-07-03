@@ -4455,7 +4455,10 @@
       "patternCreated": "Muster „{{name}}“ erstellt",
       "patternCreateError": "Muster konnte nicht erstellt werden",
       "patternIdInvalid": "Die Muster-ID muss mit einem Buchstaben oder _ beginnen und nur Buchstaben, Ziffern oder _ verwenden",
-      "patternDefRequired": "Definition ist erforderlich"
+      "patternDefRequired": "Definition ist erforderlich",
+      "parameters": "Parameter",
+      "paramsKey": "Schlüssel",
+      "paramsValue": "Wert"
     },
     "allDataTypes": "Alle Datentypen"
   },

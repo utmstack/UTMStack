@@ -4339,7 +4339,10 @@
       "patternCreated": "Patrón \"{{name}}\" creado",
       "patternCreateError": "No se pudo crear el patrón",
       "patternIdInvalid": "El ID debe empezar con letra o _ y usar solo letras, dígitos o _",
-      "patternDefRequired": "La definición es obligatoria"
+      "patternDefRequired": "La definición es obligatoria",
+      "parameters": "Parámetros",
+      "paramsKey": "Clave",
+      "paramsValue": "Valor"
     },
     "allDataTypes": "Todos los tipos de dato"
   },

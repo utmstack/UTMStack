@@ -4455,7 +4455,10 @@
       "patternCreated": "Motif « {{name}} » créé",
       "patternCreateError": "Échec de la création du motif",
       "patternIdInvalid": "L'ID du motif doit commencer par une lettre ou _ et n'utiliser que des lettres, chiffres ou _",
-      "patternDefRequired": "La définition est requise"
+      "patternDefRequired": "La définition est requise",
+      "parameters": "Paramètres",
+      "paramsKey": "Clé",
+      "paramsValue": "Valeur"
     },
     "allDataTypes": "Tous les types de données"
   },

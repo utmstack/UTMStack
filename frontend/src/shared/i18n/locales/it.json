@@ -4455,7 +4455,10 @@
       "patternCreated": "Pattern \"{{name}}\" creato",
       "patternCreateError": "Creazione del pattern non riuscita",
       "patternIdInvalid": "L'ID del pattern deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
-      "patternDefRequired": "La definizione è obbligatoria"
+      "patternDefRequired": "La definizione è obbligatoria",
+      "parameters": "Parametri",
+      "paramsKey": "Chiave",
+      "paramsValue": "Valore"
     },
     "allDataTypes": "Tutti i tipi di dati"
   },
