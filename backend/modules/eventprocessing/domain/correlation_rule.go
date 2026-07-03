@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type UtmCorrelationRules struct {
 	ID int64 `gorm:"column:id;primaryKey"`
@@ -28,7 +31,10 @@ type UtmCorrelationRules struct {
 	SystemOwner    bool       `gorm:"column:system_owner;not null"`
 
 	// Nullable JSON TEXT columns for advanced rule configuration.
+	//[deprecated] only keeped for compatibility
 	AfterEventsDef   string `gorm:"column:rule_after_events_def"`
+	//
+	CorrelationDef   string `gorm:"column:rule_correlation_def"`
 	RuleGroupByDef   string `gorm:"column:rule_group_by_def"`
 	DeduplicateByDef string `gorm:"column:rule_deduplicate_by_def"`
 
@@ -36,6 +42,18 @@ type UtmCorrelationRules struct {
 	// each rule's data-type names during the one-time DB->YAML migration. Never
 	// written; the join table is dropped once migration completes.
 	DataTypes []UtmDataTypes `gorm:"many2many:utm_group_rules_data_type;joinForeignKey:rule_id;joinReferences:data_type_id"`
+}
+
+func (self *UtmCorrelationRules) GetCorrelationDef() (string,error){
+	var correlate string
+	if self.AfterEventsDef!="" && self.CorrelationDef !=""{
+		return "",fmt.Errorf("only one afterEvents or correlation allowed")
+	}else if self.AfterEventsDef!="" {
+		correlate = self.AfterEventsDef
+	}else{
+		correlate= self.CorrelationDef
+	}
+	return correlate,nil
 }
 
 func (UtmCorrelationRules) TableName() string { return "utm_correlation_rules" }

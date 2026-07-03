@@ -2,6 +2,7 @@ package dto
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -23,7 +24,29 @@ type RuleDataTypeResponse struct {
 	SystemOwner         bool       `json:"systemOwner"`
 }
 
+
+type CorrelationOwner struct{
+	//[deprecated] only keeped for compatibility
+	AfterEventsDef    json.RawMessage `json:"afterEvents"`
+	//
+	CorrelationDef    json.RawMessage `json:"correlation"`
+}
+
+func (self *CorrelationOwner) GetCorrelationDef() (json.RawMessage,error){
+	var correlate json.RawMessage
+	if self.AfterEventsDef!=nil && self.CorrelationDef !=nil{
+		return nil,fmt.Errorf("only one afterEvents or correlation allowed")
+	}else if self.AfterEventsDef!=nil {
+		correlate = self.AfterEventsDef
+	}else{
+		correlate= self.CorrelationDef
+	}
+	return correlate,nil
+}
+
+
 type CreateCorrelationRuleRequest struct {
+	CorrelationOwner
 	// JSON tags match Java UtmCorrelationRulesDTO field names for wire compatibility.
 	RuleName      string `json:"name"`
 	RuleAdversary string `json:"adversary"`
@@ -38,7 +61,6 @@ type CreateCorrelationRuleRequest struct {
 
 	RuleReferencesDef json.RawMessage `json:"references"`
 	RuleDefinitionDef json.RawMessage `json:"definition"`
-	AfterEventsDef    json.RawMessage `json:"afterEvents"`
 	RuleGroupByDef    json.RawMessage `json:"groupBy"`
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
@@ -47,7 +69,10 @@ type CreateCorrelationRuleRequest struct {
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
 
+
+
 type UpdateCorrelationRuleRequest struct {
+	CorrelationOwner
 	// RelPath identifies the rule to update (the YAML-direct identity).
 	RelPath string `json:"relPath"`
 
@@ -64,7 +89,6 @@ type UpdateCorrelationRuleRequest struct {
 
 	RuleReferencesDef json.RawMessage `json:"references"`
 	RuleDefinitionDef json.RawMessage `json:"definition"`
-	AfterEventsDef    json.RawMessage `json:"afterEvents"`
 	RuleGroupByDef    json.RawMessage `json:"groupBy"`
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
@@ -72,6 +96,7 @@ type UpdateCorrelationRuleRequest struct {
 
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
+
 
 type CorrelationRuleResponse struct {
 	// RelPath is the rule identity (replaces the legacy numeric id).
@@ -90,7 +115,7 @@ type CorrelationRuleResponse struct {
 
 	RuleReferencesDef json.RawMessage `json:"references"`
 	RuleDefinitionDef json.RawMessage `json:"definition"`
-	AfterEventsDef    json.RawMessage `json:"afterEvents"`
+	CorrelationDef    json.RawMessage `json:"correlation"`
 	RuleGroupByDef    json.RawMessage `json:"groupBy"`
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 

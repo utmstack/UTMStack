@@ -126,5 +126,5 @@ func (m *Module) GetIngestionStatsUsecase() connectors.IngestionStatsUsecase {
 }
 
 func (m *Module) AfterEventsByRuleName(name string) (json.RawMessage, bool) {
-	return m.ruleStore.AfterEventsByName(name)
+	return m.ruleStore.CorrelationsByName(name)
 }
