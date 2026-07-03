@@ -289,6 +289,15 @@ function StepFields({
   const str = (key: string) => (typeof config[key] === 'string' ? (config[key] as string) : '')
   const list = (key: string) =>
     Array.isArray(config[key]) ? (config[key] as unknown[]).map((x) => String(x)) : []
+  const obj = (key: string): Record<string, unknown> =>
+    config[key] && typeof config[key] === 'object' && !Array.isArray(config[key])
+      ? (config[key] as Record<string, unknown>)
+      : {}
+  const objStr = (key: string, sub: string) => {
+    const v = obj(key)[sub]
+    return typeof v === 'string' ? v : ''
+  }
+  const setObj = (key: string, sub: string, val: string) => set(key, { ...obj(key), [sub]: val })
 
   switch (kind) {
     case 'grok':
@@ -335,7 +344,10 @@ function StepFields({
       return (
         <>
           <TextField label="function" required value={str('function')} readOnly={readOnly} onChange={(v) => set('function', v)} />
-          <ListField label="params" values={list('params')} readOnly={readOnly} onChange={(v) => set('params', v)} />
+          <div className="grid grid-cols-2 gap-3">
+            <TextField label="params.key" required value={objStr('params', 'key')} readOnly={readOnly} onChange={(v) => setObj('params', 'key', v)} />
+            <TextField label="params.value" required value={objStr('params', 'value')} readOnly={readOnly} onChange={(v) => setObj('params', 'value', v)} />
+          </div>
           <WhereField value={str('where')} readOnly={readOnly} onChange={(v) => set('where', v)} />
         </>
       )
@@ -399,7 +411,7 @@ function WhereField({
   )
 }
 
-/** Editable list of strings (rename.from, add.params). */
+/** Editable list of strings (rename.from). */
 function ListField({
   label,
   values,
