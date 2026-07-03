@@ -31,10 +31,7 @@ func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrela
 		return domain.ErrDataTypesRequired
 	}
 
-	correlate,err:= req.GetCorrelationDef()
-	if err!=nil{
-		return err
-	}
+	correlate:= req.CorrelationDef
 
 	if err := validateRuleContent(req.RuleDefinitionDef,correlate ); err != nil {
 		return err
@@ -140,10 +137,7 @@ func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrela
 		return domain.ErrDataTypesRequired
 	}
 
-	correlate,err:= req.GetCorrelationDef()
-	if err!=nil{
-		return err
-	}
+	correlate:= req.CorrelationDef
 
 	if err := validateRuleContent(req.RuleDefinitionDef, correlate); err != nil {
 		return err

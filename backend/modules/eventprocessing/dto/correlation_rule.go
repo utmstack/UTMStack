@@ -2,7 +2,6 @@ package dto
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -25,28 +24,7 @@ type RuleDataTypeResponse struct {
 }
 
 
-type CorrelationOwner struct{
-	//[deprecated] only kept for compatibility
-	AfterEventsDef    json.RawMessage `json:"afterEvents"`
-	//
-	CorrelationDef    json.RawMessage `json:"correlation"`
-}
-
-func (self *CorrelationOwner) GetCorrelationDef() (json.RawMessage,error){
-	var correlate json.RawMessage
-	if self.AfterEventsDef!=nil && self.CorrelationDef !=nil{
-		return nil,fmt.Errorf("only one afterEvents or correlation allowed")
-	}else if self.AfterEventsDef!=nil {
-		correlate = self.AfterEventsDef
-	}else{
-		correlate= self.CorrelationDef
-	}
-	return correlate,nil
-}
-
-
 type CreateCorrelationRuleRequest struct {
-	CorrelationOwner
 	// JSON tags match Java UtmCorrelationRulesDTO field names for wire compatibility.
 	RuleName      string `json:"name"`
 	RuleAdversary string `json:"adversary"`
@@ -65,6 +43,7 @@ type CreateCorrelationRuleRequest struct {
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
 	RuleActive bool `json:"ruleActive"`
+	CorrelationDef    json.RawMessage `json:"correlation"`
 
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
@@ -72,7 +51,6 @@ type CreateCorrelationRuleRequest struct {
 
 
 type UpdateCorrelationRuleRequest struct {
-	CorrelationOwner
 	// RelPath identifies the rule to update (the YAML-direct identity).
 	RelPath string `json:"relPath"`
 
@@ -93,6 +71,7 @@ type UpdateCorrelationRuleRequest struct {
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
 	RuleActive bool `json:"ruleActive"`
+	CorrelationDef    json.RawMessage `json:"correlation"`
 
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
