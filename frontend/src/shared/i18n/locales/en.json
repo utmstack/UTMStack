@@ -2740,6 +2740,10 @@
             "step1Note": "An optional CA certificate can be added as a third argument. Omit it to use the leaf certificate as CA.",
             "step2": "2 · Re-enable the listener using TLS"
           },
+          "httpsCerts": {
+            "title": "Load the TLS certificate on the Forwarder",
+            "body": "This integration uses an HTTPS listener on port {{port}}, so the Forwarder needs a certificate and key loaded before enabling it:"
+          },
           "uninstall": {
             "title": "Optional — Uninstall the Forwarder",
             "body": "Run this command on the host where the Forwarder is installed to stop the service and remove all its files."
