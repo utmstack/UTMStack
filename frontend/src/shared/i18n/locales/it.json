@@ -2705,6 +2705,10 @@
             "step1Note": "È possibile aggiungere un certificato CA facoltativo come terzo argomento. Omettilo per utilizzare il certificato foglia come CA.",
             "step2": "2 · Riabilita il listener usando TLS"
           },
+          "httpsCerts": {
+            "title": "Carica il certificato TLS sul Forwarder",
+            "body": "Questa integrazione usa un listener HTTPS sulla porta {{port}}, quindi il Forwarder richiede un certificato e una chiave caricati prima di abilitarla:"
+          },
           "uninstall": {
             "title": "Facoltativo — Disinstalla il Forwarder",
             "body": "Esegui questo comando sull'host in cui è installato il Forwarder per interrompere il servizio e rimuovere tutti i suoi file."
