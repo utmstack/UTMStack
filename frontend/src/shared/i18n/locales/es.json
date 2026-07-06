@@ -644,6 +644,24 @@
       "title": "Aún no hay tableros",
       "body": "Crea tu primer tablero para ver tus datos de seguridad de un vistazo.",
       "cta": "Crear tablero"
+    },
+    "table": {
+      "col": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "modified": "Modificado"
+      }
+    },
+    "filters": {
+      "addTitle": "Añadir filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Eliminar filtro",
+      "removeConfirm": "¿Eliminar el filtro \"{{label}}\"? Esta acción no se puede deshacer.",
+      "remove": "Eliminar",
+      "editAria": "Editar filtro",
+      "removeAria": "Eliminar filtro",
+      "saving": "Guardando…",
+      "addChip": "Añadir filtro"
     }
   },
   "settings": {
@@ -1788,6 +1806,10 @@
             "step1": "1 · Cargar tu certificado y clave (una vez por Forwarder)",
             "step1Note": "Puedes agregar un certificado CA como tercer argumento. Si se omite, se usa el certificado hoja como CA.",
             "step2": "2 · Rehabilitar el listener con TLS"
+          },
+          "httpsCerts": {
+            "title": "Carga el certificado TLS en el Forwarder",
+            "body": "Esta integración usa un listener HTTPS en el puerto {{port}}, por lo que el Forwarder necesita un certificado y una clave cargados antes de habilitarla:"
           },
           "uninstall": {
             "title": "Opcional — Desinstalar el Forwarder",
@@ -3680,7 +3702,8 @@
       "threat": "Amenaza",
       "alerts": "Alertas",
       "targets": "Objetivos",
-      "lastSeen": "Última vez"
+      "lastSeen": "Última vez",
+      "victims": "Víctimas"
     },
     "card": {
       "alerts": "Alertas",
@@ -3716,6 +3739,18 @@
       "minutesAgo": "hace {{count}}m",
       "hoursAgo": "hace {{count}}h",
       "daysAgo": "hace {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario",
+      "port": "Puerto",
+      "domain": "Dominio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Ciudad",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

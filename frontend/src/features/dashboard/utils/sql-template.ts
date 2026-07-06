@@ -1,6 +1,8 @@
 const FROM_PLACEHOLDER = /\{\{\s*from\s*\}\}/g
 const TO_PLACEHOLDER = /\{\{\s*to\s*\}\}/g
 const TIME_FILTER_PLACEHOLDER = /\{\{\s*timeFilter\s*\}\}/g
+// `{{dashboardFilters}}` is substituted server-side by /opensearch/search/sql,
+// so applySqlTemplate must leave it intact — do not add it here.
 
 const DEFAULT_TIMESTAMP_FIELD = '@timestamp'
 

@@ -1,22 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { FilterType } from '@/features/alerts/types/alert.types'
 import { adversariesHttpService } from '../services/adversaries-http.service'
-import { toAdversaries } from '../lib/adversary'
-import type { Adversary } from '../types/adversary.types'
+import type { AdversaryResponse } from '../types/adversary.types'
 
 export interface UseAdversariesResult {
-  adversaries: Adversary[]
+  data: AdversaryResponse[]
   loading: boolean
   error: boolean
   refresh: () => void
 }
 
-/**
- * Loads the alerts grouped by adversary and runs them through the client-side
- * view-model transform (threat level, activity histogram, target/technique
- * aggregates).
- */
-export function useAdversaries(): UseAdversariesResult {
-  const [adversaries, setAdversaries] = useState<Adversary[]>([])
+export function useAdversaries(filters: FilterType[]): UseAdversariesResult {
+  const [data, setData] = useState<AdversaryResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -24,19 +19,19 @@ export function useAdversaries(): UseAdversariesResult {
     setLoading(true)
     setError(false)
     try {
-      const res = await adversariesHttpService.list([])
-      setAdversaries(toAdversaries(res ?? []))
+      const res = await adversariesHttpService.list(filters)
+      setData(res ?? [])
     } catch {
       setError(true)
-      setAdversaries([])
+      setData([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [filters])
 
   useEffect(() => {
     void load()
   }, [load])
 
-  return { adversaries, loading, error, refresh: () => void load() }
+  return { data, loading, error, refresh: () => void load() }
 }

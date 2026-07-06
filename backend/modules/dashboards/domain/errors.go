@@ -8,4 +8,5 @@ var (
 	ErrIDRequired       = errors.New("id is required for update")
 	ErrNameRequired     = errors.New("name is required")
 	ErrSQLQueryRequired = errors.New("sqlQuery is required")
+	ErrInvalidSQL       = errors.New("invalid sqlQuery")
 )

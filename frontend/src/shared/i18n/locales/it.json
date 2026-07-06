@@ -644,6 +644,24 @@
       "title": "Ancora nessuna dashboard",
       "body": "Crea la tua prima dashboard per vedere i tuoi dati di sicurezza a colpo d’occhio.",
       "cta": "Crea dashboard"
+    },
+    "table": {
+      "col": {
+        "name": "Nome",
+        "description": "Descrizione",
+        "modified": "Modificato"
+      }
+    },
+    "filters": {
+      "addTitle": "Aggiungi filtro",
+      "editTitle": "Modifica filtro",
+      "removeTitle": "Rimuovi filtro",
+      "removeConfirm": "Rimuovere il filtro \"{{label}}\"? Questa azione è irreversibile.",
+      "remove": "Rimuovi",
+      "editAria": "Modifica filtro",
+      "removeAria": "Rimuovi filtro",
+      "saving": "Salvataggio…",
+      "addChip": "Aggiungi filtro"
     }
   },
   "settings": {
@@ -2687,6 +2705,10 @@
             "step1Note": "È possibile aggiungere un certificato CA facoltativo come terzo argomento. Omettilo per utilizzare il certificato foglia come CA.",
             "step2": "2 · Riabilita il listener usando TLS"
           },
+          "httpsCerts": {
+            "title": "Carica il certificato TLS sul Forwarder",
+            "body": "Questa integrazione usa un listener HTTPS sulla porta {{port}}, quindi il Forwarder richiede un certificato e una chiave caricati prima di abilitarla:"
+          },
           "uninstall": {
             "title": "Facoltativo — Disinstalla il Forwarder",
             "body": "Esegui questo comando sull'host in cui è installato il Forwarder per interrompere il servizio e rimuovere tutti i suoi file."
@@ -3718,7 +3740,8 @@
       "threat": "Minaccia",
       "alerts": "Avvisi",
       "targets": "Obiettivi",
-      "lastSeen": "Visto l’ultima volta"
+      "lastSeen": "Visto l’ultima volta",
+      "victims": "Vittime"
     },
     "card": {
       "alerts": "Avvisi",
@@ -3754,6 +3777,18 @@
       "minutesAgo": "{{count}}m fa",
       "hoursAgo": "{{count}}h fa",
       "daysAgo": "{{count}}g fa"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Utente",
+      "port": "Porta",
+      "domain": "Dominio",
+      "mac": "MAC",
+      "country": "Paese",
+      "city": "Città",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

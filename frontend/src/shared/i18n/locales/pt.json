@@ -644,6 +644,24 @@
       "title": "Ainda não há painéis",
       "body": "Crie seu primeiro painel para ver seus dados de segurança rapidamente.",
       "cta": "Criar painel"
+    },
+    "table": {
+      "col": {
+        "name": "Nome",
+        "description": "Descrição",
+        "modified": "Modificado"
+      }
+    },
+    "filters": {
+      "addTitle": "Adicionar filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Remover filtro",
+      "removeConfirm": "Remover o filtro \"{{label}}\"? Esta ação não pode ser desfeita.",
+      "remove": "Remover",
+      "editAria": "Editar filtro",
+      "removeAria": "Remover filtro",
+      "saving": "Salvando…",
+      "addChip": "Adicionar filtro"
     }
   },
   "settings": {
@@ -1788,6 +1806,10 @@
             "step1": "1 · Carregar seu certificado e chave (uma vez por Forwarder)",
             "step1Note": "Um certificado CA opcional pode ser adicionado como terceiro argumento. Se omitido, o certificado folha é usado como CA.",
             "step2": "2 · Reativar o listener com TLS"
+          },
+          "httpsCerts": {
+            "title": "Carregue o certificado TLS no Forwarder",
+            "body": "Esta integração usa um listener HTTPS na porta {{port}}, então o Forwarder precisa de um certificado e uma chave carregados antes de habilitá-la:"
           },
           "uninstall": {
             "title": "Opcional — Desinstalar o Forwarder",
@@ -3680,7 +3702,8 @@
       "threat": "Ameaça",
       "alerts": "Alertas",
       "targets": "Alvos",
-      "lastSeen": "Visto por último"
+      "lastSeen": "Visto por último",
+      "victims": "Vítimas"
     },
     "card": {
       "alerts": "Alertas",
@@ -3716,6 +3739,18 @@
       "minutesAgo": "há {{count}}m",
       "hoursAgo": "há {{count}}h",
       "daysAgo": "há {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuário",
+      "port": "Porta",
+      "domain": "Domínio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Cidade",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

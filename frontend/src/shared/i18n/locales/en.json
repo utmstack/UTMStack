@@ -309,6 +309,7 @@
     "editor": {
       "editing": "Editing",
       "addWidget": "Add widget",
+      "editFilters": "Edit filters",
       "save": "Save",
       "discard": "Discard",
       "newTitle": "New widget",
@@ -568,7 +569,52 @@
       "visualizationUpdated": "Widget updated.",
       "visualizationUpdateFailed": "Could not update widget.",
       "visualizationDeleted": "Widget deleted.",
-      "visualizationDeleteFailed": "Could not delete widget."
+      "visualizationDeleteFailed": "Could not delete widget.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
+    },
+    "filters": {
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "addChip": "Add filter",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "indexPattern": "Index pattern",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      },
+      "addTitle": "Add filter",
+      "editTitle": "Edit filter",
+      "removeTitle": "Remove filter",
+      "removeConfirm": "Remove filter \"{{label}}\"? This cannot be undone.",
+      "remove": "Remove",
+      "editAria": "Edit filter",
+      "removeAria": "Remove filter",
+      "saving": "Saving…"
+    },
+    "refresh": {
+      "tooltip": "Auto-refresh interval",
+      "off": "Off",
+      "10s": "10s",
+      "30s": "30s",
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m"
     },
     "newDashboard": {
       "title": "New dashboard",
@@ -644,6 +690,13 @@
       "title": "No dashboards yet",
       "body": "Create your first dashboard to see your security data at a glance.",
       "cta": "Create dashboard"
+    },
+    "table": {
+      "col": {
+        "name": "Name",
+        "description": "Description",
+        "modified": "Modified"
+      }
     }
   },
   "settings": {
@@ -2687,6 +2740,10 @@
             "step1Note": "An optional CA certificate can be added as a third argument. Omit it to use the leaf certificate as CA.",
             "step2": "2 · Re-enable the listener using TLS"
           },
+          "httpsCerts": {
+            "title": "Load the TLS certificate on the Forwarder",
+            "body": "This integration uses an HTTPS listener on port {{port}}, so the Forwarder needs a certificate and key loaded before enabling it:"
+          },
           "uninstall": {
             "title": "Optional — Uninstall the Forwarder",
             "body": "Run this command on the host where the Forwarder is installed to stop the service and remove all its files."
@@ -3653,7 +3710,8 @@
       "threat": "Threat",
       "alerts": "Alerts",
       "targets": "Targets",
-      "lastSeen": "Last seen"
+      "lastSeen": "Last seen",
+      "victims": "Victims"
     },
     "card": {
       "alerts": "Alerts",
@@ -3689,6 +3747,18 @@
       "minutesAgo": "{{count}}m ago",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "User",
+      "port": "Port",
+      "domain": "Domain",
+      "mac": "MAC",
+      "country": "Country",
+      "city": "City",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {
