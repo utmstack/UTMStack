@@ -2705,6 +2705,10 @@
             "step1Note": "Un certificat CA facultatif peut être ajouté comme troisième argument. Omettez-le pour utiliser le certificat feuille comme CA.",
             "step2": "2 · Réactiver le listener avec TLS"
           },
+          "httpsCerts": {
+            "title": "Chargez le certificat TLS sur le Forwarder",
+            "body": "Cette intégration utilise un listener HTTPS sur le port {{port}}, le Forwarder a donc besoin d'un certificat et d'une clé chargés avant de l'activer :"
+          },
           "uninstall": {
             "title": "Optionnel — Désinstaller le Forwarder",
             "body": "Exécutez cette commande sur l'hôte où le Forwarder est installé pour arrêter le service et supprimer tous ses fichiers."
