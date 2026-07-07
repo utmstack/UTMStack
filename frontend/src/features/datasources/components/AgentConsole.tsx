@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyRound, Loader2, TerminalSquare, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { runAgentCommand } from '../services/agent-console'
+import { openAgentConsole, type ConsoleSession } from '../services/agent-console'
 import { VariablesManager } from './VariablesManager'
 import { ShellCommandInput } from './ShellCommandInput'
 
@@ -50,7 +50,7 @@ export function AgentConsole({
   const [histIdx, setHistIdx] = useState(-1)
   const [varsOpen, setVarsOpen] = useState(false)
   const [height, setHeight] = useState(() => clamp(Math.round(window.innerHeight * 0.42), 200, window.innerHeight - 80))
-  const cancelRef = useRef<(() => void) | null>(null)
+  const sessionRef = useRef<ConsoleSession | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -72,8 +72,23 @@ export function AgentConsole({
 
   useEffect(() => {
     inputRef.current?.focus()
-    return () => cancelRef.current?.()
   }, [])
+
+  // Persistent console session: one WS per agent, reused for every command.
+  useEffect(() => {
+    const session = openAgentConsole(agentId, {
+      onOutput: (d) => append('out', d),
+      onError: (m) => append('err', m),
+      onReady: () => setRunning(false),
+      onClose: () => setRunning(false),
+    })
+    sessionRef.current = session
+    return () => {
+      sessionRef.current = null
+      session.close()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentId])
 
   // Re-focus the inline prompt when a command finishes (the input remounts).
   useEffect(() => {
@@ -104,24 +119,13 @@ export function AgentConsole({
   const run = () => {
     const command = input.trim()
     if (!command || running || offline) return
+    if (!sessionRef.current) return
     append('cmd', `${shell}> ${command}`)
     setHistory((h) => [...h, command])
     setHistIdx(-1)
     setInput('')
     setRunning(true)
-    cancelRef.current = runAgentCommand(
-      agentId,
-      { command, shell },
-      {
-        onOutput: (d) => append('out', d),
-        onError: (m) => append('err', m),
-        onDone: () => {
-          setRunning(false)
-          cancelRef.current = null
-          inputRef.current?.focus()
-        },
-      },
-    )
+    sessionRef.current.send({ command, shell })
   }
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
