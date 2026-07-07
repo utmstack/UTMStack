@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "server": "10.11.11.18",
+  "skip_cert_validate": true,
+  "watch_volumes": null,
+  "exclusions": ["C:\\Windows", "C:\\Program Files", "C:\\Program Files (x86)", "C:\\ProgramData", "C:\\clamav"],
+  "fail_mode": "open",
+  "suspend_on_launch": false,
+  "suspend_timeout_ms": 5000,
+  "quarantine_dir": "C:\\edrtest\\quarantine",
+  "quarantine_retention_days": 30,
+  "clamd_addr": "127.0.0.1:3310",
+  "clamd_path": "C:\\clamav\\clamd.exe",
+  "scan_concurrency": 4,
+  "sig_update_hours": 4,
+  "engine_tier_override": "",
+  "signature_mirror": ""
+}

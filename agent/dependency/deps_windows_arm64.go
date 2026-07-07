@@ -32,14 +32,14 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
-
 		{
-			Name:       "audit-policy",
-			Version:    AuditPolicyVersion,
-			BinaryPath: filepath.Join(os.Getenv("windir"), "System32", "auditpol.exe"),
-			Critical:   false,
-			Configure:  configureWindowsAuditPolicy,
-			Update:     configureWindowsAuditPolicy,
+			Name:        "edr",
+			Version:     EDRVersion,
+			BinaryPath:  filepath.Join(basePath, EDRFile("")),
+			DownloadURL: edrDownloadURL,
+			Critical:    false, // agent runs even if EDR is unavailable
+			Configure:   configureEDR,
+			Uninstall:   uninstallEDR,
 		},
 	}
 }

@@ -32,18 +32,14 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
-
-		// Windows Advanced Audit Policy - ensures the Security/PowerShell
-		// channels this agent collects actually get populated (see A9 in
-		// agent/GAPS_AND_IMPROVEMENTS.md). No download - configures the
-		// OS's own audit policy and a few registry settings.
 		{
-			Name:       "audit-policy",
-			Version:    AuditPolicyVersion,
-			BinaryPath: filepath.Join(os.Getenv("windir"), "System32", "auditpol.exe"),
-			Critical:   false,
-			Configure:  configureWindowsAuditPolicy,
-			Update:     configureWindowsAuditPolicy,
+			Name:        "edr",
+			Version:     EDRVersion,
+			BinaryPath:  filepath.Join(basePath, EDRFile("")),
+			DownloadURL: edrDownloadURL,
+			Critical:    false, // agent runs even if EDR is unavailable
+			Configure:   configureEDR,
+			Uninstall:   uninstallEDR,
 		},
 	}
 }
