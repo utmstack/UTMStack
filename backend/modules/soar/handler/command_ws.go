@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -83,7 +82,7 @@ type wsCommandRequest struct {
 }
 
 type wsMessage struct {
-	Type    string `json:"type"` // "output" | "error" | "done"
+	Type    string `json:"type"` // "output" | "error" | "ready"
 	Data    string `json:"data,omitempty"`
 	Message string `json:"message,omitempty"`
 }
@@ -119,12 +118,6 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	ctx, cancel := context.WithCancel(c.Request.Context())
 	defer cancel()
 
-	var req wsCommandRequest
-	if err := wsjson.Read(ctx, conn, &req); err != nil {
-		_ = conn.Close(websocket.StatusNormalClosure, "failed to read command")
-		return
-	}
-
 	if h.agentClient == nil {
 		_ = wsjson.Write(ctx, conn, wsMessage{Type: "error", Message: "agent manager unavailable"})
 		_ = conn.Close(websocket.StatusInternalError, "no agent client")
@@ -134,33 +127,51 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	// agent-manager validates it on ProcessCommandStream (offline/unknown → stream error,
 	// surfaced over the WS). Liveness for the UI comes from datasources, not from here.
 
-	command := req.Command
-	if h.variableUC != nil {
-		if interpolated, vErr := h.variableUC.InterpolateCommand(command); vErr != nil {
-			_ = catcher.Error("CommandStream: variable interpolation", vErr, nil)
-		} else {
-			command = interpolated
+	// Persistent session: read a command, execute, emit output + ready, wait for next.
+	// The socket stays open until the client disconnects or ctx is cancelled.
+	for {
+		var req wsCommandRequest
+		if err := wsjson.Read(ctx, conn, &req); err != nil {
+			return
+		}
+
+		command := req.Command
+		if h.variableUC != nil {
+			if interpolated, vErr := h.variableUC.InterpolateCommand(command); vErr != nil {
+				_ = catcher.Error("CommandStream: variable interpolation", vErr, nil)
+			} else {
+				command = interpolated
+			}
+		}
+
+		cmd := &agent.UtmCommand{
+			AgentId:    agentID,
+			Command:    command,
+			ExecutedBy: loginFromCtx(c),
+			OriginType: req.OriginType,
+			OriginId:   req.OriginID,
+			Reason:     req.Reason,
+			Shell:      req.Shell,
+		}
+		if !h.runCommand(ctx, conn, cmd) {
+			return
 		}
 	}
+}
 
-	cmd := &agent.UtmCommand{
-		AgentId:    agentID,
-		Command:    command,
-		ExecutedBy: loginFromCtx(c),
-		OriginType: req.OriginType,
-		OriginId:   req.OriginID,
-		Reason:     req.Reason,
-		Shell:      req.Shell,
-	}
-	resultCh, errCh := h.agentClient.ProcessCommandStream(ctx, cmd)
+// runCommand executes one command over a fresh gRPC stream, forwards output to
+// the WS, then emits "ready" so the client can send the next command. Returns
+// false if the WS is unusable (write failed / ctx cancelled) — caller must exit.
+func (h *CommandWSHandler) runCommand(ctx context.Context, conn *websocket.Conn, cmd *agent.UtmCommand) bool {
+	cmdCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	resultCh, errCh := h.agentClient.ProcessCommandStream(cmdCtx, cmd)
 
 	for {
 		select {
 		case result, ok := <-resultCh:
 			if !ok {
-				_ = wsjson.Write(ctx, conn, wsMessage{Type: "done"})
-				_ = conn.Close(websocket.StatusNormalClosure, "stream complete")
-				return
+				return writeReady(ctx, conn)
 			}
 			output := result.GetResult()
 			if h.variableUC != nil {
@@ -170,26 +181,32 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 					output = masked
 				}
 			}
-			msg := wsMessage{Type: "output", Data: output}
-			if writeErr := wsjson.Write(ctx, conn, msg); writeErr != nil {
-				cancel()
-				return
+			if err := wsjson.Write(ctx, conn, wsMessage{Type: "output", Data: output}); err != nil {
+				return false
 			}
+			// ponytail: protocol is 1-command→1-result (agent-manager sends one Send per
+			// command). First result IS end-of-stream — emit ready and return to caller,
+			// deferred cancel unblocks the gRPC recv. Upgrade if streaming ever becomes real.
+			return writeReady(ctx, conn)
 
 		case grpcErr, ok := <-errCh:
 			if !ok {
-				return
+				return writeReady(ctx, conn)
 			}
 			if grpcErr != nil {
 				_ = catcher.Error("CommandStream: grpc error", grpcErr, nil)
-				errMsg, _ := json.Marshal(wsMessage{Type: "error", Message: grpcErr.Error()})
-				_ = conn.Write(ctx, websocket.MessageText, errMsg)
-				_ = conn.Close(websocket.StatusInternalError, "grpc error")
+				if err := wsjson.Write(ctx, conn, wsMessage{Type: "error", Message: grpcErr.Error()}); err != nil {
+					return false
+				}
 			}
-			return
+			return writeReady(ctx, conn)
 
 		case <-ctx.Done():
-			return
+			return false
 		}
 	}
+}
+
+func writeReady(ctx context.Context, conn *websocket.Conn) bool {
+	return wsjson.Write(ctx, conn, wsMessage{Type: "ready"}) == nil
 }
