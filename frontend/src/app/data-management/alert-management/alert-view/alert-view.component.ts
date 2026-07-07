@@ -31,7 +31,7 @@ import {
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE, MAX_SEARCH_RESULTS} from '../../../shared/constants/global.constant';
-import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
+import {ALERT_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortDirection} from '../../../shared/directives/sortable/type/sort-direction.type';
 import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
@@ -120,7 +120,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   defaultStatus: number;
   dataNature = DataNatureTypeEnum.ALERT;
   sortEvent: SortEvent;
-  pattern = MAIN_INDEX_PATTERN;
+  pattern = ALERT_INDEX_PATTERN;
   //
   defaultTime: ElasticFilterDefaultTime;
   IGNORED = IGNORED;
