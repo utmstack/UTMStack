@@ -154,42 +154,41 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	}
 	resultCh, errCh := h.agentClient.ProcessCommandStream(ctx, cmd)
 
-	for {
-		select {
-		case result, ok := <-resultCh:
-			if !ok {
-				_ = wsjson.Write(ctx, conn, wsMessage{Type: "done"})
-				_ = conn.Close(websocket.StatusNormalClosure, "stream complete")
-				return
-			}
-			output := result.GetResult()
-			if h.variableUC != nil {
-				if masked, mErr := h.variableUC.MaskSecrets(output); mErr != nil {
-					_ = catcher.Error("CommandStream: mask secrets", mErr, nil)
-				} else {
-					output = masked
-				}
-			}
-			msg := wsMessage{Type: "output", Data: output}
-			if writeErr := wsjson.Write(ctx, conn, msg); writeErr != nil {
-				cancel()
-				return
-			}
-
-		case grpcErr, ok := <-errCh:
-			if !ok {
-				return
-			}
-			if grpcErr != nil {
-				_ = catcher.Error("CommandStream: grpc error", grpcErr, nil)
-				errMsg, _ := json.Marshal(wsMessage{Type: "error", Message: grpcErr.Error()})
-				_ = conn.Write(ctx, websocket.MessageText, errMsg)
-				_ = conn.Close(websocket.StatusInternalError, "grpc error")
-			}
-			return
-
-		case <-ctx.Done():
+	// ponytail: one command → one CommandResult (see agent-manager ProcessCommand).
+	// Server never closes the stream, so we don't wait for !ok — we finalize on the first result.
+	select {
+	case result, ok := <-resultCh:
+		if !ok {
+			_ = conn.Close(websocket.StatusNormalClosure, "stream complete")
 			return
 		}
+		output := result.GetResult()
+		if h.variableUC != nil {
+			if masked, mErr := h.variableUC.MaskSecrets(output); mErr != nil {
+				_ = catcher.Error("CommandStream: mask secrets", mErr, nil)
+			} else {
+				output = masked
+			}
+		}
+		if writeErr := wsjson.Write(ctx, conn, wsMessage{Type: "output", Data: output}); writeErr != nil {
+			_ = catcher.Error("CommandStream: write output", writeErr, nil)
+			cancel()
+			return
+		}
+		if doneErr := wsjson.Write(ctx, conn, wsMessage{Type: "done"}); doneErr != nil {
+			_ = catcher.Error("CommandStream: write done", doneErr, nil)
+		}
+		_ = conn.Close(websocket.StatusNormalClosure, "command complete")
+
+	case grpcErr, ok := <-errCh:
+		if !ok || grpcErr == nil {
+			return
+		}
+		_ = catcher.Error("CommandStream: grpc error", grpcErr, nil)
+		errMsg, _ := json.Marshal(wsMessage{Type: "error", Message: grpcErr.Error()})
+		_ = conn.Write(ctx, websocket.MessageText, errMsg)
+		_ = conn.Close(websocket.StatusInternalError, "grpc error")
+
+	case <-ctx.Done():
 	}
 }
