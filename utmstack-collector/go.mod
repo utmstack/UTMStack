@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/docker/docker v28.5.2+incompatible
-	github.com/elastic/go-sysinfo v1.15.4
+	github.com/elastic/go-sysinfo v1.15.5
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.4
@@ -14,7 +14,7 @@ require (
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 )
 
 require (
