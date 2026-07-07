@@ -140,6 +140,10 @@ func (p *program) run() {
 		pb.UpdateAgent(cnf, ctx)
 	})
 
+	p.goSafe("EDRRelay", func() {
+		pb.EDRRelay(ctx)
+	})
+
 	// Start OS-level collectors (platform + auditd only).
 	startOSCollectors(ctx, pb.LogQueue)
 

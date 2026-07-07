@@ -1,0 +1,1 @@
+Write-Output 'UTMSTACK_EDR_KILLTREE_TEST_MARKER_7c1f9a done'

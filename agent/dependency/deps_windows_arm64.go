@@ -31,6 +31,15 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
+		{
+			Name:        "edr",
+			Version:     EDRVersion,
+			BinaryPath:  filepath.Join(basePath, EDRFile("")),
+			DownloadURL: edrDownloadURL,
+			Critical:    false, // agent runs even if EDR is unavailable
+			Configure:   configureEDR,
+			Uninstall:   uninstallEDR,
+		},
 	}
 }
 
