@@ -37,9 +37,13 @@ export class IncidentResponseViewComponent implements OnInit, OnDestroy {
   appliedTypes = [
     {label: 'Alert', key: IncidentOriginTypeEnum.ALERT},
     {label: 'Incident', key: IncidentOriginTypeEnum.INCIDENT},
-    {label: 'Incident response', key: IncidentOriginTypeEnum.INCIDENT_RESPONSE},
+    {label: 'Incident response (manual run)', key: IncidentOriginTypeEnum.INCIDENT_RESPONSE},
+    {label: 'SOAR flow (automation)', key: IncidentOriginTypeEnum.INCIDENT_RESPONSE_AUTOMATION},
+    {label: 'SOAR console', key: IncidentOriginTypeEnum.SOAR_CONSOLE},
     {label: 'User execution', key: IncidentOriginTypeEnum.USER_EXECUTION},
   ];
+  selectedOriginType: IncidentOriginTypeEnum | null = null;
+  agentSelectVisible = true;
 
   constructor(private incidentResponseJobService: IncidentResponseJobService,
               private agentManagerService: UtmAgentManagerService,
@@ -156,6 +160,24 @@ export class IncidentResponseViewComponent implements OnInit, OnDestroy {
       this.addParamToMap(field, value);
     }
     this.requestParams.searchQuery = this.convertParamMapToQueryParam();
+    this.getAgentCommandList();
+  }
+
+  hasActiveFilters(): boolean {
+    return this.paramMap.size > 0;
+  }
+
+  clearFilters() {
+    if (!this.hasActiveFilters()) {
+      return;
+    }
+    this.paramMap.clear();
+    this.selectedOriginType = null;
+    this.requestParams.searchQuery = '';
+    this.requestParams.pageNumber = 1;
+    this.page = 1;
+    this.agentSelectVisible = false;
+    setTimeout(() => this.agentSelectVisible = true);
     this.getAgentCommandList();
   }
 }
