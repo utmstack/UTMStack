@@ -16,7 +16,7 @@ import {
   ALERT_SEVERITY_FIELD,
   ALERT_STATUS_FIELD
 } from '../../../../shared/constants/alert/alert-field.constant';
-import {MAIN_INDEX_PATTERN} from '../../../../shared/constants/main-index-pattern.constant';
+import {ALERT_INDEX_PATTERN} from '../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {ElasticDataService} from '../../../../shared/services/elasticsearch/elastic-data.service';
 import {UtmIncidentService} from '../../../../shared/services/incidents/utm-incident.service';
@@ -83,7 +83,7 @@ export class AddAlertToIncidentComponent implements OnInit {
     const filters: ElasticFilterType[] = [
       {field: ALERT_ID_FIELD, operator: ElasticOperatorsEnum.IS_ONE_OF, value: ids}
     ];
-    return this.elasticDataService.search(1, ids.length, ids.length, MAIN_INDEX_PATTERN, filters)
+    return this.elasticDataService.search(1, ids.length, ids.length, ALERT_INDEX_PATTERN, filters)
       .pipe(map(res => res.body || []));
   }
 
