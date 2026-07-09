@@ -50,6 +50,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^22.10.2",
+    "@types/prismjs": "^1.26.6",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/react-grid-layout": "^2.1.0",

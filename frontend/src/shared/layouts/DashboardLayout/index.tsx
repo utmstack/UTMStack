@@ -19,9 +19,8 @@ export function DashboardLayout() {
         <DatasourceLimitBanner />
         <div className="flex min-h-0 flex-1">
           <Sidebar />
-          {/* pb-16 keeps page content clear of the fixed SOC-AI floating pill at
-              the bottom-center, which would otherwise overlap end-of-page content. */}
-          <main className={cn('min-w-0 flex-1 overflow-y-auto bg-muted/30', socAiReady && 'pb-16')}>
+          {/* no padding on bottom section son socai pill overlaps page end as desired */}
+          <main className={cn('min-w-0 flex-1 overflow-y-auto bg-muted/30')}>
             <Outlet />
           </main>
         </div>
