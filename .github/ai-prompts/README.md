@@ -72,11 +72,12 @@ merge `release/**` PRs; see `.github/workflows/README.md` → "Release policy".
 
 ### Routine dependency bumps
 
-A `go_deps` check can enforce that Go modules are on their latest version,
-but it's not currently wired into `pr-checks.yml` (run
-`bash .github/scripts/go-deps.sh --check --discover` manually — see
-`.github/workflows/README.md` → "Dependabot"). Regardless, the
-`architecture` and `security` prompts treat a version bump of
+`pr-checks.yml` already reports outdated Go modules as its own "Go
+dependencies" section in the sticky comment (see
+`.github/workflows/README.md` → "AI review policy") — that's informational
+too, so a dependency bump is expected to still show up there, not something
+these prompts need to flag separately. The `architecture` and `security`
+prompts treat a version bump of
 existing modules as **Tier 1** — not an architectural/agent-breaking change
 and not a vulnerability — and only flag genuine anomalies (new deps, major
 breaking jumps, downgrades, known-vulnerable pins, suspicious `replace`

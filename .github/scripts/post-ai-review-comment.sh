@@ -2,10 +2,11 @@
 set -euo pipefail
 
 # Reads every AI review result JSON (one per prompt, produced by
-# ai-review.sh) and posts/updates a single sticky PR comment with the
-# findings. Purely informational: severity/tier only drive the wording/icon
-# of the comment. This never blocks the merge, never fails the job, and
-# never @mentions anyone — it's just there so the author knows what to fix.
+# ai-review.sh) plus the optional Go dependencies check output, and
+# posts/updates a single sticky PR comment. Purely informational:
+# severity/tier and the deps check result only drive the wording/icon of
+# the comment. This never blocks the merge, never fails the job, and never
+# @mentions anyone — it's just there so the author knows what to fix.
 #
 # Required env vars:
 #   RESULTS_DIR         directory containing one <prompt-name>.json per
@@ -13,10 +14,20 @@ set -euo pipefail
 #   PR_NUMBER           PR number to comment on
 #   GITHUB_REPOSITORY   owner/repo
 #   GITHUB_TOKEN        for posting/updating the comment (unless DRY_RUN=1)
+#
+# Optional env vars:
+#   GO_DEPS_OUTPUT_FILE      path to go-deps.sh's captured stdout+stderr.
+#                            If unset/missing, the Go dependencies section
+#                            is omitted entirely.
+#   GO_DEPS_EXIT_CODE_FILE   path to a file containing go-deps.sh's exit
+#                            code. Required alongside GO_DEPS_OUTPUT_FILE.
 
 : "${RESULTS_DIR:?RESULTS_DIR is required}"
 : "${PR_NUMBER:?PR_NUMBER is required}"
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
+
+GO_DEPS_OUTPUT_FILE="${GO_DEPS_OUTPUT_FILE:-}"
+GO_DEPS_EXIT_CODE_FILE="${GO_DEPS_EXIT_CODE_FILE:-}"
 
 # DRY_RUN=1 prints the comment body instead of calling the GitHub API.
 DRY_RUN="${DRY_RUN:-0}"
@@ -127,6 +138,20 @@ if (( ${#results[@]} > 0 )); then
         findings_md+="**Summary:** $summary"$'\n\n'
         findings_md+="$findings"$'\n'
     done
+fi
+
+# Go dependencies — same style as the AI prompt sections above, but not an
+# AI call: just the exit code + output of go-deps.sh, ANSI colors stripped.
+if [[ -n "$GO_DEPS_OUTPUT_FILE" && -f "$GO_DEPS_OUTPUT_FILE" && -n "$GO_DEPS_EXIT_CODE_FILE" && -f "$GO_DEPS_EXIT_CODE_FILE" ]]; then
+    go_deps_exit=$(cat "$GO_DEPS_EXIT_CODE_FILE")
+    go_deps_output=$(sed -E $'s/\x1b\\[[0-9;]*[mK]//g' "$GO_DEPS_OUTPUT_FILE")
+    if [[ "$go_deps_exit" == "0" ]]; then
+        findings_md+=$'\n'"#### 🟢 \`go-deps\` — up to date"$'\n\n'
+        findings_md+="No pending Go dependency updates."$'\n'
+    else
+        findings_md+=$'\n'"#### 🔴 \`go-deps\` — pending updates"$'\n\n'
+        findings_md+='```'$'\n'"$go_deps_output"$'\n''```'$'\n'
+    fi
 fi
 
 if $no_results; then

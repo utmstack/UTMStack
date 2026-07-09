@@ -20,6 +20,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Configure git for private Go modules
+        if: ${{ env.HAS_API_SECRET == 'true' }}
+        env:
+          HAS_API_SECRET: ${{ secrets.API_SECRET != '' }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+        run: |
+          git config --global url."https://${API_SECRET}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          {
+            echo "GOPRIVATE=github.com/utmstack"
+            echo "GONOPROXY=github.com/utmstack"
+            echo "GONOSUMDB=github.com/utmstack"
+          } >> "$GITHUB_ENV"
+
+      - name: Check Go dependencies
+        run: |
+          mkdir -p /tmp/go-deps
+          set +e
+          bash .github/scripts/go-deps.sh --check --discover \
+            > /tmp/go-deps/output.txt 2>&1
+          echo $? > /tmp/go-deps/exit_code.txt
+          set -e
+          cat /tmp/go-deps/output.txt
+
       - name: Fetch PR diff
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,6 +104,8 @@ jobs:
       - name: Post AI review comment
         env:
           RESULTS_DIR: /tmp/ai-results
+          GO_DEPS_OUTPUT_FILE: /tmp/go-deps/output.txt
+          GO_DEPS_EXIT_CODE_FILE: /tmp/go-deps/exit_code.txt
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

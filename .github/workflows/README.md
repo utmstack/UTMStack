@@ -71,6 +71,11 @@ the comment, never the outcome:
 | Any high/critical finding | 🛑 "High/critical findings" |
 | Tier 3 | 🛑 "Sensitive area, extra care recommended" |
 
+The same comment also carries a **Go dependencies** section (🟢 up to date /
+🔴 pending updates), from a plain `go-deps.sh --check --discover` run — not
+an AI call, just the same informational treatment: it's reported, never
+blocks.
+
 Whatever the signal, the job always succeeds — the status check stays green.
 When the author pushes new commits, the sticky comment is **updated
 in-place** (same comment, no stacking) and the workflow re-runs
@@ -97,10 +102,11 @@ behavior is ever needed again.)
 ### Dependabot
 
 Disabled. `.github/dependabot.yml` keeps `updates: []` so Dependabot
-reads the file but creates no PRs. Dependency freshness used to be enforced
-on every PR via a `go_deps` check; it's no longer wired into `pr-checks.yml`
-(see [Reusable workflows](#reusable-workflows)) — run
-`bash .github/scripts/go-deps.sh --check --discover` manually instead. To
+reads the file but creates no PRs. Dependency freshness is surfaced instead
+by the "Check Go dependencies" step in `pr-checks.yml`, which runs
+`bash .github/scripts/go-deps.sh --check --discover` and reports the result
+as a section in the sticky comment (informational — see
+[AI review policy](#ai-review-policy-informational-only-no-auto-merge)). To
 re-enable Dependabot, restore the
 previous `updates:` list (see git history of that file).
 
@@ -176,12 +182,17 @@ at all.
 
 ### Steps
 
-1. **Fetch the diff** — `gh pr diff` (same unified diff the GitHub UI
+1. **Check Go dependencies** — `actions/setup-go@v5`, then (if `API_SECRET`
+   is set) configures git for private `utmstack/*` modules, then runs
+   `bash .github/scripts/go-deps.sh --check --discover`. Captures stdout,
+   stderr and the exit code to `/tmp/go-deps/`; **never fails the job** —
+   `set +e` around the call, same informational treatment as the AI review.
+2. **Fetch the diff** — `gh pr diff` (same unified diff the GitHub UI
    shows — no need for `fetch-depth: 0`).
-2. **Filter the diff** — drops any file under a `rules/`, `filters/` or
+3. **Filter the diff** — drops any file under a `rules/`, `filters/` or
    `definitions/` folder (detection rules / correlation filters / content,
    not code) before the AI ever sees it.
-3. **Run AI review, once per prompt** — for each `.md` under
+4. **Run AI review, once per prompt** — for each `.md` under
    `.github/ai-prompts/` (except `README.md`), calls
    `.github/scripts/ai-review.sh`, which:
    - Calls the **ThreatWinds AI** `/chat/completions` endpoint with the
@@ -206,9 +217,10 @@ at all.
    `.github/ai-prompts/` — the loop in `pr-checks.yml` discovers it at
    runtime, no YAML changes needed. **Default model:** `gemini-3-flash-lite`;
    each prompt can pin its own in frontmatter (`model: gemini-3-pro`, etc.).
-4. **Post the comment** — `.github/scripts/post-ai-review-comment.sh` reads
-   every JSON file, builds one combined markdown comment (severity/tier
-   only drive wording/icon), and upserts a single sticky comment (marker
+5. **Post the comment** — `.github/scripts/post-ai-review-comment.sh` reads
+   every JSON file plus the Go deps output/exit code, builds one combined
+   markdown comment (severity/tier and the deps exit code only drive
+   wording/icon), and upserts a single sticky comment (marker
    `<!-- approver:ai -->`, kept from the previous design so in-flight PRs
    keep updating the same comment). Never fails, never blocks, never
    @mentions anyone.
@@ -343,7 +355,7 @@ The installer is uploaded as a release asset.
 
 | Secret | Used in | Description |
 |--------|---------|-------------|
-| `API_SECRET` | v10, v11 deploy, installer | GitHub PAT with `read:org` scope. Used by deployment workflows for team-membership validation and for fetching private `utmstack/*` Go modules. **Not used by `pr-checks.yml`** — that workflow has no team-membership check. |
+| `API_SECRET` | v10, v11 deploy, installer, pr-checks | GitHub PAT with `read:org` scope. Used by deployment workflows for team-membership validation, and by `pr-checks.yml`'s "Check Go dependencies" step to fetch private `utmstack/*` Go modules via `go list`. **Not used for any team-membership check in `pr-checks.yml`** — that workflow has none. |
 | `AGENT_SECRET_PREFIX` | v10, v11 | Agent encryption key |
 | `SIGN_CERT` | v10, v11 | Code signing certificate path (it's a `var`) |
 | `SIGN_KEY` | v10, v11 | Code signing key |
@@ -371,11 +383,12 @@ The installer is uploaded as a release asset.
 
 **PR checks:**
 
-- `_pr-reusable-go-deps.yml` — runs `go-deps.sh --check --discover` at repo
-  level and uploads `go-deps-result` as an artifact. **Not called by
-  `pr-checks.yml`** (removed — see [Dependabot](#dependabot)); kept for
-  running manually on demand via `workflow_call` or a local invocation of
-  the underlying script.
+- `_pr-reusable-go-deps.yml` — a leftover, artifact-based version of the Go
+  deps check (uploads `go-deps-result` instead of reporting inline). **Not
+  called by `pr-checks.yml`** — `pr-checks.yml` runs
+  `bash .github/scripts/go-deps.sh --check --discover` directly as a step
+  instead (see [PR Checks](#pr-checks)). Kept only for manually invoking via
+  `workflow_call` if you ever need the artifact form again.
 - The AI review + comment logic used to be two more reusable workflows
   (`_pr-reusable-ai-review.yml`, `_pr-reusable-approver.yml`); both were
   removed and folded into steps of the single `review` job in
@@ -467,9 +480,11 @@ git checkout -b hotfix/auth-bug
   [AI review policy](#ai-review-policy-informational-only-no-auto-merge).
   Those branches are gated by the "Protect Main" GitHub ruleset instead.
 
-**`go_deps` fails with "Could not inspect ... run 'go mod tidy' there":**
+**Go dependencies section shows 🔴 "Could not inspect ... run 'go mod tidy' there":**
 - `go.sum` is out of sync, typically due to local `replace` directives in
-  `packages/`. Run `go mod tidy` in the affected module and commit.
+  `packages/`. Run `go mod tidy` in the affected module and commit. This
+  never fails the job — it's reported in the comment, same as any other
+  finding.
 
 **Build failures:**
 - Check that all required secrets are configured.
