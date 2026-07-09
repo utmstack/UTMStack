@@ -3924,6 +3924,7 @@
       "createRule": "Crea una regola di etichettatura con questa etichetta"
     },
     "table": {
+      "actions": "Azioni",
       "alert": "Avviso",
       "status": "Stato",
       "technique": "Tecnica",
@@ -3935,6 +3936,8 @@
     },
     "row": {
       "createRuleFromAlert": "Crea un'etichetta da questo avviso",
+      "createIncident": "Crea un incidente da questo avviso",
+      "viewIncident": "Vedi dettagli dell'incidente",
       "assignedTo": "Assegnato a {{user}}",
       "echoesTooltip": "{{count}} echi — clicca per espandere",
       "echoesEmpty": "Nessun eco registrato"

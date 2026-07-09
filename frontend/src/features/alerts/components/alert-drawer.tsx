@@ -115,9 +115,11 @@ export function AlertDrawer({
               onDeleteTag={onDeleteTag}
               onCreateRule={onCreateRule}
             />
-            <Button size="sm" variant="outline" onClick={onIncident}>
-              <Flame size={13} className="mr-1.5 text-red-500" /> {t('alerts.drawer.addToIncident')}
-            </Button>
+            {!a.isIncident && (
+              <Button size="sm" variant="outline" onClick={onIncident}>
+                <Flame size={13} className="mr-1.5 text-red-500" /> {t('alerts.drawer.addToIncident')}
+              </Button>
+            )}
             <AssigneeMenu current={a.assignee} onAssign={onAssign} />
           </div>
 

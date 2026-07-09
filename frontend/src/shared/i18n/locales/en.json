@@ -4020,6 +4020,7 @@
       "color": "Color {{color}}"
     },
     "table": {
+      "actions": "Actions",
       "alert": "Alert",
       "status": "Status",
       "technique": "Technique",
@@ -4031,6 +4032,8 @@
     },
     "row": {
       "createRuleFromAlert": "Create a tag from this alert",
+      "createIncident": "Create incident from this alert",
+      "viewIncident": "View incident details",
       "assignedTo": "Assigned to {{user}}",
       "echoesTooltip": "{{count}} echoes — click to expand",
       "echoesEmpty": "No echoes recorded"

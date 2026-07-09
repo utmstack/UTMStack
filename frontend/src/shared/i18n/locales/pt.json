@@ -4012,6 +4012,7 @@
       "createRule": "Criar regra de marcação com esta etiqueta"
     },
     "table": {
+      "actions": "Ações",
       "alert": "Alerta",
       "status": "Estado",
       "technique": "Técnica",
@@ -4023,6 +4024,8 @@
     },
     "row": {
       "createRuleFromAlert": "Criar uma tag a partir deste alerta",
+      "createIncident": "Criar incidente a partir deste alerta",
+      "viewIncident": "Ver detalhes do incidente",
       "assignedTo": "Atribuído a {{user}}",
       "echoesTooltip": "{{count}} ecos — clique para expandir",
       "echoesEmpty": "Sem ecos registrados"

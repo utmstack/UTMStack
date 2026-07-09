@@ -3924,6 +3924,7 @@
       "createRule": "Tagging-Regel mit diesem Tag erstellen"
     },
     "table": {
+      "actions": "Aktionen",
       "alert": "Warnung",
       "status": "Status",
       "technique": "Technik",
@@ -3935,6 +3936,8 @@
     },
     "row": {
       "createRuleFromAlert": "Tag aus dieser Warnung erstellen",
+      "createIncident": "Vorfall aus dieser Warnung erstellen",
+      "viewIncident": "Vorfalldetails anzeigen",
       "assignedTo": "Zugewiesen an {{user}}",
       "echoesTooltip": "{{count}} Echos — klicken zum Erweitern",
       "echoesEmpty": "Keine Echos vorhanden"

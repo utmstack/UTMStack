@@ -360,6 +360,7 @@ export function AlertsPage() {
                           onCreateRule={(alert) =>
                             setRuleDrawer({ kind: 'create', conditions: alertToRuleConditions(alert) })
                           }
+                          onIncident={(alert) => setIncidentTargets([alert])}
                           onToggleEchoes={() => toggleEchoes(a.id)}
                           onStatus={(s, obs, fp) => void applyStatus([a.id], s, obs, fp)}
                         />
