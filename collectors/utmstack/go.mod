@@ -7,10 +7,10 @@ require (
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/elastic/go-sysinfo v1.15.5
 	github.com/google/uuid v1.6.0
-	github.com/kardianos/service v1.2.4
+	github.com/kardianos/service v1.3.0
 	github.com/threatwinds/go-sdk v1.1.26
 	github.com/threatwinds/logger v1.2.3
-	google.golang.org/grpc v1.81.1
+	google.golang.org/grpc v1.82.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v2 v2.4.0
 )

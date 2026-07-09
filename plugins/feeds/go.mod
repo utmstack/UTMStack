@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/opensearch-project/opensearch-go/v2 v2.3.0
 	github.com/threatwinds/go-sdk v1.1.26
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

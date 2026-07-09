@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, ListPlus, Lock, Pencil, Plus, Tag as TagIcon, Trash2, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { TAG_COLORS } from '../lib/alert-meta'
@@ -13,6 +12,7 @@ export function TagFilter({
   onCreateTag,
   onUpdateTag,
   onDeleteTag,
+  onCreateRule,
 }: {
   catalog: AlertTag[]
   selected: string[]
@@ -20,12 +20,9 @@ export function TagFilter({
   onCreateTag: (tagName: string, tagColor: string) => void
   onUpdateTag: (id: number, tagName: string, tagColor: string) => void
   onDeleteTag: (id: number, tagName: string) => void
+  onCreateRule: (tg: AlertTag) => void
 }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  // Deep-link to the tagging-rules page in create mode with this tag pre-selected.
-  const goToCreateRule = (tg: AlertTag) =>
-    navigate('/threat-management/alerts/tagging-rules', { state: { createWithTag: tg } })
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editName, setEditName] = useState('')
@@ -151,7 +148,7 @@ export function TagFilter({
                   </button>
                   <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
                     <button
-                      onClick={() => goToCreateRule(tg)}
+                      onClick={() => onCreateRule(tg)}
                       title={t('alerts.tagEditor.createRule')}
                       className="rounded p-1 text-muted-foreground hover:bg-background hover:text-primary"
                     >

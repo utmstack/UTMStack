@@ -13,7 +13,7 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
             {allChecked && <span className="h-2 w-2 rounded-sm bg-primary" />}
           </button>
         </th>
-        <th className={`${TH} w-px`} aria-hidden />
+        <th className={`${TH} text-center`} colSpan={2}>{t('alerts.table.actions')}</th>
         <th className={TH}>{t('alerts.table.alert')}</th>
         <th className={TH}>{t('alerts.table.status')}</th>
         <th className={TH}>{t('alerts.table.technique')}</th>
@@ -26,4 +26,4 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
   )
 }
 
-export const ALERTS_TABLE_COLUMN_COUNT = 10
+export const ALERTS_TABLE_COLUMN_COUNT = 11

@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { SEV_META, TS, absTime, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag } from '../types/alert.types'
+import { AlertIncidentTarget } from './alert-incident-target'
 import { EchoesChip } from './echoes-chip'
 import { StatusChangeMenu } from './status-change-menu'
 import { TagChip } from './tag-chip'
@@ -19,6 +20,7 @@ export function AlertRow({
   onToggle,
   onOpen,
   onCreateRule,
+  onIncident,
   onToggleEchoes,
   onStatus,
 }: {
@@ -29,6 +31,7 @@ export function AlertRow({
   onToggle: () => void
   onOpen: () => void
   onCreateRule: (alert: Alert) => void
+  onIncident: (alert: Alert) => void
   onToggleEchoes: () => void
   onStatus: (status: number, observation: string, fp: boolean) => void
 }) {
@@ -70,6 +73,9 @@ export function AlertRow({
         >
           <Tag size={13} />
         </button>
+      </td>
+      <td className={TD}>
+        <AlertIncidentTarget alert={a} onIncident={onIncident} />
       </td>
       <td className={`${TD} max-w-[480px]`}>
         <div className="flex items-center gap-2">
