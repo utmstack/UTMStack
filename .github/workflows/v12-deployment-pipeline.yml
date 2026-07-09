@@ -39,7 +39,7 @@ jobs:
             BRANCH_VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
             echo "Branch version: $BRANCH_VERSION"
 
-            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
+            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest?product=utmstack-v12-dev")
             LATEST_VERSION=$(echo "$RESPONSE" | jq -r '.version // empty')
             echo "Latest version from CM: $LATEST_VERSION"
 
@@ -537,11 +537,13 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_SERVICE_ACCOUNT based on environment
+          # Select CM_SERVICE_ACCOUNT and product slug based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
             cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
+            PRODUCT_SLUG="utmstack-v12-dev"
           else
             cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
+            PRODUCT_SLUG="utmstack-v12"
           fi
 
           id=$(echo "$cmAuth" | jq -r '.id')
@@ -550,7 +552,8 @@ jobs:
           body=$(jq -n \
             --arg version "$TAG" \
             --arg changelog "$changelog" \
-            '{version: $version, changelog: $changelog}'
+            --arg product_slug "$PRODUCT_SLUG" \
+            '{version: $version, changelog: $changelog, product_slug: $product_slug}'
           )
 
           response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
