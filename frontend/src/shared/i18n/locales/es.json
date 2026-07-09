@@ -3978,7 +3978,8 @@
       "target_domain": "Dominio del objetivo",
       "target_url": "URL del objetivo",
       "target_geolocation_asn": "ASN del objetivo",
-      "target_geolocation_aso": "ASO del objetivo"
+      "target_geolocation_aso": "ASO del objetivo",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Etiquetas",
@@ -4011,6 +4012,7 @@
       "createRule": "Crear regla de etiquetado con esta etiqueta"
     },
     "table": {
+      "actions": "Acciones",
       "alert": "Alerta",
       "status": "Estado",
       "technique": "Técnica",
@@ -4022,6 +4024,8 @@
     },
     "row": {
       "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta",
+      "createIncident": "Crear incidente a partir de esta alerta",
+      "viewIncident": "Ver detalles del incidente",
       "assignedTo": "Asignado a {{user}}",
       "echoesTooltip": "{{count}} ecos — haz clic para expandir",
       "echoesEmpty": "Sin ecos registrados"
@@ -4082,7 +4086,11 @@
       "assign": "Asignar",
       "unassign": "Quitar asignación",
       "unassigned": "Sin asignar",
-      "loadingUsers": "Cargando usuarios…"
+      "loadingUsers": "Cargando usuarios…",
+      "observationLabel": "Observación",
+      "observationPlaceholder": "Añade una observación…",
+      "cancel": "Cancelar",
+      "continue": "Continuar"
     },
     "related": {
       "sample": "Una muestra de hasta ~11 eventos que el motor almacenó en esta alerta. Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",

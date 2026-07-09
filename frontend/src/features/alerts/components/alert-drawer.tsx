@@ -30,6 +30,7 @@ export function AlertDrawer({
   onCreateTag,
   onUpdateTag,
   onDeleteTag,
+  onCreateRule,
   onIncident,
   onNotes,
   onAssign,
@@ -42,6 +43,7 @@ export function AlertDrawer({
   onCreateTag: (tagName: string, tagColor: string) => void
   onUpdateTag: (id: number, tagName: string, tagColor: string) => void
   onDeleteTag: (id: number, tagName: string) => void
+  onCreateRule: (tg: AlertTag) => void
   onIncident: () => void
   onNotes: (notes: string) => void
   onAssign: (assignee: string) => void
@@ -111,10 +113,13 @@ export function AlertDrawer({
               onCreateTag={onCreateTag}
               onUpdateTag={onUpdateTag}
               onDeleteTag={onDeleteTag}
+              onCreateRule={onCreateRule}
             />
-            <Button size="sm" variant="outline" onClick={onIncident}>
-              <Flame size={13} className="mr-1.5 text-red-500" /> {t('alerts.drawer.addToIncident')}
-            </Button>
+            {!a.isIncident && (
+              <Button size="sm" variant="outline" onClick={onIncident}>
+                <Flame size={13} className="mr-1.5 text-red-500" /> {t('alerts.drawer.addToIncident')}
+              </Button>
+            )}
             <AssigneeMenu current={a.assignee} onAssign={onAssign} />
           </div>
 
