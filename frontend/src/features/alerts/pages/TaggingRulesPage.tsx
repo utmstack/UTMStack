@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, Plus, RefreshCw, Search, TagIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -12,8 +11,7 @@ import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { TaggingRulesTable } from '../components/tagging-rules-table'
 import { TaggingRuleDrawer } from '../components/tagging-rule-drawer'
 import { TaggingRulesEmptyCard } from '../components/tagging-rules-empty-card'
-import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
-import type { AlertTag, FilterType, TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
+import type { TaggingRule, TaggingRuleListParams } from '../types/tagging-rule.types'
 
 export function TaggingRulesPage() {
   const { t } = useTranslation()
@@ -25,65 +23,7 @@ export function TaggingRulesPage() {
   const [tagFilter, setTagFilter] = useState<number | 'all'>('all')
 
   const [open, setOpen] = useState<TaggingRule | null>(null)
-  const [openInEdit, setOpenInEdit] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [creatingWith, setCreatingWith] = useState<AlertTag[]>([])
-  const [creatingConditions, setCreatingConditions] = useState<FilterType[]>([])
-  // Set when the drawer was opened via a deep-link from another view (alerts
-  // list / tag editor). On a successful save we hop back to that view; on a
-  // plain close we just clear the marker.
-  const [redirectAfter, setRedirectAfter] = useState<string | null>(null)
-
-  // Deep-links into this page:
-  //   - createWithTag: if a rule already references this tag, open the first
-  //     match in edit mode; otherwise open the create drawer with the tag
-  //     pre-selected.
-  //   - createWithConditions: open the create drawer with these conditions
-  //     pre-filled (sent from the alerts list's "create rule from alert"
-  //     glyph). Tags stay empty so the user picks them.
-  // The router state is cleared on read so a refresh doesn't re-seed.
-  const location = useLocation()
-  const navigate = useNavigate()
-  const seededRef = useRef(false)
-  useEffect(() => {
-    const state = location.state as
-      | { createWithTag?: AlertTag; createWithConditions?: FilterType[] }
-      | null
-    if (seededRef.current) return
-    if (!state?.createWithTag && !state?.createWithConditions?.length) return
-    seededRef.current = true
-    const tag = state.createWithTag
-    const conds = state.createWithConditions
-    navigate(location.pathname, { replace: true })
-    // Anything we got here from is the alerts view — bounce back on save.
-    setRedirectAfter('/threat-management/alerts')
-    if (conds?.length) {
-      setCreatingConditions(conds)
-      setCreating(true)
-      return
-    }
-    if (!tag) return
-    void (async () => {
-      try {
-        const { data } = await taggingRulesHttpService.list({
-          page: 1,
-          size: 1,
-          tagIds: [tag.id],
-          ruleDeleted: false,
-        })
-        if (data && data.length > 0) {
-          setOpenInEdit(true)
-          setOpen(data[0])
-          return
-        }
-      } catch {
-        /* fall through to create */
-      }
-      setCreatingWith([tag])
-      setCreating(true)
-    })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Debounce the search box.
   useEffect(() => {
@@ -115,25 +55,14 @@ export function TaggingRulesPage() {
       : await createRule(input)
     if (ok) {
       setCreating(false)
-      setCreatingWith([])
-      setCreatingConditions([])
       setOpen(null)
-      setOpenInEdit(false)
-      if (redirectAfter) {
-        const dest = redirectAfter
-        setRedirectAfter(null)
-        navigate(dest)
-      }
     }
   }
 
   const remove = async (r: TaggingRule) => {
     if (!confirm(t('taggingRules.deleteConfirm', { name: r.name }))) return
     const ok = await deleteRule(r.id, r.name)
-    if (ok) {
-      setOpen(null)
-      setOpenInEdit(false)
-    }
+    if (ok) setOpen(null)
   }
 
   return (
@@ -213,17 +142,8 @@ export function TaggingRulesPage() {
       {open && (
         <TaggingRuleDrawer
           rule={open}
-          startInEdit={openInEdit}
           tagCatalog={tagCatalog}
-          onClose={() => {
-            setOpen(null)
-            setOpenInEdit(false)
-            if(redirectAfter){
-              const dest = redirectAfter
-              setRedirectAfter(null)
-              navigate(dest)
-            }
-          }}
+          onClose={() => setOpen(null)}
           onSubmit={(input, id) => submit(input, id ?? open.id)}
           onDelete={remove}
           onCreateTag={createTag}
@@ -232,19 +152,8 @@ export function TaggingRulesPage() {
       {creating && (
         <TaggingRuleDrawer
           create
-          initialTags={creatingWith}
-          initialConditions={creatingConditions}
           tagCatalog={tagCatalog}
-          onClose={() => {
-            setCreating(false)
-            setCreatingWith([])
-            setCreatingConditions([])
-            if(redirectAfter){
-              const dest = redirectAfter
-              setRedirectAfter(null)
-              navigate(dest)
-            }
-          }}
+          onClose={() => setCreating(false)}
           onSubmit={(input) => submit(input)}
           onCreateTag={createTag}
         />

@@ -21,6 +21,7 @@ export function AlertsToolbar({
   onCreateTag,
   onUpdateTag,
   onDeleteTag,
+  onCreateRule,
   onRefresh,
   onExport,
   loading,
@@ -38,6 +39,7 @@ export function AlertsToolbar({
   onCreateTag: (tagName: string, tagColor: string) => void
   onUpdateTag: (id: number, tagName: string, tagColor: string) => void
   onDeleteTag: (id: number, tagName: string) => void
+  onCreateRule: (tg: AlertTag) => void
   onRefresh: () => void
   onExport: () => void
   loading: boolean
@@ -74,6 +76,7 @@ export function AlertsToolbar({
         onCreateTag={onCreateTag}
         onUpdateTag={onUpdateTag}
         onDeleteTag={onDeleteTag}
+        onCreateRule={onCreateRule}
       />
       <TimeRangePicker value={range} onChange={onRange} allowAllTime align="right" />
       <Button variant="outline" size="sm" onClick={onExport} title={t('alerts.toolbar.export')}>

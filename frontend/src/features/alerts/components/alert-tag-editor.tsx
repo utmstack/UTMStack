@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, ListPlus, Lock, Pencil, Plus, Tag as TagIcon, Trash2, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { TAG_COLORS } from '../lib/alert-meta'
@@ -18,6 +17,7 @@ export function AlertTagEditor({
   onCreateTag,
   onUpdateTag,
   onDeleteTag,
+  onCreateRule,
 }: {
   tags: string[]
   catalog: AlertTag[]
@@ -25,9 +25,9 @@ export function AlertTagEditor({
   onCreateTag: (tagName: string, tagColor: string) => void
   onUpdateTag: (id: number, tagName: string, tagColor: string) => void
   onDeleteTag: (id: number, tagName: string) => void
+  onCreateRule: (tg: AlertTag) => void
 }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [color, setColor] = useState(TAG_COLORS[5])
@@ -36,12 +36,6 @@ export function AlertTagEditor({
   const [editName, setEditName] = useState('')
   const [editColor, setEditColor] = useState(TAG_COLORS[5])
   const ref = useRef<HTMLDivElement>(null)
-
-  // Jump to the tagging rules page in create mode with this tag pre-selected.
-  // Route state survives the navigation; the destination clears it on read so
-  // a refresh doesn't re-seed.
-  const goToCreateRule = (tg: AlertTag) =>
-    navigate('/threat-management/alerts/tagging-rules', { state: { createWithTag: tg } })
   useEffect(() => {
     if (!open) return
     const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
@@ -147,7 +141,7 @@ export function AlertTagEditor({
                   </button>
                   <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
                     <button
-                      onClick={() => goToCreateRule(tg)}
+                      onClick={() => onCreateRule(tg)}
                       title={t('alerts.tagEditor.createRule')}
                       className="rounded p-1 text-muted-foreground hover:bg-background hover:text-primary"
                     >

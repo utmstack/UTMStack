@@ -21,6 +21,7 @@ import { useAlertsList } from '../hooks/use-alerts-list'
 import { useAlertStats } from '../hooks/use-alert-stats'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { useAlertMutations } from '../hooks/use-alert-mutations'
+import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
 import { AlertsHeader, type AlertsView } from '../components/alerts-header'
 import { AlertsToolbar } from '../components/alerts-toolbar'
 import { AlertsFilterBar } from '../components/alerts-filter-bar'
@@ -33,7 +34,11 @@ import { AlertRow } from '../components/alert-row'
 import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
 import { AlertIncidentModal } from '../components/alert-incident-modal'
+import { TaggingRuleDrawer } from '../components/tagging-rule-drawer'
 import { Center } from '../components/center'
+import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
+import type { TaggingRule } from '../types/tagging-rule.types'
+import type { AlertTag } from '../types/alert.types'
 
 export function AlertsPage() {
   const { t } = useTranslation()
@@ -53,6 +58,13 @@ export function AlertsPage() {
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
   const [incidentTargets, setIncidentTargets] = useState<Alert[] | null>(null)
+  // Tagging-rule drawer is rendered here so the tag editor / rule button don't
+  // have to bounce through the tagging-rules page.
+  const [ruleDrawer, setRuleDrawer] = useState<
+    | { kind: 'edit'; rule: TaggingRule; startInEdit: boolean }
+    | { kind: 'create'; tags?: AlertTag[]; conditions?: FilterType[] }
+    | null
+  >(null)
 
   const toggleEchoes = (id: string) =>
     setExpandedEchoes((prev) => {
@@ -167,6 +179,44 @@ export function AlertsPage() {
     openAlert,
     setOpenAlert,
   })
+  // Rule mutations don't need to refresh anything on this page (no rules list
+  // is rendered) — pass a noop.
+  const { createRule, updateRule, deleteRule } = useTaggingRuleMutations(() => {})
+
+  // Open the tagging-rule drawer with a tag pre-selected. If a rule already
+  // references this tag, jump straight into edit mode on the first match;
+  // otherwise open create mode with the tag pre-filled.
+  const openRuleForTag = async (tg: AlertTag) => {
+    try {
+      const { data } = await taggingRulesHttpService.list({
+        page: 1,
+        size: 1,
+        tagIds: [tg.id],
+        ruleDeleted: false,
+      })
+      if (data && data.length > 0) {
+        setRuleDrawer({ kind: 'edit', rule: data[0], startInEdit: true })
+        return
+      }
+    } catch {
+      /* fall through to create */
+    }
+    setRuleDrawer({ kind: 'create', tags: [tg] })
+  }
+
+  const submitRule = async (
+    input: { name: string; description: string; conditions: any[]; tags: any[] },
+    id?: number,
+  ) => {
+    const ok = id != null ? await updateRule({ id, ...input }) : await createRule(input)
+    if (ok) setRuleDrawer(null)
+  }
+
+  const removeRule = async (r: TaggingRule) => {
+    if (!confirm(t('taggingRules.deleteConfirm', { name: r.name }))) return
+    const ok = await deleteRule(r.id, r.name)
+    if (ok) setRuleDrawer(null)
+  }
 
   const selectedAlerts = useMemo(() => alerts.filter((a) => selected.has(a.id)), [alerts, selected])
 
@@ -213,6 +263,7 @@ export function AlertsPage() {
           onCreateTag={(name, color) => void createTag(name, color)}
           onUpdateTag={(id, name, color) => void updateTag(id, name, color)}
           onDeleteTag={(id, name) => void deleteTag(id, name)}
+          onCreateRule={(tg) => void openRuleForTag(tg)}
           onRefresh={refresh}
           onExport={() => void exportCsv(listFilters)}
           loading={loading}
@@ -307,9 +358,7 @@ export function AlertsPage() {
                           onToggle={() => toggleSel(a.id)}
                           onOpen={() => setOpenAlert(a)}
                           onCreateRule={(alert) =>
-                            navigate('/threat-management/alerts/tagging-rules', {
-                              state: { createWithConditions: alertToRuleConditions(alert) },
-                            })
+                            setRuleDrawer({ kind: 'create', conditions: alertToRuleConditions(alert) })
                           }
                           onToggleEchoes={() => toggleEchoes(a.id)}
                           onStatus={(s, obs, fp) => void applyStatus([a.id], s, obs, fp)}
@@ -349,6 +398,7 @@ export function AlertsPage() {
           onCreateTag={(name, color) => void createAndApplyTag([openAlert.id], name, color, openAlert.tags ?? [])}
           onUpdateTag={(id, name, color) => void updateTag(id, name, color)}
           onDeleteTag={(id, name) => void deleteTag(id, name)}
+          onCreateRule={(tg) => void openRuleForTag(tg)}
           onIncident={() => setIncidentTargets([openAlert])}
           onNotes={(notes) => void updateNotes(openAlert.id, notes)}
           onAssign={(assignee) => void updateAssignee(openAlert.id, assignee)}
@@ -364,6 +414,29 @@ export function AlertsPage() {
             setSelected(new Set())
             refresh()
           }}
+        />
+      )}
+
+      {ruleDrawer?.kind === 'edit' && (
+        <TaggingRuleDrawer
+          rule={ruleDrawer.rule}
+          startInEdit={ruleDrawer.startInEdit}
+          tagCatalog={tagCatalog}
+          onClose={() => setRuleDrawer(null)}
+          onSubmit={(input, id) => submitRule(input, id ?? ruleDrawer.rule.id)}
+          onDelete={removeRule}
+          onCreateTag={createTag}
+        />
+      )}
+      {ruleDrawer?.kind === 'create' && (
+        <TaggingRuleDrawer
+          create
+          initialTags={ruleDrawer.tags}
+          initialConditions={ruleDrawer.conditions}
+          tagCatalog={tagCatalog}
+          onClose={() => setRuleDrawer(null)}
+          onSubmit={(input) => submitRule(input)}
+          onCreateTag={createTag}
         />
       )}
     </div>
