@@ -264,6 +264,8 @@ func legacyToRule(row *domain.UtmCorrelationRules) Rule {
 	for _, dt := range row.DataTypes {
 		names = append(names, dt.DataType)
 	}
+
+
 	return Rule{
 		Name:          row.RuleName,
 		Adversary:     row.RuleAdversary,
@@ -274,7 +276,7 @@ func legacyToRule(row *domain.UtmCorrelationRules) Rule {
 		Impact:        Impact{Confidentiality: row.RuleConfidentiality, Integrity: row.RuleIntegrity, Availability: row.RuleAvailability},
 		Where:         rawToWhere(toRaw(row.RuleDefinitionDef)),
 		References:    rawToAnySlice(toRaw(row.RuleReferencesDef)),
-		AfterEvents:   rawToAny(toRaw(row.AfterEventsDef)),
+		Correlation:   rawToAny(toRaw(row.AfterEventsDef)),
 		GroupBy:       rawToStrSlice(toRaw(row.RuleGroupByDef)),
 		DeduplicateBy: rawToStrSlice(toRaw(row.DeduplicateByDef)),
 	}

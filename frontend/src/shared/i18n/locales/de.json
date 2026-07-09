@@ -4217,7 +4217,7 @@
       "updated": "Aktualisiert",
       "relPath": "Pfad",
       "definition": "Bedingung (CEL)",
-      "afterEvents": "Korrelationsschritte",
+      "correlationSteps": "Korrelationsschritte",
       "correlation": "Korrelation",
       "groupBy": "Gruppieren nach",
       "deduplicateBy": "Deduplizieren nach",
@@ -4240,8 +4240,8 @@
       "definitionSection": "Definition",
       "where": "Bedingung (CEL)",
       "whereHint": "CEL-Ausdruck je Ereignis ausgewertet",
-      "afterEvents": "Korrelationsschritte (afterEvents)",
-      "afterEventsHint": "JSON-Array",
+      "correlationSteps": "Korrelationsschritte",
+      "correlationStepsHint": "JSON-Array",
       "jsonArray": "JSON-Array",
       "nameRequired": "Name ist erforderlich",
       "definitionRequired": "Die Bedingung ist erforderlich",
@@ -4459,7 +4459,10 @@
       "patternCreated": "Muster „{{name}}“ erstellt",
       "patternCreateError": "Muster konnte nicht erstellt werden",
       "patternIdInvalid": "Die Muster-ID muss mit einem Buchstaben oder _ beginnen und nur Buchstaben, Ziffern oder _ verwenden",
-      "patternDefRequired": "Definition ist erforderlich"
+      "patternDefRequired": "Definition ist erforderlich",
+      "parameters": "Parameter",
+      "paramsKey": "Schlüssel",
+      "paramsValue": "Wert"
     },
     "allDataTypes": "Alle Datentypen"
   },

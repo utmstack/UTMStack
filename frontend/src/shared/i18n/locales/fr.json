@@ -4217,7 +4217,7 @@
       "updated": "Mise à jour",
       "relPath": "Chemin",
       "definition": "Condition (CEL)",
-      "afterEvents": "Étapes de corrélation",
+      "correlationSteps": "Étapes de corrélation",
       "correlation": "Corrélation",
       "groupBy": "Grouper par",
       "deduplicateBy": "Dédupliquer par",
@@ -4240,8 +4240,8 @@
       "definitionSection": "Définition",
       "where": "Condition (CEL)",
       "whereHint": "Expression CEL évaluée par événement",
-      "afterEvents": "Étapes de corrélation (afterEvents)",
-      "afterEventsHint": "tableau JSON",
+      "correlationSteps": "Étapes de corrélation",
+      "correlationStepsHint": "tableau JSON",
       "jsonArray": "tableau JSON",
       "nameRequired": "Le nom est requis",
       "definitionRequired": "La condition est requise",
@@ -4459,7 +4459,10 @@
       "patternCreated": "Motif « {{name}} » créé",
       "patternCreateError": "Échec de la création du motif",
       "patternIdInvalid": "L'ID du motif doit commencer par une lettre ou _ et n'utiliser que des lettres, chiffres ou _",
-      "patternDefRequired": "La définition est requise"
+      "patternDefRequired": "La définition est requise",
+      "parameters": "Paramètres",
+      "paramsKey": "Clé",
+      "paramsValue": "Valeur"
     },
     "allDataTypes": "Tous les types de données"
   },

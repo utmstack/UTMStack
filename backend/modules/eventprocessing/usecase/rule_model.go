@@ -38,7 +38,7 @@ type Rule struct {
 	References    []any    `yaml:"references,omitempty"`
 	Description   string   `yaml:"description,omitempty"`
 	Where         string   `yaml:"where"`
-	AfterEvents   any      `yaml:"afterEvents,omitempty"`
+	Correlation   any      `yaml:"correlation,omitempty"`
 	GroupBy       []string `yaml:"groupBy,omitempty"`
 	DeduplicateBy []string `yaml:"deduplicateBy,omitempty"`
 }

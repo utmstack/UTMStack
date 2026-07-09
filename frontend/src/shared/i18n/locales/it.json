@@ -4217,7 +4217,7 @@
       "updated": "Aggiornata",
       "relPath": "Percorso",
       "definition": "Condizione (CEL)",
-      "afterEvents": "Passi di correlazione",
+      "correlationSteps": "Passi di correlazione",
       "correlation": "Correlazione",
       "groupBy": "Raggruppa per",
       "deduplicateBy": "Deduplica per",
@@ -4240,8 +4240,8 @@
       "definitionSection": "Definizione",
       "where": "Condizione (CEL)",
       "whereHint": "Espressione CEL valutata per evento",
-      "afterEvents": "Passi di correlazione (afterEvents)",
-      "afterEventsHint": "array JSON",
+      "correlationSteps": "Passi di correlazione",
+      "correlationStepsHint": "array JSON",
       "jsonArray": "array JSON",
       "nameRequired": "Il nome è obbligatorio",
       "definitionRequired": "La condizione è obbligatoria",
@@ -4459,7 +4459,10 @@
       "patternCreated": "Pattern \"{{name}}\" creato",
       "patternCreateError": "Creazione del pattern non riuscita",
       "patternIdInvalid": "L'ID del pattern deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
-      "patternDefRequired": "La definizione è obbligatoria"
+      "patternDefRequired": "La definizione è obbligatoria",
+      "parameters": "Parametri",
+      "paramsKey": "Chiave",
+      "paramsValue": "Valore"
     },
     "allDataTypes": "Tutti i tipi di dati"
   },

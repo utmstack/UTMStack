@@ -167,7 +167,8 @@ func (u *moduleUsecase) Create(ctx context.Context, req dto.CreateModuleRequest)
 	}
 
 	if _,err:= u.opensearch.Create(ctx,os_dto.CreateIndexPatternRequest{
-		PatternModule: &req.DataType,
+		Pattern:       req.DataType,
+		PatternModule: &req.ModuleName,
 	});err!=nil{
 		//opensearch insertion fails, rolling back database
 		if err:=u.repo.Delete(ctx,m.ID);err!=nil{

@@ -35,7 +35,7 @@ export interface RuleFormState {
   ruleActive: boolean
   dataTypes: string[]
   definition: string
-  afterEvents: AfterStep[]
+  correlation: AfterStep[]
   groupBy: string[]
   deduplicateBy: string[]
   references: string[]
@@ -59,9 +59,9 @@ function parseConditions(w: unknown): Condition[] {
     return { field: String(o.field ?? ''), operator: String(o.operator ?? 'filter_term'), value: valueToStr(o.value) }
   })
 }
-function parseSteps(after: unknown): AfterStep[] {
-  if (!Array.isArray(after)) return []
-  return after.map((s) => {
+function parseSteps(raw: unknown): AfterStep[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map((s) => {
     const o = (s ?? {}) as Record<string, unknown>
     return {
       indexPattern: String(o.indexPattern ?? ''),
@@ -86,7 +86,7 @@ export function ruleToForm(r?: CorrelationRule): RuleFormState {
     ruleActive: r?.ruleActive ?? true,
     dataTypes: (r?.dataTypes ?? []).filter((d) => d.included).map((d) => d.dataType),
     definition: r?.definition ?? '',
-    afterEvents: parseSteps(r?.afterEvents),
+    correlation: parseSteps(r?.correlation ?? r?.afterEvents),
     groupBy: strArray(r?.groupBy),
     deduplicateBy: strArray(r?.deduplicateBy),
     references: strArray(r?.references),
@@ -122,7 +122,7 @@ export function formToInput(f: RuleFormState, relPath?: string): SaveRuleInput {
     description: f.description.trim(),
     references: f.references.filter(Boolean),
     definition: f.definition,
-    afterEvents: stepsToJson(f.afterEvents),
+    correlation: stepsToJson(f.correlation),
     groupBy: f.groupBy.filter(Boolean),
     deduplicateBy: f.deduplicateBy.filter(Boolean),
     ruleActive: f.ruleActive,
@@ -134,7 +134,7 @@ export function formToInput(f: RuleFormState, relPath?: string): SaveRuleInput {
 
 export function RuleForm({ form, setForm, dataTypeOptions, t }: { form: RuleFormState; setForm: Dispatch<SetStateAction<RuleFormState>>; dataTypeOptions: DataTypeOption[]; t: TFunction }) {
   const set = <K extends keyof RuleFormState>(k: K, v: RuleFormState[K]) => setForm((f) => ({ ...f, [k]: v }))
-  const setSteps = (steps: AfterStep[]) => set('afterEvents', steps)
+  const setSteps = (steps: AfterStep[]) => set('correlation', steps)
 
   // `where` condition: visual builder ⇄ raw CEL. Visual is the source when it
   // parses; otherwise we fall back to code for hand-written/advanced CEL.
@@ -221,21 +221,21 @@ export function RuleForm({ form, setForm, dataTypeOptions, t }: { form: RuleForm
         )}
       </div>
 
-      <Section title={t('alertingRules.editor.afterEvents')}>
-        <p className="mb-3 text-[11px] text-muted-foreground">{t('alertingRules.editor.afterEventsHint')}</p>
+      <Section title={t('alertingRules.editor.correlationSteps')}>
+        <p className="mb-3 text-[11px] text-muted-foreground">{t('alertingRules.editor.correlationStepsHint')}</p>
         <div className="space-y-3">
-          {form.afterEvents.map((step, i) => (
+          {form.correlation.map((step, i) => (
             <StepCard
               key={i}
               step={step}
               index={i}
               t={t}
-              onChange={(s) => setSteps(form.afterEvents.map((x, idx) => (idx === i ? s : x)))}
-              onRemove={() => setSteps(form.afterEvents.filter((_, idx) => idx !== i))}
+              onChange={(s) => setSteps(form.correlation.map((x, idx) => (idx === i ? s : x)))}
+              onRemove={() => setSteps(form.correlation.filter((_, idx) => idx !== i))}
             />
           ))}
           <button
-            onClick={() => setSteps([...form.afterEvents, { indexPattern: 'v11-log-*', within: '2m', count: 1, with: [], or: [] }])}
+            onClick={() => setSteps([...form.correlation, { indexPattern: 'v11-log-*', within: '2m', count: 1, with: [], or: [] }])}
             className="flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border py-2 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground"
           >
             <Plus size={13} /> {t('alertingRules.editor.addStep')}
@@ -256,7 +256,7 @@ export function RuleForm({ form, setForm, dataTypeOptions, t }: { form: RuleForm
   )
 }
 
-/* ─── afterEvents builder pieces ───────────────────────────────────────── */
+/* ─── correlation steps builder pieces ────────────────────────────────── */
 
 function StepCard({ step, index, onChange, onRemove, t }: { step: AfterStep; index: number; onChange: (s: AfterStep) => void; onRemove: () => void; t: TFunction }) {
   const patch = (p: Partial<AfterStep>) => onChange({ ...step, ...p })

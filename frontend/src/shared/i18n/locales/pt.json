@@ -4343,7 +4343,10 @@
       "patternCreated": "Padrão \"{{name}}\" criado",
       "patternCreateError": "Falha ao criar o padrão",
       "patternIdInvalid": "O ID deve começar com letra ou _ e usar apenas letras, dígitos ou _",
-      "patternDefRequired": "A definição é obrigatória"
+      "patternDefRequired": "A definição é obrigatória",
+      "parameters": "Parâmetros",
+      "paramsKey": "Chave",
+      "paramsValue": "Valor"
     },
     "allDataTypes": "Todos os tipos de dado"
   },
@@ -4393,7 +4396,7 @@
       "updated": "Atualizada",
       "relPath": "Caminho",
       "definition": "Condição (CEL)",
-      "afterEvents": "Passos de correlação",
+      "correlationSteps": "Passos de correlação",
       "correlation": "Correlação",
       "groupBy": "Agrupar por",
       "deduplicateBy": "Deduplicar por",
@@ -4416,8 +4419,8 @@
       "definitionSection": "Definição",
       "where": "Condição (CEL)",
       "whereHint": "Expressão CEL avaliada por evento",
-      "afterEvents": "Passos de correlação (afterEvents)",
-      "afterEventsHint": "array JSON",
+      "correlationSteps": "Passos de correlação",
+      "correlationStepsHint": "array JSON",
       "jsonArray": "array JSON",
       "nameRequired": "O nome é obrigatório",
       "definitionRequired": "A condição é obrigatória",
