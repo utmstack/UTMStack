@@ -113,7 +113,10 @@ export function AgentConsole({
       agentId,
       { command, shell },
       {
-        onOutput: (d) => append('out', d),
+        onOutput: (d) =>{
+          append('out', d);
+          setRunning(false);
+        },
         onError: (m) => append('err', m),
         onDone: () => {
           setRunning(false)

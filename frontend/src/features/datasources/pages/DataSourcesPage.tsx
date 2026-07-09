@@ -267,7 +267,7 @@ export function DataSourcesPage() {
   const events24h = (name: string) => stats[name]?.count ?? 0
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <Header total={total} />
 
       <div className="mt-5 grid grid-cols-12 gap-4">

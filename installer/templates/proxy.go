@@ -1,6 +1,11 @@
 package templates
 
-const ProxyUbuntu string = `server {
+const ProxyUbuntu string = `map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
     listen 80 default_server;
     server_name _;
     return 301 https://$host$request_uri;
@@ -15,6 +20,9 @@ server {
 
     location / {
         proxy_pass  $utmstack;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -54,6 +62,11 @@ http {
 
     keepalive_timeout  65;
 
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
 server {
     listen 80 default_server;
     server_name _;
@@ -69,6 +82,9 @@ server {
 
     location / {
         proxy_pass  $utmstack;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

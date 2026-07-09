@@ -34,7 +34,7 @@ export function CompliancePage() {
   const [tab, setTab] = useState<PageTab>('frameworks')
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="shrink-0">
         <div className="inline-flex rounded-md border border-border p-0.5">
           <TabButton active={tab === 'frameworks'} onClick={() => setTab('frameworks')} icon={ShieldCheck} label={t('compliance.tabs.frameworks')} />

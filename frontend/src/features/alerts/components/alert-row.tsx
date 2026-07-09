@@ -111,7 +111,12 @@ export function AlertRow({
         </div>
       </td>
       <td className={TD} onClick={(e) => e.stopPropagation()}>
-        <StatusChangeMenu status={statusKey(a)} variant="pill" onStatus={onStatus} />
+        <StatusChangeMenu
+          status={statusKey(a)}
+          variant="pill"
+          onStatus={onStatus}
+          onCreateRule={() => onCreateRule(a)}
+        />
       </td>
       <td className={`${TD} font-mono mx-auto text-[11px] text-muted-foreground`} title={a.technique}>
         {a.technique || '—'}

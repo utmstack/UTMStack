@@ -7,6 +7,10 @@ on:
   release:
     types: [published]
 
+concurrency:
+  group: v12-build-deploy-pipeline
+  cancel-in-progress: false
+
 jobs:
   setup_deployment:
     name: Setup Deployment
@@ -572,12 +576,11 @@ jobs:
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
-          # Select instance IDs and auth based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
+            targets_json="${{ vars.SCHEDULE_INSTANCES_DEV }}"
             auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
+            targets_json="${{ vars.SCHEDULE_INSTANCES_PROD }}"
             auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
 
@@ -585,31 +588,29 @@ jobs:
           auth_id=$(echo "$auth_json" | jq -r '.id')
           auth_key=$(echo "$auth_json" | jq -r '.key')
 
-          # Parse IDs (handle single ID or comma-separated IDs)
-          IFS=',' read -ra ID_ARRAY <<< "$instance_ids"
+          # Targets are grouped by product_id (CM scopes instances/versions by
+          # product and /api/v1/updates requires it): {"<product_id>": ["<instance_id>", ...]}
+          for product_id in $(echo "$targets_json" | jq -r 'keys[]'); do
+            for instance_id in $(echo "$targets_json" | jq -r --arg p "$product_id" '.[$p][]'); do
+              echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
 
-          # Iterate over each instance ID
-          for instance_id in "${ID_ARRAY[@]}"; do
-            instance_id=$(echo "$instance_id" | xargs)
+              response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
+                -H "Content-Type: application/json" \
+                -H "id: $auth_id" \
+                -H "key: $auth_key" \
+                -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\", \"product_id\": \"$product_id\"}")
 
-            echo "📅 Scheduling release for instance: $instance_id"
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | sed '$d')
 
-            response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
-              -H "Content-Type: application/json" \
-              -H "id: $auth_id" \
-              -H "key: $auth_key" \
-              -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
-
-            http_code=$(echo "$response" | tail -n1)
-            body=$(echo "$response" | sed '$d')
-
-            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-              echo "✅ Successfully scheduled for instance: $instance_id"
-            else
-              echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
-              echo "Response: $body"
-              exit 1
-            fi
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "✅ Successfully scheduled for instance: $instance_id"
+              else
+                echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
+                echo "Response: $body"
+                exit 1
+              fi
+            done
           done
 
           echo "✅ Scheduled release for all instances with version $TAG"

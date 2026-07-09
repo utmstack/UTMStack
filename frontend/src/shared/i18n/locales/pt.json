@@ -1807,6 +1807,10 @@
             "step1Note": "Um certificado CA opcional pode ser adicionado como terceiro argumento. Se omitido, o certificado folha é usado como CA.",
             "step2": "2 · Reativar o listener com TLS"
           },
+          "httpsCerts": {
+            "title": "Carregue o certificado TLS no Forwarder",
+            "body": "Esta integração usa um listener HTTPS na porta {{port}}, então o Forwarder precisa de um certificado e uma chave carregados antes de habilitá-la:"
+          },
           "uninstall": {
             "title": "Opcional — Desinstalar o Forwarder",
             "body": "Execute este comando no host onde o Forwarder está instalado para parar o serviço e remover todos os seus arquivos."
@@ -3698,7 +3702,8 @@
       "threat": "Ameaça",
       "alerts": "Alertas",
       "targets": "Alvos",
-      "lastSeen": "Visto por último"
+      "lastSeen": "Visto por último",
+      "victims": "Vítimas"
     },
     "card": {
       "alerts": "Alertas",
@@ -3734,6 +3739,18 @@
       "minutesAgo": "há {{count}}m",
       "hoursAgo": "há {{count}}h",
       "daysAgo": "há {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuário",
+      "port": "Porta",
+      "domain": "Domínio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Cidade",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {
@@ -4546,6 +4563,15 @@
     "loadError": "Não foi possível carregar os fluxos.",
     "retry": "Tentar de novo",
     "empty": "Nenhum fluxo corresponde a esta visão.",
+    "templates": {
+      "title": "Novo fluxo",
+      "subtitle": "Escolha um modelo de ação ou comece do zero.",
+      "loading": "Carregando modelos…",
+      "loadError": "Não foi possível carregar os modelos.",
+      "empty": "Nenhum modelo disponível.",
+      "cancel": "Cancelar",
+      "scratch": "Começar do zero"
+    },
     "tabs": {
       "flows": "Fluxos",
       "executions": "Histórico de execuções",
@@ -4567,6 +4593,15 @@
     },
     "operator": {
       "IS": "é",
+      "IS_NOT": "não é",
+      "CONTAINS": "contém",
+      "NOT_CONTAINS": "não contém",
+      "EXISTS": "existe",
+      "NOT_EXISTS": "não existe",
+      "START_WITH": "começa com",
+      "NOT_START_WITH": "não começa com",
+      "ENDS_WITH": "termina com",
+      "NOT_ENDS_WITH": "não termina com",
       "IS_ONE_OF": "é um de",
       "IS_NOT_ONE_OF": "não é um de"
     },
@@ -4593,6 +4628,11 @@
       "commands": "Comandos",
       "commandsHint": "Executam em ordem no agente. Use $(field.path) para valores do alerta e $[variables.NAME] para variáveis salvas.",
       "addCommand": "Adicionar comando",
+      "connector": {
+        "always": "sempre",
+        "success": "em caso de sucesso",
+        "failure": "em caso de falha"
+      },
       "agentPlatform": "Plataforma do agente",
       "shell": "Shell",
       "shellAuto": "auto",

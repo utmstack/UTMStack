@@ -2740,6 +2740,10 @@
             "step1Note": "An optional CA certificate can be added as a third argument. Omit it to use the leaf certificate as CA.",
             "step2": "2 · Re-enable the listener using TLS"
           },
+          "httpsCerts": {
+            "title": "Load the TLS certificate on the Forwarder",
+            "body": "This integration uses an HTTPS listener on port {{port}}, so the Forwarder needs a certificate and key loaded before enabling it:"
+          },
           "uninstall": {
             "title": "Optional — Uninstall the Forwarder",
             "body": "Run this command on the host where the Forwarder is installed to stop the service and remove all its files."
@@ -3706,7 +3710,8 @@
       "threat": "Threat",
       "alerts": "Alerts",
       "targets": "Targets",
-      "lastSeen": "Last seen"
+      "lastSeen": "Last seen",
+      "victims": "Victims"
     },
     "card": {
       "alerts": "Alerts",
@@ -3742,6 +3747,18 @@
       "minutesAgo": "{{count}}m ago",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "User",
+      "port": "Port",
+      "domain": "Domain",
+      "mac": "MAC",
+      "country": "Country",
+      "city": "City",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {
@@ -4622,6 +4639,15 @@
     "loadError": "Could not load flows.",
     "retry": "Retry",
     "empty": "No flows match this view.",
+    "templates": {
+      "title": "Start a new flow",
+      "subtitle": "Pick an action template or start from scratch.",
+      "loading": "Loading templates…",
+      "loadError": "Could not load templates.",
+      "empty": "No templates available.",
+      "cancel": "Cancel",
+      "scratch": "Start from scratch"
+    },
     "tabs": {
       "flows": "Flows",
       "executions": "Execution history",
@@ -4643,6 +4669,15 @@
     },
     "operator": {
       "IS": "is",
+      "IS_NOT": "is not",
+      "CONTAINS": "contains",
+      "NOT_CONTAINS": "does not contain",
+      "EXISTS": "exists",
+      "NOT_EXISTS": "does not exist",
+      "START_WITH": "starts with",
+      "NOT_START_WITH": "does not start with",
+      "ENDS_WITH": "ends with",
+      "NOT_ENDS_WITH": "does not end with",
       "IS_ONE_OF": "is one of",
       "IS_NOT_ONE_OF": "is not one of"
     },
@@ -4669,6 +4704,11 @@
       "commands": "Commands",
       "commandsHint": "Run in order on the agent. Use $(field.path) for alert values and $[variables.NAME] for stored variables.",
       "addCommand": "Add command",
+      "connector": {
+        "always": "always",
+        "success": "on success",
+        "failure": "on failure"
+      },
       "agentPlatform": "Agent platform",
       "shell": "Shell",
       "shellAuto": "auto",
