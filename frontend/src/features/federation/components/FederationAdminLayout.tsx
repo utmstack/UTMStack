@@ -20,7 +20,7 @@ export function FederationAdminLayout() {
     <div className="min-h-screen bg-background text-foreground">
       <Topbar />
       <nav className="border-b border-border bg-card">
-        <div className="mx-auto flex w-full max-w-[1100px] gap-1 px-6">
+        <div className="flex w-full gap-1 px-6">
           {tabs.map((tab) => (
             <NavLink
               key={tab.to}

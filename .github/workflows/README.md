@@ -2,9 +2,12 @@
 
 CI/CD for UTMStack v10 and v11. This folder contains two workflow families:
 
-- **PR checks** (`pr-checks.yml` + `_pr-reusable-*.yml`) — validate every
-  Pull Request before merge. The only gate into code on `release/**`,
-  `v10` and `v11`.
+- **PR checks** (`pr-checks.yml`) — a single job that reviews every Pull
+  Request targeting `release/**` with AI and posts the findings as a sticky
+  comment. Purely informational — see
+  [AI review policy](#ai-review-policy-informational-only-no-auto-merge).
+  Does **not** run for PRs into `v10`/`v11`/`v12` — those are gated natively
+  by a GitHub ruleset, not by this workflow (see below).
 - **Deployment pipelines** (`v10-deployment-pipeline.yml`,
   `v11-deployment-pipeline.yml`, `installer-release.yml`) — build, publish
   and deploy artifacts once code is merged.
@@ -17,7 +20,6 @@ CI/CD for UTMStack v10 and v11. This folder contains two workflow families:
 - [V11 Deployment Pipeline](#v11-deployment-pipeline)
 - [Installer Release](#installer-release)
 - [Secrets and variables](#secrets-and-variables)
-- [Approver GitHub App setup](#approver-github-app-setup)
 - [Reusable workflows](#reusable-workflows)
 - [How to deploy](#how-to-deploy)
 - [Troubleshooting](#troubleshooting)
@@ -28,59 +30,84 @@ CI/CD for UTMStack v10 and v11. This folder contains two workflow families:
 
 Hard rules:
 
-- **Direct push is forbidden** on `release/**`, `v10` and `v11`. PR only.
-- **Branch protection** is enabled on those branches: PR required, status
-  checks green (`All checks passed`), no force push.
+- **Direct push is forbidden** on `release/**`, `v10`, `v11` and `v12`. PR only.
+- **Branch protection** — two independent GitHub rulesets, enforced natively
+  (not by any Action):
+  - **`release/v11*` / `release/v12*`** ("Branch protection — release/v11.x.x
+    and v12.x.x"): 0 approvals required, but the `All checks passed` status
+    check (produced by `pr-checks.yml`) must be green. This is the only gate
+    on these branches — see [AI review policy](#ai-review-policy-informational-only-no-auto-merge).
+  - **`v10` / `v11` / `v12`** ("Protect Main"): 1 approval required from
+    `@utmstack/administrators` specifically — no status check involved.
+    `pr-checks.yml` doesn't even run for PRs into these branches; they're
+    fully gated by this ruleset. `@utmstack/administrators`, org admins, and
+    a repo admin role can bypass (push directly, no PR).
+  - Both rulesets: no force push, no direct push outside the bypass list.
 - **Roll-forward only.** No rollbacks. If a release breaks something, ship
   a hotfix that bumps the version (e.g. `v11.2.9` breaks → `v11.2.10`
   fixes it). Feature flags / kill switches are fine for turning features
   off without a redeploy.
 
-### Tiered approval model
+### AI review policy (informational only, no auto-merge)
 
-The team is small (3 devs + 2 part-time seniors), so the AI can approve
-and merge on its own in most cases. Seniors only get involved when the
-cost of being wrong is high.
+`pr-checks.yml` only triggers on PRs targeting `release/**` — where devs push
+and iterate. By the time a PR promotes code to `v10`/`v11`/`v12` it was
+already reviewed at the `release/**` stage, and merges there are gated by the
+native "Protect Main" GitHub ruleset (1 approval from `@utmstack/administrators`
+— see [Release policy](#release-policy)), independent of this workflow.
 
-The **final tier** of a PR is decided by the approver, taking the maximum
-across all AI prompts (see [PR Checks](#pr-checks)).
+On `release/**`, the AI **never blocks the merge and never @mentions
+anyone**. It always posts a single sticky comment with what it found — good
+or bad — and the developer is responsible for reading it, fixing what's
+real, and merging it themselves (whoever has repo write access can merge —
+see [Release policy](#release-policy); there is no team-membership check in
+this workflow). `tier` and finding `severity` only drive the wording/icon of
+the comment, never the outcome:
 
-| Tier | Meaning | Approver action |
-|------|---------|-----------------|
-| **1** | Simple change, AI detects no issues, deps OK. | ✅ Sticky "Approved" comment + (when the approver App is configured) formal `APPROVE` review. Status check green. |
-| **2** | Minor issues the author should fix before merging (typos, small bugs, out-of-context code). | ⚠️ Sticky comment with the findings list + formal `REQUEST_CHANGES` review. Status check red. |
-| **3** | Touches critical paths (crypto, auth, migrations, installer, gRPC contracts, CI/CD) or the model can't judge with confidence. | 🛑 Sticky comment @mentioning the handles configured in `tier3_reviewers` + formal `REQUEST_CHANGES` review. Status check red. |
+| Signal | Comment |
+|--------|---------|
+| Tier 1, no findings | ✅ "Clean" |
+| Medium/low findings only | ✅ "Minor findings" |
+| Any high/critical finding | 🛑 "High/critical findings" |
+| Tier 3 | 🛑 "Sensitive area, extra care recommended" |
 
-When the author pushes new commits, the sticky comments are **updated
+The same comment also carries a **Go dependencies** section (🟢 up to date /
+🔴 pending updates), from a plain `go-deps.sh --check --discover` run — not
+an AI call, just the same informational treatment: it's reported, never
+blocks.
+
+Whatever the signal, the job always succeeds — the status check stays green.
+When the author pushes new commits, the sticky comment is **updated
 in-place** (same comment, no stacking) and the workflow re-runs
-automatically. A blocked PR is **never auto-closed** — it stays open
-waiting for the fixes.
+automatically.
 
 Sensitive paths for Tier 3 are identified by each prompt's own rules (see
-`.github/ai-prompts/*.md`). In the future this could be reinforced with
-`CODEOWNERS` for additional per-path gates.
+`.github/ai-prompts/*.md`) — it's still useful context for the author even
+without a mention.
+
+This is a deliberate policy: the team decided AI findings should never gate
+a merge or require team-membership approval — only inform the developer, who
+merges manually. If that changes again, update
+`.github/scripts/post-ai-review-comment.sh` and this section together.
 
 ### Auto-merge
 
-The approver enables GitHub's native auto-merge **only** when **all** of
-the following hold:
-
-- Target branch matches `release/**` (PRs to `v10` / `v11` stay manual
-  so production deploys are always intentional).
-- `deps_failed == false`.
-- `max_tier == 1` across every AI prompt.
-- PR author is in `@utmstack/administrators` or `@utmstack/core-developers`.
-- The approver GitHub App is configured (`APPROVER_APP_ID` + `APPROVER_PRIVATE_KEY` secrets present).
-
-Auto-merge does NOT merge immediately — it queues the merge until every
-branch-protection requirement is satisfied. If another check fails later
-or a human leaves `REQUEST_CHANGES`, the merge stays pending.
+Disabled. Every merge — on `release/**` and on `v10`/`v11`/`v12` — is
+triggered manually by a human. `pr-checks.yml` has no merge-related logic at
+all; it only posts a comment. (An earlier version of this pipeline had a
+separate `approver` job that auto-merged on `release/**` when Tier 1 +
+author authorized; see git history before this policy changed if that
+behavior is ever needed again.)
 
 ### Dependabot
 
 Disabled. `.github/dependabot.yml` keeps `updates: []` so Dependabot
-reads the file but creates no PRs. Dependency freshness is enforced via
-the `go_deps` check on every PR. To re-enable Dependabot, restore the
+reads the file but creates no PRs. Dependency freshness is surfaced instead
+by the "Check Go dependencies" step in `pr-checks.yml`, which runs
+`bash .github/scripts/go-deps.sh --check --discover` and reports the result
+as a section in the sticky comment (informational — see
+[AI review policy](#ai-review-policy-informational-only-no-auto-merge)). To
+re-enable Dependabot, restore the
 previous `updates:` list (see git history of that file).
 
 ### Hotfixes
@@ -117,159 +144,104 @@ config change.
 
 ## PR Checks
 
-`pr-checks.yml` triggers on any Pull Request whose target is:
-
-- `release/**` (any release branch, v10 or v11)
-- `v10`
-- `v11`
+`pr-checks.yml` triggers on any Pull Request targeting `release/**` only.
+It does **not** trigger for `v10`/`v11`/`v12` — those are gated natively by
+the "Protect Main" GitHub ruleset (see [Release policy](#release-policy)),
+so there's nothing for this workflow to add there.
 
 ### Architecture
 
 ```
-PR opened / updated
+PR opened / updated (release/** only)
         │
-        ├─────────────────┬─────────────────┐
-        ▼                 ▼                 │
-   ┌─────────┐      ┌─────────────┐         │
-   │ go_deps │      │  ai_review  │         │
-   │ (repo)  │      │  (matrix    │         │
-   │         │      │   per       │         │
-   │         │      │   prompt)   │         │
-   └────┬────┘      └──────┬──────┘         │
-        │                  │                 │
-        │ artifact         │ artifacts       │
-        │ go-deps-result   │ ai-review-*     │
-        ▼                  ▼                 │
-   ┌──────────────────────────────┐         │
-   │           approver           │         │
-   │  - reads artifacts           │         │
-   │  - decides final tier        │         │
-   │  - posts sticky comments     │         │
-   │  - (optional) formal review  │         │
-   └──────────────┬───────────────┘         │
-                  │                          │
-                  ▼                          ▼
-          all_checks_passed   ← single status check branch protection requires
+        ▼
+┌───────────────────────────────────────┐
+│  review  (single job, "All checks     │
+│           passed" — the exact status  │
+│           check the ruleset requires) │
+│                                        │
+│  1. Fetch PR diff (gh pr diff)         │
+│  2. Drop rules/filters/definitions     │
+│     paths from the diff                │
+│  3. Loop: ai-review.sh per prompt in   │
+│     .github/ai-prompts/*.md            │
+│  4. post-ai-review-comment.sh — build  │
+│     + upsert the sticky comment        │
+└───────────────────────────────────────┘
+        │
+        ▼
+   always exits 0 — informational only
 ```
 
-**Key decision:** the producers (`go_deps`, `ai_review`) **always exit
-green**. They only upload artifacts. The `approver` is the single source
-of truth — it consolidates results, decides the tier (maximum across all
-AI prompts), posts comments, and passes or fails the final check.
+**Key decision:** everything runs in **one job, one runner** — no matrix,
+no separate approver, no artifacts uploaded/downloaded between jobs. The
+job always succeeds; nothing in it gates the merge. The only thing that
+decides who can actually merge into `release/**` is repo write access (see
+[Release policy](#release-policy)) — this workflow doesn't check identity
+at all.
 
-### `go_deps`
+### Steps
 
-Single job, no matrix, no change detection. Runs:
-
-```bash
-bash .github/scripts/go-deps.sh --check --discover
-```
-
-It discovers **every** `go.mod` in the repo (excluding `vendor/`,
-dot-directories and `node_modules/`) and fails if any explicit **direct
-dependency** has a newer version available. The script also detects
-out-of-sync `go.sum` files (typically caused by local `replace` directives
-in `packages/`) and reports them all at once.
-
-The job uploads its stdout and exit code as the `go-deps-result` artifact.
-The approver reads it and, if exit code != 0, posts the sticky comment
-"Go dependencies check failed" with the script output embedded.
-
-**Expected dev fix:** run
-`bash .github/scripts/go-deps.sh --update --discover` locally, commit the
-updated `go.mod` / `go.sum`, push.
-
-### `ai_review`
-
-Matrix with one job per `.md` under `.github/ai-prompts/` (except
-`README.md`). Each job:
-
-1. Fetches the diff via `gh pr diff` (same unified diff the GitHub UI
+1. **Check Go dependencies** — `actions/setup-go@v5`, then (if `API_SECRET`
+   is set) configures git for private `utmstack/*` modules, then runs
+   `bash .github/scripts/go-deps.sh --check --discover`. Captures stdout,
+   stderr and the exit code to `/tmp/go-deps/`; **never fails the job** —
+   `set +e` around the call, same informational treatment as the AI review.
+2. **Fetch the diff** — `gh pr diff` (same unified diff the GitHub UI
    shows — no need for `fetch-depth: 0`).
-2. Calls the **ThreatWinds AI** `/chat/completions` endpoint with the
-   prompt and the diff.
-3. Validates the response against the `{tier, summary, findings}` schema.
-4. Uploads the JSON as the `ai-review-<name>` artifact.
+3. **Filter the diff** — drops any file under a `rules/`, `filters/` or
+   `definitions/` folder (detection rules / correlation filters / content,
+   not code) before the AI ever sees it.
+4. **Run AI review, once per prompt** — for each `.md` under
+   `.github/ai-prompts/` (except `README.md`), calls
+   `.github/scripts/ai-review.sh`, which:
+   - Calls the **ThreatWinds AI** `/chat/completions` endpoint with the
+     prompt + diff.
+   - Validates the response against the `{tier, summary, findings}` schema.
+   - Writes the JSON result to `/tmp/ai-results/<prompt-name>.json`.
+   - If the model's response isn't valid JSON or the tier isn't 1/2/3,
+     writes a fallback with `tier: 2` and a "Manual review recommended"
+     finding (fail-safe) — and **always exits 0**.
 
-If the model's response isn't valid JSON or the tier isn't 1/2/3, the
-script writes a fallback with `tier: 2` and a "Manual review recommended"
-finding (fail-safe).
+   **Prompts today:**
+   - `security.md` — vulnerabilities introduced in the diff (injection, XSS,
+     SSRF, hardcoded secrets, weak crypto, insecure deserialization).
+   - `bugs.md` — concrete bugs: nil derefs, races, off-by-one, unhandled
+     errors, unclosed resources, inverted logic, out-of-context code.
+   - `architecture.md` — architectural deviations: new couplings, logic in
+     the wrong layer, broken contracts, unsafe migrations.
 
-**Initial prompts:**
+   Each prompt declares its own tier policy (Tier 3 covers paths critical
+   to that dimension). See `.github/ai-prompts/README.md` for the full
+   schema and tier semantics. **To scale:** drop a new `.md` into
+   `.github/ai-prompts/` — the loop in `pr-checks.yml` discovers it at
+   runtime, no YAML changes needed. **Default model:** `gemini-3-flash-lite`;
+   each prompt can pin its own in frontmatter (`model: gemini-3-pro`, etc.).
+5. **Post the comment** — `.github/scripts/post-ai-review-comment.sh` reads
+   every JSON file plus the Go deps output/exit code, builds one combined
+   markdown comment (severity/tier and the deps exit code only drive
+   wording/icon), and upserts a single sticky comment (marker
+   `<!-- approver:ai -->`, kept from the previous design so in-flight PRs
+   keep updating the same comment). Never fails, never blocks, never
+   @mentions anyone.
 
-- `security.md` — vulnerabilities introduced in the diff (injection, XSS,
-  SSRF, hardcoded secrets, weak crypto, insecure deserialization).
-- `bugs.md` — concrete bugs: nil derefs, races, off-by-one, unhandled
-  errors, unclosed resources, inverted logic, out-of-context code.
-- `architecture.md` — architectural deviations: new couplings, logic in
-  the wrong layer, broken contracts, unsafe migrations.
-
-Each prompt declares its own tier policy (Tier 3 covers paths critical
-to that dimension). See `.github/ai-prompts/README.md` for the full
-schema and tier semantics.
-
-**To scale:** drop a new `.md` into `.github/ai-prompts/`. Discovered at
-runtime — no YAML changes needed.
-
-**Default model:** `gemini-3-flash-lite`. Each prompt can pin its own
-model in frontmatter (`model: gemini-3-pro`, etc.).
-
-### `approver`
-
-Single job that **depends on `go_deps` and `ai_review`**. Steps:
-
-1. Downloads every PR-check artifact.
-2. Reads `go-deps-result/exit_code.txt` → determines `deps_failed`.
-3. Reads each `ai-review-*/result.json` → takes the **max tier** as the
-   AI verdict.
-4. **Sticky comments** with invisible HTML markers
-   (`<!-- approver:deps -->`, `<!-- approver:ai -->`,
-   `<!-- approver:permission -->`):
-   - If deps failed → upsert "Go dependencies check failed" comment with
-     the script output. Otherwise delete it if a previous run posted one.
-   - Always upsert the "AI review" comment with the final tier + findings.
-   - These two are posted **regardless of who opened the PR** — even
-     unauthorized contributors get useful feedback.
-5. **Permission check (LAST gate).** Looks up `github.actor` against the
-   GitHub teams `administrators` and `core-developers` of the
-   `utmstack` org via `API_SECRET`. Notably **does NOT** include
-   `integration-developers`. If the author is in neither team:
-   - Upsert "⛔ Permission denied" comment @mentioning
-     `@utmstack/administrators`.
-   - Skip the formal `APPROVE` review (always `REQUEST_CHANGES`).
-   - Skip auto-merge.
-   - Exit 1.
-6. **(Optional) Formal PR review** when the approver App is installed
-   (see [Approver GitHub App setup](#approver-github-app-setup)):
-   - Tier 1 + deps OK + authorized → `APPROVE`.
-   - Anything else → `REQUEST_CHANGES`.
-7. **Auto-merge** — only when **all** of: deps OK, Tier 1, authorized,
-   AND `BASE_REF` starts with `release/`. Calls
-   `gh pr merge --auto --<method>` (default `squash`). This uses
-   GitHub's native auto-merge, so the actual merge waits until **every**
-   branch-protection requirement is satisfied (other checks green, no
-   pending human reviews). PRs targeting `v10` / `v11` never auto-merge
-   — those branches stay manually merged so deploys are intentional.
-8. **Exit code:** 0 only if everything is OK; 1 if deps failed,
-   tier ≥ 2, or author unauthorized.
-
-When the author pushes new commits the workflow re-runs and the comments
-are **updated in place** (no stacking). The PR is never auto-closed —
-it stays open waiting for the author's fixes.
+When the author pushes new commits the workflow re-runs (`pull_request:
+synchronize`) and the comment is **updated in place** (no stacking) — see
+`find_sticky_comment`/`upsert_sticky_comment` in
+`post-ai-review-comment.sh`. The PR is never auto-closed.
 
 ### Adding a new check
 
-The architecture is designed to scale. To add, for example, a test check:
+To add another automated review dimension:
 
-1. Create `.github/workflows/_pr-reusable-<name>.yml` that runs the check
-   and uploads an artifact with the result (ideally JSON).
-2. Call the reusable from `pr-checks.yml` as another job.
-3. Add that job to the `approver`'s `needs:` (and to `all_checks_passed`).
-4. Extend `approver.sh` to read the new artifact and factor it into the
-   final verdict.
-
-To add a new AI prompt **no YAML changes are needed** — just drop a `.md`
-into `.github/ai-prompts/`.
+- **New AI prompt** — drop a `.md` into `.github/ai-prompts/`. No YAML
+  changes needed; the loop in `pr-checks.yml` picks it up automatically.
+- **Something that isn't an AI prompt** (e.g. a linter, a test run) — add
+  a step to the `review` job in `pr-checks.yml` and, if you want it
+  reflected in the sticky comment, extend `post-ai-review-comment.sh` to
+  read its output. Since there's no gating logic left, exit codes generally
+  shouldn't fail the job unless you specifically want that check to be a
+  hard blocker (unlike AI findings, which are deliberately never blocking).
 
 ---
 
@@ -383,7 +355,7 @@ The installer is uploaded as a release asset.
 
 | Secret | Used in | Description |
 |--------|---------|-------------|
-| `API_SECRET` | All, pr-checks | GitHub PAT with `read:org` scope. Used by deployment workflows for team-membership validation and by the `approver` job to check that the PR author belongs to `administrators` or `core-developers`. |
+| `API_SECRET` | v10, v11 deploy, installer, pr-checks | GitHub PAT with `read:org` scope. Used by deployment workflows for team-membership validation, and by `pr-checks.yml`'s "Check Go dependencies" step to fetch private `utmstack/*` Go modules via `go list`. **Not used for any team-membership check in `pr-checks.yml`** — that workflow has none. |
 | `AGENT_SECRET_PREFIX` | v10, v11 | Agent encryption key |
 | `SIGN_CERT` | v10, v11 | Code signing certificate path (it's a `var`) |
 | `SIGN_KEY` | v10, v11 | Code signing key |
@@ -392,10 +364,8 @@ The installer is uploaded as a release asset.
 | `CM_SERVICE_ACCOUNT_DEV` | v11 | Customer Manager service account (dev), JSON `{"id":"...","key":"..."}` |
 | `CM_ENCRYPT_SALT` | installer | Installer encryption salt |
 | `CM_SIGN_PUBLIC_KEY` | installer | Public key for verification |
-| `THREATWINDS_API_KEY` | pr-checks, v11 changelog | ThreatWinds API key for `ai_review` and `generate-changelog` |
-| `THREATWINDS_API_SECRET` | pr-checks, v11 changelog | ThreatWinds API secret for `ai_review` and `generate-changelog` |
-| `APPROVER_APP_ID` | pr-checks | GitHub App ID for the approver bot. See [Approver GitHub App setup](#approver-github-app-setup). Without this, the approver runs in comments-only mode (no formal review, no auto-merge). |
-| `APPROVER_PRIVATE_KEY` | pr-checks | GitHub App private key (full `.pem` content, multi-line) paired with `APPROVER_APP_ID`. |
+| `THREATWINDS_API_KEY` | pr-checks, v11 changelog | ThreatWinds API key for the AI review step and `generate-changelog` |
+| `THREATWINDS_API_SECRET` | pr-checks, v11 changelog | ThreatWinds API secret for the AI review step and `generate-changelog` |
 | `GITHUB_TOKEN` | All | Provided automatically |
 
 ### Variables
@@ -409,116 +379,20 @@ The installer is uploaded as a release asset.
 
 ---
 
-## Approver GitHub App setup
-
-The `approver` job uses a GitHub App (instead of a personal PAT) to leave
-formal PR reviews and enable auto-merge. Pros:
-
-- Per-run installation token, valid for ~1 hour, auto-revoked when the
-  job ends. No long-lived credential in the repo.
-- The App acts as its own identity, so it can `APPROVE` PRs opened by any
-  human contributor — including the workflow's own author (GitHub blocks
-  self-approval when using a PAT).
-- One place to audit who/what changed your branch protection state.
-
-### One-time setup
-
-**1. Create the App.**
-
-Go to: `https://github.com/organizations/utmstack/settings/apps/new`
-
-- **GitHub App name**: e.g. `UTMStack Approver`.
-- **Homepage URL**: any (the UTMStack repo URL is fine).
-- **Webhook**: untick **Active** — no callbacks needed.
-- **Repository permissions:**
-  - `Contents`: **Read-only**
-  - `Pull requests`: **Read and write**
-  - `Metadata`: Read-only (default, can't be removed).
-- **Organization permissions:**
-  - `Members`: **Read-only** — needed for the team-membership check.
-- **Where can this GitHub App be installed?** Only on this account.
-
-Click **Create GitHub App**.
-
-**2. Get the App ID and a private key.**
-
-On the App's settings page you'll see the **App ID** (numeric). Save it.
-
-Scroll to **Private keys** → **Generate a private key**. A `.pem` file
-downloads. Save the **full contents** (BEGIN/END lines included).
-
-**3. Install the App on the UTMStack repo.**
-
-On the App page → **Install App** → pick the `utmstack` org → choose
-**Only select repositories** → select `UTMStack` → Install.
-
-**4. Add the secrets to the repo.**
-
-Settings → Secrets and variables → Actions → New repository secret.
-
-- `APPROVER_APP_ID` = the numeric App ID.
-- `APPROVER_PRIVATE_KEY` = the full PEM contents of the `.pem` file,
-  including the `-----BEGIN/END PRIVATE KEY-----` lines. Paste as-is —
-  GitHub preserves multi-line values.
-
-**5. Optional: drop `API_SECRET`.**
-
-If the App has `Members: Read` at org level, you can stop maintaining a
-separate `API_SECRET` PAT for the permission check. The approver
-workflow falls back to the App token when `API_SECRET` is not set
-(`API_SECRET: ${{ secrets.API_SECRET || steps.app-token.outputs.token }}`
-in `_pr-reusable-approver.yml`).
-
-`API_SECRET` is still used by the deployment workflows
-(`v10-deployment-pipeline.yml`, `v11-deployment-pipeline.yml`) for things
-like fetching private Go modules during installer builds — don't delete
-it from the repo until you confirm those workflows no longer need it.
-
-### How it gets minted at runtime
-
-In `_pr-reusable-approver.yml`:
-
-```yaml
-- name: Generate approver token from GitHub App
-  id: app-token
-  if: ${{ env.APP_ID != '' }}
-  env:
-    APP_ID: ${{ secrets.APPROVER_APP_ID }}
-  uses: actions/create-github-app-token@v1
-  with:
-    app-id: ${{ secrets.APPROVER_APP_ID }}
-    private-key: ${{ secrets.APPROVER_PRIVATE_KEY }}
-```
-
-If the secrets aren't configured, the step is skipped, the approver
-runs in comments-only mode, and everything else still works (deps
-comment, AI review comment, status check) — just no formal review and
-no auto-merge.
-
-### Verifying it works
-
-1. Open a small, low-risk PR against `release/v11.x.x` (or push the
-   workflow to a sandbox branch).
-2. After the approver job runs, check the PR page:
-   - The sticky `<!-- approver:ai -->` comment is signed by your bot
-     account (e.g. `utmstack-approver[bot]`).
-   - The "Files changed" tab shows a review by the same bot, marked
-     `Approved` (Tier 1 + deps OK + authorized) or `Changes requested`.
-3. If the target is `release/**` and Tier 1 → auto-merge is queued in
-   the PR header ("Auto-merge enabled by … via GitHub Actions").
-
----
-
 ## Reusable workflows
 
 **PR checks:**
 
-- `_pr-reusable-go-deps.yml` — runs `go-deps.sh --check --discover` at
-  repo level and uploads `go-deps-result` as an artifact.
-- `_pr-reusable-ai-review.yml` — fan-out per prompt; each job uploads
-  `ai-review-<name>` as an artifact.
-- `_pr-reusable-approver.yml` — downloads artifacts, decides verdict,
-  posts sticky comments, optionally leaves a formal PR review.
+- `_pr-reusable-go-deps.yml` — a leftover, artifact-based version of the Go
+  deps check (uploads `go-deps-result` instead of reporting inline). **Not
+  called by `pr-checks.yml`** — `pr-checks.yml` runs
+  `bash .github/scripts/go-deps.sh --check --discover` directly as a step
+  instead (see [PR Checks](#pr-checks)). Kept only for manually invoking via
+  `workflow_call` if you ever need the artifact form again.
+- The AI review + comment logic used to be two more reusable workflows
+  (`_pr-reusable-ai-review.yml`, `_pr-reusable-approver.yml`); both were
+  removed and folded into steps of the single `review` job in
+  `pr-checks.yml` — see [PR Checks](#pr-checks).
 
 **Deployment pipelines:**
 
@@ -588,34 +462,29 @@ git checkout -b hotfix/auth-bug
 
 ## Troubleshooting
 
-**Permission denied:**
-- Verify membership in `integration-developers` or `core-developers`.
+**Permission denied (deployment pipelines, not PR checks):**
+- Verify membership in `integration-developers` or `core-developers`. This
+  applies to `v10-deployment-pipeline.yml`/`v11-deployment-pipeline.yml`'s
+  own `validations` job — `pr-checks.yml` has no team-membership check at
+  all (see [AI review policy](#ai-review-policy-informational-only-no-auto-merge)).
 
-**`ai_review` artifact with tier 2 fallback "Manual review recommended":**
-- The model didn't return valid JSON or returned an invalid tier. The
-  approver treats it as Tier 2 (changes requested) fail-safe. Refine the
-  prompt `.md` or re-run the workflow if it was transient.
+**AI review result with tier 2 fallback "Manual review recommended":**
+- The model didn't return valid JSON or returned an invalid tier
+  (`ai-review.sh`'s fail-safe). It's surfaced prominently in the sticky
+  comment but does not block — refine the prompt `.md` or re-run the
+  workflow if it was transient.
 
-**`go_deps` fails with "Could not inspect ... run 'go mod tidy' there":**
+**My PR against `v10`/`v11`/`v12` doesn't get an AI review comment:**
+- Expected. `pr-checks.yml` only triggers for `release/**` PRs — it doesn't
+  run at all for `v10`/`v11`/`v12` — see
+  [AI review policy](#ai-review-policy-informational-only-no-auto-merge).
+  Those branches are gated by the "Protect Main" GitHub ruleset instead.
+
+**Go dependencies section shows 🔴 "Could not inspect ... run 'go mod tidy' there":**
 - `go.sum` is out of sync, typically due to local `replace` directives in
-  `packages/`. Run `go mod tidy` in the affected module and commit.
-
-**The approver posts two separate comments (deps + AI):**
-- That's the expected behaviour when both dimensions fail. Each comment
-  is independent and gets updated in place on subsequent runs.
-
-**The approver doesn't leave a formal review (only comments):**
-- The approver GitHub App is not configured. Add both `APPROVER_APP_ID`
-  and `APPROVER_PRIVATE_KEY` secrets — see
-  [Approver GitHub App setup](#approver-github-app-setup).
-
-**Want a senior engineer @mentioned on Tier 3:**
-- Edit `pr-checks.yml`, in the `approver` job set the `tier3_reviewers`
-  input with comma-separated handles:
-  ```yaml
-  with:
-    tier3_reviewers: 'Kbayero,osmontero'
-  ```
+  `packages/`. Run `go mod tidy` in the affected module and commit. This
+  never fails the job — it's reported in the comment, same as any other
+  finding.
 
 **Build failures:**
 - Check that all required secrets are configured.

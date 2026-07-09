@@ -5,8 +5,9 @@ set -euo pipefail
 #
 # Reads a prompt file (with optional YAML frontmatter that can override the
 # model), appends the PR diff, calls the model, and writes the parsed JSON
-# verdict to OUTPUT_FILE. Does NOT post PR comments — the approver job
-# consolidates all prompt results and decides what to comment.
+# verdict to OUTPUT_FILE. Does NOT post PR comments — pr-checks.yml runs this
+# once per prompt file and then calls post-ai-review-comment.sh to build and
+# post the single sticky comment from all the resulting JSON files.
 #
 # Always exits 0 (data-producer role). If parsing fails the output JSON has
 # tier=2 with a generic "review manually" finding (fail-safe).
@@ -50,7 +51,7 @@ write_fallback() {
                 severity: "high",
                 file: "(n/a)",
                 line: 0,
-                message: ($reason + " (fail-safe: a review that cannot run is treated as blocking).")
+                message: ($reason + " (fail-safe fallback — flagged for manual attention, does not block the merge).")
             }]
         }' > "$OUTPUT_FILE"
     echo "::warning::Wrote fallback result: $reason"
