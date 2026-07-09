@@ -75,7 +75,7 @@ export function ruleFormToYaml(f: RuleFormState): string {
   if (f.description) doc.description = f.description
   doc.where = f.definition
 
-  const steps = f.afterEvents
+  const steps = f.correlation
     .filter((s) => s.indexPattern.trim())
     .map((s) => {
       const step: Record<string, unknown> = {
@@ -88,7 +88,7 @@ export function ruleFormToYaml(f: RuleFormState): string {
       if (ors.length) step.or = ors.map((g) => ({ with: condsToYaml(g.with) }))
       return step
     })
-  if (steps.length) doc.afterEvents = steps
+  if (steps.length) doc.correlation = steps
   if (f.groupBy.length) doc.groupBy = f.groupBy
   if (f.deduplicateBy.length) doc.deduplicateBy = f.deduplicateBy
 
@@ -126,7 +126,7 @@ export function yamlToRuleForm(content: string): RuleParseResult {
     ruleActive: doc.active !== false,
     dataTypes: strArray(doc.dataTypes),
     definition: str(where),
-    afterEvents: parseSteps(doc.afterEvents),
+    correlation: parseSteps(doc.correlation ?? doc.afterEvents),
     groupBy: strArray(doc.groupBy),
     deduplicateBy: strArray(doc.deduplicateBy),
     references: strArray(doc.references),

@@ -162,12 +162,12 @@ func (s *RuleStore) FindByName(name string) *StoredRule {
 	return nil
 }
 
-func (s *RuleStore) AfterEventsByName(name string) (json.RawMessage, bool) {
+func (s *RuleStore) CorrelationsByName(name string) (json.RawMessage, bool) {
 	sr := s.FindByName(name)
 	if sr == nil {
 		return nil, false
 	}
-	return anyToRaw(sr.AfterEvents), true
+	return anyToRaw(sr.Correlation), true
 }
 
 // List applies the filter, sorts by name and paginates. It returns the page

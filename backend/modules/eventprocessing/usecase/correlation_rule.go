@@ -24,16 +24,21 @@ func NewCorrelationRuleUsecase(store *RuleStore) connectors.CorrelationRuleUseca
 	return &correlationRuleUsecase{store: store}
 }
 
+
+
 func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrelationRuleRequest) error {
 	if len(req.DataTypes) == 0 {
 		return domain.ErrDataTypesRequired
 	}
-	if err := validateRuleContent(req.RuleDefinitionDef, req.AfterEventsDef); err != nil {
+
+	correlate:= req.CorrelationDef
+
+	if err := validateRuleContent(req.RuleDefinitionDef,correlate ); err != nil {
 		return err
 	}
 	rule := buildRule(req.RuleName, req.RuleAdversary, req.RuleConfidentiality, req.RuleIntegrity,
 		req.RuleAvailability, req.RuleCategory, req.RuleTechnique, req.RuleDescription,
-		req.RuleReferencesDef, req.RuleDefinitionDef, req.AfterEventsDef, req.RuleGroupByDef,
+		req.RuleReferencesDef, req.RuleDefinitionDef, correlate, req.RuleGroupByDef,
 		req.DeduplicateByDef, req.DataTypes)
 
 	created, err := u.store.Create(rule)
@@ -105,10 +110,10 @@ func validateImportedRule(r Rule) error {
 	if strings.TrimSpace(r.Where) == "" {
 		return domain.ErrCorrelationRuleNullDefinition
 	}
-	if r.AfterEvents == nil {
+	if r.Correlation == nil {
 		return nil
 	}
-	raw, err := json.Marshal(r.AfterEvents)
+	raw, err := json.Marshal(r.Correlation)
 	if err != nil {
 		return fmt.Errorf("%w: afterEvents is not serializable", domain.ErrCorrelationRuleInvalidContent)
 	}
@@ -131,12 +136,15 @@ func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrela
 	if len(req.DataTypes) == 0 {
 		return domain.ErrDataTypesRequired
 	}
-	if err := validateRuleContent(req.RuleDefinitionDef, req.AfterEventsDef); err != nil {
+
+	correlate:= req.CorrelationDef
+
+	if err := validateRuleContent(req.RuleDefinitionDef, correlate); err != nil {
 		return err
 	}
 	rule := buildRule(req.RuleName, req.RuleAdversary, req.RuleConfidentiality, req.RuleIntegrity,
 		req.RuleAvailability, req.RuleCategory, req.RuleTechnique, req.RuleDescription,
-		req.RuleReferencesDef, req.RuleDefinitionDef, req.AfterEventsDef, req.RuleGroupByDef,
+		req.RuleReferencesDef, req.RuleDefinitionDef, correlate, req.RuleGroupByDef,
 		req.DeduplicateByDef, req.DataTypes)
 
 	if _, err := u.store.Update(req.RelPath, rule); err != nil {
@@ -210,7 +218,7 @@ func buildRule(name, adversary string, conf, integ, avail int, category, techniq
 		Impact:        Impact{Confidentiality: conf, Integrity: integ, Availability: avail},
 		Where:         rawToWhere(def),
 		References:    rawToAnySlice(refs),
-		AfterEvents:   rawToAny(after),
+		Correlation:   rawToAny(after),
 		GroupBy:       rawToStrSlice(groupBy),
 		DeduplicateBy: rawToStrSlice(dedup),
 	}
@@ -237,7 +245,7 @@ func storedToResponse(sr *StoredRule) *dto.CorrelationRuleResponse {
 		RuleDescription:     sr.Description,
 		RuleReferencesDef:   anyToRaw(sr.References),
 		RuleDefinitionDef:   anyToRaw(sr.Where),
-		AfterEventsDef:      anyToRaw(sr.AfterEvents),
+		CorrelationDef:      anyToRaw(sr.Correlation),
 		RuleGroupByDef:      anyToRaw(sr.GroupBy),
 		DeduplicateByDef:    anyToRaw(sr.DeduplicateBy),
 		RuleLastUpdate:      &mod,
