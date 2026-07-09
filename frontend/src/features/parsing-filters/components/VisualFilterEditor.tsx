@@ -285,10 +285,20 @@ function StepFields({
   onPatternCreated?: (p: RegexPattern) => void
   onChange: (config: Record<string, unknown>) => void
 }) {
+  const { t } = useTranslation()
   const set = (key: string, val: unknown) => onChange({ ...config, [key]: val })
   const str = (key: string) => (typeof config[key] === 'string' ? (config[key] as string) : '')
   const list = (key: string) =>
     Array.isArray(config[key]) ? (config[key] as unknown[]).map((x) => String(x)) : []
+  const obj = (key: string): Record<string, unknown> =>
+    config[key] && typeof config[key] === 'object' && !Array.isArray(config[key])
+      ? (config[key] as Record<string, unknown>)
+      : {}
+  const objStr = (key: string, sub: string) => {
+    const v = obj(key)[sub]
+    return typeof v === 'string' ? v : ''
+  }
+  const setObj = (key: string, sub: string, val: string) => set(key, { ...obj(key), [sub]: val })
 
   switch (kind) {
     case 'grok':
@@ -335,7 +345,13 @@ function StepFields({
       return (
         <>
           <TextField label="function" required value={str('function')} readOnly={readOnly} onChange={(v) => set('function', v)} />
-          <ListField label="params" values={list('params')} readOnly={readOnly} onChange={(v) => set('params', v)} />
+          <div className="space-y-1.5 rounded-md border border-border/60 bg-background/30 p-2">
+            <div className="font-mono text-[11px] text-foreground/70">{t('parsingFilters.visual.parameters')}</div>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label={t('parsingFilters.visual.paramsKey')} required value={objStr('params', 'key')} readOnly={readOnly} onChange={(v) => setObj('params', 'key', v)} />
+              <TextField label={t('parsingFilters.visual.paramsValue')} required value={objStr('params', 'value')} readOnly={readOnly} onChange={(v) => setObj('params', 'value', v)} />
+            </div>
+          </div>
           <WhereField value={str('where')} readOnly={readOnly} onChange={(v) => set('where', v)} />
         </>
       )
@@ -399,7 +415,7 @@ function WhereField({
   )
 }
 
-/** Editable list of strings (rename.from, add.params). */
+/** Editable list of strings (rename.from). */
 function ListField({
   label,
   values,

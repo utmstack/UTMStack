@@ -4419,7 +4419,10 @@
       "patternCreated": "Pattern \"{{name}}\" created",
       "patternCreateError": "Failed to create pattern",
       "patternIdInvalid": "Pattern ID must start with a letter or _ and use only letters, digits or _",
-      "patternDefRequired": "Definition is required"
+      "patternDefRequired": "Definition is required",
+      "parameters": "Parameters",
+      "paramsKey": "Key",
+      "paramsValue": "Value"
     },
     "allDataTypes": "All data types"
   },

@@ -4343,7 +4343,10 @@
       "patternCreated": "Padrão \"{{name}}\" criado",
       "patternCreateError": "Falha ao criar o padrão",
       "patternIdInvalid": "O ID deve começar com letra ou _ e usar apenas letras, dígitos ou _",
-      "patternDefRequired": "A definição é obrigatória"
+      "patternDefRequired": "A definição é obrigatória",
+      "parameters": "Parâmetros",
+      "paramsKey": "Chave",
+      "paramsValue": "Valor"
     },
     "allDataTypes": "Todos os tipos de dado"
   },

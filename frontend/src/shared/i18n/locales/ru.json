@@ -4269,7 +4269,10 @@
       "patternCreated": "Шаблон «{{name}}» создан",
       "patternCreateError": "Не удалось создать шаблон",
       "patternIdInvalid": "ID шаблона должен начинаться с буквы или _ и содержать только буквы, цифры или _",
-      "patternDefRequired": "Определение обязательно"
+      "patternDefRequired": "Определение обязательно",
+      "parameters": "Параметры",
+      "paramsKey": "Ключ",
+      "paramsValue": "Значение"
     },
     "allDataTypes": "Все типы данных"
   },
