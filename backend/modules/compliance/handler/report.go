@@ -159,6 +159,115 @@ func (h *ReportHandler) GetFrameworkReportPDF(c *gin.Context) {
 	writePDF(c, pdf, name)
 }
 
+// SetStatusOverride godoc
+//
+//	@Summary     Set a manual status override for a control
+//	@Description Overrides the evaluator's computed status for a (framework, control) pair. Applied on live evaluations only; historical snapshots are unchanged.
+//	@Tags        Compliance Reports
+//	@Security    BearerAuth
+//	@Accept      json
+//	@Produce     json
+//	@Param       key    path     string true "Framework key"
+//	@Param       id     path     string true "Control id"
+//	@Param       body   body     object true "New status (COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING) and optional reason"
+//	@Success     204
+//	@Failure     400 {object} map[string]string
+//	@Failure     404 {object} map[string]string
+//	@Router      /compliance/frameworks/{key}/controls/{id}/status [put]
+func (h *ReportHandler) SetStatusOverride(c *gin.Context) {
+	var body struct {
+		Status string `json:"status"`
+		Reason string `json:"reason"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.uc.SetStatusOverride(c.Request.Context(), c.Param("key"), c.Param("id"), body.Status, body.Reason)
+	audit.Record(c, audit_connectors.Event{Action: "compliance.control.status.override", ResourceType: "compliance_control", ResourceID: c.Param("id")},
+		audit_domain.COMPLIANCE_CONTROL_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_CONTROL_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// ClearStatusOverride godoc
+//
+//	@Summary     Clear a manual status override
+//	@Description Removes the manual override so the control status falls back to the evaluator's computed value.
+//	@Tags        Compliance Reports
+//	@Security    BearerAuth
+//	@Param       key path string true "Framework key"
+//	@Param       id  path string true "Control id"
+//	@Success     204
+//	@Failure     404 {object} map[string]string
+//	@Router      /compliance/frameworks/{key}/controls/{id}/status [delete]
+func (h *ReportHandler) ClearStatusOverride(c *gin.Context) {
+	err := h.uc.ClearStatusOverride(c.Request.Context(), c.Param("key"), c.Param("id"))
+	audit.Record(c, audit_connectors.Event{Action: "compliance.control.status.override.clear", ResourceType: "compliance_control", ResourceID: c.Param("id")},
+		audit_domain.COMPLIANCE_CONTROL_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_CONTROL_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// SetControlNote godoc
+//
+//	@Summary     Set / update a user note on a control
+//	@Description Upserts a freeform note attached to a (framework, control). Empty body deletes the note.
+//	@Tags        Compliance Reports
+//	@Security    BearerAuth
+//	@Accept      json
+//	@Produce     json
+//	@Param       key  path     string true "Framework key"
+//	@Param       id   path     string true "Control id"
+//	@Param       body body     object true "Note body ({note: string})"
+//	@Success     204
+//	@Failure     400 {object} map[string]string
+//	@Failure     404 {object} map[string]string
+//	@Router      /compliance/frameworks/{key}/controls/{id}/note [put]
+func (h *ReportHandler) SetControlNote(c *gin.Context) {
+	var body struct {
+		Note string `json:"note"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.uc.SetControlNote(c.Request.Context(), c.Param("key"), c.Param("id"), body.Note)
+	audit.Record(c, audit_connectors.Event{Action: "compliance.control.note.set", ResourceType: "compliance_control", ResourceID: c.Param("id")},
+		audit_domain.COMPLIANCE_CONTROL_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_CONTROL_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// ClearControlNote godoc
+//
+//	@Summary     Delete a user note on a control
+//	@Tags        Compliance Reports
+//	@Security    BearerAuth
+//	@Param       key path string true "Framework key"
+//	@Param       id  path string true "Control id"
+//	@Success     204
+//	@Router      /compliance/frameworks/{key}/controls/{id}/note [delete]
+func (h *ReportHandler) ClearControlNote(c *gin.Context) {
+	err := h.uc.ClearControlNote(c.Request.Context(), c.Param("key"), c.Param("id"))
+	audit.Record(c, audit_connectors.Event{Action: "compliance.control.note.clear", ResourceType: "compliance_control", ResourceID: c.Param("id")},
+		audit_domain.COMPLIANCE_CONTROL_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_CONTROL_UPDATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 // @Summary     Download a stored report snapshot as PDF
 // @Tags        Compliance Reports
 // @Security    BearerAuth

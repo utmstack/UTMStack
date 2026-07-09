@@ -4637,6 +4637,21 @@
     "controlsCount": "{{n}} Kontrollen",
     "enabledLabel": "Aktiviert",
     "runReport": "Bericht ausführen",
+    "backToFrameworks": "Zurück zu Frameworks",
+    "statusAuto": "Auto (bewertet)",
+    "overrideError": "Status konnte nicht aktualisiert werden",
+    "noteError": "Notiz konnte nicht gespeichert werden",
+    "notes": {
+      "title": "Notizen",
+      "placeholder": "Notiz hinzufügen…",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    },
+    "coverageLabel": "Abdeckung",
+    "activityLabel": "Aktivität",
+    "evidenceLabel": "Nachweis",
+    "seeMore": "Mehr anzeigen",
+    "seeLess": "Weniger anzeigen",
     "evaluating": "Framework wird bewertet…",
     "complianceScore": "Compliance-Score",
     "generatedAt": "Erstellt {{date}}",
@@ -4649,7 +4664,8 @@
       "AT_RISK": "Gefährdet",
       "NOT_COVERED": "Nicht abgedeckt",
       "OUT_OF_SCOPE": "Außerhalb des Umfangs",
-      "PENDING": "Ausstehend"
+      "PENDING": "Ausstehend",
+      "label": "Status"
     },
     "toast": {
       "toggleError": "Status des Frameworks konnte nicht geändert werden",
@@ -4751,6 +4767,8 @@
       "family": "Familie",
       "familyName": "Familie",
       "scope": "Umfang",
+      "source": "Quelle",
+      "notInLibrary": "Kontrolle nicht in der Bibliothek gefunden",
       "scopeOpt": {
         "data": "Daten",
         "governance": "Governance"

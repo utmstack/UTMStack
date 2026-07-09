@@ -30,3 +30,21 @@ type ReportStore interface {
 	Get(ctx context.Context, id string) (*domain.ReportSnapshot, error)
 	Delete(ctx context.Context, id string) error
 }
+
+// ControlStatusOverrideRepository stores manual (framework, control) → status
+// overrides. Upsert on the unique (framework_key, control_id) pair; ListByFramework
+// returns a controlID → status map for the evaluator to consume.
+type ControlStatusOverrideRepository interface {
+	Upsert(ctx context.Context, o *domain.UtmComplianceControlStatusOverride) error
+	Delete(ctx context.Context, frameworkKey, controlID string) error
+	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
+}
+
+// ControlNoteRepository stores freeform notes per (framework, control). Same
+// upsert-on-unique pattern; ListByFramework returns a controlID → note map for
+// the evaluator to attach to report rows.
+type ControlNoteRepository interface {
+	Upsert(ctx context.Context, n *domain.UtmComplianceControlNote) error
+	Delete(ctx context.Context, frameworkKey, controlID string) error
+	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
+}

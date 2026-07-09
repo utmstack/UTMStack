@@ -4801,6 +4801,21 @@
     "controlsCount": "{{n}} controls",
     "enabledLabel": "Enabled",
     "runReport": "Run report",
+    "backToFrameworks": "Back to frameworks",
+    "statusAuto": "Auto (evaluated)",
+    "overrideError": "Failed to update status",
+    "noteError": "Failed to save note",
+    "notes": {
+      "title": "Notes",
+      "placeholder": "Add a note…",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "coverageLabel": "Coverage",
+    "activityLabel": "Activity",
+    "evidenceLabel": "Evidence",
+    "seeMore": "See more",
+    "seeLess": "See less",
     "evaluating": "Evaluating framework…",
     "complianceScore": "Compliance score",
     "generatedAt": "Generated {{date}}",
@@ -4813,7 +4828,8 @@
       "AT_RISK": "At risk",
       "NOT_COVERED": "Not covered",
       "OUT_OF_SCOPE": "Out of scope",
-      "PENDING": "Pending"
+      "PENDING": "Pending",
+      "label": "Status"
     },
     "toast": {
       "toggleError": "Failed to change framework state",
@@ -4915,6 +4931,8 @@
       "family": "Family",
       "familyName": "Family",
       "scope": "Scope",
+      "source": "Source",
+      "notInLibrary": "Control not found in library",
       "scopeOpt": {
         "data": "Data",
         "governance": "Governance"

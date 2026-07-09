@@ -36,6 +36,8 @@ func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.sc
 
 func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, isEnterprise func() bool) *Module {
 	scheduleRepo := repository.NewScheduleRepository(db)
+	overrideRepo := repository.NewControlStatusOverrideRepository(db)
+	noteRepo := repository.NewControlNoteRepository(db)
 
 	root := env.String("COMPLIANCE_DIR", "/workdir/compliance", false)
 	src := env.String("COMPLIANCE_SRC_DIR", "/utmstack/compliance", false)
@@ -62,7 +64,7 @@ func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connector
 
 	entitlement := usecase.NewEntitlement(isEnterprise)
 	frameworkUC := usecase.NewFrameworkUsecase(controlStore, frameworkStore, entitlement)
-	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewOpenSearchAlerts(), repository.NewReportStore(), brand, entitlement)
+	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewOpenSearchAlerts(), repository.NewReportStore(), overrideRepo, noteRepo, brand, entitlement)
 	scheduleUC := usecase.NewScheduleUsecase(scheduleRepo, frameworkStore, entitlement)
 
 	mailSender := &mailSender{svc: mailSvc}

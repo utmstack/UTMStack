@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
-import type { ControlStatus, Report } from '../types/compliance.types'
+import type { ControlStatus, Report, ReportControlRow } from '../types/compliance.types'
+import { ControlStatusBadge } from './ControlStatusBadge'
+import { ControlNoteBubble } from './ControlNoteBubble'
 
 export function scoreTone(score: number): string {
   if (score >= 80) return 'text-emerald-500'
@@ -25,7 +27,16 @@ export const STATUS_TONE: Record<ControlStatus, string> = {
 }
 
 /** Renders a compliance report: summary score + per-section control breakdown. */
-export function ReportView({ report }: { report: Report }) {
+export function ReportView({
+  report,
+  onControlClick,
+  onChanged,
+}: {
+  report: Report
+  onControlClick?: (row: ReportControlRow) => void
+  /** Called after a row-level mutation (status override, note) so the parent can reload. */
+  onChanged?: () => void
+}) {
   const { t } = useTranslation()
   const df = useDateFormat()
   const s = report.summary ?? { compliantPct: 0, total: 0, compliant: 0, nonCompliant: 0, atRisk: 0, notCovered: 0, pending: 0, outOfScope: 0 }
@@ -57,10 +68,20 @@ export function ReportView({ report }: { report: Report }) {
           <div className="border-b border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{sec.name}</div>
           <div>
             {(sec.controls ?? []).map((c) => (
-              <div key={c.controlId} className="flex items-start gap-3 border-b border-border px-4 py-2.5 last:border-0">
-                <span className={cn('mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold', STATUS_TONE[c.status])}>
-                  {t(`compliance.status.${c.status}`)}
-                </span>
+              <div
+                key={c.controlId}
+                onClick={onControlClick ? () => onControlClick(c) : undefined}
+                className={cn(
+                  'flex items-start gap-3 border-b border-border px-4 py-2.5 last:border-0',
+                  onControlClick && 'cursor-pointer transition-colors hover:bg-muted/50',
+                )}
+              >
+                <ControlStatusBadge
+                  frameworkKey={report.frameworkKey}
+                  row={c}
+                  onChanged={onChanged}
+                  className="mt-0.5"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <span className="font-mono text-[11px] text-muted-foreground">{c.controlId}</span>
@@ -68,6 +89,7 @@ export function ReportView({ report }: { report: Report }) {
                   </div>
                   {c.evidence && <p className="mt-0.5 text-[11px] text-muted-foreground">{c.evidence}</p>}
                 </div>
+                <ControlNoteBubble frameworkKey={report.frameworkKey} row={c} onSaved={onChanged} className="shrink-0" />
                 <div className="shrink-0 text-right text-[10px] text-muted-foreground">
                   <div>{t('compliance.coverage', { n: c.coverage })}</div>
                   <div>{t('compliance.activity', { n: c.activity })}</div>

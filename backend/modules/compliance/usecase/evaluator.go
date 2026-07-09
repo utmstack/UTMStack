@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,12 +19,14 @@ type evaluator struct {
 	coverage   *CoverageIndex
 	alerts     connectors.OpenSearchAlerts
 	store      connectors.ReportStore
-	brand      connectors.BrandingProvider // optional; nil → default UTMStack branding
+	overrides  connectors.ControlStatusOverrideRepository // optional; nil → no manual overrides
+	notes      connectors.ControlNoteRepository           // optional; nil → no user notes on rows
+	brand      connectors.BrandingProvider                // optional; nil → default UTMStack branding
 	ent        *Entitlement
 }
 
-func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
-	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, brand: brand, ent: ent}
+func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, overrides connectors.ControlStatusOverrideRepository, notes connectors.ControlNoteRepository, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
+	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, overrides: overrides, notes: notes, brand: brand, ent: ent}
 }
 
 func (e *evaluator) reportBrand(ctx context.Context) connectors.ReportBrand {
@@ -111,6 +114,68 @@ func (e *evaluator) SnapshotPDF(ctx context.Context, id string) ([]byte, string,
 	return pdf, snap.FrameworkName, err
 }
 
+func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, controlID, status, reason string) error {
+	if e.overrides == nil {
+		return fmt.Errorf("status overrides not configured")
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	if _, ok := e.frameworks.Get(frameworkKey); !ok {
+		return domain.ErrFrameworkNotFound
+	}
+	if !domain.ValidStatus(status) {
+		return domain.ErrInvalidStatus
+	}
+	return e.overrides.Upsert(ctx, &domain.UtmComplianceControlStatusOverride{
+		FrameworkKey: frameworkKey,
+		ControlID:    controlID,
+		Status:       status,
+		Reason:       reason,
+	})
+}
+
+func (e *evaluator) ClearStatusOverride(ctx context.Context, frameworkKey, controlID string) error {
+	if e.overrides == nil {
+		return nil
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	return e.overrides.Delete(ctx, frameworkKey, controlID)
+}
+
+func (e *evaluator) SetControlNote(ctx context.Context, frameworkKey, controlID, note string) error {
+	if e.notes == nil {
+		return fmt.Errorf("control notes not configured")
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	if _, ok := e.frameworks.Get(frameworkKey); !ok {
+		return domain.ErrFrameworkNotFound
+	}
+	// Empty / whitespace-only note is a delete — keep the table tidy.
+	if strings.TrimSpace(note) == "" {
+		return e.notes.Delete(ctx, frameworkKey, controlID)
+	}
+	return e.notes.Upsert(ctx, &domain.UtmComplianceControlNote{
+		FrameworkKey: frameworkKey,
+		ControlID:    controlID,
+		Note:         note,
+	})
+}
+
+func (e *evaluator) ClearControlNote(ctx context.Context, frameworkKey, controlID string) error {
+	if e.notes == nil {
+		return nil
+	}
+	if frameworkKey == "" || controlID == "" {
+		return domain.ErrInvalidID
+	}
+	return e.notes.Delete(ctx, frameworkKey, controlID)
+}
+
 // activityWindow is how far back the activity dimension counts alerts.
 const activityWindow = -30 * 24 * time.Hour
 
@@ -134,6 +199,25 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 	since := now.Add(activityWindow).Format(time.RFC3339)
 	cache := map[string]domain.ReportControlRow{}
 
+	// Load manual overrides once per evaluation; missing / errored → treat as no overrides.
+	var overrides map[string]string
+	if e.overrides != nil {
+		if m, err := e.overrides.ListByFramework(ctx, fw.Key); err == nil {
+			overrides = m
+		} else {
+			_ = catcher.Error("compliance: loading status overrides failed", err, map[string]any{"framework": fw.Key})
+		}
+	}
+	// Notes are surfaced on report rows; errored → treat as no notes.
+	var notes map[string]string
+	if e.notes != nil {
+		if m, err := e.notes.ListByFramework(ctx, fw.Key); err == nil {
+			notes = m
+		} else {
+			_ = catcher.Error("compliance: loading control notes failed", err, map[string]any{"framework": fw.Key})
+		}
+	}
+
 	for _, sec := range fw.Sections {
 		rs := domain.ReportSection{Name: sec.Name}
 		seen := map[string]bool{}
@@ -146,6 +230,14 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 				row, cached := cache[cid]
 				if !cached {
 					row = e.evalControl(ctx, cid, since)
+					if s, ok := overrides[cid]; ok && domain.ValidStatus(s) && s != row.Status {
+						row.Evidence = fmt.Sprintf("manual override (was %s)", row.Status)
+						row.Status = s
+						row.Overridden = true
+					}
+					if n, ok := notes[cid]; ok {
+						row.Note = n
+					}
 					cache[cid] = row
 				}
 				rs.Controls = append(rs.Controls, row)

@@ -4447,6 +4447,21 @@
     "controlsCount": "Контролей: {{n}}",
     "enabledLabel": "Включён",
     "runReport": "Запустить отчёт",
+    "backToFrameworks": "К фреймворкам",
+    "statusAuto": "Авто (оценено)",
+    "overrideError": "Не удалось обновить статус",
+    "noteError": "Не удалось сохранить заметку",
+    "notes": {
+      "title": "Заметки",
+      "placeholder": "Добавить заметку…",
+      "save": "Сохранить",
+      "cancel": "Отмена"
+    },
+    "coverageLabel": "Покрытие",
+    "activityLabel": "Активность",
+    "evidenceLabel": "Свидетельство",
+    "seeMore": "Показать больше",
+    "seeLess": "Показать меньше",
     "evaluating": "Оценка фреймворка…",
     "complianceScore": "Оценка соответствия",
     "generatedAt": "Создан {{date}}",
@@ -4459,7 +4474,8 @@
       "AT_RISK": "Под риском",
       "NOT_COVERED": "Не покрыт",
       "OUT_OF_SCOPE": "Вне области",
-      "PENDING": "Ожидает"
+      "PENDING": "Ожидает",
+      "label": "Статус"
     },
     "toast": {
       "toggleError": "Не удалось изменить состояние фреймворка",
@@ -4561,6 +4577,8 @@
       "family": "Семейство",
       "familyName": "Семейство",
       "scope": "Область",
+      "source": "Источник",
+      "notInLibrary": "Контроль не найден в библиотеке",
       "scopeOpt": {
         "data": "Данные",
         "governance": "Управление"

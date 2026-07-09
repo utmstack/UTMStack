@@ -48,6 +48,8 @@ func Models() []any {
 		arr_domain.UtmIncidentActionCommand{},
 		arr_domain.UtmIncidentJob{},
 		compliance_domain.UtmComplianceReportSchedule{},
+		compliance_domain.UtmComplianceControlStatusOverride{},
+		compliance_domain.UtmComplianceControlNote{},
 		opensearch_domain.UtmIndexPattern{},
 		integrations_domain.UtmModule{},
 		incidents_domain.UtmIncident{},

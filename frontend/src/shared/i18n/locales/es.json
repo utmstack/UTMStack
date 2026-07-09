@@ -4725,6 +4725,21 @@
     "controlsCount": "{{n}} controles",
     "enabledLabel": "Activo",
     "runReport": "Correr reporte",
+    "backToFrameworks": "Volver a frameworks",
+    "statusAuto": "Auto (evaluado)",
+    "overrideError": "No se pudo actualizar el estado",
+    "noteError": "No se pudo guardar la nota",
+    "notes": {
+      "title": "Notas",
+      "placeholder": "Agregar una nota…",
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "coverageLabel": "Cobertura",
+    "activityLabel": "Actividad",
+    "evidenceLabel": "Evidencia",
+    "seeMore": "Ver más",
+    "seeLess": "Ver menos",
     "evaluating": "Evaluando framework…",
     "complianceScore": "Puntaje de compliance",
     "generatedAt": "Generado {{date}}",
@@ -4737,7 +4752,8 @@
       "AT_RISK": "En riesgo",
       "NOT_COVERED": "Sin cobertura",
       "OUT_OF_SCOPE": "Fuera de alcance",
-      "PENDING": "Pendiente"
+      "PENDING": "Pendiente",
+      "label": "Estado"
     },
     "toast": {
       "toggleError": "No se pudo cambiar el estado del framework",
@@ -4839,6 +4855,8 @@
       "family": "Familia",
       "familyName": "Familia",
       "scope": "Alcance",
+      "source": "Fuente",
+      "notInLibrary": "Control no encontrado en la biblioteca",
       "scopeOpt": {
         "data": "Datos",
         "governance": "Gobernanza"

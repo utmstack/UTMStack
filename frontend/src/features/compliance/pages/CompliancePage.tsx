@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
@@ -18,10 +19,9 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { complianceService, ComplianceHttpError } from '../services/compliance-http.service'
-import type { Framework, Report } from '../types/compliance.types'
+import { complianceService } from '../services/compliance-http.service'
+import type { Framework } from '../types/compliance.types'
 import { scoreTone } from '../components/ReportView'
-import { ReportDocument } from '../components/ReportDocument'
 import { ReportsTab } from '../components/ReportsTab'
 import { ScheduleTab } from '../components/ScheduleTab'
 import { ControlsTab } from '../components/ControlsTab'
@@ -72,12 +72,12 @@ function controlCount(f: Framework): number {
 
 function FrameworksTab() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [frameworks, setFrameworks] = useState<Framework[]>([])
   const [scores, setScores] = useState<Record<string, number>>({})
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [open, setOpen] = useState<Framework | null>(null)
   const [editing, setEditing] = useState<{ framework?: Framework; creating: boolean } | null>(null)
 
   const load = useCallback(() => {
@@ -152,13 +152,12 @@ function FrameworksTab() {
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {shown.map((f) => (
-              <FrameworkCard key={f.key} f={f} score={scores[f.key]} onOpen={() => setOpen(f)} onEdit={() => setEditing({ framework: f, creating: false })} onToggle={() => toggle(f)} t={t} />
+              <FrameworkCard key={f.key} f={f} score={scores[f.key]} onOpen={() => navigate(`/compliance/frameworks/${encodeURIComponent(f.key)}`)} onEdit={() => setEditing({ framework: f, creating: false })} onToggle={() => toggle(f)} t={t} />
             ))}
           </div>
         )}
       </div>
 
-      {open && <FrameworkReportDrawer framework={open} onClose={() => setOpen(null)} t={t} />}
       {editing && (
         <FrameworkEditor
           framework={editing.framework}
@@ -216,69 +215,6 @@ function FrameworkCard({ f, score, onOpen, onEdit, onToggle, t }: { f: Framework
         )}
       </div>
     </div>
-  )
-}
-
-/* ─── Framework report drawer (live evaluation) ─────────────────────────── */
-
-function FrameworkReportDrawer({ framework, onClose, t }: { framework: Framework; onClose: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
-  const [report, setReport] = useState<Report | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [running, setRunning] = useState(false)
-
-  const load = useCallback(() => {
-    setLoading(true)
-    setError(false)
-    complianceService
-      .liveReport(framework.key)
-      .then(setReport)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false))
-  }, [framework.key])
-  useEffect(() => {
-    load()
-  }, [load])
-
-  const runReport = async () => {
-    setRunning(true)
-    try {
-      const r = await complianceService.generateReport(framework.key)
-      setReport(r)
-      toast.success(t('compliance.toast.reportGenerated'))
-    } catch (e) {
-      toast.error(e instanceof ComplianceHttpError ? e.message : t('compliance.toast.reportError'))
-    } finally {
-      setRunning(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
-        <div className="flex items-center gap-2 text-sm text-white"><Loader2 className="h-4 w-4 animate-spin" /> {t('compliance.evaluating')}</div>
-      </div>
-    )
-  }
-  if (error || !report) {
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
-        <div className="flex items-center gap-2 rounded-xl bg-card px-6 py-5 text-sm" onClick={(e) => e.stopPropagation()}>
-          <AlertTriangle size={16} className="text-amber-500" /> {t('compliance.reportError')}
-          <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button>
-          <Button variant="ghost" size="sm" onClick={onClose}>{t('compliance.frameworks.cancel')}</Button>
-        </div>
-      </div>
-    )
-  }
-  return (
-    <ReportDocument
-      report={report}
-      onClose={onClose}
-      onRun={() => void runReport()}
-      running={running}
-      onDownloadPdf={() => complianceService.downloadFrameworkPdf(framework.key)}
-    />
   )
 }
 
