@@ -12,7 +12,6 @@ var moduleSchemas = map[string]map[string]string{
 		"aws_access_key_id":     "text",
 		"aws_secret_access_key": "password",
 		"aws_default_region":    "text",
-		"aws_log_group_name":    "text",
 	},
 	"AZURE": {
 		"eventHubConnection": "password", // connection string contains SharedAccessKey

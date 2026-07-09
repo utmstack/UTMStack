@@ -8,7 +8,6 @@ import (
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
@@ -18,7 +17,6 @@ func verifyAWSIAMUser(c map[string]string) error {
 		"aws_default_region",
 		"aws_access_key_id",
 		"aws_secret_access_key",
-		"aws_log_group_name",
 	); err != nil {
 		return err
 	}
@@ -26,7 +24,6 @@ func verifyAWSIAMUser(c map[string]string) error {
 	regionName := c["aws_default_region"]
 	accessKey := c["aws_access_key_id"]
 	secretAccessKey := c["aws_secret_access_key"]
-	logGroup := c["aws_log_group_name"]
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -59,20 +56,5 @@ func verifyAWSIAMUser(c map[string]string) error {
 		return fmt.Errorf("AWS credentials are invalid. Please verify your Access Key and Secret Key are correct.")
 	}
 
-	cwlClient := cloudwatchlogs.NewFromConfig(cfg)
-	out, err := cwlClient.DescribeLogGroups(ctx, &cloudwatchlogs.DescribeLogGroupsInput{LogGroupNamePrefix: &logGroup})
-	if err != nil {
-		errMsg := strings.ToLower(err.Error())
-		if strings.Contains(errMsg, "accessdenied") || strings.Contains(errMsg, "not authorized") {
-			return fmt.Errorf("AWS credentials do not have permission to access CloudWatch in region '%s'. Please verify your IAM permissions.", regionName)
-		}
-		return fmt.Errorf("Cannot access CloudWatch Log Groups in region '%s'. Please verify the region and your IAM permissions.", regionName)
-	}
-
-	for _, lg := range out.LogGroups {
-		if lg.LogGroupName != nil && *lg.LogGroupName == logGroup {
-			return nil
-		}
-	}
-	return fmt.Errorf("The CloudWatch Log Group '%s' was not found in region '%s'. Please verify the Log Group name and region.", logGroup, regionName)
+	return nil
 }
