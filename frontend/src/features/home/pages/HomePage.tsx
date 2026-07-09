@@ -20,7 +20,7 @@ export function HomePage() {
   const { homeMessages } = useSocAi()
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-10">
+    <div className="w-full px-6 py-10">
       <ChatHero />
 
       {homeMessages.length === 0 ? (

@@ -237,12 +237,17 @@ func legacyToFlow(row *domain.AlertResponseRule) Flow {
 		}
 	}
 
-	var commands []string
+	var commands []FlowCommand
 	seen := make(map[string]bool)
+	always := domain.ConditionAlways
 	addCmd := func(c string) {
 		if c = strings.TrimSpace(c); c != "" && !seen[c] {
 			seen[c] = true
-			commands = append(commands, c)
+			fc := FlowCommand{Command: c}
+			if len(commands) > 0 {
+				fc.Condition = &always
+			}
+			commands = append(commands, fc)
 		}
 	}
 	addCmd(row.RuleCmd)

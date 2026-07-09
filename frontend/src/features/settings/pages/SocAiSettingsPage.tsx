@@ -268,7 +268,7 @@ export function SocAiSettingsPage() {
   const hasModelList = def.models.length > 0
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <header>
         <h1 className="flex items-center gap-2 text-base font-semibold">
           <Bot size={16} strokeWidth={1.75} />

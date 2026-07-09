@@ -193,7 +193,7 @@ export function IntegrationsPage() {
   const openLive = open ? displayList.find((d) => d.id === open.id) ?? open : null
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+    <div className="w-full px-6 py-6">
       {/* Loading overlay */}
       {integrations.isLoading && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-card/60 backdrop-blur-sm">
