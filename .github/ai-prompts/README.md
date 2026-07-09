@@ -1,16 +1,16 @@
 # AI review prompts
 
-Each `*.md` (except this `README.md`) defines a **prompt** that the
-`AI review` job runs in parallel against the PR diff. Discovery is by glob:
-to add a new review dimension just drop another `.md` here — no YAML
-changes needed.
+Each `*.md` (except this `README.md`) defines a **prompt** that `pr-checks.yml`
+runs against the PR diff, one at a time in a loop (see the "Run AI review"
+step). Discovery is by glob: to add a new review dimension just drop another
+`.md` here — no YAML changes needed.
 
 ## File format
 
 ```markdown
 ---
 name: short-name              # optional, defaults to filename without extension
-model: gemini-3-flash-lite    # optional, defaults to workflow's AI_REVIEW_MODEL
+model: gemini-3-flash-lite    # optional, defaults to ai-review.sh's built-in default
 ---
 
 <instructions for the model>
@@ -36,39 +36,48 @@ this exact shape (no markdown, no code fences, no extra text):
 }
 ```
 
-### Severity drives the merge gate
+### Severity drives the comment, not the merge
 
-The approver blocks the merge based on **severity**, not on how many findings
-there are. Pick the lowest severity that honestly fits — don't inflate a nit.
+The AI review is **informational only** — severity/tier decide how a finding
+is presented in the sticky comment, never whether the PR can merge. Only
+`release/**` targets get this comment (see the main
+`.github/workflows/README.md` → "AI review policy"); `pr-checks.yml` doesn't
+even trigger for PRs into `v10`/`v11`/`v12`. Pick the lowest severity that
+honestly fits — don't inflate a nit.
 
-- **`critical` / `high` → BLOCKING.** Something that can break: crashes, nil
+- **`critical` / `high`** — Something that can break: crashes, nil
   dereferences, data loss/corruption, races/deadlocks, broken or unsafe DB
-  migrations, security holes, breaking API/proto/contract changes. These stop
-  auto-merge.
-- **`medium` / `low` → non-blocking WARNING.** Real but contained: missing
-  user feedback, inconsistent patterns, naming, typos in docs/strings, style.
-  Reported as warnings; the PR can still merge.
+  migrations, security holes, breaking API/proto/contract changes. Flagged
+  prominently (🛑) — the author decides whether to fix before merging.
+- **`medium` / `low`** — Real but contained: missing user feedback,
+  inconsistent patterns, naming, typos in docs/strings, style. Reported as
+  minor findings.
 
 ### Tier semantics
 
-`tier` is a coarse signal. The gate uses severity for blocking, **plus** Tier 3:
+`tier` is a coarse signal that only affects the comment's wording/urgency —
+it never blocks:
 
-- **Tier 1** — fine to merge; no high/critical issues (minor warnings allowed).
-- **Tier 2** — at least one high-severity bug that should be fixed.
-- **Tier 3** — engineer review required / could break. Critical paths (crypto,
+- **Tier 1** — no high/critical issues (minor findings allowed).
+- **Tier 2** — at least one high-severity bug worth a look.
+- **Tier 3** — sensitive area, extra care recommended. Critical paths (crypto,
   auth, DB migrations, installer, gRPC contracts, CI/CD, secret handling) or
-  changes the model can't judge confidently. Always blocks and @mentions the
-  team.
+  changes the model can't judge confidently. Flagged in the comment only —
+  nobody is @mentioned.
 
-**The merge is blocked if** any finding is `high`/`critical`, **or** any prompt
-returns Tier 3, **or** no review ran. Otherwise the approver approves the PR
-(any medium/low findings ride along as warnings).
+**Nothing here blocks the merge or @mentions anyone.** The comment exists
+purely so the author knows what to fix. `pr-checks.yml` has no
+team-membership check at all — whoever has write access to the repo can
+merge `release/**` PRs; see `.github/workflows/README.md` → "Release policy".
 
 ### Routine dependency bumps
 
-A separate required check (`go_deps`) already enforces that Go modules are on
-their latest version, so mass `go.mod` / `go.sum` bumps are routine and
-expected. The `architecture` and `security` prompts treat a version bump of
+`pr-checks.yml` already reports outdated Go modules as its own "Go
+dependencies" section in the sticky comment (see
+`.github/workflows/README.md` → "AI review policy") — that's informational
+too, so a dependency bump is expected to still show up there, not something
+these prompts need to flag separately. The `architecture` and `security`
+prompts treat a version bump of
 existing modules as **Tier 1** — not an architectural/agent-breaking change
 and not a vulnerability — and only flag genuine anomalies (new deps, major
 breaking jumps, downgrades, known-vulnerable pins, suspicious `replace`
@@ -81,9 +90,10 @@ Tier 1, a brief `summary` ("No security concerns detected.") and
 
 ### Unparseable responses
 
-If the model returns something that isn't valid JSON matching the schema, the
-approver treats it as a blocking `high` finding. Fail-safe behaviour — we'd
-rather hold for a human than let something pass without understanding it.
+If the model returns something that isn't valid JSON matching the schema,
+`ai-review.sh` writes a fallback: Tier 2 with a `high` finding saying "manual
+review recommended". Still informational only — flagged prominently in the
+comment, but it does not block the merge.
 
 ## Picking a model
 

@@ -2705,6 +2705,10 @@
             "step1Note": "È possibile aggiungere un certificato CA facoltativo come terzo argomento. Omettilo per utilizzare il certificato foglia come CA.",
             "step2": "2 · Riabilita il listener usando TLS"
           },
+          "httpsCerts": {
+            "title": "Carica il certificato TLS sul Forwarder",
+            "body": "Questa integrazione usa un listener HTTPS sulla porta {{port}}, quindi il Forwarder richiede un certificato e una chiave caricati prima di abilitarla:"
+          },
           "uninstall": {
             "title": "Facoltativo — Disinstalla il Forwarder",
             "body": "Esegui questo comando sull'host in cui è installato il Forwarder per interrompere il servizio e rimuovere tutti i suoi file."
@@ -4455,7 +4459,10 @@
       "patternCreated": "Pattern \"{{name}}\" creato",
       "patternCreateError": "Creazione del pattern non riuscita",
       "patternIdInvalid": "L'ID del pattern deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
-      "patternDefRequired": "La definizione è obbligatoria"
+      "patternDefRequired": "La definizione è obbligatoria",
+      "parameters": "Parametri",
+      "paramsKey": "Chiave",
+      "paramsValue": "Valore"
     },
     "allDataTypes": "Tutti i tipi di dati"
   },
@@ -4471,6 +4478,15 @@
     "loadError": "Impossibile caricare i flussi.",
     "retry": "Riprova",
     "empty": "Nessun flusso corrisponde a questa vista.",
+    "templates": {
+      "title": "Nuovo flusso",
+      "subtitle": "Scegli un modello di azione o parti da zero.",
+      "loading": "Caricamento modelli…",
+      "loadError": "Impossibile caricare i modelli.",
+      "empty": "Nessun modello disponibile.",
+      "cancel": "Annulla",
+      "scratch": "Parti da zero"
+    },
     "tabs": {
       "flows": "Flussi",
       "executions": "Cronologia esecuzioni",
@@ -4492,6 +4508,15 @@
     },
     "operator": {
       "IS": "è",
+      "IS_NOT": "non è",
+      "CONTAINS": "contiene",
+      "NOT_CONTAINS": "non contiene",
+      "EXISTS": "esiste",
+      "NOT_EXISTS": "non esiste",
+      "START_WITH": "inizia con",
+      "NOT_START_WITH": "non inizia con",
+      "ENDS_WITH": "termina con",
+      "NOT_ENDS_WITH": "non termina con",
       "IS_ONE_OF": "è uno di",
       "IS_NOT_ONE_OF": "non è uno di"
     },
@@ -4518,6 +4543,11 @@
       "commands": "Comandi",
       "commandsHint": "Eseguiti in ordine sull'agente. Usa $(field.path) per i valori dell'alert e $[variables.NAME] per le variabili salvate.",
       "addCommand": "Aggiungi comando",
+      "connector": {
+        "always": "sempre",
+        "success": "se riuscito",
+        "failure": "se fallito"
+      },
       "agentPlatform": "Piattaforma dell'agente",
       "shell": "Shell",
       "shellAuto": "auto",

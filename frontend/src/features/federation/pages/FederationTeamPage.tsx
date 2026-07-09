@@ -59,7 +59,7 @@ export function FederationTeamPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-10 pt-5">
+    <div className="w-full px-6 pb-10 pt-5">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-base font-semibold">

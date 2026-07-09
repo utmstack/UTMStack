@@ -121,6 +121,7 @@ function pruneEmpty(config: Record<string, unknown>): Record<string, unknown> {
     if (v == null) continue
     if (typeof v === 'string' && v.trim() === '') continue
     if (Array.isArray(v) && v.length === 0) continue
+    if (isRecord(v) && Object.keys(v).length === 0) continue
     out[k] = v
   }
   return out
@@ -137,7 +138,7 @@ export function emptyStep(kind: StepKind): Step {
     case 'rename':
       return { kind, config: { to: '', from: [] } }
     case 'add':
-      return { kind, config: { function: '', params: [] } }
+      return { kind, config: { function: 'string', params: {} } }
     case 'drop':
       return { kind, config: {} }
     default:

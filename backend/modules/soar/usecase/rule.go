@@ -110,12 +110,12 @@ func mapStoreErr(err error) error {
 	}
 }
 
-func requestToFlow(name, description string, conds []dto.FilterVM, commands []string, shell, agentPlatform, defaultAgent string, excludedAgents []string) Flow {
+func requestToFlow(name, description string, conds []dto.FilterVM, commands []dto.FlowCommandVM, shell, agentPlatform, defaultAgent string, excludedAgents []string) Flow {
 	return Flow{
 		Name:           name,
 		Description:    description,
 		Conditions:     toFlowConditions(conds),
-		Commands:       commands,
+		Commands:       toFlowCommands(commands),
 		Shell:          shell,
 		AgentPlatform:  agentPlatform,
 		DefaultAgent:   defaultAgent,
@@ -131,6 +131,22 @@ func toFlowConditions(vms []dto.FilterVM) []FlowCondition {
 	return out
 }
 
+func toFlowCommands(vms []dto.FlowCommandVM) []FlowCommand {
+	out := make([]FlowCommand, 0, len(vms))
+	for _, v := range vms {
+		out = append(out, FlowCommand{Command: v.Command, Condition: v.Condition})
+	}
+	return out
+}
+
+func flowCommandsToVMs(cmds []FlowCommand) []dto.FlowCommandVM {
+	out := make([]dto.FlowCommandVM, 0, len(cmds))
+	for _, c := range cmds {
+		out = append(out, dto.FlowCommandVM{Command: c.Command, Condition: c.Condition})
+	}
+	return out
+}
+
 func storedFlowToResponse(sf *StoredFlow) *dto.RuleResponse {
 	if sf == nil {
 		return nil
@@ -139,7 +155,7 @@ func storedFlowToResponse(sf *StoredFlow) *dto.RuleResponse {
 		RelPath:        sf.RelPath,
 		Name:           sf.Name,
 		Description:    sf.Description,
-		Commands:       sf.Commands,
+		Commands:       flowCommandsToVMs(sf.Commands),
 		Active:         sf.Active(),
 		AgentPlatform:  sf.AgentPlatform,
 		DefaultAgent:   sf.DefaultAgent,
