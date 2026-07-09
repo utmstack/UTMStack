@@ -20,7 +20,7 @@ export function ChatHero() {
   const send = () => {
     const text = value.trim()
     if (!text) return
-    submit(text)
+    submit(text, { openPanel: false, scope: 'home' })
     setValue('')
   }
 
@@ -68,7 +68,7 @@ export function ChatHero() {
           return (
             <button
               key={key}
-              onClick={() => submit(label)}
+              onClick={() => submit(label, { openPanel: false, scope: 'home' })}
               className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {label}

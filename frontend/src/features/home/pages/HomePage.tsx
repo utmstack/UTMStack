@@ -9,18 +9,22 @@ import { SystemHealthCard } from '../components/SystemHealthCard'
 import { MitreTechniquesCard } from '../components/MitreTechniquesCard'
 import { TopAssetsCard } from '../components/TopAssetsCard'
 import { ComplianceCard } from '../components/ComplianceCard'
+import { useSocAi } from '@/features/soc-ai/SocAiProvider'
+import { HomeChatTranscript } from '../components/HomeChatTranscript'
 
 export function HomePage() {
   const { t } = useTranslation()
   const alerts = useAlertKpis()
   const incidents = useOpenIncidents()
   const playbooks = useActivePlaybooks()
+  const { homeMessages } = useSocAi()
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-6 py-10">
       <ChatHero />
 
-      <div className="mt-10 grid grid-cols-12 gap-4">
+      {homeMessages.length === 0 ? (
+        <div className="mt-10 grid grid-cols-12 gap-4">
         <div className="col-span-6 md:col-span-3">
           <KpiTile
             icon={AlertTriangle}
@@ -82,7 +86,10 @@ export function HomePage() {
         <div className="col-span-12">
           <ComplianceCard />
         </div>
-      </div>
+        </div>
+      ) : (
+        <HomeChatTranscript />
+      )}
     </div>
   )
 }
