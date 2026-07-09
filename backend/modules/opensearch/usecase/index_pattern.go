@@ -49,6 +49,12 @@ func (u *indexPatternUsecase) Create(ctx context.Context, req dto.CreateIndexPat
 		return nil, errInvalidPattern
 	}
 
+	if !strings.HasPrefix(req.Pattern,constants.CUSTOM_INDEX_PREFIX) {
+		normalized := strings.ReplaceAll(strings.Trim(strings.ToLower(req.Pattern), ""), " ", "-")
+		req.Pattern = fmt.Sprintf("%s-%s-*", constants.CUSTOM_INDEX_PREFIX, normalized)
+	}
+
+
 	p := &domain.UtmIndexPattern{
 		Pattern:       req.Pattern,
 		PatternModule: req.PatternModule,
