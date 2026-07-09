@@ -2705,6 +2705,10 @@
             "step1Note": "Ein optionales CA-Zertifikat kann als drittes Argument hinzugefügt werden. Lassen Sie es weg, um das Blattzertifikat als CA zu verwenden.",
             "step2": "2 · Listener mit TLS erneut aktivieren"
           },
+          "httpsCerts": {
+            "title": "TLS-Zertifikat auf den Forwarder laden",
+            "body": "Diese Integration verwendet einen HTTPS-Listener auf Port {{port}}, daher müssen vor der Aktivierung ein Zertifikat und ein Schlüssel auf dem Forwarder geladen werden:"
+          },
           "uninstall": {
             "title": "Optional – Forwarder deinstallieren",
             "body": "Führen Sie diesen Befehl auf dem Host aus, auf dem der Forwarder installiert ist, um den Dienst zu beenden und alle zugehörigen Dateien zu entfernen."
@@ -3736,7 +3740,8 @@
       "threat": "Bedrohung",
       "alerts": "Alarme",
       "targets": "Ziele",
-      "lastSeen": "Zuletzt gesehen"
+      "lastSeen": "Zuletzt gesehen",
+      "victims": "Opfer"
     },
     "card": {
       "alerts": "Alarme",
@@ -3772,6 +3777,18 @@
       "minutesAgo": "vor {{count}}m",
       "hoursAgo": "vor {{count}}h",
       "daysAgo": "vor {{count}}T"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Benutzer",
+      "port": "Port",
+      "domain": "Domain",
+      "mac": "MAC",
+      "country": "Land",
+      "city": "Stadt",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

@@ -1807,6 +1807,10 @@
             "step1Note": "Puedes agregar un certificado CA como tercer argumento. Si se omite, se usa el certificado hoja como CA.",
             "step2": "2 · Rehabilitar el listener con TLS"
           },
+          "httpsCerts": {
+            "title": "Carga el certificado TLS en el Forwarder",
+            "body": "Esta integración usa un listener HTTPS en el puerto {{port}}, por lo que el Forwarder necesita un certificado y una clave cargados antes de habilitarla:"
+          },
           "uninstall": {
             "title": "Opcional — Desinstalar el Forwarder",
             "body": "Ejecuta este comando en el host donde está instalado el Forwarder para detener el servicio y eliminar todos sus archivos."
@@ -3698,7 +3702,8 @@
       "threat": "Amenaza",
       "alerts": "Alertas",
       "targets": "Objetivos",
-      "lastSeen": "Última vez"
+      "lastSeen": "Última vez",
+      "victims": "Víctimas"
     },
     "card": {
       "alerts": "Alertas",
@@ -3734,6 +3739,18 @@
       "minutesAgo": "hace {{count}}m",
       "hoursAgo": "hace {{count}}h",
       "daysAgo": "hace {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario",
+      "port": "Puerto",
+      "domain": "Dominio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Ciudad",
+      "asn": "ASN",
+      "aso": "ASO"
     }
   },
   "timeRange": {

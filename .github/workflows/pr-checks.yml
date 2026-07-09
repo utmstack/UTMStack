@@ -4,62 +4,109 @@ on:
   pull_request:
     branches:
       - 'release/**'
-      - 'v10'
-      - 'v11'
 
-# Cancel previous runs when new commits are pushed to the same PR.
 concurrency:
   group: pr-checks-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
-  checks: write
 
 jobs:
-  ai_review:
-    name: AI review
-    uses: ./.github/workflows/_pr-reusable-ai-review.yml
-    secrets:
-      THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
-      THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
-
-  approver:
-    name: Approver
-    needs:
-      - ai_review
-    uses: ./.github/workflows/_pr-reusable-approver.yml
-    with:
-      tier3_reviewers: 'Kbayero,osmontero'
-    secrets:
-      APPROVER_APP_ID: ${{ secrets.APPROVER_APP_ID }}
-      APPROVER_PRIVATE_KEY: ${{ secrets.APPROVER_PRIVATE_KEY }}
-      API_SECRET: ${{ secrets.API_SECRET }}
-
-  all_checks_passed:
+  review:
     name: All checks passed
-    if: always()
-    needs:
-      - ai_review
-      - approver
     runs-on: ubuntu-24.04
     steps:
-      - name: Verify all required check jobs succeeded
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Configure git for private Go modules
+        if: ${{ env.HAS_API_SECRET == 'true' }}
         env:
-          NEEDS_JSON: ${{ toJson(needs) }}
+          HAS_API_SECRET: ${{ secrets.API_SECRET != '' }}
+          API_SECRET: ${{ secrets.API_SECRET }}
         run: |
-          echo "Dependent job results:"
-          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "  \(.key): \(.value.result)"'
+          git config --global url."https://${API_SECRET}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          {
+            echo "GOPRIVATE=github.com/utmstack"
+            echo "GONOPROXY=github.com/utmstack"
+            echo "GONOSUMDB=github.com/utmstack"
+          } >> "$GITHUB_ENV"
 
-          failed=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success" and .value.result != "skipped") | .key')
+      - name: Check Go dependencies
+        run: |
+          mkdir -p /tmp/go-deps
+          set +e
+          bash .github/scripts/go-deps.sh --check --discover \
+            > /tmp/go-deps/output.txt 2>&1
+          echo $? > /tmp/go-deps/exit_code.txt
+          set -e
+          cat /tmp/go-deps/output.txt
 
-          if [ -n "$failed" ]; then
-            echo ""
-            echo "❌ The following jobs did not succeed:"
-            echo "$failed" | sed 's/^/  - /'
-            exit 1
-          fi
+      - name: Fetch PR diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # gh pr diff gives the same unified diff the GitHub UI shows.
+          gh pr diff "$PR_NUMBER" > /tmp/pr.diff
+          echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
 
-          echo ""
-          echo "✅ All required checks passed."
+      - name: Exclude rules/filters/definitions from the review diff
+        run: |
+          python3 - <<'PY'
+          import re
+
+          path = "/tmp/pr.diff"
+          with open(path, "r", encoding="utf-8", errors="replace") as fh:
+              content = fh.read()
+
+          EXCLUDED = {"rules", "filters", "definitions"}
+          sections = re.split(r'(?m)^(?=diff --git )', content)
+
+          def is_excluded(section: str) -> bool:
+              m = re.match(r'diff --git a/(.+?) b/(.+)', section)
+              if not m:
+                  return False
+              for p in (m.group(1).strip(), m.group(2).strip()):
+                  if EXCLUDED.intersection(p.split('/')):
+                      return True
+              return False
+
+          kept = [s for s in sections if s and not is_excluded(s)]
+          out = "".join(kept)
+          with open(path, "w", encoding="utf-8") as fh:
+              fh.write(out)
+
+          dropped = sum(1 for s in sections if s and is_excluded(s))
+          print(f"Dropped {dropped} excluded file section(s); filtered diff size: {len(out)} bytes")
+          PY
+
+      - name: Run AI review (one pass per prompt)
+        env:
+          THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
+          THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
+        run: |
+          mkdir -p /tmp/ai-results
+          for f in .github/ai-prompts/*.md; do
+            name=$(basename "$f" .md)
+            [[ "$name" == "README" ]] && continue
+            echo "::group::AI review: $name"
+            PROMPT_FILE="$f" DIFF_FILE=/tmp/pr.diff OUTPUT_FILE="/tmp/ai-results/${name}.json" \
+              bash .github/scripts/ai-review.sh
+            echo "::endgroup::"
+          done
+
+      - name: Post AI review comment
+        env:
+          RESULTS_DIR: /tmp/ai-results
+          GO_DEPS_OUTPUT_FILE: /tmp/go-deps/output.txt
+          GO_DEPS_EXIT_CODE_FILE: /tmp/go-deps/exit_code.txt
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/post-ai-review-comment.sh

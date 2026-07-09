@@ -29,7 +29,7 @@ func registerAlerts(m *Module) {
 
 type alertsUpdateStatusInput struct {
 	AlertIDs            []string `json:"alert_ids" jsonschema:"OpenSearch _id values of the alerts to update"`
-	Status              int      `json:"status" jsonschema:"Target status code (UTMStack convention: 0=open 1=in-review 2=closed)"`
+	Status              int      `json:"status" jsonschema:"Target status code (UTMStack convention: 1=automatic-review, 2=open, 3=in-review, 5=completed/closed)"`
 	StatusObservation   string   `json:"status_observation,omitempty" jsonschema:"Optional analyst note attached to the status change"`
 	AddFalsePositiveTag bool     `json:"add_false_positive_tag,omitempty" jsonschema:"If true, also apply the FALSE_POSITIVE tag (used when closing as FP)"`
 }
