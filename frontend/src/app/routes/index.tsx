@@ -105,6 +105,7 @@ export function AppRoutes() {
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />
         <Route path="threat-management/alerts" element={<AlertsPage />} />
         <Route path="threat-management/alerts/tagging-rules" element={<TaggingRulesPage />} />
+        <Route path="threat-management/alerts/:id" element={<AlertsPage />} />
         <Route path="threat-management/incidents" element={<IncidentsPage />} />
         <Route path="threat-management/adversaries" element={<AdversariesPage />} />
 

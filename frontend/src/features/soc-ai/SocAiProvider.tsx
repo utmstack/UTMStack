@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { extractNavigation, streamChat, type NavAction } from './lib/chat-stream'
@@ -18,16 +18,19 @@ export interface SocAiMessage {
   actions?: NavAction[]
 }
 
+export type SocAiScope = 'panel' | 'home'
+
 interface SocAiContextValue {
   open: boolean
   expanded: boolean
   messages: SocAiMessage[]
+  homeMessages: SocAiMessage[]
   openPanel: () => void
   closePanel: () => void
   togglePanel: () => void
   toggleExpand: () => void
-  submit: (text: string) => void
-  clear: () => void
+  submit: (text: string, opts?: { openPanel?: boolean; scope?: SocAiScope }) => void
+  clear: (scope?: SocAiScope) => void
 }
 
 const SocAiContext = createContext<SocAiContextValue | null>(null)
@@ -56,36 +59,43 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [messages, setMessages] = useState<SocAiMessage[]>([])
+  const [homeMessages, setHomeMessages] = useState<SocAiMessage[]>([])
   const idRef = useRef(0)
   const nextId = () => ++idRef.current
   const abortRef = useRef<AbortController | null>(null)
   const location = useLocation()
   const { t, i18n } = useTranslation()
 
+  const setters: Record<SocAiScope, Dispatch<SetStateAction<SocAiMessage[]>>> = {
+    panel: setMessages,
+    home: setHomeMessages,
+  }
+
   const openPanel = useCallback(() => setOpen(true), [])
   const closePanel = useCallback(() => setOpen(false), [])
   const togglePanel = useCallback(() => setOpen((v) => !v), [])
   const toggleExpand = useCallback(() => setExpanded((v) => !v), [])
-  const clear = useCallback(() => {
+  const clear = useCallback((scope: SocAiScope = 'panel') => {
     abortRef.current?.abort()
-    setMessages([])
+    setters[scope]([])
   }, [])
 
-  const patchMsg = useCallback((id: number, fn: (m: SocAiMessage) => SocAiMessage) => {
-    setMessages((list) => list.map((m) => (m.id === id ? fn(m) : m)))
+  const patchMsg = useCallback((scope: SocAiScope, id: number, fn: (m: SocAiMessage) => SocAiMessage) => {
+    setters[scope]((list) => list.map((m) => (m.id === id ? fn(m) : m)))
   }, [])
 
   const submit = useCallback(
-    (raw: string) => {
+    (raw: string, opts?: { openPanel?: boolean; scope?: SocAiScope }) => {
       const text = raw.trim()
       if (!text) return
-      setOpen(true)
+      const scope: SocAiScope = opts?.scope ?? 'panel'
+      if (opts?.openPanel !== false) setOpen(true)
       abortRef.current?.abort()
       const ac = new AbortController()
       abortRef.current = ac
 
       const aiId = nextId()
-      setMessages((m) => [
+      setters[scope]((m) => [
         ...m,
         { id: nextId(), role: 'user', text },
         { id: aiId, role: 'ai', text: '', pending: true, steps: [] },
@@ -97,7 +107,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       streamChat(
         { task: text, page, lang },
         (ev) => {
-          patchMsg(aiId, (msg) => {
+          patchMsg(scope, aiId, (msg) => {
             switch (ev.kind) {
               case 'tool_call':
                 return { ...msg, steps: [...(msg.steps ?? []), { tool: ev.tool ?? 'tool', status: 'running' }] }
@@ -125,7 +135,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
         ac.signal,
       ).catch((err) => {
         if (ac.signal.aborted) return
-        patchMsg(aiId, (msg) => ({
+        patchMsg(scope, aiId, (msg) => ({
           ...msg,
           text: err instanceof Error ? err.message : t('socAi.chat.errorUnreachable'),
           error: true,
@@ -137,8 +147,8 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo(
-    () => ({ open, expanded, messages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear }),
-    [open, expanded, messages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear],
+    () => ({ open, expanded, messages, homeMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear }),
+    [open, expanded, messages, homeMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear],
   )
 
   return <SocAiContext.Provider value={value}>{children}</SocAiContext.Provider>

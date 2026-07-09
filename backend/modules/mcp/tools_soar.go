@@ -27,7 +27,7 @@ type soarRuleCreateInput struct {
 	Name           string         `json:"name"`
 	Description    string         `json:"description,omitempty"`
 	Conditions     []dto.FilterVM `json:"conditions"`
-	Commands       []string       `json:"commands"`
+	Commands       []dto.FlowCommandVM `json:"commands"`
 	Active         bool           `json:"active"`
 	AgentPlatform  string         `json:"agent_platform"`
 	DefaultAgent   string         `json:"default_agent,omitempty"`
@@ -41,7 +41,7 @@ type soarRuleUpdateInput struct {
 	Name           string         `json:"name"`
 	Description    string         `json:"description,omitempty"`
 	Conditions     []dto.FilterVM `json:"conditions"`
-	Commands       []string       `json:"commands"`
+	Commands       []dto.FlowCommandVM `json:"commands"`
 	Active         bool           `json:"active"`
 	AgentPlatform  string         `json:"agent_platform"`
 	DefaultAgent   string         `json:"default_agent,omitempty"`

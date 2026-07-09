@@ -320,7 +320,7 @@ export function DashboardPage() {
     previewDashboard != null && !previewDashboard.systemOwner && !editor.editing
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col gap-4 px-6 pb-6 pt-3">
+    <div className="flex h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
       {inPreview && previewDashboard && (
         <DashboardPreviewHeader
           dashboard={previewDashboard}

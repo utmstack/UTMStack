@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
@@ -65,7 +65,25 @@ export function AlertsPage() {
   // SOC-AI chat navigation: seed the filters + time window the agent emitted.
   const location = useLocation()
   const navigate = useNavigate()
+  const { id: routeAlertName } = useParams<{ id: string }>()
+  const pendingOpenNameRef = useRef<string | null>(null)
   const seededRef = useRef(false)
+
+  // Deep-link (/threat-management/alerts/:alertName): seed as name filter + open drawer once loaded.
+  useEffect(() => {
+    if (!routeAlertName) return
+    const decoded = decodeURIComponent(routeAlertName)
+    pendingOpenNameRef.current = decoded
+    setCustomFilters((c) =>
+      c.some((f) => f.field === 'name' && f.value === decoded)
+        ? c
+        : [...c, { field: 'name', label: 'name', operator: 'IS', value: decoded }],
+    )
+    setPage(0)
+    // Drop the name from the URL so future edits to filters aren't fought by re-seeding.
+    navigate('/threat-management/alerts', { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeAlertName])
   useEffect(() => {
     const state = location.state as { socaiFilters?: FilterType[]; socaiTime?: string } | null
     if (!state?.socaiFilters?.length || seededRef.current) return
@@ -117,6 +135,15 @@ export function AlertsPage() {
   }, [scopeFilters, statusTab, severity])
 
   const { alerts, total, loading, error, refresh: refreshList } = useAlertsList(page, pageSize, listFilters)
+
+  useEffect(() => {
+    const name = pendingOpenNameRef.current
+    if (!name) return
+    const match = alerts.find((a) => a.name === name)
+    if (!match) return
+    pendingOpenNameRef.current = null
+    setOpenAlert(match)
+  }, [alerts])
   const { sevCounts, statusCounts, timeline, openCount, refresh: refreshStats } = useAlertStats(scopeFilters, range.interval)
   const { tagCatalog, createTag, updateTag, deleteTag } = useAlertTagCatalog((deletedName) =>
     setTagFilter((tf) => tf.filter((tn) => tn !== deletedName))
@@ -162,7 +189,7 @@ export function AlertsPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <AlertsHeader total={total} openCount={openCount} view={view} onView={setView} />
 
       <div className="mt-3 shrink-0">

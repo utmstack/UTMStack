@@ -34,7 +34,7 @@ export function IndicesPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('dataViews')
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <header>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Boxes size={14} strokeWidth={1.75} />
