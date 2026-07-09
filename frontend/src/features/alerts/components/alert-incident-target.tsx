@@ -65,25 +65,25 @@ export function AlertIncidentTarget({
             {d?.incidentName && (
               <>
                 <dt className="text-muted-foreground">{t('alerts.drawer.incidentDetail.incident')}</dt>
-                <dd className="truncate" title={d.incidentName}>{d.incidentName}</dd>
+                <dd className="truncate" title={d?.incidentName}>{d?.incidentName}</dd>
               </>
             )}
             {d?.incidentId != null && (
               <>
                 <dt className="text-muted-foreground">{t('alerts.drawer.incidentDetail.id')}</dt>
-                <dd className="font-mono">#{String(d.incidentId)}</dd>
+                <dd className="font-mono">#{String(d?.incidentId)}</dd>
               </>
             )}
             {d?.createdBy && (
               <>
                 <dt className="text-muted-foreground">{t('alerts.drawer.incidentDetail.createdBy')}</dt>
-                <dd className="truncate" title={d.createdBy}>{d.createdBy}</dd>
+                <dd className="truncate" title={d?.createdBy}>{d?.createdBy}</dd>
               </>
             )}
             {d?.creationDate && (
               <>
                 <dt className="text-muted-foreground">{t('alerts.drawer.incidentDetail.created')}</dt>
-                <dd>{absTime(d.creationDate)}</dd>
+                <dd>{absTime(d?.creationDate)}</dd>
               </>
             )}
           </dl>

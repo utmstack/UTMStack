@@ -95,7 +95,7 @@ export function AlertsPage() {
     // Drop the name from the URL so future edits to filters aren't fought by re-seeding.
     navigate('/threat-management/alerts', { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeAlertName])
+  }, [routeAlertName,navigate,location])
   useEffect(() => {
     const state = location.state as { socaiFilters?: FilterType[]; socaiTime?: string } | null
     if (!state?.socaiFilters?.length || seededRef.current) return
