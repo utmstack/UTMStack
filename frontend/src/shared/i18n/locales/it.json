@@ -4475,6 +4475,15 @@
     "loadError": "Impossibile caricare i flussi.",
     "retry": "Riprova",
     "empty": "Nessun flusso corrisponde a questa vista.",
+    "templates": {
+      "title": "Nuovo flusso",
+      "subtitle": "Scegli un modello di azione o parti da zero.",
+      "loading": "Caricamento modelli…",
+      "loadError": "Impossibile caricare i modelli.",
+      "empty": "Nessun modello disponibile.",
+      "cancel": "Annulla",
+      "scratch": "Parti da zero"
+    },
     "tabs": {
       "flows": "Flussi",
       "executions": "Cronologia esecuzioni",
@@ -4496,6 +4505,15 @@
     },
     "operator": {
       "IS": "è",
+      "IS_NOT": "non è",
+      "CONTAINS": "contiene",
+      "NOT_CONTAINS": "non contiene",
+      "EXISTS": "esiste",
+      "NOT_EXISTS": "non esiste",
+      "START_WITH": "inizia con",
+      "NOT_START_WITH": "non inizia con",
+      "ENDS_WITH": "termina con",
+      "NOT_ENDS_WITH": "non termina con",
       "IS_ONE_OF": "è uno di",
       "IS_NOT_ONE_OF": "non è uno di"
     },
@@ -4522,6 +4540,11 @@
       "commands": "Comandi",
       "commandsHint": "Eseguiti in ordine sull'agente. Usa $(field.path) per i valori dell'alert e $[variables.NAME] per le variabili salvate.",
       "addCommand": "Aggiungi comando",
+      "connector": {
+        "always": "sempre",
+        "success": "se riuscito",
+        "failure": "se fallito"
+      },
       "agentPlatform": "Piattaforma dell'agente",
       "shell": "Shell",
       "shellAuto": "auto",

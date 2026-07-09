@@ -4639,6 +4639,15 @@
     "loadError": "Could not load flows.",
     "retry": "Retry",
     "empty": "No flows match this view.",
+    "templates": {
+      "title": "Start a new flow",
+      "subtitle": "Pick an action template or start from scratch.",
+      "loading": "Loading templates…",
+      "loadError": "Could not load templates.",
+      "empty": "No templates available.",
+      "cancel": "Cancel",
+      "scratch": "Start from scratch"
+    },
     "tabs": {
       "flows": "Flows",
       "executions": "Execution history",
@@ -4660,6 +4669,15 @@
     },
     "operator": {
       "IS": "is",
+      "IS_NOT": "is not",
+      "CONTAINS": "contains",
+      "NOT_CONTAINS": "does not contain",
+      "EXISTS": "exists",
+      "NOT_EXISTS": "does not exist",
+      "START_WITH": "starts with",
+      "NOT_START_WITH": "does not start with",
+      "ENDS_WITH": "ends with",
+      "NOT_ENDS_WITH": "does not end with",
       "IS_ONE_OF": "is one of",
       "IS_NOT_ONE_OF": "is not one of"
     },
@@ -4686,6 +4704,11 @@
       "commands": "Commands",
       "commandsHint": "Run in order on the agent. Use $(field.path) for alert values and $[variables.NAME] for stored variables.",
       "addCommand": "Add command",
+      "connector": {
+        "always": "always",
+        "success": "on success",
+        "failure": "on failure"
+      },
       "agentPlatform": "Agent platform",
       "shell": "Shell",
       "shellAuto": "auto",

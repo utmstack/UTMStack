@@ -13,30 +13,38 @@ type FilterVM struct {
 	Value    any                 `json:"value"`
 }
 
+// FlowCommandVM is one step in a flow's command chain. Condition (nil on the
+// first entry) is how this command joins to the previous one when the chain
+// is concatenated into a single shell line at dispatch time.
+type FlowCommandVM struct {
+	Command   string            `json:"command"             binding:"required"`
+	Condition *domain.Condition `json:"condition,omitempty" binding:"omitempty,oneof=OnSuccess OnFailure Always"`
+}
+
 type CreateRuleRequest struct {
-	ID             *int64     `json:"id"`
-	Name           string     `json:"name"           binding:"required,max=150"`
-	Description    string     `json:"description"    binding:"omitempty,max=512"`
-	Conditions     []FilterVM `json:"conditions"     binding:"required,min=1"`
-	Commands       []string   `json:"commands"       binding:"required,min=1"`
-	Active         *bool      `json:"active"         binding:"required"`
-	AgentPlatform  string     `json:"agentPlatform"  binding:"required"`
-	DefaultAgent   string     `json:"defaultAgent"   binding:"omitempty,max=500"`
-	Shell          string     `json:"shell"          binding:"omitempty,max=20"`
-	ExcludedAgents []string   `json:"excludedAgents"`
+	ID             *int64          `json:"id"`
+	Name           string          `json:"name"           binding:"required,max=150"`
+	Description    string          `json:"description"    binding:"omitempty,max=512"`
+	Conditions     []FilterVM      `json:"conditions"     binding:"required,min=1"`
+	Commands       []FlowCommandVM `json:"commands"       binding:"required,min=1,dive"`
+	Active         *bool           `json:"active"         binding:"required"`
+	AgentPlatform  string          `json:"agentPlatform"  binding:"required"`
+	DefaultAgent   string          `json:"defaultAgent"   binding:"omitempty,max=500"`
+	Shell          string          `json:"shell"          binding:"omitempty,max=20"`
+	ExcludedAgents []string        `json:"excludedAgents"`
 }
 
 type UpdateRuleRequest struct {
-	ID             *int64     `json:"id"`
-	Name           string     `json:"name"           binding:"required,max=150"`
-	Description    string     `json:"description"    binding:"omitempty,max=512"`
-	Conditions     []FilterVM `json:"conditions"     binding:"required,min=1"`
-	Commands       []string   `json:"commands"       binding:"required,min=1"`
-	Active         *bool      `json:"active"         binding:"required"`
-	AgentPlatform  string     `json:"agentPlatform"  binding:"required"`
-	DefaultAgent   string     `json:"defaultAgent"   binding:"omitempty,max=500"`
-	Shell          string     `json:"shell"          binding:"omitempty,max=20"`
-	ExcludedAgents []string   `json:"excludedAgents"`
+	ID             *int64          `json:"id"`
+	Name           string          `json:"name"           binding:"required,max=150"`
+	Description    string          `json:"description"    binding:"omitempty,max=512"`
+	Conditions     []FilterVM      `json:"conditions"     binding:"required,min=1"`
+	Commands       []FlowCommandVM `json:"commands"       binding:"required,min=1,dive"`
+	Active         *bool           `json:"active"         binding:"required"`
+	AgentPlatform  string          `json:"agentPlatform"  binding:"required"`
+	DefaultAgent   string          `json:"defaultAgent"   binding:"omitempty,max=500"`
+	Shell          string          `json:"shell"          binding:"omitempty,max=20"`
+	ExcludedAgents []string        `json:"excludedAgents"`
 }
 
 type ToggleRuleRequest struct {
@@ -44,18 +52,18 @@ type ToggleRuleRequest struct {
 }
 
 type RuleResponse struct {
-	RelPath          string     `json:"relPath"`
-	Name             string     `json:"name"`
-	Description      string     `json:"description,omitempty"`
-	Conditions       []FilterVM `json:"conditions"`
-	Commands         []string   `json:"commands"`
-	Active           bool       `json:"active"`
-	AgentPlatform    string     `json:"agentPlatform,omitempty"`
-	DefaultAgent     string     `json:"defaultAgent,omitempty"`
-	Shell            string     `json:"shell,omitempty"`
-	ExcludedAgents   []string   `json:"excludedAgents,omitempty"`
-	SystemOwner      bool       `json:"systemOwner"`
-	LastModifiedDate *time.Time `json:"lastModifiedDate,omitempty"`
+	RelPath          string          `json:"relPath"`
+	Name             string          `json:"name"`
+	Description      string          `json:"description,omitempty"`
+	Conditions       []FilterVM      `json:"conditions"`
+	Commands         []FlowCommandVM `json:"commands"`
+	Active           bool            `json:"active"`
+	AgentPlatform    string          `json:"agentPlatform,omitempty"`
+	DefaultAgent     string          `json:"defaultAgent,omitempty"`
+	Shell            string          `json:"shell,omitempty"`
+	ExcludedAgents   []string        `json:"excludedAgents,omitempty"`
+	SystemOwner      bool            `json:"systemOwner"`
+	LastModifiedDate *time.Time      `json:"lastModifiedDate,omitempty"`
 }
 
 type RuleFilters struct {

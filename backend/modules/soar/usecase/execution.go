@@ -44,25 +44,46 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	}
 
 	alertID := gjson.Get(alertJSON, "id").String()
-	enqueued := false
-	for _, raw := range flow.Commands {
-		command := buildCommand(raw, alertJSON)
-		if _, err := u.repo.Create(ctx, &domain.AlertResponseRuleExecution{
-			RulePath:        req.RulePath,
-			AlertID:         alertID,
-			Command:         command,
-			Agent:           target,
-			ExecutionStatus: domain.ExecutionStatusPending,
-		}); err != nil {
-			_ = catcher.Error("soar: failed to enqueue execution", err, map[string]any{"rule": req.RulePath, "alert": alertID})
-			continue
-		}
-		enqueued = true
+	command := buildCommand(assembleChain(flow.Commands), alertJSON)
+	if command == "" {
+		return nil
 	}
-	if enqueued && u.notify != nil {
+	if _, err := u.repo.Create(ctx, &domain.AlertResponseRuleExecution{
+		RulePath:        req.RulePath,
+		AlertID:         alertID,
+		Command:         command,
+		Agent:           target,
+		ExecutionStatus: domain.ExecutionStatusPending,
+	}); err != nil {
+		return catcher.Error("soar: failed to enqueue execution", err, map[string]any{"rule": req.RulePath, "alert": alertID})
+	}
+	if u.notify != nil {
 		u.notify()
 	}
 	return nil
+}
+
+// assembleChain joins flow commands into one shell line using each entry's
+// condition as the operator between it and the previous command. The first
+// entry's condition is ignored (there's nothing to join it to).
+func assembleChain(cmds []FlowCommand) string {
+	var b strings.Builder
+	for i, c := range cmds {
+		if c.Command == "" {
+			continue
+		}
+		if b.Len() > 0 {
+			op := domain.ConditionAlways.Operator()
+			if i > 0 && c.Condition != nil {
+				op = c.Condition.Operator()
+			}
+			b.WriteByte(' ')
+			b.WriteString(op)
+			b.WriteByte(' ')
+		}
+		b.WriteString(c.Command)
+	}
+	return b.String()
 }
 
 func (u *executionUsecase) resolveAgent(ctx context.Context, flow Flow, alertJSON string) (string, error) {

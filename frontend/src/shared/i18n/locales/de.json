@@ -4475,6 +4475,15 @@
     "loadError": "Flows konnten nicht geladen werden.",
     "retry": "Erneut versuchen",
     "empty": "Keine Flows für diese Ansicht.",
+    "templates": {
+      "title": "Neuen Flow starten",
+      "subtitle": "Wähle eine Aktionsvorlage oder starte bei Null.",
+      "loading": "Vorlagen werden geladen…",
+      "loadError": "Vorlagen konnten nicht geladen werden.",
+      "empty": "Keine Vorlagen verfügbar.",
+      "cancel": "Abbrechen",
+      "scratch": "Bei Null anfangen"
+    },
     "tabs": {
       "flows": "Flows",
       "executions": "Ausführungsverlauf",
@@ -4496,6 +4505,15 @@
     },
     "operator": {
       "IS": "ist",
+      "IS_NOT": "ist nicht",
+      "CONTAINS": "enthält",
+      "NOT_CONTAINS": "enthält nicht",
+      "EXISTS": "existiert",
+      "NOT_EXISTS": "existiert nicht",
+      "START_WITH": "beginnt mit",
+      "NOT_START_WITH": "beginnt nicht mit",
+      "ENDS_WITH": "endet mit",
+      "NOT_ENDS_WITH": "endet nicht mit",
       "IS_ONE_OF": "ist eines von",
       "IS_NOT_ONE_OF": "ist keines von"
     },
@@ -4522,6 +4540,11 @@
       "commands": "Befehle",
       "commandsHint": "Werden der Reihe nach auf dem Agenten ausgeführt. $(field.path) für Alert-Werte, $[variables.NAME] für gespeicherte Variablen.",
       "addCommand": "Befehl hinzufügen",
+      "connector": {
+        "always": "immer",
+        "success": "bei Erfolg",
+        "failure": "bei Fehler"
+      },
       "agentPlatform": "Agent-Plattform",
       "shell": "Shell",
       "shellAuto": "auto",
