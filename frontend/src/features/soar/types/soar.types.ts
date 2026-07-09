@@ -1,14 +1,55 @@
 /* Mirrors backend modules/soar dto (rule.go, execution.go). */
 
-export type SoarOperator = 'IS' | 'IS_ONE_OF' | 'IS_NOT_ONE_OF'
-export const SOAR_OPERATORS: SoarOperator[] = ['IS', 'IS_ONE_OF', 'IS_NOT_ONE_OF']
+export type SoarOperator =
+  | 'IS'
+  | 'IS_NOT'
+  | 'CONTAINS'
+  | 'NOT_CONTAINS'
+  | 'EXISTS'
+  | 'NOT_EXISTS'
+  | 'START_WITH'
+  | 'NOT_START_WITH'
+  | 'ENDS_WITH'
+  | 'NOT_ENDS_WITH'
+  | 'IS_ONE_OF'
+  | 'IS_NOT_ONE_OF'
 
-/** A flow condition against an alert field. `value` is a string for IS and a
- *  string[] for IS_ONE_OF / IS_NOT_ONE_OF. */
+export const SOAR_OPERATORS: SoarOperator[] = [
+  'IS',
+  'IS_NOT',
+  'CONTAINS',
+  'NOT_CONTAINS',
+  'EXISTS',
+  'NOT_EXISTS',
+  'START_WITH',
+  'NOT_START_WITH',
+  'ENDS_WITH',
+  'NOT_ENDS_WITH',
+  'IS_ONE_OF',
+  'IS_NOT_ONE_OF',
+]
+
+export const SOAR_MULTI_VALUE_OPERATORS: SoarOperator[] = ['IS_ONE_OF', 'IS_NOT_ONE_OF']
+export const SOAR_NO_VALUE_OPERATORS: SoarOperator[] = ['EXISTS', 'NOT_EXISTS']
+
+/** A flow condition against an alert field. `value` is string[] for
+ *  IS_ONE_OF/IS_NOT_ONE_OF, unused for EXISTS/NOT_EXISTS, and a string
+ *  otherwise. */
 export interface FlowCondition {
   operator: SoarOperator
   field: string
   value: unknown
+}
+
+export type SoarCondition = 'OnSuccess' | 'OnFailure' | 'Always'
+export const SOAR_CONDITIONS: SoarCondition[] = ['OnSuccess', 'OnFailure', 'Always']
+
+/** Join semantic for a command relative to the previous one:
+ *  OnSuccess → `&&`, OnFailure → `||`, Always → `;`. Absent on the first
+ *  command (nothing to chain against). */
+export interface FlowCommand {
+  command: string
+  condition?: SoarCondition
 }
 
 /** An alert-response flow (file-backed YAML). Identity is `relPath`. */
@@ -17,7 +58,7 @@ export interface Flow {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: string[]
+  commands: FlowCommand[]
   active: boolean
   agentPlatform: string
   defaultAgent: string
@@ -32,7 +73,7 @@ export interface SaveFlowInput {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: string[]
+  commands: FlowCommand[]
   active: boolean
   agentPlatform: string
   defaultAgent: string
@@ -45,6 +86,21 @@ export interface FlowListQuery {
   active?: boolean
   agentPlatform?: string
   systemOwner?: boolean
+  page?: number // 0-based
+  size?: number
+}
+
+/** Reusable command template served from `/soar/action-templates`. Selecting
+ *  one seeds the flow-creation form. */
+export interface ActionTemplate {
+  id: number
+  title: string
+  description?: string
+  command: string
+  systemOwner: boolean
+}
+
+export interface ActionTemplateListQuery {
   page?: number // 0-based
   size?: number
 }

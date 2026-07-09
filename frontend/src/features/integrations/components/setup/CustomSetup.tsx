@@ -117,8 +117,8 @@ export function CustomSetup({ integration }: { integration: Integration }) {
           />
         </label>
 
-        {/* TLS needs certificates loaded first. */}
-        {proto === 'tls' && (
+        {/* TLS and HTTPS need certificates loaded first. */}
+        {(proto === 'tls' || proto === 'https') && (
           <div className="mb-3">
             <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">{t(`${ROOT}.choose.tlsFirst`)}</p>
             <CodeBlock code={tlsCertsCmd} />

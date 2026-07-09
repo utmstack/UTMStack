@@ -180,7 +180,7 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
   }
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1100px] flex-col gap-4 px-6 pb-6 pt-3">
+    <div className="flex h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <h1 className="text-base font-semibold">

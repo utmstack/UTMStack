@@ -297,7 +297,7 @@ export function ThreatIntelPage() {
   const totalMatches = matchedIocs.reduce((s, i) => s + i.matchesInEnv, 0)
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <Header total={matchedIocs.length} />
 
       <div className="mt-5 grid grid-cols-12 gap-4">

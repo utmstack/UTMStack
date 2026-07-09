@@ -14,10 +14,12 @@ export function StatusChangeMenu({
   status,
   onStatus,
   variant,
+  onCreateRule,
 }: {
   status: StatusKey
   onStatus: (status: number, observation: string, fp: boolean) => void
   variant: Variant
+  onCreateRule?: () => void
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -77,7 +79,7 @@ export function StatusChangeMenu({
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute left-0 top-full z-30 mt-1 w-48 rounded-md border border-border bg-popover py-1 shadow-lg"
+          className="absolute left-0 top-full z-30 mt-1 w-max min-w-[12rem] rounded-md border border-border bg-popover py-1 shadow-lg"
         >
           {(['open', 'in_review', 'completed'] as StatusKey[]).map((k) => (
             <button
@@ -94,6 +96,17 @@ export function StatusChangeMenu({
           >
             {t('alerts.drawer.completeFalsePositive')}
           </button>
+          {onCreateRule && (
+            <button
+              onClick={() => {
+                setOpen(false)
+                onCreateRule()
+              }}
+              className="block w-full border-t border-border px-3 py-1.5 text-left text-sm hover:bg-muted"
+            >
+              {t('alerts.row.createRuleFromAlert')}
+            </button>
+          )}
         </div>
       )}
       {pending && (

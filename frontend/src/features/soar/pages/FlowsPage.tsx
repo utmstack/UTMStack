@@ -9,8 +9,9 @@ import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { soarFlowsService } from '../services/soar-flows.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
 import { FlowEditor } from '../components/FlowEditor'
+import { TemplatePicker } from '../components/TemplatePicker'
 import { ExecutionsView } from '../components/ExecutionsView'
-import type { Flow } from '../types/soar.types'
+import type { ActionTemplate, Flow } from '../types/soar.types'
 
 type PageTab = 'flows' | 'executions'
 
@@ -19,7 +20,7 @@ export function FlowsPage() {
   const [tab, setTab] = useState<PageTab>('flows')
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col px-6 pb-6 pt-3">
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="shrink-0">
         <div className="inline-flex rounded-md border border-border p-0.5">
           <TabButton active={tab === 'flows'} onClick={() => setTab('flows')} icon={Workflow} label={t('soar.tabs.flows')} />
@@ -85,7 +86,26 @@ function FlowsTab() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ flow?: Flow; creating: boolean } | null>(null)
+  const [pickingTemplate, setPickingTemplate] = useState(false)
   const [stats, setStats] = useState<Record<string, FlowStat>>({})
+
+  const startFromTemplate = (tpl: ActionTemplate) => {
+    const seed: Flow = {
+      relPath: '',
+      name: tpl.title,
+      description: tpl.description ?? '',
+      conditions: [],
+      commands: [{ command: tpl.command }],
+      active: true,
+      agentPlatform: '',
+      defaultAgent: '',
+      shell: '',
+      excludedAgents: [],
+      systemOwner: false,
+    }
+    setPickingTemplate(false)
+    setEditing({ flow: seed, creating: true })
+  }
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -186,7 +206,7 @@ function FlowsTab() {
           <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
         </Button>
         <div className="ml-auto">
-          <Button size="sm" onClick={() => setEditing({ creating: true })}>
+          <Button size="sm" onClick={() => setPickingTemplate(true)}>
             <Plus size={14} className="mr-1.5" /> {t('soar.new')}
           </Button>
         </div>
@@ -237,6 +257,17 @@ function FlowsTab() {
             setEditing(null)
             load()
           }}
+        />
+      )}
+
+      {pickingTemplate && (
+        <TemplatePicker
+          onPick={startFromTemplate}
+          onScratch={() => {
+            setPickingTemplate(false)
+            setEditing({ creating: true })
+          }}
+          onClose={() => setPickingTemplate(false)}
         />
       )}
     </>

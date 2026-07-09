@@ -146,7 +146,7 @@ export function UserAuditorPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <Header total={stats?.total ?? total} t={t} />
 
       <div className="mt-5">

@@ -27,7 +27,7 @@ import type { IdentityProvider, IdentityProviderRequest } from '../types/idp.typ
 function EnterpriseGate() {
   const { t } = useTranslation()
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <PageHeader />
       <div className="mt-10 flex flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-16 text-center">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 ring-1 ring-inset ring-amber-500/30">
@@ -130,7 +130,7 @@ export function IdentityProvidersPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 pb-6 pt-3">
+    <div className="w-full px-6 pb-6 pt-3">
       <PageHeader onAdd={() => setDialog({ mode: 'create' })} />
 
       <div className="mt-5">

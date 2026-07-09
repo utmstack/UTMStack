@@ -146,6 +146,25 @@ function TLSSection({ sourceType, port }: { sourceType: string; port: string }) 
   )
 }
 
+// ── HTTPS certificates step ───────────────────────────────────────────────────
+
+// Required (not collapsible) cert-loading step for collectors whose listener is
+// natively HTTPS — same command CustomSetup shows for the tls protocol.
+export function HttpsCertsSection({ step, port }: { step: number; port: string }) {
+  const { t } = useTranslation()
+  const loadCmd = `/opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key`
+
+  return (
+    <Section title={t(`${SHARED}.httpsCerts.title`)} step={step}>
+      <p className="mb-2 text-sm text-foreground/90">{t(`${SHARED}.httpsCerts.body`, { port })}</p>
+      <CodeBlock code={loadCmd} />
+      <p className="mt-2 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+        {t(`${SHARED}.tls.step1Note`)}
+      </p>
+    </Section>
+  )
+}
+
 // ── Forwarder install section ─────────────────────────────────────────────────
 
 export function ForwarderInstall({ source }: { source: string }) {
