@@ -1,5 +1,6 @@
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { sevKey } from '../lib/incident-meta'
 import { useIncidentAlertsTab } from '../hooks/use-incident-alerts-tab'
@@ -15,8 +16,15 @@ export function IncidentAlertsTab({ incidentId, onChanged }: { incidentId: numbe
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       {rows.map((a) => (
-        <a
-          href={`/threat-management/alerts/${a.alertName}`}
+        <Link
+          to="/threat-management/alerts"
+          state={{
+            socaiFilters: [
+              { field: 'id', operator: 'IS', value: a.alertId },
+              { field: '@timestamp', operator: 'IS_BETWEEN', value: ['now-30d', 'now'] },
+            ],
+            socaiTime: 'now-30d',
+          }}
           key={a.id}
           className="group flex items-center gap-3 border-b border-border/60 px-4 py-2.5 text-xs last:border-b-0"
         >
@@ -39,7 +47,7 @@ export function IncidentAlertsTab({ incidentId, onChanged }: { incidentId: numbe
           >
             <Trash2 size={13} />
           </button>
-        </a>
+        </Link>
       ))}
     </div>
   )

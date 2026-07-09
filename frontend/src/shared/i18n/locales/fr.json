@@ -3890,7 +3890,8 @@
       "target_domain": "Domaine de la cible",
       "target_url": "URL de la cible",
       "target_geolocation_asn": "ASN de la cible",
-      "target_geolocation_aso": "ASO de la cible"
+      "target_geolocation_aso": "ASO de la cible",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Étiquettes",
@@ -3994,7 +3995,11 @@
       "assign": "Attribuer",
       "unassign": "Désattribuer",
       "unassigned": "Non attribuée",
-      "loadingUsers": "Chargement des utilisateurs…"
+      "loadingUsers": "Chargement des utilisateurs…",
+      "observationLabel": "Observation",
+      "observationPlaceholder": "Ajouter une observation…",
+      "cancel": "Annuler",
+      "continue": "Continuer"
     },
     "related": {
       "sample": "Un échantillon de jusqu’à ~11 événements que le moteur a stockés sur cette alerte. Utilisez « Voir tous les journaux associés » pour l’ensemble complet et non plafonné.",

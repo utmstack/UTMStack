@@ -3890,7 +3890,8 @@
       "target_domain": "Ziel-Domain",
       "target_url": "Ziel-URL",
       "target_geolocation_asn": "Ziel-ASN",
-      "target_geolocation_aso": "Ziel-ASO"
+      "target_geolocation_aso": "Ziel-ASO",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Tags",
@@ -3994,7 +3995,11 @@
       "assign": "Zuweisen",
       "unassign": "Zuweisung aufheben",
       "unassigned": "Nicht zugewiesen",
-      "loadingUsers": "Benutzer werden geladen…"
+      "loadingUsers": "Benutzer werden geladen…",
+      "observationLabel": "Beobachtung",
+      "observationPlaceholder": "Beobachtung hinzufügen…",
+      "cancel": "Abbrechen",
+      "continue": "Weiter"
     },
     "related": {
       "sample": "Eine Stichprobe von bis zu ~11 Ereignissen, die die Engine zu dieser Warnung gespeichert hat. Verwende „Alle zugehörigen Logs anzeigen“ für den vollständigen, unbegrenzten Satz.",

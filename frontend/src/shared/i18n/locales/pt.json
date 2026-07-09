@@ -3978,7 +3978,8 @@
       "target_domain": "Domínio do alvo",
       "target_url": "URL do alvo",
       "target_geolocation_asn": "ASN do alvo",
-      "target_geolocation_aso": "ASO do alvo"
+      "target_geolocation_aso": "ASO do alvo",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Etiquetas",
@@ -4082,7 +4083,11 @@
       "assign": "Atribuir",
       "unassign": "Remover atribuição",
       "unassigned": "Sem responsável",
-      "loadingUsers": "Carregando usuários…"
+      "loadingUsers": "Carregando usuários…",
+      "observationLabel": "Observação",
+      "observationPlaceholder": "Adicionar uma observação…",
+      "cancel": "Cancelar",
+      "continue": "Continuar"
     },
     "related": {
       "sample": "Uma amostra de até ~11 eventos que o mecanismo armazenou neste alerta. Use «Ver todos os registros relacionados» para o conjunto completo e sem limite.",

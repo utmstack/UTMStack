@@ -88,15 +88,22 @@ export function AlertsPage() {
     const state = location.state as { socaiFilters?: FilterType[]; socaiTime?: string } | null
     if (!state?.socaiFilters?.length || seededRef.current) return
     seededRef.current = true
+    // @timestamp filters drive the dedicated time picker, not the custom filter bar.
+    const tsFilter = state.socaiFilters.find((f) => f.field === TS && Array.isArray(f.value))
+    const rest = tsFilter ? state.socaiFilters.filter((f) => f !== tsFilter) : state.socaiFilters
     setCustomFilters(
-      state.socaiFilters.map((f) => ({
+      rest.map((f) => ({
         field: f.field,
         label: f.field,
         operator: f.operator,
         value: Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? ''),
       })),
     )
-    if (state.socaiTime) setRange(presetRange(state.socaiTime))
+    if (tsFilter) {
+      const [from, to] = tsFilter.value as [string, string]
+      const m = /^now-(\d+[mhdwM])$/.exec(from)
+      setRange(m && to === 'now' ? presetRange(m[1]) : { from, to, interval: 'day' })
+    } else if (state.socaiTime) setRange(presetRange(state.socaiTime))
     setPage(0)
     // Drop the router state so a refresh doesn't re-seed over the user's edits.
     navigate(location.pathname, { replace: true })

@@ -3579,7 +3579,8 @@
       "target_domain": "Домен цели",
       "target_url": "URL цели",
       "target_geolocation_asn": "ASN цели",
-      "target_geolocation_aso": "ASO цели"
+      "target_geolocation_aso": "ASO цели",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Теги",
@@ -3685,7 +3686,11 @@
       "assign": "Назначить",
       "unassign": "Снять назначение",
       "unassigned": "Не назначено",
-      "loadingUsers": "Загрузка пользователей…"
+      "loadingUsers": "Загрузка пользователей…",
+      "observationLabel": "Наблюдение",
+      "observationPlaceholder": "Добавить наблюдение…",
+      "cancel": "Отмена",
+      "continue": "Продолжить"
     },
     "related": {
       "sample": "Выборка до ~11 событий, которые движок сохранил для этого оповещения. Используйте «Показать все связанные журналы» для полного набора без ограничений.",

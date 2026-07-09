@@ -3986,7 +3986,8 @@
       "target_domain": "Target domain",
       "target_url": "Target URL",
       "target_geolocation_asn": "Target ASN",
-      "target_geolocation_aso": "Target ASO"
+      "target_geolocation_aso": "Target ASO",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Tags",
@@ -4090,7 +4091,11 @@
       "assign": "Assign",
       "unassign": "Unassign",
       "unassigned": "Unassigned",
-      "loadingUsers": "Loading users…"
+      "loadingUsers": "Loading users…",
+      "observationLabel": "Observation",
+      "observationPlaceholder": "Add an observation…",
+      "cancel": "Cancel",
+      "continue": "Continue"
     },
     "related": {
       "sample": "A sample of up to ~11 events the engine stored on this alert. Use “View all related logs” for the full, uncapped set.",

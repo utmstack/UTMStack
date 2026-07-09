@@ -3890,7 +3890,8 @@
       "target_domain": "Dominio dell'obiettivo",
       "target_url": "URL dell'obiettivo",
       "target_geolocation_asn": "ASN dell'obiettivo",
-      "target_geolocation_aso": "ASO dell'obiettivo"
+      "target_geolocation_aso": "ASO dell'obiettivo",
+      "id": "ID"
     },
     "tagFilter": {
       "tags": "Tag",
@@ -3994,7 +3995,11 @@
       "assign": "Assegna",
       "unassign": "Rimuovi assegnazione",
       "unassigned": "Non assegnato",
-      "loadingUsers": "Caricamento utenti…"
+      "loadingUsers": "Caricamento utenti…",
+      "observationLabel": "Osservazione",
+      "observationPlaceholder": "Aggiungi un'osservazione…",
+      "cancel": "Annulla",
+      "continue": "Continua"
     },
     "related": {
       "sample": "Un campione fino a ~11 eventi che il motore ha memorizzato su questo avviso. Usa «Vedi tutti i log correlati» per l’insieme completo e senza limiti.",
