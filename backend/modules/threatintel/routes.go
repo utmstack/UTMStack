@@ -14,6 +14,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	searchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/simple")
 	g.POST("/search", searchHandler.Handle)
 
+	// POST /api/v1/threat-intel/search/advanced → /proxy/api/search/v1/entities/advanced
+	advancedSearchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/advanced")
+	g.POST("/search/advanced", advancedSearchHandler.Handle)
+
 	// GET /api/v1/threat-intel/entity/:id → /proxy/api/analytics/v1/entity/{id}/details
 	g.GET("/entity/:id", func(c *gin.Context) {
 		id := c.Param("id")
@@ -43,7 +47,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/usage", usageHandler.HandleUsageEndpoint)
 }
 
-func sanitizeId(id string) string{
-	replacer := strings.NewReplacer(".", "", "\\", "","/","")
+func sanitizeId(id string) string {
+	replacer := strings.NewReplacer(".", "", "\\", "", "/", "")
 	return replacer.Replace(id)
 }

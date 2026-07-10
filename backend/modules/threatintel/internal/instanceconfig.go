@@ -28,12 +28,12 @@ func LoadInstanceConfig(updatesDir string) (*InstanceConfig, error) {
 	configOnce.Do(func() {
 		data, err := os.ReadFile(filepath.Join(updatesDir, "instance-config.yml"))
 		if err != nil {
-			_ = catcher.Error("error loading instance configuration",err,map[string]any{})
+			_ = catcher.Error("error loading instance configuration", err, map[string]any{})
 			return
 		}
 		var cfg InstanceConfig
 		if err := yaml.Unmarshal(data, &cfg); err != nil {
-			_ = catcher.Error("error loading instance configuration",err,map[string]any{})
+			_ = catcher.Error("error loading instance configuration", err, map[string]any{})
 			return
 		}
 		instanceConfig = &cfg
