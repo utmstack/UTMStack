@@ -37,6 +37,7 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
@@ -74,6 +75,7 @@ type modules struct {
 	notifications     *notifications.Module
 	socAI             *socai.Module
 	adaudit           *adaudit.Module
+	threatIntel       *threatintel.Module
 	mcp               *mcpmod.Module
 	signer            *jwtpkg.Signer
 }
@@ -191,6 +193,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		auditMod.Logger(),
 	)
 	adauditMod := adaudit.NewModule(db)
+	threatintelMod := threatintel.NewModule(env.String("UPDATES_DIR", "/updates", false))
 
 	//loaded after opensearch has fully loaded
 	integrationsMod := integrations.NewModule(db, cipher,
@@ -244,6 +247,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		incidents:         incidentsMod,
 		notifications:     notificationsMod,
 		adaudit:           adauditMod,
+		threatIntel:       threatintelMod,
 		mcp:               mcpModule,
 		signer:            signer,
 	}
