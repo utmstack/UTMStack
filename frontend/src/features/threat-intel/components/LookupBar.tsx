@@ -1,55 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Crosshair, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { useTiSearch } from '../hooks/use-ti-search'
-import type { EntitySearchResponse } from '../domain/threat-intel.types'
 
 interface LookupBarProps {
-  onResults: (data: EntitySearchResponse | null) => void
+  onSearch: (query: string) => void
+  isPending?: boolean
 }
 
-export function LookupBar({ onResults }: LookupBarProps) {
+export function LookupBar({ onSearch, isPending }: LookupBarProps) {
   const [q, setQ] = useState('')
-  const { mutate, isPending } = useTiSearch()
-
 
   const handleSubmit = () => {
-    if (q.trim()) {
-      mutate(
-        { query: q },
-        {
-          onSuccess: (data) => {
-            if (data?.kind === 'not-configured') {
-              onResults(null)
-            } else if (data?.kind === 'ok') {
-              onResults(data.value)
-            }
-          },
-        }
-      )
-    }
+    const trimmed = q.trim()
+    if (trimmed) onSearch(trimmed)
   }
 
-  useEffect(()=>{
-      mutate(
-        { query: '*' },
-        {
-          onSuccess: (data) => {
-            if (data?.kind === 'not-configured') {
-              onResults(null)
-            } else if (data?.kind === 'ok') {
-              onResults(data.value)
-            }
-          },
-        }
-      )
-  },[])
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSubmit()
-    }
+    if (e.key === 'Enter') handleSubmit()
   }
 
   return (

@@ -93,27 +93,24 @@ export function searchItemValue(item: EntitySearchItem): string {
 export interface EntitySearchRequest {
   query: string
   types?: EntityType[]
-  limit?: number
-  offset?: number
+  page?: number
+  size?: number
 }
 
 export interface EntitySearchResponse {
   results: EntitySummary[]
-  total: number
+  items: number
+  pages: number
+  aggregations?: unknown | null
 }
 
-export type FeedKind = 'commercial' | 'open' | 'internal'
-export type FeedStatus = 'healthy' | 'stale' | 'error' | 'paused'
+export type FeedType = 'accumulative' | (string & {})
+export type FeedAccuracy = 'level1' | 'level2' | 'level3' | (string & {})
 
 export interface ThreatFeed {
-  id: string
   name: string
-  kind: FeedKind
-  status: FeedStatus
-  itemsTotal: number
-  itemsAdded24h: number
-  lastSync: string
-  syncIntervalMin: number
+  type: FeedType
+  accuracy: FeedAccuracy
 }
 
 export interface ChatMessage {

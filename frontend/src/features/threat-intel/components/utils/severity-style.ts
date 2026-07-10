@@ -1,5 +1,5 @@
 import { type LucideIcon, Bug, Fingerprint, Globe2, Hash, LinkIcon, Network, Skull } from 'lucide-react'
-import type { EntityType, FeedKind, FeedStatus } from '../../domain/threat-intel.types'
+import type { EntityType, FeedType, FeedAccuracy } from '../../domain/threat-intel.types'
 
 export type ReputationTone = 'danger' | 'warning' | 'neutral' | 'unknown'
 
@@ -45,15 +45,19 @@ export function typeMeta(type: EntityType): { icon: LucideIcon; label: string; t
   return TYPE_TABLE[type] ?? TYPE_FALLBACK
 }
 
-export const FEED_KIND_TONE: Record<FeedKind, string> = {
-  commercial: 'text-violet-500',
-  open: 'text-sky-500',
-  internal: 'text-emerald-500',
+const FEED_TYPE_TABLE: Partial<Record<FeedType, string>> = {
+  accumulative: 'text-violet-500',
+}
+export function feedTypeTone(type: FeedType): string {
+  return FEED_TYPE_TABLE[type] ?? 'text-muted-foreground'
 }
 
-export const FEED_STATUS_META: Record<FeedStatus, { dot: string; label: string }> = {
-  healthy: { dot: 'bg-emerald-500', label: 'Healthy' },
-  stale: { dot: 'bg-amber-500', label: 'Stale' },
-  error: { dot: 'bg-red-500 animate-pulse', label: 'Error' },
-  paused: { dot: 'bg-muted-foreground', label: 'Paused' },
+// ponytail: CM feed accuracy labels seen so far: "level1". Assume level1 > level2 > level3.
+const FEED_ACCURACY_TABLE: Partial<Record<FeedAccuracy, { dot: string; label: string }>> = {
+  level1: { dot: 'bg-emerald-500', label: 'Level 1' },
+  level2: { dot: 'bg-amber-500', label: 'Level 2' },
+  level3: { dot: 'bg-red-500', label: 'Level 3' },
+}
+export function feedAccuracyMeta(a: FeedAccuracy): { dot: string; label: string } {
+  return FEED_ACCURACY_TABLE[a] ?? { dot: 'bg-muted-foreground', label: a }
 }
