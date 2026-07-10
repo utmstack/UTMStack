@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
 import { fillHourlyBuckets } from './utils/hourly-buckets'
 
 export function MatchOverviewCard() {
+  const { t } = useTranslation()
   const query = useTiIocs24h()
 
   const total = useMemo(() => {
@@ -45,13 +47,13 @@ export function MatchOverviewCard() {
       <div className="flex items-baseline justify-between">
         <div>
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            IOC matches · last 24 hours
+            {t('threatIntel.overview.title')}
           </div>
           <div className="mt-1 flex items-baseline gap-3">
             <span className="text-3xl font-semibold tabular-nums">
               {query.isPending ? '—' : total.toLocaleString()}
             </span>
-            <span className="text-sm text-muted-foreground">total indicators</span>
+            <span className="text-sm text-muted-foreground">{t('threatIntel.overview.totalIndicators')}</span>
           </div>
         </div>
       </div>
@@ -76,9 +78,9 @@ export function MatchOverviewCard() {
       </svg>
 
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        <span>24h ago</span>
-        <span>12h ago</span>
-        <span>now</span>
+        <span>{t('threatIntel.overview.axis.start')}</span>
+        <span>{t('threatIntel.overview.axis.middle')}</span>
+        <span>{t('threatIntel.overview.axis.end')}</span>
       </div>
     </div>
   )

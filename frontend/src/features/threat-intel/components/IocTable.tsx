@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { EntitySummary } from '../domain/threat-intel.types'
 import { Pagination } from '@/shared/components/ui/pagination'
 import { IocRow } from './IocRow'
@@ -30,6 +31,7 @@ export function IocTable({
   hasMore,
   onLoadMore,
 }: IocTableProps) {
+  const { t } = useTranslation()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
@@ -55,11 +57,11 @@ export function IocTable({
           style={{ gridTemplateColumns: IOC_COLS }}
         >
           <div />
-          <div>Type</div>
-          <div>Indicator</div>
-          <div className="text-right">Reputation</div>
-          <div>Tags</div>
-          <div>Last seen</div>
+          <div>{t('threatIntel.iocs.table.type')}</div>
+          <div>{t('threatIntel.iocs.table.indicator')}</div>
+          <div className="text-right">{t('threatIntel.iocs.table.reputation')}</div>
+          <div>{t('threatIntel.iocs.table.tags')}</div>
+          <div>{t('threatIntel.iocs.table.lastSeen')}</div>
           <div />
         </div>
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
@@ -67,17 +69,17 @@ export function IocTable({
             <IocRow key={ioc.id} ioc={ioc} onOpen={() => onOpen(ioc.id)} />
           ))}
           {!isLoading && iocs.length === 0 && (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">No IOCs match.</div>
+            <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('threatIntel.iocs.empty')}</div>
           )}
           <div ref={sentinelRef} />
           {hasMore && (
             <div className="px-6 py-4 text-center text-[11px] text-muted-foreground">
-              {isLoading ? 'Loading more…' : `Loaded ${iocs.length} of ${totalItems}. Scroll for more.`}
+              {isLoading ? t('threatIntel.iocs.loadingMore') : t('threatIntel.iocs.loadedProgress', { loaded: iocs.length, total: totalItems })}
             </div>
           )}
           {!hasMore && iocs.length > 0 && (
             <div className="px-6 py-4 text-center text-[11px] text-muted-foreground">
-              End of results ({iocs.length} of {totalItems}).
+              {t('threatIntel.iocs.endOfResults', { loaded: iocs.length, total: totalItems })}
             </div>
           )}
         </div>

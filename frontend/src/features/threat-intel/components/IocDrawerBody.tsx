@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ExternalLink, Globe2, MapPin, MoreHorizontal, Search, Shield, Sparkles, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -15,11 +16,12 @@ interface IocDrawerBodyProps {
 }
 
 export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps) {
+  const { t } = useTranslation()
   const a = detail.attributes
   const tone = reputationTone(a.reputation_score)
   const rep = REPUTATION_STYLE[tone]
-  const t = typeMeta(a.type)
-  const TIcon = t.icon
+  const typeMeta_ = typeMeta(a.type)
+  const TIcon = typeMeta_.icon
   const associations = detail.latest_associations ?? []
   const merged = relations.length > 0 ? relations : associations
   const meta = detail.metadata
@@ -31,12 +33,12 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-              <TIcon size={11} className={t.tone} />
-              <span>{t.label}</span>
+              <TIcon size={11} className={typeMeta_.tone} />
+              <span>{t(typeMeta_.labelKey)}</span>
               <span>·</span>
               <span className={cn('font-medium', rep.tone)}>{a.reputation}</span>
               <span>·</span>
-              <span>Accuracy: {a.accuracy}</span>
+              <span>{t('threatIntel.drawer.accuracy')} {a.accuracy}</span>
             </div>
             <h2 className="mt-1.5 break-all font-mono text-base font-semibold leading-snug">
               {a.value}
@@ -65,15 +67,15 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
         <div className="mt-4 _flex flex-wrap items-center gap-2 hidden">
           <Button size="sm">
             <Shield size={13} className="mr-1.5" />
-            Block at perimeter
+            {t('threatIntel.drawer.actions.block')}
           </Button>
           <Button size="sm" variant="outline">
             <Search size={13} className="mr-1.5" />
-            View matched events
+            {t('threatIntel.drawer.actions.viewEvents')}
           </Button>
           <Button size="sm" variant="outline">
             <ExternalLink size={13} className="mr-1.5" />
-            External lookup
+            {t('threatIntel.drawer.actions.externalLookup')}
           </Button>
           <Button size="sm" variant="ghost" className="ml-auto">
             <MoreHorizontal size={13} />
@@ -84,30 +86,30 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
       <div className="flex-1 overflow-y-auto bg-muted/20">
         <div className="grid grid-cols-3 gap-4 p-6">
           <div className="col-span-2 space-y-4">
-            <Section title="Timeline">
+            <Section title={t('threatIntel.drawer.sections.timeline')}>
               <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
-                <KV k="First seen">
+                <KV k={t('threatIntel.drawer.fields.firstSeen')}>
                   <span className="font-mono">{absTimestamp(a.first_seen)}</span>
                 </KV>
-                <KV k="Last seen">
+                <KV k={t('threatIntel.drawer.fields.lastSeen')}>
                   <span className="font-mono">{absTimestamp(a.last_seen)}</span>
                 </KV>
               </dl>
             </Section>
 
             {hasMeta && (
-              <Section title="Network / origin">
+              <Section title={t('threatIntel.drawer.sections.networkOrigin')}>
                 <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
-                  {meta.country && <KV k="Country"><span>{meta.country}</span></KV>}
-                  {meta.city && <KV k="City"><span>{meta.city}</span></KV>}
-                  {meta.aso && <KV k="ASO"><span>{meta.aso}</span></KV>}
-                  {meta.asn > 0 && <KV k="ASN"><span className="font-mono">{meta.asn}</span></KV>}
+                  {meta.country && <KV k={t('threatIntel.drawer.fields.country')}><span>{meta.country}</span></KV>}
+                  {meta.city && <KV k={t('threatIntel.drawer.fields.city')}><span>{meta.city}</span></KV>}
+                  {meta.aso && <KV k={t('threatIntel.drawer.fields.aso')}><span>{meta.aso}</span></KV>}
+                  {meta.asn > 0 && <KV k={t('threatIntel.drawer.fields.asn')}><span className="font-mono">{meta.asn}</span></KV>}
                 </dl>
               </Section>
             )}
 
             {merged.length > 0 && (
-              <Section title={`Associations (${merged.length})`}>
+              <Section title={t('threatIntel.drawer.sections.associationsWithCount', { count: merged.length })}>
                 <ul className="space-y-1.5">
                   {merged.slice(0, 12).map((r) => {
                     const rt = typeMeta(r.type)
@@ -121,7 +123,7 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
                         <div className="flex min-w-0 items-center gap-2">
                           <RIcon size={11} className={rt.tone} />
                           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                            {rt.label}
+                            {t(rt.labelKey)}
                           </span>
                           <span className="truncate font-mono">{r.value}</span>
                         </div>
@@ -133,7 +135,7 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
                   })}
                   {merged.length > 12 && (
                     <li className="px-3 py-1 text-[11px] text-muted-foreground">
-                      +{merged.length - 12} more
+                      {t('threatIntel.drawer.moreCount', { count: merged.length - 12 })}
                     </li>
                   )}
                 </ul>
@@ -141,7 +143,7 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
             )}
 
             {detail.geolocations?.length > 0 && (
-              <Section title={`Geolocations (${detail.geolocations.length})`}>
+              <Section title={t('threatIntel.drawer.sections.geolocationsWithCount', { count: detail.geolocations.length })}>
                 <ul className="space-y-1.5">
                   {detail.geolocations.slice(0, 6).map((g) => (
                     <li
@@ -163,7 +165,7 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
                   ))}
                   {detail.geolocations.length > 6 && (
                     <li className="px-3 py-1 text-[11px] text-muted-foreground">
-                      +{detail.geolocations.length - 6} more
+                      {t('threatIntel.drawer.moreCount', { count: detail.geolocations.length - 6 })}
                     </li>
                   )}
                 </ul>
@@ -175,25 +177,25 @@ export function IocDrawerBody({ detail, relations, onClose }: IocDrawerBodyProps
             <div className="rounded-lg border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/5 to-transparent p-4">
               <div className="mb-2 flex items-center gap-2 text-xs font-medium">
                 <Sparkles size={13} className="text-fuchsia-500" />
-                AI brief
+                {t('threatIntel.drawer.aiBrief')}
               </div>
               <p className="text-xs leading-relaxed">
-                {a.description || 'No description available for this indicator.'}
+                {a.description || t('threatIntel.drawer.noDescription')}
               </p>
               <p className="mt-2 text-[11px] text-muted-foreground">
-                Last observed {relativeTime(a.last_seen)}.
+                {t('threatIntel.drawer.lastObserved', { when: relativeTime(a.last_seen) })}
               </p>
             </div>
 
             <div className="rounded-lg border border-border bg-card p-4">
               <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-                Reputation
+                {t('threatIntel.drawer.fields.reputation')}
               </div>
               <div className="space-y-2 text-xs">
-                <Metric label="Current" value={`${a.reputation} (${a.reputation_score})`} />
-                <Metric label="Best" value={`${a.best_reputation} (${a.best_reputation_score})`} />
-                <Metric label="Worst" value={`${a.worst_reputation} (${a.worst_reputation_score})`} />
-                <Metric label="Accuracy" value={`${a.accuracy} (${a.accuracy_score})`} />
+                <Metric label={t('threatIntel.drawer.fields.current')} value={`${a.reputation} (${a.reputation_score})`} />
+                <Metric label={t('threatIntel.drawer.fields.best')} value={`${a.best_reputation} (${a.best_reputation_score})`} />
+                <Metric label={t('threatIntel.drawer.fields.worst')} value={`${a.worst_reputation} (${a.worst_reputation_score})`} />
+                <Metric label={t('threatIntel.drawer.fields.accuracy')} value={`${a.accuracy} (${a.accuracy_score})`} />
               </div>
             </div>
           </aside>

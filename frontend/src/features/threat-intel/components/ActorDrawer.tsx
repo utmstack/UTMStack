@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Crosshair, ExternalLink, Search, UserX, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -13,6 +14,7 @@ interface ActorDrawerProps {
 }
 
 export function ActorDrawer({ id, onClose }: ActorDrawerProps) {
+  const { t } = useTranslation()
   const { data, isLoading } = useTiEntity(id)
 
   if (!id) return null
@@ -79,7 +81,7 @@ export function ActorDrawer({ id, onClose }: ActorDrawerProps) {
                   <span className={cn('rounded-md px-1.5 py-0.5 font-medium ring-1', rep.tone)}>
                     {a.reputation}
                   </span>
-                  <span className="text-muted-foreground">Accuracy: {a.accuracy}</span>
+                  <span className="text-muted-foreground">{t('threatIntel.drawer.accuracy')} {a.accuracy}</span>
                 </div>
               </div>
             </div>
@@ -94,15 +96,15 @@ export function ActorDrawer({ id, onClose }: ActorDrawerProps) {
           <div className="mt-4 flex items-center gap-2">
             <Button size="sm">
               <Crosshair size={13} className="mr-1.5" />
-              Track campaign
+              {t('threatIntel.drawer.actions.trackCampaign')}
             </Button>
             <Button size="sm" variant="outline">
               <Search size={13} className="mr-1.5" />
-              View matched IOCs
+              {t('threatIntel.drawer.actions.viewIocs')}
             </Button>
             <Button size="sm" variant="outline">
               <ExternalLink size={13} className="mr-1.5" />
-              MITRE ATT&CK
+              {t('threatIntel.drawer.actions.mitre')}
             </Button>
           </div>
         </header>
@@ -110,21 +112,21 @@ export function ActorDrawer({ id, onClose }: ActorDrawerProps) {
         <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
           <div className="space-y-4">
             {a.description && (
-              <Section title="About">
+              <Section title={t('threatIntel.drawer.sections.about')}>
                 <p className="text-sm leading-relaxed">{a.description}</p>
               </Section>
             )}
 
-            <Section title="Activity">
+            <Section title={t('threatIntel.drawer.sections.activity')}>
               <div className="grid grid-cols-3 gap-3 text-xs">
-                <Stat label="Reputation" value={`${a.reputation_score}`} />
-                <Stat label="Accuracy" value={a.accuracy} />
-                <Stat label="Last seen" value={absTimestamp(a.last_seen)} />
+                <Stat label={t('threatIntel.drawer.fields.reputation')} value={`${a.reputation_score}`} />
+                <Stat label={t('threatIntel.drawer.fields.accuracy')} value={a.accuracy} />
+                <Stat label={t('threatIntel.drawer.fields.lastSeen')} value={absTimestamp(a.last_seen)} />
               </div>
             </Section>
 
             {associations.length > 0 && (
-              <Section title={`Associations (${associations.length})`}>
+              <Section title={t('threatIntel.drawer.sections.associationsWithCount', { count: associations.length })}>
                 <ul className="space-y-1.5">
                   {associations.slice(0, 10).map((r) => {
                     const rt = typeMeta(r.type)
@@ -137,7 +139,7 @@ export function ActorDrawer({ id, onClose }: ActorDrawerProps) {
                         <div className="flex min-w-0 items-center gap-2">
                           <RIcon size={11} className={rt.tone} />
                           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                            {rt.label}
+                            {t(rt.labelKey)}
                           </span>
                           <span className="truncate font-mono">{r.value}</span>
                         </div>

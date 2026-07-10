@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 
 interface IocDrawerLoadingProps {
@@ -5,10 +6,11 @@ interface IocDrawerLoadingProps {
 }
 
 export function IocDrawerLoading({ onClose }: IocDrawerLoadingProps) {
+  const { t } = useTranslation()
   return (
     <>
       <header className="flex items-center justify-between border-b border-border px-6 py-4">
-        <span className="text-sm text-muted-foreground">Loading…</span>
+        <span className="text-sm text-muted-foreground">{t('threatIntel.drawer.loading')}</span>
         <button
           onClick={onClose}
           className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"

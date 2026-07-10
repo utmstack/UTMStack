@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Crosshair, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
@@ -9,6 +10,7 @@ interface LookupBarProps {
 }
 
 export function LookupBar({ onSearch, isPending }: LookupBarProps) {
+  const { t } = useTranslation()
   const [q, setQ] = useState('')
 
   const handleSubmit = () => {
@@ -24,7 +26,7 @@ export function LookupBar({ onSearch, isPending }: LookupBarProps) {
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
         <Crosshair size={12} className="text-fuchsia-500" />
-        Lookup any indicator
+        {t('threatIntel.lookup.title')}
       </div>
       <div className="mt-2 flex items-center gap-2">
         <div className="relative flex-1">
@@ -33,13 +35,13 @@ export function LookupBar({ onSearch, isPending }: LookupBarProps) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Paste an IP, domain, hash, URL, or CVE — we'll check feeds and your environment"
+            placeholder={t('threatIntel.lookup.placeholder')}
             className="h-10 pl-9 font-mono text-sm"
           />
         </div>
         <Button onClick={handleSubmit} disabled={isPending}>
           <Crosshair size={13} className="mr-1.5" />
-          {isPending ? 'Searching…' : 'Lookup'}
+          {isPending ? t('threatIntel.lookup.busy') : t('threatIntel.lookup.button')}
         </Button>
       </div>
     </div>

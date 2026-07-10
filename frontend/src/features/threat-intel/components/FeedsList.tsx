@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { FeedRow } from './FeedRow'
 import { FeedsHeader } from './FeedsHeader'
 
 export function FeedsList() {
+  const { t } = useTranslation()
   const { data, isLoading } = useTiFeeds()
 
   if (data?.kind === 'not-configured') return null
@@ -26,7 +28,7 @@ export function FeedsList() {
   if (feeds.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
-        No feeds configured.
+        {t('threatIntel.feeds.empty')}
       </div>
     )
   }

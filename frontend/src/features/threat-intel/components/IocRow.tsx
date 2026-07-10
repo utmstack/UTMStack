@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { MoreHorizontal } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { searchItemValue, type EntitySummary } from '../domain/threat-intel.types'
-import { REPUTATION_STYLE, reputationLabel, reputationTone, typeMeta } from './utils/severity-style'
+import { REPUTATION_STYLE, reputationLabelKey, reputationTone, typeMeta } from './utils/severity-style'
 import { relativeTime } from './utils/time-format'
 
 interface IocRowProps {
@@ -12,10 +13,11 @@ interface IocRowProps {
 const IOC_COLS = '4px 90px 1fr 130px 1fr 110px 36px'
 
 export function IocRow({ ioc, onOpen }: IocRowProps) {
+  const { t } = useTranslation()
   const tone = reputationTone(ioc.reputation)
   const rep = REPUTATION_STYLE[tone]
-  const t = typeMeta(ioc.type)
-  const TIcon = t.icon
+  const typeMeta_ = typeMeta(ioc.type)
+  const TIcon = typeMeta_.icon
 
   return (
     <div
@@ -25,15 +27,15 @@ export function IocRow({ ioc, onOpen }: IocRowProps) {
     >
       <span className={cn('h-3 w-1 rounded-full', rep.bar)} />
       <div className="flex items-center gap-1.5">
-        <TIcon size={11} className={t.tone} />
+        <TIcon size={11} className={typeMeta_.tone} />
         <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {t.label}
+          {t(typeMeta_.labelKey)}
         </span>
       </div>
       <div className="min-w-0 truncate font-mono">{searchItemValue(ioc)}</div>
       <div className="text-right">
         <span className={cn('text-[11px] font-medium', rep.tone)}>
-          {reputationLabel(ioc.reputation)}
+          {t(reputationLabelKey(ioc.reputation))}
         </span>
       </div>
       <div className="flex flex-wrap gap-1">

@@ -731,6 +731,129 @@
       "logout": "Log out"
     }
   },
+  "threatIntel": {
+    "header": {
+      "matchedInEnv": "matched in your env",
+      "export": "Export IOCs",
+      "exporting": "Exporting…"
+    },
+    "overview": {
+      "title": "IOC matches · last 24 hours",
+      "totalIndicators": "total indicators",
+      "axis": {
+        "start": "24h ago",
+        "middle": "12h ago",
+        "end": "now"
+      }
+    },
+    "notConfigured": {
+      "title": "Threat Intelligence isn't configured",
+      "body": "Contact your administrator to connect an upstream Cyber Mantra / ThreatWinds instance for this environment."
+    },
+    "lookup": {
+      "title": "Lookup any indicator",
+      "placeholder": "Paste an IP, domain, hash, URL, or CVE — we'll check feeds and your environment",
+      "button": "Lookup",
+      "busy": "Searching…"
+    },
+    "tabs": {
+      "iocs": "IOCs",
+      "actors": "Threat actors",
+      "feeds": "Feeds"
+    },
+    "toolbar": {
+      "searchPlaceholders": {
+        "iocs": "Search IOC value, tag, source…",
+        "actors": "Search actors, aliases, techniques…",
+        "feeds": "Search feeds…"
+      },
+      "last24h": "Last 24 hours",
+      "filters": "Filters",
+      "refresh": "Refresh"
+    },
+    "iocs": {
+      "table": {
+        "type": "Type",
+        "indicator": "Indicator",
+        "reputation": "Reputation",
+        "tags": "Tags",
+        "lastSeen": "Last seen"
+      },
+      "empty": "No IOCs match.",
+      "loadingMore": "Loading more…",
+      "loadedProgress": "Loaded {{loaded}} of {{total}}. Scroll for more.",
+      "endOfResults": "End of results ({{loaded}} of {{total}})."
+    },
+    "drawer": {
+      "loading": "Loading…",
+      "accuracy": "Accuracy:",
+      "actions": {
+        "block": "Block at perimeter",
+        "viewEvents": "View matched events",
+        "externalLookup": "External lookup",
+        "trackCampaign": "Track campaign",
+        "viewIocs": "View matched IOCs",
+        "mitre": "MITRE ATT&CK"
+      },
+      "sections": {
+        "timeline": "Timeline",
+        "networkOrigin": "Network / origin",
+        "associationsWithCount": "Associations ({{count}})",
+        "geolocationsWithCount": "Geolocations ({{count}})",
+        "about": "About",
+        "activity": "Activity"
+      },
+      "fields": {
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "country": "Country",
+        "city": "City",
+        "aso": "ASO",
+        "asn": "ASN",
+        "reputation": "Reputation",
+        "accuracy": "Accuracy",
+        "current": "Current",
+        "best": "Best",
+        "worst": "Worst"
+      },
+      "aiBrief": "AI brief",
+      "noDescription": "No description available for this indicator.",
+      "lastObserved": "Last observed {{when}}."
+    },
+    "actors": {
+      "empty": "No actors found."
+    },
+    "feeds": {
+      "empty": "No feeds configured.",
+      "table": {
+        "name": "Feed",
+        "type": "Type",
+        "accuracy": "Accuracy"
+      }
+    },
+    "entityTypes": {
+      "ip": "IP",
+      "hostname": "Host",
+      "domain": "Domain",
+      "url": "URL",
+      "hash": "Hash",
+      "cve": "CVE",
+      "threat": "Threat",
+      "entity": "Entity"
+    },
+    "reputation": {
+      "alarming": "Alarming",
+      "suspicious": "Suspicious",
+      "indefinable": "Indefinable",
+      "fair": "Fair",
+      "trustworthy": "Trustworthy"
+    },
+    "feedAccuracy": {
+      "level1": "Level 1",
+      "level2": "Level 2",
+      "level3": "Level 3"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",

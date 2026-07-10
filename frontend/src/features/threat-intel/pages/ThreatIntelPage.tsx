@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown, Clock, ListFilter, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -23,6 +24,7 @@ import { FeedsList } from '../components/FeedsList'
 import type { EntitySearchResponse, EntitySummary } from '../domain/threat-intel.types'
 
 export function ThreatIntelPage() {
+  const { t } = useTranslation()
   const { isConfigured, isLoading: configLoading } = useTiConfigStatus()
   const feedsQuery = useTiFeeds()
   const searchMutation = useTiSearch()
@@ -157,10 +159,10 @@ export function ThreatIntelPage() {
           <Input
             placeholder={
               tab === 'feeds'
-                ? 'Search feeds…'
+                ? t('threatIntel.toolbar.searchPlaceholders.feeds')
                 : tab === 'actors'
-                  ? 'Search actors, aliases, techniques…'
-                  : 'Search IOC value, tag, source…'
+                  ? t('threatIntel.toolbar.searchPlaceholders.actors')
+                  : t('threatIntel.toolbar.searchPlaceholders.iocs')
             }
             value={uiSearch}
             onChange={(e) => setUiSearch(e.target.value)}
@@ -171,17 +173,17 @@ export function ThreatIntelPage() {
           <>
             <Button variant="outline" size="sm">
               <Clock size={14} className="mr-2" />
-              Last 24 hours
+              {t('threatIntel.toolbar.last24h')}
               <ChevronDown size={12} className="ml-1.5 opacity-60" />
             </Button>
             <Button variant="outline" size="sm">
               <ListFilter size={14} className="mr-2" />
-              Filters
+              {t('threatIntel.toolbar.filters')}
             </Button>
           </>
         )}
         <button
-          title="Refresh"
+          title={t('threatIntel.toolbar.refresh')}
           onClick={handleSearch.bind(null, query)}
           className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
         >

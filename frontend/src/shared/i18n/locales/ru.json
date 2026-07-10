@@ -5062,5 +5062,103 @@
       "deleteError": "Не удалось удалить правило."
     },
     "deleteTitle": "Удалить правило тегирования"
+  },
+  "threatIntel": {
+    "header": {
+      "matchedInEnv": "совпадения в вашей среде",
+      "export": "Экспортировать IOCs",
+      "exporting": "Экспортирование…"
+    },
+    "overview": {
+      "title": "Совпадения IOC · последние 24 часа",
+      "totalIndicators": "всего индикаторов",
+      "axis": { "start": "24ч назад", "middle": "12ч назад", "end": "сейчас" }
+    },
+    "notConfigured": {
+      "title": "Threat Intelligence не настроен",
+      "body": "Свяжитесь с администратором для подключения экземпляра Cyber Mantra / ThreatWinds к этой среде."
+    },
+    "lookup": {
+      "title": "Поиск любого индикатора",
+      "placeholder": "Вставьте IP, доменное имя, хеш, URL или CVE — мы проверим feed и вашу среду",
+      "button": "Поиск",
+      "busy": "Поиск…"
+    },
+    "tabs": { "iocs": "IOCs", "actors": "Угрозы", "feeds": "Feeds" },
+    "toolbar": {
+      "searchPlaceholders": {
+        "iocs": "Поиск по значению IOC, тегу, источнику…",
+        "actors": "Поиск по актёрам, алиасам, техникам…",
+        "feeds": "Поиск по feeds…"
+      },
+      "last24h": "Последние 24 часа",
+      "filters": "Фильтры",
+      "refresh": "Обновить"
+    },
+    "iocs": {
+      "table": {
+        "type": "Тип",
+        "indicator": "Индикатор",
+        "reputation": "Репутация",
+        "tags": "Теги",
+        "lastSeen": "Последний просмотр"
+      },
+      "empty": "Нет совпадений IOC.",
+      "loadingMore": "Загрузка…",
+      "loadedProgress": "Загружено {{loaded}} из {{total}}. Прокрутите для других.",
+      "endOfResults": "Конец результатов ({{loaded}} из {{total}})."
+    },
+    "drawer": {
+      "loading": "Загрузка…",
+      "accuracy": "Точность:",
+      "actions": {
+        "block": "Заблокировать на периметре",
+        "viewEvents": "Просмотреть совпадающие события",
+        "externalLookup": "Внешний поиск",
+        "trackCampaign": "Отслеживать кампанию",
+        "viewIocs": "Просмотреть совпадающие IOCs",
+        "mitre": "MITRE ATT&CK"
+      },
+      "sections": {
+        "timeline": "Временная шкала",
+        "networkOrigin": "Сеть / происхождение",
+        "associationsWithCount": "Ассоциации ({{count}})",
+        "geolocationsWithCount": "Геолокации ({{count}})",
+        "about": "О программе",
+        "activity": "Активность"
+      },
+      "fields": {
+        "firstSeen": "Впервые обнаружено",
+        "lastSeen": "Последний просмотр",
+        "country": "Страна",
+        "city": "Город",
+        "aso": "ASO",
+        "asn": "ASN",
+        "reputation": "Репутация",
+        "accuracy": "Точность",
+        "current": "Текущее",
+        "best": "Лучшее",
+        "worst": "Худшее"
+      },
+      "aiBrief": "Резюме ИИ",
+      "noDescription": "Описание не доступно для этого индикатора.",
+      "lastObserved": "Последний просмотр {{when}}."
+    },
+    "actors": { "empty": "Угрозы не найдены." },
+    "feeds": {
+      "empty": "Нет настроенных feeds.",
+      "table": { "name": "Feed", "type": "Тип", "accuracy": "Точность" }
+    },
+    "entityTypes": {
+      "ip": "IP", "hostname": "Хост", "domain": "Доменное имя", "url": "URL",
+      "hash": "Hash", "cve": "CVE", "threat": "Угроза", "entity": "Сущность"
+    },
+    "reputation": {
+      "alarming": "Тревожная", "suspicious": "Подозрительная",
+      "indefinable": "Неопределённая", "fair": "Приемлемая", "trustworthy": "Надёжная"
+    },
+    "feedAccuracy": {
+      "level1": "Уровень 1", "level2": "Уровень 2", "level3": "Уровень 3"
+    }
   }
 }

@@ -29,19 +29,27 @@ export function reputationLabel(score: number): string {
   return 'Trustworthy'
 }
 
-const TYPE_FALLBACK = { icon: Fingerprint, label: 'Entity', tone: 'text-muted-foreground' } as const
-
-const TYPE_TABLE: Partial<Record<string, { icon: LucideIcon; label: string; tone: string }>> = {
-  ip:       { icon: Network,     label: 'IP',       tone: 'text-sky-500' },
-  hostname: { icon: LinkIcon,    label: 'Host',     tone: 'text-amber-500' },
-  domain:   { icon: Globe2,      label: 'Domain',   tone: 'text-violet-500' },
-  url:      { icon: LinkIcon,    label: 'URL',      tone: 'text-amber-500' },
-  hash:     { icon: Hash,        label: 'Hash',     tone: 'text-fuchsia-500' },
-  cve:      { icon: Bug,         label: 'CVE',      tone: 'text-red-500' },
-  threat:   { icon: Skull,       label: 'Threat',   tone: 'text-red-500' },
+export function reputationLabelKey(score: number): string {
+  if (score <= -3) return 'threatIntel.reputation.alarming'
+  if (score <= -1) return 'threatIntel.reputation.suspicious'
+  if (score === 0) return 'threatIntel.reputation.indefinable'
+  if (score === 1) return 'threatIntel.reputation.fair'
+  return 'threatIntel.reputation.trustworthy'
 }
 
-export function typeMeta(type: EntityType): { icon: LucideIcon; label: string; tone: string } {
+const TYPE_FALLBACK = { icon: Fingerprint, labelKey: 'threatIntel.entityTypes.entity', tone: 'text-muted-foreground' } as const
+
+const TYPE_TABLE: Partial<Record<string, { icon: LucideIcon; labelKey: string; tone: string }>> = {
+  ip:       { icon: Network,     labelKey: 'threatIntel.entityTypes.ip',       tone: 'text-sky-500' },
+  hostname: { icon: LinkIcon,    labelKey: 'threatIntel.entityTypes.hostname', tone: 'text-amber-500' },
+  domain:   { icon: Globe2,      labelKey: 'threatIntel.entityTypes.domain',   tone: 'text-violet-500' },
+  url:      { icon: LinkIcon,    labelKey: 'threatIntel.entityTypes.url',      tone: 'text-amber-500' },
+  hash:     { icon: Hash,        labelKey: 'threatIntel.entityTypes.hash',     tone: 'text-fuchsia-500' },
+  cve:      { icon: Bug,         labelKey: 'threatIntel.entityTypes.cve',      tone: 'text-red-500' },
+  threat:   { icon: Skull,       labelKey: 'threatIntel.entityTypes.threat',   tone: 'text-red-500' },
+}
+
+export function typeMeta(type: EntityType): { icon: LucideIcon; labelKey: string; tone: string } {
   return TYPE_TABLE[type] ?? TYPE_FALLBACK
 }
 
@@ -53,11 +61,11 @@ export function feedTypeTone(type: FeedType): string {
 }
 
 // ponytail: CM feed accuracy labels seen so far: "level1". Assume level1 > level2 > level3.
-const FEED_ACCURACY_TABLE: Partial<Record<FeedAccuracy, { dot: string; label: string }>> = {
-  level1: { dot: 'bg-emerald-500', label: 'Level 1' },
-  level2: { dot: 'bg-amber-500', label: 'Level 2' },
-  level3: { dot: 'bg-red-500', label: 'Level 3' },
+const FEED_ACCURACY_TABLE: Partial<Record<FeedAccuracy, { dot: string; labelKey: string }>> = {
+  level1: { dot: 'bg-emerald-500', labelKey: 'threatIntel.feedAccuracy.level1' },
+  level2: { dot: 'bg-amber-500', labelKey: 'threatIntel.feedAccuracy.level2' },
+  level3: { dot: 'bg-red-500', labelKey: 'threatIntel.feedAccuracy.level3' },
 }
-export function feedAccuracyMeta(a: FeedAccuracy): { dot: string; label: string } {
-  return FEED_ACCURACY_TABLE[a] ?? { dot: 'bg-muted-foreground', label: a }
+export function feedAccuracyMeta(a: FeedAccuracy): { dot: string; labelKey: string } {
+  return FEED_ACCURACY_TABLE[a] ?? { dot: 'bg-muted-foreground', labelKey: a }
 }

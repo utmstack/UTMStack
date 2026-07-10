@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { UserX } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { searchItemValue, type EntitySummary } from '../domain/threat-intel.types'
-import { REPUTATION_STYLE, reputationLabel, reputationTone } from './utils/severity-style'
+import { REPUTATION_STYLE, reputationLabelKey, reputationTone } from './utils/severity-style'
 import { Stat } from './Stat'
 import { relativeTime } from './utils/time-format'
 
@@ -11,6 +12,7 @@ interface ActorCardProps {
 }
 
 export function ActorCard({ actor, onOpen }: ActorCardProps) {
+  const { t } = useTranslation()
   const tone = reputationTone(actor.reputation)
   const rep = REPUTATION_STYLE[tone]
   const dangerous = tone === 'danger'
@@ -38,7 +40,7 @@ export function ActorCard({ actor, onOpen }: ActorCardProps) {
           <div className="flex items-center gap-2">
             <span className="truncate text-sm font-semibold">{searchItemValue(actor)}</span>
             <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-medium uppercase ring-1', rep.tone)}>
-              {reputationLabel(actor.reputation)}
+              {t(reputationLabelKey(actor.reputation))}
             </span>
           </div>
           {actor.tags.length > 0 && (
