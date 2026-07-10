@@ -572,6 +572,10 @@ jobs:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
       TAG: ${{ needs.setup_deployment.outputs.tag }}
       CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+      SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
+      SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
+      CM_AUTH_DEV: ${{ secrets.CM_SERVICE_ACCOUNT_DEV }}
+      CM_AUTH_PROD: ${{ secrets.CM_SERVICE_ACCOUNT_PROD }}
     steps:
       - name: Schedule updates
         run: |
@@ -579,12 +583,21 @@ jobs:
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
+          # Values are passed in via `env:` (not interpolated directly into this
+          # script) so embedded quotes in the JSON can't corrupt the shell parsing.
           if [ "$ENVIRONMENT" = "dev" ]; then
-            targets_json="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
+            targets_json="$SCHEDULE_INSTANCES_DEV"
+            auth_json="$CM_AUTH_DEV"
+            targets_var_name="SCHEDULE_INSTANCES_DEV"
           else
-            targets_json="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
+            targets_json="$SCHEDULE_INSTANCES_PROD"
+            auth_json="$CM_AUTH_PROD"
+            targets_var_name="SCHEDULE_INSTANCES_PROD"
+          fi
+
+          if ! echo "$targets_json" | jq empty > /dev/null 2>&1; then
+            echo "❌ $targets_var_name is not valid JSON: $targets_json"
+            exit 1
           fi
 
           # Extract id and key from auth JSON
@@ -593,6 +606,7 @@ jobs:
 
           # Targets are grouped by product_id (CM scopes instances/versions by
           # product and /api/v1/updates requires it): {"<product_id>": ["<instance_id>", ...]}
+          scheduled=0
           for product_id in $(echo "$targets_json" | jq -r 'keys[]'); do
             for instance_id in $(echo "$targets_json" | jq -r --arg p "$product_id" '.[$p][]'); do
               echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
@@ -608,6 +622,7 @@ jobs:
 
               if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
                 echo "✅ Successfully scheduled for instance: $instance_id"
+                scheduled=$((scheduled + 1))
               else
                 echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
                 echo "Response: $body"
@@ -616,4 +631,9 @@ jobs:
             done
           done
 
-          echo "✅ Scheduled release for all instances with version $TAG"
+          if [ "$scheduled" -eq 0 ]; then
+            echo "❌ No instances were scheduled — check $targets_var_name"
+            exit 1
+          fi
+
+          echo "✅ Scheduled release for all $scheduled instance(s) with version $TAG"
