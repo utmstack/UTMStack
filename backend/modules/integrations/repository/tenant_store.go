@@ -37,16 +37,29 @@ var pluginNames = map[string]string{
 	"SOPHOS":       "sophos",
 }
 
-func tenantFileName(module string) string {
+func pluginKey(module string) string {
 	name, ok := pluginNames[strings.ToUpper(module)]
 	if !ok {
 		name = strings.ToLower(module)
 	}
-	return "system_plugins_" + name + ".yaml"
+	return name
+}
+
+func tenantFileName(module string) string {
+	return "system_plugins_" + pluginKey(module) + ".yaml"
 }
 
 func (s *TenantStore) path(module string) string {
 	return filepath.Join(s.dir, tenantFileName(module))
+}
+
+// pluginsFile is the on-disk wrapper: plugins.<name>.tenants: [...].
+type pluginsFile struct {
+	Plugins map[string]pluginEntry `yaml:"plugins"`
+}
+
+type pluginEntry struct {
+	Tenants []domain.Tenant `yaml:"tenants"`
 }
 
 func (s *TenantStore) SetActiveByModule(_ context.Context, module string, active bool) error {
@@ -70,18 +83,24 @@ func (s *TenantStore) Load(module string) ([]domain.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
-	var tenants []domain.Tenant
-	if err := yaml.Unmarshal(data, &tenants); err != nil {
+	var pf pluginsFile
+	if err := yaml.Unmarshal(data, &pf); err != nil {
 		return nil, err
 	}
-	return tenants, nil
+	entry, ok := pf.Plugins[pluginKey(module)]
+	if !ok {
+		return []domain.Tenant{}, nil
+	}
+	return entry.Tenants, nil
 }
 
 func (s *TenantStore) Save(module string, tenants []domain.Tenant) error {
 	if err := os.MkdirAll(s.dir, 0o755); err != nil {
 		return err
 	}
-	data, err := yaml.Marshal(tenants)
+	key := pluginKey(module)
+	pf := pluginsFile{Plugins: map[string]pluginEntry{key: {Tenants: tenants}}}
+	data, err := yaml.Marshal(pf)
 	if err != nil {
 		return err
 	}
