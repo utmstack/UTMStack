@@ -18,7 +18,9 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "retry": "Reintentar",
-      "refresh": "Actualizar"
+      "refresh": "Actualizar",
+      "delete": "Eliminar",
+      "remove": "Quitar"
     },
     "confirm": {
       "delete": "Eliminar",
@@ -4994,6 +4996,7 @@
       "createError": "No se pudo crear la regla.",
       "updateError": "No se pudo actualizar la regla.",
       "deleteError": "No se pudo eliminar la regla."
-    }
+    },
+    "deleteTitle": "Eliminar regla de etiquetado"
   }
 }

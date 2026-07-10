@@ -25,6 +25,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { useDateFormat } from '@/shared/lib/datetime'
 import {
@@ -79,6 +80,8 @@ export function AlertingRulesPage() {
   const [dataTypeOptions, setDataTypeOptions] = useState<DataTypeOption[]>([])
   const [open, setOpen] = useState<CorrelationRule | null>(null)
   const [creating, setCreating] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<CorrelationRule | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importBusy, setImportBusy] = useState(false)
@@ -162,15 +165,21 @@ export function AlertingRulesPage() {
     }
   }
 
-  const remove = async (r: CorrelationRule) => {
-    if (!confirm(t('alertingRules.deleteConfirm', { name: r.name }))) return
+  const remove = (r: CorrelationRule) => setPendingDelete(r)
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return
+    setDeleting(true)
     try {
-      await svc.remove(r.relPath)
+      await svc.remove(pendingDelete.relPath)
       toast.success(t('alertingRules.toast.deleted'))
       setOpen(null)
       refresh()
     } catch (e) {
       toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.toast.deleteError'))
+    } finally {
+      setPendingDelete(null)
+      setDeleting(false)
     }
   }
 
@@ -259,6 +268,16 @@ export function AlertingRulesPage() {
       {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}
       {creating && <RuleDrawer create dataTypeOptions={dataTypeOptions} onClose={() => setCreating(false)} onSaved={() => { setCreating(false); refresh() }} t={t} />}
       {importResults && <ImportResultsDialog res={importResults} onClose={() => setImportResults(null)} t={t} />}
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={t('alertingRules.editor.delete') ?? 'Delete'}
+        body={pendingDelete ? t('alertingRules.deleteConfirm', { name: pendingDelete.name }) : ''}
+        confirmLabel={t('alertingRules.editor.delete') ?? undefined}
+        danger
+        busy={deleting}
+        onClose={() => !deleting && setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
