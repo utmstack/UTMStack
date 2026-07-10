@@ -7,11 +7,31 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"gopkg.in/yaml.v3"
 )
+
+// withFileLock acquires an exclusive advisory lock on <path>.lock via flock,
+// runs fn, releases the lock on close. The kernel drops the lock on fd close
+// (including process death), so a crashed writer never leaves a stuck lock.
+// Linux/BSD only; UTMStack runs in Linux containers.
+func withFileLock(path string, fn func() error) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	lf, err := os.OpenFile(path+".lock", os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return err
+	}
+	defer lf.Close()
+	if err := syscall.Flock(int(lf.Fd()), syscall.LOCK_EX); err != nil {
+		return err
+	}
+	return fn()
+}
 
 var _ connectors.TenantRepository = (*TenantStore)(nil)
 
@@ -37,16 +57,29 @@ var pluginNames = map[string]string{
 	"SOPHOS":       "sophos",
 }
 
-func tenantFileName(module string) string {
+func pluginKey(module string) string {
 	name, ok := pluginNames[strings.ToUpper(module)]
 	if !ok {
 		name = strings.ToLower(module)
 	}
-	return "system_plugins_" + name + ".yaml"
+	return name
+}
+
+func tenantFileName(module string) string {
+	return "system_plugins_" + pluginKey(module) + ".yaml"
 }
 
 func (s *TenantStore) path(module string) string {
 	return filepath.Join(s.dir, tenantFileName(module))
+}
+
+// pluginsFile is the on-disk wrapper: plugins.<name>.tenants: [...].
+type pluginsFile struct {
+	Plugins map[string]pluginEntry `yaml:"plugins"`
+}
+
+type pluginEntry struct {
+	Tenants []domain.Tenant `yaml:"tenants"`
 }
 
 func (s *TenantStore) SetActiveByModule(_ context.Context, module string, active bool) error {
@@ -56,10 +89,12 @@ func (s *TenantStore) SetActiveByModule(_ context.Context, module string, active
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := os.Remove(s.path(module)); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	return nil
+	return withFileLock(s.path(module), func() error {
+		if err := os.Remove(s.path(module)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		return nil
+	})
 }
 
 func (s *TenantStore) Load(module string) ([]domain.Tenant, error) {
@@ -70,18 +105,28 @@ func (s *TenantStore) Load(module string) ([]domain.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
-	var tenants []domain.Tenant
-	if err := yaml.Unmarshal(data, &tenants); err != nil {
+	var pf pluginsFile
+	if err := yaml.Unmarshal(data, &pf); err != nil {
 		return nil, err
 	}
-	return tenants, nil
+	entry, ok := pf.Plugins[pluginKey(module)]
+	if !ok {
+		return []domain.Tenant{}, nil
+	}
+	return entry.Tenants, nil
 }
 
 func (s *TenantStore) Save(module string, tenants []domain.Tenant) error {
-	if err := os.MkdirAll(s.dir, 0o755); err != nil {
-		return err
-	}
-	data, err := yaml.Marshal(tenants)
+	return withFileLock(s.path(module), func() error {
+		return s.saveLocked(module, tenants)
+	})
+}
+
+// saveLocked writes the file assuming the caller already holds the file lock.
+func (s *TenantStore) saveLocked(module string, tenants []domain.Tenant) error {
+	key := pluginKey(module)
+	pf := pluginsFile{Plugins: map[string]pluginEntry{key: {Tenants: tenants}}}
+	data, err := yaml.Marshal(pf)
 	if err != nil {
 		return err
 	}
@@ -97,38 +142,42 @@ func (s *TenantStore) Upsert(module string, t domain.Tenant) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	tenants, err := s.Load(module)
-	if err != nil {
-		return err
-	}
-	for i := range tenants {
-		if tenants[i].Name == t.Name {
-			tenants[i] = t
-			return s.Save(module, tenants)
+	return withFileLock(s.path(module), func() error {
+		tenants, err := s.Load(module)
+		if err != nil {
+			return err
 		}
-	}
-	return s.Save(module, append(tenants, t))
+		for i := range tenants {
+			if tenants[i].Name == t.Name {
+				tenants[i] = t
+				return s.saveLocked(module, tenants)
+			}
+		}
+		return s.saveLocked(module, append(tenants, t))
+	})
 }
 
 func (s *TenantStore) Delete(module, name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	tenants, err := s.Load(module)
-	if err != nil {
-		return err
-	}
-	out := make([]domain.Tenant, 0, len(tenants))
-	found := false
-	for _, t := range tenants {
-		if t.Name == name {
-			found = true
-			continue
+	return withFileLock(s.path(module), func() error {
+		tenants, err := s.Load(module)
+		if err != nil {
+			return err
 		}
-		out = append(out, t)
-	}
-	if !found {
-		return domain.ErrTenantNotFound
-	}
-	return s.Save(module, out)
+		out := make([]domain.Tenant, 0, len(tenants))
+		found := false
+		for _, t := range tenants {
+			if t.Name == name {
+				found = true
+				continue
+			}
+			out = append(out, t)
+		}
+		if !found {
+			return domain.ErrTenantNotFound
+		}
+		return s.saveLocked(module, out)
+	})
 }
