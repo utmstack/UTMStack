@@ -2,9 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Clock, ListFilter, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { toast } from 'sonner'
 import { useTiConfigStatus } from '../hooks/use-ti-config-status'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { useTiSearch } from '../hooks/use-ti-search'
+import { threatIntelHttpService } from '../services/threat-intel-http.service'
+import { describeError } from '../services/ti-errors'
+import { downloadCsv, toCsv } from '../services/csv'
+import { searchItemValue } from '../domain/threat-intel.types'
 import { NotConfiguredState } from '../components/NotConfiguredState'
 import { ThreatIntelHeader } from '../components/ThreatIntelHeader'
 import { MatchOverviewCard } from '../components/MatchOverviewCard'
@@ -38,6 +43,7 @@ export function ThreatIntelPage() {
   const [openIoc, setOpenIoc] = useState<string | null>(null)
   const [openActor, setOpenActor] = useState<string | null>(null)
   const [uiSearch, setUiSearch] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     if (!isConfigured) return
@@ -92,9 +98,42 @@ export function ThreatIntelPage() {
     setPage((p) => p + 1)
   }
 
+  const handleExport = async () => {
+    if (!totalItems || isExporting) return
+    setIsExporting(true)
+    try {
+      const res = await threatIntelHttpService.search({ query, page: 1, size: totalItems })
+      if (res.kind !== 'ok') return
+      const rows = res.value.results.map((r) => [
+        r.id,
+        r.type,
+        searchItemValue(r),
+        r.tags.join('|'),
+        r.lastSeen,
+        r.reputation,
+        r.bestReputation,
+        r.worstReputation,
+        r.accuracy,
+      ])
+      const csv = toCsv(
+        ['id', 'type', 'value', 'tags', 'lastSeen', 'reputation', 'bestReputation', 'worstReputation', 'accuracy'],
+        rows,
+      )
+      downloadCsv(`iocs-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`, csv)
+    } catch (e) {
+      toast.error(describeError(e))
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <div className="w-full px-6 pb-6 pt-3">
-      <ThreatIntelHeader matchedCount={totalItems} />
+      <ThreatIntelHeader
+        matchedCount={totalItems}
+        onExport={handleExport}
+        isExporting={isExporting}
+      />
 
       <div className="mt-5">
         <MatchOverviewCard />
