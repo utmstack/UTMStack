@@ -2979,6 +2979,9 @@
             "projectId": {
               "label": "Project ID"
             },
+            "topicId": {
+              "label": "Topic name"
+            },
             "subscription": {
               "label": "Subscription name"
             },

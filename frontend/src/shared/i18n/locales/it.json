@@ -2921,7 +2921,7 @@
             "projectId": {
               "label": "ID progetto"
             },
-            "topic": {
+            "topicId": {
               "label": "Nome argomento"
             },
             "subscription": {
