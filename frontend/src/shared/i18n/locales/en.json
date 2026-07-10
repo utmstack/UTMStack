@@ -18,7 +18,9 @@
       "save": "Save",
       "cancel": "Cancel",
       "retry": "Retry",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "delete": "Delete",
+      "remove": "Remove"
     },
     "confirm": {
       "delete": "Delete",
@@ -4248,7 +4250,8 @@
       "createError": "Failed to create rule.",
       "updateError": "Failed to update rule.",
       "deleteError": "Failed to delete rule."
-    }
+    },
+    "deleteTitle": "Delete tagging rule"
   },
   "incidents": {
     "title": "Incidents",

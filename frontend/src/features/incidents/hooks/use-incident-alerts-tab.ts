@@ -8,7 +8,11 @@ export interface UseIncidentAlertsTabResult {
   rows: IncidentAlert[] | null
   error: boolean
   reload: () => Promise<void>
-  remove: (a: IncidentAlert) => Promise<void>
+  remove: (a: IncidentAlert) => void
+  pendingDelete: IncidentAlert | null
+  deleting: boolean
+  cancelDelete: () => void
+  confirmDelete: () => Promise<void>
 }
 
 /** Data + remove-alert mutation for the incident drawer's "Alerts" tab. */
@@ -16,6 +20,8 @@ export function useIncidentAlertsTab(incidentId: number, onChanged: () => void):
   const { t } = useTranslation()
   const [rows, setRows] = useState<IncidentAlert[] | null>(null)
   const [error, setError] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<IncidentAlert | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const load = useCallback(async () => {
     setError(false)
@@ -31,20 +37,25 @@ export function useIncidentAlertsTab(incidentId: number, onChanged: () => void):
     void load()
   }, [load])
 
-  const remove = useCallback(
-    async (a: IncidentAlert) => {
-      if (!confirm(t('incidents.alerts.removeConfirm', { name: a.alertName }))) return
-      try {
-        await svc.removeAlert(a.id)
-        toast.success(t('incidents.alerts.removed'))
-        await load()
-        onChanged()
-      } catch (e) {
-        toast.error(e instanceof IncidentsHttpError ? e.message : t('incidents.alerts.removeError'))
-      }
-    },
-    [load, onChanged, t]
-  )
+  const remove = useCallback((a: IncidentAlert) => setPendingDelete(a), [])
 
-  return { rows, error, reload: load, remove }
+  const cancelDelete = useCallback(() => setPendingDelete(null), [])
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDelete) return
+    setDeleting(true)
+    try {
+      await svc.removeAlert(pendingDelete.id)
+      toast.success(t('incidents.alerts.removed'))
+      await load()
+      onChanged()
+    } catch (e) {
+      toast.error(e instanceof IncidentsHttpError ? e.message : t('incidents.alerts.removeError'))
+    } finally {
+      setDeleting(false)
+      setPendingDelete(null)
+    }
+  }, [pendingDelete, load, onChanged, t])
+
+  return { rows, error, reload: load, remove, pendingDelete, deleting, cancelDelete, confirmDelete }
 }

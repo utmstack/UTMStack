@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { FILTER_OPS, TS } from '../lib/alert-meta'
 import { alertToRuleConditions } from '../lib/tagging-rule-meta'
@@ -65,6 +66,8 @@ export function AlertsPage() {
     | { kind: 'create'; tags?: AlertTag[]; conditions?: FilterType[] }
     | null
   >(null)
+  const [pendingDelete, setPendingDelete] = useState<TaggingRule | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const toggleEchoes = (id: string) =>
     setExpandedEchoes((prev) => {
@@ -212,10 +215,18 @@ export function AlertsPage() {
     if (ok) setRuleDrawer(null)
   }
 
-  const removeRule = async (r: TaggingRule) => {
-    if (!confirm(t('taggingRules.deleteConfirm', { name: r.name }))) return
-    const ok = await deleteRule(r.id, r.name)
-    if (ok) setRuleDrawer(null)
+  const removeRule = async (r: TaggingRule) => setPendingDelete(r)
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return
+    setDeleting(true)
+    try {
+      const ok = await deleteRule(pendingDelete.id, pendingDelete.name)
+      if (ok) setRuleDrawer(null)
+    } finally {
+      setDeleting(false)
+      setPendingDelete(null)
+    }
   }
 
   const selectedAlerts = useMemo(() => alerts.filter((a) => selected.has(a.id)), [alerts, selected])
@@ -440,6 +451,17 @@ export function AlertsPage() {
           onCreateTag={createTag}
         />
       )}
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={t('taggingRules.deleteTitle') ?? 'Delete rule'}
+        body={pendingDelete ? t('taggingRules.deleteConfirm', { name: pendingDelete.name }) : ''}
+        confirmLabel={t('common.actions.delete') ?? undefined}
+        danger
+        busy={deleting}
+        onClose={() => !deleting && setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

@@ -18,7 +18,9 @@
       "save": "Salva",
       "cancel": "Annulla",
       "retry": "Riprova",
-      "refresh": "Aggiorna"
+      "refresh": "Aggiorna",
+      "delete": "Elimina",
+      "remove": "Rimuovi"
     },
     "confirm": {
       "delete": "Elimina",
@@ -5032,6 +5034,7 @@
       "createError": "Impossibile creare la regola.",
       "updateError": "Impossibile aggiornare la regola.",
       "deleteError": "Impossibile eliminare la regola."
-    }
+    },
+    "deleteTitle": "Elimina regola di tagging"
   }
 }

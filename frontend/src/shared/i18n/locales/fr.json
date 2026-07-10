@@ -18,7 +18,9 @@
       "save": "Enregistrer",
       "cancel": "Annuler",
       "retry": "Réessayer",
-      "refresh": "Actualiser"
+      "refresh": "Actualiser",
+      "delete": "Supprimer",
+      "remove": "Retirer"
     },
     "confirm": {
       "delete": "Supprimer",
@@ -5032,6 +5034,7 @@
       "createError": "Échec de la création de la règle.",
       "updateError": "Échec de la mise à jour de la règle.",
       "deleteError": "Échec de la suppression de la règle."
-    }
+    },
+    "deleteTitle": "Supprimer la règle d'étiquetage"
   }
 }

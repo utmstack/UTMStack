@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useTaggingRulesList } from '../hooks/use-tagging-rules-list'
 import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
@@ -24,6 +25,8 @@ export function TaggingRulesPage() {
 
   const [open, setOpen] = useState<TaggingRule | null>(null)
   const [creating, setCreating] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<TaggingRule | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Debounce the search box.
   useEffect(() => {
@@ -59,10 +62,18 @@ export function TaggingRulesPage() {
     }
   }
 
-  const remove = async (r: TaggingRule) => {
-    if (!confirm(t('taggingRules.deleteConfirm', { name: r.name }))) return
-    const ok = await deleteRule(r.id, r.name)
-    if (ok) setOpen(null)
+  const remove = async (r: TaggingRule) => setPendingDelete(r)
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return
+    setDeleting(true)
+    try {
+      const ok = await deleteRule(pendingDelete.id, pendingDelete.name)
+      if (ok) setOpen(null)
+    } finally {
+      setDeleting(false)
+      setPendingDelete(null)
+    }
   }
 
   return (
@@ -158,6 +169,17 @@ export function TaggingRulesPage() {
           onCreateTag={createTag}
         />
       )}
+
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={t('taggingRules.deleteTitle') ?? 'Delete rule'}
+        body={pendingDelete ? t('taggingRules.deleteConfirm', { name: pendingDelete.name }) : ''}
+        confirmLabel={t('common.actions.delete') ?? undefined}
+        danger
+        busy={deleting}
+        onClose={() => !deleting && setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

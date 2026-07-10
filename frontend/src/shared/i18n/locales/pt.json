@@ -18,7 +18,9 @@
       "save": "Salvar",
       "cancel": "Cancelar",
       "retry": "Tentar novamente",
-      "refresh": "Atualizar"
+      "refresh": "Atualizar",
+      "delete": "Excluir",
+      "remove": "Remover"
     },
     "confirm": {
       "delete": "Excluir",
@@ -4994,6 +4996,7 @@
       "createError": "Falha ao criar a regra.",
       "updateError": "Falha ao atualizar a regra.",
       "deleteError": "Falha ao excluir a regra."
-    }
+    },
+    "deleteTitle": "Excluir regra de marcação"
   }
 }

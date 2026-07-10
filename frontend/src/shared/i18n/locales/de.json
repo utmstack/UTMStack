@@ -18,7 +18,9 @@
       "save": "Speichern",
       "cancel": "Abbrechen",
       "retry": "Wiederholen",
-      "refresh": "Aktualisieren"
+      "refresh": "Aktualisieren",
+      "delete": "Löschen",
+      "remove": "Entfernen"
     },
     "confirm": {
       "delete": "Löschen",
@@ -5032,6 +5034,7 @@
       "createError": "Regel konnte nicht erstellt werden.",
       "updateError": "Regel konnte nicht aktualisiert werden.",
       "deleteError": "Regel konnte nicht gelöscht werden."
-    }
+    },
+    "deleteTitle": "Tagging-Regel löschen"
   }
 }
