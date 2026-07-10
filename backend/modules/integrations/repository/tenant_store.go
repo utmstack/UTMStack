@@ -7,11 +7,45 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"gopkg.in/yaml.v3"
 )
+
+// lockStaleness is how long a lock can sit untouched before we assume the
+// writer crashed and steal it. Real writes are a few ms; anything past this is
+// almost certainly a dead process.
+const lockStaleness = 30 * time.Second
+
+// withFileLock acquires an exclusive cross-process lock via a <path>.lock file,
+// runs fn, then removes the lock. O_EXCL makes check-and-create atomic. If the
+// existing lock is older than lockStaleness (writer crashed), it is stolen.
+// ponytail: mtime-based staleness has a small race window if two processes
+// steal simultaneously; upgrade to flock/fcntl if we ever see corruption.
+func withFileLock(path string, fn func() error) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	lock := path + ".lock"
+	for {
+		f, err := os.OpenFile(lock, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+		if err == nil {
+			_ = f.Close()
+			defer os.Remove(lock)
+			return fn()
+		}
+		if !errors.Is(err, os.ErrExist) {
+			return err
+		}
+		if info, statErr := os.Stat(lock); statErr == nil && time.Since(info.ModTime()) > lockStaleness {
+			_ = os.Remove(lock)
+			continue
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
 
 var _ connectors.TenantRepository = (*TenantStore)(nil)
 
@@ -69,10 +103,12 @@ func (s *TenantStore) SetActiveByModule(_ context.Context, module string, active
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := os.Remove(s.path(module)); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	return nil
+	return withFileLock(s.path(module), func() error {
+		if err := os.Remove(s.path(module)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		return nil
+	})
 }
 
 func (s *TenantStore) Load(module string) ([]domain.Tenant, error) {
@@ -95,9 +131,13 @@ func (s *TenantStore) Load(module string) ([]domain.Tenant, error) {
 }
 
 func (s *TenantStore) Save(module string, tenants []domain.Tenant) error {
-	if err := os.MkdirAll(s.dir, 0o755); err != nil {
-		return err
-	}
+	return withFileLock(s.path(module), func() error {
+		return s.saveLocked(module, tenants)
+	})
+}
+
+// saveLocked writes the file assuming the caller already holds the file lock.
+func (s *TenantStore) saveLocked(module string, tenants []domain.Tenant) error {
 	key := pluginKey(module)
 	pf := pluginsFile{Plugins: map[string]pluginEntry{key: {Tenants: tenants}}}
 	data, err := yaml.Marshal(pf)
@@ -116,38 +156,42 @@ func (s *TenantStore) Upsert(module string, t domain.Tenant) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	tenants, err := s.Load(module)
-	if err != nil {
-		return err
-	}
-	for i := range tenants {
-		if tenants[i].Name == t.Name {
-			tenants[i] = t
-			return s.Save(module, tenants)
+	return withFileLock(s.path(module), func() error {
+		tenants, err := s.Load(module)
+		if err != nil {
+			return err
 		}
-	}
-	return s.Save(module, append(tenants, t))
+		for i := range tenants {
+			if tenants[i].Name == t.Name {
+				tenants[i] = t
+				return s.saveLocked(module, tenants)
+			}
+		}
+		return s.saveLocked(module, append(tenants, t))
+	})
 }
 
 func (s *TenantStore) Delete(module, name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	tenants, err := s.Load(module)
-	if err != nil {
-		return err
-	}
-	out := make([]domain.Tenant, 0, len(tenants))
-	found := false
-	for _, t := range tenants {
-		if t.Name == name {
-			found = true
-			continue
+	return withFileLock(s.path(module), func() error {
+		tenants, err := s.Load(module)
+		if err != nil {
+			return err
 		}
-		out = append(out, t)
-	}
-	if !found {
-		return domain.ErrTenantNotFound
-	}
-	return s.Save(module, out)
+		out := make([]domain.Tenant, 0, len(tenants))
+		found := false
+		for _, t := range tenants {
+			if t.Name == name {
+				found = true
+				continue
+			}
+			out = append(out, t)
+		}
+		if !found {
+			return domain.ErrTenantNotFound
+		}
+		return s.saveLocked(module, out)
+	})
 }
