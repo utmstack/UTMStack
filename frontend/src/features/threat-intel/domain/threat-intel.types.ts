@@ -137,3 +137,42 @@ export interface UsageInfo {
 export type TiResult<T> =
   | { kind: 'ok'; value: T }
   | { kind: 'not-configured' }
+
+export interface AdvancedRangeCondition {
+  range: Record<string, { gte?: string; lte?: string }>
+}
+export interface AdvancedTermCondition {
+  term: Record<string, { value: string }>
+}
+export type AdvancedCondition = AdvancedRangeCondition | AdvancedTermCondition
+
+export interface AdvancedDateHistogram {
+  date_histogram: { field: string; interval: string }
+}
+export type AdvancedAggregation = AdvancedDateHistogram
+
+export interface AdvancedSearchRequest {
+  query?: {
+    must?: AdvancedCondition[]
+    should?: AdvancedCondition[]
+    must_not?: AdvancedCondition[]
+    filter?: AdvancedCondition[]
+  }
+  aggs?: Record<string, AdvancedAggregation>
+}
+
+export interface AggregationBucket {
+  key: number
+  key_as_string: string
+  doc_count: number
+}
+export interface AggregationResult {
+  buckets: AggregationBucket[]
+}
+
+export interface AdvancedSearchResponse {
+  items: number
+  pages: number
+  results: EntitySearchItem[]
+  aggregations?: Record<string, AggregationResult> | null
+}

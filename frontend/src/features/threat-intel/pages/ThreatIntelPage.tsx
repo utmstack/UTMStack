@@ -99,7 +99,7 @@ export function ThreatIntelPage() {
 
       <div className="mt-5 grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-8">
-          <MatchOverviewCard total={totalItems} />
+          <MatchOverviewCard />
         </div>
         <div className="col-span-12 lg:col-span-4">
           <IntelInsightsCard />

@@ -1,36 +1,44 @@
 import { useMemo } from 'react'
+import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
+import { fillHourlyBuckets } from './utils/hourly-buckets'
 
-export interface MatchOverviewCardProps {
-  total?: number
-}
+export function MatchOverviewCard() {
+  const query = useTiIocs24h()
 
-export function MatchOverviewCard({ total = 0 }: MatchOverviewCardProps) {
-  // ponytail: hardcoded sparkline until CM exposes a timeseries endpoint
-  const buckets = 48
-  const data = useMemo(
-    () =>
-      Array.from({ length: buckets }, (_, i) =>
-        Math.max(
-          0,
-          Math.round(Math.abs(Math.sin(i / 5)) * 18 + Math.abs(Math.sin(i / 11)) * 8 + (i === 38 ? 12 : 0) + 3)
-        )
-      ),
-    []
-  )
+  const total = useMemo(() => {
+    if (query.data?.kind !== 'ok') return 0
+    return query.data.value.items
+  }, [query.data])
+
+  const data = useMemo(() => {
+    if (query.data?.kind !== 'ok') return []
+    const buckets = query.data.value.aggregations?.hourly_iocs?.buckets ?? []
+    return fillHourlyBuckets(buckets).map((b) => b.count)
+  }, [query.data])
+
   const w = 1000
   const h = 100
-  const max = Math.max(...data) * 1.15
-  const xs = data.map((_, i) => (i * w) / (data.length - 1))
+  const max = data.length > 0 ? Math.max(...data) * 1.15 : 1
+  const xs = data.map((_, i) => (i * w) / Math.max(data.length - 1, 1))
   const ys = data.map((v) => h - (v / max) * h)
-  const linePath = data.reduce((acc, _, i) => {
-    if (i === 0) return `M ${xs[i]} ${ys[i]}`
-    const prevX = xs[i - 1]
-    const prevY = ys[i - 1]
-    const cx1 = prevX + (xs[i] - prevX) / 2
-    const cx2 = xs[i] - (xs[i] - prevX) / 2
-    return `${acc} C ${cx1} ${prevY}, ${cx2} ${ys[i]}, ${xs[i]} ${ys[i]}`
-  }, '')
-  const areaPath = `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z`
+
+  let linePath = ''
+  if (data.length > 0) {
+    linePath = data.reduce((acc, _, i) => {
+      if (i === 0) return `M ${xs[i]} ${ys[i]}`
+      const prevX = xs[i - 1]
+      const prevY = ys[i - 1]
+      const cx1 = prevX + (xs[i] - prevX) / 2
+      const cx2 = xs[i] - (xs[i] - prevX) / 2
+      return `${acc} C ${cx1} ${prevY}, ${cx2} ${ys[i]}, ${xs[i]} ${ys[i]}`
+    }, '')
+  } else {
+    linePath = `M 0 ${h} L ${w} ${h}`
+  }
+
+  const areaPath = data.length > 0 ? `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z` : linePath
+
+  if (query.data?.kind === 'not-configured') return null
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
@@ -40,7 +48,9 @@ export function MatchOverviewCard({ total = 0 }: MatchOverviewCardProps) {
             IOC matches · last 24 hours
           </div>
           <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold tabular-nums">{total.toLocaleString()}</span>
+            <span className="text-3xl font-semibold tabular-nums">
+              {query.isPending ? '—' : total.toLocaleString()}
+            </span>
             <span className="text-sm text-muted-foreground">total indicators</span>
           </div>
         </div>
@@ -53,7 +63,7 @@ export function MatchOverviewCard({ total = 0 }: MatchOverviewCardProps) {
             <stop offset="100%" stopColor="rgb(168 85 247)" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <path d={areaPath} fill="url(#iocGrad)" />
+        {data.length > 0 && <path d={areaPath} fill="url(#iocGrad)" />}
         <path
           d={linePath}
           fill="none"
