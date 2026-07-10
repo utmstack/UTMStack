@@ -5,7 +5,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"net/textproto"
 	"net/url"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/threatintel/internal"
@@ -96,10 +98,21 @@ func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
 		return
 	}
 
+	allowed := map[string]struct{}{
+		"Accept":                    {},
+		"Content-Type":              {},
+		"User-Agent":                {},
+		"X-Request-Id":              {},
+		"X-Correlation-Id":          {},
+	}
+
 	// Copy headers
-	for k, v := range c.Request.Header {
-		if k != "Authorization" && k != "Id" && k != "Key" {
-			req.Header[k] = v
+	for k, values := range c.Request.Header {
+		canonical := textproto.CanonicalMIMEHeaderKey(k)
+		if _, ok := allowed[canonical]; ok {
+			for _, v := range values {
+				req.Header.Add(canonical, v)
+			}
 		}
 	}
 
@@ -108,7 +121,9 @@ func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
 	req.Header.Set("key", cfg.InstanceKey)
 
 	// Execute request
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 20* time.Second,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream service error"})
