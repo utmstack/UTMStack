@@ -8,7 +8,6 @@ import { useTiSearch } from '../hooks/use-ti-search'
 import { NotConfiguredState } from '../components/NotConfiguredState'
 import { ThreatIntelHeader } from '../components/ThreatIntelHeader'
 import { MatchOverviewCard } from '../components/MatchOverviewCard'
-import { IntelInsightsCard } from '../components/IntelInsightsCard'
 import { LookupBar } from '../components/LookupBar'
 import { TabsRow, type TabKey } from '../components/TabsRow'
 import { IocTable } from '../components/IocTable'
@@ -97,13 +96,8 @@ export function ThreatIntelPage() {
     <div className="w-full px-6 pb-6 pt-3">
       <ThreatIntelHeader matchedCount={totalItems} />
 
-      <div className="mt-5 grid grid-cols-12 gap-4">
-        <div className="col-span-12 lg:col-span-8">
-          <MatchOverviewCard />
-        </div>
-        <div className="col-span-12 lg:col-span-4">
-          <IntelInsightsCard />
-        </div>
+      <div className="mt-5">
+        <MatchOverviewCard />
       </div>
 
       <div className="mt-5">
