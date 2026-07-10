@@ -7,44 +7,30 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+	"syscall"
 
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"gopkg.in/yaml.v3"
 )
 
-// lockStaleness is how long a lock can sit untouched before we assume the
-// writer crashed and steal it. Real writes are a few ms; anything past this is
-// almost certainly a dead process.
-const lockStaleness = 30 * time.Second
-
-// withFileLock acquires an exclusive cross-process lock via a <path>.lock file,
-// runs fn, then removes the lock. O_EXCL makes check-and-create atomic. If the
-// existing lock is older than lockStaleness (writer crashed), it is stolen.
-// ponytail: mtime-based staleness has a small race window if two processes
-// steal simultaneously; upgrade to flock/fcntl if we ever see corruption.
+// withFileLock acquires an exclusive advisory lock on <path>.lock via flock,
+// runs fn, releases the lock on close. The kernel drops the lock on fd close
+// (including process death), so a crashed writer never leaves a stuck lock.
+// Linux/BSD only; UTMStack runs in Linux containers.
 func withFileLock(path string, fn func() error) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	lock := path + ".lock"
-	for {
-		f, err := os.OpenFile(lock, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
-		if err == nil {
-			_ = f.Close()
-			defer os.Remove(lock)
-			return fn()
-		}
-		if !errors.Is(err, os.ErrExist) {
-			return err
-		}
-		if info, statErr := os.Stat(lock); statErr == nil && time.Since(info.ModTime()) > lockStaleness {
-			_ = os.Remove(lock)
-			continue
-		}
-		time.Sleep(50 * time.Millisecond)
+	lf, err := os.OpenFile(path+".lock", os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return err
 	}
+	defer lf.Close()
+	if err := syscall.Flock(int(lf.Fd()), syscall.LOCK_EX); err != nil {
+		return err
+	}
+	return fn()
 }
 
 var _ connectors.TenantRepository = (*TenantStore)(nil)
