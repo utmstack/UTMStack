@@ -5036,5 +5036,103 @@
       "deleteError": "Échec de la suppression de la règle."
     },
     "deleteTitle": "Supprimer la règle d'étiquetage"
+  },
+  "threatIntel": {
+    "header": {
+      "matchedInEnv": "correspondances détectées dans votre environnement",
+      "export": "Exporter les IOCs",
+      "exporting": "Exportation…"
+    },
+    "overview": {
+      "title": "Correspondances IOC · dernières 24 heures",
+      "totalIndicators": "indicateurs au total",
+      "axis": { "start": "il y a 24h", "middle": "il y a 12h", "end": "maintenant" }
+    },
+    "notConfigured": {
+      "title": "Threat Intelligence n'est pas configuré",
+      "body": "Contactez votre administrateur pour connecter une instance Cyber Mantra / ThreatWinds à cet environnement."
+    },
+    "lookup": {
+      "title": "Rechercher n'importe quel indicateur",
+      "placeholder": "Collez une IP, domaine, hash, URL ou CVE — nous vérifierons les flux et votre environnement",
+      "button": "Rechercher",
+      "busy": "Recherche en cours…"
+    },
+    "tabs": { "iocs": "IOCs", "actors": "Acteurs de menace", "feeds": "Flux" },
+    "toolbar": {
+      "searchPlaceholders": {
+        "iocs": "Recherchez la valeur IOC, tag, source…",
+        "actors": "Recherchez acteurs, alias, techniques…",
+        "feeds": "Recherchez des flux…"
+      },
+      "last24h": "Dernières 24 heures",
+      "filters": "Filtres",
+      "refresh": "Actualiser"
+    },
+    "iocs": {
+      "table": {
+        "type": "Type",
+        "indicator": "Indicateur",
+        "reputation": "Réputation",
+        "tags": "Tags",
+        "lastSeen": "Dernière détection"
+      },
+      "empty": "Aucune correspondance IOC.",
+      "loadingMore": "Chargement…",
+      "loadedProgress": "{{loaded}} sur {{total}} chargés. Défilez pour plus.",
+      "endOfResults": "Fin des résultats ({{loaded}} sur {{total}})."
+    },
+    "drawer": {
+      "loading": "Chargement…",
+      "accuracy": "Précision :",
+      "actions": {
+        "block": "Bloquer en périphérie",
+        "viewEvents": "Afficher les événements correspondants",
+        "externalLookup": "Recherche externe",
+        "trackCampaign": "Suivre la campagne",
+        "viewIocs": "Afficher les IOCs correspondants",
+        "mitre": "MITRE ATT&CK"
+      },
+      "sections": {
+        "timeline": "Chronologie",
+        "networkOrigin": "Réseau / origine",
+        "associationsWithCount": "Associations ({{count}})",
+        "geolocationsWithCount": "Géolocalisations ({{count}})",
+        "about": "À propos",
+        "activity": "Activité"
+      },
+      "fields": {
+        "firstSeen": "Première détection",
+        "lastSeen": "Dernière détection",
+        "country": "Pays",
+        "city": "Ville",
+        "aso": "ASO",
+        "asn": "ASN",
+        "reputation": "Réputation",
+        "accuracy": "Précision",
+        "current": "Actuel",
+        "best": "Meilleur",
+        "worst": "Pire"
+      },
+      "aiBrief": "Résumé IA",
+      "noDescription": "Aucune description disponible pour cet indicateur.",
+      "lastObserved": "Dernière observation {{when}}."
+    },
+    "actors": { "empty": "Aucun acteur trouvé." },
+    "feeds": {
+      "empty": "Aucun flux configuré.",
+      "table": { "name": "Flux", "type": "Type", "accuracy": "Précision" }
+    },
+    "entityTypes": {
+      "ip": "IP", "hostname": "Hôte", "domain": "Domaine", "url": "URL",
+      "hash": "Hash", "cve": "CVE", "threat": "Menace", "entity": "Entité"
+    },
+    "reputation": {
+      "alarming": "Alarmant", "suspicious": "Suspect",
+      "indefinable": "Indéfini", "fair": "Acceptable", "trustworthy": "De confiance"
+    },
+    "feedAccuracy": {
+      "level1": "Niveau 1", "level2": "Niveau 2", "level3": "Niveau 3"
+    }
   }
 }

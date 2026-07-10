@@ -99,11 +99,11 @@ func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
 	}
 
 	allowed := map[string]struct{}{
-		"Accept":                    {},
-		"Content-Type":              {},
-		"User-Agent":                {},
-		"X-Request-Id":              {},
-		"X-Correlation-Id":          {},
+		"Accept":           {},
+		"Content-Type":     {},
+		"User-Agent":       {},
+		"X-Request-Id":     {},
+		"X-Correlation-Id": {},
 	}
 
 	// Copy headers
@@ -122,7 +122,7 @@ func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
 
 	// Execute request
 	client := &http.Client{
-		Timeout: 20* time.Second,
+		Timeout: 20 * time.Second,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

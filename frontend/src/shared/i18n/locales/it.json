@@ -5036,5 +5036,103 @@
       "deleteError": "Impossibile eliminare la regola."
     },
     "deleteTitle": "Elimina regola di tagging"
+  },
+  "threatIntel": {
+    "header": {
+      "matchedInEnv": "corrispondenze nel tuo ambiente",
+      "export": "Esporta IOCs",
+      "exporting": "Esportazione…"
+    },
+    "overview": {
+      "title": "Corrispondenze IOC · ultimi 24 ore",
+      "totalIndicators": "indicatori totali",
+      "axis": { "start": "24h fa", "middle": "12h fa", "end": "ora" }
+    },
+    "notConfigured": {
+      "title": "Threat Intelligence non è configurato",
+      "body": "Contatta il tuo amministratore per connettere un'istanza Cyber Mantra / ThreatWinds a questo ambiente."
+    },
+    "lookup": {
+      "title": "Ricerca qualsiasi indicatore",
+      "placeholder": "Incolla un IP, dominio, hash, URL o CVE — controlleremo i feed e il tuo ambiente",
+      "button": "Ricerca",
+      "busy": "Ricerca in corso…"
+    },
+    "tabs": { "iocs": "IOCs", "actors": "Attori minaccia", "feeds": "Feed" },
+    "toolbar": {
+      "searchPlaceholders": {
+        "iocs": "Ricerca valore IOC, tag, fonte…",
+        "actors": "Ricerca attori, alias, tecniche…",
+        "feeds": "Ricerca feed…"
+      },
+      "last24h": "Ultimi 24 ore",
+      "filters": "Filtri",
+      "refresh": "Aggiorna"
+    },
+    "iocs": {
+      "table": {
+        "type": "Tipo",
+        "indicator": "Indicatore",
+        "reputation": "Reputazione",
+        "tags": "Tag",
+        "lastSeen": "Ultimo avvistamento"
+      },
+      "empty": "Nessuna corrispondenza IOC.",
+      "loadingMore": "Caricamento in corso…",
+      "loadedProgress": "Caricati {{loaded}} di {{total}}. Scorri per altri.",
+      "endOfResults": "Fine dei risultati ({{loaded}} di {{total}})."
+    },
+    "drawer": {
+      "loading": "Caricamento…",
+      "accuracy": "Accuratezza:",
+      "actions": {
+        "block": "Blocca al perimetro",
+        "viewEvents": "Visualizza eventi corrispondenti",
+        "externalLookup": "Ricerca esterna",
+        "trackCampaign": "Traccia campagna",
+        "viewIocs": "Visualizza IOCs corrispondenti",
+        "mitre": "MITRE ATT&CK"
+      },
+      "sections": {
+        "timeline": "Cronologia",
+        "networkOrigin": "Rete / origine",
+        "associationsWithCount": "Associazioni ({{count}})",
+        "geolocationsWithCount": "Geolocazioni ({{count}})",
+        "about": "Informazioni",
+        "activity": "Attività"
+      },
+      "fields": {
+        "firstSeen": "Primo avvistamento",
+        "lastSeen": "Ultimo avvistamento",
+        "country": "Paese",
+        "city": "Città",
+        "aso": "ASO",
+        "asn": "ASN",
+        "reputation": "Reputazione",
+        "accuracy": "Accuratezza",
+        "current": "Attuale",
+        "best": "Migliore",
+        "worst": "Peggiore"
+      },
+      "aiBrief": "Riassunto IA",
+      "noDescription": "Nessuna descrizione disponibile per questo indicatore.",
+      "lastObserved": "Ultimo avvistamento {{when}}."
+    },
+    "actors": { "empty": "Nessun attore trovato." },
+    "feeds": {
+      "empty": "Nessun feed configurato.",
+      "table": { "name": "Feed", "type": "Tipo", "accuracy": "Accuratezza" }
+    },
+    "entityTypes": {
+      "ip": "IP", "hostname": "Host", "domain": "Dominio", "url": "URL",
+      "hash": "Hash", "cve": "CVE", "threat": "Minaccia", "entity": "Entità"
+    },
+    "reputation": {
+      "alarming": "Allarmante", "suspicious": "Sospetto",
+      "indefinable": "Indefinibile", "fair": "Equo", "trustworthy": "Affidabile"
+    },
+    "feedAccuracy": {
+      "level1": "Livello 1", "level2": "Livello 2", "level3": "Livello 3"
+    }
   }
 }
