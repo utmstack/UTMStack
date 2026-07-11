@@ -1,48 +1,48 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - netflow
-  name: C2 Beaconing Behavior Detection
-  impact:
-    confidentiality: 2
-    integrity: 2
-    availability: 1
-  category: Command and Control
-  technique: "T1071 - Application Layer Protocol"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1071/
-    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
-  description: |
-    Detects potential command and control beaconing behavior based on periodic connections with consistent intervals and small data transfers. This rule identifies suspicious network patterns where an internal host makes repeated small connections to an external host, which may indicate C2 communication.
-  
-    Next Steps:
-    1. Analyze the frequency and timing of connections between the source and destination
-    2. Investigate the destination IP for known malicious indicators or suspicious reputation
-    3. Examine the content of the communications if possible through packet capture
-    4. Check the source host for signs of compromise or malware
-    5. Review DNS queries made by the source host around the time of the connections
-    6. Correlate with other security events from the same source host
-    7. Consider isolating the source host if malicious activity is confirmed
-  where: |
-    exists("origin.ip") && exists("target.ip") &&
-    greaterThan("origin.bytesSent", 0) && lessThan("origin.bytesSent", 10000) &&
-    lessThan("origin.packagesSent", 50) &&
-    oneOf("target.port", [443, 80, 8080, 8443])
-  afterEvents:
-    - indexPattern: v11-log-netflow-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: target.ip
-          operator: filter_term
-          value: '{{.target.ip}}'
-        - field: dataType
-          operator: filter_term
-          value: netflow
-      within: 1h
-      count: 30
-  groupBy:
-    - adversary.ip
-    - target.ip
+dataTypes:
+  - netflow
+name: C2 Beaconing Behavior Detection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/
+  - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+description: |
+  Detects potential command and control beaconing behavior based on periodic connections with consistent intervals and small data transfers. This rule identifies suspicious network patterns where an internal host makes repeated small connections to an external host, which may indicate C2 communication.
+
+  Next Steps:
+  1. Analyze the frequency and timing of connections between the source and destination
+  2. Investigate the destination IP for known malicious indicators or suspicious reputation
+  3. Examine the content of the communications if possible through packet capture
+  4. Check the source host for signs of compromise or malware
+  5. Review DNS queries made by the source host around the time of the connections
+  6. Correlate with other security events from the same source host
+  7. Consider isolating the source host if malicious activity is confirmed
+where: |
+  exists("origin.ip") && exists("target.ip") &&
+  greaterThan("origin.bytesSent", 0) && lessThan("origin.bytesSent", 10000) &&
+  lessThan("origin.packagesSent", 50) &&
+  oneOf("target.port", [443, 80, 8080, 8443])
+afterEvents:
+  - indexPattern: v11-log-netflow-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+      - field: dataType
+        operator: filter_term
+        value: netflow
+    within: 1h
+    count: 30
+groupBy:
+  - adversary.ip
+  - target.ip

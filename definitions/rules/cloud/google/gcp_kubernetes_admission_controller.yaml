@@ -1,32 +1,32 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - google
-  name: GKE Kubernetes Admission Webhook Modified
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Persistence
-  technique: "T1078.004 - Valid Accounts: Cloud Accounts"
-  adversary: origin
-  references:
-    - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/
-    - https://attack.mitre.org/techniques/T1078/004/
-  description: |
-    Detects creation or modification of admission webhook configurations in Google Kubernetes Engine. Attackers use malicious admission controllers to inject sidecar containers, modify workload specs, or intercept secrets.
+dataTypes:
+  - google
+name: GKE Kubernetes Admission Webhook Modified
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Detects creation or modification of admission webhook configurations in Google Kubernetes Engine. Attackers use malicious admission controllers to inject sidecar containers, modify workload specs, or intercept secrets.
 
-    Next Steps:
-    1. Review the webhook configuration and its target service endpoint
-    2. Verify the webhook was deployed as part of a legitimate application
-    3. Check the namespace selector and object rules for the webhook
-    4. Examine what Kubernetes resources the webhook intercepts
-    5. If unauthorized, delete the webhook and audit all recent workload deployments
-    6. Review cluster RBAC for webhook management permissions
-  where: |
-    contains("log.protoPayloadMethodName", "admissionregistration.k8s.io") &&
-    (contains("log.protoPayloadMethodName", "mutatingwebhookconfigurations") || contains("log.protoPayloadMethodName", "validatingwebhookconfigurations")) &&
-    (contains("log.protoPayloadMethodName", "create") || contains("log.protoPayloadMethodName", "update") || contains("log.protoPayloadMethodName", "patch"))
-  groupBy:
-    - lastEvent.origin.user
-    - lastEvent.log.protoPayloadResourceName
+  Next Steps:
+  1. Review the webhook configuration and its target service endpoint
+  2. Verify the webhook was deployed as part of a legitimate application
+  3. Check the namespace selector and object rules for the webhook
+  4. Examine what Kubernetes resources the webhook intercepts
+  5. If unauthorized, delete the webhook and audit all recent workload deployments
+  6. Review cluster RBAC for webhook management permissions
+where: |
+  contains("log.protoPayloadMethodName", "admissionregistration.k8s.io") &&
+  (contains("log.protoPayloadMethodName", "mutatingwebhookconfigurations") || contains("log.protoPayloadMethodName", "validatingwebhookconfigurations")) &&
+  (contains("log.protoPayloadMethodName", "create") || contains("log.protoPayloadMethodName", "update") || contains("log.protoPayloadMethodName", "patch"))
+groupBy:
+  - lastEvent.origin.user
+  - lastEvent.log.protoPayloadResourceName

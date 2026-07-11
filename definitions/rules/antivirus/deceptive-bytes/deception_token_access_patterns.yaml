@@ -1,47 +1,47 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - deceptive-bytes
-  name: Deception Token Access Patterns
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 1
-  category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
-  technique: "T1078 - Valid Accounts: Credential Access"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1078/
-    - https://deceptivebytes.com/
-  description: |
-    Detects when deception tokens or honeytokens are accessed, indicating potential unauthorized activity or insider threat. Multiple token accesses from the same source within a short timeframe suggest systematic reconnaissance or data harvesting attempts. Honeytokens are fake credentials or access tokens planted as traps to detect unauthorized access.
-  
-    Next Steps:
-    1. Identify the source IP and user account associated with the token access
-    2. Review access logs to determine if this is legitimate testing or actual malicious activity
-    3. Check for lateral movement from the same source IP across the network
-    4. Investigate any data access or exfiltration attempts following the token access
-    5. Consider immediately blocking the source IP if confirmed malicious
-    6. Review and rotate any potentially compromised credentials in the environment
-    7. Alert security team immediately as honeytoken access is a high-confidence indicator of compromise
-    8. Document the incident and update detection rules based on observed attack patterns
-    9. Verify the integrity of the deception infrastructure to ensure it wasn't compromised
-  where: |
-    equals("log.eventType", "token_access") &&
-    equals("log.deceptionType", "honeytoken") &&
-    exists("origin.ip") &&
-    oneOf("log.severity", ["high", "critical"])
-  afterEvents:
-    - indexPattern: v11-log-deceptive-bytes-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.eventType
-          operator: filter_term
-          value: 'token_access'
-      within: 1h
-      count: 3
-  groupBy:
-    - lastEvent.log.tokenId
-    - adversary.ip
+dataTypes:
+  - deceptive-bytes
+name: Deception Token Access Patterns
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
+technique: "T1078 - Valid Accounts: Credential Access"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1078/
+  - https://deceptivebytes.com/
+description: |
+  Detects when deception tokens or honeytokens are accessed, indicating potential unauthorized activity or insider threat. Multiple token accesses from the same source within a short timeframe suggest systematic reconnaissance or data harvesting attempts. Honeytokens are fake credentials or access tokens planted as traps to detect unauthorized access.
+
+  Next Steps:
+  1. Identify the source IP and user account associated with the token access
+  2. Review access logs to determine if this is legitimate testing or actual malicious activity
+  3. Check for lateral movement from the same source IP across the network
+  4. Investigate any data access or exfiltration attempts following the token access
+  5. Consider immediately blocking the source IP if confirmed malicious
+  6. Review and rotate any potentially compromised credentials in the environment
+  7. Alert security team immediately as honeytoken access is a high-confidence indicator of compromise
+  8. Document the incident and update detection rules based on observed attack patterns
+  9. Verify the integrity of the deception infrastructure to ensure it wasn't compromised
+where: |
+  equals("log.eventType", "token_access") &&
+  equals("log.deceptionType", "honeytoken") &&
+  exists("origin.ip") &&
+  oneOf("log.severity", ["high", "critical"])
+afterEvents:
+  - indexPattern: v11-log-deceptive-bytes-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'token_access'
+    within: 1h
+    count: 3
+groupBy:
+  - lastEvent.log.tokenId
+  - adversary.ip

@@ -1,47 +1,47 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - ibm-as400
-  name: IBM AS/400 Remote Command Execution Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Lateral Movement
-  technique: "T1021 - Remote Services"
-  adversary: origin
-  references:
-    - https://www.ibm.com/docs/en/i/7.5?topic=ssw_ibm_i_75/cl/runrmtcmd.htm
-    - https://attack.mitre.org/techniques/T1021/
-  description: |
-    Detects remote command execution on IBM AS/400 via RCMD, RMTCMD, DDM, or DRDA protocols. These commands allow attackers to execute operations from remote systems.
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 Remote Command Execution Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1021 - Remote Services"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=ssw_ibm_i_75/cl/runrmtcmd.htm
+  - https://attack.mitre.org/techniques/T1021/
+description: |
+  Detects remote command execution on IBM AS/400 via RCMD, RMTCMD, DDM, or DRDA protocols. These commands allow attackers to execute operations from remote systems.
 
-    Next Steps:
-    1. Identify the remote system and user executing commands
-    2. Verify the remote command execution was authorized
-    3. Review the commands being executed remotely
-    4. Check DDM and DRDA connection configurations
-    5. Restrict remote command execution authority
-    6. Implement IP allowlisting for remote connections
-  where: |
-    exists("log.message") &&
-    (
-      contains("log.message", "RUNRMTCMD") ||
-      contains("log.message", "RCMD") ||
-      contains("log.message", "RMTCMD") ||
-      (contains("log.message", "DDM") && contains("log.message", "command")) ||
-      (contains("log.message", "DRDA") && contains("log.message", "remote")) ||
-      (contains("log.message", "REXEC") && exists("origin.ip")) ||
-      (contains("log.message", "SBMRMTCMD") && exists("origin.user"))
-    )
-  afterEvents:
-    - indexPattern: v11-log-ibm-as400-*
-      with:
-        - field: origin.user
-          operator: filter_term
-          value: '{{.origin.user}}'
-      within: 30m
-      count: 3
-  groupBy:
-    - adversary.host
-    - adversary.user
+  Next Steps:
+  1. Identify the remote system and user executing commands
+  2. Verify the remote command execution was authorized
+  3. Review the commands being executed remotely
+  4. Check DDM and DRDA connection configurations
+  5. Restrict remote command execution authority
+  6. Implement IP allowlisting for remote connections
+where: |
+  exists("log.message") &&
+  (
+    contains("log.message", "RUNRMTCMD") ||
+    contains("log.message", "RCMD") ||
+    contains("log.message", "RMTCMD") ||
+    (contains("log.message", "DDM") && contains("log.message", "command")) ||
+    (contains("log.message", "DRDA") && contains("log.message", "remote")) ||
+    (contains("log.message", "REXEC") && exists("origin.ip")) ||
+    (contains("log.message", "SBMRMTCMD") && exists("origin.user"))
+  )
+afterEvents:
+  - indexPattern: v11-log-ibm-as400-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+    within: 30m
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.user

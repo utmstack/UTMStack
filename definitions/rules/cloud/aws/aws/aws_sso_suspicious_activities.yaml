@@ -1,45 +1,45 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - aws
-  name: AWS SSO Suspicious Activities
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 1
-  category: Credential Access, Defense Evasion, Persistence
-  technique: "T1556.006 - Modify Authentication Process: Multi-Factor Authentication"
-  adversary: origin
-  references:
-    - https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
-    - https://attack.mitre.org/techniques/T1556/006/
-  description: |
-    Detects suspicious AWS SSO activities including multiple failed login attempts, unusual permission set assignments, or SSO configuration changes that could indicate an attempt to compromise single sign-on authentication mechanisms.
-  
-    Next Steps:
-    1. Review the source IP address and user identity associated with the suspicious SSO activity
-    2. Check if the user's credentials may have been compromised
-    3. Verify if the permission set changes or role assumptions were authorized
-    4. Review CloudTrail logs for other suspicious activities from the same IP or user
-    5. If unauthorized, immediately revoke the affected SSO sessions and reset user credentials
-    6. Consider implementing additional MFA requirements for SSO administrative actions
-  where: |
-    equals("log.eventSource", "sso.amazonaws.com") && 
-    (
-      oneOf("log.eventName", ["AssumeRoleWithSAML", "CreatePermissionSet", "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) ||
-      exists("log.errorCode")
-    )
-  afterEvents:
-    - indexPattern: v11-log-aws-*
-      with:
-        - field: log.sourceIPAddress
-          operator: filter_term
-          value: '{{.log.sourceIPAddress}}'
-        - field: log.eventSource
-          operator: filter_term
-          value: 'sso.amazonaws.com'
-      within: 30m
-      count: 10
-  groupBy:
-    - lastEvent.log.sourceIPAddress
-    - lastEvent.log.userIdentity.principalId
+dataTypes:
+  - aws
+name: AWS SSO Suspicious Activities
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Credential Access, Defense Evasion, Persistence
+technique: "T1556.006 - Modify Authentication Process: Multi-Factor Authentication"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+  - https://attack.mitre.org/techniques/T1556/006/
+description: |
+  Detects suspicious AWS SSO activities including multiple failed login attempts, unusual permission set assignments, or SSO configuration changes that could indicate an attempt to compromise single sign-on authentication mechanisms.
+
+  Next Steps:
+  1. Review the source IP address and user identity associated with the suspicious SSO activity
+  2. Check if the user's credentials may have been compromised
+  3. Verify if the permission set changes or role assumptions were authorized
+  4. Review CloudTrail logs for other suspicious activities from the same IP or user
+  5. If unauthorized, immediately revoke the affected SSO sessions and reset user credentials
+  6. Consider implementing additional MFA requirements for SSO administrative actions
+where: |
+  equals("log.eventSource", "sso.amazonaws.com") && 
+  (
+    oneOf("log.eventName", ["AssumeRoleWithSAML", "CreatePermissionSet", "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) ||
+    exists("log.errorCode")
+  )
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.sourceIPAddress
+        operator: filter_term
+        value: '{{.log.sourceIPAddress}}'
+      - field: log.eventSource
+        operator: filter_term
+        value: 'sso.amazonaws.com'
+    within: 30m
+    count: 10
+groupBy:
+  - lastEvent.log.sourceIPAddress
+  - lastEvent.log.userIdentity.principalId

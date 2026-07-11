@@ -35,20 +35,26 @@ func (b *RuleBootstrap) Run(ctx context.Context) error {
 		_ = catcher.Error("eventprocessing: purging loose rules failed", err, nil)
 	}
 
-	// 1. Seed/refresh the system overlay from the image source rules. A system
-	//    rule the operator has disabled (a .disabled file already present) is
-	//    left untouched so the disable survives upgrades.
+	// 1. One-time migration of any pre-existing .disabled marker files (the old
+	//    disable mechanism) into tenants.yaml's disabledRules, so an operator's
+	//    prior disable survives the switch to config-based disabling. No-op
+	//    once no .disabled files remain (every subsequent boot).
+	if err := b.migrateDisabledSuffixFiles(); err != nil {
+		_ = catcher.Error("eventprocessing: migrating .disabled marker files failed", err, nil)
+	}
+
+	// 2. Seed/refresh the system overlay from the image source rules.
 	if err := b.seedSystemOverlay(); err != nil {
 		_ = catcher.Error("eventprocessing: seeding system rules failed", err, nil)
 	}
 
-	// 2. Make the in-memory store reflect the overlays before migrating, so the
+	// 3. Make the in-memory store reflect the overlays before migrating, so the
 	//    legacy migration can resolve system rules by name.
 	if err := b.store.Load(); err != nil {
 		return err
 	}
 
-	// 3. One-time migration from the legacy DB (in-place upgrade from the
+	// 4. One-time migration from the legacy DB (in-place upgrade from the
 	//    Java/DB stack). Idempotent: user rules already present are skipped.
 	//    Once every rule is carried over to YAML the legacy tables are dropped
 	//    (utm_correlation_rules + its join); a partial failure keeps them for a
@@ -90,10 +96,45 @@ func (b *RuleBootstrap) purgeLooseRules() error {
 	return nil
 }
 
+// migrateDisabledSuffixFiles is a one-time upgrade step: any system rule file
+// still carrying the old .disabled suffix marker is renamed back to its
+// canonical name and its disable is recorded in tenants.yaml instead, so
+// switching to config-based disabling doesn't silently re-enable it.
+// Idempotent: a no-op once no .disabled files remain (every later boot).
+func (b *RuleBootstrap) migrateDisabledSuffixFiles() error {
+	if _, err := os.Stat(b.store.systemDir); os.IsNotExist(err) {
+		return nil
+	}
+	return filepath.WalkDir(b.store.systemDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if !strings.HasSuffix(path, DisabledSuffix) {
+			return nil
+		}
+		canonical := strings.TrimSuffix(path, DisabledSuffix)
+		if err := os.Rename(path, canonical); err != nil {
+			_ = catcher.Error("eventprocessing: migrating .disabled marker file failed", err,
+				map[string]any{"file": path})
+			return nil
+		}
+		rel, relErr := filepath.Rel(b.store.systemDir, canonical)
+		if relErr != nil {
+			return nil
+		}
+		if err := b.store.writer.SetRuleDisabled(ruleIdentity(filepath.ToSlash(rel)), true); err != nil {
+			_ = catcher.Error("eventprocessing: recording migrated disabled rule failed", err,
+				map[string]any{"rule": rel})
+		}
+		return nil
+	})
+}
+
 // seedSystemOverlay makes the system overlay mirror the image source rules: it
-// copies/refreshes every source rule (canonical .yaml extension, preserving an
-// operator's .disabled marker) and prunes system rules whose source was removed
-// from the image, so a deprecated rule never lingers (legacy: cleanupOrphanedRules).
+// copies/refreshes every source rule and prunes system rules whose source was
+// removed from the image, so a deprecated rule never lingers (legacy:
+// cleanupOrphanedRules). Enabled state lives in tenants.yaml, not the file, so
+// this always writes the canonical path.
 func (b *RuleBootstrap) seedSystemOverlay() error {
 	if _, err := os.Stat(b.srcDir); os.IsNotExist(err) {
 		return nil
@@ -126,13 +167,7 @@ func (b *RuleBootstrap) seedSystemOverlay() error {
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return nil
 		}
-
-		disabled := target + DisabledSuffix
-		if _, err := os.Stat(disabled); err == nil {
-			_ = os.WriteFile(disabled, data, 0o644)
-		} else {
-			_ = os.WriteFile(target, data, 0o644)
-		}
+		_ = os.WriteFile(target, data, 0o644)
 		return nil
 	})
 	if err != nil {
@@ -142,8 +177,8 @@ func (b *RuleBootstrap) seedSystemOverlay() error {
 	return b.pruneSystemOverlay(expected)
 }
 
-// pruneSystemOverlay removes any system overlay file (enabled or .disabled) whose
-// canonical rule is no longer shipped in the image source.
+// pruneSystemOverlay removes any system overlay file whose canonical rule is
+// no longer shipped in the image source.
 func (b *RuleBootstrap) pruneSystemOverlay(expected map[string]bool) error {
 	if _, err := os.Stat(b.store.systemDir); os.IsNotExist(err) {
 		return nil
@@ -156,9 +191,7 @@ func (b *RuleBootstrap) pruneSystemOverlay(expected map[string]bool) error {
 		if relErr != nil {
 			return nil
 		}
-		// Canonicalize: a disabled file X.yaml.disabled maps to source X.yaml.
-		canon := strings.TrimSuffix(rel, DisabledSuffix)
-		if expected[canon] {
+		if expected[rel] {
 			return nil
 		}
 		if rmErr := os.Remove(path); rmErr != nil {

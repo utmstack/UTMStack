@@ -1,41 +1,41 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - sophos-central
-  name: Sophos Central Behavioral Analysis Alert
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Suspicious Behavior
-  technique: "T1055 - Process Injection"
-  adversary: origin
-  references:
-    - https://developer.sophos.com/siem-api-schemas
-    - https://attack.mitre.org/techniques/T1055/
-  description: |
-    Detects suspicious behavior patterns identified by Sophos behavioral analysis engine, including process injection attempts, privilege escalation, and other anomalous activities that indicate potential compromise.
+dataTypes:
+  - sophos-central
+name: Sophos Central Behavioral Analysis Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Suspicious Behavior
+technique: "T1055 - Process Injection"
+adversary: origin
+references:
+  - https://developer.sophos.com/siem-api-schemas
+  - https://attack.mitre.org/techniques/T1055/
+description: |
+  Detects suspicious behavior patterns identified by Sophos behavioral analysis engine, including process injection attempts, privilege escalation, and other anomalous activities that indicate potential compromise.
 
-    Next Steps:
-    1. Review the specific behavioral detection details in the Sophos Central console
-    2. Examine the affected endpoint for signs of compromise
-    3. Check process execution history and parent-child relationships
-    4. Investigate network connections from the affected endpoint
-    5. Review file system changes and registry modifications
-    6. Consider isolating the endpoint if malicious activity is confirmed
-    7. Update endpoint security policies based on findings
-  where: |
-    oneOf("log.type", ["Event::Endpoint::Threat::BehavioralDetection", "Event::Endpoint::BehaviorDetected"]) ||
-    (oneOf("log.detectionMethod", ["Behavioral", "HIPS"]) && oneOf("log.severity", ["medium", "high", "critical"])) ||
-    (contains("log.name", "Behavioral") && oneOf("log.severity", ["high", "critical"]))
-  afterEvents:
-    - indexPattern: v11-log-sophos-central-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-      within: 30m
-      count: 3
-  groupBy:
-    - lastEvent.log.processPath
-    - adversary.host
+  Next Steps:
+  1. Review the specific behavioral detection details in the Sophos Central console
+  2. Examine the affected endpoint for signs of compromise
+  3. Check process execution history and parent-child relationships
+  4. Investigate network connections from the affected endpoint
+  5. Review file system changes and registry modifications
+  6. Consider isolating the endpoint if malicious activity is confirmed
+  7. Update endpoint security policies based on findings
+where: |
+  oneOf("log.type", ["Event::Endpoint::Threat::BehavioralDetection", "Event::Endpoint::BehaviorDetected"]) ||
+  (oneOf("log.detectionMethod", ["Behavioral", "HIPS"]) && oneOf("log.severity", ["medium", "high", "critical"])) ||
+  (contains("log.name", "Behavioral") && oneOf("log.severity", ["high", "critical"]))
+afterEvents:
+  - indexPattern: v11-log-sophos-central-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 30m
+    count: 3
+groupBy:
+  - lastEvent.log.processPath
+  - adversary.host

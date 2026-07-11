@@ -1,45 +1,45 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - firewall-mikrotik
-  name: DNS Cache Poisoning Attempt
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Resource Development
-  technique: "T1584.002 - Acquire Infrastructure: DNS Server"
-  adversary: origin
-  references:
-    - https://help.mikrotik.com/docs/spaces/ROS/pages/37748767/DNS
-    - https://attack.mitre.org/techniques/T1584/002/
-  description: |
-    Detects potential DNS cache poisoning attempts where multiple DNS responses are received from different sources for the same domain in a short time window, which could indicate an attacker trying to inject malicious DNS records.
+dataTypes:
+  - firewall-mikrotik
+name: DNS Cache Poisoning Attempt
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Resource Development
+technique: "T1584.002 - Acquire Infrastructure: DNS Server"
+adversary: origin
+references:
+  - https://help.mikrotik.com/docs/spaces/ROS/pages/37748767/DNS
+  - https://attack.mitre.org/techniques/T1584/002/
+description: |
+  Detects potential DNS cache poisoning attempts where multiple DNS responses are received from different sources for the same domain in a short time window, which could indicate an attacker trying to inject malicious DNS records.
 
-    Next Steps:
-    1. Verify the legitimacy of the DNS responses by checking the source IP addresses
-    2. Review DNS query logs to identify the original query that triggered these responses
-    3. Check if the responding IP addresses match known legitimate DNS servers
-    4. Examine the timing patterns of the responses to identify potential spoofing
-    5. Verify DNS server configurations and check for unauthorized DNS server additions
-    6. Monitor for subsequent DNS queries to verify if poisoned cache entries are being used
-    7. Consider implementing DNS security measures like DNSSEC if not already in place
-  where: |
-    equals("log.topics", "dns") && 
-    equals("target.port", 53) && 
-    exists("origin.ip") &&
-    contains("log.chain", "response")
-  afterEvents:
-    - indexPattern: v11-log-firewall-mikrotik-*
-      with:
-        - field: target.ip
-          operator: filter_term
-          value: '{{.target.ip}}'
-        - field: log.topics
-          operator: filter_term
-          value: 'dns'
-      within: 5m
-      count: 10
-  groupBy:
-    - adversary.ip
-    - target.ip
+  Next Steps:
+  1. Verify the legitimacy of the DNS responses by checking the source IP addresses
+  2. Review DNS query logs to identify the original query that triggered these responses
+  3. Check if the responding IP addresses match known legitimate DNS servers
+  4. Examine the timing patterns of the responses to identify potential spoofing
+  5. Verify DNS server configurations and check for unauthorized DNS server additions
+  6. Monitor for subsequent DNS queries to verify if poisoned cache entries are being used
+  7. Consider implementing DNS security measures like DNSSEC if not already in place
+where: |
+  equals("log.topics", "dns") && 
+  equals("target.port", 53) && 
+  exists("origin.ip") &&
+  contains("log.chain", "response")
+afterEvents:
+  - indexPattern: v11-log-firewall-mikrotik-*
+    with:
+      - field: target.ip
+        operator: filter_term
+        value: '{{.target.ip}}'
+      - field: log.topics
+        operator: filter_term
+        value: 'dns'
+    within: 5m
+    count: 10
+groupBy:
+  - adversary.ip
+  - target.ip

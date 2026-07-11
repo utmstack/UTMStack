@@ -37,22 +37,39 @@ type RuleListFilter struct {
 type RuleStore struct {
 	systemDir string
 	userDir   string
+	writer    *pipelineWriter
 
 	mu    sync.RWMutex
 	rules []*StoredRule          // load order (system first, then user)
 	index map[string]*StoredRule // relPath -> rule
 }
 
-func NewRuleStore(systemDir, userDir string) *RuleStore {
+func NewRuleStore(systemDir, userDir string, writer *pipelineWriter) *RuleStore {
 	return &RuleStore{
 		systemDir: systemDir,
 		userDir:   userDir,
+		writer:    writer,
 		index:     make(map[string]*StoredRule),
 	}
 }
 
+// ruleIdentity derives the same identity the event processor computes for a
+// rule file: the filename without directory or extension (see
+// plugins/cel/main.go's ruleIdentity). This is what tenants.yaml's
+// disabledRules entries must match, so a rule's identity here is intentionally
+// NOT its relPath — two vendors are free to share a relPath's basename only if
+// their filenames actually differ (enforced by convention in definitions/rules).
+func ruleIdentity(relPath string) string {
+	base := filepath.Base(relPath)
+	return strings.TrimSuffix(base, filepath.Ext(base))
+}
+
 // Load (re)reads both overlays into memory, replacing the current contents.
+// Enabled state comes from tenants.yaml's disabledRules (via the shared
+// pipelineWriter), not from any per-file marker.
 func (s *RuleStore) Load() error {
+	disabled := s.writer.DisabledRuleSet()
+
 	rules := make([]*StoredRule, 0, 256)
 	index := make(map[string]*StoredRule, 256)
 
@@ -63,7 +80,7 @@ func (s *RuleStore) Load() error {
 		{s.systemDir, true},
 		{s.userDir, false},
 	} {
-		loaded, err := loadOverlay(ov.dir, ov.system)
+		loaded, err := loadOverlay(ov.dir, ov.system, disabled)
 		if err != nil {
 			return err
 		}
@@ -86,7 +103,8 @@ func (s *RuleStore) Load() error {
 }
 
 // loadOverlay walks one overlay directory and parses every rule file in it.
-func loadOverlay(dir string, system bool) ([]*StoredRule, error) {
+// disabled is keyed by ruleIdentity (see Load), not by relPath.
+func loadOverlay(dir string, system bool, disabled map[string]bool) ([]*StoredRule, error) {
 	var out []*StoredRule
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -100,14 +118,7 @@ func loadOverlay(dir string, system bool) ([]*StoredRule, error) {
 		if d.IsDir() {
 			return nil
 		}
-
-		enabled := true
-		logical := path
-		if strings.HasSuffix(path, DisabledSuffix) {
-			enabled = false
-			logical = strings.TrimSuffix(path, DisabledSuffix)
-		}
-		if !strings.HasSuffix(logical, RuleFileExt) {
+		if filepath.Ext(path) != RuleFileExt {
 			return nil // ignore non-rule files
 		}
 
@@ -116,10 +127,11 @@ func loadOverlay(dir string, system bool) ([]*StoredRule, error) {
 			return nil // skip unparsable files rather than failing the whole load
 		}
 
-		rel, rerr := filepath.Rel(dir, logical)
+		rel, rerr := filepath.Rel(dir, path)
 		if rerr != nil {
 			return nil
 		}
+		rel = filepath.ToSlash(rel)
 
 		var mod time.Time
 		if info, ierr := d.Info(); ierr == nil {
@@ -128,10 +140,10 @@ func loadOverlay(dir string, system bool) ([]*StoredRule, error) {
 
 		out = append(out, &StoredRule{
 			Rule:     rule,
-			RelPath:  filepath.ToSlash(rel),
+			RelPath:  rel,
 			Modified: mod,
 			system:   system,
-			enabled:  enabled,
+			enabled:  !disabled[ruleIdentity(rel)],
 		})
 		return nil
 	})
@@ -329,9 +341,10 @@ func (s *RuleStore) Delete(relPath string) error {
 	return nil
 }
 
-// SetEnabled toggles a rule's enabled state by adding/removing the .disabled
-// suffix on its file. Works for both system and user rules (disabling is the
-// one mutation allowed on a system rule).
+// SetEnabled toggles a rule's enabled state. This is recorded in tenants.yaml
+// (disabledRules, keyed by ruleIdentity) rather than on the file itself, so it
+// works identically for system and user rules (disabling is the one mutation
+// allowed on a system rule) and never touches file content.
 func (s *RuleStore) SetEnabled(relPath string, enabled bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -344,13 +357,10 @@ func (s *RuleStore) SetEnabled(relPath string, enabled bool) error {
 		return nil
 	}
 
-	from := s.absPath(sr)
-	sr.enabled = enabled
-	to := s.absPath(sr)
-	if err := renameRuleFile(from, to); err != nil {
-		sr.enabled = !enabled // roll back the in-memory flag on failure
+	if err := s.writer.SetRuleDisabled(ruleIdentity(relPath), !enabled); err != nil {
 		return err
 	}
+	sr.enabled = enabled
 	return nil
 }
 
@@ -402,18 +412,14 @@ func propPicker(prop string) func(*StoredRule) string {
 	}
 }
 
-// absPath resolves a rule's on-disk path, including the .disabled suffix when
-// the rule is disabled.
+// absPath resolves a rule's on-disk path. Enabled state lives in tenants.yaml,
+// not in the filename, so this is just the overlay dir joined with relPath.
 func (s *RuleStore) absPath(sr *StoredRule) string {
 	dir := s.userDir
 	if sr.system {
 		dir = s.systemDir
 	}
-	p := filepath.Join(dir, filepath.FromSlash(sr.RelPath))
-	if !sr.enabled {
-		p += DisabledSuffix
-	}
-	return p
+	return filepath.Join(dir, filepath.FromSlash(sr.RelPath))
 }
 
 // ── helpers ─────────────────────────────────────────────────────────────────

@@ -1,51 +1,51 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - ibm-as400
-  name: IBM AS/400 SQL Injection via ODBC/JDBC Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Initial Access
-  technique: "T1190 - Exploit Public-Facing Application"
-  adversary: origin
-  references:
-    - https://www.ibm.com/docs/en/i/7.5?topic=services-sql-diagnostic
-    - https://attack.mitre.org/techniques/T1190/
-  description: |
-    Detects SQL injection attempts targeting IBM AS/400 through ODBC/JDBC connections. Monitors for suspicious SQL patterns in database server job logs and diagnostic messages.
+dataTypes:
+  - ibm-as400
+name: IBM AS/400 SQL Injection via ODBC/JDBC Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Initial Access
+technique: "T1190 - Exploit Public-Facing Application"
+adversary: origin
+references:
+  - https://www.ibm.com/docs/en/i/7.5?topic=services-sql-diagnostic
+  - https://attack.mitre.org/techniques/T1190/
+description: |
+  Detects SQL injection attempts targeting IBM AS/400 through ODBC/JDBC connections. Monitors for suspicious SQL patterns in database server job logs and diagnostic messages.
 
-    Next Steps:
-    1. Review the SQL statements for injection patterns
-    2. Identify the source application and ODBC/JDBC connection
-    3. Check for successful unauthorized data access
-    4. Patch the vulnerable application with parameterized queries
-    5. Restrict ODBC/JDBC connection permissions
-    6. Block the source IP if confirmed malicious
-  where: |
-    exists("log.message") &&
-    (
-      (contains("log.message", "SQL") && (
-        regexMatch("log.message", "(?i)UNION\\s+(ALL\\s+)?SELECT") ||
-        contains("log.message", "' OR '1'='1") ||
-        contains("log.message", "'; DROP") ||
-        contains("log.message", "QSYS2.") ||
-        contains("log.message", "SYSCOLUMNS") ||
-        contains("log.message", "SYSTABLES") ||
-        regexMatch("log.message", "(?i)CHAR\\s*\\([0-9]+\\)") ||
-        contains("log.message", "information_schema")
-      )) ||
-      (contains("log.message", "ODBC") && contains("log.message", "SQL error")) ||
-      (contains("log.message", "JDBC") && contains("log.message", "syntax error"))
-    )
-  afterEvents:
-    - indexPattern: v11-log-ibm-as400-*
-      with:
-        - field: log.message
-          operator: filter_match
-          value: 'SQL error OR syntax error OR UNION SELECT OR DROP'
-      within: 15m
-      count: 5
-  groupBy:
-    - adversary.host
+  Next Steps:
+  1. Review the SQL statements for injection patterns
+  2. Identify the source application and ODBC/JDBC connection
+  3. Check for successful unauthorized data access
+  4. Patch the vulnerable application with parameterized queries
+  5. Restrict ODBC/JDBC connection permissions
+  6. Block the source IP if confirmed malicious
+where: |
+  exists("log.message") &&
+  (
+    (contains("log.message", "SQL") && (
+      regexMatch("log.message", "(?i)UNION\\s+(ALL\\s+)?SELECT") ||
+      contains("log.message", "' OR '1'='1") ||
+      contains("log.message", "'; DROP") ||
+      contains("log.message", "QSYS2.") ||
+      contains("log.message", "SYSCOLUMNS") ||
+      contains("log.message", "SYSTABLES") ||
+      regexMatch("log.message", "(?i)CHAR\\s*\\([0-9]+\\)") ||
+      contains("log.message", "information_schema")
+    )) ||
+    (contains("log.message", "ODBC") && contains("log.message", "SQL error")) ||
+    (contains("log.message", "JDBC") && contains("log.message", "syntax error"))
+  )
+afterEvents:
+  - indexPattern: v11-log-ibm-as400-*
+    with:
+      - field: log.message
+        operator: filter_match
+        value: 'SQL error OR syntax error OR UNION SELECT OR DROP'
+    within: 15m
+    count: 5
+groupBy:
+  - adversary.host

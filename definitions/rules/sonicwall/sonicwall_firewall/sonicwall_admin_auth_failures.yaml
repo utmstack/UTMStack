@@ -1,42 +1,42 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - firewall-sonicwall
-  name: SonicWall Management Interface Authentication Failures
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 1
-  category: Credential Access
-  technique: "T1110 - Brute Force"
-  adversary: origin
-  references:
-    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
-    - https://attack.mitre.org/techniques/T1110/
-  description: |
-    Detects multiple failed authentication attempts to the SonicWall management interface, indicating potential brute force attacks against administrative credentials.
+dataTypes:
+  - firewall-sonicwall
+name: SonicWall Management Interface Authentication Failures
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1110 - Brute Force"
+adversary: origin
+references:
+  - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+  - https://attack.mitre.org/techniques/T1110/
+description: |
+  Detects multiple failed authentication attempts to the SonicWall management interface, indicating potential brute force attacks against administrative credentials.
 
-    Next Steps:
-    1. Investigate the source IP address attempting authentication
-    2. Check if the source IP is from an authorized management network
-    3. Review for successful logins from the same IP after failures
-    4. Consider blocking the source IP on the management interface
-    5. Restrict management access to specific IP addresses
-    6. Enable account lockout and two-factor authentication
-  where: |
-    ((contains("log.message", ["admin", "management", "login"]) &&
-      contains("log.message", ["fail", "denied", "invalid", "incorrect"])) ||
-     contains("log.eventName", ["Administrator login failed", "Login failure"]) ||
-     contains("log.category", "Authentication Access")) &&
-    exists("origin.ip")
-  afterEvents:
-    - indexPattern: v11-log-firewall-sonicwall-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-      within: 15m
-      count: 10
-  groupBy:
-    - adversary.ip
-    - adversary.user
+  Next Steps:
+  1. Investigate the source IP address attempting authentication
+  2. Check if the source IP is from an authorized management network
+  3. Review for successful logins from the same IP after failures
+  4. Consider blocking the source IP on the management interface
+  5. Restrict management access to specific IP addresses
+  6. Enable account lockout and two-factor authentication
+where: |
+  ((contains("log.message", ["admin", "management", "login"]) &&
+    contains("log.message", ["fail", "denied", "invalid", "incorrect"])) ||
+   contains("log.eventName", ["Administrator login failed", "Login failure"]) ||
+   contains("log.category", "Authentication Access")) &&
+  exists("origin.ip")
+afterEvents:
+  - indexPattern: v11-log-firewall-sonicwall-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 15m
+    count: 10
+groupBy:
+  - adversary.ip
+  - adversary.user

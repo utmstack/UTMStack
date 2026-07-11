@@ -1,0 +1,37 @@
+# Rule version v1.0.3
+dataTypes:
+  - wineventlog
+name: "Windows: Possible Brute Force Attack"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: "This rule is triggered when a pattern of repeated and rapid login attempts from the same IP address or source is detected. These login attempts may target specific user accounts or services in an attempt to crack passwords through automated brute force. The purpose of this rule is to identify possible malicious unauthorized access attempts and prevent a brute force attack against the system."
+references:
+  - "https://attack.mitre.org/tactics/TA0006/"
+  - "https://attack.mitre.org/techniques/T1110/"
+where: equals("log.eventCode", 4625)
+afterEvents:
+    - indexPattern: v11-log-wineventlog-*
+      with:
+        - field: log.eventCode
+          operator: filter_term
+          value: "{{.log.eventCode}}"
+        - field: target.user.keyword
+          operator: filter_term
+          value: "{{.target.user}}"
+        - field: origin.host.keyword
+          operator: filter_term
+          value: "{{.origin.host}}"
+        - field: origin.ip.keyword
+          operator: filter_term
+          value: "{{.origin.ip}}"
+      within: 5m
+      count: 10
+deduplicateBy:
+  - origin.host
+  - target.user
+  - origin.ip

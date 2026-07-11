@@ -81,8 +81,9 @@ func (u *correlationRuleUsecase) ImportRules(_ context.Context, files []dto.Impo
 	return results
 }
 
-// parseRuleYAML accepts both the canonical list form (`- dataTypes: ...`, how
-// rule files are stored) and a single mapping.
+// parseRuleYAML accepts both a bare mapping (the canonical on-disk shape,
+// `dataTypes: ...`) and the legacy single-element list form (`- dataTypes:
+// ...`), so importing an older exported rule file still works.
 func parseRuleYAML(data []byte) (Rule, error) {
 	if strings.TrimSpace(string(data)) == "" {
 		return Rule{}, fmt.Errorf("%w: file is empty", domain.ErrCorrelationRuleInvalidContent)

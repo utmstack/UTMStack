@@ -48,6 +48,7 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
 	ruleStore := usecase.NewRuleStore(
 		filepath.Join(rulesRoot, usecase.SystemSubdir),
 		filepath.Join(rulesRoot, usecase.UserSubdir),
+		pipelineWriter,
 	)
 	_ = ruleStore.Load()
 	ruleBootstrap := usecase.NewRuleBootstrap(usecase.SystemRulesSrcDir, ruleStore, db)

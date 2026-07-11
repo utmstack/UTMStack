@@ -1,43 +1,43 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - o365
-  name: SharePoint Mass File Download Detected
-  impact:
-    confidentiality: 3
-    integrity: 1
-    availability: 2
-  category: Data Exfiltration
-  technique: "T1213 - Data from Information Repositories"
-  adversary: origin
-  references:
-    - https://www.sharepointdiary.com/2020/10/how-to-track-document-downloads-using-audit-log-in-sharepoint-online.html
-    - https://attack.mitre.org/techniques/T1213/
-  description: |
-    Detects when a user downloads an unusually large number of files from SharePoint or OneDrive within a short time period, which could indicate data exfiltration or insider threat activity. This rule triggers when a user downloads 100 or more files within 30 minutes.
-  
-    **Next Steps:**
-    1. Review the user's recent activity patterns and determine if the download volume is consistent with their role and responsibilities
-    2. Check if the user has legitimate business justification for downloading large amounts of data
-    3. Examine the types of files downloaded and their sensitivity levels
-    4. Verify the user's location and device used for the downloads
-    5. Look for any concurrent suspicious activities such as unusual login times or access from new locations
-    6. Contact the user's manager to validate the business need for the file downloads
-    7. Consider implementing additional monitoring or restrictions if the activity appears suspicious
-    8. Review data loss prevention (DLP) policies and ensure they are properly configured
-  where: |
-    equals("action", "FileDownloaded") && exists("origin.user") && oneOf("log.Workload", ["SharePoint", "OneDrive"])
-  afterEvents:
-    - indexPattern: v11-log-o365-*
-      with:
-        - field: origin.user
-          operator: filter_term
-          value: '{{.origin.user}}'
-        - field: action
-          operator: filter_term
-          value: 'FileDownloaded'
-      within: 30m
-      count: 100
-  groupBy:
-    - adversary.ip
-    - adversary.user
+dataTypes:
+  - o365
+name: SharePoint Mass File Download Detected
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 2
+category: Data Exfiltration
+technique: "T1213 - Data from Information Repositories"
+adversary: origin
+references:
+  - https://www.sharepointdiary.com/2020/10/how-to-track-document-downloads-using-audit-log-in-sharepoint-online.html
+  - https://attack.mitre.org/techniques/T1213/
+description: |
+  Detects when a user downloads an unusually large number of files from SharePoint or OneDrive within a short time period, which could indicate data exfiltration or insider threat activity. This rule triggers when a user downloads 100 or more files within 30 minutes.
+
+  **Next Steps:**
+  1. Review the user's recent activity patterns and determine if the download volume is consistent with their role and responsibilities
+  2. Check if the user has legitimate business justification for downloading large amounts of data
+  3. Examine the types of files downloaded and their sensitivity levels
+  4. Verify the user's location and device used for the downloads
+  5. Look for any concurrent suspicious activities such as unusual login times or access from new locations
+  6. Contact the user's manager to validate the business need for the file downloads
+  7. Consider implementing additional monitoring or restrictions if the activity appears suspicious
+  8. Review data loss prevention (DLP) policies and ensure they are properly configured
+where: |
+  equals("action", "FileDownloaded") && exists("origin.user") && oneOf("log.Workload", ["SharePoint", "OneDrive"])
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'FileDownloaded'
+    within: 30m
+    count: 100
+groupBy:
+  - adversary.ip
+  - adversary.user

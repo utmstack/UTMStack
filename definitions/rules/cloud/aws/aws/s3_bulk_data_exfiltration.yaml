@@ -1,45 +1,45 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - aws
-  name: AWS S3 Bulk Data Exfiltration Detected
-  impact:
-    confidentiality: 2
-    integrity: 1
-    availability: 1
-  category: Data Exfiltration
-  technique: "T1530 - Data from Cloud Storage Object"
-  adversary: origin
-  references:
-    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html
-    - https://attack.mitre.org/techniques/T1530/
-  description: |
-    Detects bulk GetObject operations from S3 buckets indicating potential data exfiltration. When an attacker gains access to AWS credentials, they may attempt to download large amounts of data from S3 buckets in a short period.
+dataTypes:
+  - aws
+name: AWS S3 Bulk Data Exfiltration Detected
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1530 - Data from Cloud Storage Object"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html
+  - https://attack.mitre.org/techniques/T1530/
+description: |
+  Detects bulk GetObject operations from S3 buckets indicating potential data exfiltration. When an attacker gains access to AWS credentials, they may attempt to download large amounts of data from S3 buckets in a short period.
 
-    Next Steps:
-    1. Identify the S3 bucket(s) targeted and classify the data sensitivity
-    2. Review the IAM principal performing the downloads and verify authorization
-    3. Check the source IP address for known threat indicators
-    4. Examine the volume and types of objects downloaded
-    5. Verify if this matches any legitimate data processing or backup patterns
-    6. If unauthorized, revoke the credentials used and block the source IP
-    7. Enable S3 server access logging for affected buckets
-    8. Review S3 bucket policies and tighten access controls
-  where: |
-    equals("log.eventSource", "s3.amazonaws.com") &&
-    equals("log.eventName", "GetObject") &&
-    equals("log.errorCode", "")
-  afterEvents:
-    - indexPattern: v11-log-aws-*
-      with:
-        - field: log.userIdentityArn
-          operator: filter_term
-          value: '{{.log.userIdentityArn}}'
-        - field: log.eventName
-          operator: filter_term
-          value: GetObject
-      within: 15m
-      count: 100
-  groupBy:
-    - adversary.user
-    - lastEvent.log.requestParameters.bucketName
+  Next Steps:
+  1. Identify the S3 bucket(s) targeted and classify the data sensitivity
+  2. Review the IAM principal performing the downloads and verify authorization
+  3. Check the source IP address for known threat indicators
+  4. Examine the volume and types of objects downloaded
+  5. Verify if this matches any legitimate data processing or backup patterns
+  6. If unauthorized, revoke the credentials used and block the source IP
+  7. Enable S3 server access logging for affected buckets
+  8. Review S3 bucket policies and tighten access controls
+where: |
+  equals("log.eventSource", "s3.amazonaws.com") &&
+  equals("log.eventName", "GetObject") &&
+  equals("log.errorCode", "")
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.userIdentityArn
+        operator: filter_term
+        value: '{{.log.userIdentityArn}}'
+      - field: log.eventName
+        operator: filter_term
+        value: GetObject
+    within: 15m
+    count: 100
+groupBy:
+  - adversary.user
+  - lastEvent.log.requestParameters.bucketName

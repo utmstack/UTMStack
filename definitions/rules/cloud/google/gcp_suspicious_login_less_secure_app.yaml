@@ -1,22 +1,22 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - google
-  name: "GCP suspicious login from less secure app"
-  impact:
-    confidentiality: 1
-    integrity: 2
-    availability: 3
-  category: "Initial Access"
-  adversary: origin
-  technique: "T1190 - Exploit Public-Facing Application"
-  description: "Less secure apps (LSAs) are non-Google apps that can access your Google account with only a username and password. 
-                They make your account more vulnerable to hijacking attempts."
-  references:
-    - "https://attack.mitre.org/tactics/TA0001/"
-    - "https://attack.mitre.org/techniques/T1190"
-  where: |
-    equals("log.protoPayloadMethodName", "google.login.LoginService.suspiciousLoginLessSecureApp")
-  groupBy:
-    - adversary.ip
-    - adversary.user
+dataTypes:
+  - google
+name: "GCP suspicious login from less secure app"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 3
+category: "Initial Access"
+adversary: origin
+technique: "T1190 - Exploit Public-Facing Application"
+description: "Less secure apps (LSAs) are non-Google apps that can access your Google account with only a username and password. 
+              They make your account more vulnerable to hijacking attempts."
+references:
+  - "https://attack.mitre.org/tactics/TA0001/"
+  - "https://attack.mitre.org/techniques/T1190"
+where: |
+  equals("log.protoPayloadMethodName", "google.login.LoginService.suspiciousLoginLessSecureApp")
+groupBy:
+  - adversary.ip
+  - adversary.user

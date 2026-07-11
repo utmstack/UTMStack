@@ -1,45 +1,45 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: Base64-Encoded DNS Query Detected
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 1
-  category: Exfiltration
-  technique: "T1048.003 - Exfiltration Over Alternative Protocol: Exfiltration Over Unencrypted Non-C2 Protocol"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1048/003/
-    - https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_b64_queries.yml
-  description: |
-    Detects DNS queries containing base64-encoded data, identified by the presence of '==' padding followed by a dot separator. This pattern is commonly used in DNS-based data exfiltration where stolen data is encoded in base64 and split across DNS query subdomains. Legitimate DNS queries almost never contain base64 padding characters.
+dataTypes:
+  - suricata
+name: Base64-Encoded DNS Query Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Exfiltration
+technique: "T1048.003 - Exfiltration Over Alternative Protocol: Exfiltration Over Unencrypted Non-C2 Protocol"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1048/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_susp_b64_queries.yml
+description: |
+  Detects DNS queries containing base64-encoded data, identified by the presence of '==' padding followed by a dot separator. This pattern is commonly used in DNS-based data exfiltration where stolen data is encoded in base64 and split across DNS query subdomains. Legitimate DNS queries almost never contain base64 padding characters.
 
-    Next Steps:
-    1. Decode the base64 content from the DNS query subdomains
-    2. Identify what data is being exfiltrated through the DNS channel
-    3. Isolate the source host generating these queries
-    4. Block the DNS domain being used for exfiltration at the resolver
-    5. Review the volume and frequency of these queries to assess data loss
-    6. Check for malware on the source host that is performing the exfiltration
-    7. Implement DNS query length monitoring and blocking for oversized queries
-  where: |
-    equals("log.eventType", "dns") &&
-    exists("log.dns.query") &&
-    regexMatch("log.dns.query", ".*==\\..*") &&
-    exists("origin.ip")
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.eventType
-          operator: filter_term
-          value: 'dns'
-      within: 10m
-      count: 5
-  groupBy:
-    - adversary.ip
-    - target.ip
+  Next Steps:
+  1. Decode the base64 content from the DNS query subdomains
+  2. Identify what data is being exfiltrated through the DNS channel
+  3. Isolate the source host generating these queries
+  4. Block the DNS domain being used for exfiltration at the resolver
+  5. Review the volume and frequency of these queries to assess data loss
+  6. Check for malware on the source host that is performing the exfiltration
+  7. Implement DNS query length monitoring and blocking for oversized queries
+where: |
+  equals("log.eventType", "dns") &&
+  exists("log.dns.query") &&
+  regexMatch("log.dns.query", ".*==\\..*") &&
+  exists("origin.ip")
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'dns'
+    within: 10m
+    count: 5
+groupBy:
+  - adversary.ip
+  - target.ip

@@ -1,53 +1,53 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - vmware-esxi
-  name: vSphere API Abuse Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Lateral Movement
-  technique: "T1210 - Exploitation of Remote Services"
-  adversary: origin
-  references:
-    - https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass
-    - https://attack.mitre.org/techniques/T1210/
-  description: |
-    Detects potential vSphere API abuse including unauthorized access attempts, suspicious API calls, and exploitation attempts. Monitors for authentication failures, unusual vpxuser activity, and rapid API requests that could indicate compromise or abuse of VMware vSphere infrastructure.
-  
-    Next Steps:
-    1. Investigate the source IP and hostname making the suspicious API calls
-    2. Review vCenter Server logs for additional context around the time of the alert
-    3. Check for any concurrent authentication events or privilege escalation attempts
-    4. Verify if the vpxuser account is being used inappropriately for shell access or commands
-    5. Examine network traffic patterns to identify potential automated attack tools
-    6. Review recent changes to vSphere permissions and user accounts
-    7. Check for any indicators of lateral movement or data exfiltration
-    8. Consider temporarily blocking the source IP if malicious activity is confirmed
-  where: |
-    (contains("log.message", "authentication of user") &&
-     (contains("log.message", "failed") ||
-      contains("log.message", "denied"))) ||
-    (contains("log.message", "vpxuser") &&
-     (contains("log.message", "shell") ||
-      contains("log.message", "command"))) ||
-    (equals("log.process", "vpxd") &&
-     (equals("severity", "error") ||
-      contains("log.message", "unauthorized") ||
-      contains("log.message", "permission denied"))) ||
-    (contains("log.message", "API") &&
-     (contains("log.message", "abuse") ||
-      contains("log.message", "flood") ||
-      contains("log.message", "excessive")))
-  afterEvents:
-    - indexPattern: v11-log-vmware-esxi-*
-      with:
-        - field: origin.hostname
-          operator: filter_term
-          value: '{{.origin.hostname}}'
-      within: 5m
-      count: 10
-  groupBy:
-    - lastEvent.log.eventInfo
-    - adversary.hostname
+dataTypes:
+  - vmware-esxi
+name: vSphere API Abuse Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Lateral Movement
+technique: "T1210 - Exploitation of Remote Services"
+adversary: origin
+references:
+  - https://cloud.google.com/blog/topics/threat-intelligence/vmware-esxi-zero-day-bypass
+  - https://attack.mitre.org/techniques/T1210/
+description: |
+  Detects potential vSphere API abuse including unauthorized access attempts, suspicious API calls, and exploitation attempts. Monitors for authentication failures, unusual vpxuser activity, and rapid API requests that could indicate compromise or abuse of VMware vSphere infrastructure.
+
+  Next Steps:
+  1. Investigate the source IP and hostname making the suspicious API calls
+  2. Review vCenter Server logs for additional context around the time of the alert
+  3. Check for any concurrent authentication events or privilege escalation attempts
+  4. Verify if the vpxuser account is being used inappropriately for shell access or commands
+  5. Examine network traffic patterns to identify potential automated attack tools
+  6. Review recent changes to vSphere permissions and user accounts
+  7. Check for any indicators of lateral movement or data exfiltration
+  8. Consider temporarily blocking the source IP if malicious activity is confirmed
+where: |
+  (contains("log.message", "authentication of user") &&
+   (contains("log.message", "failed") ||
+    contains("log.message", "denied"))) ||
+  (contains("log.message", "vpxuser") &&
+   (contains("log.message", "shell") ||
+    contains("log.message", "command"))) ||
+  (equals("log.process", "vpxd") &&
+   (equals("severity", "error") ||
+    contains("log.message", "unauthorized") ||
+    contains("log.message", "permission denied"))) ||
+  (contains("log.message", "API") &&
+   (contains("log.message", "abuse") ||
+    contains("log.message", "flood") ||
+    contains("log.message", "excessive")))
+afterEvents:
+  - indexPattern: v11-log-vmware-esxi-*
+    with:
+      - field: origin.hostname
+        operator: filter_term
+        value: '{{.origin.hostname}}'
+    within: 5m
+    count: 10
+groupBy:
+  - lastEvent.log.eventInfo
+  - adversary.hostname

@@ -1,46 +1,46 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: DNS Tunneling Detection
-  impact:
-    confidentiality: 2
-    integrity: 2
-    availability: 1
-  category: Command and Control
-  technique: "T1071.004 - Application Layer Protocol: DNS"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1071/004/
-    - https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152
-  description: |
-    Detects potential DNS tunneling activity based on abnormal DNS query patterns, including unusually long domain names, high frequency of DNS requests, or suspicious TXT record queries. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
-  
-    Next Steps:
-    1. Analyze the DNS queries to identify the specific domains and query types involved
-    2. Check the frequency and volume of DNS requests from the source IP
-    3. Examine the content of TXT record queries for encoded data
-    4. Correlate with network traffic to identify potential data exfiltration
-    5. Block suspicious domains at the DNS level if confirmed malicious
-    6. Monitor the source host for other indicators of compromise
-  where: |
-    equals("log.protocol", "DNS") && (
-      greaterThan("log.query_length", 50) ||
-      equals("log.query_type", "TXT") ||
-      greaterThan("log.subdomain_levels", 4) ||
-      greaterThan("log.entropy", 4.5)
-    )
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.protocol
-          operator: filter_term
-          value: 'DNS'
-      within: 5m
-      count: 50
-  groupBy:
-    - adversary.ip
-    - target.domain
+dataTypes:
+  - suricata
+name: DNS Tunneling Detection
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071.004 - Application Layer Protocol: DNS"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/004/
+  - https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152
+description: |
+  Detects potential DNS tunneling activity based on abnormal DNS query patterns, including unusually long domain names, high frequency of DNS requests, or suspicious TXT record queries. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
+
+  Next Steps:
+  1. Analyze the DNS queries to identify the specific domains and query types involved
+  2. Check the frequency and volume of DNS requests from the source IP
+  3. Examine the content of TXT record queries for encoded data
+  4. Correlate with network traffic to identify potential data exfiltration
+  5. Block suspicious domains at the DNS level if confirmed malicious
+  6. Monitor the source host for other indicators of compromise
+where: |
+  equals("log.protocol", "DNS") && (
+    greaterThan("log.query_length", 50) ||
+    equals("log.query_type", "TXT") ||
+    greaterThan("log.subdomain_levels", 4) ||
+    greaterThan("log.entropy", 4.5)
+  )
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.protocol
+        operator: filter_term
+        value: 'DNS'
+    within: 5m
+    count: 50
+groupBy:
+  - adversary.ip
+  - target.domain

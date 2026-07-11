@@ -1,32 +1,32 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - google
-  name: GCP Domain-Wide API Access Granted
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Privilege Escalation
-  technique: "T1098 - Account Manipulation"
-  adversary: origin
-  references:
-    - https://cloud.google.com/iam/docs/using-iam-securely
-    - https://attack.mitre.org/techniques/T1098/
-  description: |
-    Detects when domain-wide delegation is granted to a service account in Google Workspace. This allows the service account to impersonate any user in the domain and access their data, making it a high-impact privilege escalation vector.
+dataTypes:
+  - google
+name: GCP Domain-Wide API Access Granted
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://cloud.google.com/iam/docs/using-iam-securely
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects when domain-wide delegation is granted to a service account in Google Workspace. This allows the service account to impersonate any user in the domain and access their data, making it a high-impact privilege escalation vector.
 
-    Next Steps:
-    1. Verify the domain-wide delegation was authorized by a domain administrator
-    2. Review the OAuth scopes granted to the service account
-    3. Check the service account's usage history and associated project
-    4. Verify the scopes follow the principle of least privilege
-    5. If unauthorized, revoke the delegation immediately
-    6. Audit all API calls made by the service account since the delegation was granted
-    7. Review Google Workspace admin logs for related changes
-  where: |
-    contains("log.protoPayloadMethodName", "AUTHORIZE_API_CLIENT_ACCESS") ||
-    (contains("log.protoPayloadServiceName", "admin.googleapis.com") && contains("log.protoPayloadMethodName", "GrantClientAccess"))
-  groupBy:
-    - lastEvent.origin.user
-    - lastEvent.log.protoPayloadResourceName
+  Next Steps:
+  1. Verify the domain-wide delegation was authorized by a domain administrator
+  2. Review the OAuth scopes granted to the service account
+  3. Check the service account's usage history and associated project
+  4. Verify the scopes follow the principle of least privilege
+  5. If unauthorized, revoke the delegation immediately
+  6. Audit all API calls made by the service account since the delegation was granted
+  7. Review Google Workspace admin logs for related changes
+where: |
+  contains("log.protoPayloadMethodName", "AUTHORIZE_API_CLIENT_ACCESS") ||
+  (contains("log.protoPayloadServiceName", "admin.googleapis.com") && contains("log.protoPayloadMethodName", "GrantClientAccess"))
+groupBy:
+  - lastEvent.origin.user
+  - lastEvent.log.protoPayloadResourceName

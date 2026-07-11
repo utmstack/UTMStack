@@ -1,50 +1,50 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: NKN Blockchain C2 Communication Detected
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Command and Control
-  technique: "T1071 - Application Layer Protocol"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1071/
-    - https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_nkn.yml
-    - https://research.checkpoint.com/2023/cloud-based-botnet-used-nkn-for-its-c2-communication/
-  description: |
-    Detects DNS queries to NKN (New Kind of Network) blockchain seed nodes. NKN is a blockchain-based overlay network that has been abused by malware as a decentralized C2 channel. The use of blockchain-based C2 makes takedown extremely difficult and provides high resilience for malware communications.
+dataTypes:
+  - suricata
+name: NKN Blockchain C2 Communication Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/network/zeek/zeek_dns_nkn.yml
+  - https://research.checkpoint.com/2023/cloud-based-botnet-used-nkn-for-its-c2-communication/
+description: |
+  Detects DNS queries to NKN (New Kind of Network) blockchain seed nodes. NKN is a blockchain-based overlay network that has been abused by malware as a decentralized C2 channel. The use of blockchain-based C2 makes takedown extremely difficult and provides high resilience for malware communications.
 
-    Next Steps:
-    1. Investigate the source host for malware using NKN for C2
-    2. Block NKN seed node domains at the DNS resolver
-    3. Check for NKN client software or libraries on the endpoint
-    4. Perform memory forensics to identify the malware component
-    5. Search for similar NKN DNS queries from other hosts
-    6. Block NKN protocol traffic at the network perimeter
-    7. Engage threat intelligence team to identify the specific malware family
-  where: |
-    equals("log.eventType", "dns") &&
-    exists("log.dns.query") &&
-    exists("origin.ip") &&
-    (
-      regexMatch("log.dns.query", "(?i)^seed[0-9]*\\.nkn\\.org$") ||
-      endsWith("log.dns.query", ".nkn.org") ||
-      endsWith("log.dns.query", ".nknx.org")
-    )
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.eventType
-          operator: filter_term
-          value: 'dns'
-      within: 15m
-      count: 3
-  groupBy:
-    - lastEvent.log.dns.query
-    - adversary.ip
+  Next Steps:
+  1. Investigate the source host for malware using NKN for C2
+  2. Block NKN seed node domains at the DNS resolver
+  3. Check for NKN client software or libraries on the endpoint
+  4. Perform memory forensics to identify the malware component
+  5. Search for similar NKN DNS queries from other hosts
+  6. Block NKN protocol traffic at the network perimeter
+  7. Engage threat intelligence team to identify the specific malware family
+where: |
+  equals("log.eventType", "dns") &&
+  exists("log.dns.query") &&
+  exists("origin.ip") &&
+  (
+    regexMatch("log.dns.query", "(?i)^seed[0-9]*\\.nkn\\.org$") ||
+    endsWith("log.dns.query", ".nkn.org") ||
+    endsWith("log.dns.query", ".nknx.org")
+  )
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'dns'
+    within: 15m
+    count: 3
+groupBy:
+  - lastEvent.log.dns.query
+  - adversary.ip

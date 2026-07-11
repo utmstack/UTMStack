@@ -1,40 +1,40 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - o365
-  name: Safe Links Click Pattern Anomaly
-  impact:
-    confidentiality: 2
-    integrity: 3
-    availability: 1
-  category: Defense Evasion
-  technique: "T1204.001 - User Execution: Malicious Link"
-  adversary: origin
-  references:
-    - https://learn.microsoft.com/en-us/defender-office-365/safe-links-about
-    - https://attack.mitre.org/techniques/T1204/001/
-  description: |
-    Detects unusual patterns in Safe Links click behavior that may indicate phishing attempts or malicious URL access. This rule monitors for multiple clicks on suspicious URLs from the same user within a short timeframe, which could indicate either a persistent phishing campaign or user behavior that poses security risks.
-  
-    Next Steps:
-    1. Review the user's activity timeline to identify the source of the malicious links
-    2. Check email security logs for the original messages containing the blocked URLs
-    3. Verify if other users received similar phishing emails
-    4. Assess whether the user's account has been compromised
-    5. Implement additional security awareness training for the affected user
-    6. Consider blocking the malicious domains at the network level
-  where: |
-    equals("action", "ClickedSafeLink") && equals("actionResult", "Blocked") && exists("origin.user")
-  afterEvents:
-    - indexPattern: v11-log-o365-*
-      with:
-        - field: origin.user
-          operator: filter_term
-          value: '{{.origin.user}}'
-        - field: action
-          operator: filter_term
-          value: 'ClickedSafeLink'
-      within: 30m
-      count: 5
-  groupBy:
-    - adversary.user
+dataTypes:
+  - o365
+name: Safe Links Click Pattern Anomaly
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1204.001 - User Execution: Malicious Link"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-office-365/safe-links-about
+  - https://attack.mitre.org/techniques/T1204/001/
+description: |
+  Detects unusual patterns in Safe Links click behavior that may indicate phishing attempts or malicious URL access. This rule monitors for multiple clicks on suspicious URLs from the same user within a short timeframe, which could indicate either a persistent phishing campaign or user behavior that poses security risks.
+
+  Next Steps:
+  1. Review the user's activity timeline to identify the source of the malicious links
+  2. Check email security logs for the original messages containing the blocked URLs
+  3. Verify if other users received similar phishing emails
+  4. Assess whether the user's account has been compromised
+  5. Implement additional security awareness training for the affected user
+  6. Consider blocking the malicious domains at the network level
+where: |
+  equals("action", "ClickedSafeLink") && equals("actionResult", "Blocked") && exists("origin.user")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'ClickedSafeLink'
+    within: 30m
+    count: 5
+groupBy:
+  - adversary.user

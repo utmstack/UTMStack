@@ -1,44 +1,44 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - firewall-sonicwall
-  name: SonicWall Gateway Anti-Virus Detection
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Command and Control
-  technique: "T1105 - Ingress Tool Transfer"
-  adversary: origin
-  references:
-    - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
-    - https://attack.mitre.org/techniques/T1105/
-  description: |
-    Detects when SonicWall Gateway Anti-Virus (GAV) identifies and blocks malicious content. This indicates potential malware attempting to enter the network through web traffic, email attachments, or file downloads. The Gateway Anti-Virus service scans HTTP, HTTPS, FTP, and SMTP traffic in real-time to detect and prevent malware from entering the network perimeter.
+dataTypes:
+  - firewall-sonicwall
+name: SonicWall Gateway Anti-Virus Detection
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Command and Control
+technique: "T1105 - Ingress Tool Transfer"
+adversary: origin
+references:
+  - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
+  - https://attack.mitre.org/techniques/T1105/
+description: |
+  Detects when SonicWall Gateway Anti-Virus (GAV) identifies and blocks malicious content. This indicates potential malware attempting to enter the network through web traffic, email attachments, or file downloads. The Gateway Anti-Virus service scans HTTP, HTTPS, FTP, and SMTP traffic in real-time to detect and prevent malware from entering the network perimeter.
 
-    Next Steps:
-    1. Review the specific malware signature or threat name in the log details
-    2. Investigate the source IP address and geolocation for suspicious patterns
-    3. Check if the same source has attempted other malicious activities
-    4. Verify that the anti-virus definitions are up to date
-    5. Consider implementing additional network segmentation if internal hosts are affected
-    6. Review firewall policies to ensure proper traffic filtering
-    7. Escalate to incident response team if part of a coordinated attack campaign
-  where: |
-    (contains("log.gcat", "Gateway Anti-Virus") || 
-     contains("log.message", "virus") || 
-     contains("log.message", "malware") ||
-     contains("log.eventName", "Anti-Virus") ||
-     contains("log.category", "Anti-Virus")) &&
-    equals("action", "blocked")
-  afterEvents:
-    - indexPattern: v11-log-firewall-sonicwall-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-      within: 1h
-      count: 3
-  groupBy:
-    - adversary.host
-    - adversary.ip
+  Next Steps:
+  1. Review the specific malware signature or threat name in the log details
+  2. Investigate the source IP address and geolocation for suspicious patterns
+  3. Check if the same source has attempted other malicious activities
+  4. Verify that the anti-virus definitions are up to date
+  5. Consider implementing additional network segmentation if internal hosts are affected
+  6. Review firewall policies to ensure proper traffic filtering
+  7. Escalate to incident response team if part of a coordinated attack campaign
+where: |
+  (contains("log.gcat", "Gateway Anti-Virus") || 
+   contains("log.message", "virus") || 
+   contains("log.message", "malware") ||
+   contains("log.eventName", "Anti-Virus") ||
+   contains("log.category", "Anti-Virus")) &&
+  equals("action", "blocked")
+afterEvents:
+  - indexPattern: v11-log-firewall-sonicwall-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 1h
+    count: 3
+groupBy:
+  - adversary.host
+  - adversary.ip

@@ -1,40 +1,40 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - aws
-  name: AWS IAM Backdoor Creation Attempts
-  impact:
-    confidentiality: 3
-    integrity: 3
-    availability: 2
-  category: Privilege Escalation
-  technique: "T1136.003 - Create Account: Cloud Account"
-  adversary: origin
-  references:
-    - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html
-    - https://attack.mitre.org/techniques/T1136/003/
-  description: |
-    Detects potential IAM backdoor creation attempts through suspicious IAM user creation, access key generation, or policy attachment activities that could provide persistent access.
-  
-    Next Steps:
-    1. Review the source IP address and user identity performing these actions
-    2. Verify if the IAM user creation and policy attachments are authorized
-    3. Check CloudTrail logs for the complete sequence of IAM actions from this source
-    4. Review the policies attached to determine if they grant excessive permissions
-    5. If unauthorized, immediately disable the created user and revoke access keys
-    6. Investigate other activities from the same source IP or user identity
-  where: equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("log.errorCode", "")
-  afterEvents:
-    - indexPattern: v11-log-aws-*
-      with:
-        - field: log.sourceIPAddress
-          operator: filter_term
-          value: '{{.log.sourceIPAddress}}'
-        - field: log.eventSource
-          operator: filter_term
-          value: 'iam.amazonaws.com'
-      within: 30m
-      count: 3
-  groupBy:
-    - lastEvent.log.sourceIPAddress
-    - lastEvent.log.userIdentity.arn
+dataTypes:
+  - aws
+name: AWS IAM Backdoor Creation Attempts
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Privilege Escalation
+technique: "T1136.003 - Create Account: Cloud Account"
+adversary: origin
+references:
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html
+  - https://attack.mitre.org/techniques/T1136/003/
+description: |
+  Detects potential IAM backdoor creation attempts through suspicious IAM user creation, access key generation, or policy attachment activities that could provide persistent access.
+
+  Next Steps:
+  1. Review the source IP address and user identity performing these actions
+  2. Verify if the IAM user creation and policy attachments are authorized
+  3. Check CloudTrail logs for the complete sequence of IAM actions from this source
+  4. Review the policies attached to determine if they grant excessive permissions
+  5. If unauthorized, immediately disable the created user and revoke access keys
+  6. Investigate other activities from the same source IP or user identity
+where: equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("log.errorCode", "")
+afterEvents:
+  - indexPattern: v11-log-aws-*
+    with:
+      - field: log.sourceIPAddress
+        operator: filter_term
+        value: '{{.log.sourceIPAddress}}'
+      - field: log.eventSource
+        operator: filter_term
+        value: 'iam.amazonaws.com'
+    within: 30m
+    count: 3
+groupBy:
+  - lastEvent.log.sourceIPAddress
+  - lastEvent.log.userIdentity.arn

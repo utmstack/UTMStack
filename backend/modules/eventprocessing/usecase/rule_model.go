@@ -44,9 +44,10 @@ type Rule struct {
 }
 
 // StoredRule is a Rule plus the metadata the store derives from its backing
-// file: the relPath identity, whether it lives in the system overlay
-// (read-only) and whether it is enabled (no .disabled suffix), and the file
-// modification time.
+// file and tenants.yaml: the relPath identity, whether it lives in the system
+// overlay (read-only) and whether it is enabled (per tenants.yaml's
+// disabledRules, keyed by the rule's basename identity — see ruleIdentity),
+// and the file modification time.
 type StoredRule struct {
 	Rule
 
@@ -57,7 +58,7 @@ type StoredRule struct {
 	enabled bool
 }
 
-// Active reports whether the rule is enabled (file has no .disabled suffix).
+// Active reports whether the rule is enabled (absent from tenants.yaml's disabledRules).
 func (sr *StoredRule) Active() bool { return sr.enabled }
 
 // SystemOwned reports whether the rule lives in the system overlay.

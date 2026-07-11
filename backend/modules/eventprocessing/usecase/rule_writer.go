@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -16,7 +15,7 @@ func writeRuleFile(path string, rule Rule) error {
 		return err
 	}
 
-	data, err := yaml.Marshal([]Rule{rule})
+	data, err := yaml.Marshal(rule)
 	if err != nil {
 		return err
 	}
@@ -38,26 +37,10 @@ func readRuleFile(path string) (Rule, error) {
 	if err != nil {
 		return rule, err
 	}
-	var list []Rule
-	if err := yaml.Unmarshal(data, &list); err != nil {
+	if err := yaml.Unmarshal(data, &rule); err != nil {
 		return rule, err
 	}
-	if len(list) == 0 {
-		return rule, fmt.Errorf("rule file %s contains no rules", path)
-	}
-	return list[0], nil
-}
-
-// renameRuleFile moves a rule file (used to toggle the .disabled suffix). It is
-// a no-op when src == dst.
-func renameRuleFile(src, dst string) error {
-	if src == dst {
-		return nil
-	}
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return err
-	}
-	return os.Rename(src, dst)
+	return rule, nil
 }
 
 // removeRuleFile deletes a rule file, tolerating a missing file.

@@ -1,0 +1,49 @@
+# Rule version v1.0.1
+
+dataTypes:
+  - "linux"
+name: "System Linux: Possible Brute Force Attack"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: "Credential Access"
+technique: "T1110 - Brute Force"
+adversary: origin
+description: "Identifies multiple SSH login failures followed by a successful one from the same source address. Adversaries can attempt
+              to login into multiple users with a common or known password to gain access to accounts."
+references:
+  - "https://attack.mitre.org/tactics/TA0006/"
+  - "https://attack.mitre.org/techniques/T1110/"
+where: equals("action", "system.auth") && regexMatch("log.message", "([Ss]ession opened)") && exists("origin.user") && exists("log.hostId")
+afterEvents:
+  - indexPattern: v11-log-linux-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.hostId
+        operator: filter_term
+        value: '{{.log.hostId}}'
+      - field: log.message
+        operator: filter_match
+        value: 'Failed password'
+    within: 15m
+    count: 10
+    or:
+      - indexPattern: v11-log-linux-*
+        with:
+          - field: origin.user
+            operator: filter_term
+            value: '{{.origin.user}}'
+          - field: log.hostId
+            operator: filter_term
+            value: '{{.log.hostId}}'
+          - field: log.message
+            operator: filter_match
+            value: 'authentication failure'
+        within: 15m
+        count: 10
+groupBy:
+  - origin.ip
+  - origin.user

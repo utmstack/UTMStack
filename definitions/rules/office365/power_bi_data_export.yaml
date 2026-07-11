@@ -1,43 +1,43 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - o365
-  name: Power BI Suspicious Data Export
-  impact:
-    confidentiality: 3
-    integrity: 1
-    availability: 1
-  category: Data Exfiltration
-  technique: "T1567 - Exfiltration Over Web Service"
-  adversary: origin
-  references:
-    - https://learn.microsoft.com/en-us/power-bi/admin/service-admin-auditing
-    - https://attack.mitre.org/techniques/T1567/
-  description: |
-    Detects bulk Power BI report exports and data downloads that may indicate data exfiltration. Attackers with access to Power BI may export reports and underlying datasets containing sensitive business data.
+dataTypes:
+  - o365
+name: Power BI Suspicious Data Export
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Data Exfiltration
+technique: "T1567 - Exfiltration Over Web Service"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/power-bi/admin/service-admin-auditing
+  - https://attack.mitre.org/techniques/T1567/
+description: |
+  Detects bulk Power BI report exports and data downloads that may indicate data exfiltration. Attackers with access to Power BI may export reports and underlying datasets containing sensitive business data.
 
-    Next Steps:
-    1. Review the specific reports and datasets being exported
-    2. Verify the user has legitimate business need for the exports
-    3. Check the data sensitivity of the exported content
-    4. Review the export destination and format
-    5. Examine the volume and frequency of exports
-    6. If unauthorized, disable the user's Power BI access and investigate
-    7. Implement Power BI data loss prevention policies
-    8. Enable row-level security on sensitive datasets
-  where: |
-    oneOf("action", ["ExportReport", "ExportDataflow", "DownloadReport", "ExportArtifact"]) &&
-    equals("actionResult", "Success")
-  afterEvents:
-    - indexPattern: v11-log-o365-*
-      with:
-        - field: origin.user
-          operator: filter_term
-          value: '{{.origin.user}}'
-        - field: action
-          operator: filter_match
-          value: 'Export'
-      within: 30m
-      count: 5
-  groupBy:
-    - adversary.user
+  Next Steps:
+  1. Review the specific reports and datasets being exported
+  2. Verify the user has legitimate business need for the exports
+  3. Check the data sensitivity of the exported content
+  4. Review the export destination and format
+  5. Examine the volume and frequency of exports
+  6. If unauthorized, disable the user's Power BI access and investigate
+  7. Implement Power BI data loss prevention policies
+  8. Enable row-level security on sensitive datasets
+where: |
+  oneOf("action", ["ExportReport", "ExportDataflow", "DownloadReport", "ExportArtifact"]) &&
+  equals("actionResult", "Success")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_match
+        value: 'Export'
+    within: 30m
+    count: 5
+groupBy:
+  - adversary.user

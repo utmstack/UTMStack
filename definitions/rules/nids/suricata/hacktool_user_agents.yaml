@@ -1,86 +1,86 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: Hack Tool User Agent Detected in HTTP Traffic
-  impact:
-    confidentiality: 2
-    integrity: 2
-    availability: 1
-  category: Reconnaissance
-  technique: "T1595.002 - Active Scanning: Vulnerability Scanning"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1595/002/
-    - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_hacktool.yml
-  description: |
-    Detects HTTP traffic containing user agent strings from known offensive security and hacking tools including vulnerability scanners, brute force tools, SQL injection tools, and web application testing tools. These tools are commonly used during reconnaissance and exploitation phases of attacks.
+dataTypes:
+  - suricata
+name: Hack Tool User Agent Detected in HTTP Traffic
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Reconnaissance
+technique: "T1595.002 - Active Scanning: Vulnerability Scanning"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1595/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_hacktool.yml
+description: |
+  Detects HTTP traffic containing user agent strings from known offensive security and hacking tools including vulnerability scanners, brute force tools, SQL injection tools, and web application testing tools. These tools are commonly used during reconnaissance and exploitation phases of attacks.
 
-    Next Steps:
-    1. Determine if this is authorized penetration testing or security assessment
-    2. Identify the specific tool being used and its target
-    3. Block the source IP at the network perimeter if unauthorized
-    4. Review web server logs for successful exploitation attempts
-    5. Check if any vulnerabilities were discovered and exploited
-    6. Implement rate limiting and WAF rules for detected scanning patterns
-    7. Alert the security operations team for investigation
-  where: |
-    equals("log.eventType", "http") &&
-    exists("log.http.http_user_agent") &&
-    exists("origin.ip") &&
-    (
-      regexMatch("log.http.http_user_agent", "(?i)^Hydra") ||
-      regexMatch("log.http.http_user_agent", "(?i)^DirBuster") ||
-      regexMatch("log.http.http_user_agent", "(?i)^dirbuster") ||
-      contains("log.http.http_user_agent", "sqlmap/") ||
-      regexMatch("log.http.http_user_agent", "(?i)^masscan/") ||
-      regexMatch("log.http.http_user_agent", "(?i)^Nikto") ||
-      contains("log.http.http_user_agent", "Nmap Scripting Engine") ||
-      regexMatch("log.http.http_user_agent", "(?i)^Nmap") ||
-      contains("log.http.http_user_agent", "Nuclei") ||
-      contains("log.http.http_user_agent", "gobuster") ||
-      contains("log.http.http_user_agent", "ffuf/") ||
-      contains("log.http.http_user_agent", "feroxbuster") ||
-      contains("log.http.http_user_agent", "wfuzz") ||
-      contains("log.http.http_user_agent", "httpx") ||
-      contains("log.http.http_user_agent", "WPScan") ||
-      contains("log.http.http_user_agent", "wpscan") ||
-      contains("log.http.http_user_agent", "Burp Suite") ||
-      contains("log.http.http_user_agent", "ZAP") ||
-      regexMatch("log.http.http_user_agent", "(?i)^OWASP ZAP") ||
-      contains("log.http.http_user_agent", "Arachni") ||
-      contains("log.http.http_user_agent", "w3af") ||
-      contains("log.http.http_user_agent", "Skipfish") ||
-      contains("log.http.http_user_agent", "OpenVAS") ||
-      contains("log.http.http_user_agent", "Nessus") ||
-      contains("log.http.http_user_agent", "Acunetix") ||
-      contains("log.http.http_user_agent", "AppSpider") ||
-      contains("log.http.http_user_agent", "Qualys") ||
-      contains("log.http.http_user_agent", "Commix") ||
-      contains("log.http.http_user_agent", "XSSer") ||
-      contains("log.http.http_user_agent", "Medusa") ||
-      contains("log.http.http_user_agent", "Patator") ||
-      contains("log.http.http_user_agent", "CeWL") ||
-      contains("log.http.http_user_agent", "Amass") ||
-      contains("log.http.http_user_agent", "subfinder") ||
-      contains("log.http.http_user_agent", "Scrapy") ||
-      contains("log.http.http_user_agent", "Dalfox") ||
-      contains("log.http.http_user_agent", "Jaeles") ||
-      contains("log.http.http_user_agent", "Cariddi") ||
-      contains("log.http.http_user_agent", "gau/") ||
-      contains("log.http.http_user_agent", "katana/")
-    )
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.eventType
-          operator: filter_term
-          value: 'http'
-      within: 15m
-      count: 10
-  deduplicateBy:
-    - adversary.ip
-    - lastEvent.log.http.http_user_agent
+  Next Steps:
+  1. Determine if this is authorized penetration testing or security assessment
+  2. Identify the specific tool being used and its target
+  3. Block the source IP at the network perimeter if unauthorized
+  4. Review web server logs for successful exploitation attempts
+  5. Check if any vulnerabilities were discovered and exploited
+  6. Implement rate limiting and WAF rules for detected scanning patterns
+  7. Alert the security operations team for investigation
+where: |
+  equals("log.eventType", "http") &&
+  exists("log.http.http_user_agent") &&
+  exists("origin.ip") &&
+  (
+    regexMatch("log.http.http_user_agent", "(?i)^Hydra") ||
+    regexMatch("log.http.http_user_agent", "(?i)^DirBuster") ||
+    regexMatch("log.http.http_user_agent", "(?i)^dirbuster") ||
+    contains("log.http.http_user_agent", "sqlmap/") ||
+    regexMatch("log.http.http_user_agent", "(?i)^masscan/") ||
+    regexMatch("log.http.http_user_agent", "(?i)^Nikto") ||
+    contains("log.http.http_user_agent", "Nmap Scripting Engine") ||
+    regexMatch("log.http.http_user_agent", "(?i)^Nmap") ||
+    contains("log.http.http_user_agent", "Nuclei") ||
+    contains("log.http.http_user_agent", "gobuster") ||
+    contains("log.http.http_user_agent", "ffuf/") ||
+    contains("log.http.http_user_agent", "feroxbuster") ||
+    contains("log.http.http_user_agent", "wfuzz") ||
+    contains("log.http.http_user_agent", "httpx") ||
+    contains("log.http.http_user_agent", "WPScan") ||
+    contains("log.http.http_user_agent", "wpscan") ||
+    contains("log.http.http_user_agent", "Burp Suite") ||
+    contains("log.http.http_user_agent", "ZAP") ||
+    regexMatch("log.http.http_user_agent", "(?i)^OWASP ZAP") ||
+    contains("log.http.http_user_agent", "Arachni") ||
+    contains("log.http.http_user_agent", "w3af") ||
+    contains("log.http.http_user_agent", "Skipfish") ||
+    contains("log.http.http_user_agent", "OpenVAS") ||
+    contains("log.http.http_user_agent", "Nessus") ||
+    contains("log.http.http_user_agent", "Acunetix") ||
+    contains("log.http.http_user_agent", "AppSpider") ||
+    contains("log.http.http_user_agent", "Qualys") ||
+    contains("log.http.http_user_agent", "Commix") ||
+    contains("log.http.http_user_agent", "XSSer") ||
+    contains("log.http.http_user_agent", "Medusa") ||
+    contains("log.http.http_user_agent", "Patator") ||
+    contains("log.http.http_user_agent", "CeWL") ||
+    contains("log.http.http_user_agent", "Amass") ||
+    contains("log.http.http_user_agent", "subfinder") ||
+    contains("log.http.http_user_agent", "Scrapy") ||
+    contains("log.http.http_user_agent", "Dalfox") ||
+    contains("log.http.http_user_agent", "Jaeles") ||
+    contains("log.http.http_user_agent", "Cariddi") ||
+    contains("log.http.http_user_agent", "gau/") ||
+    contains("log.http.http_user_agent", "katana/")
+  )
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'http'
+    within: 15m
+    count: 10
+deduplicateBy:
+  - adversary.ip
+  - lastEvent.log.http.http_user_agent

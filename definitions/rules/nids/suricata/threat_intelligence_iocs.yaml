@@ -1,44 +1,44 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: Threat Intelligence IOC Match
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 2
-  category: Command and Control
-  technique: Command and Control
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1071/
-    - https://www.snort.org/faq/what-is-snort
-  description: |
-    Detects network traffic matching known malicious indicators from threat intelligence feeds including malicious IPs, domains, and URLs. This rule triggers when Suricata identifies traffic involving known threat actors, command and control servers, botnet infrastructure, or other malicious network indicators based on threat intelligence data.
-  
-    Next Steps:
-    1. Immediately isolate the affected system from the network to prevent lateral movement
-    2. Analyze the complete network session to understand the scope of communication
-    3. Check for other systems that may have communicated with the same malicious indicator
-    4. Review threat intelligence source details to understand the specific threat type and attribution
-    5. Examine system logs for signs of compromise or malicious activity
-    6. Run comprehensive malware scans on the affected endpoint
-    7. Review user activity and authentication logs for suspicious behavior
-    8. Consider blocking the malicious indicator at network perimeter devices
-    9. Document the incident and update threat hunting queries to detect similar activity
-    10. If confirmed malicious, initiate incident response procedures and consider threat hunting across the environment
-  where: |
-    equals("log.alert_category", "threat_intel") &&
-    exists("origin.ip") &&
-    oneOf("log.threat_type", ["malicious_ip", "c2_server", "known_malware", "botnet"])
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-      within: 30m
-      count: 3
-  groupBy:
-    - lastEvent.log.threat_type
-    - adversary.ip
+dataTypes:
+  - suricata
+name: Threat Intelligence IOC Match
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 2
+category: Command and Control
+technique: Command and Control
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/
+  - https://www.snort.org/faq/what-is-snort
+description: |
+  Detects network traffic matching known malicious indicators from threat intelligence feeds including malicious IPs, domains, and URLs. This rule triggers when Suricata identifies traffic involving known threat actors, command and control servers, botnet infrastructure, or other malicious network indicators based on threat intelligence data.
+
+  Next Steps:
+  1. Immediately isolate the affected system from the network to prevent lateral movement
+  2. Analyze the complete network session to understand the scope of communication
+  3. Check for other systems that may have communicated with the same malicious indicator
+  4. Review threat intelligence source details to understand the specific threat type and attribution
+  5. Examine system logs for signs of compromise or malicious activity
+  6. Run comprehensive malware scans on the affected endpoint
+  7. Review user activity and authentication logs for suspicious behavior
+  8. Consider blocking the malicious indicator at network perimeter devices
+  9. Document the incident and update threat hunting queries to detect similar activity
+  10. If confirmed malicious, initiate incident response procedures and consider threat hunting across the environment
+where: |
+  equals("log.alert_category", "threat_intel") &&
+  exists("origin.ip") &&
+  oneOf("log.threat_type", ["malicious_ip", "c2_server", "known_malware", "botnet"])
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 30m
+    count: 3
+groupBy:
+  - lastEvent.log.threat_type
+  - adversary.ip

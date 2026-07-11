@@ -1,45 +1,45 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - suricata
-  name: Base64-Encoded User Agent String Detected
-  impact:
-    confidentiality: 2
-    integrity: 2
-    availability: 1
-  category: Command and Control
-  technique: "T1071.001 - Application Layer Protocol: Web Protocols"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1071/001/
-    - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_base64_encoded.yml
-  description: |
-    Detects HTTP traffic where the user agent string appears to be a base64-encoded value. Some malware families (notably YamaBot/Torisma attributed to North Korean APT Lazarus) use base64-encoded browser strings as user agents. This evasion technique attempts to bypass user agent-based detection while still being identifiable by the base64 encoding pattern.
+dataTypes:
+  - suricata
+name: Base64-Encoded User Agent String Detected
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1071.001 - Application Layer Protocol: Web Protocols"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_ua_base64_encoded.yml
+description: |
+  Detects HTTP traffic where the user agent string appears to be a base64-encoded value. Some malware families (notably YamaBot/Torisma attributed to North Korean APT Lazarus) use base64-encoded browser strings as user agents. This evasion technique attempts to bypass user agent-based detection while still being identifiable by the base64 encoding pattern.
 
-    Next Steps:
-    1. Decode the base64 user agent string to identify the encoded content
-    2. Investigate the source host for malware, particularly Lazarus/DPRK-attributed tools
-    3. Check the destination for known C2 infrastructure
-    4. Correlate with other suspicious activity from the same host
-    5. Block the destination IP/domain at the network perimeter
-    6. Perform endpoint forensics to identify the malware component
-    7. Search for similar base64-encoded UA patterns from other hosts
-  where: |
-    equals("log.eventType", "http") &&
-    exists("log.http.http_user_agent") &&
-    exists("origin.ip") &&
-    regexMatch("log.http.http_user_agent", "^[A-Za-z0-9+/]{40,}={0,2}$")
-  afterEvents:
-    - indexPattern: v11-log-suricata-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-        - field: log.eventType
-          operator: filter_term
-          value: 'http'
-      within: 30m
-      count: 3
-  groupBy:
-    - lastEvent.log.http.http_user_agent
-    - adversary.ip
+  Next Steps:
+  1. Decode the base64 user agent string to identify the encoded content
+  2. Investigate the source host for malware, particularly Lazarus/DPRK-attributed tools
+  3. Check the destination for known C2 infrastructure
+  4. Correlate with other suspicious activity from the same host
+  5. Block the destination IP/domain at the network perimeter
+  6. Perform endpoint forensics to identify the malware component
+  7. Search for similar base64-encoded UA patterns from other hosts
+where: |
+  equals("log.eventType", "http") &&
+  exists("log.http.http_user_agent") &&
+  exists("origin.ip") &&
+  regexMatch("log.http.http_user_agent", "^[A-Za-z0-9+/]{40,}={0,2}$")
+afterEvents:
+  - indexPattern: v11-log-suricata-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+      - field: log.eventType
+        operator: filter_term
+        value: 'http'
+    within: 30m
+    count: 3
+groupBy:
+  - lastEvent.log.http.http_user_agent
+  - adversary.ip

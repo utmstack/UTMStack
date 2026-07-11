@@ -1,40 +1,40 @@
 # Rule version v1.0.0
 
-- dataTypes:
-    - netflow
-  name: Tor Network Usage Detection
-  impact:
-    confidentiality: 3
-    integrity: 2
-    availability: 1
-  category: Command and Control
-  technique: "T1090 - Proxy: Multi-hop Proxy"
-  adversary: origin
-  references:
-    - https://attack.mitre.org/techniques/T1090/
-    - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
-    - https://www.torproject.org/
-  description: |
-    Detects potential Tor network usage based on connections to known Tor entry node ports (9001, 9030, 9050, 9051) and traffic patterns consistent with Tor usage. Tor is commonly used by attackers to anonymize their traffic and evade detection.
-  
-    Next Steps:
-    1. Verify if Tor usage is authorized in your organization's security policy
-    2. Investigate the source IP address and user context if available
-    3. Check for other suspicious activities from the same source
-    4. Consider blocking Tor traffic if not authorized for business use
-    5. Review firewall logs for additional Tor-related connections
-    6. Correlate with authentication logs to identify the user if possible
-  where: |
-    exists("origin.ip") && exists("target.ip") &&
-    oneOf("target.port", [9001, 9030, 9050, 9051]) &&
-    equals("protocol", "6") && greaterThan("log.bytes", 512)
-  afterEvents:
-    - indexPattern: v11-log-netflow-*
-      with:
-        - field: origin.ip
-          operator: filter_term
-          value: '{{.origin.ip}}'
-      within: 1h
-      count: 5
-  groupBy:
-    - adversary.ip
+dataTypes:
+  - netflow
+name: Tor Network Usage Detection
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Command and Control
+technique: "T1090 - Proxy: Multi-hop Proxy"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1090/
+  - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
+  - https://www.torproject.org/
+description: |
+  Detects potential Tor network usage based on connections to known Tor entry node ports (9001, 9030, 9050, 9051) and traffic patterns consistent with Tor usage. Tor is commonly used by attackers to anonymize their traffic and evade detection.
+
+  Next Steps:
+  1. Verify if Tor usage is authorized in your organization's security policy
+  2. Investigate the source IP address and user context if available
+  3. Check for other suspicious activities from the same source
+  4. Consider blocking Tor traffic if not authorized for business use
+  5. Review firewall logs for additional Tor-related connections
+  6. Correlate with authentication logs to identify the user if possible
+where: |
+  exists("origin.ip") && exists("target.ip") &&
+  oneOf("target.port", [9001, 9030, 9050, 9051]) &&
+  equals("protocol", "6") && greaterThan("log.bytes", 512)
+afterEvents:
+  - indexPattern: v11-log-netflow-*
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: '{{.origin.ip}}'
+    within: 1h
+    count: 5
+groupBy:
+  - adversary.ip
