@@ -11,8 +11,8 @@
 # 3. Parsing the fields of the message
 
 pipeline:
-  - dataTypes:
-      - ibm-aix
+  - dataType: ibm-aix
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       #......................................................................#
       # Using grok to parse syslogHeader of the message

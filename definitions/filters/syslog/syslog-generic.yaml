@@ -1,8 +1,8 @@
 # Generic syslog filter, version 2.0.0
 # Allow processing of any syslog log
 pipeline:
-  - dataTypes:
-      - syslog
+  - dataType: syslog
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - grok:
           patterns:

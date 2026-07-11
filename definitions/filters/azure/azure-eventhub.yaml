@@ -4,8 +4,8 @@
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
 # 2- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log-schema
 pipeline:
-  - dataTypes:
-      - azure
+  - dataType: azure
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - json:
           source: raw

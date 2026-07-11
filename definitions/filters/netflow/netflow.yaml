@@ -10,8 +10,8 @@
 # Implementation
 # 1. Parsing the RAW field containing the Netflow
 pipeline:
-  - dataTypes:
-      - netflow
+  - dataType: netflow
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
 
       # Using the kv filter with default config, usefull in key-value logs

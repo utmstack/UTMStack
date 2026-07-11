@@ -7,8 +7,8 @@
 # Optimized: Direct mapping to standard schema (no intermediate steps)
 
 pipeline:
-  - dataTypes:
-      - linux
+  - dataType: linux
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       # ========================================
       # PHASE 1: EXTRACTION

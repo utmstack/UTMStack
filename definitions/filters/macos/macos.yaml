@@ -1,7 +1,7 @@
 # Macos filter, version 3.0.1
 pipeline:
-  - dataTypes:
-      - macos
+  - dataType: macos
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - json:
           source: raw

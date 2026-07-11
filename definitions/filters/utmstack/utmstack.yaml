@@ -1,8 +1,8 @@
 # UTMStack filter, version 1.0.1
 
 pipeline:
-  - dataTypes:
-      - utmstack
+  - dataType: utmstack
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       # Only parse as JSON if it contains the standard schema with "msg": and "args":
       - json:

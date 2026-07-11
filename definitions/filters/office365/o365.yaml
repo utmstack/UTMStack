@@ -6,8 +6,8 @@
 # https://learn.microsoft.com/en-us/purview/audit-log-activities
 
 pipeline:
-  - dataTypes:
-      - o365
+  - dataType: o365
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - json:
           source: raw

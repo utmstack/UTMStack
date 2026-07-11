@@ -238,8 +238,11 @@ func wrapInPipelineYAML(rawDSL, dataType string) []byte {
 	const header = "# migrated from legacy utm_logstash_filter\npipeline:\n"
 	const stepsBlock = "    steps:\n      - logstash:\n          filter: |\n%s\n"
 
+	// This lands in the user overlay, so it needs an explicit order at or
+	// above customFilterDefaultOrder — otherwise it would default to 0 and
+	// could tie with a system filter sharing the same dataType.
 	if dataType != "" {
-		return []byte(fmt.Sprintf(header+"  - dataTypes:\n      - %s\n"+stepsBlock, dataType, indented))
+		return []byte(fmt.Sprintf(header+"  - dataType: %s\n    order: %d\n"+stepsBlock, dataType, customFilterDefaultOrder, indented))
 	}
-	return []byte(fmt.Sprintf(header+"  - steps:\n      - logstash:\n          filter: |\n%s\n", indented))
+	return []byte(fmt.Sprintf(header+"  - order: %d\n    steps:\n      - logstash:\n          filter: |\n%s\n", customFilterDefaultOrder, indented))
 }

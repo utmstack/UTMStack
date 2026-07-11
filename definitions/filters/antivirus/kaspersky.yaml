@@ -12,8 +12,8 @@
 # 1. Parsing the RAW field containing the KAV
 
 pipeline:
-  - dataTypes:
-      - antivirus-kaspersky
+  - dataType: antivirus-kaspersky
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
 
       # .......................................................................#

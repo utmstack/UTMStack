@@ -64,8 +64,9 @@ func validateProcessor(name string, raw any) error {
 
 type filterConfig struct {
 	Pipeline []struct {
-		DataTypes []string         `yaml:"dataTypes"`
-		Steps     []map[string]any `yaml:"steps"`
+		DataType string           `yaml:"dataType"`
+		Order    int32            `yaml:"order"`
+		Steps    []map[string]any `yaml:"steps"`
 	} `yaml:"pipeline"`
 }
 
@@ -85,11 +86,9 @@ func collectDataTypes(content []byte, depth int, seen map[string]bool, out *[]st
 		return
 	}
 	for _, p := range cfg.Pipeline {
-		for _, dt := range p.DataTypes {
-			if dt != "" && !seen[dt] {
-				seen[dt] = true
-				*out = append(*out, dt)
-			}
+		if p.DataType != "" && !seen[p.DataType] {
+			seen[p.DataType] = true
+			*out = append(*out, p.DataType)
 		}
 		for _, step := range p.Steps {
 			ls, ok := step["logstash"].(map[string]any)
@@ -112,6 +111,9 @@ func hasDataType(dts []string, want string) bool {
 	return false
 }
 
+const customFilterDefaultOrder = 100
+const reservedSystemOrderMax = 100
+
 func validateFilterContent(content string) error {
 	if strings.TrimSpace(content) == "" {
 		return fmt.Errorf("%w: content is empty", domain.ErrFilterInvalidContent)
@@ -124,8 +126,12 @@ func validateFilterContent(content string) error {
 		return fmt.Errorf("%w: must define at least one pipeline entry", domain.ErrFilterInvalidContent)
 	}
 	for i, p := range cfg.Pipeline {
-		if len(p.DataTypes) == 0 {
-			return fmt.Errorf("%w: pipeline[%d] needs at least one dataType", domain.ErrFilterInvalidContent, i)
+		if strings.TrimSpace(p.DataType) == "" {
+			return fmt.Errorf("%w: pipeline[%d] needs a dataType", domain.ErrFilterInvalidContent, i)
+		}
+		if p.Order > 0 && p.Order < reservedSystemOrderMax {
+			return fmt.Errorf("%w: pipeline[%d] order %d is reserved for system filters (use 0 or >= %d)",
+				domain.ErrFilterInvalidContent, i, p.Order, reservedSystemOrderMax)
 		}
 		if len(p.Steps) == 0 {
 			return fmt.Errorf("%w: pipeline[%d] needs at least one step", domain.ErrFilterInvalidContent, i)
@@ -144,6 +150,28 @@ func validateFilterContent(content string) error {
 	return nil
 }
 
+func normalizeFilterOrder(content string) (string, error) {
+	var cfg filterConfig
+	if err := yaml.Unmarshal([]byte(content), &cfg); err != nil {
+		return content, err
+	}
+	changed := false
+	for i := range cfg.Pipeline {
+		if cfg.Pipeline[i].Order == 0 {
+			cfg.Pipeline[i].Order = customFilterDefaultOrder
+			changed = true
+		}
+	}
+	if !changed {
+		return content, nil
+	}
+	out, err := yaml.Marshal(cfg)
+	if err != nil {
+		return content, err
+	}
+	return string(out), nil
+}
+
 type filterUsecase struct {
 	store *FilterStore
 }
@@ -156,7 +184,11 @@ func (u *filterUsecase) Create(_ context.Context, req dto.CreateFilterRequest) (
 	if err := validateFilterContent(req.Content); err != nil {
 		return nil, err
 	}
-	entry, err := u.store.Create(req.RelPath, []byte(req.Content))
+	content, err := normalizeFilterOrder(req.Content)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+	}
+	entry, err := u.store.Create(req.RelPath, []byte(content))
 	if err != nil {
 		return nil, mapStoreFilterErr(err)
 	}
@@ -167,7 +199,11 @@ func (u *filterUsecase) Update(_ context.Context, req dto.UpdateFilterRequest) (
 	if err := validateFilterContent(req.Content); err != nil {
 		return nil, err
 	}
-	entry, err := u.store.Update(req.RelPath, []byte(req.Content))
+	content, err := normalizeFilterOrder(req.Content)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+	}
+	entry, err := u.store.Update(req.RelPath, []byte(content))
 	if err != nil {
 		return nil, mapStoreFilterErr(err)
 	}

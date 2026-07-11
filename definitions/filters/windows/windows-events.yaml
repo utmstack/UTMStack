@@ -3,8 +3,8 @@
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
 pipeline:
-  - dataTypes:
-      - wineventlog
+  - dataType: wineventlog
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - json:
           source: raw

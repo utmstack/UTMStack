@@ -13,8 +13,8 @@
 # 4. Using grok to parse kv issued fields
 
 pipeline:
-  - dataTypes:
-      - firewall-fortiweb
+  - dataType: firewall-fortiweb
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
 
       #Using grok to parse priority if present

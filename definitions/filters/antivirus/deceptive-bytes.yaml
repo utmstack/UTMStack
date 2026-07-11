@@ -2,8 +2,8 @@
 # Based on previous version of the same filter
 
 pipeline:
-  - dataTypes:
-      - deceptive-bytes
+  - dataType: deceptive-bytes
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       # Using grok to parse header of the message
       - grok:

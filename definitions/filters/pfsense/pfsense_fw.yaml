@@ -11,8 +11,8 @@
 # 3. Parsing the CSV field containing the PfSense
 
 pipeline:
-  - dataTypes:
-      - firewall-pfsense
+  - dataType: firewall-pfsense
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       #......................................................................#
       #......................................................................#

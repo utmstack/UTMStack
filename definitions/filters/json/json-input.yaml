@@ -1,8 +1,8 @@
 # Json filter, version 2.0
 # Allow processing of any one line json 
 pipeline:
-  - dataTypes:
-      - json-input
+  - dataType: json-input
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       - json:
           source: raw

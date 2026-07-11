@@ -3,8 +3,8 @@
 # and the previous version of the same filter
 
 pipeline:
-  - dataTypes:
-      - antivirus-bitdefender-gz
+  - dataType: antivirus-bitdefender-gz
+    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
     steps:
       # Using grok to parse header of the message
       - grok:
