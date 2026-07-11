@@ -163,6 +163,14 @@ type tenantYAML struct {
 	Config map[string]string `yaml:",inline"`
 }
 
+type pluginsFile struct {
+	Plugins map[string]struct {
+		Tenants []tenantYAML `yaml:"tenants"`
+	} `yaml:"plugins"`
+}
+
+const pluginKey = "gcp"
+
 // sensitiveKeys lists the configuration keys whose values are stored encrypted.
 var sensitiveKeys = map[string]bool{
 	"jsonKey": true,
@@ -180,11 +188,12 @@ func readConfig(path, encKey string) *ConfigurationSection {
 		return nil
 	}
 
-	var tenants []tenantYAML
-	if err := yaml.Unmarshal(data, &tenants); err != nil {
+	var pf pluginsFile
+	if err := yaml.Unmarshal(data, &pf); err != nil {
 		_ = catcher.Error("failed to parse config file", err, map[string]any{"process": processName, "file": path})
 		return nil
 	}
+	tenants := pf.Plugins[pluginKey].Tenants
 
 	sec := &ConfigurationSection{
 		ModuleActive: len(tenants) > 0,
