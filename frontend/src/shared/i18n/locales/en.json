@@ -3104,9 +3104,6 @@
             "projectId": {
               "label": "Project ID"
             },
-            "topicId": {
-              "label": "Topic name"
-            },
             "subscription": {
               "label": "Subscription name"
             },
@@ -4015,8 +4012,8 @@
         "hint": "Manage frameworks and generate reports."
       },
       "correlation": {
-        "label": "Manage correlation rules",
-        "hint": "Create and edit correlation & event-processing rules."
+        "label": "Manage correlation rules & filters",
+        "hint": "Create and edit correlation rules, event-processing filters, regex patterns, and per-tenant rule settings."
       },
       "datasources": {
         "label": "Manage data sources",

@@ -58,6 +58,13 @@ type fileConfig struct {
 	Capabilities      []string          `yaml:"capabilities"`
 }
 
+// pluginsFile matches the flat wrapper the backend writes: plugins.soc-ai.*
+type pluginsFile struct {
+	Plugins map[string]fileConfig `yaml:"plugins"`
+}
+
+const pluginKey = "soc-ai"
+
 var providerDefaultURLs = map[string]string{
 	"openai":    "https://api.openai.com/v1/chat/completions",
 	"anthropic": "https://api.anthropic.com/v1/messages",
@@ -176,10 +183,14 @@ func readConfig(path, encKey, backend, internalKey string) *Config {
 		return c // inactive
 	}
 
-	var fc fileConfig
-	if err := yaml.Unmarshal(data, &fc); err != nil {
+	var pf pluginsFile
+	if err := yaml.Unmarshal(data, &pf); err != nil {
 		_ = catcher.Error("failed to parse config file", err, map[string]any{"process": processName, "file": path})
 		return c // inactive
+	}
+	fc, ok := pf.Plugins[pluginKey]
+	if !ok {
+		return c // inactive: module not configured
 	}
 
 	cipher := NewCipher(encKey)

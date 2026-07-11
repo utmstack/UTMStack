@@ -181,7 +181,7 @@ func ensureIndexPattern(ctx context.Context, pattern string) (string, error) {
 
 	body := map[string]any{
 		"index_patterns": []string{sanitized},
-		"priority":       0,
+		"priority":       constants.OS_TEMPLATE_PRIORITY_CUSTOM_PATTERN,
 		"template": map[string]any{
 			"settings": map[string]any{
 				"index.mapping.total_fields.limit": constants.OS_INDEX_FIELD_LIMIT,

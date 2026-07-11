@@ -9,7 +9,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const configFileName = "system_plugins_soc_ai.yaml"
+const (
+	configFileName = "system_plugins_soc_ai.yaml"
+	pluginKey      = "soc-ai"
+)
 
 type FileConfig struct {
 	Provider          string            `yaml:"provider"`
@@ -23,6 +26,13 @@ type FileConfig struct {
 	MaxToolIterations int               `yaml:"max_tool_iterations"`
 	AutoAnalyze       bool              `yaml:"auto_analyze"`
 	Capabilities      []string          `yaml:"capabilities,omitempty"`
+}
+
+// pluginsFile is the on-disk wrapper shared with the other system_plugins_*.yaml
+// files: plugins.<key>.* — keeps soc-ai's config file the same namespaced shape
+// as the datasource plugins instead of being the one bare/flat outlier.
+type pluginsFile struct {
+	Plugins map[string]FileConfig `yaml:"plugins"`
 }
 
 type ConfigStore struct {
@@ -49,9 +59,13 @@ func (s *ConfigStore) Load() (*FileConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	var fc FileConfig
-	if err := yaml.Unmarshal(data, &fc); err != nil {
+	var pf pluginsFile
+	if err := yaml.Unmarshal(data, &pf); err != nil {
 		return nil, err
+	}
+	fc, ok := pf.Plugins[pluginKey]
+	if !ok {
+		return nil, nil
 	}
 	return &fc, nil
 }
@@ -63,7 +77,8 @@ func (s *ConfigStore) Save(fc *FileConfig) error {
 	if err := os.MkdirAll(s.dir, 0o755); err != nil {
 		return err
 	}
-	data, err := yaml.Marshal(fc)
+	pf := pluginsFile{Plugins: map[string]FileConfig{pluginKey: *fc}}
+	data, err := yaml.Marshal(pf)
 	if err != nil {
 		return err
 	}

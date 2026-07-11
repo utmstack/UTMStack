@@ -15,11 +15,6 @@ export const GOOGLE_FIELDS: CloudConfigField[] = [
     placeholder: 'my-gcp-project',
   },
   {
-    key: 'topicId',
-    labelKey: `${ROOT}.fields.topicId.label`,
-    placeholder: 'utmstack-topic',
-  },
-  {
     key: 'subscription',
     labelKey: `${ROOT}.fields.subscription.label`,
     placeholder: 'utmstack-subscription',

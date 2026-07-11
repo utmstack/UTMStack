@@ -2923,9 +2923,6 @@
             "projectId": {
               "label": "ID de projet"
             },
-            "topicId": {
-              "label": "Nom du sujet"
-            },
             "subscription": {
               "label": "Nom de l'abonnement"
             },
@@ -4942,8 +4939,8 @@
         "hint": "Gérer les frameworks et générer des rapports."
       },
       "correlation": {
-        "label": "Gérer les règles de corrélation",
-        "hint": "Créer et modifier les règles de corrélation et de traitement des événements."
+        "label": "Gérer les règles de corrélation et les filtres",
+        "hint": "Créer et modifier les règles de corrélation, les filtres de traitement des événements, les motifs regex et les paramètres de règles par locataire."
       },
       "datasources": {
         "label": "Gérer les sources de données",

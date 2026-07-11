@@ -2923,9 +2923,6 @@
             "projectId": {
               "label": "ID progetto"
             },
-            "topicId": {
-              "label": "Nome argomento"
-            },
             "subscription": {
               "label": "Nome sottoscrizione"
             },
@@ -4942,8 +4939,8 @@
         "hint": "Gestisci i framework e genera report."
       },
       "correlation": {
-        "label": "Gestisci regole di correlazione",
-        "hint": "Crea e modifica regole di correlazione ed elaborazione eventi."
+        "label": "Gestisci regole di correlazione e filtri",
+        "hint": "Crea e modifica regole di correlazione, filtri di elaborazione eventi, pattern regex e impostazioni delle regole per tenant."
       },
       "datasources": {
         "label": "Gestisci sorgenti dati",

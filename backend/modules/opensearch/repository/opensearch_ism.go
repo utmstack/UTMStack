@@ -86,7 +86,7 @@ func (c *ISMClient) EnsureFieldLimitTemplate(ctx context.Context, patterns []str
 	path := "_index_template/utmstack-field-limit"
 	body := map[string]any{
 		"index_patterns": patterns,
-		"priority":       0,
+		"priority":       constants.OS_TEMPLATE_PRIORITY_FIELD_LIMIT,
 		"template": map[string]any{
 			"settings": map[string]any{
 				"index.mapping.total_fields.limit": constants.OS_INDEX_FIELD_LIMIT,

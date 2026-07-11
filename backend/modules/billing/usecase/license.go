@@ -105,6 +105,9 @@ func (s *LicenseService) evaluate() domain.License {
 	if err != nil {
 		return domain.Community() // no license installed → community
 	}
+	if len(strings.TrimSpace(string(envelope))) == 0 {
+		return domain.Community() // empty LICENSE file → community, not an error
+	}
 	lic, err := s.validateAndParse(envelope)
 	if err != nil {
 		// A dev build (no injected key/salt) can't verify a LICENSE that happens to

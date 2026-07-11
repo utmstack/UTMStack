@@ -2923,9 +2923,6 @@
             "projectId": {
               "label": "Projekt-ID"
             },
-            "topicId": {
-              "label": "Themenname"
-            },
             "subscription": {
               "label": "Abonnementname"
             },
@@ -4942,8 +4939,8 @@
         "hint": "Frameworks verwalten und Berichte erstellen."
       },
       "correlation": {
-        "label": "Korrelationsregeln verwalten",
-        "hint": "Korrelations- und Ereignisverarbeitungsregeln erstellen und bearbeiten."
+        "label": "Korrelationsregeln und Filter verwalten",
+        "hint": "Korrelationsregeln, Ereignisverarbeitungsfilter, Regex-Muster und mandantenspezifische Regeleinstellungen erstellen und bearbeiten."
       },
       "datasources": {
         "label": "Datenquellen verwalten",

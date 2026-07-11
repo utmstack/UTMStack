@@ -23,7 +23,6 @@ var moduleSchemas = map[string]map[string]string{
 		"jsonKey":      "file",
 		"projectId":    "text",
 		"subscription": "text",
-		"topic":        "text",
 	},
 	"O365": {
 		"office365_client_id":         "text",
