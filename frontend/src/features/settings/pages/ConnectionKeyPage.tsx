@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
-  Apple,
   Check,
   Copy,
   Eye,
   EyeOff,
   KeyRound,
   RefreshCw,
-  Server,
   ShieldCheck,
-  Terminal,
-  type LucideIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
@@ -100,8 +96,6 @@ export function ConnectionKeyPage() {
           onCancel={() => setConfirming(false)}
           onRotate={rotate}
         />
-
-        {hasToken && <UsageSection token={token} onCopy={copy} />}
 
         {hasToken && <RotationReminderSection />}
       </div>
@@ -274,97 +268,6 @@ function TokenSection({
           </div>
         </>
       )}
-    </Section>
-  )
-}
-
-/* ─── Usage section ────────────────────────────────────────────────────── */
-
-interface Usage {
-  id: string
-  label: string
-  icon: LucideIcon
-  iconTone: string
-  command: string
-}
-
-function UsageSection({ token, onCopy }: { token: string; onCopy: (v: string) => void }) {
-  const { t } = useTranslation()
-  const [pick, setPick] = useState<string>('linux')
-  const tk = token || 'YOUR_TOKEN'
-  const usages: Usage[] = [
-    {
-      id: 'linux',
-      label: t('connectionKey.install.linux'),
-      icon: Terminal,
-      iconTone: 'text-amber-500',
-      command: `curl -fsSL https://install.utmstack.com/agent.sh | sudo bash -s -- \\
-  --token="${tk}"`,
-    },
-    {
-      id: 'windows',
-      label: t('connectionKey.install.windows'),
-      icon: Server,
-      iconTone: 'text-sky-500',
-      command: `# Run in PowerShell as Administrator
-iwr https://install.utmstack.com/agent.ps1 -OutFile install.ps1
-./install.ps1 -Token "${tk}"`,
-    },
-    {
-      id: 'macos',
-      label: t('connectionKey.install.macos'),
-      icon: Apple,
-      iconTone: 'text-violet-500',
-      command: `curl -fsSL https://install.utmstack.com/agent-macos.sh | sudo bash -s -- \\
-  --token="${tk}"`,
-    },
-  ]
-  const current = usages.find((u) => u.id === pick) ?? usages[0]
-  const CurrentIcon = current.icon
-
-  return (
-    <Section
-      title={t('connectionKey.install.title')}
-      subtitle={t('connectionKey.install.subtitle')}
-    >
-      <div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/30 p-1">
-        {usages.map((u) => {
-          const Icon = u.icon
-          const active = pick === u.id
-          return (
-            <button
-              key={u.id}
-              onClick={() => setPick(u.id)}
-              className={cn(
-                'flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors',
-                active
-                  ? 'bg-card text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon size={12} className={active ? u.iconTone : ''} />
-              {u.label}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="mt-3 overflow-hidden rounded-md border border-border bg-muted/40">
-        <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <CurrentIcon size={11} className={current.iconTone} />
-            <span>{current.label}</span>
-          </span>
-          <button
-            onClick={() => onCopy(current.command)}
-            className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-muted-foreground hover:bg-card hover:text-foreground"
-          >
-            <Copy size={11} />
-            {t('connectionKey.install.copyCommand')}
-          </button>
-        </div>
-        <pre className="overflow-x-auto p-3 font-mono text-[11px] leading-relaxed">{current.command}</pre>
-      </div>
     </Section>
   )
 }

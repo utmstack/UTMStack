@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bot, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Bot, Eye, EyeOff, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { socaiHttpService } from '../services/socai-http.service'
+import { useTiUsage } from '@/features/threat-intel/hooks/use-ti-usage'
+
+// The path key CM's usage endpoint reports for SOC-AI traffic (see
+// CustomersManager proxy/handlers/usage.go — keyed by rate-limited prefix).
+const THREATWINDS_CHAT_USAGE_KEY = '/api/ai/v1/chat/completions'
 
 /**
  * Provider registry — drives which fields the user sees. For the known cloud
@@ -23,11 +28,21 @@ interface ProviderDef {
   authHeaderName?: string // preset (e.g. azure)
   custom?: boolean // show full auth controls (auth type + header + custom headers)
   note?: string // optional i18n key with provider guidance
+  fixedModel?: string // no model picker at all; always send this model
 }
 
 const CUSTOM_MODEL = '__custom__'
 
 const PROVIDERS: Record<string, ProviderDef> = {
+  threatwinds: {
+    label: 'ThreatWinds',
+    models: [],
+    fixedModel: 'silas-1.0',
+    showUrl: false,
+    apiKey: 'none',
+    authType: 'none',
+    note: 'socAi.note.threatwinds',
+  },
   openai: {
     label: 'OpenAI',
     models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-mini', 'o3', 'o4-mini'],
@@ -104,6 +119,34 @@ const PROVIDERS: Record<string, ProviderDef> = {
 const PROVIDER_IDS = Object.keys(PROVIDERS)
 
 /**
+ * Authentication kind — custom-provider-only UI discriminator. Collapses the
+ * backend's authType ('bearer' | 'header' | 'none') plus customHeaders into
+ * one mutually-exclusive choice, since a gateway either sends a bearer token,
+ * a single named header, a free-form set of headers, or nothing.
+ */
+type AuthKind = 'apiKey' | 'bearer' | 'customHeaders' | 'none'
+
+const AUTH_KIND_TO_TYPE: Record<AuthKind, string> = {
+  apiKey: 'header',
+  bearer: 'bearer',
+  customHeaders: 'none',
+  none: 'none',
+}
+
+function authKindForProvider(def: ProviderDef): AuthKind {
+  if (def.authType === 'bearer') return 'bearer'
+  if (def.authType === 'header') return 'apiKey'
+  return 'none'
+}
+
+function authKindFromConfig(authType: string, customHeaders: Record<string, string>): AuthKind {
+  if (Object.keys(customHeaders).length > 0) return 'customHeaders'
+  if (authType === 'bearer') return 'bearer'
+  if (authType === 'header') return 'apiKey'
+  return 'none'
+}
+
+/**
  * Capability groups the admin can grant the agent. IDs MUST match the plugin's
  * capability catalog (plugins/soc-ai/internal/agent/groups.go) and the backend
  * config. Read access is always on; these gate write/action tools per module.
@@ -117,30 +160,35 @@ const CAPABILITY_GROUPS: { id: string; danger?: boolean }[] = [
   { id: 'datasources' },
 ]
 
+interface HeaderRow {
+  key: string
+  value: string
+}
+
 interface Form {
   provider: string
   model: string
   url: string
   apiKey: string
-  authType: string
+  authKind: AuthKind // custom provider only
   authHeaderName: string
-  customHeaders: string // JSON text (custom provider only)
+  customHeadersList: HeaderRow[]
   maxTokens: string
   maxToolIterations: string
   autoAnalyze: boolean
   capabilities: string[] // enabled permission group ids
 }
 
-function emptyForm(provider = 'openai'): Form {
+function emptyForm(provider = 'threatwinds'): Form {
   const def = PROVIDERS[provider]
   return {
     provider,
-    model: def.models[0] ?? '',
+    model: def.fixedModel ?? def.models[0] ?? '',
     url: '',
     apiKey: '',
-    authType: def.authType,
+    authKind: authKindForProvider(def),
     authHeaderName: def.authHeaderName ?? '',
-    customHeaders: '{}',
+    customHeadersList: [],
     maxTokens: '4096',
     maxToolIterations: '12',
     autoAnalyze: true,
@@ -165,16 +213,16 @@ export function SocAiSettingsPage() {
       .get()
       .then((cfg) => {
         if (cancelled) return
-        const provider = cfg.provider && PROVIDERS[cfg.provider] ? cfg.provider : 'openai'
+        const provider = cfg.provider && PROVIDERS[cfg.provider] ? cfg.provider : 'threatwinds'
         const def = PROVIDERS[provider]
         const v: Form = {
           provider,
-          model: cfg.model || def.models[0] || '',
+          model: def.fixedModel ?? (cfg.model || def.models[0] || ''),
           url: cfg.url || '',
           apiKey: '',
-          authType: cfg.authType || def.authType,
+          authKind: authKindFromConfig(cfg.authType || def.authType, cfg.customHeaders ?? {}),
           authHeaderName: cfg.authHeaderName || def.authHeaderName || '',
-          customHeaders: JSON.stringify(cfg.customHeaders ?? {}, null, 2),
+          customHeadersList: Object.entries(cfg.customHeaders ?? {}).map(([key, value]) => ({ key, value })),
           maxTokens: String(cfg.maxTokens || 4096),
           maxToolIterations: String(cfg.maxToolIterations || 12),
           autoAnalyze: cfg.autoAnalyze,
@@ -204,11 +252,11 @@ export function SocAiSettingsPage() {
     setForm((f) => ({
       ...f,
       provider,
-      model: d.models[0] ?? '',
+      model: d.fixedModel ?? d.models[0] ?? '',
       url: '',
-      authType: d.authType,
+      authKind: authKindForProvider(d),
       authHeaderName: d.authHeaderName ?? '',
-      customHeaders: '{}',
+      customHeadersList: [],
     }))
     setModelCustom(d.models.length === 0)
   }
@@ -222,17 +270,22 @@ export function SocAiSettingsPage() {
       toast.error(t('socAi.modelRequired'))
       return
     }
-    let customHeaders: Record<string, string> = {}
-    if (def.custom) {
-      try {
-        const parsed = JSON.parse(form.customHeaders || '{}')
-        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('not an object')
-        customHeaders = parsed as Record<string, string>
-      } catch {
-        toast.error(t('socAi.invalidHeaders'))
-        return
+
+    const customHeaders: Record<string, string> = {}
+    if (def.custom && form.authKind === 'customHeaders') {
+      for (const row of form.customHeadersList) {
+        const key = row.key.trim()
+        if (key) customHeaders[key] = row.value
       }
     }
+
+    const authType = def.custom ? AUTH_KIND_TO_TYPE[form.authKind] : def.authType
+    const authHeaderName = def.custom
+      ? form.authKind === 'apiKey'
+        ? form.authHeaderName.trim()
+        : ''
+      : (def.authHeaderName ?? '')
+    const apiKeyEligible = def.custom ? form.authKind === 'apiKey' || form.authKind === 'bearer' : def.apiKey !== 'none'
 
     setSaving(true)
     try {
@@ -240,9 +293,9 @@ export function SocAiSettingsPage() {
         provider: form.provider,
         model: form.model.trim(),
         url: def.showUrl ? form.url.trim() : '',
-        apiKey: def.apiKey === 'none' ? '' : apiKeyTouched ? form.apiKey : '',
-        authType: def.custom ? form.authType : def.authType,
-        authHeaderName: def.custom ? form.authHeaderName.trim() : (def.authHeaderName ?? ''),
+        apiKey: apiKeyEligible && apiKeyTouched ? form.apiKey : '',
+        authType,
+        authHeaderName,
         customHeaders,
         maxTokens: parseInt(form.maxTokens, 10) || 4096,
         maxToolIterations: parseInt(form.maxToolIterations, 10) || 12,
@@ -264,7 +317,7 @@ export function SocAiSettingsPage() {
     }
   }
 
-  const showApiKey = def.apiKey !== 'none'
+  const showApiKey = def.apiKey !== 'none' && !def.custom
   const hasModelList = def.models.length > 0
 
   return (
@@ -295,44 +348,46 @@ export function SocAiSettingsPage() {
                 </Select>
               </Field>
 
-              <Field label={t('socAi.model.label')} hint={t('socAi.model.hint')}>
-                {hasModelList ? (
-                  <div className="space-y-2">
-                    <Select
-                      value={modelCustom ? CUSTOM_MODEL : form.model}
-                      onChange={(e) => {
-                        if (e.target.value === CUSTOM_MODEL) {
-                          setModelCustom(true)
-                          patch({ model: '' })
-                        } else {
-                          setModelCustom(false)
-                          patch({ model: e.target.value })
-                        }
-                      }}
-                    >
-                      {def.models.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                      <option value={CUSTOM_MODEL}>{t('socAi.model.customOption')}</option>
-                    </Select>
-                    {modelCustom && (
-                      <Input
-                        value={form.model}
-                        onChange={(e) => patch({ model: e.target.value })}
-                        placeholder={t('socAi.model.customPlaceholder')}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <Input
-                    value={form.model}
-                    onChange={(e) => patch({ model: e.target.value })}
-                    placeholder={t('socAi.model.customPlaceholder')}
-                  />
-                )}
-              </Field>
+              {!def.fixedModel && (
+                <Field label={t('socAi.model.label')} hint={t('socAi.model.hint')}>
+                  {hasModelList ? (
+                    <div className="space-y-2">
+                      <Select
+                        value={modelCustom ? CUSTOM_MODEL : form.model}
+                        onChange={(e) => {
+                          if (e.target.value === CUSTOM_MODEL) {
+                            setModelCustom(true)
+                            patch({ model: '' })
+                          } else {
+                            setModelCustom(false)
+                            patch({ model: e.target.value })
+                          }
+                        }}
+                      >
+                        {def.models.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                        <option value={CUSTOM_MODEL}>{t('socAi.model.customOption')}</option>
+                      </Select>
+                      {modelCustom && (
+                        <Input
+                          value={form.model}
+                          onChange={(e) => patch({ model: e.target.value })}
+                          placeholder={t('socAi.model.customPlaceholder')}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      value={form.model}
+                      onChange={(e) => patch({ model: e.target.value })}
+                      placeholder={t('socAi.model.customPlaceholder')}
+                    />
+                  )}
+                </Field>
+              )}
 
               {def.showUrl && (
                 <Field label={t('socAi.url.label')} hint={t('socAi.url.hint')}>
@@ -341,67 +396,92 @@ export function SocAiSettingsPage() {
               )}
 
               {showApiKey && (
-                <Field
+                <SecretField
                   label={t('socAi.apiKey.label')}
                   hint={apiKeySet && !apiKeyTouched ? t('socAi.apiKey.setHint') : t('socAi.apiKey.hint')}
-                >
-                  <div className="relative max-w-sm">
-                    <Input
-                      type={showKey ? 'text' : 'password'}
-                      value={form.apiKey}
-                      onChange={(e) => {
-                        setForm((f) => ({ ...f, apiKey: e.target.value }))
-                        setApiKeyTouched(true)
-                      }}
-                      placeholder={apiKeySet ? '••••••••' : ''}
-                      autoComplete="new-password"
-                      className="pr-9"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowKey((v) => !v)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                      {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                  </div>
-                </Field>
+                  value={form.apiKey}
+                  showKey={showKey}
+                  onToggleShow={() => setShowKey((v) => !v)}
+                  onChange={(v) => {
+                    setForm((f) => ({ ...f, apiKey: v }))
+                    setApiKeyTouched(true)
+                  }}
+                  placeholder={apiKeySet ? '••••••••' : ''}
+                />
               )}
             </div>
 
             {def.note && <p className="mt-4 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">{t(def.note)}</p>}
+          </Section>
 
-            {/* Advanced auth — only for a fully custom gateway. */}
-            {def.custom && (
-              <div className="mt-4 grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-2">
-                <Field label={t('socAi.authType.label')} hint={t('socAi.authType.hint')}>
-                  <Select value={form.authType} onChange={(e) => patch({ authType: e.target.value })}>
-                    {['bearer', 'header', 'none'].map((a) => (
-                      <option key={a} value={a}>
-                        {a}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                {form.authType === 'header' && (
+          {/* Usage — only for the ThreatWinds provider, backed by CM's proxy quota. */}
+          {form.provider === 'threatwinds' && <ThreatWindsUsageSection />}
+
+          {/* Authentication — only for a fully custom gateway. */}
+          {def.custom && (
+            <Section title={t('socAi.section.auth')}>
+              <Field label={t('socAi.authType.label')} hint={t('socAi.authType.hint')}>
+                <Select
+                  value={form.authKind}
+                  onChange={(e) => patch({ authKind: e.target.value as AuthKind })}
+                  className="max-w-xs"
+                >
+                  <option value="apiKey">{t('socAi.authType.options.apiKey')}</option>
+                  <option value="bearer">{t('socAi.authType.options.bearer')}</option>
+                  <option value="customHeaders">{t('socAi.authType.options.customHeaders')}</option>
+                  <option value="none">{t('socAi.authType.options.none')}</option>
+                </Select>
+              </Field>
+
+              {form.authKind === 'apiKey' && (
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label={t('socAi.authHeaderName.label')} hint={t('socAi.authHeaderName.hint')}>
                     <Input value={form.authHeaderName} onChange={(e) => patch({ authHeaderName: e.target.value })} placeholder="api-key" />
                   </Field>
-                )}
-                <div className="sm:col-span-2">
+                  <SecretField
+                    label={t('socAi.apiKey.label')}
+                    hint={apiKeySet && !apiKeyTouched ? t('socAi.apiKey.setHint') : t('socAi.apiKey.hint')}
+                    value={form.apiKey}
+                    showKey={showKey}
+                    onToggleShow={() => setShowKey((v) => !v)}
+                    onChange={(v) => {
+                      setForm((f) => ({ ...f, apiKey: v }))
+                      setApiKeyTouched(true)
+                    }}
+                    placeholder={apiKeySet ? '••••••••' : ''}
+                  />
+                </div>
+              )}
+
+              {form.authKind === 'bearer' && (
+                <div className="mt-4 max-w-sm">
+                  <SecretField
+                    label={t('socAi.authToken.label')}
+                    hint={apiKeySet && !apiKeyTouched ? t('socAi.authToken.setHint') : t('socAi.authToken.hint')}
+                    value={form.apiKey}
+                    showKey={showKey}
+                    onToggleShow={() => setShowKey((v) => !v)}
+                    onChange={(v) => {
+                      setForm((f) => ({ ...f, apiKey: v }))
+                      setApiKeyTouched(true)
+                    }}
+                    placeholder={apiKeySet ? '••••••••' : ''}
+                  />
+                </div>
+              )}
+
+              {form.authKind === 'customHeaders' && (
+                <div className="mt-4">
                   <Field label={t('socAi.customHeaders.label')} hint={t('socAi.customHeaders.hint')}>
-                    <Textarea
-                      value={form.customHeaders}
-                      onChange={(e) => patch({ customHeaders: e.target.value })}
-                      rows={4}
-                      spellCheck={false}
-                      placeholder={'{ "api-secret": "..." }'}
+                    <CustomHeadersTable
+                      rows={form.customHeadersList}
+                      onChange={(rows) => patch({ customHeadersList: rows })}
                     />
                   </Field>
                 </div>
-              </div>
-            )}
-          </Section>
+              )}
+            </Section>
+          )}
 
           {/* Triage on/off */}
           <Section title={t('socAi.section.behavior')}>
@@ -464,6 +544,57 @@ export function SocAiSettingsPage() {
   )
 }
 
+/* ─── ThreatWinds usage ─────────────────────────────────────────────────── */
+
+function ThreatWindsUsageSection() {
+  const { t } = useTranslation()
+  const { data, isLoading } = useTiUsage()
+
+  const chat = data?.kind === 'ok' ? data.value[THREATWINDS_CHAT_USAGE_KEY] : undefined
+
+  return (
+    <Section title={t('socAi.usage.title')}>
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </div>
+      ) : !chat ? (
+        <p className="text-xs text-muted-foreground">{t('socAi.usage.unavailable')}</p>
+      ) : (
+        <div className="max-w-sm space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span>{t('socAi.usage.chat')}</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {chat.used} / {chat.limit}
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className={cn(
+                'h-full rounded-full transition-all',
+                chat.used >= chat.limit ? 'bg-destructive' : 'bg-primary',
+              )}
+              style={{ width: `${chat.limit > 0 ? Math.min(100, (chat.used / chat.limit) * 100) : 0}%` }}
+            />
+          </div>
+          {chat.resets_in_seconds > 0 && (
+            <p className="text-[11px] text-muted-foreground">
+              {t('socAi.usage.resetsIn', { time: formatDuration(chat.resets_in_seconds) })}
+            </p>
+          )}
+        </div>
+      )}
+    </Section>
+  )
+}
+
+function formatDuration(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m`
+}
+
 /* ─── Small parts ──────────────────────────────────────────────────────── */
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -499,17 +630,90 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   )
 }
 
-function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  const { className, ...rest } = props
+function SecretField({
+  label,
+  hint,
+  value,
+  showKey,
+  onToggleShow,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  hint?: string
+  value: string
+  showKey: boolean
+  onToggleShow: () => void
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
   return (
-    <textarea
-      {...rest}
-      className={cn(
-        'flex w-full rounded-md border border-input bg-background/40 px-3 py-2 font-mono text-[11px] leading-relaxed',
-        'placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
-        className,
-      )}
-    />
+    <Field label={label} hint={hint}>
+      <div className="relative max-w-sm">
+        <Input
+          type={showKey ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="new-password"
+          className="pr-9"
+        />
+        <button
+          type="button"
+          onClick={onToggleShow}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+        </button>
+      </div>
+    </Field>
+  )
+}
+
+function CustomHeadersTable({
+  rows,
+  onChange,
+}: {
+  rows: HeaderRow[]
+  onChange: (rows: HeaderRow[]) => void
+}) {
+  const { t } = useTranslation()
+  const update = (i: number, patch: Partial<HeaderRow>) =>
+    onChange(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)))
+  const remove = (i: number) => onChange(rows.filter((_, idx) => idx !== i))
+  const add = () => onChange([...rows, { key: '', value: '' }])
+
+  return (
+    <div className="space-y-2">
+      {rows.map((row, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <Input
+            value={row.key}
+            onChange={(e) => update(i, { key: e.target.value })}
+            placeholder={t('socAi.customHeaders.keyPlaceholder')}
+            className="max-w-[220px] font-mono text-xs"
+          />
+          <Input
+            value={row.value}
+            onChange={(e) => update(i, { value: e.target.value })}
+            placeholder={t('socAi.customHeaders.valuePlaceholder')}
+            className="font-mono text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            aria-label={t('socAi.customHeaders.remove')}
+            className="shrink-0 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={add}>
+        <Plus size={14} className="mr-1.5" />
+        {t('socAi.customHeaders.addRow')}
+      </Button>
+    </div>
   )
 }
 

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/utmstack/utmstack/backend/modules/threatintel/internal"
+	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 )
 
 // ReverseProxyHandler creates a reverse proxy that maps a local route to a CM proxy target.
@@ -25,7 +25,7 @@ func NewReverseProxyHandler(targetPath string) *ReverseProxyHandler {
 
 // Handle is the Gin handler that proxies the request.
 func (h *ReverseProxyHandler) Handle(c *gin.Context) {
-	cfg := internal.Get()
+	cfg := instanceconfig.Get()
 	if cfg == nil || cfg.Server == "" || cfg.InstanceID == "" || cfg.InstanceKey == "" {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "instance not configured"})
 		return
@@ -51,7 +51,7 @@ func (h *ReverseProxyHandler) Handle(c *gin.Context) {
 }
 
 // directorFunc returns a Director function that rewrites the request.
-func (h *ReverseProxyHandler) directorFunc(cfg *internal.InstanceConfig, targetURL *url.URL) func(*http.Request) {
+func (h *ReverseProxyHandler) directorFunc(cfg *instanceconfig.InstanceConfig, targetURL *url.URL) func(*http.Request) {
 	return func(req *http.Request) {
 		// Set scheme and host from CM proxy
 		req.URL.Scheme = targetURL.Scheme
@@ -77,7 +77,7 @@ func (h *ReverseProxyHandler) directorFunc(cfg *internal.InstanceConfig, targetU
 
 // HandleUsageEndpoint is a special handler for the /usage endpoint which has a different prefix structure.
 func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
-	cfg := internal.Get()
+	cfg := instanceconfig.Get()
 	if cfg == nil || cfg.Server == "" || cfg.InstanceID == "" || cfg.InstanceKey == "" {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "instance not configured"})
 		return

@@ -3,8 +3,7 @@ package threatintel
 import (
 	"context"
 
-	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/utmstack/utmstack/backend/modules/threatintel/internal"
+	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 )
 
 type Module struct {
@@ -12,13 +11,8 @@ type Module struct {
 }
 
 func NewModule(updatesDir string) *Module {
-	m := &Module{updatesDir: updatesDir}
-
-	if _, err := internal.LoadInstanceConfig(updatesDir); err != nil {
-		catcher.Warn("threatintel: failed to load instance config", map[string]any{"error": err.Error()})
-	}
-
-	return m
+	instanceconfig.Init(updatesDir)
+	return &Module{updatesDir: updatesDir}
 }
 
 func (m *Module) Start(ctx context.Context) {}

@@ -4,14 +4,91 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/socai/dto"
 	"github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/socai/verifier"
+	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 )
 
 var ErrVerificationFailed = errors.New("connection verification failed")
+
+// threatWindsAIPath is the CM proxy path for the AI chat-completions endpoint
+// (see backend/modules/threatintel: same reverse-proxy target, same id/key auth).
+const threatWindsAIPath = "/proxy/api/ai/v1/chat/completions"
+const threatWindsDefaultModel = "silas-1.0"
+
+var ErrInstanceNotRegistered = errors.New("instance not registered yet — cannot use the ThreatWinds provider")
+
+const ensureDefaultRetryInterval = 30 * time.Second
+
+// StartEnsureDefaultLoop provisions the default ThreatWinds config in the
+// background, retrying until it succeeds. A fresh install's backend can
+// start before the updater service (a separate host process installed after
+// the Docker stack — see installer/install.go) finishes registering the
+// instance and writing instance-config.yml, so a single boot-time attempt
+// isn't enough; this keeps checking every 30s until the instance is
+// registered or a config already exists.
+func (s *ConfigService) StartEnsureDefaultLoop() {
+	if s.EnsureDefault() {
+		return
+	}
+	go func() {
+		for range time.Tick(ensureDefaultRetryInterval) {
+			if s.EnsureDefault() {
+				return
+			}
+		}
+	}()
+}
+
+func (s *ConfigService) EnsureDefault() bool {
+	existing, err := s.store.Load()
+	if err != nil {
+		catcher.Warn("socai: failed to check existing config for default provisioning", map[string]any{"error": err.Error()})
+		return false
+	}
+	if existing != nil {
+		return true
+	}
+
+	inst := instanceconfig.Get()
+	if inst == nil || inst.Server == "" || inst.InstanceID == "" || inst.InstanceKey == "" {
+		return false
+	}
+
+	idEnc, err := s.cipher.Encrypt(inst.InstanceID)
+	if err != nil {
+		catcher.Warn("socai: failed to encrypt default ThreatWinds credentials", map[string]any{"error": err.Error()})
+		return false
+	}
+	keyEnc, err := s.cipher.Encrypt(inst.InstanceKey)
+	if err != nil {
+		catcher.Warn("socai: failed to encrypt default ThreatWinds credentials", map[string]any{"error": err.Error()})
+		return false
+	}
+
+	fc := &repository.FileConfig{
+		Provider:          "threatwinds",
+		Model:             threatWindsDefaultModel,
+		URL:               strings.TrimRight(inst.Server, "/") + threatWindsAIPath,
+		AuthType:          "none",
+		CustomHeaders:     map[string]string{"id": idEnc, "key": keyEnc},
+		MaxTokens:         4096,
+		MaxToolIterations: 12,
+		AutoAnalyze:       true,
+	}
+	if err := s.store.Save(fc); err != nil {
+		catcher.Warn("socai: failed to save default ThreatWinds config", map[string]any{"error": err.Error()})
+		return false
+	}
+	catcher.Info("socai: auto-configured default ThreatWinds provider", nil)
+	return true
+}
 
 // connectionVerifier pings the LLM endpoint with the candidate credentials.
 type connectionVerifier interface {
@@ -94,14 +171,29 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 		authType = "bearer"
 	}
 
+	url := req.URL
+	authHeaderName := req.AuthHeaderName
+
+	if req.Provider == "threatwinds" {
+		inst := instanceconfig.Get()
+		if inst == nil || inst.Server == "" || inst.InstanceID == "" || inst.InstanceKey == "" {
+			return nil, ErrInstanceNotRegistered
+		}
+		url = strings.TrimRight(inst.Server, "/") + threatWindsAIPath
+		authType = "none"
+		authHeaderName = ""
+		apiKeyPlain = ""
+		headersPlain = map[string]string{"id": inst.InstanceID, "key": inst.InstanceKey}
+	}
+
 	// 2. Verify the connection before writing anything.
 	if err := s.verifier.Verify(ctx, verifier.Config{
 		Provider:       req.Provider,
-		URL:            req.URL,
+		URL:            url,
 		Model:          req.Model,
 		APIKey:         apiKeyPlain,
 		AuthType:       authType,
-		AuthHeaderName: req.AuthHeaderName,
+		AuthHeaderName: authHeaderName,
 		CustomHeaders:  headersPlain,
 	}); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
@@ -136,10 +228,10 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 	fc := &repository.FileConfig{
 		Provider:          req.Provider,
 		Model:             req.Model,
-		URL:               req.URL,
+		URL:               url,
 		APIKey:            apiKeyEnc,
 		AuthType:          authType,
-		AuthHeaderName:    req.AuthHeaderName,
+		AuthHeaderName:    authHeaderName,
 		CustomHeaders:     headersEnc,
 		MaxTokens:         maxTokens,
 		MaxToolIterations: maxIters,

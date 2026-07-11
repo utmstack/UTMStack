@@ -1236,14 +1236,6 @@
       "confirmYes": "Sì, rigenera",
       "cancel": "Annulla"
     },
-    "install": {
-      "title": "Installa un agente",
-      "subtitle": "Copia il comando di installazione per il SO dell'agente. La chiave di connessione è già inclusa.",
-      "linux": "Agente Linux",
-      "windows": "Agente Windows",
-      "macos": "Agente macOS",
-      "copyCommand": "Copia comando"
-    },
     "security": {
       "title": "Raccomandazioni di sicurezza",
       "subtitle": "Buone pratiche per proteggere questa credenziale.",
@@ -4849,6 +4841,12 @@
       "advanced": "Avanzate",
       "capabilities": "Capacità"
     },
+    "usage": {
+      "title": "Utilizzo",
+      "chat": "Completamenti chat (oggi)",
+      "unavailable": "L'utilizzo non è ancora disponibile.",
+      "resetsIn": "Si azzera tra {{time}}"
+    },
     "provider": {
       "label": "Provider",
       "hint": "Seleziona il formato di trasmissione. Qualsiasi opzione diversa da Anthropic usa l'API compatibile con OpenAI."
@@ -4870,15 +4868,30 @@
     },
     "authType": {
       "label": "Tipo di autenticazione",
-      "hint": "Come viene inviata la chiave API (header bearer, header personalizzato o nessuno)."
+      "hint": "Come vengono inviate le credenziali al tuo gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Header personalizzati",
+        "none": "Nessuna"
+      }
     },
     "authHeaderName": {
       "label": "Nome header di autenticazione",
       "hint": "Header che trasporta la chiave (es. api-key per Azure)."
     },
+    "authToken": {
+      "label": "Token Bearer",
+      "hint": "Credenziale inviata al provider.",
+      "setHint": "È memorizzato un token. Lascia vuoto per mantenerlo."
+    },
     "customHeaders": {
-      "label": "Header personalizzati (JSON)",
-      "hint": "Header aggiuntivi uniti a ogni richiesta. I valori sono cifrati; \"*****\" mantiene quello memorizzato."
+      "label": "Header personalizzati",
+      "hint": "Header aggiuntivi inviati a ogni richiesta. I valori sono cifrati; \"*****\" mantiene quello memorizzato.",
+      "keyPlaceholder": "Nome header",
+      "valuePlaceholder": "Valore",
+      "addRow": "Aggiungi header",
+      "remove": "Rimuovi header"
     },
     "maxTokens": {
       "label": "Token massimi",
@@ -4910,7 +4923,6 @@
     "saveError": "Impossibile salvare la configurazione",
     "loadError": "Impossibile caricare la configurazione",
     "modelRequired": "Il modello è obbligatorio",
-    "invalidHeaders": "Gli header personalizzati devono essere un oggetto JSON valido",
     "applyTags": {
       "label": "Applica etichette",
       "hint": "Consenti all'agente di etichettare gli alert durante il triage."
@@ -4919,7 +4931,8 @@
     "note": {
       "azure": "Incolla l'endpoint completo del tuo deployment Azure come URL; il modello è il nome del tuo deployment. L'autenticazione usa l'header api-key.",
       "ollama": "Punta l'URL al tuo host Ollama. Non è necessaria alcuna chiave API per un'istanza locale.",
-      "custom": "Qualsiasi endpoint compatibile con OpenAI. Imposta l'URL, l'autenticazione e gli eventuali header aggiuntivi richiesti dal tuo gateway."
+      "custom": "Qualsiasi endpoint compatibile con OpenAI. Imposta l'URL, l'autenticazione e gli eventuali header aggiuntivi richiesti dal tuo gateway.",
+      "threatwinds": "Usa automaticamente la tua licenza UTMStack — non serve una API key. Fatturato tramite il tuo abbonamento ThreatWinds."
     },
     "cap": {
       "alerts": {

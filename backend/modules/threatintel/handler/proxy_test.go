@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/utmstack/utmstack/backend/modules/threatintel/internal"
+	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 )
 
 func TestDirectorRewritesPathAndHeaders(t *testing.T) {
 	// Setup instance config
-	cfg := &internal.InstanceConfig{
+	cfg := &instanceconfig.InstanceConfig{
 		Server:      "https://example.com",
 		InstanceID:  "test-id-123",
 		InstanceKey: "test-key-456",

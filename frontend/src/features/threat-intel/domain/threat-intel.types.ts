@@ -128,11 +128,15 @@ export interface ChatResponse {
   usage?: { totalTokens: number }
 }
 
-export interface UsageInfo {
+export interface EndpointUsage {
   used: number
-  quota: number
-  resetsAt?: string
+  limit: number
+  resets_in_seconds: number
 }
+
+// GET /threat-intel/usage — keyed by rate-limited CM proxy path prefix
+// (e.g. "/api/ai/v1/chat/completions"), see CustomersManager proxy/handlers/usage.go.
+export type UsageInfo = Record<string, EndpointUsage>
 
 export type TiResult<T> =
   | { kind: 'ok'; value: T }

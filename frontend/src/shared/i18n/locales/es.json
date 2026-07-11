@@ -1236,14 +1236,6 @@
       "confirmYes": "Sí, regenerar",
       "cancel": "Cancelar"
     },
-    "install": {
-      "title": "Instalar un agente",
-      "subtitle": "Copia el comando de instalación para el SO del agente. La clave de conexión ya está incluida.",
-      "linux": "Agente Linux",
-      "windows": "Agente Windows",
-      "macos": "Agente macOS",
-      "copyCommand": "Copiar comando"
-    },
     "security": {
       "title": "Recomendaciones de seguridad",
       "subtitle": "Buenas prácticas para proteger esta credencial.",
@@ -3788,6 +3780,12 @@
       "advanced": "Avanzado",
       "capabilities": "Capacidades"
     },
+    "usage": {
+      "title": "Uso",
+      "chat": "Chat completions (hoy)",
+      "unavailable": "El uso todavía no está disponible.",
+      "resetsIn": "Se reinicia en {{time}}"
+    },
     "provider": {
       "label": "Proveedor",
       "hint": "Define el formato. Cualquiera distinto de Anthropic usa la API compatible con OpenAI."
@@ -3808,16 +3806,31 @@
       "setHint": "Hay una key guardada. Déjalo en blanco para mantenerla."
     },
     "authType": {
-      "label": "Tipo de auth",
-      "hint": "Cómo se envía la API key (bearer, cabecera personalizada o ninguna)."
+      "label": "Tipo de autenticación",
+      "hint": "Cómo se envían las credenciales a tu gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Cabeceras personalizadas",
+        "none": "Ninguna"
+      }
     },
     "authHeaderName": {
       "label": "Nombre de cabecera de auth",
       "hint": "Cabecera que lleva la key (p.ej. api-key para Azure)."
     },
+    "authToken": {
+      "label": "Token Bearer",
+      "hint": "Credencial enviada al proveedor.",
+      "setHint": "Hay un token guardado. Déjalo en blanco para mantenerlo."
+    },
     "customHeaders": {
-      "label": "Cabeceras personalizadas (JSON)",
-      "hint": "Cabeceras extra en cada request. Los valores se cifran; \"*****\" mantiene el guardado."
+      "label": "Cabeceras personalizadas",
+      "hint": "Cabeceras extra en cada request. Los valores se cifran; \"*****\" mantiene el guardado.",
+      "keyPlaceholder": "Nombre de la cabecera",
+      "valuePlaceholder": "Valor",
+      "addRow": "Agregar cabecera",
+      "remove": "Quitar cabecera"
     },
     "maxTokens": {
       "label": "Máx. tokens",
@@ -3849,7 +3862,6 @@
     "saveError": "No se pudo guardar la configuración",
     "loadError": "No se pudo cargar la configuración",
     "modelRequired": "El modelo es obligatorio",
-    "invalidHeaders": "Las cabeceras personalizadas deben ser un objeto JSON válido",
     "applyTags": {
       "label": "Aplicar tags",
       "hint": "Permite al agente etiquetar alertas durante el triage."
@@ -3858,7 +3870,8 @@
     "note": {
       "azure": "Pega el endpoint completo de tu deployment de Azure como URL; el modelo es el nombre del deployment. La auth usa la cabecera api-key.",
       "ollama": "Apunta la URL a tu host de Ollama. No hace falta API key para una instancia local.",
-      "custom": "Cualquier endpoint compatible con OpenAI. Define la URL, la auth y las cabeceras extra que necesite tu gateway."
+      "custom": "Cualquier endpoint compatible con OpenAI. Define la URL, la auth y las cabeceras extra que necesite tu gateway.",
+      "threatwinds": "Usa tu licencia de UTMStack automáticamente — no necesita API key. Se factura a través de tu suscripción de ThreatWinds."
     },
     "cap": {
       "alerts": {

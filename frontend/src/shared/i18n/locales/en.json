@@ -1394,14 +1394,6 @@
       "confirmYes": "Yes, regenerate",
       "cancel": "Cancel"
     },
-    "install": {
-      "title": "Install an agent",
-      "subtitle": "Copy the install command for the agent's OS. The connection key is already embedded.",
-      "linux": "Linux agent",
-      "windows": "Windows agent",
-      "macos": "macOS agent",
-      "copyCommand": "Copy command"
-    },
     "security": {
       "title": "Security recommendations",
       "subtitle": "Best practices for protecting this credential.",
@@ -3922,6 +3914,12 @@
       "advanced": "Advanced",
       "capabilities": "Capabilities"
     },
+    "usage": {
+      "title": "Usage",
+      "chat": "Chat completions (today)",
+      "unavailable": "Usage isn't available yet.",
+      "resetsIn": "Resets in {{time}}"
+    },
     "provider": {
       "label": "Provider",
       "hint": "Selects the wire format. Anything other than Anthropic uses the OpenAI-compatible API."
@@ -3942,16 +3940,31 @@
       "setHint": "A key is stored. Leave blank to keep it."
     },
     "authType": {
-      "label": "Auth type",
-      "hint": "How the API key is sent (bearer header, a custom header, or none)."
+      "label": "Authentication type",
+      "hint": "How credentials are sent to your gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Custom Headers",
+        "none": "None"
+      }
     },
     "authHeaderName": {
       "label": "Auth header name",
       "hint": "Header carrying the key (e.g. api-key for Azure)."
     },
+    "authToken": {
+      "label": "Bearer token",
+      "hint": "Credential sent to the provider.",
+      "setHint": "A token is stored. Leave blank to keep it."
+    },
     "customHeaders": {
-      "label": "Custom headers (JSON)",
-      "hint": "Extra headers merged into every request. Values are encrypted; \"*****\" keeps the stored one."
+      "label": "Custom headers",
+      "hint": "Extra headers sent with every request. Values are encrypted; \"*****\" keeps the stored one.",
+      "keyPlaceholder": "Header name",
+      "valuePlaceholder": "Value",
+      "addRow": "Add header",
+      "remove": "Remove header"
     },
     "maxTokens": {
       "label": "Max tokens",
@@ -3983,7 +3996,6 @@
     "saveError": "Failed to save configuration",
     "loadError": "Failed to load configuration",
     "modelRequired": "Model is required",
-    "invalidHeaders": "Custom headers must be a valid JSON object",
     "applyTags": {
       "label": "Apply tags",
       "hint": "Let the agent tag alerts during triage."
@@ -3992,7 +4004,8 @@
     "note": {
       "azure": "Paste your full Azure deployment endpoint as the URL; the model is your deployment name. Auth uses the api-key header.",
       "ollama": "Point the URL at your Ollama host. No API key is needed for a local instance.",
-      "custom": "Any OpenAI-compatible endpoint. Set the URL, auth and any extra headers your gateway needs."
+      "custom": "Any OpenAI-compatible endpoint. Set the URL, auth and any extra headers your gateway needs.",
+      "threatwinds": "Uses your UTMStack license automatically — no API key needed. Billed through your ThreatWinds subscription."
     },
     "cap": {
       "alerts": {

@@ -1236,14 +1236,6 @@
       "confirmYes": "Oui, régénérer",
       "cancel": "Annuler"
     },
-    "install": {
-      "title": "Installer un agent",
-      "subtitle": "Copiez la commande d'installation pour le SE de l'agent. La clé de connexion y est déjà intégrée.",
-      "linux": "Agent Linux",
-      "windows": "Agent Windows",
-      "macos": "Agent macOS",
-      "copyCommand": "Copier la commande"
-    },
     "security": {
       "title": "Recommandations de sécurité",
       "subtitle": "Bonnes pratiques pour protéger cet identifiant.",
@@ -4849,6 +4841,12 @@
       "advanced": "Avancé",
       "capabilities": "Capacités"
     },
+    "usage": {
+      "title": "Utilisation",
+      "chat": "Complétions de chat (aujourd'hui)",
+      "unavailable": "L'utilisation n'est pas encore disponible.",
+      "resetsIn": "Réinitialisation dans {{time}}"
+    },
     "provider": {
       "label": "Fournisseur",
       "hint": "Sélectionne le format d'échange. Tout autre fournisseur qu'Anthropic utilise l'API compatible OpenAI."
@@ -4870,15 +4868,30 @@
     },
     "authType": {
       "label": "Type d'authentification",
-      "hint": "Mode d'envoi de la clé d'API (en-tête bearer, en-tête personnalisé ou aucun)."
+      "hint": "Comment les identifiants sont envoyés à votre passerelle.",
+      "options": {
+        "apiKey": "Clé API",
+        "bearer": "Bearer",
+        "customHeaders": "En-têtes personnalisés",
+        "none": "Aucune"
+      }
     },
     "authHeaderName": {
       "label": "Nom de l'en-tête d'authentification",
       "hint": "En-tête transportant la clé (par ex. api-key pour Azure)."
     },
+    "authToken": {
+      "label": "Jeton Bearer",
+      "hint": "Identifiant envoyé au fournisseur.",
+      "setHint": "Un jeton est enregistré. Laissez vide pour le conserver."
+    },
     "customHeaders": {
-      "label": "En-têtes personnalisés (JSON)",
-      "hint": "En-têtes supplémentaires fusionnés dans chaque requête. Les valeurs sont chiffrées ; « ***** » conserve celle enregistrée."
+      "label": "En-têtes personnalisés",
+      "hint": "En-têtes supplémentaires envoyés à chaque requête. Les valeurs sont chiffrées ; « ***** » conserve celle enregistrée.",
+      "keyPlaceholder": "Nom de l'en-tête",
+      "valuePlaceholder": "Valeur",
+      "addRow": "Ajouter un en-tête",
+      "remove": "Supprimer l'en-tête"
     },
     "maxTokens": {
       "label": "Tokens maximum",
@@ -4910,7 +4923,6 @@
     "saveError": "Échec de l'enregistrement de la configuration",
     "loadError": "Échec du chargement de la configuration",
     "modelRequired": "Le modèle est requis",
-    "invalidHeaders": "Les en-têtes personnalisés doivent être un objet JSON valide",
     "applyTags": {
       "label": "Appliquer des étiquettes",
       "hint": "Permettre à l'agent d'étiqueter les alertes lors du tri."
@@ -4919,7 +4931,8 @@
     "note": {
       "azure": "Collez l'URL complète de votre point de terminaison de déploiement Azure ; le modèle est le nom de votre déploiement. L'authentification utilise l'en-tête api-key.",
       "ollama": "Pointez l'URL vers votre hôte Ollama. Aucune clé d'API n'est nécessaire pour une instance locale.",
-      "custom": "Tout point de terminaison compatible OpenAI. Définissez l'URL, l'authentification et les en-têtes supplémentaires requis par votre passerelle."
+      "custom": "Tout point de terminaison compatible OpenAI. Définissez l'URL, l'authentification et les en-têtes supplémentaires requis par votre passerelle.",
+      "threatwinds": "Utilise automatiquement votre licence UTMStack — aucune clé API requise. Facturé via votre abonnement ThreatWinds."
     },
     "cap": {
       "alerts": {

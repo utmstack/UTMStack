@@ -1236,14 +1236,6 @@
       "confirmYes": "Sim, regenerar",
       "cancel": "Cancelar"
     },
-    "install": {
-      "title": "Instalar um agente",
-      "subtitle": "Copie o comando de instalação para o SO do agente. A chave de conexão já está incluída.",
-      "linux": "Agente Linux",
-      "windows": "Agente Windows",
-      "macos": "Agente macOS",
-      "copyCommand": "Copiar comando"
-    },
     "security": {
       "title": "Recomendações de segurança",
       "subtitle": "Boas práticas para proteger esta credencial.",
@@ -3788,6 +3780,12 @@
       "advanced": "Avançado",
       "capabilities": "Capacidades"
     },
+    "usage": {
+      "title": "Uso",
+      "chat": "Conclusões de chat (hoje)",
+      "unavailable": "O uso ainda não está disponível.",
+      "resetsIn": "Reinicia em {{time}}"
+    },
     "provider": {
       "label": "Provedor",
       "hint": "Define o formato. Qualquer um além do Anthropic usa a API compatível com OpenAI."
@@ -3808,16 +3806,31 @@
       "setHint": "Há uma chave salva. Deixe em branco para mantê-la."
     },
     "authType": {
-      "label": "Tipo de auth",
-      "hint": "Como a chave é enviada (bearer, cabeçalho personalizado ou nenhum)."
+      "label": "Tipo de autenticação",
+      "hint": "Como as credenciais são enviadas ao seu gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Cabeçalhos personalizados",
+        "none": "Nenhuma"
+      }
     },
     "authHeaderName": {
       "label": "Nome do cabeçalho de auth",
       "hint": "Cabeçalho que carrega a chave (ex.: api-key para Azure)."
     },
+    "authToken": {
+      "label": "Token Bearer",
+      "hint": "Credencial enviada ao provedor.",
+      "setHint": "Um token está salvo. Deixe em branco para mantê-lo."
+    },
     "customHeaders": {
-      "label": "Cabeçalhos personalizados (JSON)",
-      "hint": "Cabeçalhos extras em cada requisição. Os valores são criptografados; \"*****\" mantém o salvo."
+      "label": "Cabeçalhos personalizados",
+      "hint": "Cabeçalhos extras enviados em cada requisição. Os valores são criptografados; \"*****\" mantém o salvo.",
+      "keyPlaceholder": "Nome do cabeçalho",
+      "valuePlaceholder": "Valor",
+      "addRow": "Adicionar cabeçalho",
+      "remove": "Remover cabeçalho"
     },
     "maxTokens": {
       "label": "Máx. tokens",
@@ -3849,7 +3862,6 @@
     "saveError": "Falha ao salvar a configuração",
     "loadError": "Falha ao carregar a configuração",
     "modelRequired": "O modelo é obrigatório",
-    "invalidHeaders": "Os cabeçalhos personalizados devem ser um objeto JSON válido",
     "applyTags": {
       "label": "Aplicar tags",
       "hint": "Permite ao agente marcar alertas com tags durante a triagem."
@@ -3858,7 +3870,8 @@
     "note": {
       "azure": "Cole o endpoint completo do seu deployment do Azure como URL; o modelo é o nome do deployment. A auth usa o cabeçalho api-key.",
       "ollama": "Aponte a URL para o seu host do Ollama. Não é necessária API key para uma instância local.",
-      "custom": "Qualquer endpoint compatível com OpenAI. Defina a URL, a auth e os cabeçalhos extras que seu gateway precisar."
+      "custom": "Qualquer endpoint compatível com OpenAI. Defina a URL, a auth e os cabeçalhos extras que seu gateway precisar.",
+      "threatwinds": "Usa sua licença UTMStack automaticamente — não precisa de API key. Cobrado através da sua assinatura ThreatWinds."
     },
     "cap": {
       "alerts": {
