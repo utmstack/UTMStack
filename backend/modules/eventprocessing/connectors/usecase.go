@@ -50,6 +50,7 @@ type FilterUsecase interface {
 	DataTypes(ctx context.Context) []string
 	Delete(ctx context.Context, relPath string) error
 	SetActive(ctx context.Context, relPath string, active bool) error
+	SetOrder(ctx context.Context, relPath string, order int32) (*dto.FilterResponse, error)
 }
 
 type IngestionStatsUsecase interface {

@@ -147,6 +147,30 @@ func (s *FilterStore) Update(relPath string, content []byte) (*FilterEntry, erro
 	return &cp, nil
 }
 
+// UpdateOrder overwrites a filter's content in whichever overlay (system or
+// user) currently owns it. Unlike Update, it does NOT reject system filters —
+// their order is customer-controlled even though their steps/content stay
+// read-only via Update/Delete.
+func (s *FilterStore) UpdateOrder(relPath string, content []byte) (*FilterEntry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	existing, ok := s.filters[relPath]
+	if !ok {
+		return nil, ErrFilterNotFound
+	}
+	dir := s.userDir
+	if existing.System {
+		dir = s.systemDir
+	}
+	target := filepath.Join(dir, relPath)
+	if err := atomicWrite(target, content); err != nil {
+		return nil, err
+	}
+	existing.Content = content
+	cp := *existing
+	return &cp, nil
+}
+
 // Delete removes a user filter file. Returns ErrFilterSystemOwner for system filters.
 func (s *FilterStore) Delete(relPath string) error {
 	s.mu.Lock()

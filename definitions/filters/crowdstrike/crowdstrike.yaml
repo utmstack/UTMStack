@@ -5,8 +5,8 @@
 # 1- https://docs.cyderes.cloud/parser-knowledge-base/cs_stream
 
 pipeline:
-  - dataType: crowdstrike
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [crowdstrike]
+    order: 11  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       - json:
           source: raw

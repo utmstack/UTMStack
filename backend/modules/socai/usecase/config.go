@@ -20,7 +20,7 @@ var ErrVerificationFailed = errors.New("connection verification failed")
 // threatWindsAIPath is the CM proxy path for the AI chat-completions endpoint
 // (see backend/modules/threatintel: same reverse-proxy target, same id/key auth).
 const threatWindsAIPath = "/proxy/api/ai/v1/chat/completions"
-const threatWindsDefaultModel = "silas-1.0"
+const threatWindsDefaultModel = "silas-1.6"
 
 var ErrInstanceNotRegistered = errors.New("instance not registered yet — cannot use the ThreatWinds provider")
 

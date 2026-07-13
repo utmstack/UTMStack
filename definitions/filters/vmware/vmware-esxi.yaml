@@ -10,8 +10,8 @@
 # 1. Parsing headers of syslog the message 
 # 2. Parsing the RAW field containing the VMWare-ESXi
 pipeline:
-  - dataType: vmware-esxi
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [vmware-esxi]
+    order: 33  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       - grok:
           patterns:

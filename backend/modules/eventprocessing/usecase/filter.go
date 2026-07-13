@@ -64,9 +64,9 @@ func validateProcessor(name string, raw any) error {
 
 type filterConfig struct {
 	Pipeline []struct {
-		DataType string           `yaml:"dataType"`
-		Order    int32            `yaml:"order"`
-		Steps    []map[string]any `yaml:"steps"`
+		DataTypes []string         `yaml:"dataTypes"`
+		Order     int32            `yaml:"order"`
+		Steps     []map[string]any `yaml:"steps"`
 	} `yaml:"pipeline"`
 }
 
@@ -86,9 +86,11 @@ func collectDataTypes(content []byte, depth int, seen map[string]bool, out *[]st
 		return
 	}
 	for _, p := range cfg.Pipeline {
-		if p.DataType != "" && !seen[p.DataType] {
-			seen[p.DataType] = true
-			*out = append(*out, p.DataType)
+		for _, dt := range p.DataTypes {
+			if dt != "" && !seen[dt] {
+				seen[dt] = true
+				*out = append(*out, dt)
+			}
 		}
 		for _, step := range p.Steps {
 			ls, ok := step["logstash"].(map[string]any)
@@ -102,6 +104,16 @@ func collectDataTypes(content []byte, depth int, seen map[string]bool, out *[]st
 	}
 }
 
+// firstPipelineOrder extracts the order from a filter's first (and, in
+// practice, only) pipeline entry.
+func firstPipelineOrder(content []byte) int32 {
+	var cfg filterConfig
+	if err := yaml.Unmarshal(content, &cfg); err != nil || len(cfg.Pipeline) == 0 {
+		return 0
+	}
+	return cfg.Pipeline[0].Order
+}
+
 func hasDataType(dts []string, want string) bool {
 	for _, dt := range dts {
 		if dt == want {
@@ -111,8 +123,10 @@ func hasDataType(dts []string, want string) bool {
 	return false
 }
 
+// customFilterDefaultOrder seeds a sensible starting position for brand-new
+// custom filters that don't specify an order — order itself is a single,
+// free-form global space now (see SetOrder), not a reserved band.
 const customFilterDefaultOrder = 100
-const reservedSystemOrderMax = 100
 
 func validateFilterContent(content string) error {
 	if strings.TrimSpace(content) == "" {
@@ -126,12 +140,8 @@ func validateFilterContent(content string) error {
 		return fmt.Errorf("%w: must define at least one pipeline entry", domain.ErrFilterInvalidContent)
 	}
 	for i, p := range cfg.Pipeline {
-		if strings.TrimSpace(p.DataType) == "" {
-			return fmt.Errorf("%w: pipeline[%d] needs a dataType", domain.ErrFilterInvalidContent, i)
-		}
-		if p.Order > 0 && p.Order < reservedSystemOrderMax {
-			return fmt.Errorf("%w: pipeline[%d] order %d is reserved for system filters (use 0 or >= %d)",
-				domain.ErrFilterInvalidContent, i, p.Order, reservedSystemOrderMax)
+		if len(p.DataTypes) == 0 {
+			return fmt.Errorf("%w: pipeline[%d] needs at least one dataType", domain.ErrFilterInvalidContent, i)
 		}
 		if len(p.Steps) == 0 {
 			return fmt.Errorf("%w: pipeline[%d] needs at least one step", domain.ErrFilterInvalidContent, i)
@@ -270,6 +280,35 @@ func (u *filterUsecase) SetActive(_ context.Context, relPath string, active bool
 	return mapStoreFilterErr(u.store.SetEnabled(relPath, active))
 }
 
+// SetOrder moves any filter — system or custom — to a new position in the
+// pipeline order (shared across every dataType it applies to). A system
+// filter's steps/content stay read-only via Create/Update/Delete, but its
+// order is customer-controlled, same as a custom filter's.
+func (u *filterUsecase) SetOrder(_ context.Context, relPath string, order int32) (*dto.FilterResponse, error) {
+	entry := u.store.GetByRelPath(relPath)
+	if entry == nil {
+		return nil, domain.ErrFilterNotFound
+	}
+
+	var cfg filterConfig
+	if err := yaml.Unmarshal(entry.Content, &cfg); err != nil {
+		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+	}
+	for i := range cfg.Pipeline {
+		cfg.Pipeline[i].Order = order
+	}
+	out, err := yaml.Marshal(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := u.store.UpdateOrder(relPath, out)
+	if err != nil {
+		return nil, mapStoreFilterErr(err)
+	}
+	return toFilterResponse(updated), nil
+}
+
 func (u *filterUsecase) DataTypes(_ context.Context) []string {
 	seen := map[string]bool{}
 	var out []string
@@ -292,6 +331,7 @@ func toFilterResponse(e *FilterEntry) *dto.FilterResponse {
 		System:    e.System,
 		Active:    e.Active,
 		DataTypes: extractDataTypes(e.Content),
+		Order:     firstPipelineOrder(e.Content),
 	}
 }
 

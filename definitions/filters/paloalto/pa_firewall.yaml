@@ -13,8 +13,8 @@
 # 4. Parsing the CSV field containing the Palo Alto Firewall
 
 pipeline:
-  - dataType: firewall-paloalto
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [firewall-paloalto]
+    order: 25  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
 
       #......................................................................#

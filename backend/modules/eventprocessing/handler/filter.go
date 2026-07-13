@@ -195,3 +195,28 @@ func (h *FilterHandler) ActivateDeactivate(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
+
+// @Summary     Reorder a filter
+// @Description Sets any filter's (system or custom) position in the global pipeline order.
+// @Tags        Filters
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.UpdateFilterOrderRequest true "relPath + new order"
+// @Success     200 {object} dto.FilterResponse
+// @Failure     400 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Router      /eventprocessing/filters/order [put]
+func (h *FilterHandler) SetOrder(c *gin.Context) {
+	var req dto.UpdateFilterOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	resp, err := h.usecase.SetOrder(c.Request.Context(), req.RelPath, req.Order)
+	if err != nil {
+		writeFilterError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}

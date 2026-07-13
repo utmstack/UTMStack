@@ -4,8 +4,8 @@
 #
 # 1. Parsing the message field containing the Cisco ASA log
 pipeline:
-  - dataType: firewall-cisco-asa
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [firewall-cisco-asa]
+    order: 7  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # Common ASA fields
       - grok:

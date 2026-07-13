@@ -51,7 +51,7 @@ type Verifier struct {
 }
 
 func New() *Verifier {
-	return &Verifier{httpClient: &http.Client{Timeout: 25 * time.Second}}
+	return &Verifier{httpClient: &http.Client{Timeout: 90 * time.Second}}
 }
 
 func (v *Verifier) Verify(ctx context.Context, c Config) error {

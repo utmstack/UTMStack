@@ -4,8 +4,8 @@
 # Support json format
 
 pipeline:
-  - dataType: github
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [github]
+    order: 15  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       - json:
           source: raw

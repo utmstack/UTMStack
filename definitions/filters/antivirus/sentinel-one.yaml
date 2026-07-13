@@ -4,8 +4,8 @@
 # and https://docs.fortinet.com/document/fortisiem/6.1.0/external-systems-configuration-guide/298395/sentinelone
 
 pipeline:
-  - dataType: antivirus-sentinel-one
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [antivirus-sentinel-one]
+    order: 4  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # Parsing the common fields
       - grok:

@@ -2,8 +2,8 @@
 # Support for JT400 Java Collector with full field mapping
 
 pipeline:
-  - dataType: ibm-as400
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [ibm-as400]
+    order: 18  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # ========================================
       # PHASE 1: EXTRACTION

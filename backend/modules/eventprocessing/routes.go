@@ -43,6 +43,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	f.POST("", write, fh.Create)
 	f.PUT("", write, fh.Update)
 	f.PUT("/activate", write, fh.ActivateDeactivate) // BEFORE /find
+	f.PUT("/order", write, fh.SetOrder)              // reorder a custom filter in the global pipeline order
 	f.GET("", read, fh.List)
 	f.GET("/data-types", read, fh.DataTypes) // distinct dataTypes for the UI filter
 	f.GET("/find", read, fh.GetByRelPath)    // BEFORE potential /:id

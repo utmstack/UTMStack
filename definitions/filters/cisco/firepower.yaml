@@ -4,8 +4,8 @@
 #
 # 1. Parsing the message field containing the Cisco Firepower log
 pipeline:
-  - dataType: firewall-cisco-firepower
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [firewall-cisco-firepower]
+    order: 9  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # Common Firepower fields
       - grok:

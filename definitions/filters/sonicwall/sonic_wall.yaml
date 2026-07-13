@@ -13,8 +13,8 @@
 # 2. Parsing headers of syslog the message 
 
 pipeline:
-  - dataType: firewall-sonicwall
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [firewall-sonicwall]
+    order: 27  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       #......................................................................#
       #......................................................................#

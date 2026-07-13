@@ -5,8 +5,8 @@
 # 2- https://cloud.google.com/logging/docs/audit (protoPayload / AuditLog)
 
 pipeline:
-  - dataType: google
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [google]
+    order: 16  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       - json:
           source: raw

@@ -2,8 +2,8 @@
 # Based on previous version of the same filter
 
 pipeline:
-  - dataType: deceptive-bytes
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [deceptive-bytes]
+    order: 1  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # Using grok to parse header of the message
       - grok:

@@ -8,8 +8,8 @@
 # 1. Parsing headers of syslog the message
 # 2. Parsing RAW field log
 pipeline:
-  - dataType: antivirus-esmc-eset
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [antivirus-esmc-eset]
+    order: 2  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       # Parsing RAW field log
       - grok:

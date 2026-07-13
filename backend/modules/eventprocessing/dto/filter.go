@@ -21,6 +21,12 @@ type FilterResponse struct {
 	System    bool     `json:"system"`
 	Active    bool     `json:"active"`
 	DataTypes []string `json:"dataTypes"`
+	Order     int32    `json:"order"`
+}
+
+type UpdateFilterOrderRequest struct {
+	RelPath string `json:"relPath" binding:"required"`
+	Order   int32  `json:"order" binding:"required"`
 }
 
 // FilterFilters are query parameters for the list endpoint.

@@ -1,8 +1,8 @@
 # AWS filter, version 1.0.2
 
 pipeline:
-  - dataType: aws
-    order: 0  # system filters: 0-99 (this repo); custom/user filters: >=100
+  - dataTypes: [aws]
+    order: 5  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
       - json:
           source: raw

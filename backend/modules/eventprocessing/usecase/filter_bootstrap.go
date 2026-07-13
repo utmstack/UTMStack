@@ -6,10 +6,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
+	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
 )
 
@@ -110,17 +112,45 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 		// Preserve the operator's disabled state but refresh the content into
 		// whichever file exists (so updates reach disabled filters too).
 		disabled := target + DisabledSuffix
+		destPath := target
 		if _, err := os.Stat(disabled); err == nil {
-			_ = os.WriteFile(disabled, data, 0o644)
-		} else {
-			_ = os.WriteFile(target, data, 0o644)
+			destPath = disabled
 		}
+		data = preserveDestOrder(destPath, data)
+		_ = os.WriteFile(destPath, data, 0o644)
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 	return b.pruneSystemOverlay(expected)
+}
+
+// orderLinePattern matches a pipeline entry's `order:` line, with an optional
+// trailing comment, so preserveDestOrder can substitute just the number and
+// leave everything else (comments, formatting) byte-for-byte untouched.
+var orderLinePattern = regexp.MustCompile(`(?m)^(\s*order:\s*)\d+(\s*#.*)?$`)
+
+// preserveDestOrder keeps whatever `order` already exists on disk at destPath
+// (a customer/operator customization — including for system filters, whose
+// order is editable even though their content isn't) instead of letting the
+// freshly-shipped content clobber it on every boot. A destination that
+// doesn't exist yet, or whose order is still the unset default (0), takes
+// the shipped order as-is.
+func preserveDestOrder(destPath string, newContent []byte) []byte {
+	existing, err := os.ReadFile(destPath)
+	if err != nil {
+		return newContent
+	}
+	var existingCfg filterConfig
+	if err := yaml.Unmarshal(existing, &existingCfg); err != nil || len(existingCfg.Pipeline) == 0 {
+		return newContent
+	}
+	order := existingCfg.Pipeline[0].Order
+	if order == 0 {
+		return newContent
+	}
+	return orderLinePattern.ReplaceAll(newContent, []byte(fmt.Sprintf("${1}%d$2", order)))
 }
 
 func (b *FilterBootstrap) pruneSystemOverlay(expected map[string]bool) error {
