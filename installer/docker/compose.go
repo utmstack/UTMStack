@@ -214,6 +214,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
+		"PLAYGROUND_BASE_URL=http://event-processor-manager:8091",
 		"UPLOAD_DIR=/uploads",
 	}
 
@@ -323,6 +324,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
+			utils.MakeDir(0777, stack.EventsEngineWorkdir, "playground") + ":/playground-workdir",
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
