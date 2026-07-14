@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/shared/fs"
@@ -18,6 +19,8 @@ const (
 	MinTLSVersion       = tls.VersionTLS12
 	MaxTLSVersion       = tls.VersionTLS13
 )
+
+var certFilesMu sync.RWMutex
 
 type TLSStatus struct {
 	Available  bool   `json:"available"`
@@ -35,15 +38,22 @@ type CertificateFiles struct {
 }
 
 func LoadIntegrationTLSConfig(certPath, keyPath string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
+	if _, err := tls.LoadX509KeyPair(certPath, keyPath); err != nil {
 		return nil, fmt.Errorf("error loading TLS certificate: %w", err)
 	}
 
 	return &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		MinVersion:   MinTLSVersion,
-		MaxVersion:   MaxTLSVersion,
+		GetCertificate: func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			certFilesMu.RLock()
+			defer certFilesMu.RUnlock()
+			cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+			if err != nil {
+				return nil, fmt.Errorf("error loading TLS certificate: %w", err)
+			}
+			return &cert, nil
+		},
+		MinVersion: MinTLSVersion,
+		MaxVersion: MaxTLSVersion,
 		CipherSuites: []uint16{
 			// TLS 1.2 secure cipher suites - RSA key exchange
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -62,6 +72,24 @@ func LoadIntegrationTLSConfig(certPath, keyPath string) (*tls.Config, error) {
 		},
 		PreferServerCipherSuites: true,
 	}, nil
+}
+
+func GetTLSStatus(certPath, keyPath, caPath string) TLSStatus {
+	result := TLSStatus{
+		CertExists: fs.Exists(certPath),
+		KeyExists:  fs.Exists(keyPath),
+		CAExists:   fs.Exists(caPath),
+	}
+	result.Available = result.CertExists && result.KeyExists
+
+	if result.Available {
+		if err := ValidateIntegrationCertificates(certPath, keyPath); err != nil {
+			result.Error = err.Error()
+		} else {
+			result.Valid = true
+		}
+	}
+	return result
 }
 
 func ValidateIntegrationCertificates(certPath, keyPath string) error {
@@ -139,11 +167,13 @@ func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 		return fmt.Errorf("error creating certificates directory: %w", err)
 	}
 
-	// Copy certificate files
-	if err := copyFile(src.CertPath, dest.CertPath); err != nil {
+	certFilesMu.Lock()
+	defer certFilesMu.Unlock()
+
+	if err := copyFile(src.CertPath, dest.CertPath, CertFilePermissions); err != nil {
 		return fmt.Errorf("error copying certificate: %w", err)
 	}
-	if err := copyFile(src.KeyPath, dest.KeyPath); err != nil {
+	if err := copyFile(src.KeyPath, dest.KeyPath, KeyFilePermissions); err != nil {
 		return fmt.Errorf("error copying private key: %w", err)
 	}
 
@@ -152,29 +182,40 @@ func LoadUserCertificatesWithStruct(src, dest CertificateFiles) error {
 	if caSource == "" || !fs.Exists(caSource) {
 		caSource = src.CertPath
 	}
-	if err := copyFile(caSource, dest.CAPath); err != nil {
+	if err := copyFile(caSource, dest.CAPath, CertFilePermissions); err != nil {
 		return fmt.Errorf("error copying CA certificate: %w", err)
-	}
-
-	// Set file permissions
-	if err := os.Chmod(dest.CertPath, CertFilePermissions); err != nil {
-		return fmt.Errorf("error setting certificate permissions: %w", err)
-	}
-	if err := os.Chmod(dest.KeyPath, KeyFilePermissions); err != nil {
-		return fmt.Errorf("error setting private key permissions: %w", err)
-	}
-	if err := os.Chmod(dest.CAPath, CertFilePermissions); err != nil {
-		return fmt.Errorf("error setting CA permissions: %w", err)
 	}
 
 	return nil
 }
 
-// copyFile copies a file from src to dst.
-func copyFile(src, dst string) error {
+func copyFile(src, dst string, perm os.FileMode) error {
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return fmt.Errorf("read %s: %w", src, err)
 	}
-	return os.WriteFile(dst, data, 0644)
+
+	dir := filepath.Dir(dst)
+	tmp, err := os.CreateTemp(dir, ".copyfile-*.tmp")
+	if err != nil {
+		return fmt.Errorf("create temp file for %s: %w", dst, err)
+	}
+	tmpPath := tmp.Name()
+	defer os.Remove(tmpPath) // no-op once the rename below succeeds
+
+	if err := tmp.Chmod(perm); err != nil {
+		tmp.Close()
+		return fmt.Errorf("set permissions on temp file for %s: %w", dst, err)
+	}
+	if _, err := tmp.Write(data); err != nil {
+		tmp.Close()
+		return fmt.Errorf("write temp file for %s: %w", dst, err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("close temp file for %s: %w", dst, err)
+	}
+	if err := os.Rename(tmpPath, dst); err != nil {
+		return fmt.Errorf("rename temp file to %s: %w", dst, err)
+	}
+	return nil
 }

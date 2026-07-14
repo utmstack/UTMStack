@@ -93,6 +93,9 @@ func (p *program) run() {
 	p.goSafe("StartPing", func() {
 		upstream.StartPing(cnf, ctx)
 	})
+	p.goSafe("StartCollectorConfigStream", func() {
+		upstream.StartCollectorConfigStream(cnf, ctx)
+	})
 	p.goSafe("ProcessLogs", func() {
 		upstream.ProcessLogs(cnf, ctx, collectorpkg.LogQueue)
 	})

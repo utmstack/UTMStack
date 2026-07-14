@@ -67,15 +67,12 @@ func (sc *SyslogCollector) reconcile() {
 	}
 }
 
-// isSyslogType returns true if the dataType is a syslog-based integration
-// (i.e., it exists in ProtoPorts but is not netflow).
 func isSyslogType(dataType string) bool {
-	dt := config.DataType(dataType)
-	if dt == config.DataTypeNetflow {
+	entry, ok := config.ResolveDataType(dataType)
+	if !ok {
 		return false
 	}
-	_, ok := config.ProtoPorts[dt]
-	return ok
+	return entry.Kind == "syslog"
 }
 
 func (sc *SyslogCollector) getOrCreateInstance(dataType string) *syslogInstance {
@@ -170,6 +167,9 @@ func (sc *SyslogCollector) reconcileProto(inst *syslogInstance, intType string, 
 
 // writeConfigFromInstances writes the current live state back to the config file (rollback).
 func (sc *SyslogCollector) writeConfigFromInstances() {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
 

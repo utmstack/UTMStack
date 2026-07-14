@@ -14,6 +14,9 @@ import (
 )
 
 func SyncCollectorConfig() error {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
 		integrations := make(map[string]schema.Integration)
@@ -99,7 +102,38 @@ func ConfigureFirstTime() error {
 	return SyncCollectorConfig()
 }
 
+func seedIntegrationPorts(name, udpPort, tcpPort string) error {
+	if udpPort == "" && tcpPort == "" {
+		return nil
+	}
+
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
+	cnf, err := schema.ReadCollectorConfig()
+	if err != nil {
+		cnf = schema.CollectorConfig{Integrations: make(map[string]schema.Integration)}
+	}
+	if cnf.Integrations == nil {
+		cnf.Integrations = make(map[string]schema.Integration)
+	}
+
+	if _, exists := cnf.Integrations[name]; exists {
+		// Already has a runtime entry -- do not clobber existing state.
+		return nil
+	}
+
+	cnf.Integrations[name] = schema.Integration{
+		TCP: schema.Port{IsListen: false, Port: tcpPort},
+		UDP: schema.Port{IsListen: false, Port: udpPort},
+	}
+	return schema.WriteCollectorConfig(&cnf)
+}
+
 func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOptions ...bool) (string, error) {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	var port string
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
@@ -166,6 +200,9 @@ type ChangePortResult struct {
 }
 
 func ChangePort(logTyp string, proto string, port string) (ChangePortResult, error) {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	result := ChangePortResult{}
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
@@ -257,6 +294,9 @@ func IsPortBindable(port string, proto string) bool {
 }
 
 func ChangeFileIntegrationStatus(logTyp string, isEnabled bool) ([]string, error) {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
 		return nil, fmt.Errorf("error reading collector config: %v", err)
@@ -281,6 +321,9 @@ type ChangeFilePathsResult struct {
 }
 
 func ChangeFilePaths(logTyp string, paths []string) (ChangeFilePathsResult, error) {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	result := ChangeFilePathsResult{}
 	cnf, err := schema.ReadCollectorConfig()
 	if err != nil {
@@ -329,26 +372,31 @@ type HTTPIntegrationOptions struct {
 	SignatureHeader string // e.g. "X-Hub-Signature-256"
 }
 
-func EnableHTTPIntegration(logTyp string, opts HTTPIntegrationOptions) error {
+func EnableHTTPIntegration(logTyp string, opts HTTPIntegrationOptions) (string, error) {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	cfg, err := schema.ReadCollectorConfig()
 	if err != nil {
-		return fmt.Errorf("error reading collector config: %v", err)
+		return "", fmt.Errorf("error reading collector config: %v", err)
 	}
 
 	if cfg.Integrations == nil {
 		cfg.Integrations = make(map[string]schema.Integration)
 	}
 
+	var generatedToken string
 	if opts.Auth == "bearer" || opts.Auth == "hmac" {
 		tp := filepath.Join(config.HTTPTokenDir, "integration-http-"+logTyp+".token")
 		if _, statErr := os.Stat(tp); statErr != nil {
 			// Generate token when file doesn't exist or can't be read
 			token, genErr := listeners.GenerateTokenFile(tp)
 			if genErr != nil {
-				return fmt.Errorf("generate token: %w", genErr)
+				return "", fmt.Errorf("generate token: %w", genErr)
 			}
 			fmt.Printf("\nToken for %s: %s\n", logTyp, token)
 			fmt.Printf("Store this token securely — it won't be shown again.\n\n")
+			generatedToken = token
 		}
 	}
 
@@ -369,10 +417,16 @@ func EnableHTTPIntegration(logTyp string, opts HTTPIntegrationOptions) error {
 	}
 	cfg.Integrations[logTyp] = integration
 
-	return schema.WriteCollectorConfig(&cfg)
+	if err := schema.WriteCollectorConfig(&cfg); err != nil {
+		return "", err
+	}
+	return generatedToken, nil
 }
 
 func DisableHTTPIntegration(logTyp string, proto string) error {
+	schema.LockCollectorConfig()
+	defer schema.UnlockCollectorConfig()
+
 	cfg, err := schema.ReadCollectorConfig()
 	if err != nil {
 		return fmt.Errorf("error reading collector config: %v", err)
