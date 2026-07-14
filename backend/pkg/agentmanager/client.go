@@ -5,7 +5,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager/agent"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	"google.golang.org/grpc"
@@ -201,6 +203,131 @@ func (c *AgentManagerClient) ProcessCommandStream(
 	}()
 
 	return resultCh, errCh
+}
+
+// SetCollectorIntegration proxies the SetCollectorConfig RPC for a single
+// data-type (integration) on one forwarder collector. kv carries the
+// conf_key/conf_value pairs — vocabulary documented on
+// CollectorGroupConfigurations: enabled, proto, port, tls, auth, path,
+// signature_header. A fresh request_id is generated per call (thin proxy —
+// no client-side dedupe/retry; the agent-manager server owns the ack/timeout
+// semantics and returns codes.Unavailable when the collector is offline or
+// codes.DeadlineExceeded when it doesn't ack in time).
+func (c *AgentManagerClient) SetCollectorIntegration(ctx context.Context, collectorID uint32, dataType string, kv map[string]string) (*agent.ConfigKnowledge, error) {
+	configs := make([]*agent.CollectorGroupConfigurations, 0, len(kv))
+	for k, v := range kv {
+		configs = append(configs, &agent.CollectorGroupConfigurations{
+			ConfKey:   k,
+			ConfValue: v,
+		})
+	}
+
+	req := &agent.CollectorConfig{
+		CollectorId: strconv.FormatUint(uint64(collectorID), 10),
+		RequestId:   uuid.NewString(),
+		Groups: []*agent.CollectorConfigGroup{
+			{
+				GroupName:      dataType,
+				CollectorId:    int32(collectorID),
+				Configurations: configs,
+			},
+		},
+	}
+
+	resp, err := c.collectorService.SetCollectorConfig(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: SetCollectorConfig: %w", err)
+	}
+	return resp, nil
+}
+
+// reservedTLSCertsGroup mirrors agent-manager's identically-named constant
+// (agent-manager/agent/collector_imp.go) and collectors/forwarder's own copy
+// (collectors/forwarder/config/const.go). Backend, agent-manager, and
+// forwarder are three separate Go modules with no shared import for this
+// literal — it must stay byte-identical across all three by convention.
+const reservedTLSCertsGroup = "__tls_certs__"
+
+// conf_key names carried inside a __tls_certs__ group's Configurations, and
+// the two supported "action" values. Mirrors the vocabulary agent-manager's
+// handleTLSCertsGroup/pushTLSCerts/queryTLSStatus expect (see
+// agent-manager/agent/collector_imp.go).
+const (
+	tlsCertConfKeyAction  = "action"
+	tlsCertConfKeyCertPem = "certPem"
+	tlsCertConfKeyKeyPem  = "keyPem"
+	tlsCertConfKeyCaPem   = "caPem"
+
+	tlsCertActionApply  = "apply"
+	tlsCertActionStatus = "status"
+)
+
+// SetCollectorCertificates proxies the SetCollectorConfig RPC for the
+// reserved __tls_certs__ group with action:"apply". certPem/keyPem are
+// required PEM text; caPem may be empty — agent-manager/forwarder treat an
+// absent CA as "use the certificate as its own CA"
+// (utils.LoadUserCertificatesWithStruct's fallback).
+//
+// IMPORTANT: certPem/keyPem/caPem travel as PLAINTEXT conf_keys on this RPC.
+// The backend never encrypts anything — agent-manager is the one that seals
+// the envelope (DeriveTLSCertKey/SealTLSCertEnvelope, using the CollectorKey
+// it already caches for this collector) before relaying it to the forwarder
+// over the CollectorStream. See pushTLSCerts in
+// agent-manager/agent/collector_imp.go.
+func (c *AgentManagerClient) SetCollectorCertificates(ctx context.Context, collectorID uint32, certPem, keyPem, caPem string) (*agent.ConfigKnowledge, error) {
+	configs := []*agent.CollectorGroupConfigurations{
+		{ConfKey: tlsCertConfKeyAction, ConfValue: tlsCertActionApply},
+		{ConfKey: tlsCertConfKeyCertPem, ConfValue: certPem},
+		{ConfKey: tlsCertConfKeyKeyPem, ConfValue: keyPem},
+	}
+	if caPem != "" {
+		configs = append(configs, &agent.CollectorGroupConfigurations{ConfKey: tlsCertConfKeyCaPem, ConfValue: caPem})
+	}
+
+	req := &agent.CollectorConfig{
+		CollectorId: strconv.FormatUint(uint64(collectorID), 10),
+		RequestId:   uuid.NewString(),
+		Groups: []*agent.CollectorConfigGroup{
+			{
+				GroupName:      reservedTLSCertsGroup,
+				CollectorId:    int32(collectorID),
+				Configurations: configs,
+			},
+		},
+	}
+
+	resp, err := c.collectorService.SetCollectorConfig(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: SetCollectorCertificates: %w", err)
+	}
+	return resp, nil
+}
+
+// GetCollectorCertificatesStatus proxies the SetCollectorConfig RPC for the
+// reserved __tls_certs__ group with action:"status" (no payload). The
+// forwarder's current TLS state travels back, unencrypted, in
+// ConfigKnowledge.StatusPayload — a status snapshot has no secret material
+// to protect.
+func (c *AgentManagerClient) GetCollectorCertificatesStatus(ctx context.Context, collectorID uint32) (*agent.ConfigKnowledge, error) {
+	req := &agent.CollectorConfig{
+		CollectorId: strconv.FormatUint(uint64(collectorID), 10),
+		RequestId:   uuid.NewString(),
+		Groups: []*agent.CollectorConfigGroup{
+			{
+				GroupName:   reservedTLSCertsGroup,
+				CollectorId: int32(collectorID),
+				Configurations: []*agent.CollectorGroupConfigurations{
+					{ConfKey: tlsCertConfKeyAction, ConfValue: tlsCertActionStatus},
+				},
+			},
+		},
+	}
+
+	resp, err := c.collectorService.SetCollectorConfig(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: GetCollectorCertificatesStatus: %w", err)
+	}
+	return resp, nil
 }
 
 func (c *AgentManagerClient) ProcessCommand(ctx context.Context, cmd *agent.UtmCommand) (*agent.CommandResult, error) {

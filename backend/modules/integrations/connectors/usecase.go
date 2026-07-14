@@ -18,3 +18,10 @@ type ModuleUsecase interface {
 	DataTypes(ctx context.Context) ([]dto.DataTypeOption, error)
 	IsActive(ctx context.Context, moduleName string) (bool, error)
 }
+
+type CollectorUsecase interface {
+	ListOnlineForwarders(ctx context.Context) ([]dto.CollectorResponse, error)
+	SetDataTypeConfig(ctx context.Context, collectorID uint32, dataType string, req dto.SetDataTypeConfigRequest) (*dto.ConfigKnowledgeResponse, error)
+	SetForwarderCertificates(ctx context.Context, collectorID uint32, req dto.SetForwarderCertificatesRequest) (*dto.ConfigKnowledgeResponse, error)
+	GetTLSStatus(ctx context.Context, collectorID uint32) (*dto.TLSStatusResponse, error)
+}

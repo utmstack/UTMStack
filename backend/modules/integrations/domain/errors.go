@@ -11,4 +11,7 @@ var (
 	ErrInvalidActivation = errors.New("invalid activation request")
 	ErrSystemModule      = errors.New("system integrations cannot be modified or deleted")
 	ErrNotConfigurable   = errors.New("integration is not configurable (no schema / has no tenants)")
+
+	ErrInvalidCollectorConfig  = errors.New("invalid collector data-type configuration")
+	ErrAgentManagerUnavailable = errors.New("agent manager is not available")
 )

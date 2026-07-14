@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CollectorService_RegisterCollector_FullMethodName = "/agent.CollectorService/RegisterCollector"
-	CollectorService_DeleteCollector_FullMethodName   = "/agent.CollectorService/DeleteCollector"
-	CollectorService_ListCollector_FullMethodName     = "/agent.CollectorService/ListCollector"
-	CollectorService_CollectorStream_FullMethodName   = "/agent.CollectorService/CollectorStream"
+	CollectorService_RegisterCollector_FullMethodName  = "/agent.CollectorService/RegisterCollector"
+	CollectorService_DeleteCollector_FullMethodName    = "/agent.CollectorService/DeleteCollector"
+	CollectorService_ListCollector_FullMethodName      = "/agent.CollectorService/ListCollector"
+	CollectorService_CollectorStream_FullMethodName    = "/agent.CollectorService/CollectorStream"
+	CollectorService_GetCollectorConfig_FullMethodName = "/agent.CollectorService/GetCollectorConfig"
+	CollectorService_SetCollectorConfig_FullMethodName = "/agent.CollectorService/SetCollectorConfig"
 )
 
 // CollectorServiceClient is the client API for CollectorService service.
@@ -33,6 +35,8 @@ type CollectorServiceClient interface {
 	DeleteCollector(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListCollector(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListCollectorResponse, error)
 	CollectorStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[CollectorMessages, CollectorMessages], error)
+	GetCollectorConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*CollectorConfig, error)
+	SetCollectorConfig(ctx context.Context, in *CollectorConfig, opts ...grpc.CallOption) (*ConfigKnowledge, error)
 }
 
 type collectorServiceClient struct {
@@ -86,6 +90,26 @@ func (c *collectorServiceClient) CollectorStream(ctx context.Context, opts ...gr
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CollectorService_CollectorStreamClient = grpc.BidiStreamingClient[CollectorMessages, CollectorMessages]
 
+func (c *collectorServiceClient) GetCollectorConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*CollectorConfig, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CollectorConfig)
+	err := c.cc.Invoke(ctx, CollectorService_GetCollectorConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *collectorServiceClient) SetCollectorConfig(ctx context.Context, in *CollectorConfig, opts ...grpc.CallOption) (*ConfigKnowledge, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigKnowledge)
+	err := c.cc.Invoke(ctx, CollectorService_SetCollectorConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CollectorServiceServer is the server API for CollectorService service.
 // All implementations must embed UnimplementedCollectorServiceServer
 // for forward compatibility.
@@ -94,6 +118,8 @@ type CollectorServiceServer interface {
 	DeleteCollector(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error)
 	CollectorStream(grpc.BidiStreamingServer[CollectorMessages, CollectorMessages]) error
+	GetCollectorConfig(context.Context, *ConfigRequest) (*CollectorConfig, error)
+	SetCollectorConfig(context.Context, *CollectorConfig) (*ConfigKnowledge, error)
 	mustEmbedUnimplementedCollectorServiceServer()
 }
 
@@ -115,6 +141,12 @@ func (UnimplementedCollectorServiceServer) ListCollector(context.Context, *ListR
 }
 func (UnimplementedCollectorServiceServer) CollectorStream(grpc.BidiStreamingServer[CollectorMessages, CollectorMessages]) error {
 	return status.Errorf(codes.Unimplemented, "method CollectorStream not implemented")
+}
+func (UnimplementedCollectorServiceServer) GetCollectorConfig(context.Context, *ConfigRequest) (*CollectorConfig, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectorConfig not implemented")
+}
+func (UnimplementedCollectorServiceServer) SetCollectorConfig(context.Context, *CollectorConfig) (*ConfigKnowledge, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetCollectorConfig not implemented")
 }
 func (UnimplementedCollectorServiceServer) mustEmbedUnimplementedCollectorServiceServer() {}
 func (UnimplementedCollectorServiceServer) testEmbeddedByValue()                          {}
@@ -198,6 +230,42 @@ func _CollectorService_CollectorStream_Handler(srv interface{}, stream grpc.Serv
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CollectorService_CollectorStreamServer = grpc.BidiStreamingServer[CollectorMessages, CollectorMessages]
 
+func _CollectorService_GetCollectorConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollectorServiceServer).GetCollectorConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollectorService_GetCollectorConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollectorServiceServer).GetCollectorConfig(ctx, req.(*ConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CollectorService_SetCollectorConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CollectorConfig)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollectorServiceServer).SetCollectorConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollectorService_SetCollectorConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollectorServiceServer).SetCollectorConfig(ctx, req.(*CollectorConfig))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CollectorService_ServiceDesc is the grpc.ServiceDesc for CollectorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -216,6 +284,14 @@ var CollectorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCollector",
 			Handler:    _CollectorService_ListCollector_Handler,
+		},
+		{
+			MethodName: "GetCollectorConfig",
+			Handler:    _CollectorService_GetCollectorConfig_Handler,
+		},
+		{
+			MethodName: "SetCollectorConfig",
+			Handler:    _CollectorService_SetCollectorConfig_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
