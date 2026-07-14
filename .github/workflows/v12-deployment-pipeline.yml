@@ -390,6 +390,7 @@ jobs:
           - feeds
           - ad-audit
           - soar
+          - playground
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
