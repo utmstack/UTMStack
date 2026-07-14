@@ -92,8 +92,6 @@ func registerDashboardDashboards(m *Module) {
 type visualizationUpsertInput struct {
 	ID          uint64 `json:"id,omitempty"`
 	DashboardID uint64 `json:"dashboard_id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
 	SQLQuery    string `json:"sql_query,omitempty"`
 	Config      string `json:"config,omitempty"`
 	Layout      string `json:"layout,omitempty"`
@@ -101,7 +99,6 @@ type visualizationUpsertInput struct {
 
 type visualizationListInput struct {
 	DashboardID *uint64 `json:"dashboard_id,omitempty"`
-	Name        string  `json:"name,omitempty"`
 	Page        int     `json:"page,omitempty"`
 	Size        int     `json:"size,omitempty"`
 }
@@ -114,8 +111,8 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Create(ctx, &domain.Visualization{
-				DashboardID: in.DashboardID, Name: in.Name, Description: in.Description,
-				SQLQuery: in.SQLQuery, Config: in.Config, Layout: in.Layout,
+				DashboardID: in.DashboardID,
+				SQLQuery:    in.SQLQuery, Config: in.Config, Layout: in.Layout,
 			}, actor.Login)
 		})
 
@@ -124,7 +121,7 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Update(ctx, &domain.Visualization{
-				ID: in.ID, DashboardID: in.DashboardID, Name: in.Name, Description: in.Description,
+				ID: in.ID, DashboardID: in.DashboardID,
 				SQLQuery: in.SQLQuery, Config: in.Config, Layout: in.Layout,
 			}, actor.Login)
 		})
@@ -135,8 +132,8 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.read"},
 		func(ctx context.Context, _ *authz.Actor, in visualizationListInput) (any, error) {
 			items, total, err := uc.List(ctx, dto.VisualizationFilter{
-				DashboardID: in.DashboardID, Name: in.Name,
-				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
+				DashboardID: in.DashboardID,
+				Params:      database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			})
 			if err != nil {
 				return nil, err

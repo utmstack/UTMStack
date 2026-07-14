@@ -27,9 +27,6 @@ func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualizati
 	if v.DashboardID == 0 {
 		return nil, domain.ErrDashboardIDRequired
 	}
-	if strings.TrimSpace(v.Name) == "" {
-		return nil, domain.ErrNameRequired
-	}
 	if err := sanitizeVisualizationSQL(v); err != nil {
 		return nil, err
 	}

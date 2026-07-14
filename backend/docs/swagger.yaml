@@ -190,10 +190,6 @@ definitions:
         type: string
       name:
         type: string
-      refreshTime:
-        description: RefreshTime is the auto-refresh interval in seconds. 0 disables
-          auto-refresh.
-        type: integer
       systemOwner:
         type: boolean
     type: object
@@ -982,15 +978,11 @@ definitions:
         type: string
       dashboardId:
         type: integer
-      description:
-        type: string
       id:
         type: integer
       layout:
         type: string
       modifiedDate:
-        type: string
-      name:
         type: string
       sqlQuery:
         type: string
@@ -11681,17 +11673,12 @@ paths:
       - Alerts
   /visualizations:
     get:
-      description: Lists visualizations, optionally filtered by dashboard or name,
-        paginated.
+      description: Lists visualizations, optionally filtered by dashboard, paginated.
       parameters:
       - description: Filter by dashboard id
         in: query
         name: dashboardId
         type: integer
-      - description: Filter by name (substring)
-        in: query
-        name: name
-        type: string
       - description: Page (0-based)
         in: query
         name: page

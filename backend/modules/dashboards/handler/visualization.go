@@ -41,7 +41,11 @@ func (h *VisualizationHandler) Create(c *gin.Context) {
 		return
 	}
 	res, err := h.uc.Create(c.Request.Context(), &v, currentUser(c))
-	audit.Record(c, audit_connectors.Event{Action: "visualization.create", ResourceType: "visualization", ResourceID: v.Name},
+	resID := ""
+	if res != nil {
+		resID = strconv.FormatUint(res.ID, 10)
+	}
+	audit.Record(c, audit_connectors.Event{Action: "visualization.create", ResourceType: "visualization", ResourceID: resID},
 		audit_domain.VISUALIZATION_CREATE_ATTEMPT, audit_domain.VISUALIZATION_CREATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
@@ -83,12 +87,11 @@ func (h *VisualizationHandler) Update(c *gin.Context) {
 // List godoc
 //
 //	@Summary		List visualizations
-//	@Description	Lists visualizations, optionally filtered by dashboard or name, paginated.
+//	@Description	Lists visualizations, optionally filtered by dashboard, paginated.
 //	@Tags			Visualizations
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Param			dashboardId	query		int		false	"Filter by dashboard id"
-//	@Param			name		query		string	false	"Filter by name (substring)"
 //	@Param			page		query		int		false	"Page (0-based)"
 //	@Param			size		query		int		false	"Page size"
 //	@Success		200			{array}		domain.Visualization

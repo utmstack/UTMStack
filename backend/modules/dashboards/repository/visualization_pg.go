@@ -37,15 +37,12 @@ func (r *pgVisualizationRepository) List(ctx context.Context, f dto.Visualizatio
 	if f.DashboardID != nil {
 		q = q.Where("dashboard_id = ?", *f.DashboardID)
 	}
-	if f.Name != "" {
-		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
-	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	var items []domain.Visualization
-	if err := q.Order("name ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
+	if err := q.Order("id ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil

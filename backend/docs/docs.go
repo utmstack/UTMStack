@@ -13042,7 +13042,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists visualizations, optionally filtered by dashboard or name, paginated.",
+                "description": "Lists visualizations, optionally filtered by dashboard, paginated.",
                 "produces": [
                     "application/json"
                 ],
@@ -13055,12 +13055,6 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Filter by dashboard id",
                         "name": "dashboardId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by name (substring)",
-                        "name": "name",
                         "in": "query"
                     },
                     {
@@ -13568,10 +13562,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "refreshTime": {
-                    "description": "RefreshTime is the auto-refresh interval in seconds. 0 disables auto-refresh.",
-                    "type": "integer"
                 },
                 "systemOwner": {
                     "type": "boolean"
@@ -14728,9 +14718,6 @@ const docTemplate = `{
                 "dashboardId": {
                     "type": "integer"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -14738,9 +14725,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "modifiedDate": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 },
                 "sqlQuery": {

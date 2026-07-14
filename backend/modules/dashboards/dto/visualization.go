@@ -4,6 +4,5 @@ import "github.com/utmstack/utmstack/backend/pkg/database"
 
 type VisualizationFilter struct {
 	DashboardID *uint64 `form:"dashboardId"`
-	Name        string  `form:"name"`
 	database.Params
 }
