@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LayoutDashboard, Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -6,8 +7,7 @@ import { Button } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { useDashboard, useDashboards } from '@/features/dashboard/hooks/useDashboards'
-import { useDashboardLayouts } from '@/features/dashboard/hooks/useDashboardLayouts'
-import { createVisualizationsService } from '@/features/dashboard/service/visualizations.service'
+import { useVisualizations, useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
 import { useDashboardEditor } from '@/features/dashboard/hooks/useDashboardEditor'
 import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
 import { DashboardEditorBar } from '@/features/dashboard/components/DashboardEditorBar'
@@ -18,20 +18,11 @@ import {
   type ChipValueMap,
 } from '@/features/dashboard/components/DashboardFilterBar'
 import { DashboardRefreshSelect } from '@/features/dashboard/components/DashboardRefreshSelect'
-import { AddVisualizationDrawer } from '@/features/dashboard/components/AddVisualizationDrawer'
 import { DashboardTable } from '@/features/dashboard/components/DashboardTable'
 import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
 import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
 import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
-import type {
-  Dashboard,
-  DashboardFilterChip,
-  FilterType,
-  GridLayoutItem,
-  Visualization,
-} from '@/features/dashboard/types'
-import { useQueries } from '@tanstack/react-query'
-import { VISUALIZATIONS_QUERY_KEYS } from '@/features/dashboard/hooks/useVisualizations'
+import type { Dashboard, DashboardFilterChip, FilterType, GridLayoutItem } from '@/features/dashboard/types'
 
 export function DashboardPage() {
   const { t } = useTranslation()
@@ -41,8 +32,11 @@ export function DashboardPage() {
   const [formOpen, setFormOpen] = useState<null | { mode: 'create' | 'rename'; target: Dashboard | null }>(
     null
   )
-  const [addOpen, setAddOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
+  // Removing a widget now deletes its visualization for good (no more "unlink,
+  // keep it around for another dashboard") — confirm before committing a save
+  // that includes pending removals.
+  const [confirmRemovals, setConfirmRemovals] = useState(false)
   // Chip *values* are session-only (v11 parity): they clear when the user
   // switches dashboards. The *config* lives on dashboard.filters and persists.
   const [chipValues, setChipValues] = useState<ChipValueMap>({})
@@ -62,34 +56,34 @@ export function DashboardPage() {
   const noDashboards = dashboardItems.length === 0 && !search
 
   const selectedDashboard = useDashboard(selectedId)
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const layouts = useDashboardLayouts(
-    selectedId != null ? { idDashboard: selectedId, page: 0, size: 500 } : { page: 0, size: 0 }
-  )
-  const layoutRows = layouts.list.data?.data ?? []
-
-  const visualizationIds = useMemo(
-    () => Array.from(new Set(layoutRows.map((r) => r.idVisualization))),
-    [layoutRows]
-  )
-
-  const vizQueries = useQueries({
-    queries: visualizationIds.map((id) => ({
-      queryKey: VISUALIZATIONS_QUERY_KEYS.one(id),
-      queryFn: () => createVisualizationsService().getVisualization(id),
-      enabled: id > 0,
-    })),
-  })
-
-  const visualizationsById = useMemo(() => {
-    const map = new Map<number, Visualization>()
-    for (const q of vizQueries) {
-      if (q.data) map.set(q.data.id, q.data)
+  // Coming back from the visualization editor (create/edit) via its "back to
+  // dashboard" navigation — re-select the dashboard it belongs to.
+  useEffect(() => {
+    const state = location.state as { selectDashboardId?: number } | null
+    if (state?.selectDashboardId != null) {
+      setSelectedId(state.selectDashboardId)
+      navigate(location.pathname, { replace: true, state: null })
     }
-    return map
-  }, [vizQueries])
+    // Only react to navigation-state changes, not every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state])
 
-  const initialItems = useMemo(() => toGridItems(layoutRows), [layoutRows])
+  const visualizations = useVisualizations(
+    selectedId != null ? { dashboardId: selectedId, page: 0, size: 500 } : { page: 0, size: 0 }
+  )
+  const vizItems = visualizations.data?.data ?? []
+  const vizMutations = useVisualizationMutations()
+
+  const vizById = useMemo(() => {
+    const m = new Map<number, (typeof vizItems)[number]>()
+    for (const v of vizItems) m.set(v.id, v)
+    return m
+  }, [vizItems])
+
+  const initialItems = useMemo(() => toGridItems(vizItems), [vizItems])
   const editor = useDashboardEditor(initialItems)
 
   const chips = useMemo<DashboardFilterChip[]>(
@@ -124,18 +118,6 @@ export function DashboardPage() {
     pendingEditRef.current = false
     editor.enter()
   }, [selectedDashboard.data, editor])
-
-  const layoutsById = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const dv of layoutRows) m.set(String(dv.id), dv.id)
-    return m
-  }, [layoutRows])
-
-  const excludedVizIds = useMemo(() => {
-    const s = new Set<number>()
-    for (const dv of layoutRows) s.add(dv.idVisualization)
-    return s
-  }, [layoutRows])
 
   const handleCreateDashboard = (data: { name: string; description?: string }) => {
     dashboards.createDashboard.mutate(
@@ -186,37 +168,22 @@ export function DashboardPage() {
     })
   }
 
-  const handleAddVisualizations = async (vizs: Visualization[]) => {
-    if (selectedId == null || vizs.length === 0) return
-    try {
-      // Drop new widgets below the current layout, one per row.
-      let y = nextRow(initialItems)
-      for (let i = 0; i < vizs.length; i++) {
-        await layouts.createLayout.mutateAsync({
-          idDashboard: selectedId,
-          idVisualization: vizs[i].id,
-          layout: serializeLayout({
-            x: 0,
-            y,
-            w: DEFAULT_WIDGET_LAYOUT.w,
-            h: DEFAULT_WIDGET_LAYOUT.h,
-          }),
-        })
-        y += DEFAULT_WIDGET_LAYOUT.h
-      }
-      toast.success(
-        vizs.length === 1
-          ? t('dashboards.toast.widgetAdded')
-          : t('dashboards.toast.widgetsAdded', { count: vizs.length })
-      )
-      setAddOpen(false)
-    } catch (err) {
-      toast.error((err as Error)?.message ?? t('dashboards.toast.widgetAddFailed'))
-    }
+  // No more picking from an existing library — a widget can only ever belong to
+  // this dashboard, so "Add widget" goes straight to creating a new one, seeded
+  // with the next free grid row.
+  const handleAddWidget = () => {
+    if (selectedId == null) return
+    const layout = serializeLayout({
+      x: 0,
+      y: nextRow(initialItems),
+      w: DEFAULT_WIDGET_LAYOUT.w,
+      h: DEFAULT_WIDGET_LAYOUT.h,
+    })
+    navigate(`/dashboards/${selectedId}/visualizations/new`, { state: { layout } })
   }
 
-  const handleSave = async () => {
-    if (!editor.dirty || selectedId == null) return
+  const doSave = async () => {
+    if (selectedId == null) return
     try {
       // Persist x/y/w/h for every widget whose position or size changed.
       const baseById = new Map(editor.baseline.map((it) => [it.i, it]))
@@ -229,27 +196,40 @@ export function DashboardPage() {
           base.w !== item.w ||
           base.h !== item.h
         if (!changed) continue
-        const layoutId = layoutsById.get(item.i)
-        if (layoutId == null) continue
-        const dv = layoutRows.find((r) => r.id === layoutId)
-        if (!dv) continue
-        await layouts.updateLayout.mutateAsync({
-          id: dv.id,
-          idDashboard: dv.idDashboard,
-          idVisualization: dv.idVisualization,
+        const viz = vizById.get(Number(item.i))
+        if (!viz) continue
+        await vizMutations.updateVisualization.mutateAsync({
+          id: viz.id,
+          dashboardId: viz.dashboardId,
+          name: viz.name,
+          description: viz.description,
+          sqlQuery: viz.sqlQuery,
+          config: viz.config,
           layout: serializeLayout({ x: item.x, y: item.y, w: item.w, h: item.h }),
         })
       }
 
+      // A removed widget's visualization is gone for good — there's nothing to
+      // "unlink" anymore. `confirmRemovals` (below) gates this before it runs.
       for (const removeId of editor.pendingRemovals) {
-        await layouts.deleteLayout.mutateAsync(removeId)
+        await vizMutations.deleteVisualization.mutateAsync(removeId)
       }
 
       editor.commit()
+      setConfirmRemovals(false)
       toast.success(t('dashboards.toast.layoutSaved'))
     } catch (err) {
       toast.error((err as Error).message ?? t('dashboards.toast.layoutSaveFailed'))
     }
+  }
+
+  const handleSave = () => {
+    if (!editor.dirty || selectedId == null) return
+    if (editor.pendingRemovals.length > 0) {
+      setConfirmRemovals(true)
+      return
+    }
+    void doSave()
   }
 
   const openFromTable = (id: number, options?: { edit?: boolean }) => {
@@ -309,10 +289,7 @@ export function DashboardPage() {
   }
 
   const gridItems: GridLayoutItem[] = editor.editing ? editor.working : initialItems
-  const saving =
-    layouts.updateLayout.isPending ||
-    layouts.deleteLayout.isPending ||
-    layouts.createLayout.isPending
+  const saving = vizMutations.updateVisualization.isPending || vizMutations.deleteVisualization.isPending
 
   const inPreview = selectedId != null
   const previewDashboard = selectedDashboard.data ?? null
@@ -335,7 +312,7 @@ export function DashboardPage() {
                 <DashboardEditorBar
                   dirty={editor.dirty}
                   saving={saving}
-                  onAddWidget={() => setAddOpen(true)}
+                  onAddWidget={handleAddWidget}
                   onSave={handleSave}
                   onDiscard={editor.discard}
                 />
@@ -386,7 +363,7 @@ export function DashboardPage() {
 
       {inPreview && (
         <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
-          {layouts.list.isLoading ? (
+          {visualizations.isLoading ? (
             <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
               <Loader2 size={16} className="animate-spin" />
               {t('dashboards.page.loading')}
@@ -394,8 +371,7 @@ export function DashboardPage() {
           ) : (
             <DashboardGrid
               items={gridItems}
-              layouts={layoutRows}
-              visualizationsById={visualizationsById}
+              visualizations={vizItems}
               time={time}
               filters={activeFilters}
               refreshSeconds={refreshSeconds}
@@ -425,14 +401,6 @@ export function DashboardPage() {
         onSubmit={handleRenameDashboard}
       />
 
-      <AddVisualizationDrawer
-        open={addOpen}
-        excludedIds={excludedVizIds}
-        busy={layouts.createLayout.isPending}
-        onClose={() => setAddOpen(false)}
-        onAdd={handleAddVisualizations}
-      />
-
       <ConfirmDialog
         open={pendingDelete != null}
         title={t('dashboards.confirm.deleteTitle')}
@@ -442,6 +410,17 @@ export function DashboardPage() {
         busy={dashboards.deleteDashboard.isPending}
         onClose={() => setPendingDelete(null)}
         onConfirm={confirmDeleteDashboard}
+      />
+
+      <ConfirmDialog
+        open={confirmRemovals}
+        title={t('dashboards.confirm.deleteWidgetsTitle')}
+        body={t('dashboards.confirm.deleteWidgets', { count: editor.pendingRemovals.length })}
+        confirmLabel={t('dashboards.list.delete') ?? undefined}
+        danger
+        busy={saving}
+        onClose={() => setConfirmRemovals(false)}
+        onConfirm={() => void doSave()}
       />
     </div>
   )

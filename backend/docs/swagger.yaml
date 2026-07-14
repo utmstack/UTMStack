@@ -127,6 +127,20 @@ definitions:
         description: placeholder — not yet evaluated (Pending)
         type: boolean
     type: object
+  domain.Condition:
+    enum:
+    - OnSuccess
+    - OnFailure
+    - Always
+    type: string
+    x-enum-comments:
+      ConditionAlways: ;
+      ConditionOnFailure: '||'
+      ConditionOnSuccess: '&&'
+    x-enum-varnames:
+    - ConditionOnSuccess
+    - ConditionOnFailure
+    - ConditionAlways
   domain.Control:
     properties:
       checks:
@@ -176,19 +190,12 @@ definitions:
         type: string
       name:
         type: string
+      refreshTime:
+        description: RefreshTime is the auto-refresh interval in seconds. 0 disables
+          auto-refresh.
+        type: integer
       systemOwner:
         type: boolean
-    type: object
-  domain.DashboardVisualization:
-    properties:
-      id:
-        type: integer
-      idDashboard:
-        type: integer
-      idVisualization:
-        type: integer
-      layout:
-        type: string
     type: object
   domain.DiskInfo:
     properties:
@@ -409,11 +416,29 @@ definitions:
   domain.OperatorType:
     enum:
     - IS
+    - IS_NOT
+    - CONTAINS
+    - NOT_CONTAINS
+    - EXISTS
+    - NOT_EXISTS
+    - START_WITH
+    - NOT_START_WITH
+    - ENDS_WITH
+    - NOT_ENDS_WITH
     - IS_ONE_OF
     - IS_NOT_ONE_OF
     type: string
     x-enum-varnames:
     - OperatorIS
+    - OperatorISNot
+    - OperatorContains
+    - OperatorNotContains
+    - OperatorExists
+    - OperatorNotExists
+    - OperatorStartWith
+    - OperatorNotStartWith
+    - OperatorEndsWith
+    - OperatorNotEndsWith
     - OperatorIsOneOf
     - OperatorIsNotOneOf
   domain.PolicySettings:
@@ -452,6 +477,12 @@ definitions:
         type: string
       name:
         type: string
+      note:
+        description: user note attached to this (framework, control)
+        type: string
+      overridden:
+        description: true when status came from a manual override
+        type: boolean
       status:
         description: COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE
           | PENDING
@@ -722,6 +753,8 @@ definitions:
         type: integer
       assetGroupName:
         type: string
+      assignee:
+        type: string
       category:
         type: string
       dataSource:
@@ -947,10 +980,14 @@ definitions:
         type: string
       createdDate:
         type: string
+      dashboardId:
+        type: integer
       description:
         type: string
       id:
         type: integer
+      layout:
+        type: string
       modifiedDate:
         type: string
       name:
@@ -1356,16 +1393,16 @@ definitions:
     properties:
       adversary:
         type: string
-      afterEvents:
-        items:
-          type: integer
-        type: array
       availability:
         type: integer
       category:
         type: string
       confidentiality:
         type: integer
+      correlation:
+        items:
+          type: integer
+        type: array
       dataTypes:
         items:
           $ref: '#/definitions/dto.RuleDataTypeResponse'
@@ -1461,16 +1498,16 @@ definitions:
     properties:
       adversary:
         type: string
-      afterEvents:
-        items:
-          type: integer
-        type: array
       availability:
         type: integer
       category:
         type: string
       confidentiality:
         type: integer
+      correlation:
+        items:
+          type: integer
+        type: array
       dataTypes:
         items:
           $ref: '#/definitions/dto.DataTypeRef'
@@ -1642,7 +1679,7 @@ definitions:
         type: string
       commands:
         items:
-          type: string
+          $ref: '#/definitions/dto.FlowCommandVM'
         minItems: 1
         type: array
       conditions:
@@ -1848,6 +1885,8 @@ definitions:
         items:
           type: string
         type: array
+      order:
+        type: integer
       relPath:
         type: string
       system:
@@ -1860,6 +1899,20 @@ definitions:
       operator:
         $ref: '#/definitions/domain.OperatorType'
       value: {}
+    type: object
+  dto.FlowCommandVM:
+    properties:
+      command:
+        type: string
+      condition:
+        allOf:
+        - $ref: '#/definitions/domain.Condition'
+        enum:
+        - OnSuccess
+        - OnFailure
+        - Always
+    required:
+    - command
     type: object
   dto.GenericSearchRequest:
     properties:
@@ -2195,12 +2248,24 @@ definitions:
     - alert
     - rulePath
     type: object
+  dto.ModuleActivationRequest:
+    properties:
+      activationStatus:
+        type: boolean
+      moduleName:
+        type: string
+    required:
+    - activationStatus
+    - moduleName
+    type: object
   dto.ModuleResponse:
     properties:
       dataType:
         type: string
       id:
         type: integer
+      ingestType:
+        type: string
       isSystem:
         type: boolean
       moduleActive:
@@ -2403,7 +2468,7 @@ definitions:
         type: string
       commands:
         items:
-          type: string
+          $ref: '#/definitions/dto.FlowCommandVM'
         type: array
       conditions:
         items:
@@ -2759,16 +2824,16 @@ definitions:
     properties:
       adversary:
         type: string
-      afterEvents:
-        items:
-          type: integer
-        type: array
       availability:
         type: integer
       category:
         type: string
       confidentiality:
         type: integer
+      correlation:
+        items:
+          type: integer
+        type: array
       dataTypes:
         items:
           $ref: '#/definitions/dto.DataTypeRef'
@@ -2802,6 +2867,16 @@ definitions:
         type: boolean
       technique:
         type: string
+    type: object
+  dto.UpdateFilterOrderRequest:
+    properties:
+      order:
+        type: integer
+      relPath:
+        type: string
+    required:
+    - order
+    - relPath
     type: object
   dto.UpdateFilterRequest:
     properties:
@@ -2890,7 +2965,7 @@ definitions:
         type: string
       commands:
         items:
-          type: string
+          $ref: '#/definitions/dto.FlowCommandVM'
         minItems: 1
         type: array
       conditions:
@@ -3427,7 +3502,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Fetch adversary alerts grouped by adversary host
+      summary: Fetch adversary alerts grouped by adversary host (falls back to IP)
       tags:
       - Alerts
   /alert-tag-rules:
@@ -5129,6 +5204,145 @@ paths:
       summary: Update a framework (copy-on-write)
       tags:
       - Compliance Frameworks
+  /compliance/frameworks/{key}/controls/{id}/note:
+    delete:
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Control id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete a user note on a control
+      tags:
+      - Compliance Reports
+    put:
+      consumes:
+      - application/json
+      description: Upserts a freeform note attached to a (framework, control). Empty
+        body deletes the note.
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Control id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Note body ({note: string})'
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Set / update a user note on a control
+      tags:
+      - Compliance Reports
+  /compliance/frameworks/{key}/controls/{id}/status:
+    delete:
+      description: Removes the manual override so the control status falls back to
+        the evaluator's computed value.
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Control id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Clear a manual status override
+      tags:
+      - Compliance Reports
+    put:
+      consumes:
+      - application/json
+      description: Overrides the evaluator's computed status for a (framework, control)
+        pair. Applied on live evaluations only; historical snapshots are unchanged.
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Control id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New status (COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED
+          | OUT_OF_SCOPE | PENDING) and optional reason
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Set a manual status override for a control
+      tags:
+      - Compliance Reports
   /compliance/frameworks/{key}/enabled:
     put:
       consumes:
@@ -5778,182 +5992,6 @@ paths:
       summary: Search distinct property values for correlation rules
       tags:
       - Correlation Rules
-  /dashboard-layouts:
-    get:
-      description: Lists dashboard↔visualization placements, typically filtered by
-        dashboard.
-      parameters:
-      - description: Filter by dashboard id
-        in: query
-        name: idDashboard
-        type: integer
-      - description: Filter by visualization id
-        in: query
-        name: idVisualization
-        type: integer
-      - description: Page (0-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/domain.DashboardVisualization'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List layout placements
-      tags:
-      - Dashboard Layouts
-    post:
-      consumes:
-      - application/json
-      description: Places a visualization on a dashboard with its grid layout (order/size/position).
-        The id must be absent.
-      parameters:
-      - description: Layout placement to create
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.DashboardVisualization'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/domain.DashboardVisualization'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Add a visualization to a dashboard (layout placement)
-      tags:
-      - Dashboard Layouts
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing dashboard↔visualization placement (order/size/position).
-        The id is required.
-      parameters:
-      - description: Layout placement to update
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.DashboardVisualization'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.DashboardVisualization'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update a layout placement
-      tags:
-      - Dashboard Layouts
-  /dashboard-layouts/{id}:
-    delete:
-      parameters:
-      - description: Layout placement id
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Deleted
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete a layout placement by id
-      tags:
-      - Dashboard Layouts
-    get:
-      parameters:
-      - description: Layout placement id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.DashboardVisualization'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get a layout placement by id
-      tags:
-      - Dashboard Layouts
   /dashboards:
     get:
       description: Lists dashboards, optionally filtered by name (substring), paginated.
@@ -6399,7 +6437,8 @@ paths:
       - Filters
   /eventprocessing/filters/activate:
     put:
-      description: Renames .yaml ↔ .yaml.disabled in the user overlay.
+      description: Renames .yaml <-> .yaml.disabled in whichever overlay (system or
+        user) owns the filter.
       parameters:
       - description: Relative path
         in: query
@@ -6416,12 +6455,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Forbidden
           schema:
             additionalProperties:
               type: string
@@ -6491,6 +6524,43 @@ paths:
       security:
       - BearerAuth: []
       summary: Get filter by relPath
+      tags:
+      - Filters
+  /eventprocessing/filters/order:
+    put:
+      consumes:
+      - application/json
+      description: Sets any filter's (system or custom) position in the global pipeline
+        order.
+      parameters:
+      - description: relPath + new order
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateFilterOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.FilterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reorder a filter
       tags:
       - Filters
   /eventprocessing/ingestion-stats:
@@ -6571,6 +6641,10 @@ paths:
         in: query
         name: top
         type: integer
+      - description: Scope the timeline to a single source (by name)
+        in: query
+        name: dataSource
+        type: string
       produces:
       - application/json
       responses:
@@ -8008,17 +8082,15 @@ paths:
       - Integrations
   /integrations/activate:
     put:
+      consumes:
+      - application/json
       parameters:
-      - description: Module name
-        in: query
-        name: moduleName
+      - description: Module name and activation status
+        in: body
+        name: body
         required: true
-        type: string
-      - description: true to activate, false to deactivate
-        in: query
-        name: activationStatus
-        required: true
-        type: boolean
+        schema:
+          $ref: '#/definitions/dto.ModuleActivationRequest'
       produces:
       - application/json
       responses:
@@ -11358,6 +11430,62 @@ paths:
       summary: Get alert tag by ID
       tags:
       - Alert Tags
+  /utm-alerts/{id}/echoes:
+    get:
+      description: Returns the child alerts (parentId == :id) of a parent alert, paginated
+        and sorted.
+      parameters:
+      - description: Parent alert id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Page number (1-based, default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 20, max 100)
+        in: query
+        name: size
+        type: integer
+      - description: Sort field (default @timestamp)
+        in: query
+        name: sortBy
+        type: string
+      - description: 'Sort order: asc|desc (default desc)'
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Total matching echoes
+              type: string
+          schema:
+            items:
+              $ref: '#/definitions/domain.UtmAlert'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List echoes of an alert
+      tags:
+      - Alerts
   /utm-alerts/convert-to-incident:
     post:
       consumes:
@@ -11553,21 +11681,17 @@ paths:
       - Alerts
   /visualizations:
     get:
-      description: Lists visualizations, optionally filtered by name, chart type or
-        index pattern, paginated.
+      description: Lists visualizations, optionally filtered by dashboard or name,
+        paginated.
       parameters:
+      - description: Filter by dashboard id
+        in: query
+        name: dashboardId
+        type: integer
       - description: Filter by name (substring)
         in: query
         name: name
         type: string
-      - description: Filter by chart type
-        in: query
-        name: chartType
-        type: string
-      - description: Filter by index pattern id
-        in: query
-        name: idPattern
-        type: integer
       - description: Page (0-based)
         in: query
         name: page
@@ -11603,8 +11727,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a reusable chart definition (query/aggregation + chart
-        type/config). The id must be absent.
+      description: Creates a chart definition (query/aggregation + chart type/config)
+        owned by exactly one dashboard. The id must be absent.
       parameters:
       - description: Visualization to create
         in: body

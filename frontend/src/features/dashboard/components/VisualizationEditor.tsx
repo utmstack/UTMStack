@@ -16,7 +16,8 @@ import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatabl
 import { useIndexPatterns } from '@/features/dashboard/hooks/useIndexPatterns'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
 import { SqlQueryEditor } from '@/shared/components/sql-editor'
-import { getChartTypeMeta } from '@/features/dashboard/constants'
+import { DEFAULT_WIDGET_LAYOUT, getChartTypeMeta } from '@/features/dashboard/constants'
+import { serializeLayout } from '@/features/dashboard/utils/layout'
 import { composeSql, parseSqlToBuilder } from '@/features/dashboard/utils/sql-builder'
 import {
   makeInitialBuilder,
@@ -33,11 +34,23 @@ import type {
 export interface VisualizationEditorProps {
   initial: Visualization | null
   initialChartType?: ChartTypeId
+  // The dashboard this visualization belongs to. For edits this always matches
+  // `initial.dashboardId`; for a brand-new visualization it comes from the route.
+  dashboardId: number
+  // Grid position/size for a new widget (from DashboardPage's "Add widget"
+  // seeding). Ignored on edit — the existing layout is preserved untouched;
+  // repositioning happens by dragging on the dashboard grid, not here.
+  initialLayout?: string
 }
 
 type EditorTab = 'visual' | 'sql'
 
-export function VisualizationEditor({ initial, initialChartType }: VisualizationEditorProps) {
+export function VisualizationEditor({
+  initial,
+  initialChartType,
+  dashboardId,
+  initialLayout,
+}: VisualizationEditorProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isEdit = initial != null
@@ -148,34 +161,47 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
     if (busy) return
 
     const configJson = serializeBuilderConfig(option, builder)
-    const payload = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      sqlQuery: sqlForSave,
-      config: configJson,
-    }
+    const backToDashboard = () => navigate('/dashboards/list', { state: { selectDashboardId: dashboardId } })
 
     if (isEdit && initial) {
       updateVisualization.mutate(
-        { id: initial.id, ...payload },
+        {
+          id: initial.id,
+          dashboardId: initial.dashboardId,
+          name: name.trim(),
+          description: description.trim() || undefined,
+          sqlQuery: sqlForSave,
+          config: configJson,
+          layout: initial.layout,
+        },
         {
           onSuccess: () => {
             toast.success(t('dashboards.toast.visualizationUpdated'))
-            navigate('/dashboards/visualizations')
+            backToDashboard()
           },
           onError: (err) =>
             toast.error(err.message ?? t('dashboards.toast.visualizationUpdateFailed')),
         }
       )
     } else {
-      createVisualization.mutate(payload, {
-        onSuccess: () => {
-          toast.success(t('dashboards.toast.visualizationCreated'))
-          navigate('/dashboards/visualizations')
+      createVisualization.mutate(
+        {
+          dashboardId,
+          name: name.trim(),
+          description: description.trim() || undefined,
+          sqlQuery: sqlForSave,
+          config: configJson,
+          layout: initialLayout ?? serializeLayout({ x: 0, y: 0, w: DEFAULT_WIDGET_LAYOUT.w, h: DEFAULT_WIDGET_LAYOUT.h }),
         },
-        onError: (err) =>
-          toast.error(err.message ?? t('dashboards.toast.visualizationCreateFailed')),
-      })
+        {
+          onSuccess: () => {
+            toast.success(t('dashboards.toast.visualizationCreated'))
+            backToDashboard()
+          },
+          onError: (err) =>
+            toast.error(err.message ?? t('dashboards.toast.visualizationCreateFailed')),
+        }
+      )
     }
   }
 
@@ -198,7 +224,7 @@ export function VisualizationEditor({ initial, initialChartType }: Visualization
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => navigate('/dashboards/visualizations')}
+            onClick={() => navigate('/dashboards/list', { state: { selectDashboardId: dashboardId } })}
             disabled={busy}
           >
             {t('dashboards.form.cancel')}

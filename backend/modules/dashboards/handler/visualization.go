@@ -24,7 +24,7 @@ func NewVisualizationHandler(uc connectors.VisualizationUsecase) *VisualizationH
 // Create godoc
 //
 //	@Summary		Create a visualization
-//	@Description	Creates a reusable chart definition (query/aggregation + chart type/config). The id must be absent.
+//	@Description	Creates a chart definition (query/aggregation + chart type/config) owned by exactly one dashboard. The id must be absent.
 //	@Tags			Visualizations
 //	@Security		BearerAuth
 //	@Accept			json
@@ -83,13 +83,12 @@ func (h *VisualizationHandler) Update(c *gin.Context) {
 // List godoc
 //
 //	@Summary		List visualizations
-//	@Description	Lists visualizations, optionally filtered by name, chart type or index pattern, paginated.
+//	@Description	Lists visualizations, optionally filtered by dashboard or name, paginated.
 //	@Tags			Visualizations
 //	@Security		BearerAuth
 //	@Produce		json
+//	@Param			dashboardId	query		int		false	"Filter by dashboard id"
 //	@Param			name		query		string	false	"Filter by name (substring)"
-//	@Param			chartType	query		string	false	"Filter by chart type"
-//	@Param			idPattern	query		int		false	"Filter by index pattern id"
 //	@Param			page		query		int		false	"Page (0-based)"
 //	@Param			size		query		int		false	"Page size"
 //	@Success		200			{array}		domain.Visualization

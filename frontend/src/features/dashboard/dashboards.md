@@ -228,8 +228,8 @@ The new Go module `backend/modules/dashboards/` does NOT 1:1 mirror the legacy b
 | Legacy resource | Legacy URL | New URL | Notes |
 |---|---|---|---|
 | `UtmDashboard` | `/api/utm-dashboards` | `/dashboards` | Loses `filters`, `refreshTime` (no fields in new domain). `systemOwner` survives. |
-| `UtmDashboardVisualization` | `/api/utm-dashboard-visualizations` | `/dashboard-layouts` | `gridInfo`/`left`/`top`/etc. collapsed into a single `Layout` JSON string. `defaultTimeRange`/`showTimeFilter` not in new domain. |
-| `UtmVisualization` | `/api/utm-visualizations` | `/visualizations` | Many fields gone: `chartType` (separate column → moved into `Config`), `pattern`, `filterType[]`, `queryType`, `queryLanguage`, `eventType`, `chartAction`, `showTime`. Only `Name`, `Description`, `SQLQuery`, `Config`, `SystemOwner` remain. |
+| `UtmDashboardVisualization` | `/api/utm-dashboard-visualizations` | — | **Removed.** The new backend is 1 dashboard : many visualizations, not N:M — there's no join table. `gridInfo`/`left`/`top`/etc. collapsed into a single `Layout` JSON string that now lives directly on `Visualization`. `defaultTimeRange`/`showTimeFilter` not in new domain. |
+| `UtmVisualization` | `/api/utm-visualizations` | `/visualizations` | Many fields gone: `chartType` (separate column → moved into `Config`), `pattern`, `filterType[]`, `queryType`, `queryLanguage`, `eventType`, `chartAction`, `showTime`. Gained `DashboardID` (owning dashboard, required) and `Layout` (grid position, from the former join table). Only `Name`, `Description`, `SQLQuery`, `Config`, `SystemOwner`, `DashboardID`, `Layout` remain. |
 | Query execution | `POST /api/utm-visualizations/run` | — | **Not in `dashboards` module.** SQL execution lives elsewhere; the frontend or another backend module owns this. |
 | Bulk import/export | `POST /api/utm-dashboards/import`, `POST /api/utm-visualizations/batch` | — | **Not exposed.** Will require new backend endpoints. |
 | Filters | stored on `UtmDashboardType.filters` | — | **No backend field.** Would have to live inside `Dashboard.Config` JSON. |
@@ -242,7 +242,7 @@ The new Go module `backend/modules/dashboards/` does NOT 1:1 mirror the legacy b
 Targeted for the initial port (Backend-MVP + client-only time range):
 
 1. **Gridster-like drag/resize editor** — implemented with `react-grid-layout` (12-col responsive grid).
-2. **N:M dashboard ↔ visualization model** — keep the join table as a first-class concept (`/dashboard-layouts`).
+2. **1:N dashboard ↔ visualization model** — a visualization belongs to exactly one dashboard and is not reusable across dashboards; this is a deliberate departure from the legacy N:M model, decided during the React port. There is no join table — `DashboardID` + `Layout` live directly on `Visualization`.
 3. **JSON-config rendering** — `Visualization.Config` is treated as ECharts option JSON merged with a runtime time range.
 4. **System-owned read-only badge** — surface `systemOwner` in the UI; disable destructive actions.
 5. **Client-side time range** — reuse `@/shared/components/ui/TimeRangePicker`; pass to widget queries (not persisted yet).
@@ -255,7 +255,7 @@ Targeted for the initial port (Backend-MVP + client-only time range):
 | Auto-refresh interval | No `refreshTime` field |
 | JSON import / export | No backend endpoints |
 | PDF export | Could be client-only (print stylesheet), but needs design |
-| Per-widget time override | No fields on new `DashboardVisualization` |
+| Per-widget time override | No `defaultTimeRange`/`showTimeFilter` fields on new `Visualization` |
 | Visualization editor / chart builder | New `Visualization` flattens many legacy fields; the editor's UX needs a new shape |
 | Query execution against datasources | Lives outside `dashboards` module; frontend needs to discover where |
 

@@ -244,7 +244,7 @@ const docTemplate = `{
                 "tags": [
                     "Alerts"
                 ],
-                "summary": "Fetch adversary alerts grouped by adversary host",
+                "summary": "Fetch adversary alerts grouped by adversary host (falls back to IP)",
                 "parameters": [
                     {
                         "description": "Optional filters",
@@ -2922,6 +2922,216 @@ const docTemplate = `{
                 }
             }
         },
+        "/compliance/frameworks/{key}/controls/{id}/note": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upserts a freeform note attached to a (framework, control). Empty body deletes the note.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Set / update a user note on a control",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Control id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Note body ({note: string})",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Delete a user note on a control",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Control id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/compliance/frameworks/{key}/controls/{id}/status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Overrides the evaluator's computed status for a (framework, control) pair. Applied on live evaluations only; historical snapshots are unchanged.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Set a manual status override for a control",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Control id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New status (COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING) and optional reason",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes the manual override so the control status falls back to the evaluator's computed value.",
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Clear a manual status override",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Control id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/compliance/frameworks/{key}/enabled": {
             "put": {
                 "security": [
@@ -3926,279 +4136,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/dashboard-layouts": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Lists dashboard↔visualization placements, typically filtered by dashboard.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Layouts"
-                ],
-                "summary": "List layout placements",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by dashboard id",
-                        "name": "idDashboard",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by visualization id",
-                        "name": "idVisualization",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page (0-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.DashboardVisualization"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates an existing dashboard↔visualization placement (order/size/position). The id is required.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Layouts"
-                ],
-                "summary": "Update a layout placement",
-                "parameters": [
-                    {
-                        "description": "Layout placement to update",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.DashboardVisualization"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.DashboardVisualization"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Places a visualization on a dashboard with its grid layout (order/size/position). The id must be absent.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Layouts"
-                ],
-                "summary": "Add a visualization to a dashboard (layout placement)",
-                "parameters": [
-                    {
-                        "description": "Layout placement to create",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.DashboardVisualization"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/domain.DashboardVisualization"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/dashboard-layouts/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Layouts"
-                ],
-                "summary": "Get a layout placement by id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Layout placement id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.DashboardVisualization"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Dashboard Layouts"
-                ],
-                "summary": "Delete a layout placement by id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Layout placement id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deleted"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/dashboards": {
             "get": {
                 "security": [
@@ -4899,7 +4836,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Renames .yaml ↔ .yaml.disabled in the user overlay.",
+                "description": "Renames .yaml \u003c-\u003e .yaml.disabled in whichever overlay (system or user) owns the filter.",
                 "produces": [
                     "application/json"
                 ],
@@ -4926,15 +4863,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -5033,6 +4961,63 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/filters/order": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets any filter's (system or custom) position in the global pipeline order.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Filters"
+                ],
+                "summary": "Reorder a filter",
+                "parameters": [
+                    {
+                        "description": "relPath + new order",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateFilterOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.FilterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -5169,6 +5154,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Max series when groupBy set (default 100)",
                         "name": "top",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Scope the timeline to a single source (by name)",
+                        "name": "dataSource",
                         "in": "query"
                     }
                 ],
@@ -7266,6 +7257,9 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -7275,18 +7269,13 @@ const docTemplate = `{
                 "summary": "Activate or deactivate an integration module",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Module name",
-                        "name": "moduleName",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "true to activate, false to deactivate",
-                        "name": "activationStatus",
-                        "in": "query",
-                        "required": true
+                        "description": "Module name and activation status",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ModuleActivationRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -12961,6 +12950,91 @@ const docTemplate = `{
                 }
             }
         },
+        "/utm-alerts/{id}/echoes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the child alerts (parentId == :id) of a parent alert, paginated and sorted.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "List echoes of an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Parent alert id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (1-based, default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 20, max 100)",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field (default @timestamp)",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order: asc|desc (default desc)",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.UtmAlert"
+                            }
+                        },
+                        "headers": {
+                            "X-Total-Count": {
+                                "type": "string",
+                                "description": "Total matching echoes"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/visualizations": {
             "get": {
                 "security": [
@@ -12968,7 +13042,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists visualizations, optionally filtered by name, chart type or index pattern, paginated.",
+                "description": "Lists visualizations, optionally filtered by dashboard or name, paginated.",
                 "produces": [
                     "application/json"
                 ],
@@ -12978,21 +13052,15 @@ const docTemplate = `{
                 "summary": "List visualizations",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Filter by dashboard id",
+                        "name": "dashboardId",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Filter by name (substring)",
                         "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by chart type",
-                        "name": "chartType",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by index pattern id",
-                        "name": "idPattern",
                         "in": "query"
                     },
                     {
@@ -13105,7 +13173,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a reusable chart definition (query/aggregation + chart type/config). The id must be absent.",
+                "description": "Creates a chart definition (query/aggregation + chart type/config) owned by exactly one dashboard. The id must be absent.",
                 "consumes": [
                     "application/json"
                 ],
@@ -13410,6 +13478,24 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Condition": {
+            "type": "string",
+            "enum": [
+                "OnSuccess",
+                "OnFailure",
+                "Always"
+            ],
+            "x-enum-comments": {
+                "ConditionAlways": ";",
+                "ConditionOnFailure": "||",
+                "ConditionOnSuccess": "\u0026\u0026"
+            },
+            "x-enum-varnames": [
+                "ConditionOnSuccess",
+                "ConditionOnFailure",
+                "ConditionAlways"
+            ]
+        },
         "domain.Control": {
             "type": "object",
             "properties": {
@@ -13483,25 +13569,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "refreshTime": {
+                    "description": "RefreshTime is the auto-refresh interval in seconds. 0 disables auto-refresh.",
+                    "type": "integer"
+                },
                 "systemOwner": {
                     "type": "boolean"
-                }
-            }
-        },
-        "domain.DashboardVisualization": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "idDashboard": {
-                    "type": "integer"
-                },
-                "idVisualization": {
-                    "type": "integer"
-                },
-                "layout": {
-                    "type": "string"
                 }
             }
         },
@@ -13818,11 +13891,29 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "IS",
+                "IS_NOT",
+                "CONTAINS",
+                "NOT_CONTAINS",
+                "EXISTS",
+                "NOT_EXISTS",
+                "START_WITH",
+                "NOT_START_WITH",
+                "ENDS_WITH",
+                "NOT_ENDS_WITH",
                 "IS_ONE_OF",
                 "IS_NOT_ONE_OF"
             ],
             "x-enum-varnames": [
                 "OperatorIS",
+                "OperatorISNot",
+                "OperatorContains",
+                "OperatorNotContains",
+                "OperatorExists",
+                "OperatorNotExists",
+                "OperatorStartWith",
+                "OperatorNotStartWith",
+                "OperatorEndsWith",
+                "OperatorNotEndsWith",
                 "OperatorIsOneOf",
                 "OperatorIsNotOneOf"
             ]
@@ -13880,6 +13971,14 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "note": {
+                    "description": "user note attached to this (framework, control)",
+                    "type": "string"
+                },
+                "overridden": {
+                    "description": "true when status came from a manual override",
+                    "type": "boolean"
                 },
                 "status": {
                     "description": "COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING",
@@ -14281,6 +14380,9 @@ const docTemplate = `{
                 "assetGroupName": {
                     "type": "string"
                 },
+                "assignee": {
+                    "type": "string"
+                },
                 "category": {
                     "type": "string"
                 },
@@ -14623,11 +14725,17 @@ const docTemplate = `{
                 "createdDate": {
                     "type": "string"
                 },
+                "dashboardId": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "layout": {
+                    "type": "string"
                 },
                 "modifiedDate": {
                     "type": "string"
@@ -15240,12 +15348,6 @@ const docTemplate = `{
                 "adversary": {
                     "type": "string"
                 },
-                "afterEvents": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "availability": {
                     "type": "integer"
                 },
@@ -15254,6 +15356,12 @@ const docTemplate = `{
                 },
                 "confidentiality": {
                     "type": "integer"
+                },
+                "correlation": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "dataTypes": {
                     "type": "array",
@@ -15398,12 +15506,6 @@ const docTemplate = `{
                 "adversary": {
                     "type": "string"
                 },
-                "afterEvents": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "availability": {
                     "type": "integer"
                 },
@@ -15412,6 +15514,12 @@ const docTemplate = `{
                 },
                 "confidentiality": {
                     "type": "integer"
+                },
+                "correlation": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "dataTypes": {
                     "type": "array",
@@ -15675,7 +15783,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.FlowCommandVM"
                     }
                 },
                 "conditions": {
@@ -15975,6 +16083,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "order": {
+                    "type": "integer"
+                },
                 "relPath": {
                     "type": "string"
                 },
@@ -15993,6 +16104,29 @@ const docTemplate = `{
                     "$ref": "#/definitions/domain.OperatorType"
                 },
                 "value": {}
+            }
+        },
+        "dto.FlowCommandVM": {
+            "type": "object",
+            "required": [
+                "command"
+            ],
+            "properties": {
+                "command": {
+                    "type": "string"
+                },
+                "condition": {
+                    "enum": [
+                        "OnSuccess",
+                        "OnFailure",
+                        "Always"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Condition"
+                        }
+                    ]
+                }
             }
         },
         "dto.GenericSearchRequest": {
@@ -16501,6 +16635,21 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ModuleActivationRequest": {
+            "type": "object",
+            "required": [
+                "activationStatus",
+                "moduleName"
+            ],
+            "properties": {
+                "activationStatus": {
+                    "type": "boolean"
+                },
+                "moduleName": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ModuleResponse": {
             "type": "object",
             "properties": {
@@ -16509,6 +16658,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "ingestType": {
+                    "type": "string"
                 },
                 "isSystem": {
                     "type": "boolean"
@@ -16819,7 +16971,7 @@ const docTemplate = `{
                 "commands": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.FlowCommandVM"
                     }
                 },
                 "conditions": {
@@ -17359,12 +17511,6 @@ const docTemplate = `{
                 "adversary": {
                     "type": "string"
                 },
-                "afterEvents": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "availability": {
                     "type": "integer"
                 },
@@ -17373,6 +17519,12 @@ const docTemplate = `{
                 },
                 "confidentiality": {
                     "type": "integer"
+                },
+                "correlation": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "dataTypes": {
                     "type": "array",
@@ -17421,6 +17573,21 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "technique": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateFilterOrderRequest": {
+            "type": "object",
+            "required": [
+                "order",
+                "relPath"
+            ],
+            "properties": {
+                "order": {
+                    "type": "integer"
+                },
+                "relPath": {
                     "type": "string"
                 }
             }
@@ -17564,7 +17731,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.FlowCommandVM"
                     }
                 },
                 "conditions": {

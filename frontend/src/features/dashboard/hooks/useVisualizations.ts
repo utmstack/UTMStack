@@ -21,6 +21,8 @@ export function useVisualizations(params: VisualizationListParams = {}) {
   return useQuery<Paged<Visualization[]>>({
     queryKey: VISUALIZATIONS_QUERY_KEYS.list(params),
     queryFn: () => service.listVisualizations(params),
+    // When scoping by dashboard, don't fire until a dashboard is actually selected.
+    enabled: params.dashboardId == null || params.dashboardId > 0,
   })
 }
 

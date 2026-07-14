@@ -319,7 +319,7 @@
       "loading": "Widget wird geladen…",
       "notFoundTitle": "Widget nicht gefunden",
       "notFoundSubtitle": "Sie wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf.",
-      "backToList": "Zurück zu den Widgets",
+      "backToDashboard": "Zurück zum Dashboard",
       "chartType": {
         "title": "Diagrammtyp"
       },
@@ -327,10 +327,6 @@
         "bar": {
           "label": "Balken",
           "description": "Werte zwischen Kategorien vergleichen."
-        },
-        "horizontal_bar": {
-          "label": "Balken (horizontal)",
-          "description": "Wie ein Balkendiagramm mit vertauschten Achsen."
         },
         "line": {
           "label": "Linie",
@@ -343,22 +339,6 @@
         "pie": {
           "label": "Kreis",
           "description": "Anteil am Ganzen nach Kategorie."
-        },
-        "gauge": {
-          "label": "Tachometer",
-          "description": "Ein einzelner Wert auf einer Referenzskala."
-        },
-        "goal": {
-          "label": "Ziel",
-          "description": "Fortschritt in Richtung eines prozentualen Ziels."
-        },
-        "heatmap": {
-          "label": "Heatmap",
-          "description": "Zwei kategoriale Achsen, Werte über Farben dargestellt."
-        },
-        "tag_cloud": {
-          "label": "Schlagwortwolke",
-          "description": "Wörter nach Häufigkeit skaliert."
         },
         "metric": {
           "label": "Metrik",
@@ -532,21 +512,12 @@
       "create": "Erstellen",
       "save": "Speichern"
     },
-    "addWidget": {
-      "title": "Widget hinzufügen",
-      "subtitle": "Wählen Sie ein oder mehrere vorhandene Widgets aus, um sie auf das Raster zu legen.",
-      "searchPlaceholder": "Widgets durchsuchen…",
-      "loading": "Widgets werden geladen…",
-      "empty": "Keine Widgets gefunden.",
-      "alreadyAdded": "Bereits auf diesem Dashboard",
-      "newWidget": "Neues Widget",
-      "noneSelected": "Keine Widgets ausgewählt",
-      "selectedCount": "{{count}} ausgewählt",
-      "addSelected": "Hinzufügen ({{count}})"
-    },
     "confirm": {
       "deleteTitle": "Dashboard löschen",
-      "delete": "Dashboard „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      "delete": "Dashboard „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteWidgetsTitle": "Widgets löschen",
+      "deleteWidgets_one": "Dieses Widget löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteWidgets_other": "{{count}} Widgets löschen? Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "page": {
       "noSelection": "Wählen Sie ein Dashboard aus der Liste aus oder legen Sie eines an, um zu beginnen.",
@@ -559,9 +530,6 @@
       "updateFailed": "Dashboard konnte nicht aktualisiert werden.",
       "deleted": "Dashboard gelöscht.",
       "deleteFailed": "Dashboard konnte nicht gelöscht werden.",
-      "widgetAdded": "Widget hinzugefügt.",
-      "widgetsAdded": "{{count}} Widgets hinzugefügt.",
-      "widgetAddFailed": "Widget konnte nicht hinzugefügt werden.",
       "layoutSaved": "Layout gespeichert.",
       "layoutSaveFailed": "Layout konnte nicht gespeichert werden.",
       "visualizationCreated": "Widget erstellt.",

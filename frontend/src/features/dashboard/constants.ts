@@ -35,7 +35,6 @@ export type ChartRenderer =
   | 'echarts'
   | 'table'
   | 'metric'
-  | 'tag_cloud'
   | 'region_map'
   | 'text'
 
@@ -56,17 +55,6 @@ export const CHART_TYPES: ChartTypeMeta[] = [
       xAxis: { type: 'category' },
       yAxis: { type: 'value' },
       series: [{ type: 'bar', encode: { x: 0, y: 1 } }],
-    },
-  },
-  {
-    id: 'horizontal_bar',
-    renderer: 'echarts',
-    icon: 'horizontal_bar',
-    defaultConfig: {
-      tooltip: { trigger: 'axis' },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category' },
-      series: [{ type: 'bar', encode: { x: 1, y: 0 } }],
     },
   },
   {
@@ -111,63 +99,6 @@ export const CHART_TYPES: ChartTypeMeta[] = [
         },
       ],
     },
-  },
-  {
-    id: 'gauge',
-    renderer: 'echarts',
-    icon: 'gauge',
-    defaultConfig: {
-      tooltip: {},
-      series: [
-        {
-          type: 'gauge',
-          progress: { show: true },
-          detail: { valueAnimation: true, formatter: '{value}' },
-          encode: { value: 0 },
-        },
-      ],
-    },
-  },
-  {
-    id: 'goal',
-    renderer: 'echarts',
-    icon: 'goal',
-    defaultConfig: {
-      tooltip: {},
-      series: [
-        {
-          type: 'gauge',
-          min: 0,
-          max: 100,
-          progress: { show: true, width: 18, roundCap: true },
-          axisLine: { lineStyle: { width: 18 } },
-          pointer: { show: false },
-          splitLine: { show: false },
-          axisTick: { show: false },
-          axisLabel: { show: false },
-          detail: { valueAnimation: true, formatter: '{value}%', fontSize: 28 },
-          encode: { value: 0 },
-        },
-      ],
-    },
-  },
-  {
-    id: 'heatmap',
-    renderer: 'echarts',
-    icon: 'heatmap',
-    defaultConfig: {
-      tooltip: { position: 'top' },
-      xAxis: { type: 'category', splitArea: { show: true } },
-      yAxis: { type: 'category', splitArea: { show: true } },
-      visualMap: { calculable: true, orient: 'horizontal', left: 'center', bottom: 0 },
-      series: [{ type: 'heatmap', encode: { x: 0, y: 1, value: 2 } }],
-    },
-  },
-  {
-    id: 'tag_cloud',
-    renderer: 'tag_cloud',
-    icon: 'tag_cloud',
-    defaultConfig: {},
   },
   {
     id: 'metric',

@@ -11,7 +11,6 @@ import {
   NewDashboardPage,
   NewVisualizationPage,
   EditVisualizationPage,
-  VisualizationListPage,
 } from '@/features/dashboard'
 import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 import { AuditPage } from '@/features/audit/pages/AuditPage'
@@ -100,9 +99,8 @@ export function AppRoutes() {
         <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
         <Route path="dashboards/list" element={<DashboardPage />} />
         <Route path="dashboards/new" element={<NewDashboardPage />} />
-        <Route path="dashboards/visualizations" element={<VisualizationListPage />} />
-        <Route path="dashboards/visualizations/new" element={<NewVisualizationPage />} />
-        <Route path="dashboards/visualizations/:id" element={<EditVisualizationPage />} />
+        <Route path="dashboards/:dashboardId/visualizations/new" element={<NewVisualizationPage />} />
+        <Route path="dashboards/:dashboardId/visualizations/:id" element={<EditVisualizationPage />} />
 
         {/* Threat Management */}
         <Route path="threat-management" element={<Navigate to="/threat-management/alerts" replace />} />

@@ -320,7 +320,7 @@
       "loading": "Loading widget…",
       "notFoundTitle": "Widget not found",
       "notFoundSubtitle": "It may have been deleted or you may not have access.",
-      "backToList": "Back to widgets",
+      "backToDashboard": "Back to dashboard",
       "chartType": {
         "title": "Chart type"
       },
@@ -328,10 +328,6 @@
         "bar": {
           "label": "Bar",
           "description": "Compare values across categories."
-        },
-        "horizontal_bar": {
-          "label": "Bar (horizontal)",
-          "description": "Like a bar chart with the axes swapped."
         },
         "line": {
           "label": "Line",
@@ -344,22 +340,6 @@
         "pie": {
           "label": "Pie",
           "description": "Share of a whole by category."
-        },
-        "gauge": {
-          "label": "Gauge",
-          "description": "A single value against a reference dial."
-        },
-        "goal": {
-          "label": "Goal",
-          "description": "Progress towards a target percentage."
-        },
-        "heatmap": {
-          "label": "Heat map",
-          "description": "Two categorical axes, value shown by colour."
-        },
-        "tag_cloud": {
-          "label": "Tag cloud",
-          "description": "Words sized by frequency."
         },
         "metric": {
           "label": "Metric",
@@ -533,21 +513,12 @@
       "create": "Create",
       "save": "Save"
     },
-    "addWidget": {
-      "title": "Add widget",
-      "subtitle": "Pick one or more existing widgets to drop on the grid.",
-      "searchPlaceholder": "Search widgets…",
-      "loading": "Loading widgets…",
-      "empty": "No widgets found.",
-      "alreadyAdded": "Already on this dashboard",
-      "newWidget": "New widget",
-      "noneSelected": "No widgets selected",
-      "selectedCount": "{{count}} selected",
-      "addSelected": "Add ({{count}})"
-    },
     "confirm": {
       "deleteTitle": "Delete dashboard",
-      "delete": "Delete dashboard \"{{name}}\"? This cannot be undone."
+      "delete": "Delete dashboard \"{{name}}\"? This cannot be undone.",
+      "deleteWidgetsTitle": "Delete widgets",
+      "deleteWidgets_one": "Delete this widget? This cannot be undone.",
+      "deleteWidgets_other": "Delete {{count}} widgets? This cannot be undone."
     },
     "page": {
       "noSelection": "Pick a dashboard from the list, or create one to get started.",
@@ -560,9 +531,6 @@
       "updateFailed": "Could not update dashboard.",
       "deleted": "Dashboard deleted.",
       "deleteFailed": "Could not delete dashboard.",
-      "widgetAdded": "Widget added.",
-      "widgetsAdded": "{{count}} widgets added.",
-      "widgetAddFailed": "Could not add widget.",
       "layoutSaved": "Layout saved.",
       "layoutSaveFailed": "Could not save layout.",
       "visualizationCreated": "Widget created.",

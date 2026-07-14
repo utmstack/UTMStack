@@ -319,7 +319,7 @@
       "loading": "Chargement du widget…",
       "notFoundTitle": "Widget introuvable",
       "notFoundSubtitle": "Elle a peut-être été supprimée ou vous n'y avez pas accès.",
-      "backToList": "Retour aux widgets",
+      "backToDashboard": "Retour au tableau de bord",
       "chartType": {
         "title": "Type de graphique"
       },
@@ -327,10 +327,6 @@
         "bar": {
           "label": "Barres",
           "description": "Comparer des valeurs entre catégories."
-        },
-        "horizontal_bar": {
-          "label": "Barres (horizontales)",
-          "description": "Comme un graphique à barres avec les axes inversés."
         },
         "line": {
           "label": "Courbe",
@@ -343,22 +339,6 @@
         "pie": {
           "label": "Camembert",
           "description": "Part d'un total par catégorie."
-        },
-        "gauge": {
-          "label": "Jauge",
-          "description": "Une valeur unique sur un cadran de référence."
-        },
-        "goal": {
-          "label": "Objectif",
-          "description": "Progression vers un pourcentage cible."
-        },
-        "heatmap": {
-          "label": "Carte de chaleur",
-          "description": "Deux axes catégoriels, valeur indiquée par la couleur."
-        },
-        "tag_cloud": {
-          "label": "Nuage de tags",
-          "description": "Mots dimensionnés selon la fréquence."
         },
         "metric": {
           "label": "Métrique",
@@ -532,21 +512,12 @@
       "create": "Créer",
       "save": "Enregistrer"
     },
-    "addWidget": {
-      "title": "Ajouter un widget",
-      "subtitle": "Choisissez un ou plusieurs widgets existants à déposer sur la grille.",
-      "searchPlaceholder": "Rechercher des widgets…",
-      "loading": "Chargement des widgets…",
-      "empty": "Aucun widget trouvé.",
-      "alreadyAdded": "Déjà sur ce tableau de bord",
-      "newWidget": "Nouveau widget",
-      "noneSelected": "Aucun widget sélectionné",
-      "selectedCount": "{{count}} sélectionné(s)",
-      "addSelected": "Ajouter ({{count}})"
-    },
     "confirm": {
       "deleteTitle": "Supprimer le tableau de bord",
-      "delete": "Supprimer le tableau de bord « {{name}} » ? Cette action est irréversible."
+      "delete": "Supprimer le tableau de bord « {{name}} » ? Cette action est irréversible.",
+      "deleteWidgetsTitle": "Supprimer les widgets",
+      "deleteWidgets_one": "Supprimer ce widget ? Cette action est irréversible.",
+      "deleteWidgets_other": "Supprimer {{count}} widgets ? Cette action est irréversible."
     },
     "page": {
       "noSelection": "Choisissez un tableau de bord dans la liste ou créez-en un pour commencer.",
@@ -559,9 +530,6 @@
       "updateFailed": "Impossible de mettre à jour le tableau de bord.",
       "deleted": "Tableau de bord supprimé.",
       "deleteFailed": "Impossible de supprimer le tableau de bord.",
-      "widgetAdded": "Widget ajouté.",
-      "widgetsAdded": "{{count}} widgets ajoutés.",
-      "widgetAddFailed": "Impossible d'ajouter le widget.",
       "layoutSaved": "Disposition enregistrée.",
       "layoutSaveFailed": "Impossible d'enregistrer la disposition.",
       "visualizationCreated": "Widget créé.",

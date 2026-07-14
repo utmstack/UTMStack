@@ -6,8 +6,9 @@ import { useVisualization } from '@/features/dashboard/hooks/useVisualizations'
 
 export function EditVisualizationPage() {
   const { t } = useTranslation()
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ id: string; dashboardId: string }>()
   const id = Number(params.id)
+  const dashboardId = Number(params.dashboardId)
   const query = useVisualization(Number.isFinite(id) && id > 0 ? id : null)
 
   if (query.isLoading) {
@@ -27,16 +28,17 @@ export function EditVisualizationPage() {
           {t('dashboards.editor.notFoundSubtitle')}
         </p>
         <Link
-          to="/dashboards/visualizations"
+          to="/dashboards/list"
+          state={Number.isFinite(dashboardId) ? { selectDashboardId: dashboardId } : undefined}
           className="text-sm text-primary underline-offset-4 hover:underline"
         >
-          {t('dashboards.editor.backToList')}
+          {t('dashboards.editor.backToDashboard')}
         </Link>
       </div>
     )
   }
 
-  return <VisualizationEditor initial={query.data} />
+  return <VisualizationEditor initial={query.data} dashboardId={query.data.dashboardId} />
 }
 
 export default EditVisualizationPage

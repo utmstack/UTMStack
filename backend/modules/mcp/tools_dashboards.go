@@ -13,7 +13,6 @@ import (
 func registerDashboards(m *Module) {
 	registerDashboardDashboards(m)
 	registerDashboardVisualizations(m)
-	registerDashboardLayouts(m)
 }
 
 // ---- dashboards.* ----------------------------------------------------------
@@ -92,10 +91,19 @@ func registerDashboardDashboards(m *Module) {
 
 type visualizationUpsertInput struct {
 	ID          uint64 `json:"id,omitempty"`
+	DashboardID uint64 `json:"dashboard_id"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	SQLQuery    string `json:"sql_query,omitempty"`
 	Config      string `json:"config,omitempty"`
+	Layout      string `json:"layout,omitempty"`
+}
+
+type visualizationListInput struct {
+	DashboardID *uint64 `json:"dashboard_id,omitempty"`
+	Name        string  `json:"name,omitempty"`
+	Page        int     `json:"page,omitempty"`
+	Size        int     `json:"size,omitempty"`
 }
 
 func registerDashboardVisualizations(m *Module) {
@@ -106,7 +114,8 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Create(ctx, &domain.Visualization{
-				Name: in.Name, Description: in.Description, SQLQuery: in.SQLQuery, Config: in.Config,
+				DashboardID: in.DashboardID, Name: in.Name, Description: in.Description,
+				SQLQuery: in.SQLQuery, Config: in.Config, Layout: in.Layout,
 			}, actor.Login)
 		})
 
@@ -115,7 +124,8 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Update(ctx, &domain.Visualization{
-				ID: in.ID, Name: in.Name, Description: in.Description, SQLQuery: in.SQLQuery, Config: in.Config,
+				ID: in.ID, DashboardID: in.DashboardID, Name: in.Name, Description: in.Description,
+				SQLQuery: in.SQLQuery, Config: in.Config, Layout: in.Layout,
 			}, actor.Login)
 		})
 
@@ -123,9 +133,10 @@ func registerDashboardVisualizations(m *Module) {
 		Name: "visualizations.list", Title: "List visualizations",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "dashboards.read"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardListInput) (any, error) {
+		func(ctx context.Context, _ *authz.Actor, in visualizationListInput) (any, error) {
 			items, total, err := uc.List(ctx, dto.VisualizationFilter{
-				Name: in.Name, Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
+				DashboardID: in.DashboardID, Name: in.Name,
+				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			})
 			if err != nil {
 				return nil, err
@@ -143,77 +154,6 @@ func registerDashboardVisualizations(m *Module) {
 
 	Add(m, &mcp.Tool{
 		Name: "visualizations.delete", Title: "Delete visualization",
-	}, Gate{Permission: "dashboards.write"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardIDInput) (any, error) {
-			if err := uc.Delete(ctx, in.ID); err != nil {
-				return nil, err
-			}
-			return map[string]any{"id": in.ID, "deleted": true}, nil
-		})
-}
-
-// ---- dashboard_layouts.* ---------------------------------------------------
-
-type dashboardLayoutUpsertInput struct {
-	ID              uint64 `json:"id,omitempty"`
-	IDDashboard     uint64 `json:"id_dashboard"`
-	IDVisualization uint64 `json:"id_visualization"`
-	Layout          string `json:"layout"`
-}
-
-type dashboardLayoutListInput struct {
-	IDDashboard     *uint64 `json:"id_dashboard,omitempty"`
-	IDVisualization *uint64 `json:"id_visualization,omitempty"`
-	Page            int     `json:"page,omitempty"`
-	Size            int     `json:"size,omitempty"`
-}
-
-func registerDashboardLayouts(m *Module) {
-	uc := m.deps.Dashboards.GetLayoutUsecase()
-
-	Add(m, &mcp.Tool{
-		Name: "dashboard_layouts.create", Title: "Create dashboard layout",
-	}, Gate{Permission: "dashboards.write"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardLayoutUpsertInput) (any, error) {
-			return uc.Create(ctx, &domain.DashboardVisualization{
-				IDDashboard: in.IDDashboard, IDVisualization: in.IDVisualization, Layout: in.Layout,
-			})
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "dashboard_layouts.update", Title: "Update dashboard layout",
-	}, Gate{Permission: "dashboards.write"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardLayoutUpsertInput) (any, error) {
-			return uc.Update(ctx, &domain.DashboardVisualization{
-				ID: in.ID, IDDashboard: in.IDDashboard, IDVisualization: in.IDVisualization, Layout: in.Layout,
-			})
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "dashboard_layouts.list", Title: "List dashboard layouts",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "dashboards.read"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardLayoutListInput) (any, error) {
-			items, total, err := uc.List(ctx, dto.LayoutFilter{
-				IDDashboard: in.IDDashboard, IDVisualization: in.IDVisualization,
-				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
-			})
-			if err != nil {
-				return nil, err
-			}
-			return map[string]any{"items": items, "total": total}, nil
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "dashboard_layouts.get", Title: "Get dashboard layout",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "dashboards.read"},
-		func(ctx context.Context, _ *authz.Actor, in dashboardIDInput) (any, error) {
-			return uc.GetByID(ctx, in.ID)
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "dashboard_layouts.delete", Title: "Delete dashboard layout",
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, _ *authz.Actor, in dashboardIDInput) (any, error) {
 			if err := uc.Delete(ctx, in.ID); err != nil {

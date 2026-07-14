@@ -5,18 +5,12 @@ import 'react-grid-layout/css/styles.css'
 import { WidgetCard } from '@/features/dashboard/components/WidgetCard'
 import { WidgetRenderer } from '@/features/dashboard/components/WidgetRenderer'
 import { GRID_COLS, GRID_MARGIN, GRID_ROW_HEIGHT } from '@/features/dashboard/constants'
-import type {
-  DashboardVisualization,
-  FilterType,
-  GridLayoutItem,
-  Visualization,
-} from '@/features/dashboard/types'
+import type { FilterType, GridLayoutItem, Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 
 export function DashboardGrid({
   items,
-  layouts,
-  visualizationsById,
+  visualizations,
   time,
   filters,
   refreshSeconds,
@@ -25,8 +19,7 @@ export function DashboardGrid({
   onRemoveItem,
 }: {
   items: GridLayoutItem[]
-  layouts: DashboardVisualization[]
-  visualizationsById: Map<number, Visualization>
+  visualizations: Visualization[]
   time: TimeRange
   filters?: FilterType[]
   refreshSeconds?: number
@@ -38,11 +31,11 @@ export function DashboardGrid({
   // v2 has no WidthProvider — it measures the container via this hook.
   const { width, containerRef } = useContainerWidth()
 
-  const layoutMap = useMemo(() => {
-    const map = new Map<string, DashboardVisualization>()
-    for (const dv of layouts) map.set(String(dv.id), dv)
+  const visualizationsById = useMemo(() => {
+    const map = new Map<number, Visualization>()
+    for (const v of visualizations) map.set(v.id, v)
     return map
-  }, [layouts])
+  }, [visualizations])
 
   if (items.length === 0) {
     return (
@@ -76,15 +69,14 @@ export function DashboardGrid({
           }
         >
           {items.map((item) => {
-            const dv = layoutMap.get(item.i)
-            const viz = dv ? visualizationsById.get(dv.idVisualization) : undefined
+            const viz = visualizationsById.get(Number(item.i))
             const title = viz?.name ?? t('dashboards.grid.unknownVisualization')
             return (
               <div key={item.i}>
                 <WidgetCard
                   title={title}
                   editing={editing}
-                  onRemove={dv ? () => onRemoveItem?.(dv.id) : undefined}
+                  onRemove={viz ? () => onRemoveItem?.(viz.id) : undefined}
                 >
                   {viz ? (
                     <WidgetRenderer

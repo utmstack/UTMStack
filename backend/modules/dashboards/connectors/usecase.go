@@ -22,11 +22,3 @@ type VisualizationUsecase interface {
 	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
-
-type LayoutUsecase interface {
-	Create(ctx context.Context, l *domain.DashboardVisualization) (*domain.DashboardVisualization, error)
-	Update(ctx context.Context, l *domain.DashboardVisualization) (*domain.DashboardVisualization, error)
-	GetByID(ctx context.Context, id uint64) (*domain.DashboardVisualization, error)
-	List(ctx context.Context, f dto.LayoutFilter) ([]domain.DashboardVisualization, int64, error)
-	Delete(ctx context.Context, id uint64) error
-}

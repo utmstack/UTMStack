@@ -24,6 +24,9 @@ func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualizati
 	if v.ID != 0 {
 		return nil, domain.ErrIDForbidden
 	}
+	if v.DashboardID == 0 {
+		return nil, domain.ErrDashboardIDRequired
+	}
 	if strings.TrimSpace(v.Name) == "" {
 		return nil, domain.ErrNameRequired
 	}
@@ -55,6 +58,8 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualizati
 	}
 	v.CreatedDate = existing.CreatedDate
 	v.SystemOwner = existing.SystemOwner
+	// A visualization can't move to a different dashboard — it's not reusable.
+	v.DashboardID = existing.DashboardID
 	v.ModifiedDate = time.Now().UTC()
 	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, err

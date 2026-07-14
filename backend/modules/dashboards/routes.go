@@ -8,7 +8,6 @@ import (
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	dh := m.GetDashboardHandler()
 	vh := m.GetVisualizationHandler()
-	lh := m.GetLayoutHandler()
 
 	read := middleware.RequirePermission("dashboards.read")
 	write := middleware.RequirePermission("dashboards.write")
@@ -26,11 +25,4 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	v.GET("", read, vh.List)
 	v.GET("/:id", read, vh.GetByID)
 	v.DELETE("/:id", write, vh.Delete)
-
-	l := api.Group("/dashboard-layouts", userAuth)
-	l.POST("", write, lh.Create)
-	l.PUT("", write, lh.Update)
-	l.GET("", read, lh.List)
-	l.GET("/:id", read, lh.GetByID)
-	l.DELETE("/:id", write, lh.Delete)
 }

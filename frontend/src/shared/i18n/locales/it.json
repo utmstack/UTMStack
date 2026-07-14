@@ -319,7 +319,7 @@
       "loading": "Caricamento del widget…",
       "notFoundTitle": "Widget non trovato",
       "notFoundSubtitle": "Potrebbe essere stata eliminata oppure non hai i permessi per accedervi.",
-      "backToList": "Torna ai widget",
+      "backToDashboard": "Torna alla dashboard",
       "chartType": {
         "title": "Tipo di grafico"
       },
@@ -327,10 +327,6 @@
         "bar": {
           "label": "Barre",
           "description": "Confronta valori tra categorie."
-        },
-        "horizontal_bar": {
-          "label": "Barre (orizzontale)",
-          "description": "Come un grafico a barre con gli assi invertiti."
         },
         "line": {
           "label": "Linea",
@@ -343,22 +339,6 @@
         "pie": {
           "label": "Torta",
           "description": "Quota sul totale per categoria."
-        },
-        "gauge": {
-          "label": "Indicatore",
-          "description": "Un singolo valore su un quadrante di riferimento."
-        },
-        "goal": {
-          "label": "Obiettivo",
-          "description": "Avanzamento verso una percentuale obiettivo."
-        },
-        "heatmap": {
-          "label": "Mappa di calore",
-          "description": "Due assi categorici, valore rappresentato dal colore."
-        },
-        "tag_cloud": {
-          "label": "Nuvola di tag",
-          "description": "Parole dimensionate per frequenza."
         },
         "metric": {
           "label": "Metrica",
@@ -532,21 +512,12 @@
       "create": "Crea",
       "save": "Salva"
     },
-    "addWidget": {
-      "title": "Aggiungi widget",
-      "subtitle": "Scegli uno o più widget esistenti da inserire nella griglia.",
-      "searchPlaceholder": "Cerca widget…",
-      "loading": "Caricamento dei widget…",
-      "empty": "Nessun widget trovato.",
-      "alreadyAdded": "Già su questa dashboard",
-      "newWidget": "Nuovo widget",
-      "noneSelected": "Nessun widget selezionato",
-      "selectedCount": "{{count}} selezionati",
-      "addSelected": "Aggiungi ({{count}})"
-    },
     "confirm": {
       "deleteTitle": "Elimina dashboard",
-      "delete": "Eliminare la dashboard «{{name}}»? Questa azione è irreversibile."
+      "delete": "Eliminare la dashboard «{{name}}»? Questa azione è irreversibile.",
+      "deleteWidgetsTitle": "Elimina widget",
+      "deleteWidgets_one": "Eliminare questo widget? Questa azione è irreversibile.",
+      "deleteWidgets_other": "Eliminare {{count}} widget? Questa azione è irreversibile."
     },
     "page": {
       "noSelection": "Scegli una dashboard dall'elenco, oppure creane una per iniziare.",
@@ -559,9 +530,6 @@
       "updateFailed": "Impossibile aggiornare la dashboard.",
       "deleted": "Dashboard eliminata.",
       "deleteFailed": "Impossibile eliminare la dashboard.",
-      "widgetAdded": "Widget aggiunto.",
-      "widgetsAdded": "{{count}} widget aggiunti.",
-      "widgetAddFailed": "Impossibile aggiungere il widget.",
       "layoutSaved": "Layout salvato.",
       "layoutSaveFailed": "Impossibile salvare il layout.",
       "visualizationCreated": "Widget creato.",

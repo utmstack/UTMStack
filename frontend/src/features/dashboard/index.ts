@@ -2,11 +2,4 @@ export { DashboardPage } from './pages/DashboardPage'
 export { NewDashboardPage } from './pages/NewDashboardPage'
 export { NewVisualizationPage } from './pages/NewVisualizationPage'
 export { EditVisualizationPage } from './pages/EditVisualizationPage'
-export { VisualizationListPage } from './pages/VisualizationListPage'
-export type {
-  Dashboard,
-  Visualization,
-  DashboardVisualization,
-  GridLayoutItem,
-  WidgetLayout,
-} from './types'
+export type { Dashboard, Visualization, GridLayoutItem, WidgetLayout } from './types'

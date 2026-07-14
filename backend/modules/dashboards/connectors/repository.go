@@ -20,10 +20,3 @@ type VisualizationRepository interface {
 	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
-
-type LayoutRepository interface {
-	Save(ctx context.Context, l *domain.DashboardVisualization) error
-	FindByID(ctx context.Context, id uint64) (*domain.DashboardVisualization, error)
-	List(ctx context.Context, f dto.LayoutFilter) ([]domain.DashboardVisualization, int64, error)
-	Delete(ctx context.Context, id uint64) error
-}

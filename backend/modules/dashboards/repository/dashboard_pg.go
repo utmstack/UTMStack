@@ -48,6 +48,13 @@ func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter)
 	return items, total, nil
 }
 
+// Delete removes the dashboard and its visualizations together — a
+// visualization can't outlive (or be reused outside of) its dashboard.
 func (r *pgDashboardRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.Dashboard{}, id).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("dashboard_id = ?", id).Delete(&domain.Visualization{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&domain.Dashboard{}, id).Error
+	})
 }

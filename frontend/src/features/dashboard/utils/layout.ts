@@ -1,5 +1,5 @@
 import { GRID_COLS } from '@/features/dashboard/constants'
-import type { DashboardVisualization, GridLayoutItem } from '@/features/dashboard/types'
+import type { GridLayoutItem, Visualization } from '@/features/dashboard/types'
 
 // Widgets live on a 12-column react-grid-layout: free x/y position and w/h size,
 // all in grid units. Stored layout JSON is `{ x, y, w, h }`.
@@ -122,8 +122,8 @@ function pack(loose: { i: string; w: number; h: number }[], startY: number): Gri
   })
 }
 
-/** Build react-grid-layout items from stored rows, migrating legacy layouts. */
-export function toGridItems(rows: DashboardVisualization[]): GridLayoutItem[] {
+/** Build react-grid-layout items from visualization rows, migrating legacy layouts. */
+export function toGridItems(rows: Visualization[]): GridLayoutItem[] {
   const parsed = rows.map((dv, idx) => ({ dv, p: parseStored(dv.layout, idx) }))
 
   const positioned: GridLayoutItem[] = parsed

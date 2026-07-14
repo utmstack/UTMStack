@@ -13,20 +13,17 @@ export interface Dashboard {
 
 export interface Visualization {
   id: number
+  // The one dashboard this visualization belongs to — not reusable elsewhere.
+  dashboardId: number
   name: string
   description?: string
   sqlQuery: string
   config: string
+  // Grid position/size (JSON) on its dashboard.
+  layout: string
   systemOwner?: boolean
   createdDate?: string
   modifiedDate?: string
-}
-
-export interface DashboardVisualization {
-  id: number
-  idDashboard: number
-  idVisualization: number
-  layout: string
 }
 
 export interface DashboardCreateInput {
@@ -47,30 +44,21 @@ export interface DashboardUpdateInput {
 }
 
 export interface VisualizationCreateInput {
+  dashboardId: number
   name: string
   description?: string
   sqlQuery: string
   config: string
+  layout: string
 }
 
 export interface VisualizationUpdateInput {
   id: number
+  dashboardId: number
   name: string
   description?: string
   sqlQuery: string
   config: string
-}
-
-export interface DashboardLayoutCreateInput {
-  idDashboard: number
-  idVisualization: number
-  layout: string
-}
-
-export interface DashboardLayoutUpdateInput {
-  id: number
-  idDashboard: number
-  idVisualization: number
   layout: string
 }
 
@@ -81,14 +69,8 @@ export interface DashboardListParams {
 }
 
 export interface VisualizationListParams {
+  dashboardId?: number
   name?: string
-  page?: number
-  size?: number
-}
-
-export interface DashboardLayoutListParams {
-  idDashboard?: number
-  idVisualization?: number
   page?: number
   size?: number
 }
@@ -111,14 +93,9 @@ export interface WidgetLayout {
 
 export type ChartTypeId =
   | 'bar'
-  | 'horizontal_bar'
   | 'line'
   | 'area'
   | 'pie'
-  | 'gauge'
-  | 'goal'
-  | 'heatmap'
-  | 'tag_cloud'
   | 'metric'
   | 'table'
   | 'list'

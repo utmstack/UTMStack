@@ -319,7 +319,7 @@
       "loading": "Cargando widget…",
       "notFoundTitle": "Widget no encontrado",
       "notFoundSubtitle": "Puede que haya sido eliminada o que no tengas acceso a ella.",
-      "backToList": "Volver a los widgets",
+      "backToDashboard": "Volver al panel",
       "chartType": {
         "title": "Tipo de gráfico"
       },
@@ -327,10 +327,6 @@
         "bar": {
           "label": "Barras",
           "description": "Compara valores entre categorías."
-        },
-        "horizontal_bar": {
-          "label": "Barras (horizontal)",
-          "description": "Como un gráfico de barras con los ejes intercambiados."
         },
         "line": {
           "label": "Línea",
@@ -343,22 +339,6 @@
         "pie": {
           "label": "Pastel",
           "description": "Proporción del total por categoría."
-        },
-        "gauge": {
-          "label": "Indicador",
-          "description": "Un único valor sobre un dial de referencia."
-        },
-        "goal": {
-          "label": "Meta",
-          "description": "Progreso hacia un porcentaje objetivo."
-        },
-        "heatmap": {
-          "label": "Mapa de calor",
-          "description": "Dos ejes categóricos, valor representado por color."
-        },
-        "tag_cloud": {
-          "label": "Nube de etiquetas",
-          "description": "Palabras dimensionadas por frecuencia."
         },
         "metric": {
           "label": "Métrica",
@@ -532,21 +512,12 @@
       "create": "Crear",
       "save": "Guardar"
     },
-    "addWidget": {
-      "title": "Agregar widget",
-      "subtitle": "Elige uno o más widgets existentes para soltarlos en la cuadrícula.",
-      "searchPlaceholder": "Buscar widgets…",
-      "loading": "Cargando widgets…",
-      "empty": "No se encontraron widgets.",
-      "alreadyAdded": "Ya está en este panel",
-      "newWidget": "Nuevo widget",
-      "noneSelected": "No hay widgets seleccionados",
-      "selectedCount": "{{count}} seleccionados",
-      "addSelected": "Agregar ({{count}})"
-    },
     "confirm": {
       "deleteTitle": "Eliminar panel",
-      "delete": "¿Eliminar el panel «{{name}}»? Esta acción no se puede deshacer."
+      "delete": "¿Eliminar el panel «{{name}}»? Esta acción no se puede deshacer.",
+      "deleteWidgetsTitle": "Eliminar widgets",
+      "deleteWidgets_one": "¿Eliminar este widget? Esta acción no se puede deshacer.",
+      "deleteWidgets_other": "¿Eliminar {{count}} widgets? Esta acción no se puede deshacer."
     },
     "page": {
       "noSelection": "Elige un panel de la lista o crea uno para comenzar.",
@@ -559,9 +530,6 @@
       "updateFailed": "No se pudo actualizar el panel.",
       "deleted": "Panel eliminado.",
       "deleteFailed": "No se pudo eliminar el panel.",
-      "widgetAdded": "Widget agregado.",
-      "widgetsAdded": "{{count}} widgets agregados.",
-      "widgetAddFailed": "No se pudo agregar el widget.",
       "layoutSaved": "Distribución guardada.",
       "layoutSaveFailed": "No se pudo guardar la distribución.",
       "visualizationCreated": "Widget creado.",

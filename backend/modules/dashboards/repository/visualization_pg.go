@@ -34,6 +34,9 @@ func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uint64) (*d
 
 func (r *pgVisualizationRepository) List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error) {
 	q := r.db.WithContext(ctx).Model(&domain.Visualization{})
+	if f.DashboardID != nil {
+		q = q.Where("dashboard_id = ?", *f.DashboardID)
+	}
 	if f.Name != "" {
 		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
 	}
@@ -49,11 +52,5 @@ func (r *pgVisualizationRepository) List(ctx context.Context, f dto.Visualizatio
 }
 
 func (r *pgVisualizationRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id_visualization = ?", id).
-			Delete(&domain.DashboardVisualization{}).Error; err != nil {
-			return err
-		}
-		return tx.Delete(&domain.Visualization{}, id).Error
-	})
+	return r.db.WithContext(ctx).Delete(&domain.Visualization{}, id).Error
 }

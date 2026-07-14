@@ -1,13 +1,8 @@
 import {
   BarChart3,
-  BarChartHorizontal,
   LineChart,
   AreaChart,
   PieChart,
-  Gauge,
-  Target,
-  Grid3x3,
-  Cloud,
   Hash,
   List as ListIcon,
   Map,
@@ -21,14 +16,9 @@ import type { ChartTypeId } from '@/features/dashboard/types'
 // Maps a chart type's `icon` slug (see CHART_TYPES) to a lucide icon component.
 export const CHART_ICONS: Record<string, LucideIcon> = {
   bar: BarChart3,
-  horizontal_bar: BarChartHorizontal,
   line: LineChart,
   area: AreaChart,
   pie: PieChart,
-  gauge: Gauge,
-  goal: Target,
-  heatmap: Grid3x3,
-  tag_cloud: Cloud,
   metric: Hash,
   table: TableIcon,
   list: ListIcon,
