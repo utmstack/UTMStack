@@ -5,165 +5,55 @@ import { Braces, ChevronDown, ChevronUp, Plus, Trash2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import type { DataTypeOption } from '@/features/data-processing/types/data-processing.types'
 import type { RegexPattern } from '@/features/regex-patterns/services/regex-patterns-http.service'
-import { DataTypeMultiSelect } from './DataTypeMultiSelect'
 import { PatternMenu } from './PatternMenu'
-import {
-  COMMON_KINDS,
-  emptyBlock,
-  emptyStep,
-  STEP_KINDS,
-  type FilterModel,
-  type PipelineBlock,
-  type Step,
-  type StepKind,
-} from '../lib/filter-model'
+import { COMMON_KINDS, emptyStep, STEP_KINDS, type Step, type StepKind } from '../lib/filter-model'
 
 interface Props {
-  value: FilterModel
+  value: Step[]
   readOnly?: boolean
-  dataTypeOptions: DataTypeOption[]
   patternOptions?: RegexPattern[]
   onPatternCreated?: (p: RegexPattern) => void
-  onChange: (model: FilterModel) => void
+  onChange: (steps: Step[]) => void
 }
 
-export function VisualFilterEditor({
-  value,
-  readOnly,
-  dataTypeOptions,
-  patternOptions = [],
-  onPatternCreated,
-  onChange,
-}: Props) {
+/** A single filter's step pipeline — the dataType/order live one level up
+ * (fixed by which dataType card you're in / managed by the reorder buttons),
+ * so this editor only ever deals with the ordered list of processor steps. */
+export function VisualFilterEditor({ value, readOnly, patternOptions = [], onPatternCreated, onChange }: Props) {
   const { t } = useTranslation()
 
-  const setBlock = (i: number, block: PipelineBlock) => {
-    const pipeline = value.pipeline.slice()
-    pipeline[i] = block
-    onChange({ pipeline })
-  }
-  const removeBlock = (i: number) => onChange({ pipeline: value.pipeline.filter((_, x) => x !== i) })
-  const addBlock = () => onChange({ pipeline: [...value.pipeline, emptyBlock()] })
-
-  return (
-    <div className="space-y-4">
-      {value.pipeline.length === 0 && (
-        <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-          {t('parsingFilters.visual.emptyPipeline')}
-        </p>
-      )}
-      {value.pipeline.map((block, i) => (
-        <BlockCard
-          key={i}
-          index={i}
-          block={block}
-          readOnly={readOnly}
-          dataTypeOptions={dataTypeOptions}
-          patternOptions={patternOptions}
-          onPatternCreated={onPatternCreated}
-          onChange={(b) => setBlock(i, b)}
-          onRemove={() => removeBlock(i)}
-        />
-      ))}
-      {!readOnly && (
-        <Button type="button" variant="outline" size="sm" onClick={addBlock}>
-          <Plus size={14} className="mr-1.5" /> {t('parsingFilters.visual.addBlock')}
-        </Button>
-      )}
-    </div>
-  )
-}
-
-function BlockCard({
-  index,
-  block,
-  readOnly,
-  dataTypeOptions,
-  patternOptions,
-  onPatternCreated,
-  onChange,
-  onRemove,
-}: {
-  index: number
-  block: PipelineBlock
-  readOnly?: boolean
-  dataTypeOptions: DataTypeOption[]
-  patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
-  onChange: (b: PipelineBlock) => void
-  onRemove: () => void
-}) {
-  const { t } = useTranslation()
-
-  const setSteps = (steps: Step[]) => onChange({ ...block, steps })
-  const setStep = (i: number, s: Step) => setSteps(block.steps.map((x, k) => (k === i ? s : x)))
-  const removeStep = (i: number) => setSteps(block.steps.filter((_, k) => k !== i))
-  const addStep = (kind: StepKind) => setSteps([...block.steps, emptyStep(kind)])
+  const setStep = (i: number, s: Step) => onChange(value.map((x, k) => (k === i ? s : x)))
+  const removeStep = (i: number) => onChange(value.filter((_, k) => k !== i))
+  const addStep = (kind: StepKind) => onChange([...value, emptyStep(kind)])
   const moveStep = (i: number, dir: -1 | 1) => {
     const j = i + dir
-    if (j < 0 || j >= block.steps.length) return
-    const steps = block.steps.slice()
+    if (j < 0 || j >= value.length) return
+    const steps = value.slice()
     ;[steps[i], steps[j]] = [steps[j], steps[i]]
-    setSteps(steps)
+    onChange(steps)
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background/40">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t('parsingFilters.visual.block')} {index + 1}
-        </span>
-        {!readOnly && (
-          <button
-            type="button"
-            onClick={onRemove}
-            className="rounded p-1 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
-            title={t('parsingFilters.visual.removeBlock')}
-          >
-            <Trash2 size={14} />
-          </button>
-        )}
-      </div>
-
-      <div className="space-y-4 p-4">
-        <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-foreground/80">
-            {t('parsingFilters.visual.dataTypes')}
-          </label>
-          <DataTypeMultiSelect
-            values={block.dataTypes}
-            options={dataTypeOptions}
-            readOnly={readOnly}
-            onChange={(dataTypes) => onChange({ ...block, dataTypes })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-xs font-medium text-foreground/80">
-            {t('parsingFilters.visual.steps')}
-          </label>
-          {block.steps.length === 0 && (
-            <p className="text-[11px] text-muted-foreground">{t('parsingFilters.visual.noSteps')}</p>
-          )}
-          {block.steps.map((step, i) => (
-            <StepCard
-              key={i}
-              step={step}
-              readOnly={readOnly}
-              patternOptions={patternOptions}
-              onPatternCreated={onPatternCreated}
-              canUp={i > 0}
-              canDown={i < block.steps.length - 1}
-              onChange={(s) => setStep(i, s)}
-              onRemove={() => removeStep(i)}
-              onMove={(dir) => moveStep(i, dir)}
-            />
-          ))}
-          {!readOnly && <AddStep onAdd={addStep} />}
-        </div>
-      </div>
+    <div className="space-y-2">
+      {value.length === 0 && (
+        <p className="text-[11px] text-muted-foreground">{t('parsingFilters.visual.noSteps')}</p>
+      )}
+      {value.map((step, i) => (
+        <StepCard
+          key={i}
+          step={step}
+          readOnly={readOnly}
+          patternOptions={patternOptions}
+          onPatternCreated={onPatternCreated}
+          canUp={i > 0}
+          canDown={i < value.length - 1}
+          onChange={(s) => setStep(i, s)}
+          onRemove={() => removeStep(i)}
+          onMove={(dir) => moveStep(i, dir)}
+        />
+      ))}
+      {!readOnly && <AddStep onAdd={addStep} />}
     </div>
   )
 }

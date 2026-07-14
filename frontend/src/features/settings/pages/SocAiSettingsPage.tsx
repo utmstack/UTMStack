@@ -37,7 +37,7 @@ const PROVIDERS: Record<string, ProviderDef> = {
   threatwinds: {
     label: 'ThreatWinds',
     models: [],
-    fixedModel: 'silas-1.0',
+    fixedModel: 'silas-1.6',
     showUrl: false,
     apiKey: 'none',
     authType: 'none',

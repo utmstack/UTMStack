@@ -124,6 +124,9 @@ func (c *openaiClient) Complete(ctx context.Context, req CompletionRequest) (Com
 	if status == http.StatusUnauthorized {
 		return CompletionResponse{}, fmt.Errorf("LLM auth failed (401): check api_key/auth_type")
 	}
+	if status == http.StatusTooManyRequests {
+		return CompletionResponse{}, ErrLLMRateLimited
+	}
 
 	var parsed oaResponse
 	if err := json.Unmarshal(respBody, &parsed); err != nil {

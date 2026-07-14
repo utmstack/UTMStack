@@ -1,35 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Code2, FileCode, LayoutList, Loader2, Lock, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ChevronDown, ChevronUp, FileCode, Loader2, Lock, Plus, RefreshCw, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import {
-  DataProcessingHttpError,
-  filtersHttpService,
-} from '@/features/data-processing/services/data-processing-http.service'
-import type { DataTypeOption, Filter } from '@/features/data-processing/types/data-processing.types'
-import { parseFilter, serializeFilter, type FilterModel } from '../lib/filter-model'
-import { VisualFilterEditor } from '../components/VisualFilterEditor'
-import { PatternInsertButton } from '../components/PatternInsertButton'
-import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
-import {
-  regexPatternsHttpService,
-  type RegexPattern,
-} from '@/features/regex-patterns/services/regex-patterns-http.service'
+import { filtersHttpService } from '@/features/data-processing/services/data-processing-http.service'
+import type { Filter } from '@/features/data-processing/types/data-processing.types'
+import { FilterFormDrawer } from '../components/FilterFormDrawer'
+import { displayName } from '../lib/filter-model'
 
 type Tab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 
-/** Clean display name: drop the folder prefix and the .yaml/.yml extension. */
-function displayName(relPath: string): string {
-  return (relPath.split('/').pop() ?? relPath).replace(/\.ya?ml$/i, '')
-}
-
-const COLS = 'minmax(180px,1fr) minmax(160px,1.3fr) 100px 80px 60px'
+const COLS = 'minmax(180px,1fr) minmax(160px,1.3fr) 100px 80px 60px 64px'
 
 export function ParsingFiltersPage() {
   const { t } = useTranslation()
@@ -47,6 +33,7 @@ export function ParsingFiltersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ filter: Filter; creating: boolean } | null>(null)
+  const [preparingNew, setPreparingNew] = useState(false)
 
   // Deep-link: ?dataType=<value> pre-filters the list to that data type
   // (e.g. opened from an integration's "Filters" button).
@@ -123,6 +110,55 @@ export function ParsingFiltersPage() {
     }
   }
 
+  // New pipelines are appended to the end of the global order — one past
+  // whatever the highest order currently in use is.
+  const startCreate = async () => {
+    setPreparingNew(true)
+    let order = 100
+    try {
+      const r = await filtersHttpService.list({ page: 1, size: 1000 })
+      const orders = (r.data ?? []).map((f) => f.order ?? 0)
+      if (orders.length) order = Math.max(...orders) + 1
+    } catch {
+      // fall back to the default order band
+    } finally {
+      setPreparingNew(false)
+    }
+    setEditing({ filter: { relPath: '', content: '', system: false, active: true, dataTypes: [], order }, creating: true })
+  }
+
+  const [reordering, setReordering] = useState(false)
+
+  const moveOrder = async (index: number, direction: -1 | 1) => {
+    const otherIndex = index + direction
+    if (reordering || otherIndex < 0 || otherIndex >= items.length) return
+    const current = items[index]
+    const other = items[otherIndex]
+    setReordering(true)
+    setItems((list) => {
+      const next = [...list]
+      next[index] = { ...other, order: current.order }
+      next[otherIndex] = { ...current, order: other.order }
+      return next
+    })
+    try {
+      await Promise.all([
+        filtersHttpService.setOrder(current.relPath, other.order),
+        filtersHttpService.setOrder(other.relPath, current.order),
+      ])
+    } catch {
+      setItems((list) => {
+        const next = [...list]
+        next[index] = current
+        next[otherIndex] = other
+        return next
+      })
+      toast.error(t('parsingFilters.toast.orderError'))
+    } finally {
+      setReordering(false)
+    }
+  }
+
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -131,11 +167,9 @@ export function ParsingFiltersPage() {
           <span><span className="font-medium text-foreground">{total}</span> {t('parsingFilters.title').toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            onClick={() => setEditing({ filter: { relPath: '', content: '', system: false, active: true }, creating: true })}
-          >
-            <Plus size={14} className="mr-1.5" /> {t('parsingFilters.new')}
+          <Button size="sm" onClick={() => void startCreate()} disabled={preparingNew}>
+            {preparingNew ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Plus size={14} className="mr-1.5" />}
+            {t('parsingFilters.new')}
           </Button>
         </div>
       </header>
@@ -197,6 +231,7 @@ export function ParsingFiltersPage() {
           <div>{t('parsingFilters.cols.type')}</div>
           <div className="text-center">{t('parsingFilters.cols.active')}</div>
           <div />
+          <div />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           {loading && items.length === 0 ? (
@@ -214,8 +249,18 @@ export function ParsingFiltersPage() {
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</div>
           ) : (
             <>
-              {items.map((f) => (
-                <Row key={f.relPath} f={f} onOpen={() => setEditing({ filter: f, creating: false })} onToggle={() => toggleActive(f)} />
+              {items.map((f, i) => (
+                <Row
+                  key={f.relPath}
+                  f={f}
+                  onOpen={() => setEditing({ filter: f, creating: false })}
+                  onToggle={() => toggleActive(f)}
+                  onMoveUp={() => moveOrder(i, -1)}
+                  onMoveDown={() => moveOrder(i, 1)}
+                  canMoveUp={i > 0}
+                  canMoveDown={i < items.length - 1}
+                  reordering={reordering}
+                />
               ))}
               <InfiniteScrollSentinel
                 onReach={() => setPage((p) => p + 1)}
@@ -229,7 +274,7 @@ export function ParsingFiltersPage() {
       </div>
 
       {editing && (
-        <FilterEditor
+        <FilterFormDrawer
           filter={editing.filter}
           creating={editing.creating}
           onClose={() => setEditing(null)}
@@ -260,7 +305,25 @@ function DataTypeCells({ dataTypes }: { dataTypes?: string[] }) {
   )
 }
 
-function Row({ f, onOpen, onToggle }: { f: Filter; onOpen: () => void; onToggle: () => void }) {
+function Row({
+  f,
+  onOpen,
+  onToggle,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+  reordering,
+}: {
+  f: Filter
+  onOpen: () => void
+  onToggle: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  canMoveUp: boolean
+  canMoveDown: boolean
+  reordering: boolean
+}) {
   const { t } = useTranslation()
   return (
     <div
@@ -269,6 +332,12 @@ function Row({ f, onOpen, onToggle }: { f: Filter; onOpen: () => void; onToggle:
       onClick={onOpen}
     >
       <div className="flex min-w-0 items-center gap-2" title={f.relPath}>
+        <span
+          className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
+          title={t('parsingFilters.cols.order')}
+        >
+          {f.order}
+        </span>
         <FileCode size={14} className="shrink-0 text-muted-foreground" />
         <span className="truncate text-[13px]">{displayName(f.relPath)}</span>
       </div>
@@ -288,245 +357,25 @@ function Row({ f, onOpen, onToggle }: { f: Filter; onOpen: () => void; onToggle:
         <Toggle checked={f.active} onChange={onToggle} />
       </div>
       <div className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</div>
-    </div>
-  )
-}
-
-function FilterEditor({
-  filter,
-  creating,
-  onClose,
-  onSaved,
-}: {
-  filter: Filter
-  creating: boolean
-  onClose: () => void
-  onSaved: () => void
-}) {
-  const { t } = useTranslation()
-  const [relPath, setRelPath] = useState(filter.relPath)
-  const [content, setContent] = useState(filter.content)
-  const [saving, setSaving] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const readOnly = filter.system
-
-  // Visual ↔ Code. Content (YAML string) stays canonical; the visual editor
-  // serializes back into it on every change.
-  const [mode, setMode] = useState<'visual' | 'code'>('code')
-  const [model, setModel] = useState<FilterModel>({ pipeline: [] })
-  const [dataTypeOptions, setDataTypeOptions] = useState<DataTypeOption[]>([])
-  const [patternOptions, setPatternOptions] = useState<RegexPattern[]>([])
-  const yamlTaRef = useRef<HTMLTextAreaElement | null>(null)
-
-  // A pattern created on the fly is added to the catalog so it's immediately referenceable.
-  const addPattern = (p: RegexPattern) =>
-    setPatternOptions((prev) => (prev.some((x) => x.patternId === p.patternId) ? prev : [p, ...prev]))
-
-  // Catalog of known dataTypes to pick from in the visual editor.
-  useEffect(() => {
-    filtersHttpService
-      .dataTypeCatalog()
-      .then((d) => setDataTypeOptions(d ?? []))
-      .catch(() => setDataTypeOptions([]))
-  }, [])
-
-  // Catalog of regex patterns to reference from grok steps (`{{.name}}`).
-  useEffect(() => {
-    regexPatternsHttpService
-      .list({ size: 200 })
-      .then((r) => setPatternOptions(r.data ?? []))
-      .catch(() => setPatternOptions([]))
-  }, [])
-
-  // Default to the visual editor when the content parses cleanly.
-  useEffect(() => {
-    const r = parseFilter(filter.content)
-    if (r.ok) {
-      setModel(r.model)
-      setMode('visual')
-    }
-  }, [filter.content])
-
-  const canVisual = useMemo(() => parseFilter(content).ok, [content])
-
-  const toVisual = () => {
-    const r = parseFilter(content)
-    if (!r.ok) {
-      toast.error(t('parsingFilters.visual.cantParse', { error: r.error }))
-      return
-    }
-    setModel(r.model)
-    setMode('visual')
-  }
-
-  const onModelChange = (m: FilterModel) => {
-    setModel(m)
-    setContent(serializeFilter(m))
-  }
-
-  const dirty = creating ? relPath.trim() !== '' || content.trim() !== '' : content !== filter.content
-
-  const save = async () => {
-    if (creating && !relPath.trim()) {
-      toast.error(t('parsingFilters.toast.relPathRequired'))
-      return
-    }
-    if (!content.trim()) {
-      toast.error(t('parsingFilters.toast.contentRequired'))
-      return
-    }
-    setSaving(true)
-    try {
-      if (creating) await filtersHttpService.create({ relPath: relPath.trim(), content })
-      else await filtersHttpService.update({ relPath: filter.relPath, content })
-      toast.success(t('parsingFilters.toast.saved'))
-      onSaved()
-    } catch (err) {
-      toast.error(err instanceof DataProcessingHttpError ? err.message : t('parsingFilters.toast.saveError'))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const remove = async () => {
-    setSaving(true)
-    try {
-      await filtersHttpService.remove(filter.relPath)
-      toast.success(t('parsingFilters.toast.deleted'))
-      onSaved()
-    } catch {
-      toast.error(t('parsingFilters.toast.deleteError'))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="flex w-full max-w-[760px] flex-col overflow-hidden border-l border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
-          <div className="min-w-0">
-            <h2 className="flex items-center gap-2 truncate text-lg font-semibold">
-              {creating ? t('parsingFilters.editor.titleNew') : displayName(filter.relPath)}
-              {readOnly && (
-                <span className="inline-flex items-center gap-1 rounded bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-medium text-violet-500">
-                  <Lock size={9} /> {t('parsingFilters.system')}
-                </span>
-              )}
-            </h2>
-            {!creating && <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{filter.relPath}</p>}
-          </div>
-          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
-            <X size={16} />
-          </button>
-        </header>
-
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-6">
-          {readOnly && (
-            <div className="flex shrink-0 items-center gap-2 rounded-md bg-violet-500/10 px-3 py-2 text-xs text-violet-600 dark:text-violet-300">
-              <Lock size={13} /> {t('parsingFilters.editor.readOnly')}
-            </div>
-          )}
-          {creating && (
-            <div className="shrink-0 space-y-1.5">
-              <label className="block text-xs font-medium text-foreground/80">{t('parsingFilters.editor.relPath')}</label>
-              <Input value={relPath} onChange={(e) => setRelPath(e.target.value)} placeholder="myorg/custom-firewall.yaml" className="font-mono" />
-              <p className="text-[11px] text-muted-foreground">{t('parsingFilters.editor.relPathHint')}</p>
-            </div>
-          )}
-          <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-            <div className="flex shrink-0 items-center justify-between">
-              <label className="block text-xs font-medium text-foreground/80">{t('parsingFilters.editor.content')}</label>
-              <div className="inline-flex rounded-md border border-border p-0.5">
-                <button
-                  type="button"
-                  onClick={toVisual}
-                  disabled={!canVisual && mode === 'code'}
-                  title={!canVisual ? t('parsingFilters.visual.codeOnly') : undefined}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors disabled:opacity-40',
-                    mode === 'visual' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  <LayoutList size={13} /> {t('parsingFilters.visual.visualTab')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('code')}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors',
-                    mode === 'code' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  <Code2 size={13} /> {t('parsingFilters.visual.codeTab')}
-                </button>
-              </div>
-            </div>
-            {mode === 'visual' ? (
-              <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-input bg-background/20 p-3">
-                <VisualFilterEditor
-                  value={model}
-                  readOnly={readOnly}
-                  dataTypeOptions={dataTypeOptions}
-                  patternOptions={patternOptions}
-                  onPatternCreated={addPattern}
-                  onChange={onModelChange}
-                />
-              </div>
-            ) : (
-              <div className="relative flex min-h-0 flex-1 flex-col">
-                {!readOnly && (
-                  <div className="absolute right-2 top-2 z-10">
-                    <PatternInsertButton
-                      taRef={yamlTaRef}
-                      value={content}
-                      onChange={setContent}
-                      patternOptions={patternOptions}
-                      onPatternCreated={addPattern}
-                    />
-                  </div>
-                )}
-                <YamlCodeEditor
-                  value={content}
-                  onChange={setContent}
-                  readOnly={readOnly}
-                  textareaRef={yamlTaRef}
-                  placeholder={'pipeline:\n  - dataTypes: [ ... ]\n    steps: [ ... ]'}
-                />
-              </div>
-            )}
-            <p className="shrink-0 text-[11px] text-muted-foreground">{t('parsingFilters.editor.contentHint')}</p>
-          </div>
-        </div>
-
-        <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
-          <div>
-            {!creating && !readOnly &&
-              (confirmDelete ? (
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="destructive" onClick={() => void remove()} disabled={saving}>
-                    <Trash2 size={13} className="mr-1.5" /> {t('parsingFilters.editor.confirmDelete')}
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)} disabled={saving}>
-                    {t('parsingFilters.editor.cancel')}
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setConfirmDelete(true)}
-                  className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/10 dark:text-red-300"
-                >
-                  {t('parsingFilters.editor.delete')}
-                </button>
-              ))}
-          </div>
-          {!readOnly && (
-            <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
-              {saving ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null}
-              {saving ? t('parsingFilters.editor.saving') : t('parsingFilters.editor.save')}
-            </Button>
-          )}
-        </footer>
+      <div className="flex items-center justify-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={onMoveUp}
+          disabled={!canMoveUp || reordering}
+          title={t('parsingFilters.cols.moveUp')}
+          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+        >
+          <ChevronUp size={13} />
+        </button>
+        <button
+          type="button"
+          onClick={onMoveDown}
+          disabled={!canMoveDown || reordering}
+          title={t('parsingFilters.cols.moveDown')}
+          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+        >
+          <ChevronDown size={13} />
+        </button>
       </div>
     </div>
   )

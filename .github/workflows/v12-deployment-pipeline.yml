@@ -91,103 +91,58 @@ jobs:
             echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_PROD }}" >> $GITHUB_OUTPUT
           fi
   build_agent:
-    name: Build Agent Binaries
+    name: Build Agent Binaries (${{ matrix.goos }}/${{ matrix.goarch }})
     needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+          - goos: darwin
+            goarch: arm64
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
-      - name: Build Linux Binaries (amd64)
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: agent/go.mod
+          cache-dependency-path: |
+            agent/go.sum
+            agent/updater/go.sum
+
+      - name: Build agent + updater binaries
         env:
-          GOOS: linux
-          GOARCH: amd64
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
         run: |
+          EXT=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then EXT=".exe"; fi
+
           cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_linux_amd64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
+          go build -o "utmstack_agent_service_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}" -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
 
           cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_linux_amd64 .
+          go build -o "utmstack_updater_service_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}" .
 
-      - name: Build Linux Binaries (arm64)
-        env:
-          GOOS: linux
-          GOARCH: arm64
-          CGO_ENABLED: 0
-        run: |
-          cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_linux_arm64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-
-          cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_linux_arm64 .
-
-      - name: Build Windows Binaries (amd64)
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          CGO_ENABLED: 0
-        run: |
-          cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_windows_amd64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-
-          cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_windows_amd64.exe .
-
-      - name: Build Windows Binaries (arm64)
-        env:
-          GOOS: windows
-          GOARCH: arm64
-          CGO_ENABLED: 0
-        run: |
-          cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_windows_arm64.exe -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-
-          cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_windows_arm64.exe .
-
-      - name: Build macOS Binaries (arm64)
-        env:
-          GOOS: darwin
-          GOARCH: arm64
-          CGO_ENABLED: 0
-        run: |
-          cd ${{ github.workspace }}/agent
-          go build -o utmstack_agent_service_darwin_arm64 -v -ldflags "-X 'github.com/utmstack/UTMStack/agent/config.REPLACE_KEY=${{ secrets.AGENT_SECRET_PREFIX }}'" .
-
-          cd ${{ github.workspace }}/agent/updater
-          go build -o utmstack_updater_service_darwin_arm64 .
-
-      - name: Upload Linux binaries as artifact
+      - name: Upload agent binaries as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: agents-linux
+          name: agent-bin-${{ matrix.goos }}-${{ matrix.goarch }}
           path: |
-            agent/utmstack_agent_service_linux_amd64
-            agent/utmstack_agent_service_linux_arm64
-            agent/updater/utmstack_updater_service_linux_amd64
-            agent/updater/utmstack_updater_service_linux_arm64
-          retention-days: 1
-
-      - name: Upload unsigned Windows binaries as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agents-windows-unsigned
-          path: |
-            agent/utmstack_agent_service_windows_amd64.exe
-            agent/utmstack_agent_service_windows_arm64.exe
-            agent/updater/utmstack_updater_service_windows_amd64.exe
-            agent/updater/utmstack_updater_service_windows_arm64.exe
-          retention-days: 1
-
-      - name: Upload unsigned macOS binaries as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agents-darwin-unsigned
-          path: |
-            agent/utmstack_agent_service_darwin_arm64
-            agent/updater/utmstack_updater_service_darwin_arm64
+            agent/utmstack_agent_service_${{ matrix.goos }}_${{ matrix.goarch }}*
+            agent/updater/utmstack_updater_service_${{ matrix.goos }}_${{ matrix.goarch }}*
           retention-days: 1
   sign_agent_windows:
     name: Sign Windows Agent Binaries
@@ -196,7 +151,7 @@ jobs:
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: windows
-      artifact_name: agents-windows-unsigned
+      artifact_pattern: agent-bin-windows-*
       signed_artifact_name: agents-windows-signed
       gcp_project_id: ${{ vars.GCP_PROJECT_PROD }}
       kms_location: ${{ vars.KMS_KEYRING_LOCATION }}
@@ -215,7 +170,7 @@ jobs:
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: macos
-      artifact_name: agents-darwin-unsigned
+      artifact_pattern: agent-bin-darwin-*
       signed_artifact_name: agents-darwin-signed
       binaries: |
         utmstack_agent_service_darwin_arm64
@@ -229,6 +184,15 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: collectors/utmstack/go.mod
+          cache-dependency-path: |
+            collectors/utmstack/go.sum
+            collectors/as400/go.sum
+            collectors/forwarder/go.sum
 
       - name: Build UTMStack Collectors
         run: |
@@ -262,11 +226,18 @@ jobs:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: agent-manager/go.mod
+          cache-dependency-path: agent-manager/go.sum
+
       - name: Download Linux agents from artifact
         uses: actions/download-artifact@v4
         with:
-          name: agents-linux
+          pattern: agent-bin-linux-*
           path: ${{ github.workspace }}/agent
+          merge-multiple: true
 
       - name: Download signed Windows agents from artifact
         uses: actions/download-artifact@v4
@@ -368,6 +339,12 @@ jobs:
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: plugins/alerts/go.mod
+          cache-dependency-path: plugins/*/go.sum
 
       - name: Build Plugins
         env:

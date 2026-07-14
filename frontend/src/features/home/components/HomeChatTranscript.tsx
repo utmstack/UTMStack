@@ -8,7 +8,7 @@ export function HomeChatTranscript() {
   const { homeMessages, clear } = useSocAi()
 
   return (
-    <section className="mt-8">
+    <section className="mx-auto max-w-3xl pb-28">
       <div className="flex justify-end">
         <button
           type="button"

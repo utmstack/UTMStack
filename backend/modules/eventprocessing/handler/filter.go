@@ -171,14 +171,13 @@ func (h *FilterHandler) Delete(c *gin.Context) {
 }
 
 // @Summary     Activate or deactivate a filter
-// @Description Renames .yaml ↔ .yaml.disabled in the user overlay.
+// @Description Renames .yaml <-> .yaml.disabled in whichever overlay (system or user) owns the filter.
 // @Tags        Filters
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath query string true  "Relative path"
 // @Param       active  query bool   true  "true to activate, false to deactivate"
 // @Success     200 {object} map[string]string
-// @Failure     403 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters/activate [put]

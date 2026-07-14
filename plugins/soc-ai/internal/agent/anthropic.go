@@ -77,6 +77,9 @@ func (c *anthropicClient) Complete(ctx context.Context, req CompletionRequest) (
 	if status == http.StatusUnauthorized {
 		return CompletionResponse{}, fmt.Errorf("LLM auth failed (401): check api_key")
 	}
+	if status == http.StatusTooManyRequests {
+		return CompletionResponse{}, ErrLLMRateLimited
+	}
 
 	var parsed anResponse
 	if err := json.Unmarshal(respBody, &parsed); err != nil {

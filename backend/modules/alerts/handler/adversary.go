@@ -17,9 +17,11 @@ func NewAdversaryHandler(uc connectors.AdversaryUsecase) *AdversaryHandler {
 	return &AdversaryHandler{usecase: uc}
 }
 
-// SearchAdversaryAlerts aggregates V11 alerts grouped by adversary host.
+// SearchAdversaryAlerts aggregates V11 alerts grouped by adversary host,
+// falling back to adversary IP for alerts with no host (e.g. Internet-facing
+// threats identified by IP rather than hostname).
 //
-// @Summary     Fetch adversary alerts grouped by adversary host
+// @Summary     Fetch adversary alerts grouped by adversary host (falls back to IP)
 // @Tags        Alerts
 // @Security    BearerAuth
 // @Accept      json

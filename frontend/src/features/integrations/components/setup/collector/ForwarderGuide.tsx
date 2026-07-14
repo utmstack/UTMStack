@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
+import { FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
 
 // Reusable scaffolding for any "device → Forwarder → UTMStack" (syslog-style)
 // integration. It renders the shared parts — a plain-language intro, an animated
@@ -28,63 +29,11 @@ export function forwarderHost(): string {
 }
 
 // ── Animated data-flow diagram ────────────────────────────────────────────────
-
-export const TONES = {
-  neutral: 'border-border bg-card',
-  accent: 'border-primary/40 bg-primary/[0.06] text-primary',
-  brand: 'border-emerald-500/40 bg-emerald-500/[0.06] text-emerald-600 dark:text-emerald-400',
-} as const
-
-export function FlowNode({
-  icon,
-  title,
-  sub,
-  tone,
-}: {
-  icon: ReactNode
-  title: string
-  sub: string
-  tone: keyof typeof TONES
-}) {
-  return (
-    <div
-      className={`flex w-[92px] shrink-0 flex-col items-center gap-1 rounded-lg border p-2.5 text-center sm:w-[112px] ${TONES[tone]}`}
-    >
-      {icon}
-      <span className="text-[11px] font-semibold leading-tight text-foreground">{title}</span>
-      <span className="text-[9px] leading-tight text-muted-foreground">{sub}</span>
-    </div>
-  )
-}
-
-// A connector with little packets flowing left→right (SVG animateMotion, no deps).
-export function FlowEdge({ label }: { label: string }) {
-  return (
-    <div className="flex shrink-0 flex-col items-center justify-center">
-      <span className="mb-1 text-[8px] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </span>
-      <svg viewBox="0 0 64 12" className="h-3 w-10 sm:w-16" aria-hidden="true">
-        <line
-          x1="2"
-          y1="6"
-          x2="62"
-          y2="6"
-          className="stroke-border"
-          strokeWidth="2"
-          strokeDasharray="2 3"
-          strokeLinecap="round"
-        />
-        <circle r="2.6" className="fill-primary">
-          <animateMotion dur="1.6s" repeatCount="indefinite" path="M2 6 H62" />
-        </circle>
-        <circle r="2.6" className="fill-primary">
-          <animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite" path="M2 6 H62" />
-        </circle>
-      </svg>
-    </div>
-  )
-}
+// TONES/FlowNode/FlowEdge now live in shared/components/ui/flow-diagram.tsx
+// (reused by the parsing-filters/alerting-rules pipeline diagram). Re-exported
+// here so the many collector guides importing them from this module path
+// don't need to change their imports.
+export { TONES, FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
 
 function FlowDiagram({ source, port }: { source: string; port: string }) {
   const { t } = useTranslation()

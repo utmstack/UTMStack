@@ -16,8 +16,12 @@ export function SocAiPanel() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages])
 
+  // No queueing — block sending while the last message is still being answered.
+  const last = messages[messages.length - 1]
+  const isPending = last?.role === 'ai' && !!last.pending
+
   const send = () => {
-    if (!draft.trim()) return
+    if (!draft.trim() || isPending) return
     submit(draft)
     setDraft('')
   }
@@ -82,8 +86,9 @@ export function SocAiPanel() {
           <button
             type="button"
             onClick={send}
+            disabled={!draft.trim() || isPending}
             aria-label={t('socAi.chat.send')}
-            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
+            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-40"
           >
             <ArrowUp size={16} strokeWidth={2.5} />
           </button>

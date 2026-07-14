@@ -3,7 +3,10 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 )
+
+var ErrLLMRateLimited = errors.New("rate limit reached — upgrade to Enterprise for higher usage limits")
 
 type Role string
 

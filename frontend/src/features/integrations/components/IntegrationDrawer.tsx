@@ -73,10 +73,10 @@ export function IntegrationDrawer({ integration: i, onClose, onToggleActive, tog
   const logo = theme === 'dark' && i.logoDark ? i.logoDark : i.logo
   const isCollectorGroup = km?.group === 'collectors'
   const active = i.status === 'configured'
-  // Deep-link to the rules/filters pages pre-filtered by this integration's dataType.
+  // Deep-link to the rules/pipelines pages pre-filtered by this integration's dataType.
   const dtQuery = i.dataType ? `?dataType=${encodeURIComponent(i.dataType)}` : ''
   const rulesHref = `/alerting-rules${dtQuery}`
-  const filtersHref = `/parsing-filters${dtQuery}`
+  const filtersHref = `/pipelines${dtQuery}`
 
   const viewEvents = () => {
     if (!i.dataType) return

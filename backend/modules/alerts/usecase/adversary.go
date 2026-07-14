@@ -16,6 +16,63 @@ import (
 // adversaryIndexPattern is the OpenSearch index the adversary aggregation reads.
 const adversaryIndexPattern = "v11-alert-*"
 
+// adversaryBucketAggs is the set of sub-aggregations run under each adversary
+// bucket (by host or by IP) — shared so both grouping strategies fetch the
+// same shape of data.
+func adversaryBucketAggs() map[string]any {
+	return map[string]any{
+		// Grab the most-recent adversary Side object.
+		"adversary_obj": map[string]any{
+			"top_hits": map[string]any{
+				"size": 1,
+				"sort": []map[string]any{
+					{"@timestamp": map[string]any{"order": "desc"}},
+				},
+				"_source": map[string]any{
+					"includes": []string{"adversary"},
+				},
+			},
+		},
+		// Parent alerts: must_not exists parentId.
+		"alerts": map[string]any{
+			"filter": map[string]any{
+				"bool": map[string]any{
+					"must_not": []map[string]any{
+						{"exists": map[string]any{"field": "parentId"}},
+					},
+				},
+			},
+			"aggs": map[string]any{
+				"alerts_hits": map[string]any{
+					"top_hits": map[string]any{
+						"size": 100,
+						"sort": []map[string]any{
+							{"@timestamp": map[string]any{"order": "desc"}},
+						},
+					},
+				},
+			},
+		},
+		// Child alerts grouped by parentId.
+		"child_alerts": map[string]any{
+			"terms": map[string]any{
+				"field": "parentId.keyword",
+				"size":  50,
+			},
+			"aggs": map[string]any{
+				"child_hits": map[string]any{
+					"top_hits": map[string]any{
+						"size": 50,
+						"sort": []map[string]any{
+							{"@timestamp": map[string]any{"order": "desc"}},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 type adversaryUsecase struct{}
 
 func NewAdversaryUsecase() connectors.AdversaryUsecase {
@@ -39,60 +96,43 @@ func (u *adversaryUsecase) FetchAdversaryAlerts(
 		"size":  0,
 		"query": common_models.FiltersToQuery(filters),
 		"aggs": map[string]any{
-			"adversary": map[string]any{
-				"terms": map[string]any{
-					"field": "adversary.host.keyword",
-					"size":  100,
+			// Group by adversary.host when present — internally-identified
+			// attackers (compromised hosts, agents) carry a hostname.
+			"by_host": map[string]any{
+				"filter": map[string]any{
+					"exists": map[string]any{"field": "adversary.host"},
 				},
 				"aggs": map[string]any{
-					// Grab the most-recent adversary Side object.
-					"adversary_obj": map[string]any{
-						"top_hits": map[string]any{
-							"size": 1,
-							"sort": []map[string]any{
-								{"@timestamp": map[string]any{"order": "desc"}},
-							},
-							"_source": map[string]any{
-								"includes": []string{"adversary"},
-							},
-						},
-					},
-					// Parent alerts: must_not exists parentId.
-					"alerts": map[string]any{
-						"filter": map[string]any{
-							"bool": map[string]any{
-								"must_not": []map[string]any{
-									{"exists": map[string]any{"field": "parentId"}},
-								},
-							},
-						},
-						"aggs": map[string]any{
-							"alerts_hits": map[string]any{
-								"top_hits": map[string]any{
-									"size": 100,
-									"sort": []map[string]any{
-										{"@timestamp": map[string]any{"order": "desc"}},
-									},
-								},
-							},
-						},
-					},
-					// Child alerts grouped by parentId.
-					"child_alerts": map[string]any{
+					"grouped": map[string]any{
 						"terms": map[string]any{
-							"field": "parentId.keyword",
-							"size":  50,
+							"field": "adversary.host.keyword",
+							"size":  100,
 						},
-						"aggs": map[string]any{
-							"child_hits": map[string]any{
-								"top_hits": map[string]any{
-									"size": 50,
-									"sort": []map[string]any{
-										{"@timestamp": map[string]any{"order": "desc"}},
-									},
-								},
-							},
+						"aggs": adversaryBucketAggs(),
+					},
+				},
+			},
+			// Fall back to adversary.ip for docs with no host — the common
+			// case for Internet-facing threats (malicious IPs, external
+			// scanners), which are identified by IP, not hostname.
+			"by_ip": map[string]any{
+				"filter": map[string]any{
+					"bool": map[string]any{
+						"must_not": []map[string]any{
+							{"exists": map[string]any{"field": "adversary.host"}},
 						},
+						"must": []map[string]any{
+							{"exists": map[string]any{"field": "adversary.ip"}},
+						},
+					},
+				},
+				"aggs": map[string]any{
+					"grouped": map[string]any{
+						"terms": map[string]any{
+							"field": "adversary.ip.keyword",
+							"size":  100,
+						},
+						"aggs": adversaryBucketAggs(),
 					},
 				},
 			},
@@ -119,10 +159,16 @@ func (u *adversaryUsecase) FetchAdversaryAlerts(
 
 type adversarySearchResponse struct {
 	Aggregations struct {
-		Adversary struct {
-			Buckets []adversaryBucket `json:"buckets"`
-		} `json:"adversary"`
+		ByHost adversaryFilterAgg `json:"by_host"`
+		ByIP   adversaryFilterAgg `json:"by_ip"`
 	} `json:"aggregations"`
+}
+
+// adversaryFilterAgg wraps the filter agg's own "grouped" terms sub-agg.
+type adversaryFilterAgg struct {
+	Grouped struct {
+		Buckets []adversaryBucket `json:"buckets"`
+	} `json:"grouped"`
 }
 
 type adversaryBucket struct {
@@ -165,9 +211,13 @@ func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
 		return nil, fmt.Errorf("alerts adversary: decode aggregation response: %w", err)
 	}
 
-	groups := make([]dto.AdversaryResponse, 0, len(sr.Aggregations.Adversary.Buckets))
+	buckets := make([]adversaryBucket, 0, len(sr.Aggregations.ByHost.Grouped.Buckets)+len(sr.Aggregations.ByIP.Grouped.Buckets))
+	buckets = append(buckets, sr.Aggregations.ByHost.Grouped.Buckets...)
+	buckets = append(buckets, sr.Aggregations.ByIP.Grouped.Buckets...)
 
-	for _, bucket := range sr.Aggregations.Adversary.Buckets {
+	groups := make([]dto.AdversaryResponse, 0, len(buckets))
+
+	for _, bucket := range buckets {
 		// Extract the adversary Side from the top_hits result.
 		if len(bucket.AdversaryObj.Hits.Hits) == 0 || bucket.AdversaryObj.Hits.Hits[0].Source == nil {
 			continue

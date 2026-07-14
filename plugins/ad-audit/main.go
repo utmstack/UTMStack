@@ -1,8 +1,3 @@
-// Command ad-audit is an UTMStack analysis plugin that keeps an Active Directory
-// user inventory. The event processor streams every processed event to it; for
-// the relevant Windows security events it updates an in-memory cache and
-// periodically flushes the users that changed to the backend's internal ingest
-// endpoint. Replaces the legacy `user-auditor` Java microservice.
 package main
 
 import (
@@ -14,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -62,19 +58,19 @@ func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
 	if event.GetDataType() != wineventlogDataType {
 		return io.EOF
 	}
-	code := logStr(event, fEventCode)
+	code := logEventCode(event)
 	switch code {
 	case evtUserCreated, evtUserDeleted, evtLogon:
 	default:
 		return io.EOF
 	}
 
-	name := logStr(event, fTargetUser)
-	if isSystemAccount(name) {
+	name := targetUser(event)
+	domain := targetDomain(event)
+	sid := firstNonEmpty(logStr(event, fTargetSID), logStr(event, fTargetSID2))
+	if isSystemAccount(name) || isSystemSID(sid) {
 		return io.EOF
 	}
-	domain := logStr(event, fTargetDom)
-	sid := firstNonEmpty(logStr(event, fTargetSID), logStr(event, fTargetSID2))
 	if sid == "" {
 		if name == "" {
 			return io.EOF
@@ -94,6 +90,35 @@ func logStr(event *plugins.Event, key string) string {
 	return strings.TrimSpace(log[key].GetStringValue())
 }
 
+func logEventCode(event *plugins.Event) string {
+	log := event.GetLog()
+	if log == nil || log[fEventCode] == nil {
+		return ""
+	}
+	switch v := log[fEventCode].AsInterface().(type) {
+	case string:
+		return strings.TrimSpace(v)
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	default:
+		return ""
+	}
+}
+
+func targetUser(event *plugins.Event) string {
+	if u := strings.TrimSpace(event.GetTarget().GetUser()); u != "" {
+		return u
+	}
+	return logStr(event, fTargetUser)
+}
+
+func targetDomain(event *plugins.Event) string {
+	if d := strings.TrimSpace(event.GetTarget().GetDomain()); d != "" {
+		return d
+	}
+	return logStr(event, fTargetDom)
+}
+
 func isSystemAccount(name string) bool {
 	switch n := strings.ToUpper(name); {
 	case n == "":
@@ -103,6 +128,20 @@ func isSystemAccount(name string) bool {
 	case n == "SYSTEM", n == "LOCAL SERVICE", n == "NETWORK SERVICE", n == "ANONYMOUS LOGON":
 		return true
 	case strings.HasPrefix(n, "DWM-"), strings.HasPrefix(n, "UMFD-"):
+		return true
+	}
+	return false
+}
+
+func isSystemSID(sid string) bool {
+	switch s := strings.ToUpper(strings.TrimSpace(sid)); {
+	case s == "":
+		return false
+	case s == "S-1-5-18", s == "S-1-5-19", s == "S-1-5-20": // LocalSystem, LocalService, NetworkService
+		return true
+	case s == "S-1-5-7", s == "S-1-0-0": // Anonymous Logon, Null SID
+		return true
+	case strings.HasPrefix(s, "S-1-5-90-0-"), strings.HasPrefix(s, "S-1-5-96-0-"): // DWM-*, UMFD-*
 		return true
 	}
 	return false

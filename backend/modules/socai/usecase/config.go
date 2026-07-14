@@ -187,16 +187,18 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 	}
 
 	// 2. Verify the connection before writing anything.
-	if err := s.verifier.Verify(ctx, verifier.Config{
-		Provider:       req.Provider,
-		URL:            url,
-		Model:          req.Model,
-		APIKey:         apiKeyPlain,
-		AuthType:       authType,
-		AuthHeaderName: authHeaderName,
-		CustomHeaders:  headersPlain,
-	}); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+	if s.connectionChanged(existing, req, url, authType, authHeaderName, apiKeyPlain, headersPlain) {
+		if err := s.verifier.Verify(ctx, verifier.Config{
+			Provider:       req.Provider,
+			URL:            url,
+			Model:          req.Model,
+			APIKey:         apiKeyPlain,
+			AuthType:       authType,
+			AuthHeaderName: authHeaderName,
+			CustomHeaders:  headersPlain,
+		}); err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+		}
 	}
 
 	// 3. Encrypt secrets for storage.
@@ -243,6 +245,47 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 		return nil, err
 	}
 	return s.Get(ctx)
+}
+
+func (s *ConfigService) connectionChanged(
+	existing *repository.FileConfig,
+	req dto.ConfigRequest,
+	url, authType, authHeaderName, apiKeyPlain string,
+	headersPlain map[string]string,
+) bool {
+	if existing == nil {
+		return true
+	}
+	if req.Provider != existing.Provider ||
+		req.Model != existing.Model ||
+		url != existing.URL ||
+		authType != existing.AuthType ||
+		authHeaderName != existing.AuthHeaderName {
+		return true
+	}
+
+	existingAPIKeyPlain, err := s.decryptOrEmpty(existing.APIKey)
+	if err != nil || apiKeyPlain != existingAPIKeyPlain {
+		return true
+	}
+
+	if len(headersPlain) != len(existing.CustomHeaders) {
+		return true
+	}
+	for k, v := range headersPlain {
+		existingPlain, err := s.decryptOrEmpty(existing.CustomHeaders[k])
+		if err != nil || v != existingPlain {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *ConfigService) decryptOrEmpty(encrypted string) (string, error) {
+	if encrypted == "" {
+		return "", nil
+	}
+	return s.cipher.Decrypt(encrypted)
 }
 
 func (s *ConfigService) resolvePlain(incoming, prevEncrypted string) (string, error) {

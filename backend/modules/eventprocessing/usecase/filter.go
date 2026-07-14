@@ -251,6 +251,13 @@ func (u *filterUsecase) List(_ context.Context, f dto.FilterFilters) ([]dto.Filt
 		out = append(out, *resp)
 	}
 
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Order != out[j].Order {
+			return out[i].Order < out[j].Order
+		}
+		return out[i].RelPath < out[j].RelPath
+	})
+
 	total := int64(len(out))
 
 	// Pagination.

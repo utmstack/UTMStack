@@ -6,8 +6,10 @@ export interface Filter {
   content: string
   system: boolean
   active: boolean
-  /** Distinct dataTypes the filter declares (derived from content by the backend). */
-  dataTypes?: string[]
+  /** The dataTypes this filter's (single) pipeline entry applies to — reusable across several. */
+  dataTypes: string[]
+  /** Position in the global pipeline order (system band no longer enforced). */
+  order: number
 }
 
 export interface FilterListQuery {

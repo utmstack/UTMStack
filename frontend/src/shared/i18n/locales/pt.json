@@ -194,8 +194,6 @@
     "hero": {
       "title": "O que você gostaria de saber a partir dos seus dados de segurança?",
       "placeholder": "Pesquise o Scattered Spider, isso se aplica a nós?, já fomos atacados?, crie uma regra de detecção e mantenha-a ajustada.",
-      "mention": "Mencionar",
-      "attach": "Anexar",
       "send": "Enviar",
       "suggestions": {
         "threatHunt": "Caça a ameaças",
@@ -288,7 +286,7 @@
     "team": "Equipe",
     "settings": "Configurações",
     "back": "Voltar",
-    "parsingFilters": "Filtros de Parsing",
+    "parsingFilters": "Pipelines",
     "regexPatterns": "Expressões regulares",
     "taggingRules": "Regras de Marcação",
     "overview": "Visão geral"
@@ -4280,18 +4278,18 @@
     }
   },
   "parsingFilters": {
-    "title": "Filtros de Parsing",
-    "subtitle": "Filtros YAML aplicados aos logs enquanto são processados no pipeline de ingestão.",
-    "new": "Novo filtro",
-    "search": "Buscar filtros…",
+    "title": "Pipelines",
+    "subtitle": "Pipelines YAML aplicados aos logs enquanto são processados na ingestão.",
+    "new": "Novo pipeline",
+    "search": "Buscar pipelines…",
     "refresh": "Atualizar",
     "view": "Ver",
     "system": "Sistema",
     "user": "Personalizado",
-    "loading": "Carregando filtros…",
-    "loadError": "Não foi possível carregar os filtros.",
+    "loading": "Carregando pipelines…",
+    "loadError": "Não foi possível carregar os pipelines.",
     "retry": "Tentar novamente",
-    "empty": "Nenhum filtro corresponde a esta vista.",
+    "empty": "Nenhum pipeline corresponde a esta vista.",
     "tabs": {
       "all": "Todos",
       "active": "Ativos",
@@ -4300,20 +4298,25 @@
       "user": "Personalizados"
     },
     "cols": {
-      "filter": "Filtro",
+      "filter": "Pipeline",
       "type": "Tipo",
       "active": "Ativo",
-      "dataTypes": "Tipos de dado"
+      "dataTypes": "Tipos de dado",
+      "order": "Ordem",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo"
     },
     "editor": {
-      "titleNew": "Novo filtro",
-      "titleEdit": "Editar filtro",
-      "titleSystem": "Filtro (sistema)",
-      "relPath": "Caminho",
-      "relPathHint": "Caminho relativo no seu overlay, terminado em .yaml.",
+      "titleNew": "Novo pipeline",
+      "titleEdit": "Editar pipeline",
+      "titleSystem": "Pipeline (sistema)",
+      "name": "Nome",
+      "namePlaceholder": "Meu pipeline personalizado",
+      "nameHint": "Será salvo como {{file}}",
+      "namePending": "Escolha um nome — ele será o nome do arquivo.",
       "content": "Conteúdo (pipeline YAML)",
-      "contentHint": "Uma definição de filtro válida em pipeline: YAML.",
-      "readOnly": "Filtro do sistema — somente leitura. Você só pode ativá-lo ou desativá-lo.",
+      "contentHint": "Uma definição válida em pipeline: YAML.",
+      "readOnly": "Pipeline do sistema — somente leitura. Você só pode ativá-lo ou desativá-lo.",
       "save": "Salvar",
       "saving": "Salvando…",
       "delete": "Excluir",
@@ -4321,25 +4324,21 @@
       "cancel": "Cancelar"
     },
     "toast": {
-      "saved": "Filtro salvo",
-      "saveError": "Falha ao salvar o filtro",
-      "deleted": "Filtro excluído",
-      "deleteError": "Falha ao excluir o filtro",
-      "activateError": "Falha ao alterar o estado do filtro",
-      "relPathRequired": "O caminho é obrigatório",
-      "contentRequired": "O conteúdo é obrigatório"
+      "saved": "Pipeline salvo",
+      "saveError": "Falha ao salvar o pipeline",
+      "deleted": "Pipeline excluído",
+      "deleteError": "Falha ao excluir o pipeline",
+      "activateError": "Falha ao alterar o estado do pipeline",
+      "nameRequired": "O nome é obrigatório",
+      "contentRequired": "O conteúdo é obrigatório",
+      "orderError": "Falha ao reordenar o pipeline"
     },
     "visual": {
       "visualTab": "Visual",
       "codeTab": "Código",
       "codeOnly": "Mude para Código — este conteúdo não pode ser exibido visualmente.",
       "cantParse": "Não foi possível abrir o editor visual: {{error}}",
-      "emptyPipeline": "Ainda não há blocos de pipeline. Adicione um para começar.",
-      "addBlock": "Adicionar bloco de pipeline",
-      "block": "Bloco",
-      "removeBlock": "Remover bloco",
       "dataTypes": "Tipos de dado",
-      "dataTypesPlaceholder": "digite um tipo de dado e pressione Enter",
       "steps": "Etapas",
       "noSteps": "Ainda não há etapas.",
       "addStep": "Adicionar etapa:",
@@ -5018,7 +5017,11 @@
     "overview": {
       "title": "Correspondências de IOC · últimas 24 horas",
       "totalIndicators": "indicadores totais",
-      "axis": { "start": "há 24h", "middle": "há 12h", "end": "agora" }
+      "axis": {
+        "start": "há 24h",
+        "middle": "há 12h",
+        "end": "agora"
+      }
     },
     "notConfigured": {
       "title": "Threat Intelligence não está configurado",
@@ -5030,7 +5033,11 @@
       "button": "Pesquisar",
       "busy": "Pesquisando…"
     },
-    "tabs": { "iocs": "IOCs", "actors": "Atores de ameaça", "feeds": "Feeds" },
+    "tabs": {
+      "iocs": "IOCs",
+      "actors": "Atores de ameaça",
+      "feeds": "Feeds"
+    },
     "toolbar": {
       "searchPlaceholders": {
         "iocs": "Pesquise valor IOC, tag, fonte…",
@@ -5090,21 +5097,38 @@
       "noDescription": "Nenhuma descrição disponível para este indicador.",
       "lastObserved": "Última observação {{when}}."
     },
-    "actors": { "empty": "Nenhum ator encontrado." },
+    "actors": {
+      "empty": "Nenhum ator encontrado."
+    },
     "feeds": {
       "empty": "Nenhum feed configurado.",
-      "table": { "name": "Feed", "type": "Tipo", "accuracy": "Precisão" }
+      "table": {
+        "name": "Feed",
+        "type": "Tipo",
+        "accuracy": "Precisão"
+      }
     },
     "entityTypes": {
-      "ip": "IP", "hostname": "Host", "domain": "Domínio", "url": "URL",
-      "hash": "Hash", "cve": "CVE", "threat": "Ameaça", "entity": "Entidade"
+      "ip": "IP",
+      "hostname": "Host",
+      "domain": "Domínio",
+      "url": "URL",
+      "hash": "Hash",
+      "cve": "CVE",
+      "threat": "Ameaça",
+      "entity": "Entidade"
     },
     "reputation": {
-      "alarming": "Alarmante", "suspicious": "Suspeito",
-      "indefinable": "Indefinível", "fair": "Justo", "trustworthy": "Confiável"
+      "alarming": "Alarmante",
+      "suspicious": "Suspeito",
+      "indefinable": "Indefinível",
+      "fair": "Justo",
+      "trustworthy": "Confiável"
     },
     "feedAccuracy": {
-      "level1": "Nível 1", "level2": "Nível 2", "level3": "Nível 3"
+      "level1": "Nível 1",
+      "level2": "Nível 2",
+      "level3": "Nível 3"
     }
   }
 }

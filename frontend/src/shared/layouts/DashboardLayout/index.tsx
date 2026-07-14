@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { DatasourceLimitBanner } from '@/features/datasources/components/DatasourceLimitBanner'
 import { SocAiFloating, SocAiPanel, SocAiProvider, useSocAiConfigured } from '@/features/soc-ai'
@@ -11,6 +11,10 @@ export function DashboardLayout() {
   // provider is configured in Settings → SOC-AI. Until then we hide it entirely
   // and drop the bottom padding that reserves space for the floating pill.
   const socAiReady = useSocAiConfigured()
+  // The Overview page already has its own SOC-AI composer up top (same shared
+  // session) — the floating pill down here would just be a redundant second one.
+  const { pathname } = useLocation()
+  const hideFloatingPill = pathname === '/home'
 
   return (
     <SocAiProvider>
@@ -27,7 +31,7 @@ export function DashboardLayout() {
         {/* SOC-AI assistant: shown only when a model provider is configured. */}
         {socAiReady && (
           <>
-            <SocAiFloating />
+            {!hideFloatingPill && <SocAiFloating />}
             <SocAiPanel />
           </>
         )}

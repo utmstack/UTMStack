@@ -133,10 +133,8 @@ export function AppRoutes() {
         <Route path="datasources" element={<DataSourcesPage />} />
         <Route path="integrations" element={<IntegrationsPage />} />
         <Route path="alerting-rules" element={<AlertingRulesPage />} />
-        <Route path="parsing-filters" element={<ParsingFiltersPage />} />
+        <Route path="pipelines" element={<ParsingFiltersPage />} />
         <Route path="regex-patterns" element={<RegexPatternsPage />} />
-        {/* Legacy redirect — Tagging Rules was replaced by Parsing Filters. */}
-        <Route path="tagging-rules" element={<Navigate to="/parsing-filters" replace />} />
         <Route path="data-processing" element={<DataProcessingPage />} />
         {/* Federation serves its own flat team page from the admin chrome (top-level). */}
         {!IS_FEDERATION && <Route path="team" element={<TeamPage />} />}

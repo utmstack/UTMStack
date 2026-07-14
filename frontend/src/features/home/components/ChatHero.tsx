@@ -1,27 +1,66 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AtSign, Paperclip, Sparkles } from 'lucide-react'
+import { ArrowUp } from 'lucide-react'
 import { useSocAi } from '@/features/soc-ai/SocAiProvider'
 import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
-import { IconBtn } from './IconBtn'
 
 const SUGGESTION_KEYS = ['threatHunt', 'observableTriage', 'writeRule', 'systemStatus'] as const
 
 export function ChatHero() {
   const { t } = useTranslation()
   const configured = useSocAiConfigured()
-  const { submit } = useSocAi()
+  const { submit, homeMessages } = useSocAi()
   const [value, setValue] = useState('')
 
   // Hidden entirely until SOC-AI has a provider configured — same gate the
   // floating composer/panel use, so we never show a dead chat box.
   if (!configured) return null
 
+  // No queueing — block sending while the last message is still being answered.
+  const last = homeMessages[homeMessages.length - 1]
+  const isPending = last?.role === 'ai' && !!last.pending
+
   const send = () => {
     const text = value.trim()
-    if (!text) return
+    if (!text || isPending) return
     submit(text, { openPanel: false, scope: 'home' })
     setValue('')
+  }
+
+  // Once a conversation is underway, dock the composer at the bottom —
+  // centered, ChatGPT/Claude-style — instead of the big top "hero" box.
+  const docked = homeMessages.length > 0
+
+  if (docked) {
+    return (
+      <div className="fixed bottom-5 left-1/2 z-30 w-[min(760px,calc(100vw-2rem))] -translate-x-1/2">
+        <div className="relative rounded-xl border border-border bg-card p-3 shadow-lg shadow-black/10">
+          <textarea
+            rows={1}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                send()
+              }
+            }}
+            placeholder={t('home.hero.placeholder')}
+            className="max-h-40 w-full resize-none border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          <div className="mt-1.5 flex items-center justify-end">
+            <button
+              onClick={send}
+              disabled={!value.trim() || isPending}
+              className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-40"
+              aria-label={t('home.hero.send')}
+            >
+              <ArrowUp size={15} strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -46,18 +85,14 @@ export function ChatHero() {
             placeholder={t('home.hero.placeholder')}
             className="w-full resize-none border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
-          <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <IconBtn label={t('home.hero.mention')}><AtSign size={16} strokeWidth={1.75} /></IconBtn>
-              <IconBtn label={t('home.hero.attach')}><Paperclip size={16} strokeWidth={1.75} /></IconBtn>
-            </div>
+          <div className="mt-2 flex items-center justify-end">
             <button
               onClick={send}
               disabled={!value.trim()}
               className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-40"
               aria-label={t('home.hero.send')}
             >
-              <Sparkles size={14} strokeWidth={2} />
+              <ArrowUp size={15} strokeWidth={2.5} />
             </button>
           </div>
         </div>

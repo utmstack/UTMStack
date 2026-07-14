@@ -7,12 +7,16 @@ import { useSocAi } from '../SocAiProvider'
 /** Always-visible chat pill, centered at the bottom. Submitting opens the panel. */
 export function SocAiFloating() {
   const { t } = useTranslation()
-  const { open, submit } = useSocAi()
+  const { open, submit, messages } = useSocAi()
   const [value, setValue] = useState('')
+
+  // No queueing — block sending while the last message is still being answered.
+  const last = messages[messages.length - 1]
+  const isPending = last?.role === 'ai' && !!last.pending
 
   const send = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!value.trim()) return
+    if (!value.trim() || isPending) return
     submit(value)
     setValue('')
   }
@@ -38,8 +42,9 @@ export function SocAiFloating() {
         />
         <button
           type="submit"
+          disabled={!value.trim() || isPending}
           aria-label={t('socAi.chat.send')}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-40"
         >
           <ArrowUp size={15} strokeWidth={2.5} />
         </button>

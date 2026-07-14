@@ -194,8 +194,6 @@
     "hero": {
       "title": "Was möchten Sie aus Ihren Sicherheitsdaten erfahren?",
       "placeholder": "Recherchieren Sie Scattered Spider, betrifft uns das?, wurden wir jemals getroffen?, erstellen Sie eine Erkennungsregel und halten Sie sie aktuell.",
-      "mention": "Erwähnen",
-      "attach": "Anhängen",
       "send": "Senden",
       "suggestions": {
         "threatHunt": "Threat Hunting",
@@ -290,7 +288,7 @@
     "back": "Zurück",
     "regexPatterns": "Reguläre Ausdrücke",
     "taggingRules": "Tagging-Regeln",
-    "parsingFilters": "Parsing-Filter",
+    "parsingFilters": "Pipelines",
     "overview": "Übersicht"
   },
   "dashboards": {
@@ -4375,18 +4373,18 @@
     }
   },
   "parsingFilters": {
-    "title": "Parsing-Filter",
-    "subtitle": "YAML-Filter, die auf Logs angewendet werden, während sie in der Ingestion-Pipeline geparst werden.",
-    "new": "Neuer Filter",
-    "search": "Filter suchen…",
+    "title": "Pipelines",
+    "subtitle": "YAML-Pipelines, die auf Logs angewendet werden, während sie beim Ingestion geparst werden.",
+    "new": "Neue Pipeline",
+    "search": "Pipelines suchen…",
     "refresh": "Aktualisieren",
     "view": "Ansehen",
     "system": "System",
     "user": "Eigene",
-    "loading": "Filter werden geladen…",
-    "loadError": "Filter konnten nicht geladen werden.",
+    "loading": "Pipelines werden geladen…",
+    "loadError": "Pipelines konnten nicht geladen werden.",
     "retry": "Erneut versuchen",
-    "empty": "Keine Filter für diese Ansicht.",
+    "empty": "Keine Pipelines für diese Ansicht.",
     "tabs": {
       "all": "Alle",
       "active": "Aktiv",
@@ -4395,20 +4393,25 @@
       "user": "Eigene"
     },
     "cols": {
-      "filter": "Filter",
+      "filter": "Pipeline",
       "type": "Typ",
       "active": "Aktiv",
-      "dataTypes": "Datentypen"
+      "dataTypes": "Datentypen",
+      "order": "Reihenfolge",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten"
     },
     "editor": {
-      "titleNew": "Neuer Filter",
-      "titleEdit": "Filter bearbeiten",
-      "titleSystem": "Filter (System)",
-      "relPath": "Pfad",
-      "relPathHint": "Relativer Pfad in deinem Overlay, endet auf .yaml.",
+      "titleNew": "Neue Pipeline",
+      "titleEdit": "Pipeline bearbeiten",
+      "titleSystem": "Pipeline (System)",
+      "name": "Name",
+      "namePlaceholder": "Meine eigene Pipeline",
+      "nameHint": "Wird gespeichert als {{file}}",
+      "namePending": "Wählen Sie einen Namen — er wird zum Dateinamen.",
       "content": "Inhalt (Pipeline-YAML)",
-      "contentHint": "Eine gültige pipeline:-YAML-Filterdefinition.",
-      "readOnly": "System-Filter — schreibgeschützt. Du kannst ihn nur aktivieren oder deaktivieren.",
+      "contentHint": "Eine gültige pipeline:-YAML-Definition.",
+      "readOnly": "System-Pipeline — schreibgeschützt. Du kannst sie nur aktivieren oder deaktivieren.",
       "save": "Speichern",
       "saving": "Speichern…",
       "delete": "Löschen",
@@ -4416,25 +4419,21 @@
       "cancel": "Abbrechen"
     },
     "toast": {
-      "saved": "Filter gespeichert",
-      "saveError": "Filter konnte nicht gespeichert werden",
-      "deleted": "Filter gelöscht",
-      "deleteError": "Filter konnte nicht gelöscht werden",
-      "activateError": "Status des Filters konnte nicht geändert werden",
-      "relPathRequired": "Pfad ist erforderlich",
-      "contentRequired": "Inhalt ist erforderlich"
+      "saved": "Pipeline gespeichert",
+      "saveError": "Pipeline konnte nicht gespeichert werden",
+      "deleted": "Pipeline gelöscht",
+      "deleteError": "Pipeline konnte nicht gelöscht werden",
+      "activateError": "Status der Pipeline konnte nicht geändert werden",
+      "nameRequired": "Name ist erforderlich",
+      "contentRequired": "Inhalt ist erforderlich",
+      "orderError": "Reihenfolge der Pipeline konnte nicht geändert werden"
     },
     "visual": {
       "visualTab": "Visuell",
       "codeTab": "Code",
       "codeOnly": "Zum Code wechseln — dieser Inhalt kann nicht visuell dargestellt werden.",
       "cantParse": "Visueller Editor kann nicht geöffnet werden: {{error}}",
-      "emptyPipeline": "Noch keine Pipeline-Blöcke. Füge einen hinzu, um zu starten.",
-      "addBlock": "Pipeline-Block hinzufügen",
-      "block": "Block",
-      "removeBlock": "Block entfernen",
       "dataTypes": "Datentypen",
-      "dataTypesPlaceholder": "Datentyp eingeben und Enter drücken",
       "steps": "Schritte",
       "noSteps": "Noch keine Schritte.",
       "addStep": "Schritt hinzufügen:",
@@ -5056,7 +5055,11 @@
     "overview": {
       "title": "IOC-Treffer · letzte 24 Stunden",
       "totalIndicators": "Gesamtzahl Indikatoren",
-      "axis": { "start": "vor 24h", "middle": "vor 12h", "end": "jetzt" }
+      "axis": {
+        "start": "vor 24h",
+        "middle": "vor 12h",
+        "end": "jetzt"
+      }
     },
     "notConfigured": {
       "title": "Threat Intelligence ist nicht konfiguriert",
@@ -5068,7 +5071,11 @@
       "button": "Suchen",
       "busy": "Wird gesucht…"
     },
-    "tabs": { "iocs": "IOCs", "actors": "Bedrohungsakteure", "feeds": "Feeds" },
+    "tabs": {
+      "iocs": "IOCs",
+      "actors": "Bedrohungsakteure",
+      "feeds": "Feeds"
+    },
     "toolbar": {
       "searchPlaceholders": {
         "iocs": "IOC-Wert, Tag, Quelle suchen…",
@@ -5128,21 +5135,38 @@
       "noDescription": "Keine Beschreibung für diesen Indikator verfügbar.",
       "lastObserved": "Zuletzt beobachtet {{when}}."
     },
-    "actors": { "empty": "Keine Akteure gefunden." },
+    "actors": {
+      "empty": "Keine Akteure gefunden."
+    },
     "feeds": {
       "empty": "Keine Feeds konfiguriert.",
-      "table": { "name": "Feed", "type": "Typ", "accuracy": "Genauigkeit" }
+      "table": {
+        "name": "Feed",
+        "type": "Typ",
+        "accuracy": "Genauigkeit"
+      }
     },
     "entityTypes": {
-      "ip": "IP", "hostname": "Host", "domain": "Domain", "url": "URL",
-      "hash": "Hash", "cve": "CVE", "threat": "Bedrohung", "entity": "Entität"
+      "ip": "IP",
+      "hostname": "Host",
+      "domain": "Domain",
+      "url": "URL",
+      "hash": "Hash",
+      "cve": "CVE",
+      "threat": "Bedrohung",
+      "entity": "Entität"
     },
     "reputation": {
-      "alarming": "Alarmierend", "suspicious": "Verdächtig",
-      "indefinable": "Undefinierbar", "fair": "Annehmbar", "trustworthy": "Vertrauenswürdig"
+      "alarming": "Alarmierend",
+      "suspicious": "Verdächtig",
+      "indefinable": "Undefinierbar",
+      "fair": "Annehmbar",
+      "trustworthy": "Vertrauenswürdig"
     },
     "feedAccuracy": {
-      "level1": "Stufe 1", "level2": "Stufe 2", "level3": "Stufe 3"
+      "level1": "Stufe 1",
+      "level2": "Stufe 2",
+      "level3": "Stufe 3"
     }
   }
 }

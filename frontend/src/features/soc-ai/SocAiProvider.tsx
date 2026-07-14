@@ -89,6 +89,13 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       const text = raw.trim()
       if (!text) return
       const scope: SocAiScope = opts?.scope ?? 'panel'
+
+      // No queueing — ignore a new submit while this scope's last message is
+      // still being answered, instead of aborting it out from under itself.
+      const current = scope === 'panel' ? messages : homeMessages
+      const last = current[current.length - 1]
+      if (last?.role === 'ai' && last.pending) return
+
       if (opts?.openPanel !== false) setOpen(true)
       abortRef.current?.abort()
       const ac = new AbortController()
@@ -143,7 +150,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
         }))
       })
     },
-    [location.pathname, i18n.language, patchMsg, t],
+    [location.pathname, i18n.language, patchMsg, t, messages, homeMessages],
   )
 
   const value = useMemo(

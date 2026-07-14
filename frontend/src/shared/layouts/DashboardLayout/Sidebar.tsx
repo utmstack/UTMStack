@@ -106,7 +106,7 @@ const sections: Section[] = [
       { to: '/datasources', label: 'nav.dataSources', icon: Database },
       { to: '/integrations', label: 'nav.integrations', icon: Plug },
       { to: '/alerting-rules', label: 'nav.alertingRules', icon: SlidersHorizontal },
-      { to: '/parsing-filters', label: 'nav.parsingFilters', icon: Filter },
+      { to: '/pipelines', label: 'nav.parsingFilters', icon: Filter },
       { to: '/regex-patterns', label: 'nav.regexPatterns', icon: Regex },
       { to: '/data-processing', label: 'nav.dataProcessing', icon: Activity },
       { to: '/team', label: 'nav.team', icon: Users },

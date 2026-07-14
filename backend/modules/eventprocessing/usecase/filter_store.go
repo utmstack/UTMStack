@@ -191,7 +191,7 @@ func (s *FilterStore) Delete(relPath string) error {
 	return nil
 }
 
-// SetEnabled renames .yaml ↔ .yaml.disabled for user filters.
+// SetEnabled renames .yaml ↔ .yaml.disabled.
 func (s *FilterStore) SetEnabled(relPath string, active bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -199,10 +199,10 @@ func (s *FilterStore) SetEnabled(relPath string, active bool) error {
 	if !ok {
 		return ErrFilterNotFound
 	}
-	if existing.System {
-		return ErrFilterSystemOwner
-	}
 	dir := s.userDir
+	if existing.System {
+		dir = s.systemDir
+	}
 	enabled := filepath.Join(dir, relPath)
 	disabled := enabled + DisabledSuffix
 	if active {

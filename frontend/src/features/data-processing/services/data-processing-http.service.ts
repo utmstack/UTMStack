@@ -52,6 +52,8 @@ export const filtersHttpService = {
     api.put<{ message: string }>(
       `/eventprocessing/filters/activate?relPath=${encodeURIComponent(relPath)}&active=${active}`,
     ),
+  setOrder: (relPath: string, order: number) =>
+    api.put<Filter>('/eventprocessing/filters/order', { relPath, order }),
 }
 
 export const ingestionHttpService = {

@@ -7,10 +7,10 @@ on:
         required: true
         type: string
         description: "Target OS to sign for: 'windows' or 'macos'"
-      artifact_name:
+      artifact_pattern:
         required: true
         type: string
-        description: "Name of the artifact (uploaded by a previous job) that contains the unsigned binaries"
+        description: "Glob pattern matching the artifact(s) (uploaded by a previous job) that contain the unsigned binaries. All matches are merged into one directory."
       binaries:
         required: true
         type: string
@@ -23,7 +23,7 @@ on:
         required: false
         type: string
         default: ""
-        description: "Name for the output artifact (defaults to <artifact_name>-signed)"
+        description: "Name for the output artifact (defaults to <os>-signed if left empty)"
       retention_days:
         required: false
         type: number
@@ -105,8 +105,9 @@ jobs:
       - name: Download unsigned binaries
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.artifact_name }}
+          pattern: ${{ inputs.artifact_pattern }}
           path: ./unsigned
+          merge-multiple: true
 
       # =========================================================
       # Windows path: jsign + GCP KMS
@@ -272,7 +273,7 @@ jobs:
         id: artifact
         env:
           OVERRIDE: ${{ inputs.signed_artifact_name }}
-          DEFAULT: ${{ inputs.artifact_name }}-signed
+          DEFAULT: ${{ inputs.os }}-signed
         run: |
           if [ -n "$OVERRIDE" ]; then
             echo "name=$OVERRIDE" >> "$GITHUB_OUTPUT"
