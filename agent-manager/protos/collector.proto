@@ -10,6 +10,8 @@ service CollectorService {
   rpc DeleteCollector(DeleteRequest) returns (AuthResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
+  rpc GetCollectorConfig(ConfigRequest) returns (CollectorConfig) {}
+  rpc SetCollectorConfig(CollectorConfig) returns (ConfigKnowledge) {}
 }
 
 enum CollectorModule{
@@ -73,7 +75,14 @@ message CollectorGroupConfigurations {
   bool conf_required = 8;
 }
 
+message ConfigRequest {
+  int32 collector_id = 1;
+}
+
 message ConfigKnowledge{
   string accepted = 1;
   string request_id = 2;
+  string error_message = 3;
+  string status_payload = 4;
+  string generated_secret = 5;
 }

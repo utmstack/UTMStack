@@ -14,6 +14,7 @@ func KeyAuthRoutes() []string {
 
 		"/agent.CollectorService/CollectorStream",
 		"/agent.CollectorService/DeleteCollector",
+		"/agent.CollectorService/GetCollectorConfig",
 
 		"/agent.ModuleConfigService/IsModuleEnabled",
 
@@ -40,6 +41,7 @@ func InternalKeyRoutes() []string {
 		"/agent.PanelService/ProcessCommand",
 		"/agent.PanelService/GetConnectionKey",
 		"/agent.PanelService/RotateConnectionKey",
+		"/agent.CollectorService/SetCollectorConfig",
 
 		"/grpc.health.v1.Health/Check",
 	}
