@@ -1,10 +1,5 @@
 FROM ubuntu:24.04
 
-COPY agent-manager /app/
-COPY ./dependencies/agent/ /dependencies/agent/
-COPY ./dependencies/collector/ /dependencies/collector/
-
-COPY ./recoveries/ /app/recoveries/
 
 # Install jq
 RUN apt-get update && \
@@ -20,6 +15,11 @@ RUN GRPCURL_VERSION=1.8.1 && \
     rm /tmp/grpcurl.tar.gz && \
     chmod +x /usr/local/bin/grpcurl
 
+COPY agent-manager /app/
+COPY ./dependencies/agent/ /dependencies/agent/
+COPY ./dependencies/collector/ /dependencies/collector/
+
+COPY ./recoveries/ /app/recoveries/
 
 # Expose the gRPC agent-manager port
 EXPOSE 9000

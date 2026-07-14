@@ -147,7 +147,10 @@ jobs:
   sign_agent_windows:
     name: Sign Windows Agent Binaries
     needs: [build_agent, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    # Signing (GCP KMS + jsign) only matters for binaries customers actually
+    # install — dev builds only ever reach our own dev instances, so skip it
+    # there to save the job time and avoid depending on external signers.
+    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'production' }}
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: windows
@@ -166,7 +169,9 @@ jobs:
   sign_agent_macos:
     name: Sign macOS Agent Binaries
     needs: [build_agent, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    # Same reasoning as sign_agent_windows — also skips Apple notarization's
+    # queue time, which is the least predictable step in the whole pipeline.
+    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'production' }}
     uses: ./.github/workflows/reusable-sign-agent.yml
     with:
       os: macos
@@ -219,8 +224,14 @@ jobs:
           retention-days: 1
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
-    if: ${{ always() && needs.sign_agent_windows.result == 'success' && needs.sign_agent_macos.result == 'success' && needs.build_utmstack_collector.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    needs: [build_agent, sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
+    # Signing jobs are skipped (not "success") on dev — only require them when
+    # we're actually shipping to customers.
+    if: >-
+      ${{ always() && needs.build_agent.result == 'success' && needs.build_utmstack_collector.result == 'success' &&
+          needs.setup_deployment.outputs.tag != '' &&
+          (needs.setup_deployment.outputs.environment != 'production' ||
+           (needs.sign_agent_windows.result == 'success' && needs.sign_agent_macos.result == 'success')) }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code into the right branch
@@ -240,10 +251,19 @@ jobs:
           merge-multiple: true
 
       - name: Download signed Windows agents from artifact
+        if: needs.setup_deployment.outputs.environment == 'production'
         uses: actions/download-artifact@v4
         with:
           name: agents-windows-signed
           path: ${{ github.workspace }}/agent
+
+      - name: Download unsigned Windows agents from artifact
+        if: needs.setup_deployment.outputs.environment != 'production'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: agent-bin-windows-*
+          path: ${{ github.workspace }}/agent
+          merge-multiple: true
 
       - name: Download UTMStack Collectors from artifacts
         uses: actions/download-artifact@v4
@@ -252,10 +272,19 @@ jobs:
           path: ${{ github.workspace }}/collector-binaries
 
       - name: Download signed macOS agents from artifact
+        if: needs.setup_deployment.outputs.environment == 'production'
         uses: actions/download-artifact@v4
         with:
           name: agents-darwin-signed
           path: ${{ github.workspace }}/agent-darwin
+
+      - name: Download unsigned macOS agents from artifact
+        if: needs.setup_deployment.outputs.environment != 'production'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: agent-bin-darwin-*
+          path: ${{ github.workspace }}/agent-darwin
+          merge-multiple: true
 
       - name: Prepare dependencies for Agent Manager Image
         env:
@@ -297,7 +326,7 @@ jobs:
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/
 
-          # macOS agents (signed and notarized)
+          # macOS agents (signed and notarized in production; unsigned in dev)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
           gh release download "$ENTERPRISE_VERSION" \
@@ -317,6 +346,9 @@ jobs:
 
           cp "${{ github.workspace }}/agent/version.json" ./dependencies/agent/
 
+      - name: Setup BuildX
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -331,11 +363,33 @@ jobs:
           push: true
           provenance: false
           tags: ghcr.io/utmstack/utmstack/agent-manager:${{ needs.setup_deployment.outputs.tag }}
-  build_event_processor:
-    name: Build Event Processor Microservice
+          cache-from: type=gha,scope=agent-manager
+          cache-to: type=gha,mode=max,scope=agent-manager
+  build_plugins:
+    name: Build Event Processor Plugin (${{ matrix.plugin }})
     needs: [setup_deployment]
     if: ${{ needs.setup_deployment.outputs.tag != '' }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin:
+          - alerts
+          - aws
+          - azure
+          - bitdefender
+          - events
+          - gcp
+          - geolocation
+          - inputs
+          - o365
+          - sophos
+          - stats
+          - soc-ai
+          - crowdstrike
+          - feeds
+          - ad-audit
+          - soar
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4
@@ -343,30 +397,38 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: plugins/alerts/go.mod
-          cache-dependency-path: plugins/*/go.sum
+          go-version-file: plugins/${{ matrix.plugin }}/go.mod
+          cache-dependency-path: plugins/${{ matrix.plugin }}/go.sum
 
-      - name: Build Plugins
+      - name: Build plugin
         env:
           GOOS: linux
           GOARCH: amd64
         run: |
-          cd ${{ github.workspace }}/plugins/alerts; go build -o com.utmstack.alerts.plugin -v .
-          cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
-          cd ${{ github.workspace }}/plugins/azure; go build -o com.utmstack.azure.plugin -v .
-          cd ${{ github.workspace }}/plugins/bitdefender; go build -o com.utmstack.bitdefender.plugin -v .
-          cd ${{ github.workspace }}/plugins/events; go build -o com.utmstack.events.plugin -v .
-          cd ${{ github.workspace }}/plugins/gcp; go build -o com.utmstack.gcp.plugin -v .
-          cd ${{ github.workspace }}/plugins/geolocation; go build -o com.utmstack.geolocation.plugin -v .
-          cd ${{ github.workspace }}/plugins/inputs; go build -o com.utmstack.inputs.plugin -v .
-          cd ${{ github.workspace }}/plugins/o365; go build -o com.utmstack.o365.plugin -v .
-          cd ${{ github.workspace }}/plugins/sophos; go build -o com.utmstack.sophos.plugin -v .
-          cd ${{ github.workspace }}/plugins/stats; go build -o com.utmstack.stats.plugin -v .
-          cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
-          cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
-          cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
-          cd ${{ github.workspace }}/plugins/ad-audit; go build -o com.utmstack.ad-audit.plugin -v .
-          cd ${{ github.workspace }}/plugins/soar; go build -o com.utmstack.soar.plugin -v .
+          cd ${{ github.workspace }}/plugins/${{ matrix.plugin }}
+          go build -o com.utmstack.${{ matrix.plugin }}.plugin -v .
+
+      - name: Upload plugin binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-bin-${{ matrix.plugin }}
+          path: plugins/${{ matrix.plugin }}/com.utmstack.${{ matrix.plugin }}.plugin
+          retention-days: 1
+  build_event_processor:
+    name: Build Event Processor Microservice
+    needs: [build_plugins, setup_deployment]
+    if: ${{ always() && needs.build_plugins.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Download plugin binaries from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: plugin-bin-*
+          path: ${{ github.workspace }}/plugin-binaries
+          merge-multiple: true
 
       - name: Prepare Dependencies for Event Processor Image
         env:
@@ -381,13 +443,15 @@ jobs:
           curl -sSL "https://storage.googleapis.com/utmstack-updates/dependencies/geolocation/locations-en.csv" -o ./geolocation/locations-en.csv
 
           # Enterprise entitlements plugin (prebuilt, from private UTMStackEnterprise release)
-          mkdir -p ./plugins/entitlements
           gh release download "$ENTERPRISE_VERSION" \
             --repo utmstack/UTMStackEnterprise \
             --pattern entitlements \
-            --output ./plugins/entitlements/com.utmstack.entitlements.plugin \
+            --output ./plugin-binaries/com.utmstack.entitlements.plugin \
             --clobber
-          chmod +x ./plugins/entitlements/com.utmstack.entitlements.plugin
+          chmod +x ./plugin-binaries/com.utmstack.entitlements.plugin
+
+      - name: Setup BuildX
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -406,6 +470,8 @@ jobs:
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
             BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
+          cache-from: type=gha,scope=event-processor
+          cache-to: type=gha,mode=max,scope=event-processor
   build_backend:
     name: Build Backend Microservice
     needs: [setup_deployment]

@@ -49,5 +49,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: /home/runner/work/UTMStack/UTMStack/${{inputs.image_name}}/
+          cache-from: type=gha,scope=${{ inputs.image_name }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}
           push: true
           tags: ghcr.io/utmstack/utmstack/${{inputs.image_name}}:${{inputs.tag}}

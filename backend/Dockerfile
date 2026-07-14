@@ -1,13 +1,12 @@
 FROM ubuntu:24.04
-
-COPY backend/backend /app/backend
-COPY backend/migrations /app/migrations
-
 RUN apt-get update && \
     apt-get install -y ca-certificates curl && \
     update-ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+COPY backend/backend /app/backend
+COPY backend/migrations /app/migrations
 
 COPY definitions/filters /utmstack/filters
 COPY definitions/rules /utmstack/rules
