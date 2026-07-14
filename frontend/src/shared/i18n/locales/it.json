@@ -273,6 +273,7 @@
     "adversaryView": "Vista avversari",
     "soar": "SOAR",
     "flows": "Flussi",
+    "executionHistory": "Cronologia esecuzioni",
     "interactiveConsole": "Console interattiva",
     "logExplorer": "Esplora log",
     "userAuditor": "Auditor utenti",
@@ -4467,6 +4468,13 @@
   "soar": {
     "title": "SOAR",
     "subtitle": "Flussi di risposta automatica: le condizioni corrispondono a un alert, i comandi vengono eseguiti sull'agente.",
+    "comingSoon": "Prossimamente",
+    "console": {
+      "loading": "Caricamento agenti…",
+      "loadError": "Impossibile caricare gli agenti.",
+      "pickAgent": "Seleziona un agente",
+      "pickAgentHint": "Scegli un agente dall'elenco per aprire la sua console interattiva."
+    },
     "search": "Cerca flussi…",
     "refresh": "Aggiorna",
     "new": "Nuovo flusso",

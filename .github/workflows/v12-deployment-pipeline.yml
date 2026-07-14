@@ -430,6 +430,9 @@ jobs:
           path: ${{ github.workspace }}/plugin-binaries
           merge-multiple: true
 
+      - name: Restore plugin binary permissions
+        run: chmod +x ./plugin-binaries/*
+
       - name: Prepare Dependencies for Event Processor Image
         env:
           GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}

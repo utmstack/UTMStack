@@ -274,6 +274,7 @@
     "adversaryView": "Adversary View",
     "soar": "SOAR",
     "flows": "Flows",
+    "executionHistory": "Execution history",
     "interactiveConsole": "Interactive Console",
     "logExplorer": "Log Explorer",
     "userAuditor": "User Auditor",
@@ -4779,6 +4780,13 @@
   "soar": {
     "title": "SOAR",
     "subtitle": "Automated alert-response flows: conditions match an alert, commands run on the agent.",
+    "comingSoon": "Coming soon",
+    "console": {
+      "loading": "Loading agents…",
+      "loadError": "Could not load agents.",
+      "pickAgent": "Select an agent",
+      "pickAgentHint": "Choose an agent from the list to open its interactive console."
+    },
     "search": "Search flows…",
     "refresh": "Refresh",
     "new": "New flow",

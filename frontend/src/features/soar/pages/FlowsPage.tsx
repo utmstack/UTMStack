@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, History, Loader2, Lock, Plus, RefreshCw, Search, Terminal, Workflow } from 'lucide-react'
+import { AlertTriangle, Loader2, Lock, Plus, RefreshCw, Search, Terminal } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -10,41 +10,7 @@ import { soarFlowsService } from '../services/soar-flows.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
 import { FlowEditor } from '../components/FlowEditor'
 import { TemplatePicker } from '../components/TemplatePicker'
-import { ExecutionsView } from '../components/ExecutionsView'
 import type { ActionTemplate, Flow } from '../types/soar.types'
-
-type PageTab = 'flows' | 'executions'
-
-export function FlowsPage() {
-  const { t } = useTranslation()
-  const [tab, setTab] = useState<PageTab>('flows')
-
-  return (
-    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
-      <header className="shrink-0">
-        <div className="inline-flex rounded-md border border-border p-0.5">
-          <TabButton active={tab === 'flows'} onClick={() => setTab('flows')} icon={Workflow} label={t('soar.tabs.flows')} />
-          <TabButton active={tab === 'executions'} onClick={() => setTab('executions')} icon={History} label={t('soar.tabs.executions')} />
-        </div>
-      </header>
-
-      <div className="mt-4 flex min-h-0 flex-1 flex-col">
-        {tab === 'flows' ? <FlowsTab /> : <ExecutionsView />}
-      </div>
-    </div>
-  )
-}
-
-function TabButton({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: typeof Workflow; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn('inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs transition-colors', active ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground')}
-    >
-      <Icon size={13} /> {label}
-    </button>
-  )
-}
 
 type ListTab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const LIST_TABS: ListTab[] = ['all', 'active', 'inactive', 'system', 'user']
@@ -74,7 +40,7 @@ function relativeTime(iso?: string): string {
   return `${Math.round(h / 24)}d`
 }
 
-function FlowsTab() {
+export function FlowsPage() {
   const { t } = useTranslation()
   const [listTab, setListTab] = useState<ListTab>('all')
   const [search, setSearch] = useState('')
@@ -181,7 +147,7 @@ function FlowsTab() {
   }
 
   return (
-    <>
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <FlowKpis refreshKey={total} />
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <div className="relative">
@@ -270,7 +236,7 @@ function FlowsTab() {
           onClose={() => setPickingTemplate(false)}
         />
       )}
-    </>
+    </div>
   )
 }
 

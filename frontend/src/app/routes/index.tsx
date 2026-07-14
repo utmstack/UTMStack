@@ -20,6 +20,8 @@ import { TaggingRulesPage } from '@/features/alerts/pages/TaggingRulesPage'
 import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage'
 import { AdversariesPage } from '@/features/adversaries/pages/AdversariesPage'
 import { FlowsPage } from '@/features/soar/pages/FlowsPage'
+import { ExecutionHistoryPage } from '@/features/soar/pages/ExecutionHistoryPage'
+import { InteractiveConsolePage } from '@/features/soar/pages/InteractiveConsolePage'
 import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
@@ -111,10 +113,12 @@ export function AppRoutes() {
         <Route path="threat-management/adversaries" element={<AdversariesPage />} />
 
         {/* SOAR */}
-        <Route path="soar" element={<FlowsPage />} />
-        {/* Legacy redirects — flows moved to /soar; the interactive console was removed. */}
-        <Route path="soar/flows" element={<Navigate to="/soar" replace />} />
-        <Route path="soar/console" element={<Navigate to="/soar" replace />} />
+        <Route path="soar" element={<Navigate to="/soar/flows" replace />} />
+        <Route path="soar/flows" element={<FlowsPage />} />
+        <Route path="soar/execution-history" element={<ExecutionHistoryPage />} />
+        <Route path="soar/interactive-console" element={<InteractiveConsolePage />} />
+        {/* Legacy redirects */}
+        <Route path="soar/console" element={<Navigate to="/soar/interactive-console" replace />} />
         <Route path="soar/audit" element={<Navigate to="/settings/audit-logs" replace />} />
 
         <Route path="log-explorer" element={<LogExplorerPage />} />

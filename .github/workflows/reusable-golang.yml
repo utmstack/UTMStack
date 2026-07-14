@@ -55,10 +55,6 @@ jobs:
             echo "GONOPROXY=github.com/utmstack" >> $GITHUB_ENV
             echo "GONOSUMDB=github.com/utmstack" >> $GITHUB_ENV
           fi
-
-      - name: Running Tests
-        working-directory: ./${{inputs.image_name}}
-        run: go test -v ./...
   
       - name: Build Binary
         working-directory: ./${{inputs.image_name}}

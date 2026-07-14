@@ -31,14 +31,20 @@ export function AgentConsole({
   osPlatform,
   offline,
   onClose,
+  variant = 'docked',
 }: {
   agentId: string
   hostname: string
   osPlatform?: string
   offline?: boolean
   onClose: () => void
+  /** 'docked' (default): fixed panel pinned to the bottom of the viewport, like an
+   * IDE terminal — used by Data Sources. 'inline': fills its parent container
+   * instead, for pages that dedicate a panel to the console (e.g. SOAR). */
+  variant?: 'docked' | 'inline'
 }) {
   const { t } = useTranslation()
+  const embedded = variant === 'inline'
   // Windows → analyst picks cmd/powershell (default cmd); Linux/other → bash fixed.
   const windows = isWindowsOs(osPlatform)
   const [winShell, setWinShell] = useState<WinShell>('cmd')
@@ -154,13 +160,20 @@ export function AgentConsole({
   return (
     <>
     <div
-      className="fixed inset-x-0 bottom-0 z-[60] flex flex-col border-t border-white/10 bg-[#0b0d11] shadow-2xl"
-      style={{ height }}
+      className={cn(
+        'flex flex-col overflow-hidden shadow-2xl',
+        embedded
+          ? 'h-full w-full rounded-xl border border-white/10 bg-[#0b0d11]'
+          : 'fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#0b0d11]',
+      )}
+      style={embedded ? undefined : { height }}
     >
-      {/* Drag handle to resize, like an IDE terminal. */}
-      <div onMouseDown={startResize} className="group absolute inset-x-0 top-0 z-10 h-2 cursor-row-resize">
-        <div className="mx-auto mt-0.5 h-0.5 w-10 rounded-full bg-zinc-700 transition-colors group-hover:bg-primary" />
-      </div>
+      {/* Drag handle to resize, like an IDE terminal — docked mode only. */}
+      {!embedded && (
+        <div onMouseDown={startResize} className="group absolute inset-x-0 top-0 z-10 h-2 cursor-row-resize">
+          <div className="mx-auto mt-0.5 h-0.5 w-10 rounded-full bg-zinc-700 transition-colors group-hover:bg-primary" />
+        </div>
+      )}
 
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-2">
         <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-zinc-200">

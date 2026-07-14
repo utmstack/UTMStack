@@ -273,6 +273,7 @@
     "adversaryView": "Angreiferansicht",
     "soar": "SOAR",
     "flows": "Abläufe",
+    "executionHistory": "Ausführungsverlauf",
     "interactiveConsole": "Interaktive Konsole",
     "logExplorer": "Log-Explorer",
     "userAuditor": "Benutzer-Auditor",
@@ -4467,6 +4468,13 @@
   "soar": {
     "title": "SOAR",
     "subtitle": "Automatische Reaktions-Flows: Bedingungen passen auf einen Alert, Befehle laufen auf dem Agenten.",
+    "comingSoon": "Demnächst verfügbar",
+    "console": {
+      "loading": "Agenten werden geladen…",
+      "loadError": "Agenten konnten nicht geladen werden.",
+      "pickAgent": "Agent auswählen",
+      "pickAgentHint": "Wählen Sie einen Agenten aus der Liste, um seine interaktive Konsole zu öffnen."
+    },
     "search": "Flows suchen…",
     "refresh": "Aktualisieren",
     "new": "Neuer Flow",

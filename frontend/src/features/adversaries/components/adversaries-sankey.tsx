@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import { useThemeContext } from '@/app/providers/ThemeProvider'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
 import { flagEmoji } from '@/features/alerts/lib/alert-meta'
 import { buildSankey, type SankeyNode } from '../lib/sankey-data'
@@ -59,6 +60,8 @@ function renderSideRows(side: Side, labels: Record<string, string>): string {
 
 export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
   const { t } = useTranslation()
+  const { theme } = useThemeContext()
+  const labelColor = theme === 'dark' ? '#f8fafc' : '#0f172a'
   const graph = useMemo(() => buildSankey(data), [data])
 
   const fieldLabels = useMemo(
@@ -115,7 +118,7 @@ export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
           emphasis: { focus: 'adjacency' },
           lineStyle: { color: 'gradient', curveness: 0.8, opacity: 0.75 },
           label: {
-            color: 'inherit',
+            color: labelColor,
             show: true,
             fontSize: 16,
             formatter: (p: { data: { label?: string }; name: string }) => (p.data.label ?? p.name.slice(2)) ,
@@ -147,7 +150,7 @@ export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
         },
       ],
     }),
-    [graph, fieldLabels],
+    [graph, fieldLabels, labelColor],
   )
 
   if (!graph.nodes.length || !graph.links.length) {

@@ -36,6 +36,7 @@ import {
   DatasourcesHttpError,
 } from '../services/datasources-http.service'
 import { AgentConsole } from '../components/AgentConsole'
+import { deriveStatus, statusLabel, STATUS_META, IDLE_MS } from '../lib/status'
 import type {
   AssetGroup,
   Datasource,
@@ -46,25 +47,7 @@ import type {
   Usage,
 } from '../types/datasource.types'
 
-/* ─── Derived status + kind meta ───────────────────────────────────────── */
-
-type DerivedStatus = 'live' | 'idle' | 'offline'
-const LIVE_MS = 15 * 60 * 1000
-const IDLE_MS = 24 * 60 * 60 * 1000
-
-function deriveStatus(lastPingAt?: string): DerivedStatus {
-  if (!lastPingAt) return 'offline'
-  const age = Date.now() - new Date(lastPingAt).getTime()
-  if (age < LIVE_MS) return 'live'
-  if (age < IDLE_MS) return 'idle'
-  return 'offline'
-}
-
-const STATUS_META: Record<DerivedStatus, { label: string; dot: string; tone: string }> = {
-  live: { label: 'Live', dot: 'bg-emerald-500', tone: 'text-emerald-500' },
-  idle: { label: 'Idle', dot: 'bg-amber-500', tone: 'text-amber-500' },
-  offline: { label: 'Offline', dot: 'bg-red-500', tone: 'text-red-500' },
-}
+/* ─── Kind meta ───────────────────────────────────────────────────────── */
 
 const KIND_META: Record<SourceKind, { label: string; icon: LucideIcon; tone: string }> = {
   agent: { label: 'Agent', icon: Server, tone: 'text-sky-500' },
@@ -1338,10 +1321,7 @@ function relativeTime(t: TFunction, iso?: string) {
   return t('datasources.time.daysAgo', { count: Math.round(h / 24) })
 }
 
-/** Translated status/kind labels (META keeps icon/colour only). */
-function statusLabel(t: TFunction, s: DerivedStatus) {
-  return t(`datasources.status.${s}`)
-}
+/** Translated kind label (META keeps icon/colour only; status label lives in lib/status). */
 function kindLabel(t: TFunction, kind?: string) {
   const k = (kind as SourceKind) ?? 'direct'
   return KIND_META[k] ? t(`datasources.kind.${k}`) : kind ?? '—'
