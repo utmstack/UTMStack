@@ -20,7 +20,7 @@ type WriteFileRequest struct {
 	Content string `json:"content"`
 }
 
-func StartHTTPServer(addr string, r *runner.Runner, keyFn func() string) {
+func StartHTTPServer(addr string, r *runner.Runner, keyFn func() string) error {
 	mux := http.NewServeMux()
 
 	auth := func(h http.HandlerFunc) http.HandlerFunc {
@@ -43,10 +43,11 @@ func StartHTTPServer(addr string, r *runner.Runner, keyFn func() string) {
 	})
 
 	if err := http.ListenAndServe(addr, mux); err != nil {
-		_ = catcher.Error("playground HTTP server failed", err, map[string]any{
+		return catcher.Error("playground HTTP server failed", err, map[string]any{
 			"process": config.ProcessName,
 		})
 	}
+	return nil
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

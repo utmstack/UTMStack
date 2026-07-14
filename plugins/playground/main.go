@@ -34,7 +34,9 @@ func main() {
 
 	r := runner_pkg.New(config.WorkDir, config.EventTimeout, config.AlertGrace, config.PollInterval)
 
-	api.StartHTTPServer(config.HTTPPort, r, config.InternalKey)
+	if err := api.StartHTTPServer(config.HTTPPort, r, config.InternalKey); err != nil {
+		os.Exit(1)
+	}
 }
 
 func runPlaygroundInit() error {
