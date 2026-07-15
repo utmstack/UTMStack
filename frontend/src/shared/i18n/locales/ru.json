@@ -459,11 +459,6 @@
         "swapTitle": "Изменить тип диаграммы",
         "swapConfirm": "Применить"
       },
-      "saveDialog": {
-        "createTitle": "Сохранить новый виджет",
-        "updateTitle": "Сохранить изменения",
-        "subtitle": "Дайте имя, чтобы найти её в списке."
-      },
       "saveVisualization": "Сохранить виджет",
       "fieldSelect": {
         "loading": "Загрузка полей…",
@@ -471,14 +466,10 @@
       },
       "toast": {
         "notReady": "Перед сохранением выберите шаблон индекса (и добавьте метрику или SQL)."
-      },
-      "nameLabel": "Название",
-      "namePlaceholder": "напр. Топ источников по объёму",
-      "descriptionLabel": "Описание (необязательно)"
+      }
     },
     "grid": {
       "empty": "В этой панели пока нет виджетов.",
-      "emptyEditing": "Нажмите «Добавить виджет», чтобы поместить виджет на сетку.",
       "missingVisualization": "Виджет недоступен",
       "unknownVisualization": "Виджет"
     },
@@ -492,6 +483,7 @@
       "regionMapShapeHint": "SQL должен возвращать столбцы широты и долготы (или массив value [lat, lon, count]).",
       "regionMapUnnamed": "(без названия)",
       "regionMapValue": "значение: {{value}}",
+      "editAriaLabel": "Редактировать виджет",
       "removeAriaLabel": "Удалить виджет",
       "moveBack": "Переместить назад",
       "moveForward": "Переместить вперёд",
@@ -615,13 +607,6 @@
       "title": "Дашбордов пока нет",
       "body": "Создайте первый дашборд, чтобы видеть данные безопасности с одного взгляда.",
       "cta": "Создать дашборд"
-    },
-    "table": {
-      "col": {
-        "name": "Название",
-        "description": "Описание",
-        "modified": "Изменено"
-      }
     },
     "filters": {
       "addTitle": "Добавить фильтр",
@@ -4327,6 +4312,15 @@
       "commands": "Команды",
       "commandsHint": "Выполняются по порядку на агенте. Используйте $(field.path) для значений алерта и $[variables.NAME] для сохранённых переменных.",
       "addCommand": "Добавить команду",
+      "templatesButton": "Частые команды",
+      "templates": {
+        "isolate": "Изолировать от сети",
+        "shutdown": "Выключить машину",
+        "killProcess": "Завершить процесс",
+        "logout": "Завершить сеанс пользователя",
+        "disableUser": "Отключить пользователя",
+        "blockIp": "Заблокировать IP"
+      },
       "connector": {
         "always": "всегда",
         "success": "при успехе",
@@ -4335,9 +4329,14 @@
       "agentPlatform": "Платформа агента",
       "shell": "Оболочка",
       "shellAuto": "авто",
-      "defaultAgent": "Агент по умолчанию",
-      "defaultAgentHint": "имя хоста (необязательно)",
-      "excludedAgents": "Исключённые агенты",
+      "whereToRun": "Где выполнять",
+      "run": {
+        "all": "Все агенты",
+        "specific": "Один агент",
+        "except": "Все, кроме",
+        "allHint": "Выполняется на всех агентах, соответствующих этой платформе."
+      },
+      "selectAgentPlaceholder": "Выберите агента…",
       "excludedAgentsHint": "введите имя хоста и нажмите Enter",
       "save": "Сохранить",
       "delete": "Удалить",
@@ -4348,7 +4347,9 @@
       "conditionsRequired": "Требуется хотя бы одно условие с полем",
       "commandsRequired": "Требуется хотя бы одна команда",
       "platformRequired": "Платформа агента обязательна",
+      "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
+      "descriptionLabel": "Описание",
       "descriptionHint": "Что делает этот поток? (необязательно)",
       "when": "Когда",
       "whenTitle": "Алерт удовлетворяет всем этим условиям",
@@ -4358,7 +4359,6 @@
       "thenTitle": "Эти команды, по порядку",
       "selectField": "Выберите поле…",
       "selectPlatform": "Выберите платформу…",
-      "anyAgent": "Любой подходящий агент",
       "searchAgents": "Поиск агентов…",
       "noAgents": "Нет агентов",
       "insertInto": "Вставить в команду {{n}}:",

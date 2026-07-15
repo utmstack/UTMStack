@@ -5,15 +5,18 @@ import { Button } from '@/shared/components/ui/button'
 export function DashboardEditorBar({
   dirty,
   saving,
-  onAddWidget,
   onSave,
   onDiscard,
+  onAddWidget,
 }: {
   dirty: boolean
   saving: boolean
-  onAddWidget: () => void
   onSave: () => void
   onDiscard: () => void
+  // Always shown here rather than inside the grid — a card appended at the
+  // bottom of a growing single-column list of widgets would require
+  // scrolling past everything to reach it.
+  onAddWidget: () => void
 }) {
   const { t } = useTranslation()
   return (

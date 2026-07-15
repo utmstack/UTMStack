@@ -87,8 +87,6 @@ export function VisualizationEditor({
     return seedRawSql({ ...makeInitialBuilder(), chartType: initialChartType ?? 'bar' })
   })
 
-  const [name, setName] = useState(initial?.name ?? '')
-  const [description, setDescription] = useState(initial?.description ?? '')
   // Open on whichever tab the widget was last saved from: legacy widgets
   // (no builder config) land on SQL because we only have raw SQL for them.
   const [tab, setTab] = useState<EditorTab>(() => {
@@ -147,12 +145,8 @@ export function VisualizationEditor({
 
   const sqlForSave = (builder.rawSql ?? '').trim()
 
-  const ready =
-    name.trim().length > 0 &&
-    builder.indexPattern.trim().length > 0 &&
-    sqlForSave.length > 0
+  const ready = builder.indexPattern.trim().length > 0 && sqlForSave.length > 0
 
-  // Save directly — name and description are captured inline, so no extra dialog.
   const handleSave = () => {
     if (!ready) {
       toast.error(t('dashboards.editor.toast.notReady'))
@@ -168,8 +162,6 @@ export function VisualizationEditor({
         {
           id: initial.id,
           dashboardId: initial.dashboardId,
-          name: name.trim(),
-          description: description.trim() || undefined,
           sqlQuery: sqlForSave,
           config: configJson,
           layout: initial.layout,
@@ -187,8 +179,6 @@ export function VisualizationEditor({
       createVisualization.mutate(
         {
           dashboardId,
-          name: name.trim(),
-          description: description.trim() || undefined,
           sqlQuery: sqlForSave,
           config: configJson,
           layout: initialLayout ?? serializeLayout({ x: 0, y: 0, w: DEFAULT_WIDGET_LAYOUT.w, h: DEFAULT_WIDGET_LAYOUT.h }),
@@ -236,39 +226,6 @@ export function VisualizationEditor({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor="viz-name"
-            className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-          >
-            {t('dashboards.editor.nameLabel')}
-          </label>
-          <input
-            id="viz-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t('dashboards.editor.namePlaceholder') ?? ''}
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="viz-description"
-            className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-          >
-            {t('dashboards.editor.descriptionLabel')}
-          </label>
-          <input
-            id="viz-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('dashboards.form.descriptionPlaceholder') ?? ''}
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-        </div>
-      </div>
-
       <ModeTabs tab={tab} onChange={setTab} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -299,7 +256,6 @@ export function VisualizationEditor({
               sql={sqlForSave}
               option={option}
               renderer={meta.renderer}
-              label={initial?.name}
             />
           </section>
         </div>

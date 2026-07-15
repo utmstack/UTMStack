@@ -11,7 +11,6 @@ const BASE_URL = '/visualizations'
 function buildQuery(params: VisualizationListParams): string {
   const p = new URLSearchParams()
   if (params.dashboardId != null) p.set('dashboardId', String(params.dashboardId))
-  if (params.name) p.set('name', params.name)
   if (params.page != null) p.set('page', String(params.page))
   if (params.size != null) p.set('size', String(params.size))
   const q = p.toString()

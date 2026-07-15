@@ -18,12 +18,10 @@ export function WidgetRenderer({
   visualization,
   time,
   filters,
-  refreshSeconds,
 }: {
   visualization: Visualization
   time: TimeRange
   filters?: FilterType[]
-  refreshSeconds?: number
 }) {
   const { t } = useTranslation()
 
@@ -37,7 +35,7 @@ export function WidgetRenderer({
     : 'echarts'
 
   const hasSql = !!visualization.sqlQuery?.trim()
-  const query = useVisualizationData(hasSql ? visualization : null, time, filters, refreshSeconds)
+  const query = useVisualizationData(hasSql ? visualization : null, time, filters)
 
   if (renderer === 'echarts' && (parsed.error || !parsed.option)) {
     return (
@@ -85,7 +83,7 @@ export function WidgetRenderer({
     return <TableRenderer rows={rows} />
   }
   if (renderer === 'metric') {
-    return <MetricRenderer rows={rows} label={visualization.name} />
+    return <MetricRenderer rows={rows} />
   }
   if (renderer === 'region_map') {
     return <RegionMapRenderer rows={rows} />

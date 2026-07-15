@@ -457,11 +457,6 @@
         "swapTitle": "Cambia tipo di grafico",
         "swapConfirm": "Applica"
       },
-      "saveDialog": {
-        "createTitle": "Salva nuovo widget",
-        "updateTitle": "Salva modifiche",
-        "subtitle": "Dalle un nome per ritrovarla nell'elenco."
-      },
       "saveVisualization": "Salva widget",
       "fieldSelect": {
         "loading": "Caricamento dei campi…",
@@ -469,14 +464,10 @@
       },
       "toast": {
         "notReady": "Scegli un pattern di indice (e aggiungi una metrica o l'SQL) prima di salvare."
-      },
-      "nameLabel": "Nome",
-      "namePlaceholder": "es. Sorgenti principali per volume",
-      "descriptionLabel": "Descrizione (facoltativa)"
+      }
     },
     "grid": {
       "empty": "Questa dashboard non ha ancora widget.",
-      "emptyEditing": "Clicca su «Aggiungi widget» per inserire un widget nella griglia.",
       "missingVisualization": "Widget non disponibile",
       "unknownVisualization": "Widget"
     },
@@ -490,6 +481,7 @@
       "regionMapShapeHint": "L'SQL deve restituire le colonne di latitudine e longitudine (oppure un array value [lat, lon, count]).",
       "regionMapUnnamed": "(senza nome)",
       "regionMapValue": "valore: {{value}}",
+      "editAriaLabel": "Modifica widget",
       "removeAriaLabel": "Rimuovi widget",
       "moveBack": "Sposta indietro",
       "moveForward": "Sposta avanti",
@@ -613,13 +605,6 @@
       "title": "Ancora nessuna dashboard",
       "body": "Crea la tua prima dashboard per vedere i tuoi dati di sicurezza a colpo d’occhio.",
       "cta": "Crea dashboard"
-    },
-    "table": {
-      "col": {
-        "name": "Nome",
-        "description": "Descrizione",
-        "modified": "Modificato"
-      }
     },
     "filters": {
       "addTitle": "Aggiungi filtro",
@@ -4517,6 +4502,15 @@
       "commands": "Comandi",
       "commandsHint": "Eseguiti in ordine sull'agente. Usa $(field.path) per i valori dell'alert e $[variables.NAME] per le variabili salvate.",
       "addCommand": "Aggiungi comando",
+      "templatesButton": "Comandi comuni",
+      "templates": {
+        "isolate": "Isola dalla rete",
+        "shutdown": "Spegni macchina",
+        "killProcess": "Termina processo",
+        "logout": "Disconnetti utente",
+        "disableUser": "Disabilita utente",
+        "blockIp": "Blocca IP"
+      },
       "connector": {
         "always": "sempre",
         "success": "se riuscito",
@@ -4525,9 +4519,14 @@
       "agentPlatform": "Piattaforma dell'agente",
       "shell": "Shell",
       "shellAuto": "auto",
-      "defaultAgent": "Agente predefinito",
-      "defaultAgentHint": "hostname (opzionale)",
-      "excludedAgents": "Agenti esclusi",
+      "whereToRun": "Dove eseguire",
+      "run": {
+        "all": "Tutti gli agenti",
+        "specific": "Un agente",
+        "except": "Tutti tranne",
+        "allHint": "Viene eseguito su ogni agente che corrisponde a questa piattaforma."
+      },
+      "selectAgentPlaceholder": "Seleziona un agente…",
       "excludedAgentsHint": "digita un hostname e premi Invio",
       "save": "Salva",
       "delete": "Elimina",
@@ -4538,7 +4537,9 @@
       "conditionsRequired": "È richiesta almeno una condizione con un campo",
       "commandsRequired": "È richiesto almeno un comando",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
+      "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
+      "descriptionLabel": "Descrizione",
       "descriptionHint": "Cosa fa questo flusso? (opzionale)",
       "when": "Quando",
       "whenTitle": "Un alert soddisfa tutte queste condizioni",
@@ -4548,7 +4549,6 @@
       "thenTitle": "Questi comandi, in ordine",
       "selectField": "Scegli un campo…",
       "selectPlatform": "Scegli una piattaforma…",
-      "anyAgent": "Qualsiasi agente corrispondente",
       "searchAgents": "Cerca agenti…",
       "noAgents": "Nessun agente",
       "insertInto": "Inserisci nel comando {{n}}:",

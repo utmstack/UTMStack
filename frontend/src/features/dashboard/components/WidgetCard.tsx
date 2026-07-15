@@ -1,16 +1,18 @@
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GripVertical, X } from 'lucide-react'
+import { GripVertical, Pencil, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
 export function WidgetCard({
   title,
   editing,
+  onEdit,
   onRemove,
   children,
 }: {
   title: string
   editing: boolean
+  onEdit?: () => void
   onRemove?: () => void
   children: ReactNode
 }) {
@@ -31,16 +33,31 @@ export function WidgetCard({
             {title}
           </span>
         </div>
-        {editing && onRemove && (
-          <button
-            type="button"
-            onClick={onRemove}
-            className="no-drag flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-            aria-label={t('dashboards.widget.removeAriaLabel') ?? 'Remove widget'}
-            title={t('dashboards.widget.removeAriaLabel') ?? 'Remove widget'}
-          >
-            <X size={14} />
-          </button>
+        {editing && (onEdit || onRemove) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="no-drag flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label={t('dashboards.widget.editAriaLabel') ?? 'Edit widget'}
+                title={t('dashboards.widget.editAriaLabel') ?? 'Edit widget'}
+              >
+                <Pencil size={13} />
+              </button>
+            )}
+            {onRemove && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="no-drag flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                aria-label={t('dashboards.widget.removeAriaLabel') ?? 'Remove widget'}
+                title={t('dashboards.widget.removeAriaLabel') ?? 'Remove widget'}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
         )}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden p-2">{children}</div>

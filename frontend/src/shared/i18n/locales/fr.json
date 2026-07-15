@@ -457,11 +457,6 @@
         "swapTitle": "Changer le type de graphique",
         "swapConfirm": "Appliquer"
       },
-      "saveDialog": {
-        "createTitle": "Enregistrer un nouveau widget",
-        "updateTitle": "Enregistrer les modifications",
-        "subtitle": "Donnez-lui un nom pour la retrouver dans la liste."
-      },
       "saveVisualization": "Enregistrer le widget",
       "fieldSelect": {
         "loading": "Chargement des champs…",
@@ -469,14 +464,10 @@
       },
       "toast": {
         "notReady": "Choisissez un modèle d'index (et ajoutez une métrique ou du SQL) avant d'enregistrer."
-      },
-      "nameLabel": "Nom",
-      "namePlaceholder": "ex. Principales sources par volume",
-      "descriptionLabel": "Description (facultative)"
+      }
     },
     "grid": {
       "empty": "Ce tableau de bord ne contient encore aucun widget.",
-      "emptyEditing": "Cliquez sur « Ajouter un widget » pour déposer un widget sur la grille.",
       "missingVisualization": "Widget indisponible",
       "unknownVisualization": "Widget"
     },
@@ -490,6 +481,7 @@
       "regionMapShapeHint": "Le SQL doit renvoyer des colonnes de latitude et de longitude (ou un tableau value [lat, lon, count]).",
       "regionMapUnnamed": "(sans nom)",
       "regionMapValue": "valeur : {{value}}",
+      "editAriaLabel": "Modifier le widget",
       "removeAriaLabel": "Retirer le widget",
       "moveBack": "Reculer",
       "moveForward": "Avancer",
@@ -613,13 +605,6 @@
       "title": "Aucun tableau de bord",
       "body": "Créez votre premier tableau de bord pour voir vos données de sécurité d'un coup d'œil.",
       "cta": "Créer un tableau de bord"
-    },
-    "table": {
-      "col": {
-        "name": "Nom",
-        "description": "Description",
-        "modified": "Modifié"
-      }
     },
     "filters": {
       "addTitle": "Ajouter un filtre",
@@ -4517,6 +4502,15 @@
       "commands": "Commandes",
       "commandsHint": "Exécutées dans l'ordre sur l'agent. Utilisez $(field.path) pour les valeurs de l'alerte et $[variables.NAME] pour les variables enregistrées.",
       "addCommand": "Ajouter une commande",
+      "templatesButton": "Commandes courantes",
+      "templates": {
+        "isolate": "Isoler du réseau",
+        "shutdown": "Éteindre la machine",
+        "killProcess": "Tuer le processus",
+        "logout": "Déconnecter l'utilisateur",
+        "disableUser": "Désactiver l'utilisateur",
+        "blockIp": "Bloquer l'IP"
+      },
       "connector": {
         "always": "toujours",
         "success": "en cas de succès",
@@ -4525,9 +4519,14 @@
       "agentPlatform": "Plateforme de l'agent",
       "shell": "Shell",
       "shellAuto": "auto",
-      "defaultAgent": "Agent par défaut",
-      "defaultAgentHint": "nom d'hôte (optionnel)",
-      "excludedAgents": "Agents exclus",
+      "whereToRun": "Où exécuter",
+      "run": {
+        "all": "Tous les agents",
+        "specific": "Un agent",
+        "except": "Tous sauf",
+        "allHint": "S'exécute sur tous les agents correspondant à cette plateforme."
+      },
+      "selectAgentPlaceholder": "Sélectionner un agent…",
       "excludedAgentsHint": "saisissez un nom d'hôte et appuyez sur Entrée",
       "save": "Enregistrer",
       "delete": "Supprimer",
@@ -4538,7 +4537,9 @@
       "conditionsRequired": "Au moins une condition avec un champ est requise",
       "commandsRequired": "Au moins une commande est requise",
       "platformRequired": "La plateforme de l'agent est requise",
+      "nameLabel": "Nom",
       "namePlaceholder": "Nom du flux",
+      "descriptionLabel": "Description",
       "descriptionHint": "Que fait ce flux ? (optionnel)",
       "when": "Quand",
       "whenTitle": "Une alerte remplit toutes ces conditions",
@@ -4548,7 +4549,6 @@
       "thenTitle": "Ces commandes, dans l'ordre",
       "selectField": "Choisir un champ…",
       "selectPlatform": "Choisir une plateforme…",
-      "anyAgent": "N'importe quel agent correspondant",
       "searchAgents": "Rechercher des agents…",
       "noAgents": "Aucun agent",
       "insertInto": "Insérer dans la commande {{n}} :",

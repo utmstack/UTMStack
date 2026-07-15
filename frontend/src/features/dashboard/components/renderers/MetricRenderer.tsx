@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { Row } from '@/features/dashboard/service/opensearch.service'
 
-export function MetricRenderer({ rows, label }: { rows: Row[]; label?: string }) {
+export function MetricRenderer({ rows }: { rows: Row[] }) {
   const { t } = useTranslation()
   if (rows.length === 0) {
     return (
@@ -26,9 +26,6 @@ export function MetricRenderer({ rows, label }: { rows: Row[]; label?: string })
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1 px-3 text-center">
-      {label && (
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-      )}
       <span className="text-4xl font-semibold tabular-nums">{formatValue(value)}</span>
     </div>
   )

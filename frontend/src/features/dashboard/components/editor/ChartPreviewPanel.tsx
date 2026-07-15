@@ -24,12 +24,10 @@ export function ChartPreviewPanel({
   sql,
   option,
   renderer,
-  label,
 }: {
   sql: string
   option: Record<string, unknown>
   renderer: ChartRenderer
-  label?: string
 }) {
   const { t } = useTranslation()
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
@@ -58,7 +56,6 @@ export function ChartPreviewPanel({
           renderer={renderer}
           option={echartsOption}
           rows={rows}
-          label={label}
           isLoading={query.isLoading || query.isFetching}
           isError={query.isError}
           errorMessage={query.error instanceof Error ? query.error.message : undefined}
@@ -73,7 +70,6 @@ function Body({
   renderer,
   option,
   rows,
-  label,
   isLoading,
   isError,
   errorMessage,
@@ -82,7 +78,6 @@ function Body({
   renderer: ChartRenderer
   option: Record<string, unknown>
   rows: Array<Record<string, unknown>>
-  label?: string
   isLoading: boolean
   isError: boolean
   errorMessage?: string
@@ -124,7 +119,7 @@ function Body({
   }
 
   if (renderer === 'table') return <TableRenderer rows={rows} />
-  if (renderer === 'metric') return <MetricRenderer rows={rows} label={label} />
+  if (renderer === 'metric') return <MetricRenderer rows={rows} />
   if (renderer === 'region_map') return <RegionMapRenderer rows={rows} />
   if (renderer === 'text') return <TextRenderer rows={rows} />
   return <EChartsRenderer option={option} />

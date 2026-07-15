@@ -457,11 +457,6 @@
         "swapTitle": "Diagrammtyp ändern",
         "swapConfirm": "Anwenden"
       },
-      "saveDialog": {
-        "createTitle": "Neues Widget speichern",
-        "updateTitle": "Änderungen speichern",
-        "subtitle": "Vergeben Sie einen Namen, damit Sie die Visualisierung in der Liste wiederfinden."
-      },
       "saveVisualization": "Widget speichern",
       "fieldSelect": {
         "loading": "Felder werden geladen…",
@@ -469,14 +464,10 @@
       },
       "toast": {
         "notReady": "Wählen Sie ein Indexmuster (und fügen Sie eine Metrik oder SQL hinzu), bevor Sie speichern."
-      },
-      "nameLabel": "Name",
-      "namePlaceholder": "z. B. Top-Quellen nach Volumen",
-      "descriptionLabel": "Beschreibung (optional)"
+      }
     },
     "grid": {
       "empty": "Dieses Dashboard enthält noch keine Widgets.",
-      "emptyEditing": "Klicken Sie auf „Widget hinzufügen“, um ein Widget in das Raster zu ziehen.",
       "missingVisualization": "Widget nicht verfügbar",
       "unknownVisualization": "Widget"
     },
@@ -490,6 +481,7 @@
       "regionMapShapeHint": "Die SQL muss Spalten für Breiten- und Längengrad zurückgeben (oder ein Wert-Array [lat, lon, count]).",
       "regionMapUnnamed": "(ohne Namen)",
       "regionMapValue": "Wert: {{value}}",
+      "editAriaLabel": "Widget bearbeiten",
       "removeAriaLabel": "Widget entfernen",
       "moveBack": "Nach hinten",
       "moveForward": "Nach vorne",
@@ -613,13 +605,6 @@
       "title": "Noch keine Dashboards",
       "body": "Erstellen Sie Ihr erstes Dashboard, um Ihre Sicherheitsdaten auf einen Blick zu sehen.",
       "cta": "Dashboard erstellen"
-    },
-    "table": {
-      "col": {
-        "name": "Name",
-        "description": "Beschreibung",
-        "modified": "Geändert"
-      }
     },
     "filters": {
       "addTitle": "Filter hinzufügen",
@@ -4517,6 +4502,15 @@
       "commands": "Befehle",
       "commandsHint": "Werden der Reihe nach auf dem Agenten ausgeführt. $(field.path) für Alert-Werte, $[variables.NAME] für gespeicherte Variablen.",
       "addCommand": "Befehl hinzufügen",
+      "templatesButton": "Häufige Befehle",
+      "templates": {
+        "isolate": "Vom Netzwerk isolieren",
+        "shutdown": "Rechner herunterfahren",
+        "killProcess": "Prozess beenden",
+        "logout": "Benutzer abmelden",
+        "disableUser": "Benutzer deaktivieren",
+        "blockIp": "IP blockieren"
+      },
       "connector": {
         "always": "immer",
         "success": "bei Erfolg",
@@ -4525,9 +4519,14 @@
       "agentPlatform": "Agent-Plattform",
       "shell": "Shell",
       "shellAuto": "auto",
-      "defaultAgent": "Standard-Agent",
-      "defaultAgentHint": "Hostname (optional)",
-      "excludedAgents": "Ausgeschlossene Agenten",
+      "whereToRun": "Wo ausführen",
+      "run": {
+        "all": "Alle Agenten",
+        "specific": "Ein Agent",
+        "except": "Alle außer",
+        "allHint": "Wird auf jedem Agenten ausgeführt, der zu dieser Plattform passt."
+      },
+      "selectAgentPlaceholder": "Agent auswählen…",
       "excludedAgentsHint": "Hostname eingeben und Enter drücken",
       "save": "Speichern",
       "delete": "Löschen",
@@ -4538,7 +4537,9 @@
       "conditionsRequired": "Mindestens eine Bedingung mit Feld ist erforderlich",
       "commandsRequired": "Mindestens ein Befehl ist erforderlich",
       "platformRequired": "Agent-Plattform ist erforderlich",
+      "nameLabel": "Name",
       "namePlaceholder": "Flow-Name",
+      "descriptionLabel": "Beschreibung",
       "descriptionHint": "Was macht dieser Flow? (optional)",
       "when": "Wenn",
       "whenTitle": "Ein Alert erfüllt alle diese Bedingungen",
@@ -4548,7 +4549,6 @@
       "thenTitle": "Diese Befehle, der Reihe nach",
       "selectField": "Feld auswählen…",
       "selectPlatform": "Plattform auswählen…",
-      "anyAgent": "Beliebiger passender Agent",
       "searchAgents": "Agenten suchen…",
       "noAgents": "Keine Agenten",
       "insertInto": "In Befehl {{n}} einfügen:",

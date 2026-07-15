@@ -17,8 +17,7 @@ import {
   DashboardFilterBar,
   type ChipValueMap,
 } from '@/features/dashboard/components/DashboardFilterBar'
-import { DashboardRefreshSelect } from '@/features/dashboard/components/DashboardRefreshSelect'
-import { DashboardTable } from '@/features/dashboard/components/DashboardTable'
+import { DashboardGallery } from '@/features/dashboard/components/DashboardGallery'
 import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
 import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
 import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
@@ -40,9 +39,6 @@ export function DashboardPage() {
   // Chip *values* are session-only (v11 parity): they clear when the user
   // switches dashboards. The *config* lives on dashboard.filters and persists.
   const [chipValues, setChipValues] = useState<ChipValueMap>({})
-  // Auto-refresh interval in seconds; 0 = off. Seeded from dashboard.refreshTime
-  // once the dashboard loads (see effect below); user edits persist via update.
-  const [refreshSeconds, setRefreshSeconds] = useState(0)
   // When entering the preview from the table's edit action we want the layout
   // editor to open automatically once the dashboard data is available.
   const pendingEditRef = useRef(false)
@@ -59,12 +55,15 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Coming back from the visualization editor (create/edit) via its "back to
-  // dashboard" navigation — re-select the dashboard it belongs to.
+  // Coming back from the visualization editor (create/edit/cancel) via its
+  // "back to dashboard" navigation — re-select the dashboard it belongs to
+  // and resume editing (the only way to reach that editor is from edit mode,
+  // so returning should never silently drop back to view mode).
   useEffect(() => {
     const state = location.state as { selectDashboardId?: number } | null
     if (state?.selectDashboardId != null) {
       setSelectedId(state.selectDashboardId)
+      pendingEditRef.current = true
       navigate(location.pathname, { replace: true, state: null })
     }
     // Only react to navigation-state changes, not every render.
@@ -95,12 +94,6 @@ export function DashboardPage() {
   useEffect(() => {
     setChipValues({})
   }, [selectedId])
-
-  // Sync local refresh state from the loaded dashboard. Only on dashboard swap;
-  // subsequent user edits win against stale server data during the update trip.
-  useEffect(() => {
-    setRefreshSeconds(selectedDashboard.data?.refreshTime ?? 0)
-  }, [selectedId, selectedDashboard.data?.id])
 
   const activeFilters = useMemo<FilterType[]>(
     () => chipsToFilters(chips, chipValues),
@@ -182,6 +175,11 @@ export function DashboardPage() {
     navigate(`/dashboards/${selectedId}/visualizations/new`, { state: { layout } })
   }
 
+  const handleEditWidget = (id: number) => {
+    if (selectedId == null) return
+    navigate(`/dashboards/${selectedId}/visualizations/${id}`)
+  }
+
   const doSave = async () => {
     if (selectedId == null) return
     try {
@@ -201,8 +199,6 @@ export function DashboardPage() {
         await vizMutations.updateVisualization.mutateAsync({
           id: viz.id,
           dashboardId: viz.dashboardId,
-          name: viz.name,
-          description: viz.description,
           sqlQuery: viz.sqlQuery,
           config: viz.config,
           layout: serializeLayout({ x: item.x, y: item.y, w: item.w, h: item.h }),
@@ -235,25 +231,6 @@ export function DashboardPage() {
   const openFromTable = (id: number, options?: { edit?: boolean }) => {
     pendingEditRef.current = !!options?.edit
     setSelectedId(id)
-  }
-
-  const handleRefreshChange = (next: number) => {
-    setRefreshSeconds(next)
-    const target = selectedDashboard.data
-    if (!target || target.refreshTime === next) return
-    dashboards.updateDashboard.mutate(
-      {
-        id: target.id,
-        name: target.name,
-        description: target.description,
-        config: target.config,
-        filters: target.filters,
-        refreshTime: next,
-      },
-      {
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.updateFailed')),
-      }
-    )
   }
 
   const handleSaveFilters = (next: DashboardFilterChip[]) => {
@@ -306,15 +283,14 @@ export function DashboardPage() {
           onDelete={(d) => setPendingDelete(d)}
           right={
             <div className="flex flex-wrap items-center gap-2">
-              <DashboardRefreshSelect value={refreshSeconds} onChange={handleRefreshChange} />
               <DashboardTimeRange value={time} onChange={setTime} />
               {editor.editing && (
                 <DashboardEditorBar
                   dirty={editor.dirty}
                   saving={saving}
-                  onAddWidget={handleAddWidget}
                   onSave={handleSave}
                   onDiscard={editor.discard}
+                  onAddWidget={handleAddWidget}
                 />
               )}
             </div>
@@ -336,15 +312,13 @@ export function DashboardPage() {
               </Button>
             </div>
           ) : (
-            <DashboardTable
+            <DashboardGallery
               dashboards={dashboardItems}
               loading={dashboards.list.isLoading}
               search={search}
               onSearchChange={setSearch}
               onSelect={(id) => openFromTable(id)}
               onCreate={() => setFormOpen({ mode: 'create', target: null })}
-              onEdit={(d) => openFromTable(d.id, { edit: true })}
-              onDelete={(d) => setPendingDelete(d)}
             />
           )}
         </>
@@ -374,9 +348,9 @@ export function DashboardPage() {
               visualizations={vizItems}
               time={time}
               filters={activeFilters}
-              refreshSeconds={refreshSeconds}
               editing={editor.editing}
               onLayoutChange={editor.replace}
+              onEditItem={handleEditWidget}
               onRemoveItem={editor.remove}
             />
           )}

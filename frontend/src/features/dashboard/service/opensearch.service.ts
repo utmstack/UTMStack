@@ -1,5 +1,4 @@
 import { createApiClient, type Paged } from '@/shared/lib/api-client'
-import type { FilterType } from '@/features/dashboard/types'
 
 const BASE_URL = '/opensearch'
 
@@ -10,7 +9,6 @@ export interface SqlSearchInput {
   fetchSize?: number
   page?: number
   size?: number
-  filters?: FilterType[]
 }
 
 export interface OpenSearchService {
@@ -23,7 +21,6 @@ export function createOpenSearchService(baseUrl?: string): OpenSearchService {
   const searchSql: OpenSearchService['searchSql'] = ({
     query,
     fetchSize,
-    filters,
     page = 1,
     size = 100,
   }) => {
@@ -33,7 +30,6 @@ export function createOpenSearchService(baseUrl?: string): OpenSearchService {
     return api.postPaged<Row[]>(`${BASE_URL}/search/sql?${params.toString()}`, {
       query,
       fetchSize,
-      filters,
     })
   }
 

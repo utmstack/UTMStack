@@ -1,9 +1,19 @@
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { Input } from '@/shared/components/ui/input'
 import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
-import { OPERATORS, getOperatorMeta } from '@/features/dashboard/constants'
+import { getOperatorMeta } from '@/features/dashboard/constants'
+import { operatorsForFieldType } from '@/features/dashboard/utils/field-types'
 import type { FilterOperatorId, FilterRow, IndexProperty } from '@/features/dashboard/types'
+
+function defaultValueForOperator(op: FilterOperatorId): FilterRow['value'] {
+  const meta = getOperatorMeta(op)
+  if (meta.valueShape === 'single') return ''
+  if (meta.valueShape === 'pair') return ['', '']
+  if (meta.valueShape === 'list') return []
+  return null
+}
 
 export function FilterRowEditor({
   row,
@@ -20,15 +30,33 @@ export function FilterRowEditor({
 }) {
   const { t } = useTranslation()
   const meta = getOperatorMeta(row.operator)
+  const fieldType = fields.find((f) => f.name === row.field)?.type
+  const validOperators = useMemo(() => operatorsForFieldType(fieldType), [fieldType])
 
   const setOperator = (op: FilterOperatorId) => {
-    const nextMeta = getOperatorMeta(op)
-    let value: FilterRow['value'] = null
-    if (nextMeta.valueShape === 'single') value = ''
-    else if (nextMeta.valueShape === 'pair') value = ['', '']
-    else if (nextMeta.valueShape === 'list') value = []
-    onChange({ ...row, operator: op, value })
+    onChange({ ...row, operator: op, value: defaultValueForOperator(op) })
   }
+
+  // Same staleness guard as Metric/DimensionPicker, applied to a filter row:
+  // if the field no longer exists on this index pattern (switched patterns),
+  // clear the whole row; if it still exists but the chosen operator no longer
+  // fits its type (e.g. a raw-SQL round trip left `CONTAIN` on a date field),
+  // fall back to the first operator that does. Otherwise the operator select
+  // keeps showing an option that isn't even in its own list, and the query
+  // composer keeps emitting a combination OpenSearch will reject.
+  useEffect(() => {
+    if (loading) return
+    if (!row.field) return
+    const fieldStillExists = fields.some((f) => f.name === row.field)
+    if (!fieldStillExists) {
+      onChange({ ...row, field: '', operator: 'IS', value: '' })
+      return
+    }
+    if (validOperators.some((o) => o.id === row.operator)) return
+    const nextOp = validOperators[0]?.id ?? 'IS'
+    onChange({ ...row, operator: nextOp, value: defaultValueForOperator(nextOp) })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [row.field, fields, loading, validOperators])
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-border bg-background/40 p-3 md:flex-row md:items-start">
@@ -53,7 +81,7 @@ export function FilterRowEditor({
           onChange={(e) => setOperator(e.target.value as FilterOperatorId)}
           className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          {OPERATORS.map((o) => (
+          {validOperators.map((o) => (
             <option key={o.id} value={o.id}>
               {t(`dashboards.editor.operators.${o.id}`)}
             </option>

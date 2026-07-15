@@ -458,11 +458,6 @@
         "swapTitle": "Change chart type",
         "swapConfirm": "Apply"
       },
-      "saveDialog": {
-        "createTitle": "Save new widget",
-        "updateTitle": "Save changes",
-        "subtitle": "Give it a name so you can find it in the list."
-      },
       "saveVisualization": "Save widget",
       "fieldSelect": {
         "loading": "Loading fields…",
@@ -470,14 +465,10 @@
       },
       "toast": {
         "notReady": "Pick an index pattern (and add a metric or SQL) before saving."
-      },
-      "nameLabel": "Name",
-      "namePlaceholder": "e.g. Top sources by volume",
-      "descriptionLabel": "Description (optional)"
+      }
     },
     "grid": {
       "empty": "This dashboard has no widgets yet.",
-      "emptyEditing": "Click \"Add widget\" to drop a widget onto the grid.",
       "missingVisualization": "Widget unavailable",
       "unknownVisualization": "Widget"
     },
@@ -491,6 +482,7 @@
       "regionMapShapeHint": "The SQL must return latitude and longitude columns (or a value array [lat, lon, count]).",
       "regionMapUnnamed": "(unnamed)",
       "regionMapValue": "value: {{value}}",
+      "editAriaLabel": "Edit widget",
       "removeAriaLabel": "Remove widget",
       "moveBack": "Move back",
       "moveForward": "Move forward",
@@ -576,15 +568,6 @@
       "removeAria": "Remove filter",
       "saving": "Saving…"
     },
-    "refresh": {
-      "tooltip": "Auto-refresh interval",
-      "off": "Off",
-      "10s": "10s",
-      "30s": "30s",
-      "1m": "1m",
-      "5m": "5m",
-      "15m": "15m"
-    },
     "newDashboard": {
       "title": "New dashboard",
       "subtitle": "Create a blank dashboard. You can add widgets after it's saved."
@@ -659,13 +642,6 @@
       "title": "No dashboards yet",
       "body": "Create your first dashboard to see your security data at a glance.",
       "cta": "Create dashboard"
-    },
-    "table": {
-      "col": {
-        "name": "Name",
-        "description": "Description",
-        "modified": "Modified"
-      }
     }
   },
   "settings": {
@@ -4829,6 +4805,15 @@
       "commands": "Commands",
       "commandsHint": "Run in order on the agent. Use $(field.path) for alert values and $[variables.NAME] for stored variables.",
       "addCommand": "Add command",
+      "templatesButton": "Common commands",
+      "templates": {
+        "isolate": "Isolate from network",
+        "shutdown": "Shutdown machine",
+        "killProcess": "Kill process",
+        "logout": "Log out user",
+        "disableUser": "Disable user",
+        "blockIp": "Block IP"
+      },
       "connector": {
         "always": "always",
         "success": "on success",
@@ -4837,9 +4822,14 @@
       "agentPlatform": "Agent platform",
       "shell": "Shell",
       "shellAuto": "auto",
-      "defaultAgent": "Default agent",
-      "defaultAgentHint": "hostname (optional)",
-      "excludedAgents": "Excluded agents",
+      "whereToRun": "Where to run",
+      "run": {
+        "all": "All agents",
+        "specific": "One agent",
+        "except": "All except",
+        "allHint": "Runs on every agent that matches this platform."
+      },
+      "selectAgentPlaceholder": "Select an agent…",
       "excludedAgentsHint": "type a hostname and press Enter",
       "save": "Save",
       "delete": "Delete",
@@ -4850,7 +4840,9 @@
       "conditionsRequired": "At least one condition with a field is required",
       "commandsRequired": "At least one command is required",
       "platformRequired": "Agent platform is required",
+      "nameLabel": "Name",
       "namePlaceholder": "Flow name",
+      "descriptionLabel": "Description",
       "descriptionHint": "What does this flow do? (optional)",
       "when": "When",
       "whenTitle": "An alert matches all of these conditions",
@@ -4860,7 +4852,6 @@
       "thenTitle": "These commands, in order",
       "selectField": "Select a field…",
       "selectPlatform": "Select a platform…",
-      "anyAgent": "Any matching agent",
       "searchAgents": "Search agents…",
       "noAgents": "No agents",
       "insertInto": "Insert into command {{n}}:",

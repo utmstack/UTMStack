@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LayoutDashboard } from 'lucide-react'
 import GridLayout, { useContainerWidth, type Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import { WidgetCard } from '@/features/dashboard/components/WidgetCard'
 import { WidgetRenderer } from '@/features/dashboard/components/WidgetRenderer'
+import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
 import { GRID_COLS, GRID_MARGIN, GRID_ROW_HEIGHT } from '@/features/dashboard/constants'
 import type { FilterType, GridLayoutItem, Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
@@ -13,18 +15,18 @@ export function DashboardGrid({
   visualizations,
   time,
   filters,
-  refreshSeconds,
   editing,
   onLayoutChange,
+  onEditItem,
   onRemoveItem,
 }: {
   items: GridLayoutItem[]
   visualizations: Visualization[]
   time: TimeRange
   filters?: FilterType[]
-  refreshSeconds?: number
   editing: boolean
   onLayoutChange?: (items: GridLayoutItem[]) => void
+  onEditItem?: (id: number) => void
   onRemoveItem?: (id: number) => void
 }) {
   const { t } = useTranslation()
@@ -39,8 +41,11 @@ export function DashboardGrid({
 
   if (items.length === 0) {
     return (
-      <div className="flex h-full min-h-[300px] w-full items-center justify-center rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center text-sm text-muted-foreground">
-        {editing ? t('dashboards.grid.emptyEditing') : t('dashboards.grid.empty')}
+      <div ref={containerRef} className="flex h-full min-h-[240px] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-2 text-center text-xs text-muted-foreground">
+          <LayoutDashboard size={22} className="text-muted-foreground/40" />
+          {t('dashboards.grid.empty')}
+        </div>
       </div>
     )
   }
@@ -70,21 +75,20 @@ export function DashboardGrid({
         >
           {items.map((item) => {
             const viz = visualizationsById.get(Number(item.i))
-            const title = viz?.name ?? t('dashboards.grid.unknownVisualization')
+            const chartType = viz ? parseBuilderConfig(viz.config).builder?.chartType : undefined
+            const title = chartType
+              ? t(`dashboards.editor.chartTypes.${chartType}.label`)
+              : t('dashboards.grid.unknownVisualization')
             return (
               <div key={item.i}>
                 <WidgetCard
                   title={title}
                   editing={editing}
+                  onEdit={viz ? () => onEditItem?.(viz.id) : undefined}
                   onRemove={viz ? () => onRemoveItem?.(viz.id) : undefined}
                 >
                   {viz ? (
-                    <WidgetRenderer
-                      visualization={viz}
-                      time={time}
-                      filters={filters}
-                      refreshSeconds={refreshSeconds}
-                    />
+                    <WidgetRenderer visualization={viz} time={time} filters={filters} />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                       {t('dashboards.grid.missingVisualization')}

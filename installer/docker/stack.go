@@ -134,7 +134,7 @@ func StackUP(tag string) error {
 	}
 
 	env := []string{"UTMSTACK_TAG=" + tag}
-	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", filepath.Join(utils.GetMyPath(), "compose.yml"), "utmstack"); err != nil {
+	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "--prune", "-c", filepath.Join(utils.GetMyPath(), "compose.yml"), "utmstack"); err != nil {
 		return err
 	}
 

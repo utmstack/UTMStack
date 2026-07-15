@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
 import { AGGREGATIONS } from '@/features/dashboard/constants'
@@ -31,6 +31,23 @@ export function MetricPicker({
     [fields, value.agg]
   )
   const noCompatible = needsField && !loading && fieldOptions.length === 0
+
+  // Re-validate whenever the compatible field set changes for reasons other than
+  // picking a new aggregation below — e.g. raw SQL parsed back into the builder
+  // (parseSqlToBuilder doesn't type-check), or the index pattern changed and the
+  // previously-selected field no longer exists/qualifies. Without this the field
+  // select silently shows its placeholder while `value.field` still holds the
+  // stale name, and the query composer keeps emitting it — the widget looks
+  // "empty" here but still generates a query OpenSearch will reject.
+  useEffect(() => {
+    if (loading) return
+    if (!value.field) return
+    if (fieldOptions.some((f) => f.name === value.field)) return
+    onChange({ ...value, field: null })
+    // onChange/value intentionally excluded: this only reacts to the field set
+    // changing, and including them would re-fire every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldOptions, loading])
 
   return (
     <div className="flex flex-col gap-2 md:flex-row md:items-end">

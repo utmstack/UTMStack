@@ -22,9 +22,7 @@ export interface VisualizationData {
 export function useVisualizationData(
   visualization: Visualization | null,
   time: TimeRange,
-  filters: FilterType[] = EMPTY_FILTERS,
-  // Auto-refresh interval in seconds. 0/undefined disables it.
-  refreshSeconds = 0
+  filters: FilterType[] = EMPTY_FILTERS
 ) {
   const service = useMemo(() => createOpenSearchService(), [])
 
@@ -33,12 +31,13 @@ export function useVisualizationData(
     [time.from, time.to]
   )
 
+  const filtersKey = useMemo(() => JSON.stringify(filters), [filters])
+
   const resolvedQuery = useMemo(() => {
     if (!visualization?.sqlQuery?.trim()) return null
-    return applySqlTemplate({ sql: visualization.sqlQuery, fromISO, toISO })
-  }, [visualization?.sqlQuery, fromISO, toISO])
-
-  const filtersKey = useMemo(() => JSON.stringify(filters), [filters])
+    return applySqlTemplate({ sql: visualization.sqlQuery, fromISO, toISO, filters })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visualization?.sqlQuery, fromISO, toISO, filtersKey])
 
   return useQuery<VisualizationData>({
     queryKey: visualization
@@ -46,11 +45,10 @@ export function useVisualizationData(
       : [...VISUALIZATION_DATA_QUERY_KEYS.all, 'noop'],
     queryFn: async () => {
       if (!resolvedQuery) return { rows: [], total: 0 }
-      const { data, total } = await service.searchSql({ query: resolvedQuery, filters })
+      const { data, total } = await service.searchSql({ query: resolvedQuery })
       return { rows: data, total }
     },
     enabled: visualization != null && resolvedQuery != null,
     staleTime: 30_000,
-    refetchInterval: refreshSeconds > 0 ? refreshSeconds * 1000 : false,
   })
 }

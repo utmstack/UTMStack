@@ -11,6 +11,7 @@ import { VariablesManager } from '@/features/datasources/components/VariablesMan
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
 import { ALERT_FIELDS, COMMON_PLATFORMS, defaultShellForPlatform, shellsForPlatform } from '../lib/alert-fields'
+import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
 import { SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCommand, type FlowCondition, type SoarCondition, type SoarOperator } from '../types/soar.types'
 
 const SELECT = 'h-8 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
@@ -201,16 +202,33 @@ export function FlowEditor({
         ) : (
           <div className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-6">
             {/* Flow identity */}
-            <div className="mx-auto mb-2 max-w-[660px] space-y-2.5 rounded-xl border border-border bg-card p-4">
-              <Input value={form.name} readOnly={readOnly} onChange={(e) => set('name', e.target.value)} placeholder={t('soar.editor.namePlaceholder')} className="border-0 bg-transparent px-0 text-base font-semibold shadow-none focus-visible:ring-0" />
-              <textarea
-                value={form.description}
-                readOnly={readOnly}
-                onChange={(e) => set('description', e.target.value)}
-                rows={2}
-                placeholder={t('soar.editor.descriptionHint')}
-                className="w-full resize-none rounded-md border-0 bg-transparent px-0 text-sm text-muted-foreground focus-visible:outline-none focus-visible:ring-0"
-              />
+            <div className="mx-auto mb-2 max-w-[660px] space-y-3 rounded-xl border border-border bg-card p-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t('soar.editor.nameLabel')}
+                  {!readOnly && <span className="ml-0.5 text-red-500">*</span>}
+                </label>
+                <Input
+                  value={form.name}
+                  readOnly={readOnly}
+                  onChange={(e) => set('name', e.target.value)}
+                  placeholder={t('soar.editor.namePlaceholder')}
+                  className="text-base font-semibold"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t('soar.editor.descriptionLabel')}
+                </label>
+                <textarea
+                  value={form.description}
+                  readOnly={readOnly}
+                  onChange={(e) => set('description', e.target.value)}
+                  rows={2}
+                  placeholder={t('soar.editor.descriptionHint')}
+                  className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              </div>
             </div>
 
             {/* Workflow: WHEN → ON → THEN RUN, top to bottom */}
@@ -223,7 +241,7 @@ export function FlowEditor({
               <Connector />
               <WorkflowNode icon={Server} tone="sky" badge={t('soar.editor.on')} title={t('soar.editor.onTitle')}>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label={t('soar.editor.agentPlatform')}>
+                  <Field label={t('soar.editor.agentPlatform')} required>
                     <select value={form.agentPlatform} disabled={readOnly} onChange={(e) => onPlatformChange(e.target.value)} className={cn(SELECT, 'h-9 w-full')}>
                       <option value="">{t('soar.editor.selectPlatform')}</option>
                       {platforms.map((p) => (
@@ -231,7 +249,7 @@ export function FlowEditor({
                       ))}
                     </select>
                   </Field>
-                  <Field label={t('soar.editor.shell')}>
+                  <Field label={t('soar.editor.shell')} required>
                     <select value={form.shell} disabled={readOnly || !form.agentPlatform} onChange={(e) => set('shell', e.target.value)} className={cn(SELECT, 'h-9 w-full')}>
                       <option value="">{t('soar.editor.shellAuto')}</option>
                       {shellsForPlatform(form.agentPlatform).map((s) => (
@@ -239,26 +257,22 @@ export function FlowEditor({
                       ))}
                     </select>
                   </Field>
-                  <Field label={t('soar.editor.defaultAgent')}>
-                    <select value={form.defaultAgent} disabled={readOnly} onChange={(e) => set('defaultAgent', e.target.value)} className={cn(SELECT, 'h-9 w-full')}>
-                      <option value="">{t('soar.editor.anyAgent')}</option>
-                      {platformAgents.map((a) => (
-                        <option key={a.name} value={a.name}>{a.name}</option>
-                      ))}
-                      {form.defaultAgent && !platformAgents.some((a) => a.name === form.defaultAgent) && (
-                        <option value={form.defaultAgent}>{form.defaultAgent}</option>
-                      )}
-                    </select>
-                  </Field>
-                  <Field label={t('soar.editor.excludedAgents')}>
-                    <AgentMultiSelect options={platformAgents.map((a) => a.name)} values={form.excludedAgents} readOnly={readOnly} onChange={(v) => set('excludedAgents', v)} t={t} />
-                  </Field>
+                  <div className="col-span-2">
+                    <RunScopeField
+                      defaultAgent={form.defaultAgent}
+                      excludedAgents={form.excludedAgents}
+                      agents={platformAgents}
+                      readOnly={readOnly}
+                      onChange={(defaultAgent, excludedAgents) => setForm((f) => ({ ...f, defaultAgent, excludedAgents }))}
+                      t={t}
+                    />
+                  </div>
                 </div>
               </WorkflowNode>
 
               <Connector />
               <WorkflowNode icon={Play} tone="emerald" badge={t('soar.editor.thenRun')} title={t('soar.editor.thenTitle')}>
-                <CommandsEditor commands={form.commands} readOnly={readOnly} onChange={(c) => set('commands', c)} t={t} />
+                <CommandsEditor commands={form.commands} agentPlatform={form.agentPlatform} shell={form.shell} readOnly={readOnly} onChange={(c) => set('commands', c)} t={t} />
               </WorkflowNode>
             </div>
           </div>
@@ -291,10 +305,13 @@ export function FlowEditor({
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-medium text-foreground/80">{label}</label>
+      <label className="block text-xs font-medium text-foreground/80">
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
       {children}
     </div>
   )
@@ -403,11 +420,15 @@ function ConditionsEditor({
 
 function CommandsEditor({
   commands,
+  agentPlatform,
+  shell,
   readOnly,
   onChange,
   t,
 }: {
   commands: FlowCommand[]
+  agentPlatform: string
+  shell: string
   readOnly?: boolean
   onChange: (c: FlowCommand[]) => void
   t: ReturnType<typeof useTranslation>['t']
@@ -415,8 +436,11 @@ function CommandsEditor({
   const refs = useRef<(HTMLInputElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [fieldOpen, setFieldOpen] = useState(false)
+  const [templatesOpen, setTemplatesOpen] = useState(false)
   const [varsOpen, setVarsOpen] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
+  const templatesRef = useRef<HTMLDivElement>(null)
+  const shellKind = shellKindFor(agentPlatform, shell)
 
   useEffect(() => {
     if (!fieldOpen) return
@@ -426,6 +450,25 @@ function CommandsEditor({
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [fieldOpen])
+
+  useEffect(() => {
+    if (!templatesOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (templatesRef.current && !templatesRef.current.contains(e.target as Node)) setTemplatesOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [templatesOpen])
+
+  // Templates add a new row (they're a starting command, not a token to drop
+  // into whatever's already being edited) and focus it, like "Add command".
+  const insertTemplate = (command: string) => {
+    const next = [...commands, { command }]
+    onChange(next)
+    const idx = next.length - 1
+    setActive(idx)
+    requestAnimationFrame(() => refs.current[idx]?.focus())
+  }
 
   // Insert a token into the active command at the caret, like the agent console.
   const insert = (token: string) => {
@@ -526,9 +569,33 @@ function CommandsEditor({
       </div>
 
       {!readOnly && (
-        <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => onChange([...commands, { command: '' }])}>
-          <Plus size={12} className="mr-1" /> {t('soar.editor.addCommand')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => onChange([...commands, { command: '' }])}>
+            <Plus size={12} className="mr-1" /> {t('soar.editor.addCommand')}
+          </Button>
+          <div ref={templatesRef} className="relative">
+            <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => setTemplatesOpen((o) => !o)}>
+              <Zap size={12} className="mr-1" /> {t('soar.editor.templatesButton')} <ChevronDown size={11} className="ml-0.5 opacity-60" />
+            </Button>
+            {templatesOpen && (
+              <div className="absolute left-0 top-full z-30 mt-1 w-72 overflow-hidden rounded-md border border-border bg-popover py-1 shadow-lg">
+                {COMMAND_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => {
+                      insertTemplate(tpl.command(shellKind))
+                      setTemplatesOpen(false)
+                    }}
+                    className="flex w-full items-center px-3 py-1.5 text-left text-xs hover:bg-muted"
+                  >
+                    {t(`soar.editor.templates.${tpl.id}`)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {varsOpen && (
@@ -539,6 +606,92 @@ function CommandsEditor({
             setVarsOpen(false)
           }}
         />
+      )}
+    </div>
+  )
+}
+
+type RunScope = 'all' | 'specific' | 'except'
+
+function scopeFromState(defaultAgent: string, excludedAgents: string[]): RunScope {
+  if (defaultAgent) return 'specific'
+  if (excludedAgents.length > 0) return 'except'
+  return 'all'
+}
+
+/** Where a flow's commands run: every agent matching the platform, exactly one
+ * agent, or every matching agent except a chosen few. `defaultAgent` and
+ * `excludedAgents` are mutually exclusive at the data level (a single target
+ * agent has nothing to exclude from), so picking a scope resets the other. */
+function RunScopeField({
+  defaultAgent,
+  excludedAgents,
+  agents,
+  readOnly,
+  onChange,
+  t,
+}: {
+  defaultAgent: string
+  excludedAgents: string[]
+  agents: AgentOption[]
+  readOnly?: boolean
+  onChange: (defaultAgent: string, excludedAgents: string[]) => void
+  t: ReturnType<typeof useTranslation>['t']
+}) {
+  // The active tab is its own state, not purely derived from defaultAgent/
+  // excludedAgents: switching to "One agent" before actually picking one
+  // leaves defaultAgent empty, which would otherwise be indistinguishable
+  // from "all" and snap the tab back.
+  const [scope, setScopeState] = useState<RunScope>(() => scopeFromState(defaultAgent, excludedAgents))
+  const options = agents.map((a) => a.name)
+
+  const setScope = (next: RunScope) => {
+    if (next === scope) return
+    setScopeState(next)
+    if (next === 'all') onChange('', [])
+    else if (next === 'specific') onChange('', [])
+    else onChange('', excludedAgents)
+  }
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-xs font-medium text-foreground/80">{t('soar.editor.whereToRun')}</label>
+      <div className="inline-flex rounded-md border border-border p-0.5">
+        {(['all', 'specific', 'except'] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={readOnly}
+            onClick={() => setScope(s)}
+            className={cn(
+              'rounded px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed',
+              scope === s ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t(`soar.editor.run.${s}`)}
+          </button>
+        ))}
+      </div>
+
+      {scope === 'all' && <p className="text-xs text-muted-foreground">{t('soar.editor.run.allHint')}</p>}
+
+      {scope === 'specific' && (
+        <select
+          value={defaultAgent}
+          disabled={readOnly}
+          onChange={(e) => onChange(e.target.value, [])}
+          className={cn(SELECT, 'h-9 w-full max-w-xs')}
+        >
+          <option value="">{t('soar.editor.selectAgentPlaceholder')}</option>
+          {options.map((name) => (
+            <option key={name} value={name}>{name}</option>
+          ))}
+          {defaultAgent && !options.includes(defaultAgent) && <option value={defaultAgent}>{defaultAgent}</option>}
+        </select>
+      )}
+
+      {scope === 'except' && (
+        <AgentMultiSelect options={options} values={excludedAgents} readOnly={readOnly} onChange={(v) => onChange('', v)} t={t} />
       )}
     </div>
   )
