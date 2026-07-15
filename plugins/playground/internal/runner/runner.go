@@ -14,16 +14,25 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+type StopReason string
+
+const (
+	StopReasonQuiet    StopReason = "quiet"
+	StopReasonHardCap  StopReason = "hard_cap"
+	StopReasonNoAlerts StopReason = "no_alerts"
+)
+
 type RunState struct {
 	Active bool
 	UUID   string
 }
 
 type RunResult struct {
-	UUID     string          `json:"uuid"`
-	Event    json.RawMessage `json:"event,omitempty"`
-	Alert    json.RawMessage `json:"alert,omitempty"`
-	TimedOut bool            `json:"timedOut"`
+	UUID       string            `json:"uuid"`
+	Event      json.RawMessage   `json:"event,omitempty"`
+	Alerts     []json.RawMessage `json:"alerts,omitempty"`
+	TimedOut   bool              `json:"timedOut"`
+	StopReason StopReason        `json:"stopReason,omitempty"`
 }
 
 type Runner struct {
@@ -78,12 +87,17 @@ func (r *Runner) Run(ctx context.Context, log *plugins.Log) (*RunResult, error) 
 		return &RunResult{UUID: log.Id, TimedOut: true}, nil
 	}
 
-	alert, err := r.awaitAlert(ctx, ws.resultingAlert, log.Id)
+	alerts, stop, err := r.awaitAlerts(ctx, ws.resultingAlert, log.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RunResult{UUID: log.Id, Event: event, Alert: alert}, nil
+	return &RunResult{
+		UUID:       log.Id,
+		Event:      event,
+		Alerts:     alerts,
+		StopReason: stop,
+	}, nil
 }
 
 func (r *Runner) acquireRun(log *plugins.Log) func() {
@@ -143,34 +157,63 @@ func (ws workspace) submitLog(log *plugins.Log) error {
 }
 
 func (r *Runner) awaitEvent(ctx context.Context, path, id string) (json.RawMessage, bool, error) {
-	return r.pollUntil(ctx, r.eventTimeout, func() json.RawMessage {
-		return findByID(path, id)
-	})
-}
-
-func (r *Runner) awaitAlert(ctx context.Context, path, eventID string) (json.RawMessage, error) {
-	result, _, err := r.pollUntil(ctx, r.alertGrace, func() json.RawMessage {
-		return findAlertByEventID(path, eventID)
-	})
-	return result, err
-}
-
-func (r *Runner) pollUntil(ctx context.Context, deadline time.Duration, probe func() json.RawMessage) (json.RawMessage, bool, error) {
 	ticker := time.NewTicker(r.pollInterval)
 	defer ticker.Stop()
 
-	end := time.Now().Add(deadline)
+	end := time.Now().Add(r.eventTimeout)
 	for {
 		select {
 		case <-ctx.Done():
 			return nil, false, ctx.Err()
 		case <-ticker.C:
 		}
-		if result := probe(); result != nil {
+		if result := findByID(path, id); result != nil {
 			return result, false, nil
 		}
 		if !time.Now().Before(end) {
 			return nil, true, nil
+		}
+	}
+}
+
+func (r *Runner) awaitAlerts(ctx context.Context, path, eventID string) ([]json.RawMessage, StopReason, error) {
+	ticker := time.NewTicker(r.pollInterval)
+	defer ticker.Stop()
+
+	var alerts []json.RawMessage
+	seenIDs := make(map[string]struct{})
+
+	now := time.Now()
+	hardDeadline := now.Add(r.eventTimeout)
+	quietDeadline := now.Add(r.alertGrace)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return alerts, "", ctx.Err()
+		case <-ticker.C:
+		}
+
+		newAlerts := findAlertsByEventID(path, eventID, seenIDs)
+		if len(newAlerts) > 0 {
+			alerts = append(alerts, newAlerts...)
+			quietDeadline = time.Now().Add(r.alertGrace)
+		}
+
+		now = time.Now()
+
+		if !now.Before(hardDeadline) {
+			if len(alerts) == 0 {
+				return nil, StopReasonNoAlerts, nil
+			}
+			return alerts, StopReasonHardCap, nil
+		}
+
+		if !now.Before(quietDeadline) {
+			if len(alerts) == 0 {
+				return nil, StopReasonNoAlerts, nil
+			}
+			return alerts, StopReasonQuiet, nil
 		}
 	}
 }

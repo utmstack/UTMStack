@@ -324,7 +324,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
-			utils.MakeDir(0777, stack.EventsEngineWorkdir, "playground") + ":/playground-workdir",
 		},
 		Environment: []string{
 			"WORK_DIR=/workdir",
