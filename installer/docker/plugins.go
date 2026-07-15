@@ -15,18 +15,14 @@ type PluginsConfig struct {
 type PluginConfig struct {
 	Order         []string         `yaml:"order,omitempty"`
 	Port          int              `yaml:"port,omitempty"`
-	RulesFolder   string           `yaml:"rulesFolder,omitempty"`
-	GeoIPFolder   string           `yaml:"geoipFolder,omitempty"`
 	OpenSearch    OpenSearchConfig `yaml:"opensearch,omitempty"`
 	PostgreSQL    PostgreConfig    `yaml:"postgresql,omitempty"`
-	ServerName    string           `yaml:"serverName,omitempty"`
 	InternalKey   string           `yaml:"internalKey,omitempty"`
 	EncryptionKey string           `yaml:"encryptionKey,omitempty"`
 	Env           string           `yaml:"env,omitempty"`
 	AgentManager  string           `yaml:"agentManager,omitempty"`
 	Backend       string           `yaml:"backend,omitempty"`
 	CertsFolder   string           `yaml:"certsFolder,omitempty"`
-	ModulesConfig string           `yaml:"modulesConfig,omitempty"`
 }
 
 type PostgreConfig struct {
@@ -48,13 +44,13 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	analysisPipeline := PluginsConfig{}
 	analysisPipeline.Plugins = make(map[string]PluginConfig)
 	analysisPipeline.Plugins["analysis"] = PluginConfig{
-		Order: []string{"com.utmstack.events", "cel", "feeds"},
+		Order: []string{"com.utmstack.events", "cel", "feeds", "com.utmstack.ad-audit"},
 	}
 
 	correlationPipeline := PluginsConfig{}
 	correlationPipeline.Plugins = make(map[string]PluginConfig)
 	correlationPipeline.Plugins["correlation"] = PluginConfig{
-		Order: []string{"com.utmstack.alerts", "com.utmstack.soc-ai"},
+		Order: []string{"com.utmstack.alerts", "com.utmstack.soc-ai", "com.utmstack.soar"},
 	}
 
 	notificationPipeline := PluginsConfig{}
@@ -66,14 +62,6 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	utmstackPipeline := PluginsConfig{}
 	utmstackPipeline.Plugins = make(map[string]PluginConfig)
 	utmstackPipeline.Plugins["com.utmstack"] = PluginConfig{
-		RulesFolder: "/workdir/rules",
-		GeoIPFolder: "/workdir/geolocation",
-		OpenSearch: OpenSearchConfig{
-			Host:     "node1",
-			Port:     "9200",
-			User:     "admin",
-			Password: conf.OpenSearchPassword,
-		},
 		PostgreSQL: PostgreConfig{
 			Server:   "postgres",
 			Port:     "5432",
@@ -81,14 +69,12 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 			Password: conf.Password,
 			Database: "utmstack",
 		},
-		ServerName:    conf.ServerName,
 		InternalKey:   conf.InternalKey,
 		EncryptionKey: conf.InternalKey,
 		Env:           conf.Branch,
 		AgentManager:  "10.21.199.3:9000",
 		Backend:       "http://backend:8080",
 		CertsFolder:   "/cert",
-		ModulesConfig: "event-processor-manager:9003",
 	}
 
 	openSearchPipeline := PluginsConfig{}
