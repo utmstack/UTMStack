@@ -1,5 +1,7 @@
 package usecase
 
+import "time"
+
 const (
 	// Rules
 	SystemRulesSrcDir = "/utmstack/rules"
@@ -27,4 +29,9 @@ const (
 	SystemSubdir   = "system"
 	UserSubdir     = "user"
 	DisabledSuffix = ".disabled"
+
+	// Playground
+	MaxPlaygroundBodyBytes  int64         = 1 << 20 // 1 MiB
+	SemaphoreAcquireTimeout time.Duration = 30 * time.Second
+	PlaygroundUserFilename  string        = "playground-user.yaml"
 )

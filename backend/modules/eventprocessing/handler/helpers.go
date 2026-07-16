@@ -85,3 +85,20 @@ func writeFilterError(c *gin.Context, err error) {
 	logHandlerError("logstash filter", err.Error())
 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 }
+
+func writePlaygroundError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, domain.ErrPlaygroundBadInput):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	case errors.Is(err, domain.ErrPlaygroundBusy):
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "playground busy, retry later"})
+	case errors.Is(err, domain.ErrPlaygroundMisconfigured):
+		c.JSON(http.StatusBadGateway, gin.H{"error": "playground misconfigured"})
+	case errors.Is(err, domain.ErrPlaygroundInfra):
+		_ = catcher.Error("playground infra error", err, nil)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "playground unavailable"})
+	default:
+		_ = catcher.Error("playground unexpected error", err, nil)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+	}
+}

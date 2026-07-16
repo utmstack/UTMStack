@@ -9,6 +9,7 @@ import (
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/handler"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/infrastructure"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -34,9 +35,11 @@ type Module struct {
 
 	filterHandler         *handler.FilterHandler
 	ingestionStatsHandler *handler.IngestionStatsHandler
+	playgroundHandler     *handler.PlaygroundHandler
+	playgroundUsecase     connectors.PlaygroundUsecase
 }
 
-func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
+func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseURL, internalKey string) *Module {
 	// Pipeline writer — writes tenants.yaml and patterns.yaml on every mutation
 	// and on bootstrap (migration from DB).
 	pipelineDir := env.String(usecase.PipelineDirEnv, usecase.DefaultPipelineDir, false)
@@ -71,6 +74,10 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
 
 	_ = auditLogger // used by routes.go
 
+	playgroundClient := infrastructure.NewPlaygroundClient(playgroundBaseURL, internalKey)
+	playgroundUC := usecase.NewPlaygroundUsecase(playgroundClient)
+	playgroundH := handler.NewPlaygroundHandler(playgroundUC)
+
 	return &Module{
 		regexPatternHandler:    handler.NewRegexPatternHandler(regexPatternUC),
 		tenantConfigHandler:    handler.NewTenantConfigHandler(tenantConfigUC),
@@ -87,6 +94,8 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger) *Module {
 		pipelineBootstrap:      pipelineBootstrap,
 		filterHandler:          handler.NewFilterHandler(filterUC),
 		ingestionStatsHandler:  handler.NewIngestionStatsHandler(ingestionStatsUC),
+		playgroundHandler:      playgroundH,
+		playgroundUsecase:      playgroundUC,
 	}
 }
 
@@ -124,6 +133,13 @@ func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 func (m *Module) GetFilterUsecase() connectors.FilterUsecase { return m.filterUsecase }
 func (m *Module) GetIngestionStatsUsecase() connectors.IngestionStatsUsecase {
 	return m.ingestionStatsUsecase
+}
+
+func (m *Module) GetPlaygroundHandler() *handler.PlaygroundHandler {
+	return m.playgroundHandler
+}
+func (m *Module) GetPlaygroundUsecase() connectors.PlaygroundUsecase {
+	return m.playgroundUsecase
 }
 
 func (m *Module) AfterEventsByRuleName(name string) (json.RawMessage, bool) {
