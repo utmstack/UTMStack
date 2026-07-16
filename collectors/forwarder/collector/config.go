@@ -444,5 +444,11 @@ func DisableHTTPIntegration(logTyp string, proto string) error {
 	}
 	cfg.Integrations[logTyp] = integration
 
+	// Remove the token file if it exists
+	tp := filepath.Join(config.HTTPTokenDir, "integration-http-"+logTyp+".token")
+	if err := os.Remove(tp); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("error removing token file for %s: %v", logTyp, err)
+	}
+
 	return schema.WriteCollectorConfig(&cfg)
 }
