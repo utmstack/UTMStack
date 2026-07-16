@@ -3,14 +3,11 @@ import type {
   ForwarderCollector,
   SetDataTypeConfigRequest,
   ConfigKnowledgeResponse,
+  GetDataTypeConfigResponse,
   SetForwarderCertificatesRequest,
   TLSStatusResponse,
 } from '@/features/integrations/types'
 
-// Talks to backend/modules/integrations/handler/collector.go — the remote
-// collector control surface (list online forwarders, enable/disable a data
-// type, push TLS certs, read TLS status). See dto/collector.go for the wire
-// shapes mirrored in types/index.ts.
 const BASE = '/integrations/collectors'
 
 export interface CollectorIntegrationService {
@@ -20,6 +17,7 @@ export interface CollectorIntegrationService {
     dataType: string,
     data: SetDataTypeConfigRequest,
   ): Promise<ConfigKnowledgeResponse>
+  getDataTypeConfig(collectorId: number, dataType: string): Promise<GetDataTypeConfigResponse>
   setCertificates(
     collectorId: number,
     data: SetForwarderCertificatesRequest,
@@ -37,6 +35,11 @@ export function createCollectorIntegrationService(baseUrl?: string): CollectorIn
       api.put<ConfigKnowledgeResponse>(
         `${BASE}/${collectorId}/data-types/${encodeURIComponent(dataType)}`,
         data,
+      ),
+
+    getDataTypeConfig: (collectorId, dataType) =>
+      api.get<GetDataTypeConfigResponse>(
+        `${BASE}/${collectorId}/data-types/${encodeURIComponent(dataType)}`,
       ),
 
     setCertificates: (collectorId, data) =>

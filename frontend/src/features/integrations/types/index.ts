@@ -98,6 +98,19 @@ export interface ConfigKnowledgeResponse {
   generatedSecret?: string;
 }
 
+export interface GetDataTypeConfigResponse {
+  configured: boolean;
+  enabled?: boolean;
+  proto?: string;
+  port?: string;
+  tls?: boolean;
+  auth?: string;
+  path?: string;
+  signatureHeader?: string;
+  configStatus?: string;
+  lastError?: string;
+}
+
 export interface SetForwarderCertificatesRequest {
   certPem: string;
   keyPem: string;

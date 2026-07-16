@@ -4,6 +4,7 @@ import type {
   ForwarderCollector,
   SetDataTypeConfigRequest,
   ConfigKnowledgeResponse,
+  GetDataTypeConfigResponse,
   SetForwarderCertificatesRequest,
   TLSStatusResponse,
 } from '@/features/integrations/types'
@@ -12,15 +13,14 @@ const COLLECTOR_QUERY_KEYS = {
   all: ['integrations', 'collectors'] as const,
   forwarders: () => [...COLLECTOR_QUERY_KEYS.all, 'forwarders'] as const,
   tlsStatus: (collectorId: number) => [...COLLECTOR_QUERY_KEYS.all, 'tls-status', collectorId] as const,
+  dataTypeConfig: (collectorId: number, dataType: string) =>
+    [...COLLECTOR_QUERY_KEYS.all, 'data-type-config', collectorId, dataType] as const,
 }
 
 export function useCollectorIntegration(baseUrl?: string) {
   const queryClient = useQueryClient()
   const service = createCollectorIntegrationService(baseUrl)
 
-  // Online forwarders eligible for remote control (the picker feed). Polled
-  // so a forwarder that just went online/offline is picked up without a
-  // manual refresh.
   const forwarders = useQuery({
     queryKey: COLLECTOR_QUERY_KEYS.forwarders(),
     queryFn: () => service.listForwarders(),
@@ -37,6 +37,11 @@ export function useCollectorIntegration(baseUrl?: string) {
       dataType: string
       data: SetDataTypeConfigRequest
     }) => service.setDataType(collectorId, dataType, data),
+    onSuccess: (_, { collectorId, dataType }) => {
+      queryClient.invalidateQueries({
+        queryKey: COLLECTOR_QUERY_KEYS.dataTypeConfig(collectorId, dataType),
+      })
+    },
   })
 
   const setCertificates = useMutation({
@@ -52,9 +57,6 @@ export function useCollectorIntegration(baseUrl?: string) {
     },
   })
 
-  // Per-forwarder TLS status. Mirrors the tenants(moduleName)/isActive(name)
-  // pattern in useIntegrations.ts — a query factory called with the currently
-  // selected id, re-created on every render but keyed/cached by react-query.
   const tlsStatus = (collectorId: number | null) =>
     useQuery<TLSStatusResponse>({
       queryKey: COLLECTOR_QUERY_KEYS.tlsStatus(collectorId ?? -1),
@@ -62,12 +64,20 @@ export function useCollectorIntegration(baseUrl?: string) {
       enabled: collectorId != null,
     })
 
+  const dataTypeConfig = (collectorId: number | null, dataType: string) =>
+    useQuery<GetDataTypeConfigResponse>({
+      queryKey: COLLECTOR_QUERY_KEYS.dataTypeConfig(collectorId ?? -1, dataType),
+      queryFn: () => service.getDataTypeConfig(collectorId as number, dataType),
+      enabled: collectorId != null && !!dataType,
+    })
+
   return {
     forwarders,
     setDataType,
     setCertificates,
     tlsStatus,
+    dataTypeConfig,
   }
 }
 
-export type { ForwarderCollector, SetDataTypeConfigRequest, ConfigKnowledgeResponse }
+export type { ForwarderCollector, SetDataTypeConfigRequest, ConfigKnowledgeResponse, GetDataTypeConfigResponse }

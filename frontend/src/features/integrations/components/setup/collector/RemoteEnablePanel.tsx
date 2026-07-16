@@ -11,14 +11,8 @@ import { defaultPortFor, httpDefaultsFor, type HttpAuth, type Proto } from './pr
 
 const ROOT = 'integrations.setup.remoteEnable'
 
-// The Forwarder is about to ship its first real release as 1.0.0 — this is
-// the minimum version that understands the generic remote-config channel
-// (SetCollectorConfig/GetCollectorConfig). No wire-exposed capability
-// negotiation exists yet, so this is a hand-maintained gate, same
-// accepted-drift tradeoff as protoCatalog.ts.
 export const MIN_REMOTE_CONFIG_VERSION = '1.0.0'
 
-/** Numeric "at least" comparison for dotted version strings (major.minor.patch, ...). */
 export function isVersionAtLeast(version: string, min: string): boolean {
   const parse = (v: string) => v.split('.').map((n) => parseInt(n, 10) || 0)
   const a = parse(version)
@@ -38,20 +32,14 @@ export interface RemoteEnableSelection {
 }
 
 interface RemoteEnablePanelProps {
-  /** OpenSearch source_type / custom integration name this panel configures. */
   dataType: string
-  /** Protocols to offer, in display order. */
   availableProtos: Proto[]
-  /** Initial protocol selection, when the vendor knows its device needs something other than the first entry (e.g. TCP-only sources). Defaults to availableProtos[0]. */
   defaultProto?: Proto
   step?: number
-  /** Fires whenever proto/port change, so the parent can render a matching manual command. */
   onSelectionChange?: (selection: RemoteEnableSelection) => void
 }
 
 async function fileToBase64(file: File): Promise<string> {
-  // PEM certs/keys are ASCII text, so a plain text read + btoa is safe (no
-  // need for the ArrayBuffer/binary-string dance non-ASCII files would need).
   const text = await file.text()
   return btoa(text)
 }
@@ -67,7 +55,7 @@ export function RemoteEnablePanel({
   const { hasPermission } = useAuth()
   const canManage = hasPermission('integrations.write')
 
-  const { forwarders, setDataType, setCertificates, tlsStatus } = useCollectorIntegration()
+  const { forwarders, setDataType, setCertificates, tlsStatus, dataTypeConfig } = useCollectorIntegration()
 
   const eligible = useMemo(
     () => (forwarders.data ?? []).filter((f) => isVersionAtLeast(f.version, MIN_REMOTE_CONFIG_VERSION)),
@@ -96,19 +84,10 @@ export function RemoteEnablePanel({
   const [keyPem, setKeyPem] = useState<File | null>(null)
   const [caPem, setCaPem] = useState<File | null>(null)
 
-  // Pick the first eligible forwarder once the list loads (or clear it if the
-  // previously selected one dropped off — e.g. went offline).
   useEffect(() => {
     if (collectorId != null && eligible.some((f) => f.id === collectorId)) return
     setCollectorId(eligible[0]?.id ?? null)
   }, [eligible, collectorId])
-
-  // Reset the port to the catalog default when the protocol changes (still
-  // freely editable afterwards).
-  useEffect(() => {
-    setPort(defaultPortFor(dataType, proto))
-    setGeneratedSecret(null)
-  }, [proto, dataType])
 
   useEffect(() => {
     onSelectionChange?.({ proto, port })
@@ -118,6 +97,36 @@ export function RemoteEnablePanel({
   const needsCerts = proto === 'tls' || proto === 'https'
 
   const tlsStatusQuery = tlsStatus(needsCerts ? collectorId : null)
+
+  const currentConfig = dataTypeConfig(collectorId, dataType)
+  const isSyncingConfig = collectorId != null && currentConfig.isLoading
+
+  const isLiveOnSelectedForwarder = !!(currentConfig.data?.configured && currentConfig.data?.enabled)
+  const isConfigLocked = isSyncingConfig || isLiveOnSelectedForwarder
+
+  useEffect(() => {
+    if (collectorId == null) return
+    if (!currentConfig.isSuccess) return
+
+    setGeneratedSecret(null)
+    const data = currentConfig.data
+
+    if (data.configured) {
+      const nextProto = (data.proto as Proto) || initialProto
+      setProto(nextProto)
+      setPort(data.port || defaultPortFor(dataType, nextProto))
+      setAuth((data.auth as HttpAuth) ?? '')
+      setPath(data.path ?? '')
+      setSignatureHeader(data.signatureHeader ?? '')
+      return
+    }
+
+    setProto(initialProto)
+    setPort(defaultPortFor(dataType, initialProto))
+    setAuth(httpDefaults?.auth ?? '')
+    setPath(httpDefaults?.path ?? '')
+    setSignatureHeader(httpDefaults?.signatureHeader ?? '')
+  }, [collectorId, currentConfig.isSuccess, currentConfig.data])
 
   if (!canManage) {
     return (
@@ -185,7 +194,7 @@ export function RemoteEnablePanel({
   }
 
   const isPending = setDataType.isPending
-  const canSubmit = collectorId != null && !!port
+  const canSubmit = collectorId != null && !!port && !isSyncingConfig
 
   return (
     <Section title={t(`${ROOT}.title`)} step={step}>
@@ -210,7 +219,8 @@ export function RemoteEnablePanel({
               <select
                 value={collectorId ?? ''}
                 onChange={(e) => setCollectorId(Number(e.target.value))}
-                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+                disabled={isSyncingConfig}
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
               >
                 {eligible.map((f) => (
                   <option key={f.id} value={f.id}>
@@ -226,8 +236,13 @@ export function RemoteEnablePanel({
               </span>
               <select
                 value={proto}
-                onChange={(e) => setProto(e.target.value as Proto)}
-                disabled={availableProtos.length <= 1}
+                onChange={(e) => {
+                  const next = e.target.value as Proto
+                  setProto(next)
+                  setPort(defaultPortFor(dataType, next))
+                  setGeneratedSecret(null)
+                }}
+                disabled={availableProtos.length <= 1 || isConfigLocked}
                 className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
               >
                 {availableProtos.map((p) => (
@@ -239,6 +254,22 @@ export function RemoteEnablePanel({
             </label>
           </div>
 
+          {isSyncingConfig ? (
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              {t(`${ROOT}.currentStateLoading`)}
+            </div>
+          ) : (
+            currentConfig.data?.configured && (
+              <p className="text-[11px] text-muted-foreground">
+                {t(`${ROOT}.${currentConfig.data.enabled ? 'currentlyEnabled' : 'currentlyDisabled'}`, {
+                  proto: currentConfig.data.proto,
+                  port: currentConfig.data.port,
+                })}
+              </p>
+            )
+          )}
+
           <label className="block max-w-[160px]">
             <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
               {t(`${ROOT}.portLabel`)}
@@ -247,7 +278,8 @@ export function RemoteEnablePanel({
               value={port}
               onChange={(e) => setPort(e.target.value.replace(/[^0-9]/g, ''))}
               inputMode="numeric"
-              className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm"
+              disabled={isConfigLocked}
+              className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm disabled:opacity-70"
               placeholder="7100"
             />
           </label>
@@ -261,7 +293,8 @@ export function RemoteEnablePanel({
                 <select
                   value={auth}
                   onChange={(e) => setAuth(e.target.value as HttpAuth)}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+                  disabled={isConfigLocked}
+                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
                 >
                   <option value="">{t(`${ROOT}.authNone`)}</option>
                   <option value="bearer">{t(`${ROOT}.authBearer`)}</option>
@@ -276,7 +309,8 @@ export function RemoteEnablePanel({
                 <input
                   value={path}
                   onChange={(e) => setPath(e.target.value)}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm"
+                  disabled={isConfigLocked}
+                  className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm disabled:opacity-70"
                   placeholder="/logs"
                 />
               </label>
@@ -289,7 +323,8 @@ export function RemoteEnablePanel({
                   <input
                     value={signatureHeader}
                     onChange={(e) => setSignatureHeader(e.target.value)}
-                    className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm"
+                    disabled={isConfigLocked}
+                    className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-sm disabled:opacity-70"
                     placeholder="X-Hub-Signature-256"
                   />
                 </label>
@@ -323,19 +358,30 @@ export function RemoteEnablePanel({
                     </span>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-3">
-                    <CertFileInput label={t(`${ROOT}.certPemLabel`)} file={certPem} onChange={setCertPem} />
-                    <CertFileInput label={t(`${ROOT}.keyPemLabel`)} file={keyPem} onChange={setKeyPem} />
+                    <CertFileInput
+                      label={t(`${ROOT}.certPemLabel`)}
+                      file={certPem}
+                      onChange={setCertPem}
+                      disabled={isConfigLocked}
+                    />
+                    <CertFileInput
+                      label={t(`${ROOT}.keyPemLabel`)}
+                      file={keyPem}
+                      onChange={setKeyPem}
+                      disabled={isConfigLocked}
+                    />
                     <CertFileInput
                       label={t(`${ROOT}.caPemLabel`)}
                       file={caPem}
                       onChange={setCaPem}
                       optional
+                      disabled={isConfigLocked}
                     />
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={!certPem || !keyPem || setCertificates.isPending}
+                    disabled={!certPem || !keyPem || setCertificates.isPending || isConfigLocked}
                     onClick={handleUploadCerts}
                   >
                     {setCertificates.isPending ? (
@@ -375,7 +421,11 @@ export function RemoteEnablePanel({
           )}
 
           <div className="flex items-center gap-2 pt-1">
-            <Button size="sm" disabled={!canSubmit || isPending} onClick={() => submit(true)}>
+            <Button
+              size="sm"
+              disabled={!canSubmit || isPending || isLiveOnSelectedForwarder}
+              onClick={() => submit(true)}
+            >
               {isPending && <Loader2 size={13} className="mr-1.5 animate-spin" />}
               {t(`${ROOT}.enableButton`)}
             </Button>
@@ -399,11 +449,13 @@ function CertFileInput({
   file,
   onChange,
   optional,
+  disabled,
 }: {
   label: string
   file: File | null
   onChange: (file: File | null) => void
   optional?: boolean
+  disabled?: boolean
 }) {
   return (
     <label className="block">
@@ -415,8 +467,9 @@ function CertFileInput({
         type="file"
         accept=".pem,.crt,.key,.cer"
         onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+        disabled={disabled}
         className={cn(
-          'block w-full text-xs text-muted-foreground',
+          'block w-full text-xs text-muted-foreground disabled:opacity-70',
           'file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-2 file:py-1 file:text-[11px] file:font-medium file:text-foreground',
         )}
       />
