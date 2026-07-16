@@ -488,6 +488,7 @@ func (s *CollectorService) GetCollectorConfig(ctx context.Context, req *ConfigRe
 		group := &CollectorConfigGroup{
 			GroupName:   row.DataType,
 			CollectorId: collectorID,
+			RequestId:   row.RequestID,
 		}
 		if row.DesiredStateJSON != "" {
 			var confs []*CollectorGroupConfigurations

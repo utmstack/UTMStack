@@ -12,6 +12,7 @@ service CollectorService {
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
   rpc GetCollectorConfig(ConfigRequest) returns (CollectorConfig) {}
   rpc SetCollectorConfig(CollectorConfig) returns (ConfigKnowledge) {}
+  rpc GetCollectorIntegrationState(IntegrationStateRequest) returns (IntegrationStateResponse) {}
 }
 
 enum CollectorModule{
@@ -59,7 +60,7 @@ message CollectorConfig {
 message CollectorConfigGroup {
   int32 id = 1;
   string group_name = 2;
-  string group_description = 3;
+  string request_id = 3;
   repeated CollectorGroupConfigurations configurations = 4;
   int32 collector_id = 5;
 }
@@ -85,4 +86,16 @@ message ConfigKnowledge{
   string error_message = 3;
   string status_payload = 4;
   string generated_secret = 5;
+}
+
+message IntegrationStateRequest {
+  int32 collector_id = 1;
+  string data_type = 2;
+}
+
+message IntegrationStateResponse {
+  bool configured = 1;
+  repeated CollectorGroupConfigurations configurations = 2;
+  string config_status = 3;
+  string last_error = 4;
 }
