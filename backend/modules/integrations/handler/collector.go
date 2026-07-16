@@ -84,6 +84,42 @@ func (h *CollectorHandler) SetDataType(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary     Get the persisted desired-state config of a data-type integration
+// @Description Reads back the collector_integration_config row agent-manager
+// @Description already persisted for this (collector, data_type) pair — a
+// @Description pure read, no CollectorStream push involved. configured=false
+// @Description means the integration was never remotely enabled/disabled for
+// @Description this collector.
+// @Tags        Integrations
+// @Security    BearerAuth
+// @Produce     json
+// @Param       id       path int    true "Collector ID"
+// @Param       dataType path string true "Data type / integration name"
+// @Success     200 {object} dto.GetDataTypeConfigResponse
+// @Failure     400 {object} map[string]string
+// @Failure     503 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /integrations/collectors/{id}/data-types/{dataType} [get]
+func (h *CollectorHandler) GetDataType(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid collector id"})
+		return
+	}
+	dataType := c.Param("dataType")
+	if dataType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing data type"})
+		return
+	}
+
+	resp, err := h.usecase.GetDataTypeConfig(c.Request.Context(), uint32(id), dataType)
+	if err != nil {
+		writeCollectorError(c, "collector.getDataType", err)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
 // @Summary     Push cert/key/(optional CA) certificates to a forwarder
 // @Description Forwards a base64-encoded PEM cert/key/(optional CA) triple
 // @Description to agent-manager's reserved __tls_certs__ SetCollectorConfig

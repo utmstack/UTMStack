@@ -32,6 +32,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.DELETE("/tenants/:module/:name", write, th.Delete)
 
 	g.GET("/collectors", write, ch.ListForwarders)
+	g.GET("/collectors/:id/data-types/:dataType", write, ch.GetDataType)
 	g.PUT("/collectors/:id/data-types/:dataType", write, ch.SetDataType)
 	g.PUT("/collectors/:id/certificates", write, ch.SetCertificates)
 	g.GET("/collectors/:id/tls-status", write, ch.GetTLSStatus)

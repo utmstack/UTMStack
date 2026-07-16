@@ -23,4 +23,5 @@ type AgentManagerCollectorClient interface {
 	SetCollectorIntegration(ctx context.Context, collectorID uint32, dataType string, kv map[string]string) (*agent.ConfigKnowledge, error)
 	SetCollectorCertificates(ctx context.Context, collectorID uint32, certPem, keyPem, caPem string) (*agent.ConfigKnowledge, error)
 	GetCollectorCertificatesStatus(ctx context.Context, collectorID uint32) (*agent.ConfigKnowledge, error)
+	GetCollectorIntegrationState(ctx context.Context, collectorID uint32, dataType string) (*agent.IntegrationStateResponse, error)
 }

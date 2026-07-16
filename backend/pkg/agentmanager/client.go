@@ -330,6 +330,18 @@ func (c *AgentManagerClient) GetCollectorCertificatesStatus(ctx context.Context,
 	return resp, nil
 }
 
+// GetCollectorIntegrationState proxies the GetCollectorIntegrationState RPC for a single
+func (c *AgentManagerClient) GetCollectorIntegrationState(ctx context.Context, collectorID uint32, dataType string) (*agent.IntegrationStateResponse, error) {
+	resp, err := c.collectorService.GetCollectorIntegrationState(ctx, &agent.IntegrationStateRequest{
+		CollectorId: int32(collectorID),
+		DataType:    dataType,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: GetCollectorIntegrationState: %w", err)
+	}
+	return resp, nil
+}
+
 func (c *AgentManagerClient) ProcessCommand(ctx context.Context, cmd *agent.UtmCommand) (*agent.CommandResult, error) {
 	stream, err := c.panelService.ProcessCommand(ctx)
 	if err != nil {

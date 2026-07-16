@@ -42,3 +42,16 @@ type TLSStatusResponse struct {
 	Valid      bool   `json:"valid"`
 	Error      string `json:"error,omitempty"`
 }
+
+type GetDataTypeConfigResponse struct {
+	Configured      bool   `json:"configured"`
+	Enabled         *bool  `json:"enabled,omitempty"`
+	Proto           string `json:"proto,omitempty"`
+	Port            string `json:"port,omitempty"`
+	TLS             *bool  `json:"tls,omitempty"`
+	Auth            string `json:"auth,omitempty"`
+	Path            string `json:"path,omitempty"`
+	SignatureHeader string `json:"signatureHeader,omitempty"`
+	ConfigStatus    string `json:"configStatus,omitempty"`
+	LastError       string `json:"lastError,omitempty"`
+}

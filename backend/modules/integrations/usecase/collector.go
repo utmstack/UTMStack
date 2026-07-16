@@ -108,6 +108,50 @@ func (u *collectorUsecase) SetDataTypeConfig(ctx context.Context, collectorID ui
 	}, nil
 }
 
+func (u *collectorUsecase) GetDataTypeConfig(ctx context.Context, collectorID uint32, dataType string) (*dto.GetDataTypeConfigResponse, error) {
+	if dataType == "" {
+		return nil, domain.ErrInvalidCollectorConfig
+	}
+	if u.client == nil {
+		return nil, domain.ErrAgentManagerUnavailable
+	}
+
+	resp, err := u.client.GetCollectorIntegrationState(ctx, collectorID, dataType)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.GetConfigured() {
+		return &dto.GetDataTypeConfigResponse{Configured: false}, nil
+	}
+
+	out := &dto.GetDataTypeConfigResponse{
+		Configured:   true,
+		ConfigStatus: resp.GetConfigStatus(),
+		LastError:    resp.GetLastError(),
+	}
+	for _, kv := range resp.GetConfigurations() {
+		switch kv.GetConfKey() {
+		case "enabled":
+			enabled := kv.GetConfValue() == "true"
+			out.Enabled = &enabled
+		case "proto":
+			out.Proto = kv.GetConfValue()
+		case "port":
+			out.Port = kv.GetConfValue()
+		case "tls":
+			tls := kv.GetConfValue() == "true"
+			out.TLS = &tls
+		case "auth":
+			out.Auth = kv.GetConfValue()
+		case "path":
+			out.Path = kv.GetConfValue()
+		case "signature_header":
+			out.SignatureHeader = kv.GetConfValue()
+		}
+	}
+	return out, nil
+}
+
 func decodeCertPEMField(field *string, required bool) (string, error) {
 	if field == nil || *field == "" {
 		if required {
