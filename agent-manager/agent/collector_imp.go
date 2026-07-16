@@ -3,6 +3,7 @@ package agent
 import (
 	context "context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 var (
@@ -614,4 +616,39 @@ func (s *CollectorService) SetCollectorConfig(ctx context.Context, req *Collecto
 		s.unregisterAckIfOwner(requestID, ack)
 		return nil, status.Errorf(codes.DeadlineExceeded, "collector %d did not acknowledge config within %s", collectorID, configAckTimeout)
 	}
+}
+
+func (s *CollectorService) GetCollectorIntegrationState(ctx context.Context, req *IntegrationStateRequest) (*IntegrationStateResponse, error) {
+	collectorID := req.GetCollectorId()
+	if collectorID <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid collector id")
+	}
+	dataType := req.GetDataType()
+	if dataType == "" {
+		return nil, status.Error(codes.InvalidArgument, "data type is required")
+	}
+
+	row := &models.CollectorIntegrationConfig{}
+	if ferr := s.DBConnection.GetFirst(row, "collector_id = ? AND data_type = ?", collectorID, dataType); ferr != nil {
+		if errors.Is(ferr, gorm.ErrRecordNotFound) {
+			return &IntegrationStateResponse{Configured: false}, nil
+		}
+		catcher.Error("failed to fetch collector integration state", ferr, map[string]any{"collector_id": collectorID, "data_type": dataType, "process": "agent-manager"})
+		return nil, status.Errorf(codes.Internal, "failed to fetch collector integration state: %v", ferr)
+	}
+
+	resp := &IntegrationStateResponse{
+		Configured:   true,
+		ConfigStatus: row.ConfigStatus,
+		LastError:    row.LastError,
+	}
+	if row.DesiredStateJSON != "" {
+		var confs []*CollectorGroupConfigurations
+		if uerr := json.Unmarshal([]byte(row.DesiredStateJSON), &confs); uerr != nil {
+			catcher.Error("failed to unmarshal desired state", uerr, map[string]any{"collector_id": collectorID, "data_type": dataType, "process": "agent-manager"})
+			return nil, status.Errorf(codes.Internal, "failed to parse stored config: %v", uerr)
+		}
+		resp.Configurations = confs
+	}
+	return resp, nil
 }

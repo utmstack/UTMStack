@@ -42,6 +42,7 @@ func InternalKeyRoutes() []string {
 		"/agent.PanelService/GetConnectionKey",
 		"/agent.PanelService/RotateConnectionKey",
 		"/agent.CollectorService/SetCollectorConfig",
+		"/agent.CollectorService/GetCollectorIntegrationState",
 
 		"/grpc.health.v1.Health/Check",
 	}
