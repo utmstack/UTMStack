@@ -150,7 +150,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 
 	soarMod := soar.NewModule(db, agentClient, signer, cipher)
-	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger())
+	eventProcessingMod := eventprocessing.NewModule(db, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
 

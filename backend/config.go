@@ -47,6 +47,9 @@ type config struct {
 	// SOC AI
 	socAIBaseURL string
 
+	// Playground plugin
+	playgroundBaseURL string
+
 	// Uploads (avatars, etc.)
 	uploadDir string
 
@@ -95,6 +98,8 @@ func loadConfig() *config {
 		eventProcessorPort: env.Int("EVENT_PROCESSOR_PORT", 9002, false),
 
 		socAIBaseURL: env.String("SOC_AI_BASE_URL", "", false),
+
+		playgroundBaseURL: env.String("PLAYGROUND_BASE_URL", "", false),
 
 		uploadDir: env.String("UPLOAD_DIR", "./uploads", false),
 

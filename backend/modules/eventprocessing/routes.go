@@ -53,4 +53,9 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	st := g.Group("/ingestion-stats")
 	st.GET("", read, sh.Totals)
 	st.GET("/timeline", read, sh.Timeline)
+
+	ph := m.GetPlaygroundHandler()
+	pg := g.Group("/playground")
+	pg.POST("/test-filter", write, ph.TestFilter)
+	pg.POST("/test-rule", write, ph.TestRule)
 }

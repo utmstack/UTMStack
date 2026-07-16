@@ -57,3 +57,8 @@ type IngestionStatsUsecase interface {
 	Totals(ctx context.Context, groupBy, status, from, to string, top int) (*dto.IngestionStatsResponse, error)
 	Timeline(ctx context.Context, groupBy, status, interval, from, to string, top int, dataSource string) (*dto.IngestionTimelineResponse, error)
 }
+
+type PlaygroundUsecase interface {
+	TestFilter(ctx context.Context, req dto.TestFilterRequest) (*dto.PlaygroundResponse, error)
+	TestRule(ctx context.Context, req dto.TestRuleRequest) (*dto.PlaygroundResponse, error)
+}
