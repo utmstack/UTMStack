@@ -2,7 +2,6 @@ import { useTranslation, Trans } from 'react-i18next'
 import { registerCollector } from '../registry'
 import { ForwarderGuide } from '../ForwarderGuide'
 import { Section } from '@/features/integrations/components/ui/Section'
-import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.deceptivebytes'
@@ -13,11 +12,6 @@ function DeceptiveBytesGuide({ module: _module }: { module: Integration }) {
 
   return (
     <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="deceptive-bytes">
-      <Section title={t(`${ROOT}.step1.title`)} step={2}>
-        <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step1.body`)}</p>
-        <CodeBlock code={`sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration deceptive-bytes udp`} />
-        <p className="mt-2 text-[11px] text-muted-foreground">{t(`${ROOT}.step1.note`)}</p>
-      </Section>
       <Section title={t(`${ROOT}.step2.title`)} step={3}>
         <p className="text-sm text-foreground/90">
           <Trans

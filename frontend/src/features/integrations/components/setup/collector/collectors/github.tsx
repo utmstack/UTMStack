@@ -1,8 +1,7 @@
 import { useTranslation, Trans } from 'react-i18next'
 import { registerCollector } from '../registry'
-import { ForwarderGuide, HttpsCertsSection, forwarderHost } from '../ForwarderGuide'
+import { ForwarderGuide, forwarderHost } from '../ForwarderGuide'
 import { Section } from '@/features/integrations/components/ui/Section'
-import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.github'
@@ -15,22 +14,12 @@ function GithubGuide({ module: _module }: { module: Integration }) {
   const webhookUrl = `https://${host}:${PORT}/github`
 
   return (
-    <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="github" hideTLS>
-      <HttpsCertsSection step={2} port={PORT} />
-
-      <Section title={t(`${ROOT}.step1.title`)} step={3}>
-        <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step1.body`)}</p>
-        <CodeBlock code="sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration github https" />
-        <p className="mt-2 rounded-md bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-400">
-          {t(`${ROOT}.step1.tokenNote`)}
-        </p>
-      </Section>
-
+    <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="github">
       <Section title={t(`${ROOT}.certWarning.title`)} variant="warning">
         <p className="text-sm text-foreground/90">{t(`${ROOT}.certWarning.body`)}</p>
       </Section>
 
-      <Section title={t(`${ROOT}.step2.title`)} step={4}>
+      <Section title={t(`${ROOT}.step2.title`)} step={3}>
         <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.step2.body`)}</p>
         <img
           src={`${IMG}/webhook.png`}

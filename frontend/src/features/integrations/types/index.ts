@@ -68,3 +68,47 @@ export interface TenantResponse {
   name: string;
   config: Record<string, string>;
 }
+
+// ── Remote collector (Forwarder) integration control ────────────────────────
+// Mirrors backend/modules/integrations/dto/collector.go.
+
+export interface ForwarderCollector {
+  id: number;
+  hostname: string;
+  ip: string;
+  version: string;
+  lastSeen?: string;
+}
+
+export interface SetDataTypeConfigRequest {
+  enabled: boolean;
+  proto: string;
+  port?: string;
+  tls?: boolean;
+  auth?: string;
+  path?: string;
+  signatureHeader?: string;
+}
+
+export interface ConfigKnowledgeResponse {
+  accepted: boolean;
+  requestId?: string;
+  errorMessage?: string;
+  /** Only set once, the first time a bearer/hmac token is generated. */
+  generatedSecret?: string;
+}
+
+export interface SetForwarderCertificatesRequest {
+  certPem: string;
+  keyPem: string;
+  caPem?: string;
+}
+
+export interface TLSStatusResponse {
+  available: boolean;
+  certExists: boolean;
+  keyExists: boolean;
+  caExists: boolean;
+  valid: boolean;
+  error?: string;
+}

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, Forward, Server, ShieldCheck } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -6,12 +6,15 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
 import { FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
+import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
+import { RemoteEnablePanel, type RemoteEnableSelection } from './RemoteEnablePanel'
+import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 
 // Reusable scaffolding for any "device → Forwarder → UTMStack" (syslog-style)
 // integration. It renders the shared parts — a plain-language intro, an animated
-// data-flow diagram, the connection details, and the "turn it on" step — while
-// each collector injects only its vendor-specific "Step 1" (how to point the
-// device at the Forwarder) as children.
+// data-flow diagram, the connection details, the remote enable/disable panel,
+// and a reactive "do it via CLI instead" fallback — while each collector
+// injects only its vendor-specific device-side config as children.
 //
 // Usage:
 //   <ForwarderGuide source="AIX server" port="7016" sourceType="ibm-aix">
@@ -63,14 +66,19 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
   )
 }
 
-// ── TLS collapsible section ───────────────────────────────────────────────────
+// ── Manual (CLI) command — collapsible, reactive to the RemoteEnablePanel ────
+// selection above it. Replaces what used to be a fixed "Optional — Enable TLS
+// encryption" block: the command shown here always matches whatever
+// proto/port the user currently has selected, TLS/HTTPS included, instead of
+// duplicating a separate static TLS section.
 
-function TLSSection({ sourceType, port }: { sourceType: string; port: string }) {
+function ManualCommandSection({ sourceType, selection }: { sourceType: string; selection: RemoteEnableSelection }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
-  const loadCmd = `/opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key`
-  const enableCmd = `/opt/utmstack-forwarder/utmstack_forwarder enable-integration ${sourceType} ${port} tls`
+  const needsCerts = selection.proto === 'tls' || selection.proto === 'https'
+  const loadCertsCmd = `/opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key`
+  const enableCmd = `sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration ${sourceType} ${selection.port} ${selection.proto}`
 
   return (
     <div className="overflow-hidden rounded-lg border border-border">
@@ -78,39 +86,30 @@ function TLSSection({ sourceType, port }: { sourceType: string; port: string }) 
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/40 transition-colors"
       >
-        <span>{t(`${SHARED}.tls.title`)}</span>
+        <span>{t(`${SHARED}.manualCommand.title`)}</span>
         <ChevronDown size={14} className={cn('shrink-0 text-muted-foreground transition-transform duration-200', open && 'rotate-180')} />
       </button>
       {open && (
         <div className="space-y-3 border-t border-border px-4 pb-4 pt-3">
-          <p className="text-sm text-foreground/90">{t(`${SHARED}.tls.intro`)}</p>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t(`${SHARED}.tls.step1`)}</p>
-          <CodeBlock code={loadCmd} />
-          <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">{t(`${SHARED}.tls.step1Note`)}</p>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t(`${SHARED}.tls.step2`)}</p>
+          <p className="text-sm text-foreground/90">{t(`${SHARED}.manualCommand.intro`)}</p>
+          {needsCerts && (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {t(`${SHARED}.manualCommand.certStep`)}
+              </p>
+              <CodeBlock code={loadCertsCmd} />
+              <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+                {t(`${SHARED}.tls.step1Note`)}
+              </p>
+            </>
+          )}
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t(`${SHARED}.manualCommand.enableStep`)}
+          </p>
           <CodeBlock code={enableCmd} />
         </div>
       )}
     </div>
-  )
-}
-
-// ── HTTPS certificates step ───────────────────────────────────────────────────
-
-// Required (not collapsible) cert-loading step for collectors whose listener is
-// natively HTTPS — same command CustomSetup shows for the tls protocol.
-export function HttpsCertsSection({ step, port }: { step: number; port: string }) {
-  const { t } = useTranslation()
-  const loadCmd = `/opt/utmstack-forwarder/utmstack_forwarder load-tls-certs /path/to/cert.crt /path/to/key.key`
-
-  return (
-    <Section title={t(`${SHARED}.httpsCerts.title`)} step={step}>
-      <p className="mb-2 text-sm text-foreground/90">{t(`${SHARED}.httpsCerts.body`, { port })}</p>
-      <CodeBlock code={loadCmd} />
-      <p className="mt-2 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-        {t(`${SHARED}.tls.step1Note`)}
-      </p>
-    </Section>
   )
 }
 
@@ -149,18 +148,30 @@ export function ForwarderInstall({ source }: { source: string }) {
 interface ForwarderGuideProps {
   /** Already-translated device label, e.g. "AIX server" (used in the diagram + intro). */
   source: string
-  /** Forwarder port for this data type, e.g. "7016". */
+  /** Forwarder port for this data type, e.g. "7016" (illustrative default shown in the diagram). */
   port: string
   /** OpenSearch source_type / dataType shown in the connection details, e.g. "ibm-aix". */
   sourceType: string
-  /** Vendor-specific "Step 1" — how to point the device at the Forwarder. */
+  /** Initial protocol, when the device needs something other than the catalog's first entry (e.g. ESXi/SentinelOne are TCP-only in practice). */
+  defaultProto?: Proto
+  /** Vendor-specific device-side config (how to point the device at the Forwarder). */
   children: ReactNode
-  /** Hide the TLS collapsible section (e.g. for integrations that are natively HTTPS). */
-  hideTLS?: boolean
 }
 
-export function ForwarderGuide({ source, port, sourceType, children, hideTLS }: ForwarderGuideProps) {
+export function ForwarderGuide({ source, port, sourceType, defaultProto, children }: ForwarderGuideProps) {
   const { t } = useTranslation()
+  const { forwarders } = useCollectorIntegration()
+  // If at least one Forwarder is already online, there's no point walking the
+  // user through installing another one — skip Step 1 entirely. Only shown
+  // once the query has actually resolved, so we don't flash the "none online"
+  // fallback while it's still loading.
+  const hasOnlineForwarder = (forwarders.data ?? []).length > 0
+  const availableProtos = useMemo(() => availableProtosFor(sourceType), [sourceType])
+  const initialProto = defaultProto ?? availableProtos[0]
+  const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
+    proto: initialProto,
+    port: defaultPortFor(sourceType, initialProto) || port,
+  }))
 
   return (
     <div className="space-y-4">
@@ -172,12 +183,20 @@ export function ForwarderGuide({ source, port, sourceType, children, hideTLS }: 
         </p>
       </Section>
 
-      <ForwarderInstall source={source} />
+      {!forwarders.isLoading && !hasOnlineForwarder && <ForwarderInstall source={source} />}
 
-      {/* Vendor-specific steps (enable listener + device-side config). */}
+      <RemoteEnablePanel
+        dataType={sourceType}
+        availableProtos={availableProtos}
+        defaultProto={defaultProto}
+        step={2}
+        onSelectionChange={setSelection}
+      />
+
+      {/* Vendor-specific steps (device-side config). */}
       {children}
 
-      {!hideTLS && <TLSSection sourceType={sourceType} port={port} />}
+      <ManualCommandSection sourceType={sourceType} selection={selection} />
       <ForwarderUninstallSection />
     </div>
   )
