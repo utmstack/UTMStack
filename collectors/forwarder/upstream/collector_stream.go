@@ -21,7 +21,8 @@ func StartCollectorConfigStream(cnf *config.Config, ctx context.Context) {
 
 		client := NewCollectorServiceClient(connection)
 
-		if err := resyncCollectorConfig(client, cnf, ctx); err != nil {
+		resyncResults, err := resyncCollectorConfig(client, cnf, ctx)
+		if err != nil {
 			LogConnectionError(err, "Collector Config (resync)", &connErrLogged)
 			time.Sleep(timeToSleep)
 			continue
@@ -36,6 +37,18 @@ func StartCollectorConfigStream(cnf *config.Config, ctx context.Context) {
 
 		utils.Logger.LogF(100, "Collector Config Stream started")
 		connErrLogged = false
+
+		for _, result := range resyncResults {
+			if result.GetRequestId() == "" {
+				continue
+			}
+			if sendErr := stream.Send(&CollectorMessages{
+				StreamMessage: &CollectorMessages_Result{Result: result},
+			}); sendErr != nil {
+				HandleGRPCStreamError(sendErr, "error sending resync result", &streamErrLogged)
+				break
+			}
+		}
 
 	recvLoop:
 		for {
@@ -68,19 +81,22 @@ func StartCollectorConfigStream(cnf *config.Config, ctx context.Context) {
 	}
 }
 
-func resyncCollectorConfig(client CollectorServiceClient, cnf *config.Config, ctx context.Context) error {
+func resyncCollectorConfig(client CollectorServiceClient, cnf *config.Config, ctx context.Context) ([]*ConfigKnowledge, error) {
 	fullConfig, err := client.GetCollectorConfig(ctx, &ConfigRequest{CollectorId: int32(cnf.CollectorID)})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	results := make([]*ConfigKnowledge, 0, len(fullConfig.GetGroups()))
 	for _, group := range fullConfig.GetGroups() {
 		result := dispatchCollectorConfigGroup(group)
+		result.RequestId = group.GetRequestId()
 		if result.GetAccepted() != "true" {
 			utils.Logger.ErrorF("collector config resync: %s", result.GetErrorMessage())
 		}
+		results = append(results, result)
 	}
-	return nil
+	return results, nil
 }
 
 func applyCollectorConfigPush(cfg *CollectorConfig) *ConfigKnowledge {
