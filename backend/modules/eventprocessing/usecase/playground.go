@@ -26,10 +26,13 @@ func NewPlaygroundUsecase(client *infrastructure.PlaygroundClient) *PlaygroundUs
 }
 
 func (uc *PlaygroundUsecase) acquire(ctx context.Context) error {
+	timer := time.NewTimer(SemaphoreAcquireTimeout)
+	defer timer.Stop()
+
 	select {
 	case <-uc.sem:
 		return nil
-	case <-time.After(SemaphoreAcquireTimeout):
+	case <-timer.C:
 		return domain.ErrPlaygroundBusy
 	case <-ctx.Done():
 		return ctx.Err()
