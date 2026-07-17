@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/installer
 go 1.25.1
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.124
+	github.com/cloudfoundry/gosigar v1.3.125
 	github.com/kardianos/service v1.3.0
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/threatwinds/logger v1.2.3
