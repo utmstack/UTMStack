@@ -34,7 +34,7 @@ func NewCollectorUsecase(client connectors.AgentManagerCollectorClient) connecto
 
 var _ connectors.CollectorUsecase = (*collectorUsecase)(nil)
 
-func (u *collectorUsecase) ListOnlineForwarders(ctx context.Context) ([]dto.CollectorResponse, error) {
+func (u *collectorUsecase) ListForwarders(ctx context.Context) ([]dto.CollectorResponse, error) {
 	if u.client == nil {
 		return nil, domain.ErrAgentManagerUnavailable
 	}
@@ -46,8 +46,9 @@ func (u *collectorUsecase) ListOnlineForwarders(ctx context.Context) ([]dto.Coll
 
 	out := make([]dto.CollectorResponse, 0, len(resp.GetRows()))
 	for _, c := range resp.GetRows() {
-		if c.GetStatus() != agent.Status_ONLINE {
-			continue
+		status := "offline"
+		if c.GetStatus() == agent.Status_ONLINE {
+			status = "online"
 		}
 		out = append(out, dto.CollectorResponse{
 			ID:       c.GetId(),
@@ -55,6 +56,7 @@ func (u *collectorUsecase) ListOnlineForwarders(ctx context.Context) ([]dto.Coll
 			IP:       c.GetIp(),
 			Version:  c.GetVersion(),
 			LastSeen: c.GetLastSeen(),
+			Status:   status,
 		})
 	}
 	return out, nil

@@ -22,9 +22,10 @@ func NewCollectorHandler(uc connectors.CollectorUsecase) *CollectorHandler {
 	return &CollectorHandler{usecase: uc}
 }
 
-// @Summary     List online forwarder collectors
-// @Description Lists ONLINE forwarder-module collectors eligible for remote
-// @Description data-type configuration (the picker feed).
+// @Summary     List forwarder collectors
+// @Description Lists every registered forwarder-module collector (the picker
+// @Description feed), each tagged with status "online" or "offline". Only
+// @Description online ones can currently receive a config push.
 // @Tags        Integrations
 // @Security    BearerAuth
 // @Produce     json
@@ -33,7 +34,7 @@ func NewCollectorHandler(uc connectors.CollectorUsecase) *CollectorHandler {
 // @Failure     500 {object} map[string]string
 // @Router      /integrations/collectors [get]
 func (h *CollectorHandler) ListForwarders(c *gin.Context) {
-	items, err := h.usecase.ListOnlineForwarders(c.Request.Context())
+	items, err := h.usecase.ListForwarders(c.Request.Context())
 	if err != nil {
 		writeCollectorError(c, "collector.listForwarders", err)
 		return

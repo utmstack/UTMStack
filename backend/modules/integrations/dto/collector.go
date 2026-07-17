@@ -6,6 +6,7 @@ type CollectorResponse struct {
 	IP       string `json:"ip"`
 	Version  string `json:"version"`
 	LastSeen string `json:"lastSeen,omitempty"`
+	Status   string `json:"status"`
 }
 
 type SetDataTypeConfigRequest struct {
