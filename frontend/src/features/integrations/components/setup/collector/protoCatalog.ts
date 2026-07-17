@@ -1,11 +1,3 @@
-// Hand-maintained TS mirror of collectors/forwarder/config/const.go's
-// `ProtoPorts` and `HTTPPorts`. There is no wire exposure for these Go compile
-// -time constants (adding one would touch backend+agent-manager+proto for
-// read-only static data), so this catalog is kept in sync manually — the same
-// accepted-drift tradeoff already made for MIN_REMOTE_CONFIG_VERSION in
-// RemoteEnablePanel.tsx. If you add a data type or change a default port on
-// the Go side, update it here too.
-
 export type Proto = 'udp' | 'tcp' | 'tls' | 'http' | 'https'
 export type HttpAuth = '' | 'bearer' | 'hmac'
 
@@ -58,15 +50,6 @@ const HTTP_CATALOG: Record<string, HttpSpec> = {
   },
 }
 
-/**
- * Protocols eligible for a given dataType. The catalog only decides which
- * protocols to *offer* — the user can still pick freely among them (same as
- * the custom-integration flow always could). A dataType with a ProtoPorts
- * entry offers udp/tcp, plus tls when a TCP port exists (TLS rides the TCP
- * listener). A dataType with an HTTPPorts entry offers at least its native
- * http/https proto. Unknown/custom dataTypes fall back to the full syslog
- * set, matching the legacy CustomSetup protocol tabs.
- */
 export function availableProtosFor(dataType: string): Proto[] {
   const protos: Proto[] = []
   const pp = PROTO_PORTS[dataType]
@@ -83,7 +66,6 @@ export function availableProtosFor(dataType: string): Proto[] {
   return protos.length > 0 ? protos : ['udp', 'tcp', 'tls', 'http', 'https']
 }
 
-/** Prefilled default port for dataType+proto, or '' if none is known (still editable). */
 export function defaultPortFor(dataType: string, proto: Proto): string {
   const pp = PROTO_PORTS[dataType]
   if (pp) {
@@ -95,7 +77,6 @@ export function defaultPortFor(dataType: string, proto: Proto): string {
   return ''
 }
 
-/** Prefilled auth/path/signatureHeader defaults for a known HTTP dataType (e.g. github), or null. */
 export function httpDefaultsFor(dataType: string): { path: string; auth: HttpAuth; signatureHeader: string } | null {
   const http = HTTP_CATALOG[dataType]
   if (!http) return null

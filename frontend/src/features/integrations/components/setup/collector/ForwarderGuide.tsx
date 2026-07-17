@@ -161,11 +161,7 @@ interface ForwarderGuideProps {
 export function ForwarderGuide({ source, port, sourceType, defaultProto, children }: ForwarderGuideProps) {
   const { t } = useTranslation()
   const { forwarders } = useCollectorIntegration()
-  // If at least one Forwarder is already online, there's no point walking the
-  // user through installing another one — skip Step 1 entirely. Only shown
-  // once the query has actually resolved, so we don't flash the "none online"
-  // fallback while it's still loading.
-  const hasOnlineForwarder = (forwarders.data ?? []).length > 0
+  const hasOnlineForwarder = (forwarders.data ?? []).some((f) => f.status === 'online')
   const availableProtos = useMemo(() => availableProtosFor(sourceType), [sourceType])
   const initialProto = defaultProto ?? availableProtos[0]
   const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({

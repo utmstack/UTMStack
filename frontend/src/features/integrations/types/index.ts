@@ -78,6 +78,7 @@ export interface ForwarderCollector {
   ip: string;
   version: string;
   lastSeen?: string;
+  status: 'online' | 'offline';
 }
 
 export interface SetDataTypeConfigRequest {

@@ -1,30 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Check, Copy, Loader2, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Check, ChevronDown, Copy, Loader2, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { useAuth } from '@/features/auth/services/auth.context'
 import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
+import type { ForwarderCollector } from '@/features/integrations/types'
 import { defaultPortFor, httpDefaultsFor, type HttpAuth, type Proto } from './protoCatalog'
 
 const ROOT = 'integrations.setup.remoteEnable'
-
-export const MIN_REMOTE_CONFIG_VERSION = '1.0.0'
-
-export function isVersionAtLeast(version: string, min: string): boolean {
-  const parse = (v: string) => v.split('.').map((n) => parseInt(n, 10) || 0)
-  const a = parse(version)
-  const b = parse(min)
-  const len = Math.max(a.length, b.length)
-  for (let i = 0; i < len; i++) {
-    const x = a[i] ?? 0
-    const y = b[i] ?? 0
-    if (x !== y) return x > y
-  }
-  return true
-}
 
 export interface RemoteEnableSelection {
   proto: Proto
@@ -44,6 +30,100 @@ async function fileToBase64(file: File): Promise<string> {
   return btoa(text)
 }
 
+function StatusDot({ status }: { status: ForwarderCollector['status'] }) {
+  return (
+    <span
+      className={cn('h-1.5 w-1.5 shrink-0 rounded-full', status === 'online' ? 'bg-emerald-500' : 'bg-red-500')}
+    />
+  )
+}
+
+// Custom dropdown (not a native <select>) so each row — open or closed — can
+// show a real colored status dot next to it. Native <option> elements can't
+// host styled children, only plain text, so a native select can't do this.
+function ForwarderPicker({
+  forwarders,
+  value,
+  onChange,
+  disabled,
+}: {
+  forwarders: ForwarderCollector[]
+  value: number | null
+  onChange: (id: number) => void
+  disabled?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const selected = forwarders.find((f) => f.id === value) ?? null
+
+  useEffect(() => {
+    if (!open) return
+    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        disabled={disabled}
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {selected && <StatusDot status={selected.status} />}
+          <span className="truncate">{selected ? `${selected.hostname} (${selected.ip})` : ''}</span>
+        </span>
+        <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-30 mt-1 w-full rounded-md border border-border bg-popover py-1 shadow-lg">
+          {forwarders.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => {
+                onChange(f.id)
+                setOpen(false)
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
+            >
+              <StatusDot status={f.status} />
+              <span className="truncate">
+                {f.hostname} ({f.ip})
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ForwarderStatusLegend({ forwarders }: { forwarders: ForwarderCollector[] }) {
+  const { t } = useTranslation()
+  const online = forwarders.filter((f) => f.status === 'online').length
+  const offline = forwarders.length - online
+
+  return (
+    <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
+      <span className="flex items-center gap-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        {t(`${ROOT}.legendOnline`, { count: online })}
+      </span>
+      <span className="flex items-center gap-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+        {t(`${ROOT}.legendOffline`, { count: offline })}
+      </span>
+      <span className="flex items-center gap-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+        {t(`${ROOT}.legendTotal`, { count: forwarders.length })}
+      </span>
+    </div>
+  )
+}
+
 export function RemoteEnablePanel({
   dataType,
   availableProtos,
@@ -57,10 +137,7 @@ export function RemoteEnablePanel({
 
   const { forwarders, setDataType, setCertificates, tlsStatus, dataTypeConfig } = useCollectorIntegration()
 
-  const eligible = useMemo(
-    () => (forwarders.data ?? []).filter((f) => isVersionAtLeast(f.version, MIN_REMOTE_CONFIG_VERSION)),
-    [forwarders.data],
-  )
+  const allForwarders = forwarders.data ?? []
 
   const initialProto = defaultProto ?? availableProtos[0]
   const [collectorId, setCollectorId] = useState<number | null>(null)
@@ -84,10 +161,14 @@ export function RemoteEnablePanel({
   const [keyPem, setKeyPem] = useState<File | null>(null)
   const [caPem, setCaPem] = useState<File | null>(null)
 
+  const selectedForwarder = allForwarders.find((f) => f.id === collectorId) ?? null
+  const isSelectedForwarderOffline = selectedForwarder != null && selectedForwarder.status !== 'online'
+
   useEffect(() => {
-    if (collectorId != null && eligible.some((f) => f.id === collectorId)) return
-    setCollectorId(eligible[0]?.id ?? null)
-  }, [eligible, collectorId])
+    if (collectorId != null && allForwarders.some((f) => f.id === collectorId)) return
+    const preferred = allForwarders.find((f) => f.status === 'online') ?? allForwarders[0]
+    setCollectorId(preferred?.id ?? null)
+  }, [allForwarders, collectorId])
 
   useEffect(() => {
     onSelectionChange?.({ proto, port })
@@ -194,7 +275,7 @@ export function RemoteEnablePanel({
   }
 
   const isPending = setDataType.isPending
-  const canSubmit = collectorId != null && !!port && !isSyncingConfig
+  const canSubmit = collectorId != null && !!port && !isSyncingConfig && !isSelectedForwarderOffline
 
   return (
     <Section title={t(`${ROOT}.title`)} step={step}>
@@ -205,29 +286,31 @@ export function RemoteEnablePanel({
           <Loader2 className="h-4 w-4 animate-spin" />
           {t(`${ROOT}.loadingForwarders`)}
         </div>
-      ) : eligible.length === 0 ? (
+      ) : allForwarders.length === 0 ? (
         <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-          {t(`${ROOT}.noForwarders`, { minVersion: MIN_REMOTE_CONFIG_VERSION })}
+          {t(`${ROOT}.noForwarders`)}
         </p>
       ) : (
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                {t(`${ROOT}.forwarderLabel`)}
-              </span>
-              <select
-                value={collectorId ?? ''}
-                onChange={(e) => setCollectorId(Number(e.target.value))}
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {t(`${ROOT}.forwarderLabel`)}
+                </span>
+                <ForwarderStatusLegend forwarders={allForwarders} />
+              </div>
+              <ForwarderPicker
+                forwarders={allForwarders}
+                value={collectorId}
+                onChange={setCollectorId}
                 disabled={isSyncingConfig}
-                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
-              >
-                {eligible.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.hostname} ({f.ip})
-                  </option>
-                ))}
-              </select>
+              />
+              {isSelectedForwarderOffline && (
+                <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+                  {t(`${ROOT}.forwarderOffline`)}
+                </p>
+              )}
             </label>
 
             <label className="block">
