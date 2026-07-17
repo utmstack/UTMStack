@@ -26,6 +26,10 @@ func (d *DB) GormDB() *gorm.DB {
 	return d.conn
 }
 
+func NewDB(conn *gorm.DB) *DB {
+	return &DB{conn: conn}
+}
+
 func (d *DB) Migrate(data ...interface{}) error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
@@ -62,10 +66,20 @@ func (d *DB) Upsert(data interface{}, query string, updates map[string]interface
 	return d.conn.Create(data).Error
 }
 
+func (d *DB) UpdateOnly(data interface{}, query string, updates map[string]interface{}, args ...interface{}) (bool, error) {
+	d.locker.Lock()
+	defer d.locker.Unlock()
+	tx := d.conn.Model(data).Where(query, args...).Updates(updates)
+	if tx.Error != nil {
+		return false, tx.Error
+	}
+	return tx.RowsAffected > 0, nil
+}
+
 func (d *DB) GetFirst(data interface{}, query string, args ...interface{}) error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
-	err := d.conn.Where(query, args).First(data).Error
+	err := d.conn.Where(query, args...).First(data).Error
 	if err != nil {
 		return err
 	}
@@ -111,7 +125,7 @@ func (d *DB) Delete(data interface{}, query string, hardDelete bool, args ...int
 	if hardDelete {
 		tx = tx.Unscoped()
 	}
-	err := tx.Where(query, args).Delete(data).Error
+	err := tx.Where(query, args...).Delete(data).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}

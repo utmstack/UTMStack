@@ -14,7 +14,7 @@ require (
 	github.com/threatwinds/go-sdk v1.1.26
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
-	google.golang.org/grpc v1.82.0
+	google.golang.org/grpc v1.82.1
 	google.golang.org/protobuf v1.36.11
 )
 

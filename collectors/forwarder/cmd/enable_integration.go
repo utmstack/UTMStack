@@ -68,24 +68,10 @@ Examples:
 		}
 
 		// If the DataType doesn't exist, create it automatically
+		if _, err := collectorpkg.ResolveOrCreateDataType(name, proto, port); err != nil {
+			return err
+		}
 		if !known {
-			kind := "syslog"
-			switch proto {
-			case "http", "https":
-				kind = proto
-			case "netflow":
-				kind = "netflow"
-			}
-			udp, tcp := "", ""
-			switch proto {
-			case "udp":
-				udp = port
-			case "tcp", "tls":
-				tcp = port
-			}
-			if err := config.AddUserDataType(name, kind, udp, tcp); err != nil {
-				return fmt.Errorf("failed to create data type %q: %w", name, err)
-			}
 			fmt.Printf("New data type %q created.\n", name)
 		}
 
@@ -125,7 +111,7 @@ func enableHTTPIntegration(name, port, proto string) error {
 		Auth:            auth,
 		SignatureHeader: sigHeader,
 	}
-	if err := collectorpkg.EnableHTTPIntegration(name, opts); err != nil {
+	if _, err := collectorpkg.EnableHTTPIntegration(name, opts); err != nil {
 		return fmt.Errorf("error enabling %s integration: %w", proto, err)
 	}
 

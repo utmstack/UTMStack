@@ -4,12 +4,24 @@ package schema
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"
 	"github.com/utmstack/UTMStack/shared/fs"
 )
+
+var configMu sync.Mutex
+
+func LockCollectorConfig() {
+	configMu.Lock()
+}
+
+func UnlockCollectorConfig() {
+	configMu.Unlock()
+}
 
 type Port struct {
 	IsListen   bool   `json:"enabled"`
@@ -23,7 +35,7 @@ type HTTPPort struct {
 	Path            string `json:"path"`                 // default "/logs"
 	Bind            string `json:"bind"`                 // "127.0.0.1" default
 	Auth            string `json:"auth,omitempty"`       // "" | "bearer" | "hmac"
-	SignatureHeader  string `json:"sig_header,omitempty"` // e.g. "X-Hub-Signature-256"
+	SignatureHeader string `json:"sig_header,omitempty"` // e.g. "X-Hub-Signature-256"
 }
 
 type Integration struct {
@@ -57,7 +69,17 @@ func WriteCollectorConfig(cnf *CollectorConfig) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(config.CollectorFileName, data, 0644)
+
+	dest := config.CollectorFileName
+	tmp := dest + ".tmp"
+	if err := os.WriteFile(tmp, data, 0644); err != nil {
+		return fmt.Errorf("error writing temp collector config: %w", err)
+	}
+	if err := os.Rename(tmp, dest); err != nil {
+		os.Remove(tmp)
+		return fmt.Errorf("error saving collector config: %w", err)
+	}
+	return nil
 }
 
 func ValidatePortChange(newPort string) bool {

@@ -2,7 +2,6 @@ import { useTranslation, Trans } from 'react-i18next'
 import { registerCollector } from '../registry'
 import { ForwarderGuide, forwarderHost } from '../ForwarderGuide'
 import { Section } from '@/features/integrations/components/ui/Section'
-import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.sentinelOne'
@@ -21,14 +20,7 @@ function SentinelOneGuide({ module: _module }: { module: Integration }) {
   const host = forwarderHost()
 
   return (
-    <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="antivirus-sentinel-one">
-      <Section title={t(`${ROOT}.step1.title`)} step={2}>
-        <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step1.body`)}</p>
-        {/* SentinelOne streams CEF syslog over TCP. */}
-        <CodeBlock code={`sudo /opt/utmstack-forwarder/utmstack_forwarder enable-integration antivirus-sentinel-one tcp`} />
-        <p className="mt-2 text-[11px] text-muted-foreground">{t(`${ROOT}.step1.note`)}</p>
-      </Section>
-
+    <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="antivirus-sentinel-one" defaultProto="tcp">
       {CONSOLE_STEPS.map((s, idx) => (
         <Section key={s.key} title={t(`${ROOT}.console.${s.key}.title`)} step={idx + 3}>
           <p className="text-sm text-foreground/90">

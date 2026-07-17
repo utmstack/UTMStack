@@ -2299,7 +2299,7 @@
             "payloadUrl": "Payload URL",
             "contentType": "Content type",
             "secret": "Secret",
-            "secretHint": "Paste the <hl>token</hl> printed by the Forwarder in the previous step.",
+            "secretHint": "Paste the <hl>token</hl> shown when the integration was enabled above.",
             "events": "Which events",
             "eventsHint": "Send me everything — or select specific event types."
           }
@@ -2807,6 +2807,12 @@
           "uninstall": {
             "title": "Optional — Uninstall the Forwarder",
             "body": "Run this command on the host where the Forwarder is installed to stop the service and remove all its files."
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Forwarder host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Forwarder)",
+            "enableStep": "2 · Enable the integration"
           }
         },
         "aix": {
@@ -3338,7 +3344,52 @@
           "httpBindNote": "The HTTP/HTTPS listener binds to 127.0.0.1 (the Forwarder host) by default, so post from an app running on that host — or front it with a reverse proxy. For remote sources, use syslog (UDP/TCP/TLS)."
         },
         "parserTitle": "Parsing",
-        "parserBody": "Incoming events are stored under the {{dataType}} data type. Add a parsing filter for it so the raw payload is mapped into structured fields, then build alert rules on top."
+        "parserBody": "Incoming events are stored under the {{dataType}} data type. Add a parsing filter for it so the raw payload is mapped into structured fields, then build alert rules on top.",
+        "manualCommand": {
+          "title": "Optional — Enable via the command line instead",
+          "intro": "Prefer the terminal? SSH into the Forwarder host and run the command below — it matches whatever protocol and port you have selected above."
+        }
+      },
+      "remoteEnable": {
+        "title": "Enable this integration remotely",
+        "body": "Pick a Forwarder, choose the protocol and port, then enable the integration — no SSH needed.",
+        "noPermission": "You don't have permission to manage remote integrations. Ask an administrator to grant the integrations.write permission.",
+        "loadingForwarders": "Loading Forwarders…",
+        "noForwarders": "No Forwarder is registered yet. Install one above to enable integrations remotely.",
+        "forwarderOffline": "This Forwarder is offline and can't receive configuration changes right now.",
+        "legendOnline": "{{count}} online",
+        "legendOffline": "{{count}} offline",
+        "legendTotal": "{{count}} total",
+        "forwarderLabel": "Forwarder",
+        "protoLabel": "Protocol",
+        "portLabel": "Port",
+        "currentStateLoading": "Checking current configuration…",
+        "currentlyEnabled": "Currently: enabled · {{proto}} · port {{port}}",
+        "currentlyDisabled": "Currently: disabled · {{proto}} · port {{port}}",
+        "authLabel": "Authentication",
+        "authNone": "None",
+        "authBearer": "Bearer token",
+        "authHmac": "HMAC signature",
+        "pathLabel": "Path",
+        "signatureHeaderLabel": "Signature header",
+        "certTitle": "TLS certificate",
+        "certLoading": "Checking certificate status…",
+        "certLoaded": "A valid certificate is already loaded on this Forwarder.",
+        "certMissing": "No certificate loaded yet — upload one to enable this protocol.",
+        "certInvalid": "The loaded certificate is invalid: {{error}}",
+        "certPemLabel": "Certificate",
+        "keyPemLabel": "Private key",
+        "caPemLabel": "CA certificate",
+        "uploadCertsButton": "Upload certificate",
+        "certUploadSuccess": "Certificate uploaded.",
+        "certUploadError": "Failed to upload the certificate.",
+        "certReadError": "Could not read the selected file(s).",
+        "enableButton": "Enable integration",
+        "disableButton": "Disable integration",
+        "enableSuccess": "Integration enabled.",
+        "disableSuccess": "Integration disabled.",
+        "enableError": "Failed to update the integration.",
+        "secretWarning": "Store this token securely — it won't be shown again."
       }
     },
     "codeBlock": {

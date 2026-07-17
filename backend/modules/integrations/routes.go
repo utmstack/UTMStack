@@ -9,6 +9,7 @@ import (
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	mh := handler.NewModuleHandler(m.Modules())
 	th := handler.NewTenantHandler(m.Tenants())
+	ch := handler.NewCollectorHandler(m.Collectors())
 
 	read := middleware.RequirePermission("integrations.read")
 	write := middleware.RequirePermission("integrations.write")
@@ -29,4 +30,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/tenants/:module", read, th.List)
 	g.PUT("/tenants/:module", write, th.Save)
 	g.DELETE("/tenants/:module/:name", write, th.Delete)
+
+	g.GET("/collectors", write, ch.ListForwarders)
+	g.GET("/collectors/:id/data-types/:dataType", write, ch.GetDataType)
+	g.PUT("/collectors/:id/data-types/:dataType", write, ch.SetDataType)
+	g.PUT("/collectors/:id/certificates", write, ch.SetCertificates)
+	g.GET("/collectors/:id/tls-status", write, ch.GetTLSStatus)
 }

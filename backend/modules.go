@@ -201,6 +201,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
 		dsUC,
 		opensearchMod.GetIndexPatternUsecase(),
+		agentClient,
 	)
 
 	var mcpModule *mcpmod.Module
