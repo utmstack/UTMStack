@@ -4516,6 +4516,7 @@
       "content": "Content (pipeline YAML)",
       "contentHint": "A valid pipeline: YAML definition.",
       "readOnly": "System pipeline — read-only. You can only enable or disable it.",
+      "test": "Test",
       "save": "Save",
       "saving": "Saving…",
       "delete": "Delete",
@@ -4566,12 +4567,60 @@
       "paramsKey": "Key",
       "paramsValue": "Value"
     },
-    "allDataTypes": "All data types"
+    "allDataTypes": "All data types",
+    "testPipeline": "Test pipeline"
+  },
+  "playground": {
+    "title": "Test pipeline",
+    "noDataTypes": "This pipeline has no data types assigned yet — add one to test it.",
+    "dataTypeLabel": "Data type",
+    "dataTypePlaceholder": "No data types available",
+    "dataTypeSingleHint": "This pipeline only has one data type — add more to choose between them.",
+    "rawLogLabel": "Raw log",
+    "rawLogPlaceholder": "Paste a sample raw log line…",
+    "rawLogCounter": "{{chars}} chars · {{kb}} KB",
+    "rawLogTooLarge": "This log exceeds the 1 MB limit — trim it before running the test.",
+    "run": {
+      "label": "Run",
+      "running": "Testing…",
+      "waitHint": "This can take up to 15 seconds while the pipeline processes the log."
+    },
+    "errors": {
+      "busy": "The playground is busy running another test — please try again shortly.",
+      "timeout": "The test timed out — this usually means the selected data type doesn't match the log format.",
+      "validation": "The request was invalid — check the raw log and pipeline content.",
+      "server": "The playground couldn't complete the test — please try again."
+    },
+    "result": {
+      "label": "Parsed result",
+      "empty": "Run a test to see the parsed event here.",
+      "loading": "Waiting for the parsed event…",
+      "tabs": {
+        "fields": "Fields",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} field",
+      "fieldsCount_other": "{{count}} fields",
+      "copy": "Copy",
+      "copied": "Copied",
+      "elapsed": "Parsed in {{time}}",
+      "elapsedHint": "Time from Run to the parsed result",
+      "searchPlaceholder": "Search fields…",
+      "noMatch": "No fields match your search."
+    },
+    "alerts": {
+      "label": "Alerts",
+      "empty": "Run a test to see any resulting alerts here.",
+      "none": "No alerts were triggered.",
+      "count_one": "{{count}} alert",
+      "count_other": "{{count}} alerts"
+    }
   },
   "alertingRules": {
     "title": "Alerting Rules",
     "subtitle": "Correlation rules that turn events into alerts. Toggle, tune or author your own.",
     "new": "New rule",
+    "test": "Test",
     "refresh": "Refresh",
     "empty": "No rules match.",
     "loadError": "Could not load the rules.",
@@ -4626,6 +4675,7 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "save": "Save",
+      "test": "Test",
       "metadata": "Metadata",
       "name": "Name",
       "confidentiality": "Confidentiality",
