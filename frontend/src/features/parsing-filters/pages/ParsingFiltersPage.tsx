@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, ChevronDown, ChevronUp, FileCode, Loader2, Lock, Plus, RefreshCw, Search } from 'lucide-react'
+import { AlertTriangle, ChevronDown, ChevronUp, FileCode, FlaskConical, Loader2, Lock, Plus, RefreshCw, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -9,6 +9,7 @@ import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { filtersHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Filter } from '@/features/data-processing/types/data-processing.types'
+import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
 import { FilterFormDrawer } from '../components/FilterFormDrawer'
 import { displayName } from '../lib/filter-model'
 
@@ -34,6 +35,7 @@ export function ParsingFiltersPage() {
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ filter: Filter; creating: boolean } | null>(null)
   const [preparingNew, setPreparingNew] = useState(false)
+  const [showTestModal, setShowTestModal] = useState(false)
 
   // Deep-link: ?dataType=<value> pre-filters the list to that data type
   // (e.g. opened from an integration's "Filters" button).
@@ -167,6 +169,10 @@ export function ParsingFiltersPage() {
           <span><span className="font-medium text-foreground">{total}</span> {t('parsingFilters.title').toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowTestModal(true)}>
+            <FlaskConical size={14} className="mr-1.5" />
+            {t('parsingFilters.testPipeline')}
+          </Button>
           <Button size="sm" onClick={() => void startCreate()} disabled={preparingNew}>
             {preparingNew ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Plus size={14} className="mr-1.5" />}
             {t('parsingFilters.new')}
@@ -283,6 +289,10 @@ export function ParsingFiltersPage() {
             load()
           }}
         />
+      )}
+
+      {showTestModal && (
+        <TestPlaygroundModal mode="filter" dataTypeOptions={dataTypeOptions} onClose={() => setShowTestModal(false)} />
       )}
     </div>
   )
