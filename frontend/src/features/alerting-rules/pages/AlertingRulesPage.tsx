@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Code2,
   Crosshair,
+  FlaskConical,
   LayoutList,
   Loader2,
   Lock,
@@ -28,6 +29,7 @@ import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { useDateFormat } from '@/shared/lib/datetime'
+import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
 import {
   alertingRulesHttpService as svc,
   AlertingRulesHttpError,
@@ -86,6 +88,7 @@ export function AlertingRulesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importBusy, setImportBusy] = useState(false)
   const [importResults, setImportResults] = useState<ImportRulesResponse | null>(null)
+  const [showTestModal, setShowTestModal] = useState(false)
 
   const onImportFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return
@@ -165,6 +168,15 @@ export function AlertingRulesPage() {
     }
   }
 
+  // Test entry point (Entry A) scope: dataTypes with ≥1 active rule among the
+  const testDataTypes = [
+    ...new Set(
+      rules
+        .filter((r) => r.ruleActive)
+        .flatMap((r) => (r.dataTypes ?? []).filter((d) => d.included).map((d) => d.dataType)),
+    ),
+  ]
+
   const remove = (r: CorrelationRule) => setPendingDelete(r)
 
   const confirmDelete = async () => {
@@ -202,6 +214,10 @@ export function AlertingRulesPage() {
           <Button size="sm" variant="outline" disabled={importBusy} onClick={() => fileInputRef.current?.click()}>
             {importBusy ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Upload size={14} className="mr-1.5" />}
             {t('alertingRules.import.button')}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowTestModal(true)}>
+            <FlaskConical size={14} className="mr-1.5" />
+            {t('alertingRules.test')}
           </Button>
           <Button size="sm" onClick={() => setCreating(true)}>
             <Plus size={14} className="mr-1.5" /> {t('alertingRules.new')}
@@ -268,6 +284,7 @@ export function AlertingRulesPage() {
       {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}
       {creating && <RuleDrawer create dataTypeOptions={dataTypeOptions} onClose={() => setCreating(false)} onSaved={() => { setCreating(false); refresh() }} t={t} />}
       {importResults && <ImportResultsDialog res={importResults} onClose={() => setImportResults(null)} t={t} />}
+      {showTestModal && <TestPlaygroundModal mode="rule" dataTypeOptions={testDataTypes} onClose={() => setShowTestModal(false)} />}
       <ConfirmDialog
         open={pendingDelete != null}
         title={t('alertingRules.editor.delete') ?? 'Delete'}
@@ -416,6 +433,7 @@ function RuleDrawer({
   const [editing, setEditing] = useState(!!create)
   const [form, setForm] = useState<RuleFormState>(() => ruleToForm(rule))
   const [busy, setBusy] = useState(false)
+  const [showTestModal, setShowTestModal] = useState(false)
 
   // Visual ↔ Code. The structured form stays canonical; Code shows/edits the
   // whole rule as YAML and syncs back into the form on toggle / save.
@@ -534,15 +552,31 @@ function RuleDrawer({
           )}
         </div>
 
-        {showForm && (
-          <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
-            {!create && <Button size="sm" variant="outline" onClick={cancelEdit} disabled={busy}>{t('alertingRules.editor.cancel')}</Button>}
-            <Button size="sm" onClick={() => void save()} disabled={busy}>
-              {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('alertingRules.editor.save')}
+        {(showForm || rule) && (
+          <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
+            <Button size="sm" variant="outline" onClick={() => setShowTestModal(true)}>
+              <FlaskConical size={13} className="mr-1.5" /> {t('alertingRules.editor.test')}
             </Button>
+            {showForm && (
+              <div className="flex items-center gap-2">
+                {!create && <Button size="sm" variant="outline" onClick={cancelEdit} disabled={busy}>{t('alertingRules.editor.cancel')}</Button>}
+                <Button size="sm" onClick={() => void save()} disabled={busy}>
+                  {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('alertingRules.editor.save')}
+                </Button>
+              </div>
+            )}
           </footer>
         )}
       </div>
+
+      {showTestModal && (
+        <TestPlaygroundModal
+          mode="rule"
+          dataTypeOptions={form.dataTypes}
+          draftContent={ruleFormToYaml(form)}
+          onClose={() => setShowTestModal(false)}
+        />
+      )}
     </div>
   )
 }
