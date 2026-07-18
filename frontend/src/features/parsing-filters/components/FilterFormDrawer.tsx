@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Code2, LayoutList, Loader2, Lock, Trash2, X } from 'lucide-react'
+import { Code2, FlaskConical, LayoutList, Loader2, Lock, Trash2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -12,6 +12,7 @@ import {
 } from '@/features/data-processing/services/data-processing-http.service'
 import type { DataTypeOption, Filter } from '@/features/data-processing/types/data-processing.types'
 import { regexPatternsHttpService, type RegexPattern } from '@/features/regex-patterns/services/regex-patterns-http.service'
+import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
 import { displayName, emptyModel, parseFilter, sanitizeFileName, serializeFilter, type FilterModel } from '../lib/filter-model'
 import { VisualFilterEditor } from './VisualFilterEditor'
 import { PatternInsertButton } from './PatternInsertButton'
@@ -41,6 +42,7 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
   )
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showTestModal, setShowTestModal] = useState(false)
 
   // Visual ↔ Code. Content (YAML string) stays canonical; the visual editor
   // serializes back into it on every change.
@@ -266,14 +268,28 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
                 </button>
               ))}
           </div>
-          {!readOnly && (
-            <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
-              {saving ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null}
-              {saving ? t('parsingFilters.editor.saving') : t('parsingFilters.editor.save')}
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setShowTestModal(true)}>
+              <FlaskConical size={13} className="mr-1.5" /> {t('parsingFilters.editor.test')}
             </Button>
-          )}
+            {!readOnly && (
+              <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
+                {saving ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null}
+                {saving ? t('parsingFilters.editor.saving') : t('parsingFilters.editor.save')}
+              </Button>
+            )}
+          </div>
         </footer>
       </div>
+
+      {showTestModal && (
+        <TestPlaygroundModal
+          mode="filter"
+          dataTypeOptions={model.dataTypes}
+          draftContent={content}
+          onClose={() => setShowTestModal(false)}
+        />
+      )}
     </div>
   )
 }
