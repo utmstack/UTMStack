@@ -376,6 +376,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
           cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
+          cd ${{ github.workspace }}/plugins/rule-flood-guard; go build -o com.utmstack.rule-flood-guard.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
