@@ -391,6 +391,7 @@ jobs:
           - ad-audit
           - soar
           - playground
+          - rule-flood-guard
     steps:
       - name: Check out code into the right branch
         uses: actions/checkout@v4

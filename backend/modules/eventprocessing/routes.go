@@ -38,6 +38,11 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	cr.GET("/find", read, crh.GetByID)
 	cr.DELETE("", write, crh.Delete)
 
+	// Internal-only: rule-flood-guard plugin disables a rule it identified as
+	// flooding the alerts list, by display name.
+	icr := g.Group("/internal/correlation-rule", middleware.RequireInternal())
+	icr.PUT("/deactivate", crh.InternalDeactivate)
+
 	// Filters (file-backed, pipeline: YAML). Identity = relPath query param.
 	f := g.Group("/filters")
 	f.POST("", write, fh.Create)
