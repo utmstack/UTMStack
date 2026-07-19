@@ -18,7 +18,7 @@ const (
 func (s NotificationSource) Valid() bool {
 	switch s {
 	case SourceAS400, SourceBitDefender, SourceAWS, SourceAzure,
-		SourceOffice365, SourceSophos, SourceGoogle, SourceEmailSetting, SourceAlerts:
+		SourceOffice365, SourceSophos, SourceGoogle, SourceEmailSetting, SourceAlerts, SourceSystem:
 		return true
 	}
 	return false

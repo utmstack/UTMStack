@@ -7,7 +7,7 @@ import (
 )
 
 type CreateNotificationRequest struct {
-	Source  domain.NotificationSource `json:"source"  binding:"required,oneof=AS400 BIT_DEFENDER AWS AZURE OFFICE_365 SOPHOS GOOGLE EMAIL_SETTING ALERTS"`
+	Source  domain.NotificationSource `json:"source"  binding:"required,oneof=AS400 BIT_DEFENDER AWS AZURE OFFICE_365 SOPHOS GOOGLE EMAIL_SETTING ALERTS SYSTEM"`
 	Type    domain.NotificationType   `json:"type"    binding:"required,oneof=INFO WARNING ERROR"`
 	Message string                    `json:"message" binding:"required,min=1"`
 }
