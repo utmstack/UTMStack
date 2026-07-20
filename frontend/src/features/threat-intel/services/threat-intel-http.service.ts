@@ -1,7 +1,5 @@
 import { createApiClient } from '@/shared/lib/api-client'
 import type {
-  EntitySearchRequest,
-  EntitySearchResponse,
   EntityDetail,
   EntityRelation,
   ThreatFeed,
@@ -11,6 +9,8 @@ import type {
   TiResult,
   AdvancedSearchRequest,
   AdvancedSearchResponse,
+  EntityLookupRequest,
+  EntityLookupResponse,
 } from '../domain/threat-intel.types'
 import { isNotConfigured } from './ti-errors'
 
@@ -27,8 +27,6 @@ async function wrap<T>(fn: () => Promise<T>): Promise<TiResult<T>> {
 }
 
 export const threatIntelHttpService = {
-  search: (body: EntitySearchRequest) =>
-    wrap(() => api.post<EntitySearchResponse>(`${BASE}/search`, body)),
   searchAdvanced: (body: AdvancedSearchRequest, params?: { limit?: number; page?: number }) => {
     const qs = new URLSearchParams()
     if (params?.limit !== undefined) qs.set('limit', String(params.limit))
@@ -44,4 +42,6 @@ export const threatIntelHttpService = {
   feeds: () => wrap(() => api.get<ThreatFeed[]>(`${BASE}/feeds`)),
   chat: (body: ChatRequest) => wrap(() => api.post<ChatResponse>(`${BASE}/ai/chat`, body)),
   usage: () => wrap(() => api.get<UsageInfo>(`${BASE}/usage`)),
+  entityLookup: (body: EntityLookupRequest) =>
+    wrap(() => api.post<EntityLookupResponse>(`${BASE}/entity/lookup`, body)),
 }

@@ -90,20 +90,6 @@ export function searchItemValue(item: EntitySearchItem): string {
   return item.attributes[item.type] ?? Object.values(item.attributes)[0] ?? ''
 }
 
-export interface EntitySearchRequest {
-  query: string
-  types?: EntityType[]
-  page?: number
-  size?: number
-}
-
-export interface EntitySearchResponse {
-  results: EntitySummary[]
-  items: number
-  pages: number
-  aggregations?: unknown | null
-}
-
 export type FeedType = 'accumulative' | (string & {})
 export type FeedAccuracy = 'level1' | 'level2' | 'level3' | (string & {})
 
@@ -148,7 +134,35 @@ export interface AdvancedRangeCondition {
 export interface AdvancedTermCondition {
   term: Record<string, { value: string }>
 }
-export type AdvancedCondition = AdvancedRangeCondition | AdvancedTermCondition
+export interface AdvancedMatchCondition {
+  match: Record<string, { query: string }>
+}
+export interface AdvancedTermsCondition {
+  terms: Record<string, (string | number)[]>
+}
+export interface AdvancedExistsCondition {
+  exists: { field: string }
+}
+export interface AdvancedWildcardCondition {
+  wildcard: Record<string, { value: string }>
+}
+export interface AdvancedMultiMatchCondition {
+  multi_match: { query: string; fields: string[] }
+}
+export type AdvancedCondition =
+  | AdvancedRangeCondition
+  | AdvancedTermCondition
+  | AdvancedMatchCondition
+  | AdvancedTermsCondition
+  | AdvancedExistsCondition
+  | AdvancedWildcardCondition
+  | AdvancedMultiMatchCondition
+
+export interface EntityLookupRequest {
+  type: EntityType
+  value: string | number
+}
+export type EntityLookupResponse = EntitySearchItem
 
 export interface AdvancedDateHistogram {
   date_histogram: { field: string; interval: string }
