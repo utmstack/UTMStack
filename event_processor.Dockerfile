@@ -19,3 +19,4 @@ COPY ./plugins/soc-ai/com.utmstack.soc-ai.plugin /workdir/plugins/utmstack/
 COPY ./plugins/modules-config/com.utmstack.modules-config.plugin /workdir/plugins/utmstack/
 COPY ./plugins/crowdstrike/com.utmstack.crowdstrike.plugin /workdir/plugins/utmstack/
 COPY ./plugins/feeds/com.utmstack.feeds.plugin /workdir/plugins/utmstack/
+COPY ./plugins/rule-flood-guard/com.utmstack.rule-flood-guard.plugin /workdir/plugins/utmstack/
