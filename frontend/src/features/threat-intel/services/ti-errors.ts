@@ -4,6 +4,10 @@ export function isNotConfigured(e: unknown): boolean {
   return e instanceof ApiError && e.status === 503 && /not configured/i.test(e.message ?? '')
 }
 
+export function isNotFound(e: unknown): boolean {
+  return e instanceof ApiError && e.status === 404
+}
+
 export function describeError(e: unknown): string {
   if (e instanceof ApiError) {
     if (e.status === 502) return 'Threat intel upstream unavailable — try again.'

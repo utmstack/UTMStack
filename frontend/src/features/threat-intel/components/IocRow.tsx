@@ -3,7 +3,7 @@ import { MoreHorizontal } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { searchItemValue, type EntitySummary } from '../domain/threat-intel.types'
 import { REPUTATION_STYLE, reputationLabelKey, reputationTone, typeMeta } from './utils/severity-style'
-import { relativeTime } from './utils/time-format'
+import { absTimestamp } from './utils/time-format'
 
 interface IocRowProps {
   ioc: EntitySummary
@@ -49,7 +49,7 @@ export function IocRow({ ioc, onOpen }: IocRowProps) {
         )}
       </div>
       <div className="font-mono text-[11px] text-muted-foreground">
-        {ioc.lastSeen ? relativeTime(ioc.lastSeen) : '—'}
+        {ioc.lastSeen ? absTimestamp(ioc.lastSeen) : '—'}
       </div>
       <div className="flex justify-end opacity-0 group-hover:opacity-100">
         <button

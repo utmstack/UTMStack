@@ -10,8 +10,6 @@ export const REPUTATION_STYLE: Record<ReputationTone, { bar: string; tone: strin
   unknown: { bar: 'bg-muted',      tone: 'text-muted-foreground' },
 }
 
-// ponytail: CM reputation_score seen values are 0 (Indefinable) and -3 (Alarming).
-// Buckets: <0 danger, 0 unknown-neutral, positive safe. Tighten when CM docs land.
 export function reputationTone(score: number): ReputationTone {
   if (score <= -2) return 'danger'
   if (score < 0) return 'warning'
@@ -60,7 +58,6 @@ export function feedTypeTone(type: FeedType): string {
   return FEED_TYPE_TABLE[type] ?? 'text-muted-foreground'
 }
 
-// ponytail: CM feed accuracy labels seen so far: "level1". Assume level1 > level2 > level3.
 const FEED_ACCURACY_TABLE: Partial<Record<FeedAccuracy, { dot: string; labelKey: string }>> = {
   level1: { dot: 'bg-emerald-500', labelKey: 'threatIntel.feedAccuracy.level1' },
   level2: { dot: 'bg-amber-500', labelKey: 'threatIntel.feedAccuracy.level2' },
