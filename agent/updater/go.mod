@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/agent/updater
 go 1.25.5
 
 require (
-	github.com/kardianos/service v1.2.4
+	github.com/kardianos/service v1.3.0
 	github.com/utmstack/UTMStack/shared v0.0.0
 )
 
