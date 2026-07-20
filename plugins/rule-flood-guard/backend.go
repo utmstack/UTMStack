@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -28,26 +30,92 @@ func newBackendClient(baseURL, internalKey string) *backendClient {
 	}
 }
 
-type deactivateRequest struct {
-	RuleName string `json:"ruleName"`
+type ruleSearchResult struct {
+	RelPath    string `json:"relPath"`
+	Name       string `json:"name"`
+	RuleActive bool   `json:"ruleActive"`
 }
 
-type deactivateResponse struct {
+func (c *backendClient) resolveRule(ctx context.Context, ruleName string) ([]ruleSearchResult, error) {
+	endpoint := c.baseURL + "/api/v1/eventprocessing/correlation-rule/search-by-filters?ruleName=" + url.QueryEscape(ruleName)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-Internal-Key", c.internalKey)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, catcher.Error("search-by-filters call returned error status", nil, map[string]any{
+			"status": resp.StatusCode, "body": string(body), "ruleName": ruleName,
+		})
+	}
+
+	var candidates []ruleSearchResult
+	if err := json.NewDecoder(resp.Body).Decode(&candidates); err != nil {
+		return nil, err
+	}
+
+	var matches []ruleSearchResult
+	for i := range candidates {
+		if strings.EqualFold(candidates[i].Name, ruleName) {
+			matches = append(matches, candidates[i])
+		}
+	}
+	if len(matches) > 1 {
+		catcher.Warn("rule-flood-guard: ambiguous rule name collision, disabling every exact match", map[string]any{
+			"ruleName": ruleName, "matches": len(matches),
+		})
+	}
+	return matches, nil
+}
+
+type activateDeactivateResponse struct {
 	Changed bool `json:"changed"`
 }
 
 func (c *backendClient) Deactivate(ctx context.Context, ruleName string) (bool, error) {
-	payload, err := json.Marshal(deactivateRequest{RuleName: ruleName})
+	matches, err := c.resolveRule(ctx, ruleName)
 	if err != nil {
 		return false, err
 	}
-	url := c.baseURL + "/api/v1/eventprocessing/internal/correlation-rule/deactivate"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(payload))
+	if len(matches) == 0 {
+		return false, nil
+	}
+
+	changed := false
+	for i := range matches {
+		if !matches[i].RuleActive {
+			continue
+		}
+		ruleChanged, err := c.deactivateOne(ctx, ruleName, matches[i].RelPath)
+		if err != nil {
+			return changed, err
+		}
+		if ruleChanged {
+			changed = true
+		}
+	}
+	catcher.Info("rule-flood-guard: exact-match rules processed for deactivation", map[string]any{
+		"ruleName": ruleName, "matches": len(matches), "changed": changed,
+	})
+	return changed, nil
+}
+
+func (c *backendClient) deactivateOne(ctx context.Context, ruleName, relPath string) (bool, error) {
+	endpoint := fmt.Sprintf("%s/api/v1/eventprocessing/correlation-rule/activate-deactivate?relPath=%s&active=false",
+		c.baseURL, url.QueryEscape(relPath))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint, nil)
 	if err != nil {
 		return false, err
 	}
 	req.Header.Set("X-Internal-Key", c.internalKey)
-	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -57,16 +125,16 @@ func (c *backendClient) Deactivate(ctx context.Context, ruleName string) (bool, 
 
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
-		return false, catcher.Error("deactivate call returned error status", nil, map[string]any{
-			"status": resp.StatusCode, "body": string(body), "ruleName": ruleName,
+		return false, catcher.Error("activate-deactivate call returned error status", nil, map[string]any{
+			"status": resp.StatusCode, "body": string(body), "ruleName": ruleName, "relPath": relPath,
 		})
 	}
 
-	var out deactivateResponse
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	var result activateDeactivateResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return false, err
 	}
-	return out.Changed, nil
+	return result.Changed, nil
 }
 
 type notifyRequest struct {
