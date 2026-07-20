@@ -247,10 +247,11 @@ func registerEPCorrelationRules(m *Module) {
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "eventprocessing.write"},
 		func(ctx context.Context, _ *authz.Actor, in epRuleSetActiveInput) (any, error) {
-			if err := uc.SetActive(ctx, in.RelPath, in.Active); err != nil {
+			changed, err := uc.SetActive(ctx, in.RelPath, in.Active)
+			if err != nil {
 				return nil, err
 			}
-			return map[string]any{"rel_path": in.RelPath, "active": in.Active}, nil
+			return map[string]any{"rel_path": in.RelPath, "active": in.Active, "changed": changed}, nil
 		})
 
 	Add(m, &mcp.Tool{

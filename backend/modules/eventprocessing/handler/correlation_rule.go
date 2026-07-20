@@ -123,7 +123,7 @@ func (h *CorrelationRuleHandler) Update(c *gin.Context) {
 // @Produce     json
 // @Param       id     query int64 true  "Correlation rule ID"
 // @Param       active query bool  true  "true to activate, false to deactivate"
-// @Success     204 "No content"
+// @Success     200 {object} map[string]bool "changed: true if this call actually flipped the rule's state"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /correlation-rule/activate-deactivate [put]
@@ -140,13 +140,13 @@ func (h *CorrelationRuleHandler) ActivateDeactivate(c *gin.Context) {
 		return
 	}
 
-	err = h.usecase.SetActive(c.Request.Context(), relPath, active)
+	changed, err := h.usecase.SetActive(c.Request.Context(), relPath, active)
 	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.activate"}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeCorrelationError(c, err)
 		return
 	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, gin.H{"changed": changed})
 }
 
 // @Summary     List correlation rules by filters

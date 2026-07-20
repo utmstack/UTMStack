@@ -239,7 +239,7 @@ func (b *RuleBootstrap) migrateLegacyRules(ctx context.Context) error {
 			// System rules ship as files; only carry over a disable.
 			if !row.RuleActive {
 				if relPath, ok := systemByName[row.RuleName]; ok {
-					if err := b.store.SetEnabled(relPath, false); err != nil {
+					if _, err := b.store.SetEnabled(relPath, false); err != nil {
 						_ = catcher.Error("eventprocessing: reconciling disabled system rule failed", err,
 							map[string]any{"rule": row.RuleName})
 						failed++
@@ -262,7 +262,7 @@ func (b *RuleBootstrap) migrateLegacyRules(ctx context.Context) error {
 			continue
 		}
 		if !row.RuleActive {
-			if err := b.store.SetEnabled(created.RelPath, false); err != nil {
+			if _, err := b.store.SetEnabled(created.RelPath, false); err != nil {
 				_ = catcher.Error("eventprocessing: disabling migrated user rule failed", err,
 					map[string]any{"rule": row.RuleName})
 				failed++

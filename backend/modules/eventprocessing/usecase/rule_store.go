@@ -345,23 +345,30 @@ func (s *RuleStore) Delete(relPath string) error {
 // (disabledRules, keyed by ruleIdentity) rather than on the file itself, so it
 // works identically for system and user rules (disabling is the one mutation
 // allowed on a system rule) and never touches file content.
-func (s *RuleStore) SetEnabled(relPath string, enabled bool) error {
+//
+// The returned bool is the authoritative "did this call actually flip the
+// state" signal: false when the rule was already in the requested state (a
+// no-op) or when the call failed, true only when this call performed the
+// transition. Callers that need to know whether THEY caused a state change
+// (e.g. to decide whether to notify) must use this return value rather than
+// re-deriving it from a value read before the call.
+func (s *RuleStore) SetEnabled(relPath string, enabled bool) (bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	sr, ok := s.index[relPath]
 	if !ok {
-		return ErrRuleNotFound
+		return false, ErrRuleNotFound
 	}
 	if sr.enabled == enabled {
-		return nil
+		return false, nil
 	}
 
 	if err := s.writer.SetRuleDisabled(ruleIdentity(relPath), !enabled); err != nil {
-		return err
+		return false, err
 	}
 	sr.enabled = enabled
-	return nil
+	return true, nil
 }
 
 // DistinctValues returns the distinct values of a rule property, optionally
