@@ -38,7 +38,7 @@ type CorrelationRuleUsecase interface {
 	GetByRelPath(ctx context.Context, relPath string) (*dto.CorrelationRuleResponse, error)
 	List(ctx context.Context, filters dto.CorrelationRuleFilters) (*ListResult[dto.CorrelationRuleResponse], error)
 	Delete(ctx context.Context, relPath string) error
-	SetActive(ctx context.Context, relPath string, active bool) error
+	SetActive(ctx context.Context, relPath string, active bool) (bool, error)
 	FindDistinctPropertyValues(ctx context.Context, prop, value string) ([]string, error)
 }
 

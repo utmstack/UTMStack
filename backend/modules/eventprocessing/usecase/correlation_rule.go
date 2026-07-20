@@ -46,7 +46,7 @@ func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrela
 		return mapStoreErr(err)
 	}
 	if !req.RuleActive {
-		_ = u.store.SetEnabled(created.RelPath, false)
+		_, _ = u.store.SetEnabled(created.RelPath, false)
 	}
 	return nil
 }
@@ -152,7 +152,8 @@ func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrela
 		return mapStoreErr(err)
 	}
 	// Reconcile the active state (the store keeps it in the filename).
-	return mapStoreErr(u.store.SetEnabled(req.RelPath, req.RuleActive))
+	_, err := u.store.SetEnabled(req.RelPath, req.RuleActive)
+	return mapStoreErr(err)
 }
 
 func (u *correlationRuleUsecase) GetByRelPath(_ context.Context, relPath string) (*dto.CorrelationRuleResponse, error) {
@@ -193,8 +194,9 @@ func (u *correlationRuleUsecase) Delete(_ context.Context, relPath string) error
 	return mapStoreErr(u.store.Delete(relPath))
 }
 
-func (u *correlationRuleUsecase) SetActive(_ context.Context, relPath string, active bool) error {
-	return mapStoreErr(u.store.SetEnabled(relPath, active))
+func (u *correlationRuleUsecase) SetActive(_ context.Context, relPath string, active bool) (bool, error) {
+	changed, err := u.store.SetEnabled(relPath, active)
+	return changed, mapStoreErr(err)
 }
 
 func (u *correlationRuleUsecase) FindDistinctPropertyValues(_ context.Context, prop, value string) ([]string, error) {
