@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, ListFilter, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
@@ -8,6 +8,7 @@ import { useTiConfigStatus } from '../hooks/use-ti-config-status'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { useTiSearchAdvanced } from '../hooks/use-ti-search-advanced'
 import { useTiEntityLookup } from '../hooks/use-ti-entity-lookup'
+import { useAlertIocs, type AlertIocs } from '../hooks/use-alert-iocs'
 import { threatIntelHttpService } from '../services/threat-intel-http.service'
 import { describeError, isNotFound } from '../services/ti-errors'
 import { downloadCsv, toCsv } from '../services/csv'
@@ -58,10 +59,25 @@ function timeRangeFragment(range: TimeRange): AdvancedSearchRequest | undefined 
   return { query: { filter: [{ range: { lastSeen: { gte: expr, lte: 'now' } } }] } }
 }
 
+function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest {
+  const entries = Object.entries(iocs.byAttr).filter(([, v]) => v.length > 0)
+  if (entries.length === 0) {
+    return { query: { must: [{ terms: { id: ['__no_observed_iocs__'] } }] } }
+  }
+  return {
+    query: {
+      should: entries.map(([attr, values]) => ({
+        terms: { [`attributes.${attr}`]: values },
+      })),
+    },
+  }
+}
+
 function composeBody(
   filterFragment: AdvancedSearchRequest,
   q: string,
   range: TimeRange,
+  observed?: AdvancedSearchRequest,
 ): AdvancedSearchRequest {
   const must: AdvancedCondition[] = [...(filterFragment.query?.must ?? [])]
   const should: AdvancedCondition[] = [...(filterFragment.query?.should ?? [])]
@@ -71,9 +87,14 @@ function composeBody(
   if (text?.query?.must) must.push(...text.query.must)
   const time = timeRangeFragment(range)
   if (time?.query?.filter) filter.push(...time.query.filter)
+  if (observed?.query?.must) must.push(...observed.query.must)
+  if (observed?.query?.should) should.push(...observed.query.should)
   const query: NonNullable<AdvancedSearchRequest['query']> = {}
   if (must.length) query.must = must
-  if (should.length) query.should = should
+  if (should.length) {
+    query.should = should
+    query.minimum_should_match = 1
+  }
   if (mustNot.length) query.must_not = mustNot
   if (filter.length) query.filter = filter
   return {
@@ -88,6 +109,12 @@ export function ThreatIntelPage() {
   const feedsQuery = useTiFeeds()
   const searchAdvancedMutation = useTiSearchAdvanced()
   const lookupMutation = useTiEntityLookup()
+  const alertIocsQuery = useAlertIocs()
+  console.log(alertIocsQuery.data)
+  const observedFragment = useMemo(
+    () => (alertIocsQuery.data ? alertIocsFragment(alertIocsQuery.data) : undefined),
+    [alertIocsQuery.data],
+  )
 
   const [query, setQuery] = useState<string>('*')
   const [page, setPage] = useState(0)
@@ -99,12 +126,9 @@ export function ThreatIntelPage() {
   const [filters, setFilters] = useState<FiltersState>(EMPTY_FILTERS)
   const [lastBody, setLastBody] = useState<AdvancedSearchRequest>({})
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [timeRange, setTimeRange] = useState<TimeRange>('24h')
+  const [timeRange, setTimeRange] = useState<TimeRange>('all')
 
-  // 'replace' when the user searches, jumps pages, or changes page size.
-  // 'append' when infinite scroll asks for the next page.
   const modeRef = useRef<'replace' | 'append'>('replace')
-  // Guards against out-of-order responses (older mutation lands after newer).
   const seqRef = useRef(0)
 
   const [tab, setTab] = useState<TabKey>('iocs')
@@ -115,9 +139,10 @@ export function ThreatIntelPage() {
 
   useEffect(() => {
     if (!isConfigured) return
+    if (!observedFragment) return
     const my = ++seqRef.current
     const mode = modeRef.current
-    const body = composeBody(filtersToRequest(filters), query, timeRange)
+    const body = composeBody(filtersToRequest(filters), query, timeRange, observedFragment)
     setLastBody(body)
     searchAdvancedMutation.mutate(
       { body, limit: size, page: page + 1 },
@@ -141,8 +166,7 @@ export function ThreatIntelPage() {
         },
       }
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, page, size, isConfigured, timeRange])
+  }, [query, page, size, isConfigured, timeRange, observedFragment])
 
   if (configLoading) return null
   if (isConfigured === false) return <NotConfiguredState />
@@ -175,7 +199,7 @@ export function ThreatIntelPage() {
   }
 
   const handleFiltersApply = (request: AdvancedSearchRequest) => {
-    const body = composeBody(request, query, timeRange)
+    const body = composeBody(request, query, timeRange, observedFragment)
     modeRef.current = 'replace'
     setPage(0)
     setLastBody(body)

@@ -175,6 +175,7 @@ export interface AdvancedSearchRequest {
     should?: AdvancedCondition[]
     must_not?: AdvancedCondition[]
     filter?: AdvancedCondition[]
+    minimum_should_match?: number
   }
   aggs?: Record<string, AdvancedAggregation>
 }
