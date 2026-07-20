@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, ListFilter, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
@@ -8,7 +8,8 @@ import { useTiConfigStatus } from '../hooks/use-ti-config-status'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { useTiSearchAdvanced } from '../hooks/use-ti-search-advanced'
 import { useTiEntityLookup } from '../hooks/use-ti-entity-lookup'
-import { useAlertIocs, type AlertIocs } from '../hooks/use-alert-iocs'
+import { useAlertIocsFragment } from '../hooks/use-alert-iocs'
+import { mergeAdvancedRequests } from '../services/advanced-query'
 import { threatIntelHttpService } from '../services/threat-intel-http.service'
 import { describeError, isNotFound } from '../services/ti-errors'
 import { downloadCsv, toCsv } from '../services/csv'
@@ -28,7 +29,6 @@ import type { FiltersState } from '../components/FiltersPanel'
 import type {
   EntitySummary,
   AdvancedSearchRequest,
-  AdvancedCondition,
 } from '../domain/threat-intel.types'
 
 const MULTI_MATCH_FIELDS = [
@@ -59,48 +59,18 @@ function timeRangeFragment(range: TimeRange): AdvancedSearchRequest | undefined 
   return { query: { filter: [{ range: { lastSeen: { gte: expr, lte: 'now' } } }] } }
 }
 
-function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest {
-  const entries = Object.entries(iocs.byAttr).filter(([, v]) => v.length > 0)
-  if (entries.length === 0) {
-    return { query: { must: [{ terms: { id: ['__no_observed_iocs__'] } }] } }
-  }
-  return {
-    query: {
-      should: entries.map(([attr, values]) => ({
-        terms: { [`attributes.${attr}`]: values },
-      })),
-    },
-  }
-}
-
 function composeBody(
   filterFragment: AdvancedSearchRequest,
   q: string,
   range: TimeRange,
   observed?: AdvancedSearchRequest,
 ): AdvancedSearchRequest {
-  const must: AdvancedCondition[] = [...(filterFragment.query?.must ?? [])]
-  const should: AdvancedCondition[] = [...(filterFragment.query?.should ?? [])]
-  const mustNot: AdvancedCondition[] = [...(filterFragment.query?.must_not ?? [])]
-  const filter: AdvancedCondition[] = [...(filterFragment.query?.filter ?? [])]
-  const text = textQueryFragment(q)
-  if (text?.query?.must) must.push(...text.query.must)
-  const time = timeRangeFragment(range)
-  if (time?.query?.filter) filter.push(...time.query.filter)
-  if (observed?.query?.must) must.push(...observed.query.must)
-  if (observed?.query?.should) should.push(...observed.query.should)
-  const query: NonNullable<AdvancedSearchRequest['query']> = {}
-  if (must.length) query.must = must
-  if (should.length) {
-    query.should = should
-    query.minimum_should_match = 1
-  }
-  if (mustNot.length) query.must_not = mustNot
-  if (filter.length) query.filter = filter
-  return {
-    query: Object.keys(query).length ? query : undefined,
-    aggs: filterFragment.aggs,
-  }
+  return mergeAdvancedRequests(
+    filterFragment,
+    textQueryFragment(q),
+    timeRangeFragment(range),
+    observed,
+  )
 }
 
 export function ThreatIntelPage() {
@@ -109,12 +79,7 @@ export function ThreatIntelPage() {
   const feedsQuery = useTiFeeds()
   const searchAdvancedMutation = useTiSearchAdvanced()
   const lookupMutation = useTiEntityLookup()
-  const alertIocsQuery = useAlertIocs()
-  console.log(alertIocsQuery.data)
-  const observedFragment = useMemo(
-    () => (alertIocsQuery.data ? alertIocsFragment(alertIocsQuery.data) : undefined),
-    [alertIocsQuery.data],
-  )
+  const observedFragment = useAlertIocsFragment()
 
   const [query, setQuery] = useState<string>('*')
   const [page, setPage] = useState(0)

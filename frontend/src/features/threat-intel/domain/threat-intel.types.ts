@@ -79,8 +79,6 @@ export interface EntitySearchItem {
 }
 
 export type EntitySummary = EntitySearchItem
-// ponytail: relations endpoint shape unconfirmed — assumed EntityAttributes[] like
-// latest_associations from detail. Narrow when a real response is observed.
 export type EntityRelation = EntityAttributes
 
 // Search items nest the display value inside `attributes[<type-key>]` (e.g.

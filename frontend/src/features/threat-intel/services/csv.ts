@@ -1,5 +1,3 @@
-// ponytail: minimal CSV writer — no new dep. Quote-when-needed, escape internal quotes.
-
 function csvCell(value: unknown): string {
   const s = value == null ? '' : String(value)
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s

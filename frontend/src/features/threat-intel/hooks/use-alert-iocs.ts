@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { alertsHttpService } from '@/features/alerts/services/alerts-http.service'
+import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 const IOC_FIELD_MAP: { field: string; twAttr: string }[] = [
   { field: 'adversary.ip',     twAttr: 'ip' },
@@ -45,4 +47,23 @@ export function useAlertIocs() {
     },
     staleTime: 5 * 60_000,
   })
+}
+
+export function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest {
+  const entries = Object.entries(iocs.byAttr).filter(([, v]) => v.length > 0)
+  if (entries.length === 0) {
+    return { query: { must: [{ terms: { id: ['__no_observed_iocs__'] } }] } }
+  }
+  return {
+    query: {
+      should: entries.map(([attr, values]) => ({
+        terms: { [`attributes.${attr}`]: values },
+      })),
+    },
+  }
+}
+
+export function useAlertIocsFragment(): AdvancedSearchRequest | undefined {
+  const q = useAlertIocs()
+  return useMemo(() => (q.data ? alertIocsFragment(q.data) : undefined), [q.data])
 }
