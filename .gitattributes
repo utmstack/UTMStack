@@ -1,1 +1,23 @@
-* text eol=lf
+* text=auto eol=lf
+
+# Binary files — never normalize line endings
+*.syso binary
+*.png binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.eot binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.jar binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
