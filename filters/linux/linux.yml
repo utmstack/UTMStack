@@ -275,7 +275,7 @@ pipeline:
           from:
             - log.JOBRESULT
           to: actionResult
-          where: exists("log.JOBRESULT")
+          where: exists("log.JOBRESULT") && !regexMatch("log.JOBRESULT", "(?i)\b(?:denied|blocked|failed)\b")
 
       - rename:
           from:
@@ -418,7 +418,28 @@ pipeline:
           from:
             - log.result
           to: actionResult
-          where: 'equals("log.type", "auditd") && exists("log.result")'
+          where: 'equals("log.type", "auditd") && exists("log.result") && !regexMatch("log.result", "(?i)\b(?:denied|blocked|failed)\b")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: regexMatch("log.type", "(?i)\bdenied\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: regexMatch("log.type", "(?i)\bblocked\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: regexMatch("log.type", "(?i)\bfailed\b")
 
       # Map exe to origin.process (full path to executable)
       # Only if journald's COMM didn't already set origin.process

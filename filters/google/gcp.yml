@@ -483,7 +483,7 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)'
 
       # Adding geolocation to origin.ip

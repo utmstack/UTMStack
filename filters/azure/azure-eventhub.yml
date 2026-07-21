@@ -797,21 +797,46 @@ pipeline:
           from:
             - log.properties.result
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.Properties.Result
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.properties.resultType
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.properties.userAgent
           to: log.propertiesUserAgent
+
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: regexMatch("log.properties.result", "(?i)\bdenied\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: regexMatch("log.properties.result", "(?i)\bblocked\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: regexMatch("log.properties.result", "(?i)\bfailed\b")
 
       # .......................................................................#
       # Adding severity based on log.level
