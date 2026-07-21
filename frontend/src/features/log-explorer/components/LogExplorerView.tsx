@@ -1120,7 +1120,7 @@ const CALENDAR_INTERVALS = [
 ]
 
 const SELECT_CLS =
-  'h-8 cursor-pointer rounded-md border border-input bg-background/40 px-2 text-xs transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+  'h-8 cursor-pointer rounded-md border border-border bg-background px-2 text-xs transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
 function ViewToggle({ mode, onChange }: { mode: 'table' | 'chart'; onChange: (m: 'table' | 'chart') => void }) {
   const { t } = useTranslation()
