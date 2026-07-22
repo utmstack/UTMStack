@@ -141,7 +141,11 @@ func (h *CorrelationRuleHandler) ActivateDeactivate(c *gin.Context) {
 	}
 
 	changed, err := h.usecase.SetActive(c.Request.Context(), relPath, active)
-	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.activate"}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
+	action := "correlation_rule.activate"
+	if !active {
+		action = "correlation_rule.deactivate"
+	}
+	audit.Record(c, audit_connectors.Event{Action: action}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeCorrelationError(c, err)
 		return
