@@ -14,9 +14,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 )
 
-const notificationMessageTemplate = "Correlation rule '%s' generated over %d un-deduplicated alerts and was automatically disabled to prevent alert flooding. Mark false positives via Alert Tag Rules, or add deduplicateBy/groupBy to the rule, then re-enable it."
-
-const maxNotificationMessageLen = 280
+const notificationMessageTemplate = "Correlation rule '%s' generated over %d un-deduplicated alerts from data source '%s' and was disabled to prevent flooding. Mark false positives via Alert Tag Rules or add deduplicateBy/groupBy, then re-enable it."
 
 type backendClient struct {
 	baseURL     string
@@ -153,17 +151,6 @@ func (c *backendClient) Notify(ctx context.Context, message string) error {
 	return nil
 }
 
-func floodNotificationMessage(ruleName string, threshold int64) string {
-	msg := fmt.Sprintf(notificationMessageTemplate, ruleName, threshold)
-	if len(msg) <= maxNotificationMessageLen {
-		return msg
-	}
-
-	overflow := len(msg) - maxNotificationMessageLen
-	cut := len(ruleName) - overflow - 3
-	if cut < 1 {
-		cut = 1
-	}
-	name := ruleName[:cut] + "..."
-	return fmt.Sprintf(notificationMessageTemplate, name, threshold)
+func floodNotificationMessage(ruleName string, threshold int64, dataSource string) string {
+	return fmt.Sprintf(notificationMessageTemplate, ruleName, threshold, dataSource)
 }
