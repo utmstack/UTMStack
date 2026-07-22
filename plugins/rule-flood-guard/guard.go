@@ -36,17 +36,17 @@ func evaluateOnce(ctx context.Context, search searchFunc, client disableNotifier
 		changed, err := client.Deactivate(ctx, b.RuleName)
 		if err != nil {
 			_ = catcher.Error("rule-flood-guard: failed to deactivate rule", err, map[string]any{
-				"ruleName": b.RuleName, "count": b.Count,
+				"ruleName": b.RuleName, "dataSource": b.DataSource, "count": b.Count,
 			})
 		}
 		if !changed {
 			continue
 		}
 
-		msg := floodNotificationMessage(b.RuleName, cfg.Threshold)
+		msg := floodNotificationMessage(b.RuleName, cfg.Threshold, b.DataSource)
 		if err := client.Notify(ctx, msg); err != nil {
 			_ = catcher.Error("rule-flood-guard: failed to send notification", err, map[string]any{
-				"ruleName": b.RuleName,
+				"ruleName": b.RuleName, "dataSource": b.DataSource,
 			})
 		}
 	}
