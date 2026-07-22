@@ -368,6 +368,14 @@ func (s *RuleStore) SetEnabled(relPath string, enabled bool) (bool, error) {
 		return false, err
 	}
 	sr.enabled = enabled
+
+	dir := s.userDir
+	if sr.system {
+		dir = s.systemDir
+	}
+	now := time.Now()
+	_ = os.Chtimes(filepath.Join(dir, relPath), now, now)
+
 	return true, nil
 }
 
