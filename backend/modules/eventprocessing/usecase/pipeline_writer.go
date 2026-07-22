@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 	"sync"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -100,6 +101,12 @@ func (w *pipelineWriter) SetRuleDisabled(identity string, disabled bool) error {
 		delete(w.disabledRules, identity)
 	}
 	return w.writeTenantsLocked()
+}
+
+// PokeRuleReload bumps a rule file's mtime without changing its content.
+func (w *pipelineWriter) PokeRuleReload(absPath string) {
+	now := time.Now()
+	_ = os.Chtimes(absPath, now, now)
 }
 
 // DisabledRuleSet returns a snapshot of the currently disabled rule identities.

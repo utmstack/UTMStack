@@ -373,8 +373,7 @@ func (s *RuleStore) SetEnabled(relPath string, enabled bool) (bool, error) {
 	if sr.system {
 		dir = s.systemDir
 	}
-	now := time.Now()
-	_ = os.Chtimes(filepath.Join(dir, relPath), now, now)
+	s.writer.PokeRuleReload(filepath.Join(dir, relPath))
 
 	return true, nil
 }
