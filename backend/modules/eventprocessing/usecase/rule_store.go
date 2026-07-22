@@ -368,6 +368,13 @@ func (s *RuleStore) SetEnabled(relPath string, enabled bool) (bool, error) {
 		return false, err
 	}
 	sr.enabled = enabled
+
+	dir := s.userDir
+	if sr.system {
+		dir = s.systemDir
+	}
+	s.writer.PokeRuleReload(filepath.Join(dir, relPath))
+
 	return true, nil
 }
 
