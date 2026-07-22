@@ -71,6 +71,48 @@ func applyFileConfig(base Config, fc fileConfig) Config {
 	return base
 }
 
+func writeDefaultConfigIfMissing(path string) {
+	if _, err := os.Stat(path); err == nil {
+		return
+	} else if !os.IsNotExist(err) {
+		_ = catcher.Error("rule-flood-guard: failed to stat config file, skipping default creation", err, map[string]any{"process": processName, "file": path})
+		return
+	}
+
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		_ = catcher.Error("rule-flood-guard: failed to create pipeline dir for default config", err, map[string]any{"process": processName, "dir": dir})
+		return
+	}
+
+	knobs := defaultKnobs()
+	pf := pluginsFile{Plugins: map[string]fileConfig{
+		pluginKey: {
+			Enabled:         &knobs.Enabled,
+			Threshold:       &knobs.Threshold,
+			WindowHours:     &knobs.WindowHours,
+			IntervalSeconds: &knobs.IntervalSeconds,
+		},
+	}}
+	data, err := yaml.Marshal(pf)
+	if err != nil {
+		_ = catcher.Error("rule-flood-guard: failed to marshal default config", err, map[string]any{"process": processName})
+		return
+	}
+
+	tmp := path + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+		_ = catcher.Error("rule-flood-guard: failed to write default config file", err, map[string]any{"process": processName, "file": path})
+		return
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		_ = catcher.Error("rule-flood-guard: failed to finalize default config file", err, map[string]any{"process": processName, "file": path})
+		return
+	}
+
+	catcher.Info("rule-flood-guard: created default config file", map[string]any{"process": processName, "file": path})
+}
+
 func loadKnobsFromFile(path string) (Config, error) {
 	knobs := defaultKnobs()
 
@@ -127,6 +169,7 @@ func loadConfig() (Config, string) {
 	}
 
 	path := filepath.Join(pipelineDir, configFileName)
+	writeDefaultConfigIfMissing(path)
 	knobs, err := loadKnobsFromFile(path)
 	if err != nil {
 		_ = catcher.Error("rule-flood-guard: failed to read config file, using defaults", err, map[string]any{"process": processName, "file": path})

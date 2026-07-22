@@ -33,4 +33,4 @@ plugins:
 | `windowHours` | `24` | Time window used to count alerts. |
 | `intervalSeconds` | `300` | How often the guard checks. |
 
-If the file doesn't exist, the guard just runs with these defaults.
+If the file doesn't exist, the plugin creates it with these defaults the first time it starts — it never overwrites a file that's already there.
