@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,12 +14,31 @@ import (
 )
 
 const (
-	processName     = "plugin_com.utmstack.soc-ai"
-	pluginFile      = "system_plugins_soc_ai.yaml"
-	pipelineDefault = "/workdir/pipeline"
-	reconnectDelay  = 5 * time.Second
-	pollInterval    = 30 * time.Second
+	processName        = "plugin_com.utmstack.soc-ai"
+	pluginFile         = "system_plugins_soc_ai.yaml"
+	pipelineDefault    = "/workdir/pipeline"
+	instanceConfigPath = "/updates/instance-config.yml"
+	reconnectDelay     = 5 * time.Second
+	pollInterval       = 30 * time.Second
 )
+
+type instanceConfig struct {
+	Server      string `yaml:"server"`
+	InstanceID  string `yaml:"instance_id"`
+	InstanceKey string `yaml:"instance_key"`
+}
+
+func readInstanceConfig(path string) (*instanceConfig, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var ic instanceConfig
+	if err := yaml.Unmarshal(data, &ic); err != nil {
+		return nil, err
+	}
+	return &ic, nil
+}
 
 type Config struct {
 	// Platform (from plugins.PluginCfg("com.utmstack"))
@@ -233,13 +253,32 @@ func readConfig(path, encKey, backend, internalKey string) *Config {
 	if authType == "" {
 		authType = "bearer"
 	}
+	authHeaderName := fc.AuthHeaderName
+
+	if fc.Provider == "threatwinds" {
+		// ponytail: hit the CM proxy directly with id+key from /updates/instance-config.yml; user's API key is ignored.
+		ic, ierr := readInstanceConfig(instanceConfigPath)
+		if ierr != nil || ic.Server == "" || ic.InstanceID == "" || ic.InstanceKey == "" {
+			_ = catcher.Error("threatwinds provider requires instance-config.yml", ierr, map[string]any{"process": processName, "file": instanceConfigPath})
+			return c // inactive
+		}
+		url = strings.TrimRight(ic.Server, "/") + "/proxy/api/ai/v1/chat/completions"
+		apiKey = ""
+		authType = "none"
+		authHeaderName = ""
+		if customHeaders == nil {
+			customHeaders = make(map[string]string, 2)
+		}
+		customHeaders["id"] = ic.InstanceID
+		customHeaders["key"] = ic.InstanceKey
+	}
 
 	c.Provider = fc.Provider
 	c.URL = url
 	c.Model = fc.Model
 	c.APIKey = apiKey
 	c.AuthType = authType
-	c.AuthHeaderName = fc.AuthHeaderName
+	c.AuthHeaderName = authHeaderName
 	c.CustomHeaders = customHeaders
 	c.MaxTokens = maxTokens
 	c.MaxToolIterations = maxIters
