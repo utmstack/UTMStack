@@ -315,7 +315,9 @@ func registerBilling(m *Module) {
 // ---- socai.* ---------------------------------------------------------------
 
 type socaiAnalyzeInput struct {
-	Alert json.RawMessage `json:"alert" jsonschema:"Alert payload (any JSON object) forwarded to the external SOC AI service"`
+	// ponytail: `any` (not json.RawMessage) — RawMessage reflects as []uint8
+	// and the SDK would advertise an "array of integer 0..255" schema.
+	Alert any `json:"alert" jsonschema:"Alert payload (any JSON object) forwarded to the external SOC AI service"`
 }
 
 func registerSOCAI(m *Module) {
@@ -327,10 +329,11 @@ func registerSOCAI(m *Module) {
 		Annotations: &mcp.ToolAnnotations{},
 	}, Gate{},
 		func(ctx context.Context, _ *authz.Actor, in socaiAnalyzeInput) (any, error) {
-			if len(in.Alert) == 0 {
+			if in.Alert == nil {
 				return nil, fmt.Errorf("alert is required")
 			}
-			status, body, err := client.Analyze(ctx, []byte(in.Alert))
+			raw, _ := json.Marshal(in.Alert)
+			status, body, err := client.Analyze(ctx, raw)
 			if err != nil {
 				return nil, err
 			}
