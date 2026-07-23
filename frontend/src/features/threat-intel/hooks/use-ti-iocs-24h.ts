@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { threatIntelHttpService } from '../services/threat-intel-http.service'
 import { mergeAdvancedRequests } from '../services/advanced-query'
-import { useAlertIocsFragment } from './use-alert-iocs'
 import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 const IOC_TYPES = [
@@ -15,26 +14,20 @@ const IOC_TYPES = [
 ]
 
 const BASE: AdvancedSearchRequest = {
-  query: {
-    must: [
-      { range: { lastSeen: { gte: 'now-24h', lte: 'now' } } },
-      { terms: { 'type.keyword': IOC_TYPES } },
-    ],
-  },
+  query: { must: [{ terms: { 'type.keyword': IOC_TYPES } }] },
   aggs: {
     hourly_iocs: { date_histogram: { field: 'lastSeen', interval: 'hour' } },
     by_types: { terms: { field: 'type.keyword', size: 50 } },
   },
 }
 
-export function useTiIocs24h() {
-  const observed = useAlertIocsFragment()
+export function useTiIocs24h(extra: AdvancedSearchRequest | undefined) {
   return useQuery({
-    queryKey: ['ti', 'iocs-24h', observed],
+    queryKey: ['ti', 'iocs-24h', extra],
     queryFn: () => threatIntelHttpService.searchAdvanced(
-      mergeAdvancedRequests(BASE, observed),
+      mergeAdvancedRequests(BASE, extra),
       { limit: 0, page: 1 },
     ),
-    enabled: !!observed,
+    enabled: !!extra,
   })
 }

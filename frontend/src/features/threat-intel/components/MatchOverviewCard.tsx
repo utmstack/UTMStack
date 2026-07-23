@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
 import { fillHourlyBuckets } from './utils/hourly-buckets'
+import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = {
   ip:         ['ip', 'cidr'],
@@ -15,9 +16,13 @@ const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = 
   ],
 }
 
-export function MatchOverviewCard() {
+interface MatchOverviewCardProps {
+  body: AdvancedSearchRequest | undefined
+}
+
+export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
   const { t } = useTranslation()
-  const query = useTiIocs24h()
+  const query = useTiIocs24h(body)
 
   const total = useMemo(() => {
     if (query.data?.kind !== 'ok') return 0

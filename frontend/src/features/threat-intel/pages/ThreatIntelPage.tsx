@@ -237,7 +237,7 @@ export function ThreatIntelPage() {
       />
 
       <div className="mt-5">
-        <MatchOverviewCard />
+        <MatchOverviewCard body={observedFragment ? lastBody : undefined} />
       </div>
 
       <div className="mt-5">
