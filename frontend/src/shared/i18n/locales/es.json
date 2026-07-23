@@ -4991,12 +4991,13 @@
       "exporting": "Exportando…"
     },
     "overview": {
-      "title": "Coincidencias de IOCs · últimas 24 horas",
+      "title": "Coincidencias de IOCs",
       "totalIndicators": "indicadores totales",
-      "axis": {
-        "start": "hace 24h",
-        "middle": "hace 12h",
-        "end": "ahora"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Dominio",
+        "signatures": "Firmas"
       }
     },
     "notConfigured": {

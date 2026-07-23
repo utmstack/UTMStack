@@ -4991,12 +4991,13 @@
       "exporting": "Exportando…"
     },
     "overview": {
-      "title": "Correspondências de IOC · últimas 24 horas",
+      "title": "Correspondências de IOC",
       "totalIndicators": "indicadores totais",
-      "axis": {
-        "start": "há 24h",
-        "middle": "há 12h",
-        "end": "agora"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Domínio",
+        "signatures": "Assinaturas"
       }
     },
     "notConfigured": {

@@ -681,12 +681,13 @@
       "exporting": "Exporting…"
     },
     "overview": {
-      "title": "IOC matches · last 24 hours",
+      "title": "IOC matches",
       "totalIndicators": "total indicators",
-      "axis": {
-        "start": "24h ago",
-        "middle": "12h ago",
-        "end": "now"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Domain",
+        "signatures": "Signatures"
       }
     },
     "notConfigured": {

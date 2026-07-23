@@ -5055,12 +5055,13 @@
       "exporting": "Экспортирование…"
     },
     "overview": {
-      "title": "Совпадения IOC · последние 24 часа",
+      "title": "Совпадения IOC",
       "totalIndicators": "всего индикаторов",
-      "axis": {
-        "start": "24ч назад",
-        "middle": "12ч назад",
-        "end": "сейчас"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Домен",
+        "signatures": "Сигнатуры"
       }
     },
     "notConfigured": {

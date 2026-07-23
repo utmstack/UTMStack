@@ -5029,12 +5029,13 @@
       "exporting": "Wird exportiert…"
     },
     "overview": {
-      "title": "IOC-Treffer · letzte 24 Stunden",
+      "title": "IOC-Treffer",
       "totalIndicators": "Gesamtzahl Indikatoren",
-      "axis": {
-        "start": "vor 24h",
-        "middle": "vor 12h",
-        "end": "jetzt"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Domain",
+        "signatures": "Signaturen"
       }
     },
     "notConfigured": {
