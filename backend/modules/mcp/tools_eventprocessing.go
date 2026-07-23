@@ -2,6 +2,8 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
+	"reflect"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
@@ -188,27 +190,121 @@ type epRulePropertyValuesInput struct {
 	Value    string `json:"value,omitempty"`
 }
 
+// MCP-only input shapes: the underlying DTO uses json.RawMessage for these
+// fields, which the SDK reflects as []byte → array<integer> — wrong for the
+// automation client. These wrappers carry the real per-field shape.
+type epCorrelationRuleCreateInput struct {
+	RuleName            string            `json:"name" jsonschema:"Rule name"`
+	RuleAdversary       string            `json:"adversary" jsonschema:"origin | target"`
+	RuleConfidentiality int               `json:"confidentiality" jsonschema:"0-3"`
+	RuleIntegrity       int               `json:"integrity" jsonschema:"0-3"`
+	RuleAvailability    int               `json:"availability" jsonschema:"0-3"`
+	RuleCategory        string            `json:"category"`
+	RuleTechnique       string            `json:"technique"`
+	RuleDescription     string            `json:"description"`
+	RuleReferences      []any             `json:"references,omitempty" jsonschema:"Reference URLs or objects"`
+	RuleDefinition      string            `json:"definition" jsonschema:"CEL expression, e.g. equals(\"log.channel\",\"Security\")"`
+	RuleGroupBy         []string          `json:"groupBy,omitempty"`
+	DeduplicateBy       []string          `json:"deduplicateBy,omitempty"`
+	Correlation         any               `json:"correlation,omitempty" jsonschema:"Optional multi-step correlation object"`
+	RuleActive          bool              `json:"ruleActive"`
+	DataTypes           []dto.DataTypeRef `json:"dataTypes"`
+}
+
+type epCorrelationRuleUpdateInput struct {
+	RelPath             string            `json:"relPath" jsonschema:"Rule identity (YAML relative path)"`
+	RuleName            string            `json:"name"`
+	RuleAdversary       string            `json:"adversary" jsonschema:"origin | target"`
+	RuleConfidentiality int               `json:"confidentiality" jsonschema:"0-3"`
+	RuleIntegrity       int               `json:"integrity" jsonschema:"0-3"`
+	RuleAvailability    int               `json:"availability" jsonschema:"0-3"`
+	RuleCategory        string            `json:"category"`
+	RuleTechnique       string            `json:"technique"`
+	RuleDescription     string            `json:"description"`
+	RuleReferences      []any             `json:"references,omitempty"`
+	RuleDefinition      string            `json:"definition" jsonschema:"CEL expression"`
+	RuleGroupBy         []string          `json:"groupBy,omitempty"`
+	DeduplicateBy       []string          `json:"deduplicateBy,omitempty"`
+	Correlation         any               `json:"correlation,omitempty"`
+	RuleActive          bool              `json:"ruleActive"`
+	DataTypes           []dto.DataTypeRef `json:"dataTypes"`
+}
+
+func mustRaw(v any) json.RawMessage {
+	if v == nil || reflect.ValueOf(v).IsZero() {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil
+	}
+	return b
+}
+
+func (in epCorrelationRuleCreateInput) toDTO() dto.CreateCorrelationRuleRequest {
+	return dto.CreateCorrelationRuleRequest{
+		RuleName:            in.RuleName,
+		RuleAdversary:       in.RuleAdversary,
+		RuleConfidentiality: in.RuleConfidentiality,
+		RuleIntegrity:       in.RuleIntegrity,
+		RuleAvailability:    in.RuleAvailability,
+		RuleCategory:        in.RuleCategory,
+		RuleTechnique:       in.RuleTechnique,
+		RuleDescription:     in.RuleDescription,
+		RuleReferencesDef:   mustRaw(in.RuleReferences),
+		RuleDefinitionDef:   mustRaw(in.RuleDefinition),
+		RuleGroupByDef:      mustRaw(in.RuleGroupBy),
+		DeduplicateByDef:    mustRaw(in.DeduplicateBy),
+		CorrelationDef:      mustRaw(in.Correlation),
+		RuleActive:          in.RuleActive,
+		DataTypes:           in.DataTypes,
+	}
+}
+
+func (in epCorrelationRuleUpdateInput) toDTO() dto.UpdateCorrelationRuleRequest {
+	return dto.UpdateCorrelationRuleRequest{
+		RelPath:             in.RelPath,
+		RuleName:            in.RuleName,
+		RuleAdversary:       in.RuleAdversary,
+		RuleConfidentiality: in.RuleConfidentiality,
+		RuleIntegrity:       in.RuleIntegrity,
+		RuleAvailability:    in.RuleAvailability,
+		RuleCategory:        in.RuleCategory,
+		RuleTechnique:       in.RuleTechnique,
+		RuleDescription:     in.RuleDescription,
+		RuleReferencesDef:   mustRaw(in.RuleReferences),
+		RuleDefinitionDef:   mustRaw(in.RuleDefinition),
+		RuleGroupByDef:      mustRaw(in.RuleGroupBy),
+		DeduplicateByDef:    mustRaw(in.DeduplicateBy),
+		CorrelationDef:      mustRaw(in.Correlation),
+		RuleActive:          in.RuleActive,
+		DataTypes:           in.DataTypes,
+	}
+}
+
 func registerEPCorrelationRules(m *Module) {
 	uc := m.deps.EventProcessing.GetCorrelationRuleUsecase()
 
 	Add(m, &mcp.Tool{
 		Name: "correlation_rule.create", Title: "Create correlation rule",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in dto.CreateCorrelationRuleRequest) (any, error) {
-			if err := uc.Create(ctx, in); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in epCorrelationRuleCreateInput) (any, error) {
+			req := in.toDTO()
+			if err := uc.Create(ctx, req); err != nil {
 				return nil, err
 			}
-			return map[string]any{"name": in.RuleName, "created": true}, nil
+			return map[string]any{"name": req.RuleName, "created": true}, nil
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "correlation_rule.update", Title: "Update correlation rule",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in dto.UpdateCorrelationRuleRequest) (any, error) {
-			if err := uc.Update(ctx, in); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in epCorrelationRuleUpdateInput) (any, error) {
+			req := in.toDTO()
+			if err := uc.Update(ctx, req); err != nil {
 				return nil, err
 			}
-			return map[string]any{"rel_path": in.RelPath, "updated": true}, nil
+			return map[string]any{"rel_path": req.RelPath, "updated": true}, nil
 		})
 
 	Add(m, &mcp.Tool{
