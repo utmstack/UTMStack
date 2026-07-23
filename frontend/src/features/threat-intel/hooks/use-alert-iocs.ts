@@ -10,9 +10,15 @@ const IOC_FIELD_MAP: { field: string; twAttr: string }[] = [
   { field: 'target.host',      twAttr: 'hostname' },
   { field: 'adversary.domain', twAttr: 'domain' },
   { field: 'target.domain',    twAttr: 'domain' },
+  { field: 'adversary.hash',   twAttr: 'hash' },
+  { field: 'target.hash',      twAttr: 'hash' },
+  { field: 'adversary.url',    twAttr: 'url' },
+  { field: 'target.url',       twAttr: 'url' },
+  { field: 'adversary.email',  twAttr: 'email' },
+  { field: 'target.email',     twAttr: 'email' },
 ]
 
-const TOP_TOTAL = 20
+const TOP_TOTAL = 1000
 
 export interface AlertIocs {
   byAttr: Record<string, string[]>
