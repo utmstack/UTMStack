@@ -1,32 +1,76 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
-import { fillHourlyBuckets } from './utils/hourly-buckets'
+import { useTiIocsOverview } from '../hooks/use-ti-iocs-overview'
+import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
-export function MatchOverviewCard() {
+const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = {
+  ip:         ['ip', 'cidr'],
+  url:        ['url', 'link', 'github-organization', 'github-repository'],
+  domain:     ['domain', 'hostname'],
+  signatures: [
+    'md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'sha512-224', 'sha512-256',
+    'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512',
+    'authentihash', 'cdhash', 'malware', 'filename',
+    'profile-photo', 'facebook-profile', 'tiktok-profile', 'twitter-profile',
+  ],
+}
+
+// Show time-of-day for sub-day intervals, date for day+ intervals.
+function formatTs(ts: number, interval: string): string {
+  const perDay = /min|hour|^[0-9]+[mh]$/i.test(interval)
+  return new Date(ts).toLocaleString(undefined, perDay
+    ? { hour: '2-digit', minute: '2-digit' }
+    : { month: 'short', day: '2-digit' })
+}
+
+interface MatchOverviewCardProps {
+  body: AdvancedSearchRequest | undefined
+  interval: string
+}
+
+export function MatchOverviewCard({ body, interval }: MatchOverviewCardProps) {
   const { t } = useTranslation()
-  const query = useTiIocs24h()
+  const query = useTiIocsOverview(body, interval)
 
   const total = useMemo(() => {
     if (query.data?.kind !== 'ok') return 0
     return query.data.value.items
   }, [query.data])
 
-  const data = useMemo(() => {
+  const points = useMemo(() => {
     if (query.data?.kind !== 'ok') return []
-    const buckets = query.data.value.aggregations?.hourly_iocs?.buckets ?? []
-    return fillHourlyBuckets(buckets).map((b) => b.count)
+    const buckets = query.data.value.aggregations?.histogram?.buckets ?? []
+    return buckets
+      .map((b) => ({ ts: Number(b.key), count: b.doc_count }))
+      .filter((b) => Number.isFinite(b.ts))
+      .sort((a, b) => a.ts - b.ts)
+  }, [query.data])
+
+  const familyCounts = useMemo(() => {
+    const zero = { ip: 0, url: 0, domain: 0, signatures: 0 }
+    if (query.data?.kind !== 'ok') return zero
+    const buckets = query.data.value.aggregations?.by_types?.buckets ?? []
+    const byType: Record<string, number> = {}
+    for (const b of buckets) byType[String(b.key)] = b.doc_count
+    const sum = (types: string[]) => types.reduce((n, t) => n + (byType[t] ?? 0), 0)
+    return {
+      ip:         sum(TYPE_FAMILIES.ip),
+      url:        sum(TYPE_FAMILIES.url),
+      domain:     sum(TYPE_FAMILIES.domain),
+      signatures: sum(TYPE_FAMILIES.signatures),
+    }
   }, [query.data])
 
   const w = 1000
   const h = 100
-  const max = data.length > 0 ? Math.max(...data) * 1.15 : 1
-  const xs = data.map((_, i) => (i * w) / Math.max(data.length - 1, 1))
-  const ys = data.map((v) => h - (v / max) * h)
+  const counts = points.map((p) => p.count)
+  const max = counts.length > 0 ? Math.max(...counts) * 1.15 : 1
+  const xs = counts.map((_, i) => (i * w) / Math.max(counts.length - 1, 1))
+  const ys = counts.map((v) => h - (v / max) * h)
 
   let linePath = ''
-  if (data.length > 0) {
-    linePath = data.reduce((acc, _, i) => {
+  if (counts.length > 0) {
+    linePath = counts.reduce((acc, _, i) => {
       if (i === 0) return `M ${xs[i]} ${ys[i]}`
       const prevX = xs[i - 1]
       const prevY = ys[i - 1]
@@ -38,7 +82,13 @@ export function MatchOverviewCard() {
     linePath = `M 0 ${h} L ${w} ${h}`
   }
 
-  const areaPath = data.length > 0 ? `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z` : linePath
+  const areaPath = counts.length > 0 ? `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z` : linePath
+
+  const startLabel = points.length > 0 ? formatTs(points[0].ts, interval) : ''
+  const endLabel   = points.length > 0 ? formatTs(points[points.length - 1].ts, interval) : ''
+  const midLabel   = points.length > 1
+    ? formatTs(points[Math.floor(points.length / 2)].ts, interval)
+    : ''
 
   if (query.data?.kind === 'not-configured') return null
 
@@ -56,6 +106,22 @@ export function MatchOverviewCard() {
             <span className="text-sm text-muted-foreground">{t('threatIntel.overview.totalIndicators')}</span>
           </div>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {(['ip', 'url', 'domain', 'signatures'] as const).map((family) => (
+            <div
+              key={family}
+              className="rounded-md border border-border bg-background px-3 py-1.5"
+            >
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {t(`threatIntel.overview.families.${family}`, { defaultValue: family })}
+              </div>
+              <div className="text-lg font-semibold tabular-nums">
+                {query.isPending ? '—' : familyCounts[family].toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 h-24 w-full" preserveAspectRatio="none">
@@ -65,7 +131,7 @@ export function MatchOverviewCard() {
             <stop offset="100%" stopColor="rgb(168 85 247)" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {data.length > 0 && <path d={areaPath} fill="url(#iocGrad)" />}
+        {counts.length > 0 && <path d={areaPath} fill="url(#iocGrad)" />}
         <path
           d={linePath}
           fill="none"
@@ -78,9 +144,9 @@ export function MatchOverviewCard() {
       </svg>
 
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        <span>{t('threatIntel.overview.axis.start')}</span>
-        <span>{t('threatIntel.overview.axis.middle')}</span>
-        <span>{t('threatIntel.overview.axis.end')}</span>
+        <span>{startLabel}</span>
+        <span>{midLabel}</span>
+        <span>{endLabel}</span>
       </div>
     </div>
   )

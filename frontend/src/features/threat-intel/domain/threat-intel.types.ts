@@ -165,7 +165,10 @@ export type EntityLookupResponse = EntitySearchItem
 export interface AdvancedDateHistogram {
   date_histogram: { field: string; interval: string }
 }
-export type AdvancedAggregation = AdvancedDateHistogram
+export interface AdvancedTermsAggregation {
+  terms: { field: string; size?: number }
+}
+export type AdvancedAggregation = AdvancedDateHistogram | AdvancedTermsAggregation
 
 export interface AdvancedSearchRequest {
   query?: {
@@ -179,8 +182,8 @@ export interface AdvancedSearchRequest {
 }
 
 export interface AggregationBucket {
-  key: number
-  key_as_string: string
+  key: string | number
+  key_as_string?: string
   doc_count: number
 }
 export interface AggregationResult {

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Clock, ListFilter, RefreshCw, Search } from 'lucide-react'
+import { Clock, ListFilter, RefreshCw } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
-import { Input } from '@/shared/components/ui/input'
 import { toast } from 'sonner'
 import { useTiConfigStatus } from '../hooks/use-ti-config-status'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
@@ -39,13 +38,13 @@ const MULTI_MATCH_FIELDS = [
 
 type TimeRange = 'all' | '15m' | '1h' | '24h' | '7d' | '30d'
 
-const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; expr: string | null }[] = [
-  { value: '15m', label: 'Last 15 min', expr: 'now-15m' },
-  { value: '1h',  label: 'Last 1 hour', expr: 'now-1h' },
-  { value: '24h', label: 'Last 24 hours', expr: 'now-24h' },
-  { value: '7d',  label: 'Last 7 days', expr: 'now-7d' },
-  { value: '30d', label: 'Last 30 days', expr: 'now-30d' },
-  { value: 'all', label: 'All time', expr: null },
+const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; expr: string | null; interval: string }[] = [
+  { value: '15m', label: 'Last 15 min',   expr: 'now-15m', interval: 'minute' },
+  { value: '1h',  label: 'Last 1 hour',   expr: 'now-1h',  interval: 'minute' },
+  { value: '24h', label: 'Last 24 hours', expr: 'now-24h', interval: 'hour' },
+  { value: '7d',  label: 'Last 7 days',   expr: 'now-7d',  interval: 'hour' },
+  { value: '30d', label: 'Last 30 days',  expr: 'now-30d', interval: 'day' },
+  { value: 'all', label: 'All time',      expr: null,      interval: 'day' },
 ]
 
 function textQueryFragment(q: string): AdvancedSearchRequest | undefined {
@@ -99,7 +98,6 @@ export function ThreatIntelPage() {
   const [tab, setTab] = useState<TabKey>('iocs')
   const [openIoc, setOpenIoc] = useState<string | null>(null)
   const [openActor, setOpenActor] = useState<string | null>(null)
-  const [uiSearch, setUiSearch] = useState('')
   const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
@@ -237,7 +235,10 @@ export function ThreatIntelPage() {
       />
 
       <div className="mt-5">
-        <MatchOverviewCard />
+        <MatchOverviewCard
+          body={observedFragment ? lastBody : undefined}
+          interval={TIME_RANGE_OPTIONS.find((o) => o.value === timeRange)?.interval ?? 'hour'}
+        />
       </div>
 
       <div className="mt-5">
@@ -257,22 +258,7 @@ export function ThreatIntelPage() {
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[280px] flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={
-              tab === 'feeds'
-                ? t('threatIntel.toolbar.searchPlaceholders.feeds')
-                : tab === 'actors'
-                  ? t('threatIntel.toolbar.searchPlaceholders.actors')
-                  : t('threatIntel.toolbar.searchPlaceholders.iocs')
-            }
-            value={uiSearch}
-            onChange={(e) => setUiSearch(e.target.value)}
-            className="h-9 pl-9"
-          />
-        </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2 justify-end">
         {tab === 'iocs' && (
           <>
             <div className="relative">

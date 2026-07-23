@@ -5029,12 +5029,13 @@
       "exporting": "Exportation…"
     },
     "overview": {
-      "title": "Correspondances IOC · dernières 24 heures",
+      "title": "Correspondances IOC",
       "totalIndicators": "indicateurs au total",
-      "axis": {
-        "start": "il y a 24h",
-        "middle": "il y a 12h",
-        "end": "maintenant"
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Domaine",
+        "signatures": "Signatures"
       }
     },
     "notConfigured": {
