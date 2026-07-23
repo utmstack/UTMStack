@@ -13,19 +13,21 @@ const IOC_TYPES = [
   'filename',
 ]
 
-const BASE: AdvancedSearchRequest = {
-  query: { must: [{ terms: { 'type.keyword': IOC_TYPES } }] },
-  aggs: {
-    hourly_iocs: { date_histogram: { field: 'lastSeen', interval: 'hour' } },
-    by_types: { terms: { field: 'type.keyword', size: 50 } },
-  },
-}
-
-export function useTiIocs24h(extra: AdvancedSearchRequest | undefined) {
+export function useTiIocsOverview(
+  extra: AdvancedSearchRequest | undefined,
+  interval: string,
+) {
+  const base: AdvancedSearchRequest = {
+    query: { must: [{ terms: { 'type.keyword': IOC_TYPES } }] },
+    aggs: {
+      histogram: { date_histogram: { field: 'lastSeen', interval } },
+      by_types: { terms: { field: 'type.keyword', size: 50 } },
+    },
+  }
   return useQuery({
-    queryKey: ['ti', 'iocs-24h', extra],
+    queryKey: ['ti', 'iocs-overview', extra, interval],
     queryFn: () => threatIntelHttpService.searchAdvanced(
-      mergeAdvancedRequests(BASE, extra),
+      mergeAdvancedRequests(base, extra),
       { limit: 0, page: 1 },
     ),
     enabled: !!extra,

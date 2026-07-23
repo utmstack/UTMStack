@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
-import { fillHourlyBuckets } from './utils/hourly-buckets'
+import { useTiIocsOverview } from '../hooks/use-ti-iocs-overview'
 import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = {
@@ -16,23 +15,35 @@ const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = 
   ],
 }
 
-interface MatchOverviewCardProps {
-  body: AdvancedSearchRequest | undefined
+// Show time-of-day for sub-day intervals, date for day+ intervals.
+function formatTs(ts: number, interval: string): string {
+  const perDay = /min|hour|^[0-9]+[mh]$/i.test(interval)
+  return new Date(ts).toLocaleString(undefined, perDay
+    ? { hour: '2-digit', minute: '2-digit' }
+    : { month: 'short', day: '2-digit' })
 }
 
-export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
+interface MatchOverviewCardProps {
+  body: AdvancedSearchRequest | undefined
+  interval: string
+}
+
+export function MatchOverviewCard({ body, interval }: MatchOverviewCardProps) {
   const { t } = useTranslation()
-  const query = useTiIocs24h(body)
+  const query = useTiIocsOverview(body, interval)
 
   const total = useMemo(() => {
     if (query.data?.kind !== 'ok') return 0
     return query.data.value.items
   }, [query.data])
 
-  const data = useMemo(() => {
+  const points = useMemo(() => {
     if (query.data?.kind !== 'ok') return []
-    const buckets = query.data.value.aggregations?.hourly_iocs?.buckets ?? []
-    return fillHourlyBuckets(buckets).map((b) => b.count)
+    const buckets = query.data.value.aggregations?.histogram?.buckets ?? []
+    return buckets
+      .map((b) => ({ ts: Number(b.key), count: b.doc_count }))
+      .filter((b) => Number.isFinite(b.ts))
+      .sort((a, b) => a.ts - b.ts)
   }, [query.data])
 
   const familyCounts = useMemo(() => {
@@ -52,13 +63,14 @@ export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
 
   const w = 1000
   const h = 100
-  const max = data.length > 0 ? Math.max(...data) * 1.15 : 1
-  const xs = data.map((_, i) => (i * w) / Math.max(data.length - 1, 1))
-  const ys = data.map((v) => h - (v / max) * h)
+  const counts = points.map((p) => p.count)
+  const max = counts.length > 0 ? Math.max(...counts) * 1.15 : 1
+  const xs = counts.map((_, i) => (i * w) / Math.max(counts.length - 1, 1))
+  const ys = counts.map((v) => h - (v / max) * h)
 
   let linePath = ''
-  if (data.length > 0) {
-    linePath = data.reduce((acc, _, i) => {
+  if (counts.length > 0) {
+    linePath = counts.reduce((acc, _, i) => {
       if (i === 0) return `M ${xs[i]} ${ys[i]}`
       const prevX = xs[i - 1]
       const prevY = ys[i - 1]
@@ -70,7 +82,13 @@ export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
     linePath = `M 0 ${h} L ${w} ${h}`
   }
 
-  const areaPath = data.length > 0 ? `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z` : linePath
+  const areaPath = counts.length > 0 ? `${linePath} L ${xs[xs.length - 1]} ${h} L ${xs[0]} ${h} Z` : linePath
+
+  const startLabel = points.length > 0 ? formatTs(points[0].ts, interval) : ''
+  const endLabel   = points.length > 0 ? formatTs(points[points.length - 1].ts, interval) : ''
+  const midLabel   = points.length > 1
+    ? formatTs(points[Math.floor(points.length / 2)].ts, interval)
+    : ''
 
   if (query.data?.kind === 'not-configured') return null
 
@@ -113,7 +131,7 @@ export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
             <stop offset="100%" stopColor="rgb(168 85 247)" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {data.length > 0 && <path d={areaPath} fill="url(#iocGrad)" />}
+        {counts.length > 0 && <path d={areaPath} fill="url(#iocGrad)" />}
         <path
           d={linePath}
           fill="none"
@@ -126,9 +144,9 @@ export function MatchOverviewCard({ body }: MatchOverviewCardProps) {
       </svg>
 
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        <span>{t('threatIntel.overview.axis.start')}</span>
-        <span>{t('threatIntel.overview.axis.middle')}</span>
-        <span>{t('threatIntel.overview.axis.end')}</span>
+        <span>{startLabel}</span>
+        <span>{midLabel}</span>
+        <span>{endLabel}</span>
       </div>
     </div>
   )

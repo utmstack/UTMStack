@@ -39,13 +39,13 @@ const MULTI_MATCH_FIELDS = [
 
 type TimeRange = 'all' | '15m' | '1h' | '24h' | '7d' | '30d'
 
-const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; expr: string | null }[] = [
-  { value: '15m', label: 'Last 15 min', expr: 'now-15m' },
-  { value: '1h',  label: 'Last 1 hour', expr: 'now-1h' },
-  { value: '24h', label: 'Last 24 hours', expr: 'now-24h' },
-  { value: '7d',  label: 'Last 7 days', expr: 'now-7d' },
-  { value: '30d', label: 'Last 30 days', expr: 'now-30d' },
-  { value: 'all', label: 'All time', expr: null },
+const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; expr: string | null; interval: string }[] = [
+  { value: '15m', label: 'Last 15 min',   expr: 'now-15m', interval: 'minute' },
+  { value: '1h',  label: 'Last 1 hour',   expr: 'now-1h',  interval: 'minute' },
+  { value: '24h', label: 'Last 24 hours', expr: 'now-24h', interval: 'hour' },
+  { value: '7d',  label: 'Last 7 days',   expr: 'now-7d',  interval: 'hour' },
+  { value: '30d', label: 'Last 30 days',  expr: 'now-30d', interval: 'day' },
+  { value: 'all', label: 'All time',      expr: null,      interval: 'day' },
 ]
 
 function textQueryFragment(q: string): AdvancedSearchRequest | undefined {
@@ -237,7 +237,10 @@ export function ThreatIntelPage() {
       />
 
       <div className="mt-5">
-        <MatchOverviewCard body={observedFragment ? lastBody : undefined} />
+        <MatchOverviewCard
+          body={observedFragment ? lastBody : undefined}
+          interval={TIME_RANGE_OPTIONS.find((o) => o.value === timeRange)?.interval ?? 'hour'}
+        />
       </div>
 
       <div className="mt-5">
