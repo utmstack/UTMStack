@@ -61,12 +61,15 @@ func (h *SocAIHandler) Analyze(c *gin.Context) {
 
 	statusCode, _, err := h.client.Analyze(c.Request.Context(), bodyBytes)
 	if err != nil {
-		writeError(c, fmt.Sprintf("%s: %s", ctx, err.Error()))
+		_ = catcher.Error(ctx+": analyze request failed", err, nil)
+		status, msg := classifyClientErr(err)
+		c.JSON(status, gin.H{"status": "error", "message": msg})
 		return
 	}
 
 	if statusCode < http.StatusOK || statusCode >= http.StatusMultipleChoices {
-		writeError(c, fmt.Sprintf("%s: unexpected response from SOC AI service: %d", ctx, statusCode))
+		_ = catcher.Error(ctx+": unexpected upstream status", nil, map[string]any{"status": statusCode})
+		c.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": messageForStatus(statusCode)})
 		return
 	}
 
