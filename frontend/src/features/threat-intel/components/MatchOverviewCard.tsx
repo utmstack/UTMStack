@@ -3,6 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { useTiIocs24h } from '../hooks/use-ti-iocs-24h'
 import { fillHourlyBuckets } from './utils/hourly-buckets'
 
+const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = {
+  ip:         ['ip', 'cidr'],
+  url:        ['url', 'link', 'github-organization', 'github-repository'],
+  domain:     ['domain', 'hostname'],
+  signatures: [
+    'md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'sha512-224', 'sha512-256',
+    'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512',
+    'authentihash', 'cdhash', 'malware', 'filename',
+    'profile-photo', 'facebook-profile', 'tiktok-profile', 'twitter-profile',
+  ],
+}
+
 export function MatchOverviewCard() {
   const { t } = useTranslation()
   const query = useTiIocs24h()
@@ -16,6 +28,21 @@ export function MatchOverviewCard() {
     if (query.data?.kind !== 'ok') return []
     const buckets = query.data.value.aggregations?.hourly_iocs?.buckets ?? []
     return fillHourlyBuckets(buckets).map((b) => b.count)
+  }, [query.data])
+
+  const familyCounts = useMemo(() => {
+    const zero = { ip: 0, url: 0, domain: 0, signatures: 0 }
+    if (query.data?.kind !== 'ok') return zero
+    const buckets = query.data.value.aggregations?.by_types?.buckets ?? []
+    const byType: Record<string, number> = {}
+    for (const b of buckets) byType[String(b.key)] = b.doc_count
+    const sum = (types: string[]) => types.reduce((n, t) => n + (byType[t] ?? 0), 0)
+    return {
+      ip:         sum(TYPE_FAMILIES.ip),
+      url:        sum(TYPE_FAMILIES.url),
+      domain:     sum(TYPE_FAMILIES.domain),
+      signatures: sum(TYPE_FAMILIES.signatures),
+    }
   }, [query.data])
 
   const w = 1000
@@ -55,6 +82,22 @@ export function MatchOverviewCard() {
             </span>
             <span className="text-sm text-muted-foreground">{t('threatIntel.overview.totalIndicators')}</span>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {(['ip', 'url', 'domain', 'signatures'] as const).map((family) => (
+            <div
+              key={family}
+              className="rounded-md border border-border bg-background px-3 py-1.5"
+            >
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {t(`threatIntel.overview.families.${family}`, { defaultValue: family })}
+              </div>
+              <div className="text-lg font-semibold tabular-nums">
+                {query.isPending ? '—' : familyCounts[family].toLocaleString()}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
