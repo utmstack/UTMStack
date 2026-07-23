@@ -2,11 +2,20 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
+
+func toRaw(v any) json.RawMessage {
+	if v == nil {
+		return nil
+	}
+	b, _ := json.Marshal(v) // v came from json.Unmarshal into any, cannot fail
+	return b
+}
 
 func registerEventProcessing(m *Module) {
 	registerEPRegexPatterns(m)
@@ -188,24 +197,96 @@ type epRulePropertyValuesInput struct {
 	Value    string `json:"value,omitempty"`
 }
 
+// epRuleCreateInput mirrors dto.CreateCorrelationRuleRequest for MCP tool
+// registration. The five DSL fields are typed as `any` so the generated JSON
+// schema advertises "anything goes" instead of "array of uint8" (the default
+// for json.RawMessage under reflection). Values are re-marshaled via toRaw
+// before being handed to the usecase.
+type epRuleCreateInput struct {
+	Name            string `json:"name"`
+	Adversary       string `json:"adversary,omitempty"`
+	Confidentiality int    `json:"confidentiality"`
+	Integrity       int    `json:"integrity"`
+	Availability    int    `json:"availability"`
+	Category        string `json:"category,omitempty"`
+	Technique       string `json:"technique,omitempty"`
+	Description     string `json:"description,omitempty"`
+
+	References    any `json:"references,omitempty"`
+	Definition    any `json:"definition"`
+	GroupBy       any `json:"groupBy,omitempty"`
+	DeduplicateBy any `json:"deduplicateBy,omitempty"`
+	Correlation   any `json:"correlation,omitempty"`
+
+	RuleActive bool              `json:"ruleActive"`
+	DataTypes  []dto.DataTypeRef `json:"dataTypes,omitempty"`
+}
+
+type epRuleUpdateInput struct {
+	RelPath string `json:"relPath"`
+	epRuleCreateInput
+}
+
+func (in epRuleCreateInput) toDTO() dto.CreateCorrelationRuleRequest {
+	return dto.CreateCorrelationRuleRequest{
+		RuleName:            in.Name,
+		RuleAdversary:       in.Adversary,
+		RuleConfidentiality: in.Confidentiality,
+		RuleIntegrity:       in.Integrity,
+		RuleAvailability:    in.Availability,
+		RuleCategory:        in.Category,
+		RuleTechnique:       in.Technique,
+		RuleDescription:     in.Description,
+		RuleReferencesDef:   toRaw(in.References),
+		RuleDefinitionDef:   toRaw(in.Definition),
+		RuleGroupByDef:      toRaw(in.GroupBy),
+		DeduplicateByDef:    toRaw(in.DeduplicateBy),
+		CorrelationDef:      toRaw(in.Correlation),
+		RuleActive:          in.RuleActive,
+		DataTypes:           in.DataTypes,
+	}
+}
+
+func (in epRuleUpdateInput) toDTO() dto.UpdateCorrelationRuleRequest {
+	c := in.epRuleCreateInput.toDTO()
+	return dto.UpdateCorrelationRuleRequest{
+		RelPath:             in.RelPath,
+		RuleName:            c.RuleName,
+		RuleAdversary:       c.RuleAdversary,
+		RuleConfidentiality: c.RuleConfidentiality,
+		RuleIntegrity:       c.RuleIntegrity,
+		RuleAvailability:    c.RuleAvailability,
+		RuleCategory:        c.RuleCategory,
+		RuleTechnique:       c.RuleTechnique,
+		RuleDescription:     c.RuleDescription,
+		RuleReferencesDef:   c.RuleReferencesDef,
+		RuleDefinitionDef:   c.RuleDefinitionDef,
+		RuleGroupByDef:      c.RuleGroupByDef,
+		DeduplicateByDef:    c.DeduplicateByDef,
+		CorrelationDef:      c.CorrelationDef,
+		RuleActive:          c.RuleActive,
+		DataTypes:           c.DataTypes,
+	}
+}
+
 func registerEPCorrelationRules(m *Module) {
 	uc := m.deps.EventProcessing.GetCorrelationRuleUsecase()
 
 	Add(m, &mcp.Tool{
 		Name: "correlation_rule.create", Title: "Create correlation rule",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in dto.CreateCorrelationRuleRequest) (any, error) {
-			if err := uc.Create(ctx, in); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in epRuleCreateInput) (any, error) {
+			if err := uc.Create(ctx, in.toDTO()); err != nil {
 				return nil, err
 			}
-			return map[string]any{"name": in.RuleName, "created": true}, nil
+			return map[string]any{"name": in.Name, "created": true}, nil
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "correlation_rule.update", Title: "Update correlation rule",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in dto.UpdateCorrelationRuleRequest) (any, error) {
-			if err := uc.Update(ctx, in); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in epRuleUpdateInput) (any, error) {
+			if err := uc.Update(ctx, in.toDTO()); err != nil {
 				return nil, err
 			}
 			return map[string]any{"rel_path": in.RelPath, "updated": true}, nil
