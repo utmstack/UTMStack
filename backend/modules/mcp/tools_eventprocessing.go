@@ -9,10 +9,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
-// toRaw re-encodes an already-decoded JSON value as json.RawMessage.
-// ponytail: MCP wrapper inputs use `any` for fields the DTO stores as
-// json.RawMessage — reflection on RawMessage produces "array of uint8" in the
-// generated tool schema, blocking LLM clients. See epRuleCreateInput.
 func toRaw(v any) json.RawMessage {
 	if v == nil {
 		return nil
