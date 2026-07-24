@@ -12,7 +12,6 @@ import type { Session } from '@/features/auth/types/auth.types'
 import { federationAuthService } from '@/features/federation/services/federation-auth.service'
 import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { TwoFactorBody } from '../components/TwoFactorBody'
-import { ApiKeysSection } from '@/features/settings/pages/ApiKeysPage'
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 const AVATAR_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
@@ -368,9 +367,6 @@ export function ProfilePage() {
           </div>
         )}
       </Section>
-
-      {/* API keys (per-user → embedded here, not in system settings). Not in federation. */}
-      {!IS_FEDERATION && <ApiKeysSection />}
 
       {/* Active sessions (FS sessions in federation mode, instance sessions otherwise) */}
       <Section title={t('profile.sessions.title')} description={t('profile.sessions.description')}>

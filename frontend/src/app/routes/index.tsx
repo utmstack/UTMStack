@@ -45,6 +45,7 @@ import { LanguagePage } from '@/features/settings/pages/LanguagePage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
 import { LicensePage } from '@/features/billing'
 import { NotificationsPage } from '@/features/notifications'
+import { ApiKeysPage } from '@/features/api-keys'
 import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
 
 export function AppRoutes() {
@@ -154,9 +155,8 @@ export function AppRoutes() {
         <Route path="settings/index-patterns" element={<Navigate to="/settings/indices" replace />} />
         <Route path="settings/branding" element={<BrandingPage />} />
         <Route path="settings/theme" element={<Navigate to="/settings/branding" replace />} />
-        {/* API keys are per-user (a key authenticates AS its owner), so they live
-            embedded in the profile page, not system settings. */}
-        <Route path="settings/api-keys" element={<Navigate to="/profile" replace />} />
+        {/* API keys are per-user (a key authenticates AS its owner). Not available in federation. */}
+        {!IS_FEDERATION && <Route path="settings/api-keys" element={<ApiKeysPage />} />}
         <Route path="settings/identity-providers" element={<IdentityProvidersPage />} />
         {/* Federation serves email config from its own admin chrome (top-level route). */}
         {!IS_FEDERATION && <Route path="settings/email" element={<EmailConfigurationPage />} />}
