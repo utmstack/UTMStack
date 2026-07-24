@@ -217,6 +217,26 @@ pipeline:
             - log.tlsDetails.tlsVersion
           to: log.tlsDetailsTlsVersion
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.eventName") && !exists("log.errorCode")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'equals("log.errorCode", "AccessDenied")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("log.errorCode") && !equals("log.errorCode", "AccessDenied")'
+
       - delete:
           fields:
             - log.requestParameters

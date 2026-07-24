@@ -420,26 +420,27 @@ pipeline:
           to: actionResult
           where: 'equals("log.type", "auditd") && exists("log.result") && !regexMatch("log.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
+      # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: regexMatch("log.type", "(?i)\bdenied\b")
+          where: regexMatch("log.result", "(?i)\bdenied\b")
 
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'blocked'
-          where: regexMatch("log.type", "(?i)\bblocked\b")
+          where: regexMatch("log.result", "(?i)\bblocked\b")
 
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'failed'
-          where: regexMatch("log.type", "(?i)\bfailed\b")
+          where: regexMatch("log.result", "(?i)\bfailed\b")
 
       # Map exe to origin.process (full path to executable)
       # Only if journald's COMM didn't already set origin.process
