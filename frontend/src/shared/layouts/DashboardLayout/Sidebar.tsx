@@ -17,6 +17,7 @@ import {
   Home,
   Info,
   KeyRound,
+  KeySquare,
   Languages,
   LayoutDashboard,
   Mail,
@@ -41,6 +42,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useAuth } from '@/features/auth'
+import { IS_FEDERATION } from '@/shared/config/mode'
 
 type LeafItem = {
   to: string
@@ -135,6 +137,9 @@ const settingsItems: { to: string; label: string; icon: LucideIcon }[] = [
   { to: '/settings/data-retention', label: 'settings.dataRetention', icon: HardDriveDownload },
   { to: '/settings/indices', label: 'settings.indices', icon: Boxes },
   { to: '/settings/branding', label: 'settings.branding', icon: Palette },
+  ...(!IS_FEDERATION
+    ? [{ to: '/settings/api-keys', label: 'settings.apiKeys', icon: KeySquare }]
+    : []),
   { to: '/settings/identity-providers', label: 'settings.identityProviders', icon: ShieldCheck },
   { to: '/settings/email', label: 'settings.email', icon: Mail },
   { to: '/settings/soc-ai', label: 'settings.socAi', icon: Bot },
