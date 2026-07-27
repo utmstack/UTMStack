@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { Check, ChevronRight, Columns3, Loader2, Minus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
@@ -6,7 +6,10 @@ import { logExplorerHttpService as svc } from '../services/log-explorer-http.ser
 import type { FilterType, IndexField, IndexPattern, TopValues } from '../types/log-explorer.types'
 import { TypeBadge } from './TypeBadge'
 
-export function FieldItem({
+// Memoized so parent-render-storms (e.g. SQL keystrokes cascading down) don't
+// re-run this for every field in the pattern. Callbacks receive `field.name` so
+// FieldSidebar can pass stable identities.
+function FieldItemImpl({
   field,
   pattern,
   filters,
@@ -21,9 +24,9 @@ export function FieldItem({
   filters: FilterType[]
   isColumn: boolean
   open: boolean
-  onToggle: () => void
+  onToggle: (name: string) => void
   onAdd: (f: FilterType) => void
-  onToggleColumn: () => void
+  onToggleColumn: (name: string) => void
 }) {
   const { t } = useTranslation()
   const [top, setTop] = useState<TopValues | null>(null)
@@ -47,14 +50,14 @@ export function FieldItem({
   return (
     <div className={cn('group/field rounded-md', open && 'bg-card shadow-sm ring-1 ring-border/70')}>
       <div className={cn('flex items-center gap-2.5 rounded-md px-2 py-2', !open && 'hover:bg-card/70')}>
-        <button onClick={onToggle} className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+        <button onClick={() => onToggle(field.name)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
           <TypeBadge type={field.type} />
           <span className="flex-1 truncate font-mono text-xs" title={field.name}>
             {field.name}
           </span>
         </button>
         <button
-          onClick={onToggleColumn}
+          onClick={() => onToggleColumn(field.name)}
           title={isColumn ? t('logExplorer.fields.removeColumn') : t('logExplorer.fields.addColumn')}
           className={cn(
             'flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors',
@@ -65,7 +68,7 @@ export function FieldItem({
         >
           {isColumn ? <Check size={13} /> : <Columns3 size={13} />}
         </button>
-        <button onClick={onToggle} className="shrink-0">
+        <button onClick={() => onToggle(field.name)} className="shrink-0">
           <ChevronRight size={13} className={cn('text-muted-foreground/60 transition-transform', open && 'rotate-90')} />
         </button>
       </div>
@@ -120,3 +123,5 @@ export function FieldItem({
     </div>
   )
 }
+
+export const FieldItem = memo(FieldItemImpl)

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
@@ -123,7 +123,7 @@ function colValue(flat: Record<string, unknown>, c: string): string {
   return String(v)
 }
 
-export function ResultsHeader({
+function ResultsHeaderImpl({
   columns,
   autoColumns = [],
   onRemoveColumn,
@@ -173,12 +173,15 @@ export function ResultsHeader({
   )
 }
 
+export const ResultsHeader = memo(ResultsHeaderImpl)
+
 // Short, readable column header from a field path: "origin.ip" → "origin ip".
 function fieldLabel(field: string): string {
   return field.replace(/\./g, ' ')
 }
 
-export function ResultRow({
+function ResultRowImpl({
+  index,
   doc,
   columns,
   autoColumns = [],
@@ -187,11 +190,12 @@ export function ResultRow({
   onAdd,
   onSurrounding,
 }: {
+  index: number
   doc: LogDocument
   columns: string[]
   autoColumns?: string[]
   expanded: boolean
-  onToggle: () => void
+  onToggle: (index: number) => void
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
@@ -206,7 +210,7 @@ export function ResultRow({
   return (
     <>
       <div
-        onClick={onToggle}
+        onClick={() => onToggle(index)}
         className={cn(
           'grid cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
           expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
@@ -382,6 +386,8 @@ function DetailTabBtn({
   )
 }
 
+export const ResultRow = memo(ResultRowImpl)
+
 /**
  * Self-contained list: header + expandable rows with their own expand state.
  * Read-only by default (no filter buttons, no column removal).
@@ -398,6 +404,7 @@ export function LogResults({
   emptyText?: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const toggle = useCallback((i: number) => setExpanded((prev) => (prev === i ? null : i)), [])
   return (
     <div className="overflow-auto rounded-lg border border-border bg-card">
       {docs.length === 0 ? (
@@ -406,10 +413,11 @@ export function LogResults({
         docs.map((doc, i) => (
           <ResultRow
             key={i}
+            index={i}
             doc={doc}
             columns={columns}
             expanded={expanded === i}
-            onToggle={() => setExpanded(expanded === i ? null : i)}
+            onToggle={toggle}
             onAdd={onAdd}
           />
         ))

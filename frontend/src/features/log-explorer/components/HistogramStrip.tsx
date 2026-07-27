@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
 import type { ChartView, FilterType, IndexPattern } from '../types/log-explorer.types'
@@ -23,7 +23,9 @@ function histogramInterval(from?: string | null, to?: string | null): string {
 // Aggregates the same filtered/time-scoped result set on @timestamp so analysts
 // see spikes and gaps without leaving the table. Uses flex columns (not a stretched
 // SVG) so the strip never collapses into a solid block.
-export function HistogramStrip({
+// Memoized: props are reference-stable (activeFilterList useMemo, pattern/range
+// state) so SQL-mode keystrokes don't re-enter this subtree.
+function HistogramStripImpl({
   pattern,
   filters,
   range,
@@ -82,3 +84,5 @@ export function HistogramStrip({
     </div>
   )
 }
+
+export const HistogramStrip = memo(HistogramStripImpl)

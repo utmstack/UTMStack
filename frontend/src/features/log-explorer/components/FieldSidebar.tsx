@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
@@ -6,7 +6,9 @@ import type { FilterType, IndexField, IndexPattern } from '../types/log-explorer
 import { FieldItem } from './FieldItem'
 import { SidebarSectionLabel } from './SidebarSectionLabel'
 
-export function FieldSidebar({
+// Memoized: rendered even in SQL mode, but its props are reference-stable so
+// SQL-typing keystrokes don't re-run FieldItem() N times.
+function FieldSidebarImpl({
   fields,
   pattern,
   filters,
@@ -24,6 +26,10 @@ export function FieldSidebar({
   const { t } = useTranslation()
   const [q, setQ] = useState('')
   const [openField, setOpenField] = useState<string | null>(null)
+  const handleToggleOpen = useCallback(
+    (name: string) => setOpenField((prev) => (prev === name ? null : name)),
+    [],
+  )
 
   // Hide raw .keyword variants — the base field covers them.
   const visible = useMemo(
@@ -49,9 +55,9 @@ export function FieldSidebar({
       filters={filters}
       isColumn={columns.includes(f.name)}
       open={openField === f.name}
-      onToggle={() => setOpenField(openField === f.name ? null : f.name)}
+      onToggle={handleToggleOpen}
       onAdd={onAdd}
-      onToggleColumn={() => onToggleColumn(f.name)}
+      onToggleColumn={onToggleColumn}
     />
   )
 
@@ -91,3 +97,5 @@ export function FieldSidebar({
     </aside>
   )
 }
+
+export const FieldSidebar = memo(FieldSidebarImpl)

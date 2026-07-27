@@ -389,14 +389,21 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     }
   }
 
-  const addFilter = (f: FilterType) => {
+  // Stable identities: memoized children (FieldSidebar/FieldItem/HistogramStrip/
+  // ResultRow) skip re-render on SQL keystrokes only if their callback props are
+  // reference-stable. Functional setState updaters let these be dep-free.
+  const addFilter = useCallback((f: FilterType) => {
     setFilters((cur) =>
       cur.some((c) => c.field === f.field && c.operator === f.operator && c.value === f.value) ? cur : [...cur, f]
     )
-  }
-  const removeFilter = (i: number) => {
+  }, [])
+  const removeFilter = useCallback((i: number) => {
     setFilters((cur) => cur.filter((_, idx) => idx !== i))
-  }
+  }, [])
+  const clearFilters = useCallback(() => setFilters([]), [])
+  const toggleExpanded = useCallback((i: number) => {
+    setExpanded((prev) => (prev === i ? null : i))
+  }, [])
 
   return (
     <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-3">
@@ -443,7 +450,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             <AddFilterButton pattern={pattern} fields={fields} filters={activeFilterList} onAdd={addFilter} />
           )}
           {!sqlMode && <SavedSearches snapshot={currentSnapshot} onLoad={loadSnapshot} />}
-          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={() => setFilters([])} />}
+          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={clearFilters} />}
         </div>
         <div className="flex items-center gap-3">
           <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -465,7 +472,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           <ChartPanel pattern={pattern} fields={fields} filters={activeFilterList} />
         ) : (
           <>
-            {pattern && (
+            {pattern &&  (
               <HistogramStrip pattern={pattern} filters={activeFilterList} range={range} />
             )}
             <div className="flex min-h-0 flex-1">
@@ -505,11 +512,12 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                     {rows.map((doc, i) => (
                       <ResultRow
                         key={i}
+                        index={i}
                         doc={doc}
                         columns={columns}
                         autoColumns={autoColumns}
                         expanded={expanded === i}
-                        onToggle={() => setExpanded(expanded === i ? null : i)}
+                        onToggle={toggleExpanded}
                         onAdd={addFilter}
                         onSurrounding={viewSurrounding}
                       />
