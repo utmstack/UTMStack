@@ -13,6 +13,7 @@ import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
 import { DashboardEditorBar } from '@/features/dashboard/components/DashboardEditorBar'
 import { DashboardFormDialog } from '@/features/dashboard/components/DashboardFormDialog'
 import { DashboardTimeRange } from '@/features/dashboard/components/DashboardTimeRange'
+import { DashboardRefreshInterval } from '@/features/dashboard/components/DashboardRefreshInterval'
 import {
   DashboardFilterBar,
   type ChipValueMap,
@@ -28,6 +29,7 @@ export function DashboardPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
+  const [refreshMs, setRefreshMs] = useState<number | null>(null)
   const [formOpen, setFormOpen] = useState<null | { mode: 'create' | 'rename'; target: Dashboard | null }>(
     null
   )
@@ -284,6 +286,7 @@ export function DashboardPage() {
           right={
             <div className="flex flex-wrap items-center gap-2">
               <DashboardTimeRange value={time} onChange={setTime} />
+              <DashboardRefreshInterval value={refreshMs} onChange={setRefreshMs} />
               {editor.editing && (
                 <DashboardEditorBar
                   dirty={editor.dirty}
@@ -348,6 +351,7 @@ export function DashboardPage() {
               visualizations={vizItems}
               time={time}
               filters={activeFilters}
+              refreshMs={refreshMs}
               editing={editor.editing}
               onLayoutChange={editor.replace}
               onEditItem={handleEditWidget}

@@ -22,7 +22,8 @@ export interface VisualizationData {
 export function useVisualizationData(
   visualization: Visualization | null,
   time: TimeRange,
-  filters: FilterType[] = EMPTY_FILTERS
+  filters: FilterType[] = EMPTY_FILTERS,
+  refetchIntervalMs: number | null = null
 ) {
   const service = useMemo(() => createOpenSearchService(), [])
 
@@ -50,5 +51,6 @@ export function useVisualizationData(
     },
     enabled: visualization != null && resolvedQuery != null,
     staleTime: 30_000,
+    refetchInterval: refetchIntervalMs ?? false,
   })
 }

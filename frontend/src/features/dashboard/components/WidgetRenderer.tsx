@@ -18,10 +18,12 @@ export function WidgetRenderer({
   visualization,
   time,
   filters,
+  refreshMs,
 }: {
   visualization: Visualization
   time: TimeRange
   filters?: FilterType[]
+  refreshMs?: number | null
 }) {
   const { t } = useTranslation()
 
@@ -35,7 +37,7 @@ export function WidgetRenderer({
     : 'echarts'
 
   const hasSql = !!visualization.sqlQuery?.trim()
-  const query = useVisualizationData(hasSql ? visualization : null, time, filters)
+  const query = useVisualizationData(hasSql ? visualization : null, time, filters, refreshMs ?? null)
 
   if (renderer === 'echarts' && (parsed.error || !parsed.option)) {
     return (
