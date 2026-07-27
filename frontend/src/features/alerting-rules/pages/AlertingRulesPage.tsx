@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Code2,
   Crosshair,
+  Download,
   FlaskConical,
   LayoutList,
   Loader2,
@@ -506,6 +507,7 @@ function RuleDrawer({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {rule && !readOnly && !showForm && <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil size={13} className="mr-1.5" /> {t('alertingRules.editor.edit')}</Button>}
+            {rule && <Button size="sm" variant="outline" onClick={() => downloadRuleYaml(rule)}><Download size={13} className="mr-1.5" /> {t('alertingRules.editor.export')}</Button>}
             {rule && !readOnly && onDelete && <button onClick={() => onDelete(rule)} title={t('alertingRules.editor.delete')} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500"><Trash2 size={15} /></button>}
             {rule && onToggle && <Toggle on={rule.ruleActive} onChange={(v) => onToggle(rule, v)} />}
             <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"><X size={16} /></button>
@@ -767,6 +769,20 @@ function Row({ k, children }: { k: string; children: React.ReactNode }) {
 
 function Center({ children }: { children: React.ReactNode }) {
   return <div className="mt-4 flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">{children}</div>
+}
+
+function downloadRuleYaml(rule: CorrelationRule): void {
+  const yaml = ruleFormToYaml(ruleToForm(rule))
+  const base = rule.relPath.split('/').pop() || `${rule.name || 'rule'}.yaml`
+  const name = /\.ya?ml$/i.test(base) ? base : `${base}.yaml`
+  const url = URL.createObjectURL(new Blob([yaml], { type: 'text/yaml;charset=utf-8' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
 
 function hasItems(v: unknown): boolean {
