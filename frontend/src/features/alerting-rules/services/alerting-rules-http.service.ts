@@ -134,6 +134,9 @@ export const alertingRulesHttpService = {
   create: (input: SaveRuleInput) => api.post<void>(BASE, input),
   importRules: (files: ImportRuleFile[]) =>
     api.post<ImportRulesResponse>(`${BASE}/import`, { files }),
+  // Empty `relPaths` → export all. Backend returns a downloadable archive.
+  exportRules: (relPaths: string[]) =>
+    api.post<Blob>(`${BASE}/export`, { relPaths }, { responseType: 'blob' }),
   update: (input: SaveRuleInput) => api.put<void>(BASE, input),
   setActive: (relPath: string, active: boolean) =>
     api.put<void>(`${BASE}/activate-deactivate?relPath=${encodeURIComponent(relPath)}&active=${active}`),

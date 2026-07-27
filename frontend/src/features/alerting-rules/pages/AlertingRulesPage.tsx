@@ -43,7 +43,7 @@ import { ruleFormToYaml, yamlToRuleForm } from '../lib/rule-yaml'
 import { parseCelTree, type CelNode } from '../lib/cel-tree'
 
 const SELECT_CLS = 'h-9 rounded-md border border-border bg-background px-2 text-sm'
-const COLS = '1.4fr 1fr 110px 100px 80px 48px 50px'
+const COLS = '32px 1.4fr 1fr 110px 100px 80px 48px 50px'
 
 function maxImpact(r: { confidentiality: number; integrity: number; availability: number }): number {
   return Math.max(r.confidentiality, r.integrity, r.availability)
@@ -90,6 +90,37 @@ export function AlertingRulesPage() {
   const [importBusy, setImportBusy] = useState(false)
   const [importResults, setImportResults] = useState<ImportRulesResponse | null>(null)
   const [showTestModal, setShowTestModal] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [exportBusy, setExportBusy] = useState(false)
+
+  const toggleSelected = useCallback((relPath: string) => {
+    setSelected((cur) => {
+      const next = new Set(cur)
+      if (next.has(relPath)) next.delete(relPath)
+      else next.add(relPath)
+      return next
+    })
+  }, [])
+
+  const exportSelected = async () => {
+    if (exportBusy) return
+    setExportBusy(true)
+    try {
+      const blob = await svc.exportRules([...selected])
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `alerting-rules-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.zip`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      toast.error(e instanceof AlertingRulesHttpError ? e.message : t('alertingRules.export.error'))
+    } finally {
+      setExportBusy(false)
+    }
+  }
 
   const onImportFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return
@@ -216,6 +247,10 @@ export function AlertingRulesPage() {
             {importBusy ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Upload size={14} className="mr-1.5" />}
             {t('alertingRules.import.button')}
           </Button>
+          <Button size="sm" variant="outline" disabled={exportBusy} onClick={() => void exportSelected()}>
+            {exportBusy ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
+            {selected.size > 0 ? t('alertingRules.export.selected', { count: selected.size }) : t('alertingRules.export.all')}
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setShowTestModal(true)}>
             <FlaskConical size={14} className="mr-1.5" />
             {t('alertingRules.test')}
@@ -272,7 +307,7 @@ export function AlertingRulesPage() {
         <Center>{t('alertingRules.empty')}</Center>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Table rules={rules} onOpen={setOpen} onToggle={toggleActive} t={t} />
+          <Table rules={rules} selected={selected} onToggleSelected={toggleSelected} onSelectAll={(v) => setSelected(v ? new Set(rules.map((r) => r.relPath)) : new Set())} onOpen={setOpen} onToggle={toggleActive} t={t} />
           <InfiniteScrollSentinel
             onReach={() => setPage((p) => p + 1)}
             hasMore={rules.length < total}
@@ -355,10 +390,15 @@ function ImportResultsDialog({ res, onClose, t }: { res: ImportRulesResponse; on
 
 /* ─── Table ────────────────────────────────────────────────────────────── */
 
-function Table({ rules, onOpen, onToggle, t }: { rules: CorrelationRule[]; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction }) {
+function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, onToggle, t }: { rules: CorrelationRule[]; selected: Set<string>; onToggleSelected: (relPath: string) => void; onSelectAll: (checked: boolean) => void; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction }) {
+  const allChecked = rules.length > 0 && rules.every((r) => selected.has(r.relPath))
+  const someChecked = !allChecked && rules.some((r) => selected.has(r.relPath))
   return (
     <div className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-xl border border-border">
       <div className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
+        <div className="flex justify-center">
+          <SelectAllCheckbox checked={allChecked} indeterminate={someChecked} onChange={onSelectAll} label={t('alertingRules.table.selectAll')} />
+        </div>
         <div>{t('alertingRules.table.name')}</div>
         <div>{t('alertingRules.table.dataTypes')}</div>
         <div>{t('alertingRules.table.category')}</div>
@@ -371,6 +411,16 @@ function Table({ rules, onOpen, onToggle, t }: { rules: CorrelationRule[]; onOpe
         const dts = (r.dataTypes ?? []).filter((d) => d.included).map((d) => d.dataType)
         return (
         <div key={r.relPath} className="grid items-center gap-3 border-b border-border/60 px-4 py-3 text-sm last:border-b-0 hover:bg-muted/30" style={{ gridTemplateColumns: COLS }}>
+          <div className="flex justify-center">
+            <input
+              type="checkbox"
+              checked={selected.has(r.relPath)}
+              onChange={() => onToggleSelected(r.relPath)}
+              onClick={(e) => e.stopPropagation()}
+              aria-label={t('alertingRules.table.selectRow', { name: r.name })}
+              className="h-4 w-4 cursor-pointer accent-primary"
+            />
+          </div>
           <button onClick={() => onOpen(r)} className="min-w-0 text-left">
             <div className="flex items-center gap-1.5">
               <span className="truncate font-medium">{r.name}</span>
@@ -392,6 +442,22 @@ function Table({ rules, onOpen, onToggle, t }: { rules: CorrelationRule[]; onOpe
         )
       })}
     </div>
+  )
+}
+
+function SelectAllCheckbox({ checked, indeterminate, onChange, label }: { checked: boolean; indeterminate: boolean; onChange: (v: boolean) => void; label: string }) {
+  const ref = useRef<HTMLInputElement>(null)
+  useEffect(() => { if (ref.current) ref.current.indeterminate = indeterminate }, [indeterminate])
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onChange(e.target.checked)}
+      onClick={(e) => e.stopPropagation()}
+      aria-label={label}
+      className="h-4 w-4 cursor-pointer accent-primary"
+    />
   )
 }
 

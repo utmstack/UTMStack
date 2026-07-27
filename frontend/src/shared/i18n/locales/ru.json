@@ -3968,7 +3968,14 @@
       "adversary": "Сторона",
       "impact": "Влияние",
       "active": "Активно",
-      "dataTypes": "Типы данных"
+      "dataTypes": "Типы данных",
+      "selectAll": "Выбрать все",
+      "selectRow": "Выбрать {{name}}"
+    },
+    "export": {
+      "all": "Экспортировать все",
+      "selected": "Экспорт ({{count}})",
+      "error": "Не удалось экспортировать правила"
     },
     "view": {
       "description": "Описание",

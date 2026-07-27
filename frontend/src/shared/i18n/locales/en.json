@@ -4654,7 +4654,14 @@
       "adversary": "Adversary",
       "impact": "Impact",
       "active": "Active",
-      "dataTypes": "Data types"
+      "dataTypes": "Data types",
+      "selectAll": "Select all",
+      "selectRow": "Select {{name}}"
+    },
+    "export": {
+      "all": "Export All",
+      "selected": "Export ({{count}})",
+      "error": "Could not export the rules"
     },
     "view": {
       "description": "Description",

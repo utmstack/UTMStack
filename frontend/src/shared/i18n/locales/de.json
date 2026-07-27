@@ -4158,7 +4158,14 @@
       "adversary": "Gegner",
       "impact": "Impact",
       "active": "Aktiv",
-      "dataTypes": "Datentypen"
+      "dataTypes": "Datentypen",
+      "selectAll": "Alle auswählen",
+      "selectRow": "{{name}} auswählen"
+    },
+    "export": {
+      "all": "Alle exportieren",
+      "selected": "Exportieren ({{count}})",
+      "error": "Regeln konnten nicht exportiert werden"
     },
     "view": {
       "description": "Beschreibung",

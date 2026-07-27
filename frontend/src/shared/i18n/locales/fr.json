@@ -4158,7 +4158,14 @@
       "adversary": "Adversaire",
       "impact": "Impact",
       "active": "Active",
-      "dataTypes": "Types de données"
+      "dataTypes": "Types de données",
+      "selectAll": "Tout sélectionner",
+      "selectRow": "Sélectionner {{name}}"
+    },
+    "export": {
+      "all": "Tout exporter",
+      "selected": "Exporter ({{count}})",
+      "error": "Impossible d’exporter les règles"
     },
     "view": {
       "description": "Description",
