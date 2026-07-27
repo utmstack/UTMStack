@@ -66,6 +66,7 @@ export function HomePage() {
             loading={playbooks.isLoading}
             sublabel={t('home.kpis.activePlaybooksSub')}
             accent="text-violet-500"
+            href="/soar/flows"
           />
         </div>
 
