@@ -56,7 +56,7 @@ export function InteractiveConsolePage() {
   const selectedStatus = selected ? deriveStatus(selected.lastPingAt) : null
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
+    <div className="flex h-full min-h-0 w-full flex-col px-6 pb-20 pt-3 ">
       <div className="flex min-h-0 flex-1 gap-4">
         <aside className="flex w-72 shrink-0 flex-col rounded-xl border border-border bg-card">
           <div className="border-b border-border p-3">
