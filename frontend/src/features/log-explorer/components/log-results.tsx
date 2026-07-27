@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
@@ -123,7 +123,7 @@ function colValue(flat: Record<string, unknown>, c: string): string {
   return String(v)
 }
 
-export function ResultsHeader({
+function ResultsHeaderImpl({
   columns,
   autoColumns = [],
   onRemoveColumn,
@@ -144,16 +144,16 @@ export function ResultsHeader({
       {columns.length === 0 ? (
         <>
           <div>{t('logExplorer.results.source')}</div>
-          {autoColumns.map((c) => (
-            <div key={c} className="truncate" title={c}>
+          {autoColumns.map((c,i) => (
+            <div key={i} className="truncate" title={c}>
               {fieldLabel(c)}
             </div>
           ))}
           <div>{t('logExplorer.results.message')}</div>
         </>
       ) : (
-        columns.map((c) => (
-          <div key={c} className="group flex min-w-0 items-center gap-1">
+        columns.map((c,i) => (
+          <div key={i} className="group flex min-w-0 items-center gap-1">
             <span className="truncate" title={c}>
               {fieldLabel(c)}
             </span>
@@ -173,12 +173,15 @@ export function ResultsHeader({
   )
 }
 
+export const ResultsHeader = memo(ResultsHeaderImpl)
+
 // Short, readable column header from a field path: "origin.ip" → "origin ip".
 function fieldLabel(field: string): string {
   return field.replace(/\./g, ' ')
 }
 
-export function ResultRow({
+function ResultRowImpl({
+  index,
   doc,
   columns,
   autoColumns = [],
@@ -187,11 +190,12 @@ export function ResultRow({
   onAdd,
   onSurrounding,
 }: {
+  index: number
   doc: LogDocument
   columns: string[]
   autoColumns?: string[]
   expanded: boolean
-  onToggle: () => void
+  onToggle: (index: number) => void
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
@@ -206,7 +210,7 @@ export function ResultRow({
   return (
     <>
       <div
-        onClick={onToggle}
+        onClick={() => onToggle(index)}
         className={cn(
           'grid cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
           expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
@@ -217,18 +221,18 @@ export function ResultRow({
         <span className={cn('h-3.5 w-[3px] rounded-full', tone.dot)} />
         <div className="font-mono tabular-nums text-muted-foreground">{ts ? shortTime(ts) : '—'}</div>
         {columns.length > 0 ? (
-          columns.map((c) => (
-            <div key={c} className="truncate font-mono text-foreground/85" title={colValue(flat, c)}>
+          columns.map((c,i) => (
+            <div key={i} className="truncate font-mono text-foreground/85" title={colValue(flat, c)}>
               {colValue(flat, c)}
             </div>
           ))
         ) : (
           <>
             <div className="truncate font-mono text-foreground/70">{source}</div>
-            {autoColumns.map((c) => {
+            {autoColumns.map((c,i) => {
               const val = colValue(flat, c)
               return (
-                <div key={c} className={cn('truncate font-mono', val === '—' ? 'text-muted-foreground/40' : 'text-foreground/85')} title={val}>
+                <div key={i} className={cn('truncate font-mono', val === '—' ? 'text-muted-foreground/40' : 'text-foreground/85')} title={val}>
                   {val}
                 </div>
               )
@@ -238,7 +242,7 @@ export function ResultRow({
             ) : (
               <div className="flex items-center overflow-hidden whitespace-nowrap">
                 {preview!.map(([k, v], idx) => (
-                  <span key={k} className="flex shrink-0 items-center">
+                  <span key={idx} className="flex shrink-0 items-center">
                     {idx > 0 && <span className="px-2.5 text-border">·</span>}
                     <span className="text-muted-foreground">{k}</span>
                     <span className="ml-1.5 font-mono text-foreground">{v}</span>
@@ -317,7 +321,7 @@ function ExpandedPanel({
           <div className="overflow-hidden rounded-md border border-border bg-card">
             {entries.map(([k, v], i) => (
               <div
-                key={k}
+                key={`${k}-${i}`}
                 className={cn(
                   'group grid items-center gap-4 px-4 py-2 text-[13px] leading-relaxed hover:bg-muted/30',
                   onAdd ? 'grid-cols-[260px_1fr_60px]' : 'grid-cols-[260px_1fr]',
@@ -382,6 +386,8 @@ function DetailTabBtn({
   )
 }
 
+export const ResultRow = memo(ResultRowImpl)
+
 /**
  * Self-contained list: header + expandable rows with their own expand state.
  * Read-only by default (no filter buttons, no column removal).
@@ -398,6 +404,7 @@ export function LogResults({
   emptyText?: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const toggle = useCallback((i: number) => setExpanded((prev) => (prev === i ? null : i)), [])
   return (
     <div className="overflow-auto rounded-lg border border-border bg-card">
       {docs.length === 0 ? (
@@ -406,10 +413,11 @@ export function LogResults({
         docs.map((doc, i) => (
           <ResultRow
             key={i}
+            index={i}
             doc={doc}
             columns={columns}
             expanded={expanded === i}
-            onToggle={() => setExpanded(expanded === i ? null : i)}
+            onToggle={toggle}
             onAdd={onAdd}
           />
         ))

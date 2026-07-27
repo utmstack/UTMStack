@@ -4359,7 +4359,14 @@
       "adversary": "Adversario",
       "impact": "Impacto",
       "active": "Activa",
-      "dataTypes": "Tipos de dato"
+      "dataTypes": "Tipos de dato",
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar {{name}}"
+    },
+    "export": {
+      "all": "Exportar todo",
+      "selected": "Exportar ({{count}})",
+      "error": "No se pudieron exportar las reglas"
     },
     "view": {
       "description": "Descripción",
@@ -4379,6 +4386,7 @@
       "createTitle": "Nueva regla",
       "edit": "Editar",
       "delete": "Eliminar",
+      "export": "Exportar",
       "cancel": "Cancelar",
       "save": "Guardar",
       "metadata": "Metadatos",

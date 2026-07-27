@@ -153,3 +153,15 @@ type ImportCorrelationRulesResponse struct {
 	Approved int                `json:"approved"`
 	Rejected int                `json:"rejected"`
 }
+
+// ExportCorrelationRulesRequest carries the identifiers (relPaths) of the rules
+// to bundle into a zip. Empty list means "all rules".
+type ExportCorrelationRulesRequest struct {
+	RelPaths []string `json:"relPaths"`
+}
+
+// ExportedRuleFile is one rule YAML resolved from a relPath.
+type ExportedRuleFile struct {
+	Filename string
+	Content  []byte
+}
