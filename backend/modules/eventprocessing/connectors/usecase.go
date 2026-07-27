@@ -40,6 +40,7 @@ type CorrelationRuleUsecase interface {
 	Delete(ctx context.Context, relPath string) error
 	SetActive(ctx context.Context, relPath string, active bool) (bool, error)
 	FindDistinctPropertyValues(ctx context.Context, prop, value string) ([]string, error)
+	ExportRules(ctx context.Context, relPaths []string) ([]dto.ExportedRuleFile, error)
 }
 
 type FilterUsecase interface {

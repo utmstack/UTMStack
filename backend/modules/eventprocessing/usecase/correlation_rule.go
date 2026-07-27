@@ -203,6 +203,21 @@ func (u *correlationRuleUsecase) FindDistinctPropertyValues(_ context.Context, p
 	return u.store.DistinctValues(prop, value), nil
 }
 
+func (u *correlationRuleUsecase) ExportRules(_ context.Context, relPaths []string) ([]dto.ExportedRuleFile, error) {
+	if len(relPaths) == 0 {
+		relPaths = u.store.AllRelPaths()
+	}
+	out := make([]dto.ExportedRuleFile, 0, len(relPaths))
+	for _, rel := range relPaths {
+		data, err := u.store.ReadRuleBytes(rel)
+		if err != nil {
+			return nil, mapStoreErr(err)
+		}
+		out = append(out, dto.ExportedRuleFile{Filename: rel, Content: data})
+	}
+	return out, nil
+}
+
 // ── mappers ───────────────────────────────────────────────────────────────────
 
 func buildRule(name, adversary string, conf, integ, avail int, category, technique, description string,

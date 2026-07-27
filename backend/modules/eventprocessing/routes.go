@@ -31,6 +31,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	cr := g.Group("/correlation-rule")
 	cr.POST("", write, crh.Create)
 	cr.POST("/import", write, crh.Import)
+	cr.POST("/export", read, crh.Export)
 	cr.PUT("/activate-deactivate", write, crh.ActivateDeactivate)
 	cr.PUT("", write, crh.Update)
 	cr.GET("/search-by-filters", read, crh.List)

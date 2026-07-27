@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"archive/zip"
+	"bytes"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -84,6 +87,57 @@ func (h *CorrelationRuleHandler) Import(c *gin.Context) {
 		Approved: approved,
 		Rejected: len(results) - approved,
 	})
+}
+
+// @Summary     Export correlation rules as a zip
+// @Description Bundles the requested rules (by relPath) into a single zip of their YAML files.
+// @Tags        Correlation Rules
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     application/zip
+// @Param       input body dto.ExportCorrelationRulesRequest true "Rule identifiers to export"
+// @Success     200 {file} binary
+// @Failure     400 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /correlation-rule/export [post]
+func (h *CorrelationRuleHandler) Export(c *gin.Context) {
+	var req dto.ExportCorrelationRulesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	files, err := h.usecase.ExportRules(c.Request.Context(), req.RelPaths)
+	if err != nil {
+		if isNotFound(err) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "correlation rule not found"})
+			return
+		}
+		writeCorrelationError(c, err)
+		return
+	}
+
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	for _, f := range files {
+		w, werr := zw.Create(filepath.Base(f.Filename))
+		if werr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "zip create failed"})
+			return
+		}
+		if _, werr := w.Write(f.Content); werr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "zip write failed"})
+			return
+		}
+	}
+	if err := zw.Close(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "zip close failed"})
+		return
+	}
+
+	c.Header("Content-Disposition", `attachment; filename="correlation-rules.zip"`)
+	c.Data(http.StatusOK, "application/zip", buf.Bytes())
 }
 
 // @Summary     Update correlation rule

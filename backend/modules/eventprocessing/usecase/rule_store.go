@@ -378,6 +378,33 @@ func (s *RuleStore) SetEnabled(relPath string, enabled bool) (bool, error) {
 	return true, nil
 }
 
+// AllRelPaths returns every known rule identity in load order (system first,
+// then user).
+func (s *RuleStore) AllRelPaths() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]string, 0, len(s.rules))
+	for _, sr := range s.rules {
+		out = append(out, sr.RelPath)
+	}
+	return out
+}
+
+// ReadRuleBytes returns the raw on-disk YAML for a rule, preserving comments
+// and formatting. Only rules present in the index are readable, so relPath is
+// safe against traversal (it must match a known entry).
+func (s *RuleStore) ReadRuleBytes(relPath string) ([]byte, error) {
+	s.mu.RLock()
+	sr, ok := s.index[relPath]
+	if !ok {
+		s.mu.RUnlock()
+		return nil, ErrRuleNotFound
+	}
+	abs := s.absPath(sr)
+	s.mu.RUnlock()
+	return os.ReadFile(abs)
+}
+
 // DistinctValues returns the distinct values of a rule property, optionally
 // filtered to those containing `value` (case-insensitive). prop is a legacy
 // column name (rule_name, rule_category, rule_technique, rule_adversary).
