@@ -465,11 +465,10 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           <ChartPanel pattern={pattern} fields={fields} filters={activeFilterList} />
         ) : (
           <>
-            {!sqlMode && pattern && (
+            {pattern && (
               <HistogramStrip pattern={pattern} filters={activeFilterList} range={range} />
             )}
             <div className="flex min-h-0 flex-1">
-            {!sqlMode && (
               <FieldSidebar
                 fields={fields}
                 pattern={pattern}
@@ -478,7 +477,6 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                 onAdd={addFilter}
                 onToggleColumn={toggleColumn}
               />
-            )}
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
               <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
                 <ResultsHeader columns={columns} autoColumns={autoColumns} onRemoveColumn={toggleColumn} />
