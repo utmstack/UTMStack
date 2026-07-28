@@ -73,7 +73,7 @@ export const TS = '@timestamp'
 export const PAGE_SIZE_DEFAULT = 20
 
 export const SELECT_CLS =
-  'h-9 cursor-pointer rounded-md border border-input bg-background/40 px-2 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+  'h-9 cursor-pointer rounded-md border border-input bg-popover px-2 text-sm text-popover-foreground transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
 export function relativeTime(iso?: string) {
   if (!iso) return '—'

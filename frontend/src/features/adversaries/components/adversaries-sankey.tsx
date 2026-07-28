@@ -167,8 +167,13 @@ export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
     { key: 'adversaries.col.victims', color: COLUMN_COLOR.victim },
   ]
 
+
   return (
-    <div className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-3">
+    <div
+      style={{
+        height:`${Math.min(Math.max(data.length,50)*1.7,300)}%`
+      }}
+      className={`flex  w-full flex-col rounded-xl border border-border bg-card p-3`}>
       <div className="grid grid-cols-3 gap-2 pb-2 text-xs font-medium">
         {headers.map((h, i) => (
           <div
