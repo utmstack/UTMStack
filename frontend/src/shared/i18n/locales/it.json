@@ -3491,7 +3491,7 @@
     "retry": "Riprova",
     "none": "Nessuna origine corrisponde a questa vista.",
     "ingestion": {
-      "title": "Ingestione · ultime 24 ore",
+      "title": "Ingestione",
       "received": "eventi ricevuti",
       "none": "Nessuna ingestione nelle ultime 24 ore.",
       "ago24h": "24h fa",
