@@ -307,6 +307,17 @@
     "actions": {
       "edit": "Bearbeiten"
     },
+    "refresh": {
+      "title": "Automatische Aktualisierung",
+      "options": {
+        "off": "Aus",
+        "10s": "10s",
+        "30s": "30s",
+        "1m": "1m",
+        "5m": "5m",
+        "15m": "15m"
+      }
+    },
     "editor": {
       "editing": "Bearbeitung",
       "addWidget": "Widget hinzufügen",
