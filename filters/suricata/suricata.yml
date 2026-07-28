@@ -151,6 +151,20 @@ pipeline:
             (equals("log.eventType", "dhcp") && exists("origin.ip") && exists("target.ip") && !equals("log.dhcp.assignedip", "0"))
           
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "allowed"
+          where: 'exists("log.alert.action") && equals("log.alert.action", "allowed")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'exists("log.alert.action") && equals("log.alert.action", "blocked")'
+
       # Adding geolocation to origin.ip
       - dynamic:
           plugin: com.utmstack.geolocation
