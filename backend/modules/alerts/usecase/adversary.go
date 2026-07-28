@@ -16,6 +16,12 @@ import (
 // adversaryIndexPattern is the OpenSearch index the adversary aggregation reads.
 const adversaryIndexPattern = "v11-alert-*"
 
+// alertSourceIncludes trims top_hits _source to only fields the frontend renders
+// plus `id` (needed by parseAdversaryAggs to correlate children to parents).
+// Cuts per-doc payload from full alerts (KBs) to ~4 scalar fields, keeping the
+// circuit-breaking parent breaker from tripping on wide time ranges.
+var alertSourceIncludes = []string{"id", "name", "target", "severity"}
+
 // adversaryBucketAggs is the set of sub-aggregations run under each adversary
 // bucket (by host or by IP) — shared so both grouping strategies fetch the
 // same shape of data.
@@ -49,6 +55,9 @@ func adversaryBucketAggs() map[string]any {
 						"sort": []map[string]any{
 							{"@timestamp": map[string]any{"order": "desc"}},
 						},
+						"_source": map[string]any{
+							"includes": alertSourceIncludes,
+						},
 					},
 				},
 			},
@@ -65,6 +74,9 @@ func adversaryBucketAggs() map[string]any {
 						"size": 50,
 						"sort": []map[string]any{
 							{"@timestamp": map[string]any{"order": "desc"}},
+						},
+						"_source": map[string]any{
+							"includes": alertSourceIncludes,
 						},
 					},
 				},
@@ -93,8 +105,9 @@ func (u *adversaryUsecase) FetchAdversaryAlerts(
 	}
 
 	body := map[string]any{
-		"size":  0,
-		"query": common_models.FiltersToQuery(filters),
+		"size":    0,
+		"timeout": "30s",
+		"query":   common_models.FiltersToQuery(filters),
 		"aggs": map[string]any{
 			// Group by adversary.host when present — internally-identified
 			// attackers (compromised hosts, agents) carry a hostname.
