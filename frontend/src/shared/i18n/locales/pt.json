@@ -3453,7 +3453,7 @@
     "retry": "Tentar novamente",
     "none": "Nenhuma fonte corresponde a esta visão.",
     "ingestion": {
-      "title": "Ingestão · últimas 24 horas",
+      "title": "Ingestão",
       "received": "eventos recebidos",
       "none": "Sem ingestão nas últimas 24 horas.",
       "ago24h": "há 24h",

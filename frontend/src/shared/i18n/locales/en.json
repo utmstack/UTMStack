@@ -3630,7 +3630,7 @@
     "retry": "Retry",
     "none": "No data sources match this view.",
     "ingestion": {
-      "title": "Ingestion · last 24 hours",
+      "title": "Ingestion",
       "received": "events received",
       "none": "No ingestion in the last 24 hours.",
       "ago24h": "24h ago",

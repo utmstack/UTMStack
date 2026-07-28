@@ -3491,7 +3491,7 @@
     "retry": "Erneut versuchen",
     "none": "Keine Quellen entsprechen dieser Ansicht.",
     "ingestion": {
-      "title": "Ingestion · letzte 24 Stunden",
+      "title": "Ingestion",
       "received": "empfangene Ereignisse",
       "none": "Keine Ingestion in den letzten 24 Stunden.",
       "ago24h": "vor 24h",
