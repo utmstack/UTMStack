@@ -131,20 +131,9 @@ func resolveStatus(status string) (string, string, error) {
 
 // resolveWindow defaults to the last 24h when from/to are absent (RFC3339).
 func resolveWindow(from, to string) (string, string) {
-	now := time.Now().UTC()
-	toT := now
-	if to != "" {
-		if parsed, err := time.Parse(time.RFC3339, to); err == nil {
-			toT = parsed
-		}
-	}
-	fromT := toT.Add(-defaultStatsWindow)
-	if from != "" {
-		if parsed, err := time.Parse(time.RFC3339, from); err == nil {
-			fromT = parsed
-		}
-	}
-	return fromT.UTC().Format(time.RFC3339), toT.UTC().Format(time.RFC3339)
+ 	if to == "" { to = "now" }
+	if from == "" { from = "now-" + defaultStatsWindow.String() }
+	 return from, to
 }
 
 // resolveInterval picks a date_histogram interval. An explicit value wins;
