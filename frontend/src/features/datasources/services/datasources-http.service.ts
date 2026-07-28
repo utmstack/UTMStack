@@ -1,4 +1,5 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
+import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 import type {
   AssetGroup,
   Datasource,
@@ -66,11 +67,19 @@ export const datasourcesHttpService = {
   createGroup: (input: { groupName: string; groupDescription?: string }) =>
     api.post<AssetGroup>('/datasource-groups', input),
 
-  // Live ingestion stats from v11-statistics-* (no DB). Keyed by dataSource name.
+  // Live ingestion stats from v11-statistics-* (no DB). Keyed by dataSource name.S
   ingestionTotals: () =>
     api.get<IngestionTotals>('/eventprocessing/ingestion-stats?groupBy=dataSource&status=received&top=500'),
-  ingestionTimeline: () =>
-    api.get<IngestionTimeline>('/eventprocessing/ingestion-stats/timeline?status=received&interval=auto'),
+  ingestionTimeline: (range?: TimeRange) => {
+    const interval_time = range?.interval
+    const qs = new URLSearchParams({
+      status: 'received',
+      interval: interval_time?`1${interval_time[0]}`:'auto',
+    })
+    if (range?.from) qs.set('from', range.from)
+    if (range?.to) qs.set('to', range.to)
+    return api.get<IngestionTimeline>(`/eventprocessing/ingestion-stats/timeline?${qs.toString()}`)
+  },
   // Per-source ingestion trend (scopes the timeline to one dataSource by name).
   ingestionTimelineFor: (name: string) =>
     api.get<IngestionTimeline>(

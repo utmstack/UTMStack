@@ -31,6 +31,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import {
   datasourcesHttpService as svc,
   DatasourcesHttpError,
@@ -134,6 +135,7 @@ export function DataSourcesPage() {
   const [usage, setUsage] = useState<Usage | null>(null)
   const [stats, setStats] = useState<Record<string, IngestionBucket>>({})
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
+  const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
   const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
   const [openId, setOpenId] = useState<number | null>(null)
 
@@ -185,7 +187,7 @@ export function DataSourcesPage() {
       svc.groups(),
       svc.usage(),
       svc.ingestionTotals(),
-      svc.ingestionTimeline(),
+      svc.ingestionTimeline(range),
     ])
     if (g.status === 'fulfilled') setGroups(g.value.items ?? [])
     if (u.status === 'fulfilled') setUsage(u.value)
@@ -219,7 +221,7 @@ export function DataSourcesPage() {
       offline: tot(cOffline)+tot(cNotConnected),
     })
     setLoading(false)
-  }, [groupId,setLoading])
+  }, [groupId, range, setLoading])
 
   useEffect(() => {
     void loadAux()
@@ -255,7 +257,7 @@ export function DataSourcesPage() {
 
       <div className="mt-5 grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-8">
-          <IngestionCard timeline={timeline} />
+          <IngestionCard timeline={timeline} range={range} onRange={setRange} />
         </div>
         <div className="col-span-12 lg:col-span-4">
           <UsageCard usage={usage} />
@@ -371,7 +373,15 @@ function Header({ total }: { total: number }) {
 
 /* ─── Ingestion overview (real timeline) ───────────────────────────────── */
 
-function IngestionCard({ timeline }: { timeline: TimelinePoint[] }) {
+function IngestionCard({
+  timeline,
+  range,
+  onRange,
+}: {
+  timeline: TimelinePoint[]
+  range: TimeRange
+  onRange: (r: TimeRange) => void
+}) {
   const { t } = useTranslation()
   const total = timeline.reduce((a, p) => a + p.count, 0)
   const values = timeline.map((p) => p.count)
@@ -389,12 +399,17 @@ function IngestionCard({ timeline }: { timeline: TimelinePoint[] }) {
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-        {t('datasources.ingestion.title')}
-      </div>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-3xl font-semibold tabular-nums">{formatCount(total)}</span>
-        <span className="text-sm text-muted-foreground">{t('datasources.ingestion.received')}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            {t('datasources.ingestion.title')}
+          </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-3xl font-semibold tabular-nums">{formatCount(total)}</span>
+            <span className="text-sm text-muted-foreground">{t('datasources.ingestion.received')}</span>
+          </div>
+        </div>
+        <TimeRangePicker value={range} onChange={onRange} align="right" />
       </div>
       {values.length === 0 ? (
         <div className="mt-4 flex h-24 items-center justify-center text-xs text-muted-foreground">
@@ -412,10 +427,6 @@ function IngestionCard({ timeline }: { timeline: TimelinePoint[] }) {
           <path d={linePath} fill="none" stroke="rgb(34 211 238)" strokeOpacity="0.85" strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" />
         </svg>
       )}
-      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        <span>{t('datasources.ingestion.ago24h')}</span>
-        <span>{t('datasources.ingestion.now')}</span>
-      </div>
     </div>
   )
 }
