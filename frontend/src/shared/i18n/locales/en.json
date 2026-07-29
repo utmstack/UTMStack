@@ -689,7 +689,9 @@
     "header": {
       "matchedInEnv": "matched in your env",
       "export": "Export IOCs",
-      "exporting": "Exporting…"
+      "exporting": "Exporting…",
+      "noInstanceIocs": "No instance indicators — showing generic data",
+      "noInstanceIocsHint": "No indicators observed in your alerts — showing generic feed data."
     },
     "overview": {
       "title": "IOC matches",

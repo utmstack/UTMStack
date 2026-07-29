@@ -55,11 +55,9 @@ export function useAlertIocs() {
   })
 }
 
-export function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest {
+export function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest | undefined {
   const entries = Object.entries(iocs.byAttr).filter(([, v]) => v.length > 0)
-  if (entries.length === 0) {
-    return { query: { must: [{ terms: { id: ['__no_observed_iocs__'] } }] } }
-  }
+  if (entries.length === 0) return undefined
   return {
     query: {
       should: entries.map(([attr, values]) => ({
@@ -69,7 +67,17 @@ export function alertIocsFragment(iocs: AlertIocs): AdvancedSearchRequest {
   }
 }
 
-export function useAlertIocsFragment(): AdvancedSearchRequest | undefined {
+export interface AlertIocsFragmentResult {
+  ready: boolean
+  fragment: AdvancedSearchRequest | undefined
+  hasInstanceIocs: boolean
+}
+
+export function useAlertIocsFragment(): AlertIocsFragmentResult {
   const q = useAlertIocs()
-  return useMemo(() => (q.data ? alertIocsFragment(q.data) : undefined), [q.data])
+  return useMemo<AlertIocsFragmentResult>(() => {
+    if (!q.data) return { ready: false, fragment: undefined, hasInstanceIocs: false }
+    const fragment = alertIocsFragment(q.data)
+    return { ready: true, fragment, hasInstanceIocs: !!fragment }
+  }, [q.data])
 }

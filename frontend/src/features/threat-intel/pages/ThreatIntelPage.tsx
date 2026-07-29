@@ -102,10 +102,10 @@ export function ThreatIntelPage() {
 
   useEffect(() => {
     if (!isConfigured) return
-    if (!observedFragment) return
+    if (!observedFragment.ready) return
     const my = ++seqRef.current
     const mode = modeRef.current
-    const body = composeBody(filtersToRequest(filters), query, timeRange, observedFragment)
+    const body = composeBody(filtersToRequest(filters), query, timeRange, observedFragment.fragment)
     setLastBody(body)
     searchAdvancedMutation.mutate(
       { body, limit: size, page: page + 1 },
@@ -129,7 +129,7 @@ export function ThreatIntelPage() {
         },
       }
     )
-  }, [query, page, size, isConfigured, timeRange, observedFragment])
+  }, [query, page, size, isConfigured, timeRange, observedFragment.ready, observedFragment.fragment])
 
   if (configLoading) return null
   if (isConfigured === false) return <NotConfiguredState />
@@ -162,7 +162,7 @@ export function ThreatIntelPage() {
   }
 
   const handleFiltersApply = (request: AdvancedSearchRequest) => {
-    const body = composeBody(request, query, timeRange, observedFragment)
+    const body = composeBody(request, query, timeRange, observedFragment.fragment)
     modeRef.current = 'replace'
     setPage(0)
     setLastBody(body)
@@ -232,11 +232,12 @@ export function ThreatIntelPage() {
         matchedCount={totalItems}
         onExport={handleExport}
         isExporting={isExporting}
+        noInstanceIocs={observedFragment.ready && !observedFragment.hasInstanceIocs}
       />
 
       <div className="mt-5">
         <MatchOverviewCard
-          body={observedFragment ? lastBody : undefined}
+          body={observedFragment.ready ? lastBody : undefined}
           interval={TIME_RANGE_OPTIONS.find((o) => o.value === timeRange)?.interval ?? 'hour'}
         />
       </div>
