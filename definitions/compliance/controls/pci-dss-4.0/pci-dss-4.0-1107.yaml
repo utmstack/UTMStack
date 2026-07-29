@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1107
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.3 Cleaned Event Log
+scope: data
+statement: This report compiles relevant information from 1102 events (Audit log was cleared) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 2.3, which establishes that wireless environments must be configured and managed securely.<br/><br/>Event 1102 indicates that audit logs have been cleared, which may be a sign of an attempt to hide unauthorized changes to critical configurations, including management of security parameters on wireless networks, such as default encryption keys, access point passwords, and SNMP settings. Monitoring this event helps detect potential attempts to circumvent security controls and ensure that wireless network configurations remain aligned with required security standards.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

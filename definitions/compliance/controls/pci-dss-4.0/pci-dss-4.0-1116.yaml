@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1116
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.2 Cleaned Event Log
+scope: data
+statement: This report compiles relevant information from 1102 events (The audit log was cleared) generated in Windows, with the aim of verifying compliance with PCI DSS Requirement 3.2.1. This requirement establishes that account data storage must be kept to a minimum, ensuring that data is stored only in the necessary locations and for the time period determined by data retention and deletion policies.<br/><br/>Event 1102 allows auditing the deletion or clearing of audit logs in the system, providing visibility into when and why records were deleted. This event is relevant to verify that account data retention policies are being applied correctly and that audit logs, which may contain sensitive information, have not been deleted before the minimum retention period defined in the policy is reached. It also helps verify that, once the defined retention period has elapsed, account data is deleted or rendered unrecoverable in accordance with established procedures. This ensures that sensitive information is not stored beyond the necessary time, complying with legal, regulatory, and business requirements.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

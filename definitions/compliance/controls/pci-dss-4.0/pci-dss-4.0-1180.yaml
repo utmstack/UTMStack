@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1180
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Additions to Security Groups
+scope: data
+statement: This report compiles relevant information from Windows Event 4728 logs, which are triggered when a user is added to a group with administrative privileges. Its purpose is to verify that all audit logs capture actions performed by individuals with administrative access, including any interactive use of application or system accounts. This ensures compliance with PCI DSS Requirement 110.2.1.2, which establishes the need to audit the activities of users with administrative privileges to ensure the integrity and security of the environment.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

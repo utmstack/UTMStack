@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1108
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.3 User Account Attributes Changes
+scope: data
+statement: This report compiles relevant information from 4738 events (A user account was changed) generated in Windows, with the goal of verifying compliance with PCI DSS requirement 2.3.2, which establishes that wireless encryption keys must be changed in specific situations, such as the departure of employees with knowledge of the keys or when there is a suspicion of compromise.<br/><br/>Event 4738 records changes to user accounts, which can help identify changes in privileges or access by personnel who may have had knowledge of the wireless network's encryption keys. Monitoring these events ensures that keys are updated in a timely manner, reducing the risk of unauthorized access to networks that transmit sensitive data.
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

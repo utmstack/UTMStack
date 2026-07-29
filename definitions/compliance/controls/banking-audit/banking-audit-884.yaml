@@ -1,0 +1,21 @@
+id: banking-audit-884
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Attempt to Access a Protected Object
+scope: data
+statement: "The Windows Attempt to Access a Protected Object Report provides a detailed log of both successful and failed attempts to access protected objects, such as files, directories, or system components. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework by tracking access to sensitive resources and enforcing security policies.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of access attempts to safeguard financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 10, which mandates logging and monitoring of access to critical resources to detect unauthorized activities.<br/>\t•\tReal-Time Alerting: Captures and notifies of unauthorized or suspicious access attempts in real-time, enabling immediate response to potential threats.<br/>\t•\tIncident Detection: Identifies patterns of unauthorized access, such as brute force attacks or privilege escalation attempts, which could indicate security breaches.<br/>\t•\tAudit Readiness: Provides traceability of access attempts to ensure accountability and compliance with frameworks like SOC2 Type 2 and ISO 27001."
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

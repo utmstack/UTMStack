@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1172
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.3 Kerberos ticket requests
+scope: data
+statement: This report collects and analyzes events 4768 (Kerberos Authentication Ticket Request), 4769 (Kerberos Authentication Ticket Grant), and 4771 (Kerberos Authentication Ticket Grant Attempt Failed) in the Windows logs to verify compliance with PCI DSS Requirement 8.3. Specifically, it reviews the use of strong authentication for users and administrators, ensuring that system access is validated using factors such as passwords, token devices, or smart cards, and that authentication factors are encrypted both in transit and in storage. It also verifies that restrictions are applied to failed authentication attempts, with a maximum of 10 attempts and user lockouts as established. The password policy is evaluated, ensuring that they are unique, changed regularly, and of appropriate complexity, complying with PCI DSS guidelines. In addition, it ensures that authentication factors such as smart cards or tokens are individually assigned and that physical and logical controls exist for their exclusive use.
+strategy: ANY
+checks:
+  - key: windows-kerberos-ticket-requests
+    name: Windows Kerberos ticket requests
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-ticket-requests-by-outcome
+    name: Windows Kerberos ticket requests by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-707
+family: hipaa
+familyName: HIPAA
+name: Windows User Accounts Created
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need for continuous monitoring of network activity to detect malicious activity. By analyzing event ID 4720 on Windows systems, this report facilitates monitoring the creation of new user accounts, which may be indicative of possible unauthorized or malicious activity. By monitoring these types of events, the creation of accounts that do not follow established protocols can be detected, contributing to a rapid response to potential threats and strengthening the security of the network infrastructure.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

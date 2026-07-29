@@ -1,0 +1,21 @@
+id: cmmc-2.0-484
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AC.5.025): Account Locks'
+scope: data
+statement: This report collects the Windows log event 4740 logs, which document the locking out of user accounts after multiple failed authentication attempts. Event 4740 is generated when an account is locked due to repeated unsuccessful access attempts, providing key information about possible unauthorized access attempts or brute force attacks. This information is crucial to verify compliance with CMMC's Level 5 (AC.5.025) Access Control and Authentication policy, which requires continuous monitoring of access through advanced behavioral analysis.<br/><br/>The report includes key details such as the name of the blocked account, the identity of the user or process that generated the event, the IP address or computer of origin of the access attempt and the date and time of the block, among others. The analysis of these events allows us to identify behavioral patterns in system access, detect intrusion attempts in real time and strengthen security strategies based on advanced analysis of user behavior. This proactive approach helps prevent unauthorized access and ensure security controls are aligned with CMMC Level 5 policies.
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-1016
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): File Renamed'
+scope: data
+statement: This report collects relevant information from the FileRenamed event logs in Office 365, with the aim of verifying compliance with CMMC Level 2 control (AU.2.043). This control establishes the need to review and correlate logs to detect inappropriate activities that may compromise data security and the integrity of files stored in the organization.<br/><br/>The FileRenamed event provides details about the name changes made to files within SharePoint and OneDrive. This information is crucial to identify suspicious actions, such as unauthorized changes to sensitive documents, which could be an indication of tampering or unauthorized access.<br/><br/>By reviewing these logs and correlating them with other events related to file access and permissions, the report can detect inappropriate behavior, such as the modification of critical file names without proper justification or the renaming of documents related to confidential or controlled information. This analysis helps identify anomalous behavior patterns, such as unauthorized users renaming files in order to evade monitoring or manipulate information.<br/><br/>This report helps improve visibility of file changes and facilitates early detection of security incidents, helping to mitigate risks related to improper access and manipulation of information. By correlating this event with other relevant logs, compliance with the organization's security policies is ensured, guaranteeing that files are not altered or renamed inappropriately.
+strategy: ANY
+checks:
+  - key: o365-file-renamed
+    name: O365 File Renamed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileRenamed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-renamed-by-workload
+    name: O365 File Renamed by Workload
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileRenamed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

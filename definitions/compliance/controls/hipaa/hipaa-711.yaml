@@ -1,0 +1,21 @@
+id: hipaa-711
+family: hipaa
+familyName: HIPAA
+name: Windows Policy changes
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity to detect malicious activity. By analyzing event ID 4719 on Windows systems, this report facilitates the monitoring of changes to security audit policies, which may indicate unauthorized adjustments that could compromise log integrity or conceal malicious activity. Monitoring these types of events can detect suspicious changes to security settings, strengthening incident response capabilities and ensuring constant surveillance of the network infrastructure.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

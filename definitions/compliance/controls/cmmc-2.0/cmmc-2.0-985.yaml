@@ -1,0 +1,21 @@
+id: cmmc-2.0-985
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Event Log Service
+scope: data
+statement: This report presents a detailed analysis of Windows Event Viewer events ID 6005 and ID 6006, which record events related to system startup and shutdown. Event 6005 indicates the start of a Windows event log event, while event 6006 signals a controlled system shutdown.<br/><br/>The collection and evaluation of these events is essential for the validation of Disaster Recovery and Business Continuity, according to CMMC (Cybersecurity Maturity Model Certification) standards and requirements. By analyzing these logs, it is ensured that the system is being booted and shut down correctly, which helps confirm the correct implementation of recovery strategies, effective monitoring, and continued availability of services.
+strategy: ANY
+checks:
+  - key: windows-event-log-service
+    name: Windows Event Log Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: event-log-service-count-by-event
+    name: Event Log Service Count by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

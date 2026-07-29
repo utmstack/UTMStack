@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1101
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Service Installed
+scope: data
+statement: This report gathers key information from 4697 events recorded in Windows logs, which are generated when a new service or component is installed on a system. These events are important for verifying that security configuration standards are being implemented in accordance with PCI DSS Requirement 2.2.1, which requires configurations to be consistent with system hardening best practices or vendor recommendations, address all known vulnerabilities, and be updated as new threats are identified.<br/><br/>4697 events allow for auditing the installation of new services or components on the system, providing evidence that these components are being properly configured to meet security standards before being connected to the production network. Additionally, these events help verify that configuration updates are being applied in a timely manner, as required by PCI DSS regarding the application of secure configurations and the management of new vulnerabilities.<br/><br/>This report ensures that security configurations are continuously maintained and audited, and that PCI DSS requirements related to the secure configuration of system components are met.
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

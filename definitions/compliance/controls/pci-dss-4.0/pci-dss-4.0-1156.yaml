@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1156
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.2 Protected Object Access Operation
+scope: data
+statement: This report compiles information from Windows 4662 events, which record audit actions on security objects, such as the creation, modification, or deletion of permissions on specific files or directories. The purpose is to assess compliance with PCI DSS Requirement 7.2, which establishes that access to system components and data must be appropriately defined and assigned. These logs verify that access to systems and resources is properly controlled and assigned according to user roles, following the principle of least privilege and ensuring that only the permissions strictly necessary to perform job duties are granted.
+strategy: ANY
+checks:
+  - key: windows-protected-object-access-operation
+    name: Windows Protected Object Access Operation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-protected-object-access-operation-by-object
+    name: Windows Protected Object Access Operation by Object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

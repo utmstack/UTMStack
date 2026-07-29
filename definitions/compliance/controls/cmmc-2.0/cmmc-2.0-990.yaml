@@ -1,0 +1,21 @@
+id: cmmc-2.0-990
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Application failure
+scope: data
+statement: This report collects and analyzes 1000 events in the Windows event log, which are errors from applications that have failed unexpectedly.<br/><br/>The purpose of this report is to identify applications that experience recurring failures, evaluate their impact on system stability, and determine potential risks to operational continuity. The information presented is essential to monitor and improve the resilience of the technological environment, guaranteeing compliance with the requirements of Disaster Recovery and Business Continuity Monitoring within the framework of CMMC (Cybersecurity Maturity Model Certification).
+strategy: ANY
+checks:
+  - key: windows-application-failure
+    name: Windows Application failure
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-application-failure-by-source
+    name: Windows Application failure by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

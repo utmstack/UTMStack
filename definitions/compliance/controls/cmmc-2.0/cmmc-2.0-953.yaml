@@ -1,0 +1,21 @@
+id: cmmc-2.0-953
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.052): Process Termination'
+scope: data
+statement: This report compiles relevant information from the logs of Windows event 4689, which is generated when a process ends in the system. This event is key to verify compliance with CMMC's Level 4 requirement (AU.4.052), which emphasizes improving audit logs to support advanced threat detection. By monitoring process termination, you can identify anomalous behavior, possible security evasion attempts, or the unexpected termination of critical processes. The analysis of these logs, combined with advanced correlation and threat detection techniques, allows you to strengthen the security of your environment, respond more quickly to potential incidents, and improve your ability to defend against sophisticated attacks.
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

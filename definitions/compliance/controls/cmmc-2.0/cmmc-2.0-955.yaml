@@ -1,0 +1,21 @@
+id: cmmc-2.0-955
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.052): BitLocker Settings Modification Attempts'
+scope: data
+statement: This report compiles and presents key information from the Windows event 4826 logs, focused on the modification of system security settings. Event 4826 is related to the loading of the "Boot Configuration Data" (BCD) and is crucial to detect any attempted changes to security settings that may compromise the integrity of the operating system, such as enabling or disabling advanced protection options.<br/><br/>This type of information is essential to comply with CMMC Level 4 (AU.4.052), which requires strengthening audit logs to support advanced threat detection. The report provides details on changes to configurations such as advanced options, access policies, and kernel and virtualization debugging settings, among others, helping to identify anomalous behavior and potential threats.<br/><br/>The analyzed logs and their corresponding alerts allow a better correlation of events and improve the response capacity to incidents related to unauthorized modifications to the system's security, which is essential to improve the security posture in highly sensitive environments, such as those that handle CUI (Controlled Unclassified Information).
+strategy: ANY
+checks:
+  - key: windows-bitlocker-settings-modification-attempts
+    name: Windows BitLocker Settings Modification Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-bitlocker-settings-modification-attempts-by-outcome
+    name: Windows BitLocker Settings Modification Attempts by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

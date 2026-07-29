@@ -1,0 +1,21 @@
+id: banking-audit-912
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Created
+scope: data
+statement: "The Windows User Accounts Created report provides detailed logs of events where new user accounts are created on a Windows system. This report is crucial for tracking account creation activities, ensuring compliance with security standards, and detecting unauthorized account provisioning.<br/>\t•\tRegulatory Compliance: Ensures adherence to frameworks such as PCI DSS, ISO 27001, and SOC2, by maintaining records of all user account creation activities to support access control and audit requirements.<br/>\t•\tAccount Management Monitoring: Tracks the creation of user accounts, allowing administrators to verify that accounts are provisioned through authorized processes and for legitimate purposes.<br/>\t•\tEvent Correlation: Links user account creation events to administrative actions, IP addresses, and associated events (e.g., privilege escalations or group assignments) for a comprehensive audit trail.<br/>\t•\tReal-Time Alerts: Notifies administrators of new account creation in real-time, particularly for privileged accounts or accounts created outside of standard provisioning workflows.<br/>\t•\tIncident Detection: Helps identify unauthorized account creation, which could indicate insider threats, privilege misuse, or malicious activities such as backdoor account setups.<br/>\t•\tAudit Readiness: Logs all details of account creation events, including the account name, creation time, associated user or process, and originating machine, ensuring robust records for audits and investigations."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

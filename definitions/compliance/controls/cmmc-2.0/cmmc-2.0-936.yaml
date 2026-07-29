@@ -1,0 +1,21 @@
+id: cmmc-2.0-936
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 3 (AC.3.032): Access Roles Assumption'
+scope: data
+statement: This report collects and analyzes AWS log events related to the AssumeRole action, used for role assumption in AWS IAM. Its objective is to provide visibility over remote access to sensitive systems, allowing possible misuse or unauthorized access to be identified.<br/><br/>The report contributes to compliance with Level 3 (AC.3.032) of CMMC, which requires monitoring and controlling remote access to systems that contain sensitive information. Reviewing AssumeRole events can detect unexpected privilege changes, accesses from unusual locations, or the use of compromised credentials.
+strategy: ANY
+checks:
+  - key: aws-access-roles-assumption
+    name: AWS Access Roles Assumption
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-access-roles-assumption-by-source-ip
+    name: AWS Access Roles Assumption by Source IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

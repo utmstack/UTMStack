@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1160
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.3 Account Authentication Using NTLM
+scope: data
+statement: This report compiles relevant information from Windows 4776 events, which record authenticated login attempts using user credentials. 4776 events are key to assessing compliance with PCI DSS Requirement 7.3, which requires access to system components and data to be managed by an access control system. Data from these events allows verification that authenticated access attempts are adequately controlled, confirming that the access control system is functioning correctly to allow only authorized access. This report facilitates auditing of implemented access controls, ensuring that user credentials are properly managed and validated for access to critical systems and data.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

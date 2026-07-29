@@ -1,0 +1,21 @@
+id: cmmc-2.0-509
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Account Authentication Using NTLM'
+scope: data
+statement: This report collects information relevant to event 4776 in the Windows logs, which is generated when an authentication attempt, usually through Kerberos or NTLM, fails. This event is of great importance for continuous monitoring of systems and early detection of possible unauthorized access attempts or cyber attacks.<br/><br/>In the context of Level 3 (SI.3.217) of the CMMC, this type of event allows the identification of anomalous patterns of failed authentication attempts, which may be indicative of attacks such as brute force, phishing or privilege escalation attempts. The report focuses on capturing these events so that any unusual behavior can be quickly analyzed, ensuring that unauthorized access attempts are detected and managed efficiently.<br/><br/>Monitoring events like 4776 provides real-time visibility into failed authentication attempts, which is crucial for detecting suspicious behavior that may compromise infrastructure security. In addition, the report facilitates the generation of alerts about possible security incidents, allowing corrective measures to be taken before an attack materializes.<br/><br/>This active monitoring approach is essential to meeting CMMC requirements by ensuring that attack detection mechanisms are in place and operating effectively, which is key to protecting the organization from external and internal threats.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

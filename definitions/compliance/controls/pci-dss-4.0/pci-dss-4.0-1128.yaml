@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1128
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 4.2 TLS protocol Errors
+scope: data
+statement: This report compiles relevant information from event 36874 (Use of Certificate or Private Key) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 4.2.1. This requirement establishes the implementation of robust cryptography and security protocols to protect the PAN (Cardholder Account Number) during transmission over public and open networks.<br/><br/>Event 36874 is essential for auditing the use of certificates and private keys during the transmission of sensitive data, confirming that only trusted keys and certificates are accepted, that they are valid, and that they have not expired or been revoked. Additionally, this event verifies that the protocols used in PAN transmission comply with security standards, avoiding insecure versions, outdated algorithms, inadequate key sizes, or vulnerable implementations.<br/><br/>This analysis helps ensure that the encryption methods implemented are adequate and maintain the integrity and confidentiality of cardholder data, thereby protecting information during transmission over open public networks.
+strategy: ANY
+checks:
+  - key: windows-tls-protocol-errors
+    name: Windows TLS protocol Errors
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '36874')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-tls-protocol-errors-by-ip
+    name: Windows TLS protocol Errors by IP
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '36874')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

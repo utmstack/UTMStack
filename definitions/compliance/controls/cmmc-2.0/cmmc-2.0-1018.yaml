@@ -1,0 +1,21 @@
+id: cmmc-2.0-1018
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 4 (AU.4.054): File Synchronization'
+scope: data
+statement: This report collects relevant information from the FileSyncDownloadedFull event logs in Office 365, in order to verify compliance with CMMC Level 4 (AU.4.054) control, which requires the implementation of advanced event correlation to detect evolving threats. The FileSyncDownloadedFull event is generated when a file is fully synchronized through OneDrive or SharePoint, implying a highly relevant file transfer or access to information that could be associated with CUI (Controlled Unclassified Information).<br/><br/>The analysis of this event is crucial to detect unusual patterns in the download of sensitive files, such as those related to mass synchronization of important documents or unauthorized access to files that should be restricted. Through advanced event correlation, this report allows you to identify whether file download activity is linked to other suspicious behavior, such as logins from unusual locations, simultaneous access attempts, or changes in security settings.<br/><br/>Implementing advanced event correlation techniques enables the detection of evolving threats, such as data exfiltration attacks or lateral movement within the network. An example of this type of threat could be an attacker who first accesses a file and then synchronizes it to transfer it to an unauthorized location, all while hiding their actions by executing multiple events at different points in the system.<br/><br/>This report provides a detailed and correlated view of file synchronization activities within the Office 365 infrastructure, making it easier to identify advanced persistent threats (APTs) that may have evaded traditional detection methods. Through this advanced correlation, security teams can quickly respond to incidents, mitigating risks and ensuring that critical files are not compromised or transferred inappropriately.<br/><br/>In short, the report contributes to continuous monitoring and proactive detection of complex threats that affect information integrity, which is essential to prevent data l
+strategy: ANY
+checks:
+  - key: o365-filesyncdownloadedfull
+    name: O365 FileSyncDownloadedFull
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncDownloadedFull')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-filesyncdownloadedfull-by-ip
+    name: O365 FileSyncDownloadedFull by IP
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncDownloadedFull')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

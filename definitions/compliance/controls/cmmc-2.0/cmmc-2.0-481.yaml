@@ -1,0 +1,21 @@
+id: cmmc-2.0-481
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Attempt to Access a Protected Object'
+scope: data
+statement: This report compiles the records of events 4663 and 4656 from the Windows logs, which focus on auditing access to security objects, such as files or folders that contain Controlled Unclassified Information (CUI), and the actions performed about these objects. Event 4663 is generated when a user or process performs an access operation (such as read, write, or modify) on an object, while event 4656 documents access attempts to those security objects, including the action requested and whether it was allowed or denied. These events are essential to verify compliance with the CMMC's Level 3 Access Control and Authentication policy (AC.3.014), which requires controlling the flow of CUI and protecting the access points that allow its access or modification.<br/><br/>The report includes key details such as the name of the accessed object (file, folder, etc.), the type of access performed (read, write, delete, etc.), the identity of the user or process that performed the action, the date and time of the operation, and whether access was allowed or denied. Analysis of these events ensures that controls over resources containing CUI are effective, that the flow of information is appropriately restricted, and that established security policies for the protection of sensitive data are complied with.
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

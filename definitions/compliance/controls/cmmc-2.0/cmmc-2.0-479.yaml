@@ -1,0 +1,21 @@
+id: cmmc-2.0-479
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): User Accounts Enabled'
+scope: data
+statement: This report groups the records of event 4722 from the Windows logs, which document the activation of user accounts previously disabled on the system. The information collected is essential to verify compliance with CMMC's Authentication and Access Control policy Level 2 (AC.2.007), which requires the implementation of role-based access controls (RBAC). This ensures that users only have access to the resources they need based on their role. <br/><br/>The report includes key details such as the identity of the activated accounts, the role assigned, the date and time of activation, as well as the user or system account that performed the action. The analysis of these events allows us to guarantee that accounts are activated and managed in a controlled manner and in compliance with access policies, preventing improper access and maintaining the principle of least privilege in the assignment of roles and permissions.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1109
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.1 Protected Object Permission Change
+scope: data
+statement: This report compiles relevant information from 4670 events (Permissions on an object were changed) generated in Windows, with the goal of verifying compliance with PCI DSS requirements 3.1 and 3.1.1. This requirement establishes that processes and mechanisms for protecting stored account data must be defined and understood, and that related security policies and procedures must be documented, up-to-date, in use, and known to all affected parties.<br/><br/>Event 4670 allows you to audit changes made to the permissions of audit objects, providing visibility into changes in access and rights related to sensitive data. This event allows you to identify whether any changes have been made to access permissions on stored account data, ensuring that these changes align with established security policies and that access is appropriate and controlled.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

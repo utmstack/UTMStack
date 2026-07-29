@@ -1,0 +1,21 @@
+id: cmmc-2.0-602
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AC.2.007): SharePoint Group Membership Additions'
+scope: data
+statement: This report compiles and presents relevant information about AddedToGroup events in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.2.007. Its purpose is to ensure that role-based access controls (RBAC) are implemented correctly, ensuring that users are only added to groups according to their roles and responsibilities within the organization.<br/><br/>The report includes key details such as the user added to the group, the group that has been granted access, the account that performed the action, the time of the event, and any changes to access permissions. This information is crucial to ensuring that users have only the permissions necessary to perform their jobs and that the principle of least privilege is maintained, thereby minimizing the risks of unauthorized access to sensitive resources.
+strategy: ANY
+checks:
+  - key: o365-sharepoint-group-membership-additions
+    name: O365 SharePoint Group Membership Additions
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'AddedToGroup' AND logx.o365.Workload.keyword = 'OneDrive')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-sharepoint-group-membership-additions-by-group
+    name: O365 SharePoint Group Membership Additions by Group
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'AddedToGroup' AND logx.o365.Workload.keyword = 'OneDrive')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-497
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): PowerShell Script Block Registration'
+scope: data
+statement: Helps maintain tight control over activity in PowerShell, quickly identifying anomalous or suspicious activity that may compromise system or network security. This not only improves the organization's security posture but also ensures compliance with security regulations and standards.
+strategy: ANY
+checks:
+  - key: windows-powershell-script-block-registration
+    name: Windows PowerShell Script Block Registration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-powershell-script-block-registration-by-host
+    name: Windows PowerShell Script Block Registration by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

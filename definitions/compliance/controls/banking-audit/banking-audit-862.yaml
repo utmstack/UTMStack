@@ -1,0 +1,21 @@
+id: banking-audit-862
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Account Logon Success
+scope: data
+statement: "The Windows Account Logon Success Report provides a detailed record of successful logon events, capturing essential data such as the user account, timestamp, source IP address, and authentication method. This report is a critical compliance tool within the Banking Audit framework, ensuring traceability of access to sensitive financial systems and supporting regulatory requirements.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring visibility into authorized system access to protect customer information and financial data.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 8, validating that only authorized users gain access to critical systems through secure authentication processes.<br/>\t•\tAudit Readiness: Tracks successful logons, providing evidence for frameworks like SOC2 Type 2 and ISO 27001, ensuring accountability and secure access management.<br/>\t•\tThreat Detection: Identifies unusual access patterns, such as logons from unexpected geographic locations, which could indicate compromised credentials.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, demonstrating controls that prevent unauthorized access to systems containing sensitive financial data."
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

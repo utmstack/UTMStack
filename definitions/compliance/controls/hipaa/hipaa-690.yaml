@@ -1,0 +1,21 @@
+id: hipaa-690
+family: hipaa
+familyName: HIPAA
+name: Windows PowerShell Script Block Registration
+scope: data
+statement: This report collects and analyzes security events identified by ID 4103 on Windows systems. Event 4103 records the execution of PowerShell scripts with detailed information about the executed commands and their parameters, providing relevant data for verifying compliance with the HITRUST CSF 01.p requirement, which establishes that access to log data and monitoring systems must be controlled. This report facilitates the identification and monitoring of PowerShell activities that could affect the integrity of monitoring and logging systems, contributing to the implementation of secure access policies and appropriate oversight.
+strategy: ANY
+checks:
+  - key: windows-powershell-script-block-registration
+    name: Windows PowerShell Script Block Registration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-powershell-script-block-registration-by-host
+    name: Windows PowerShell Script Block Registration by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

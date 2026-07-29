@@ -1,0 +1,21 @@
+id: cmmc-2.0-954
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.052): Account Authentication Using NTLM'
+scope: data
+statement: This report collects relevant information from the logs of Windows event 4776, which is generated when an authentication attempt on the domain controller is processed by NTLM. This event is essential to verify compliance with CMMC's Level 4 requirement (AU.4.052), which emphasizes improving audit logs for advanced threat detection. By analyzing these events, it is possible to identify suspicious authentication patterns, such as repeated failed login attempts or authentications from unusual locations, which may indicate attack attempts such as brute force or lateral movement within the network. The correlation of this data with other sources of events allows us to improve threat detection and strengthen the security of the infrastructure, facilitating rapid and automated responses to possible compromises.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-538
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Installation of Services'
+scope: data
+statement: This report compiles relevant information from Windows logs about event 7045, which is generated when a new service is installed on the system. Installing a service is a critical action that can indicate the execution of processes or software persistently on the system. Since attackers can use services to maintain access or control in a compromised environment, monitoring this type of activity is essential to detect potential threats or malicious actions.<br/><br/>In the context of CMMC Level 3 (SI.3.217) compliance, monitoring 7045 events is essential to detect unauthorized service installation attempts. These services can be used by attackers to execute malicious code or control systems without detection by administrators. This event is especially useful for identifying suspicious or unrecognized software, which may be indicative of a persistent attack.<br/><br/>The report of this event provides detailed information about the name of the service, its location and the process that installed it, allowing security teams to identify unusual behavior and take preventive or corrective measures. This continuous monitoring approach is vital to strengthen system defense and improve early detection of potential incidents.<br/><br/>In summary, the analysis of 7045 events in Windows logs is a key tool in compliance with CMMC requirement SI.3.217, since it allows organizations to identify and mitigate possible risks related to the unauthorized installation of services, improving attack detection capabilities.
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

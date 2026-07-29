@@ -1,0 +1,21 @@
+id: cmmc-2.0-595
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AU.2.042): Service Installed'
+scope: data
+statement: This report collects the logs of event 4697 from the Windows logs, which document the installation of new services on the system. Event 4697 is generated when a service is installed, which may involve adding software or configuring processes that may have security implications. This information is crucial to verify compliance with CMMC's Level 2 Audit and Monitoring policy (AU.2.042), which requires ensuring the collection of logs to detect and analyze security events, including the installation of services that may modify behavior. of the system or represent a security risk.<br/><br/>The report includes key details such as the name of the installed service, the identity of the user or process that performed the installation, the date and time of the installation, among others. The analysis of these events allows us to detect the unauthorized installation of services or software in the system, helping to identify possible attack vectors or changes that could compromise the security of the system. This report is essential to verify the correct collection of event logs related to the installation of services and ensure that all relevant events are properly audited, supporting compliance with the audit requirements established by CMMC Level 2.
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

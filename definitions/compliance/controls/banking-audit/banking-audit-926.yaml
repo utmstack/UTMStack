@@ -1,0 +1,21 @@
+id: banking-audit-926
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Logging Unexpected System Shutdowns
+scope: data
+statement: "The Windows Logging Unexpected System Shutdowns report provides detailed records of events where a Windows system experiences an unexpected shutdown. This report is critical for identifying root causes, monitoring system health, and ensuring compliance with operational and audit requirements.<br/>\t•\tRegulatory Compliance: Supports frameworks like ISO 27001, SOC2, and ITIL, by documenting unexpected shutdowns to ensure system reliability and demonstrate adherence to incident management practices.<br/>\t•\tSystem Health Monitoring: Tracks unexpected shutdowns to detect patterns, identify hardware or software failures, and assess the impact on operational continuity.<br/>\t•\tEvent Correlation: Links shutdown events with preceding activities, such as application crashes, power failures, or hardware errors, providing a comprehensive audit trail for root cause analysis.<br/>\t•\tReal-Time Alerts: Sends notifications for unexpected shutdowns, enabling administrators to respond promptly and mitigate potential disruptions or data loss.<br/>\t•\tIncident Detection: Identifies anomalies such as repeated shutdowns, shutdowns during critical operations, or those affecting key systems, which may indicate security incidents, hardware issues, or environmental factors.<br/>\t•\tAudit Readiness: Logs comprehensive details for each shutdown, including the time of the event, potential triggers, and user or system actions preceding the event, ensuring robust records for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-logging-unexpected-system-shutdowns
+    name: Windows Logging Unexpected System Shutdowns
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6008')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logging-unexpected-system-shutdowns-by-host
+    name: Windows Logging Unexpected System Shutdowns by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6008')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-483
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Access to shared resource'
+scope: data
+statement: This report collects event 5145 logs from the Windows logs, which document attempts to access shared resources on the network, such as files or folders that contain Controlled Unclassified Information (CUI). Event 5145 is generated when an access attempt to a shared resource is made and logged, providing detailed information about whether access was allowed or denied. This information is crucial to verify compliance with CMMC's Level 3 (AC.3.014) Access Control and Authentication policy, which requires controlling the flow of CUI and adequately protecting access points to this sensitive data.<br/><br/>The report includes key details such as the name of the share that was attempted to be accessed, the identity of the user or process that made the access attempt, the action taken (allow or deny), the source of the access (IP address or source computer). ), and the date and time of the attempt. Analysis of these events allows you to verify that access to resources containing CUI is appropriately restricted, protecting access points from unauthorized access and ensuring that security controls are aligned with CMMC policies.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resource
+    name: Windows Access to shared resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-accesses-by-share-type
+    name: Windows Accesses by share type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

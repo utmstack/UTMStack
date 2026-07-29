@@ -1,0 +1,21 @@
+id: hipaa-647
+family: hipaa
+familyName: HIPAA
+name: Windows Local Security Group Member Removal
+scope: data
+statement: This report collects and analyzes security events identified by ID 7036 on Windows systems. Event 7036 records changes in the status of system services (starting or stopping), providing relevant information for verifying compliance with the HITRUST CSF 01.p requirement, which establishes that access to registry data and monitoring systems must be controlled. This report facilitates the identification and monitoring of modifications to critical services, contributing to adequate access control and the implementation of secure monitoring policies.
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

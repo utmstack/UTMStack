@@ -1,0 +1,21 @@
+id: cmmc-2.0-956
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Network Access to shared resource'
+scope: data
+statement: 'This report gathers and analyzes relevant information from Windows events 5140 and 5145, which record file access and sharing on the network. These events are key to monitoring access to Controlled Unclassified Information (CUI) and detecting possible attempts at unauthorized transfer or leakage of sensitive data.<br/><br/>The collection of these logs allows you to verify compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, ensuring that protected information is adequately controlled during its transmission over the network. Through this analysis, suspicious access, changes in sharing permissions and unusual activities that could compromise data security can be identified, thus strengthening information loss prevention measures.'
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

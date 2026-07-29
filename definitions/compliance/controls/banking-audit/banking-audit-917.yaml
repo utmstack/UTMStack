@@ -1,0 +1,21 @@
+id: banking-audit-917
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Access to critical files or specific directories
+scope: data
+statement: "The Windows Access to Critical Files or Specific Directories report provides detailed logs of events where users or processes access sensitive files or directories. This report is crucial for monitoring unauthorized access, ensuring compliance with security policies, and detecting potential threats to system integrity and data confidentiality.<br/>\t•\tRegulatory Compliance: Supports standards such as PCI DSS, HIPAA, and ISO 27001, by logging access to critical files and directories, ensuring adherence to data protection and access control requirements.<br/>\t•\tSensitive Data Monitoring: Tracks access attempts to protected files or directories to ensure that only authorized users or processes can read, modify, or delete sensitive information.<br/>\t•\tEvent Correlation: Links file and directory access events with user accounts, processes, and originating systems to build a comprehensive security and audit trail.<br/>\t•\tReal-Time Alerts: Sends immediate notifications for access attempts to critical files or directories, particularly for unauthorized users, allowing administrators to respond promptly to potential security incidents.<br/>\t•\tIncident Detection: Identifies suspicious activities, such as repeated access attempts by unauthorized accounts, which may indicate insider threats, malware, or misconfigurations.<br/>\t•\tAudit Readiness: Records detailed information about each access event, including the file or directory accessed, the user or process involved, the type of access (read, write, delete), and the timestamp, ensuring robust documentation for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

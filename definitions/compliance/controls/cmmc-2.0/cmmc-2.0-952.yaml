@@ -1,0 +1,21 @@
+id: cmmc-2.0-952
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AU.3.045): User Accounts Created'
+scope: data
+statement: This report compiles relevant information from the logs of Windows event 4720, which is generated when a new user account is created on the system. This event is critical to verify compliance with CMMC's Level 3 requirement (AU.3.045), which requires auditing of critical events for compliance and incident response. Monitoring the creation of user accounts allows us to detect possible malicious activities, unauthorized access or improper configurations that may compromise the security of the environment. By analyzing these logs, organizations can strengthen their access controls, improve visibility into infrastructure changes, and ensure the protection of sensitive information.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

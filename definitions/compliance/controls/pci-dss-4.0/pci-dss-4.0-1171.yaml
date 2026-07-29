@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1171
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.3 Account Authentication Using NTLM
+scope: data
+statement: This report collects system events related to NTLM authentication attempts (Windows event 4776), both successful and failed, to assess compliance with authentication controls and access management in accordance with PCI DSS Requirement 8.3. Relevant information from these logs is used to verify that user and administrator authentication is properly implemented and managed in accordance with strong authentication requirements. This includes verifying that all access attempts are properly authenticated using one or more authentication factors, and that failed attempts are handled according to lockout and access control policies.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

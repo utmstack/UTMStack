@@ -1,0 +1,21 @@
+id: cmmc-2.0-879
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Account Logoff'
+scope: data
+statement: This report collects relevant information about event 4634 (Logoff) in Windows logs, with the objective of verifying compliance with CMMC Level 1 practice AU.1.001, which requires the implementation of audit logs to track activities in the system .<br/><br/>Event 4634 indicates when a user session has ended successfully, which is critical for access monitoring and detecting anomalous activity. The report includes details such as the user ID, logout time, event source, and workstation used.<br/><br/>This analysis is key to ensuring that all user sessions are effectively logged, allowing for security audits and detection of potential incidents, such as unauthorized access or attempts to evade session controls.
+strategy: ANY
+checks:
+  - key: windows-account-logoff
+    name: Windows Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4634')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

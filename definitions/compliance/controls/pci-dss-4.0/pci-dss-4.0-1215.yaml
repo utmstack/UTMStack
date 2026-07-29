@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1215
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.3 Process Termination
+scope: data
+statement: This report compiles relevant information from 4689 events in Windows logs, which are generated when a process completes its execution. These events are crucial for verifying compliance with PCI DSS Requirement 12.3, which establishes that risks to the cardholder data environment (CDE) must be formally identified, assessed, and managed.<br/><br/>4689 events allow tracking of process execution in systems, which facilitates the identification of protected assets and provides valuable information for assessing threats that may impact those assets. The logs verify that risk assessments are being conducted and updated continuously, which contributes to active risk management in the CDE environment.<br/><br/>This analysis also allows for observing the factors that contribute to the likelihood and/or impact of threats, and how the organization's established processes minimize the identified risks. Additionally, 4689 events can be used to ensure that a risk assessment is conducted at least once every 12 months, as required by the PCI DSS, to ensure the security environment is always up-to-date and in line with emerging threats.<br/><br/>This report is essential to demonstrate that the organization is adequately managing the risks associated with the cardholder data environment in accordance with PCI DSS standards, and that security policies and procedures are aligned with risk analysis requirements.
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

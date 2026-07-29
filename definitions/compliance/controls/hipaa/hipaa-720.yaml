@@ -1,0 +1,21 @@
+id: hipaa-720
+family: hipaa
+familyName: HIPAA
+name: Windows Alerts
+scope: data
+statement: 'This report compiles security alert logs generated in Windows logs, which are used to monitor access patterns and detect potential anomalies in the use of system resources. These alerts are triggered in response to significant security events, such as unauthorized access, suspicious modifications to critical files, or privilege escalation attempts. The collection and analysis of these alerts are essential to verify compliance with the NIST CSF DE.CM-1 requirement: Continuous monitoring of network activities for malicious activity, which mandates continuous monitoring of network activities to detect malicious behavior that could compromise the security of systems and data.<br/><br/>The report includes key details such as:<br/><br/>Events that caused the alert, providing context about the suspicious activity.<br/><br/>Alert severity, indicating the associated risk level.<br/><br/>Alert status, specifying whether it is active, resolved, or under investigation.<br/><br/>Alert category, which classifies the type of threat detected (e.g., unauthorized access, permission changes, failed authentication attempts).<br/><br/>Event source, identifying the system, user, or process that generated the alert.<br/><br/>Date and time of the event, allowing the activity to be correlated with other security events.<br/><br/>Analyzing these alerts can detect anomalous access patterns, improve incident response capabilities, and strengthen security controls in environments that handle sensitive information. By using automated tools for continuous activity monitoring, this report helps ensure proactive protection of systems and networks, in accordance with the requirements of NIST CSF DE.CM-1.'
+strategy: ANY
+checks:
+  - key: windows-alerts-and-status
+    name: Windows Alerts and Status
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword IN ('wineventlog'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-alerts-by-category
+    name: Windows Alerts by category
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword = 'wineventlog')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

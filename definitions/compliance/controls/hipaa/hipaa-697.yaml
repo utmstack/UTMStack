@@ -1,0 +1,21 @@
+id: hipaa-697
+family: hipaa
+familyName: HIPAA
+name: Windows Credential Access
+scope: data
+statement: This report contributes to compliance with the NIST CSF PR.DS-3 requirement, which establishes the need to protectively monitor data both at rest and in transit. By collecting key events on Windows systems, this report enables continuous information security monitoring, ensuring that activities related to the access and use of sensitive data are adequately monitored and logged. This guarantees the protection of the confidentiality, integrity, and availability of critical data, helping to prevent unauthorized access or tampering.
+strategy: ANY
+checks:
+  - key: windows-credential-access
+    name: Windows Credential Access
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-credential-access-by-domain
+    name: Windows Credential Access by Domain
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

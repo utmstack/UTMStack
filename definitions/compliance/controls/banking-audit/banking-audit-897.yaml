@@ -1,0 +1,21 @@
+id: banking-audit-897
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Installation of Services
+scope: data
+statement: "The Windows Installation of Services Report provides detailed logs of events where new services are installed on the system, capturing information such as the service name, installation path, initiating user, and timestamp. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as unauthorized or suspicious service installations can indicate potential security threats.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring visibility and oversight of service installations to protect sensitive financial systems and customer data.<br/>\t•\tThreat Detection: Identifies unauthorized or malicious service installations, which could be used to execute malware or maintain unauthorized access.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately when new services are installed, enabling prompt investigation and action.<br/>\t•\tAudit Readiness: Tracks all service installation activities, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust monitoring of system changes.<br/>\t•\tSystem Integrity: Supports compliance with PCI DSS Requirement 10, ensuring secure system configurations by monitoring all service-related activities."
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

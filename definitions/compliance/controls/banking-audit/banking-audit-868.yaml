@@ -1,0 +1,21 @@
+id: banking-audit-868
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Enabled
+scope: data
+statement: "The Windows User Accounts Enabled Report provides detailed logs of events where disabled user accounts are re-enabled within the system. This report is essential for compliance within the Banking Audit framework, ensuring visibility and control over account status changes to protect sensitive financial systems and data.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of account re-enablement to safeguard financial systems and customer data.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 8, ensuring that account re-enablement is authorized and properly monitored to prevent unauthorized access.<br/>\t•\tAudit Readiness: Tracks all account re-enablement events, providing traceability and accountability for frameworks like SOC2 Type 2 and ISO 27001.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious account re-enablement, which could indicate insider threats or compromised administrative actions.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls that monitor and restrict the enabling of accounts to prevent unauthorized data access."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

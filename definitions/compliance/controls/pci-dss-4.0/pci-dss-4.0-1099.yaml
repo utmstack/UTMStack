@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1099
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.1 Member Addition to a Security Local Group
+scope: data
+statement: This report gathers relevant information from 4732 events generated in Windows logs, which correspond to the addition of a member to a security group. Event 4732 is used to verify compliance with PCI DSS Requirement 2.1.2, which establishes that the roles and responsibilities for performing the activities defined in Requirement 2 must be documented, assigned, and understood by all involved parties.<br/><br/>This event allows you to audit which users have been assigned to specific security groups in the system. This is crucial for verifying that the individuals responsible for performing activities related to configuring and maintaining the security of system components are clearly identified and have adequate access to the required functions.<br/><br/>This report ensures that security policies and access responsibilities are aligned, ensuring that roles for implementing and managing secure configurations are correctly assigned and that the responsibilities of the individuals involved are clear and understood. Additionally, it helps confirm that secure configurations and operational procedures are being followed in accordance with PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

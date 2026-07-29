@@ -1,0 +1,21 @@
+id: cmmc-2.0-1023
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.044): File Accessed'
+scope: data
+statement: This report collects and analyzes FileAccessed events in Office 365 to assess compliance with CMMC Level 2 requirement AU.2.044, which requires audit logs to be reviewed to detect inappropriate behavior.<br/><br/>Monitoring these events helps identify file accesses that may indicate suspicious activity, such as mass viewing of sensitive documents, access to restricted information by unauthorized users, or unusual behavior patterns when interacting with files. By analyzing logs, it is possible to detect attempts at data exfiltration, improper access, or misuse of information within the Office 365 environment.<br/><br/>The information obtained in this report helps strengthen monitoring of user behavior, ensuring early detection of potential security incidents and guaranteeing compliance with the audit practices established in CMMC Level 2.
+strategy: ANY
+checks:
+  - key: o365-file-accessed
+    name: O365 File Accessed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-accessed-by-object
+    name: O365 File Accessed by Object
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

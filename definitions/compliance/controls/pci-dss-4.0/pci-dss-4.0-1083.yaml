@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1083
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.4 Connections and Port Assignments
+scope: data
+statement: This report compiles relevant information obtained from the Windows event logs 5156, 5158, and 5159, which are related to the Windows Filtering Platform (WFP). These events are analyzed to verify that Network Security Controls (NSC) are correctly implemented between trusted and untrusted networks, as required by PCI DSS requirements. The information extracted from these logs allows monitoring of inter-network traffic and ensures that only authorized traffic, corresponding to communications necessary for permitted services, is being properly managed. It also ensures that network security policies are being correctly applied to protect the integrity of the systems within the CDE.
+strategy: ANY
+checks:
+  - key: windows-connections-and-port-assignments
+    name: Windows Connections and Port Assignments
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5156', '5158'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-connections-and-port-assignments-by-process
+    name: Windows Connections and Port Assignments by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5156', '5158'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

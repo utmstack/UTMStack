@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1103
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Password Reset Attempts
+scope: data
+statement: This report compiles relevant information from 4724 events (An attempt was made to reset an account's password) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 2.2.2. This requirement requires that default vendor accounts be managed securely, ensuring that if used, their passwords are changed, and if not, they are deleted or disabled.<br/><br/>Event 4724 allows for auditing password reset attempts on system accounts, which is key to identifying potential changes to default vendor accounts and ensuring that adequate controls are in place to mitigate security risks associated with default credentials.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1118
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.3 Credential Access
+scope: data
+statement: This report compiles relevant information from 5379 (Credential Validation) events generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.3.3. This requirement establishes that the storage of sensitive authentication data (SAD) must be limited to what is necessary for legitimate business purposes and must be adequately secured.<br/><br/>Event 5379 allows for auditing credential validation, which is essential to ensure that access to sensitive authentication data is restricted to authorized users or systems and that appropriate security requirements are met to protect this data. By analyzing this event, it is possible to verify that access and transactions related to SAD storage are subject to strict validation and access controls, and that the information is handled in accordance with the organization's security policies.<br/><br/>This report helps assess whether SAD storage meets legitimate business needs and whether security best practices are followed to ensure that such data is adequately protected, minimizing the risk of unauthorized access and ensuring compliance with PCI DSS requirements for the protection of sensitive data.
+strategy: ANY
+checks:
+  - key: windows-credential-access
+    name: Windows Credential Access
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-credential-access-by-domain
+    name: Windows Credential Access by Domain
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

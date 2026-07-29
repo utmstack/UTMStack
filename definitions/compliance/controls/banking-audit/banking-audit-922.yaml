@@ -1,0 +1,21 @@
+id: banking-audit-922
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Access to Shared Resources
+scope: data
+statement: "The Windows Access to Shared Resources report provides detailed logs of events where users or systems access shared resources, such as files, folders, printers, or other network-shared assets on a Windows system. This report is essential for monitoring resource usage, detecting unauthorized access, and ensuring compliance with access control policies.<br/>\t•\tRegulatory Compliance: Supports frameworks such as PCI DSS, HIPAA, and ISO 27001, by documenting access to shared resources, ensuring adherence to data protection and resource management standards.<br/>\t•\tResource Usage Monitoring: Tracks who accessed shared resources, when the access occurred, and the type of operations performed (read, write, delete, etc.), ensuring accountability and transparency.<br/>\t•\tEvent Correlation: Links shared resource access events with user accounts, originating systems, and subsequent activities, providing a comprehensive audit trail for analysis.<br/>\t•\tReal-Time Alerts: Generates notifications for access attempts to critical shared resources, especially by unauthorized users or from untrusted systems, enabling immediate investigation.<br/>\t•\tIncident Detection: Identifies suspicious activities, such as repeated unauthorized access attempts, access from unusual locations, or unexpected operations on shared resources, which may indicate insider threats or compromised accounts.<br/>\t•\tAudit Readiness: Logs detailed information for each access event, including the resource accessed, the user or system performing the operation, the access type, and the timestamp, ensuring robust documentation for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

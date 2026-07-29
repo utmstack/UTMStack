@@ -1,0 +1,21 @@
+id: cmmc-2.0-491
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Changes in account status'
+scope: data
+statement: This report collects the records of Windows log events 4722, 4723, 4725, and 4726, which document changes to system user accounts, such as enabling, resetting, disabling, and deleting user accounts. These events are essential to detect changes in account configuration that could indicate an attempt to manipulate credentials or an attempt to evade access controls, which is essential to comply with the Level 4 (AU.4.053) Audit policy. and CMMC Monitoring, which requires improving logging capabilities to support the detection of advanced threats and malicious activities.<br/><br/>The report includes key details about the type of change made (enable, reset, disable, delete), the identity of the user who made the modification, the identity of the user affected by the action (account enabled, reset, disabled, or deleted), and the time and date of the event. Analyzing these events can improve auditing capabilities and detect suspicious or unusual patterns related to user accounts. By quickly identifying unexpected account changes, such as the reactivation of disabled accounts or the deletion of critical accounts, this report facilitates the early detection of threats that could be related to privilege escalation, phishing, or unauthorized access to systems. This ensures that account management practices are aligned with CMMC Level 4 requirements, providing an additional layer of security for the protection of critical infrastructure.
+strategy: ANY
+checks:
+  - key: windows-changes-in-account-status
+    name: Windows Changes in account status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4722', '4723', '4725', '4726'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-security-events-by-category
+    name: Windows Security Events by Category
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4722', '4723', '4725', '4726'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

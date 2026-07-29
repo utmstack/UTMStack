@@ -1,0 +1,21 @@
+id: cmmc-2.0-518
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AU.3.045): Protected Object Permission Change'
+scope: data
+statement: This report collects Windows log event 4670 records, which document changes in audits of security objects on the system, such as files or folders, that may be subject to access controls. Event 4670 is generated when modifications are made to an object's audit settings, which may include modifying permissions or audit settings that affect the monitoring of security events associated with protected resources. This information is crucial to verify compliance with CMMC Auditing and Monitoring Policy Level 3 (AU.3.045), which requires correlating audit logs to support event analysis and ensuring audit configurations are aligned with policies. security and protection of information.<br/><br/>The report includes details such as the name of the object whose permission was modified, the permissions assigned, the identity of the user or process that made the change, and the date and time the modification was made. Analysis of these events is critical to correlating audit logs and ensuring that audit policies are configured correctly, allowing for accurate assessment of system security. This report allows you to detect unauthorized changes to audit configurations, which could interfere with the analysis of security events. Ensures that the system maintains the ability to properly audit all sensitive resources and that audit configurations are appropriate for event analysis, supporting compliance with CMMC Level 3 security controls.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

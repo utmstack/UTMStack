@@ -1,0 +1,21 @@
+id: cmmc-2.0-476
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AC.1.001): Account Logon Failure'
+scope: data
+statement: This report collects the records of event 4625 from the Windows logs, which document failed login attempts to the system. The information obtained from these events is essential to verify compliance with CMMC's access control and authentication policy Level 1 (AC.1.001), which states that only authorized users should have access to the system. <br/><br/>The report includes details such as the names of users who attempted access, the host names, and the reasons for login failures. The analysis of these events allows us to identify unauthorized access attempts or possible threats, ensuring that access to the system is appropriately restricted and in line with established security policies.
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

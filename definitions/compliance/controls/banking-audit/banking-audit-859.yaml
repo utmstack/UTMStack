@@ -1,0 +1,21 @@
+id: banking-audit-859
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Failed logon attempt
+scope: data
+statement: "The Windows Failed Logon Attempt Report provides detailed logs of unsuccessful login attempts, capturing essential information such as the user account, timestamp, source IP address, and reason for failure. This report is crucial within the Banking Audit framework, ensuring visibility into unauthorized access attempts and supporting compliance with stringent security regulations.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of failed logon attempts to protect financial systems and sensitive customer data.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 10, which mandates logging and monitoring of access attempts, successful or failed, to detect unauthorized activities.<br/>\t•\tAudit Readiness: Tracks failed logon attempts, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring accountability in access management.<br/>\t•\tIncident Detection: Identifies patterns of unauthorized access attempts, such as brute force attacks, password spraying, or account enumeration efforts.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and restrict unauthorized access attempts to systems handling sensitive financial data."
+strategy: ANY
+checks:
+  - key: windows-logon-attempt-failed
+    name: Windows Logon attempt failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-failed-logon-attempt-by-domain-and-user
+    name: Windows Failed logon attempt by Domain and User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

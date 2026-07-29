@@ -1,0 +1,21 @@
+id: banking-audit-907
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Protected Object Permission Change
+scope: data
+statement: "The Windows Protected Object Permission Change Report provides detailed logs of events where permissions on protected objects, such as files, folders, or registry keys, are modified. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as unauthorized changes to permissions can compromise data security and system integrity.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of permission changes to safeguard financial systems and sensitive customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that access permissions are restricted to authorized users and tracked for changes.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately of permission changes on protected objects, enabling prompt investigation and mitigation of potential risks.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious permission modifications, which could indicate insider threats, privilege escalation, or attempts to bypass security controls.<br/>\t•\tAudit Readiness: Tracks all permission change events to ensure compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust access and configuration management."
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

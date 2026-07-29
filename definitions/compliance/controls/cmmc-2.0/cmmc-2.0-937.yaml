@@ -1,0 +1,21 @@
+id: cmmc-2.0-937
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 3 (AC.3.032): Querying EC2 Instances'
+scope: data
+statement: This report collects and analyzes AWS log events related to DescribeInstances, with the objective of evaluating compliance with CMMC Level 3 control (AC.3.032), which requires monitoring and controlling remote access to sensitive systems.<br/><br/>The DescribeInstances event allows you to obtain information about EC2 instances in AWS, which could indicate attempts to enumerate resources within the infrastructure. Analyzing these events helps detect unusual access, identify suspicious usage patterns, and strengthen the security of your cloud environment.<br/><br/>The data presented includes key details. This information is essential to identify possible internal threats or unauthorized access attempts, allowing a proactive response to security risks.
+strategy: ANY
+checks:
+  - key: aws-querying-ec2-instances
+    name: AWS Querying EC2 Instances
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DescribeInstances')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-querying-ec2-instances-by-user
+    name: AWS Querying EC2 Instances by User
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DescribeInstances')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

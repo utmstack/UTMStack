@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1141
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.2 User Accounts Enabled
+scope: data
+statement: This report compiles and analyzes relevant information from Windows event 4722 logs, which indicate the activation of previously disabled user accounts. Its objective is to assess compliance with PCI DSS Requirement 6.2, ensuring that custom software development is carried out securely and in accordance with established standards. Analysis of these events allows for the detection of potential irregularities in access management and the evaluation of whether the activated accounts comply with secure authentication and privilege management controls. It also verifies that account management and access auditing practices contribute to mitigating security risks, preventing unauthorized access to development, testing, and production environments, in alignment with the security principles required by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

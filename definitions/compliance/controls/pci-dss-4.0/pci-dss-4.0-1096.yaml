@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1096
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.1 Access to critical files or specific directories
+scope: data
+statement: This report gathers relevant information from the 4663 events generated in Windows logs, which are used to verify compliance with PCI DSS Requirement 2.1.1. This requirement establishes that all security policies and operational procedures must be documented, kept up-to-date, in use, and known to all affected parties.<br/><br/>4663 events correspond to access to files and objects within the system, allowing the tracking of the access, modification, or deletion of key documents, such as security policies and operational procedures. These events confirm that relevant documents are being managed according to defined standards, ensuring that policies and procedures are available, up-to-date, and accessible to the appropriate parties for implementation.<br/><br/>This report facilitates validation that security policies and operational procedures, essential for data protection, are being correctly managed within the IT environment and that the requirements established by PCI DSS regarding the documentation and continuous updating of these policies are met.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

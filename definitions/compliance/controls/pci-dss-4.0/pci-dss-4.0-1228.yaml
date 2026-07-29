@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1228
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 User Account Attributes Changes
+scope: data
+statement: This report collects and analyzes user account modification events (event ID 4738) on Windows systems to assess compliance with PCI DSS Requirement A1.2.3. This event is generated when a modification is made to a user account, which may indicate changes affecting system security or related security incidents. This analysis verifies that processes and mechanisms are in place to report and address security incidents and vulnerabilities, allowing customers to securely report any incidents or vulnerabilities to the vendor. Additionally, it assesses whether the vendor takes appropriate actions to address and remediate security incidents in accordance with PCI DSS Requirement 6.3.1. Records of this event provide evidence of how account modifications are handled, allowing potential security incidents to be detected and ensuring that vulnerabilities are appropriately managed. The findings in this report ensure that incident response processes are effective and aligned with the controls established by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

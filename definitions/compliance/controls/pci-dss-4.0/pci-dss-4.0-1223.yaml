@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1223
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Account Logoff
+scope: data
+statement: This report analyzes logoff events (Event ID 4634) on Windows systems to evaluate the effectiveness of logical separation in multi-tenant environments in accordance with PCI DSS Requirement A1.1. Activity logs are reviewed to verify that sessions initiated in the customer and vendor environments are properly closed and that there is no unauthorized access or persistence of unauthorized sessions between environments. The analysis considers key information that facilitates the validation of access controls, ensuring regulatory compliance and minimizing the risk of prolonged or unauthorized access in shared infrastructures.
+strategy: ANY
+checks:
+  - key: windows-account-logoff
+    name: Windows Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4634')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

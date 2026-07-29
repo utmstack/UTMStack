@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1132
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 5.1 Policy changes
+scope: data
+statement: This report collects and analyzes information from Windows event 4719, which indicates changes to system audit settings. Since event monitoring and logging are critical for detecting malicious activity, this report assesses compliance with PCI DSS Requirement 5.1, ensuring that processes and mechanisms for protecting systems and networks against malicious software are properly defined and operational.<br/><br/>Analyzing these events can identify unauthorized modifications to audit policies, which could compromise the ability to detect and respond to security threats.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

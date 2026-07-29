@@ -1,0 +1,21 @@
+id: cmmc-2.0-627
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AU.2.042): Process Creation'
+scope: data
+statement: This report collects the records of event 4688 from the Windows logs, which document the creation of new processes in the system. Event 4688 is generated every time a process is started, providing key information about the execution of applications and commands, which allows detecting suspicious activities such as the execution of malware, the use of unauthorized tools or attempts to escalate privileges. This information is crucial to verify compliance with CMMC's Level 2 (AU.2.042) Access Control and Authentication policy, which requires continuous monitoring of access through advanced behavioral analysis.<br/><br/>The report includes key details such as the name of the started process, the identity of the user or service account that ran the process, the path of the executable, the execution parameters, the identity of the parent process, among others. The analysis of these events allows us to detect anomalous behavior patterns, identify the use of unauthorized tools and strengthen security strategies through proactive detection of threats in real time. This report contributes to the early identification of attacks and the protection of systems that handle Controlled Unclassified Information (CUI), ensuring that security controls are aligned with CMMC Level 5 policies.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

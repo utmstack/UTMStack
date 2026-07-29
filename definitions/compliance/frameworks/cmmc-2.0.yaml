@@ -1,513 +1,1412 @@
-# CMMC 2.0 (checklist). Practice IDs DOMAIN.L<level>-3.x.y = NIST 800-171 rev2. satisfiedBy = 800-53 controls.
 key: cmmc-2.0
-name: CMMC 2.0 (Level 1 & Level 2)
-description: Cybersecurity Maturity Model Certification 2.0. Level 2 = the 110 practices of NIST SP 800-171
-  Rev 2; Level 1 = the 17 FCI practices (tagged L1 in the practice ID).
-source: CMMC 2.0 / NIST SP 800-171 Rev 2 (public domain). Practice titles authored from the public standard;
-  verify against the official DoD CMMC model. 800-53 mapping best-effort.
+name: CMMC
+description: Cybersecurity Maturity Model Certification (CMMC) reports showcase security controls in place to audits, self-assessments, and monitoring of critical logs to ensure traceability, risk mitigation, and verifiable compliance in managing government contracts.
+source: Migrated from UTMStack v11
 sections:
-- key: ac
-  name: AC — Access Control
-  requirements:
-  - id: AC.L1-3.1.1
-    name: Limit system access to authorized users, processes, and devices
-    satisfiedBy:
-    - ac-2
-    - ac-3
-    - ac-17
-  - id: AC.L1-3.1.2
-    name: Limit system access to permitted transactions and functions
-    satisfiedBy:
-    - ac-2
-    - ac-3
-  - id: AC.L2-3.1.3
-    name: Control the flow of CUI in accordance with approved authorizations
-    satisfiedBy:
-    - ac-4
-  - id: AC.L2-3.1.4
-    name: Separate duties of individuals to reduce risk of malevolent activity
-    satisfiedBy:
-    - ac-5
-  - id: AC.L2-3.1.5
-    name: Employ least privilege, including for privileged accounts
-    satisfiedBy:
-    - ac-6
-  - id: AC.L2-3.1.6
-    name: Use non-privileged accounts for nonsecurity functions
-    satisfiedBy:
-    - ac-6
-  - id: AC.L2-3.1.7
-    name: Prevent non-privileged users from executing privileged functions; capture in audit logs
-    satisfiedBy:
-    - ac-6
-    - au-2
-  - id: AC.L2-3.1.8
-    name: Limit unsuccessful logon attempts
-    satisfiedBy:
-    - ac-7
-  - id: AC.L2-3.1.9
-    name: Provide privacy and security notices consistent with CUI rules
-    satisfiedBy:
-    - ac-8
-  - id: AC.L2-3.1.10
-    name: Use session lock with pattern-hiding displays
-    satisfiedBy:
-    - ac-11
-  - id: AC.L2-3.1.11
-    name: Terminate user sessions after a defined condition
-    satisfiedBy:
-    - ac-12
-  - id: AC.L2-3.1.12
-    name: Monitor and control remote access sessions
-    satisfiedBy:
-    - ac-17
-  - id: AC.L2-3.1.13
-    name: Use cryptographic mechanisms to protect remote access sessions
-    satisfiedBy:
-    - ac-17
-    - sc-8
-  - id: AC.L2-3.1.14
-    name: Route remote access via managed access control points
-    satisfiedBy:
-    - ac-17
-  - id: AC.L2-3.1.15
-    name: Authorize remote execution of privileged commands and remote access to security info
-    satisfiedBy:
-    - ac-17
-    - ac-6
-  - id: AC.L2-3.1.16
-    name: Authorize wireless access prior to allowing connections
-    satisfiedBy:
-    - ac-18
-  - id: AC.L2-3.1.17
-    name: Protect wireless access using authentication and encryption
-    satisfiedBy:
-    - ac-18
-  - id: AC.L2-3.1.18
-    name: Control connection of mobile devices
-    satisfiedBy:
-    - ac-19
-  - id: AC.L2-3.1.19
-    name: Encrypt CUI on mobile devices and mobile computing platforms
-    satisfiedBy:
-    - ac-19
-    - sc-28
-  - id: AC.L1-3.1.20
-    name: Verify and control/limit connections to external systems
-    satisfiedBy:
-    - ac-20
-  - id: AC.L2-3.1.21
-    name: Limit use of portable storage devices on external systems
-    satisfiedBy:
-    - ac-20
-  - id: AC.L1-3.1.22
-    name: Control CUI posted or processed on publicly accessible systems
-    satisfiedBy:
-    - ac-22
-- key: at
-  name: AT — Awareness and Training
-  requirements:
-  - id: AT.L2-3.2.1
-    name: Ensure managers and users are aware of security risks and policies
-    satisfiedBy:
-    - at-2
-  - id: AT.L2-3.2.2
-    name: Ensure personnel are trained to carry out their security duties
-    satisfiedBy:
-    - at-3
-  - id: AT.L2-3.2.3
-    name: Provide security awareness training on recognizing insider threat
-    satisfiedBy:
-    - at-2
-- key: au
-  name: AU — Audit and Accountability
-  requirements:
-  - id: AU.L2-3.3.1
-    name: Create and retain system audit logs enabling monitoring/analysis/investigation
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-12
-  - id: AU.L2-3.3.2
-    name: Ensure actions of individual users can be uniquely traced (accountability)
-    satisfiedBy:
-    - au-3
-    - ia-2
-  - id: AU.L2-3.3.3
-    name: Review and update logged events
-    satisfiedBy:
-    - au-2
-  - id: AU.L2-3.3.4
-    name: Alert in the event of an audit logging process failure
-    satisfiedBy:
-    - au-5
-  - id: AU.L2-3.3.5
-    name: Correlate audit record review, analysis, and reporting for investigations
-    satisfiedBy:
-    - au-6
-  - id: AU.L2-3.3.6
-    name: Provide audit record reduction and report generation
-    satisfiedBy:
-    - au-7
-  - id: AU.L2-3.3.7
-    name: Provide a system capability that synchronizes to an authoritative time source
-    satisfiedBy:
-    - au-8
-  - id: AU.L2-3.3.8
-    name: Protect audit information and logging tools from unauthorized access/modification
-    satisfiedBy:
-    - au-9
-  - id: AU.L2-3.3.9
-    name: Limit management of audit logging functionality to a subset of privileged users
-    satisfiedBy:
-    - au-9
-    - ac-6
-- key: cm
-  name: CM — Configuration Management
-  requirements:
-  - id: CM.L2-3.4.1
-    name: Establish and maintain baseline configurations and inventories
-    satisfiedBy:
-    - cm-2
-    - cm-8
-  - id: CM.L2-3.4.2
-    name: Establish and enforce security configuration settings
-    satisfiedBy:
-    - cm-6
-  - id: CM.L2-3.4.3
-    name: Track, review, approve/disapprove, and log changes
-    satisfiedBy:
-    - cm-3
-  - id: CM.L2-3.4.4
-    name: Analyze the security impact of changes prior to implementation
-    satisfiedBy:
-    - cm-4
-  - id: CM.L2-3.4.5
-    name: Define, document, approve, and enforce access restrictions for changes
-    satisfiedBy:
-    - cm-5
-  - id: CM.L2-3.4.6
-    name: Employ the principle of least functionality
-    satisfiedBy:
-    - cm-7
-  - id: CM.L2-3.4.7
-    name: Restrict, disable, or prevent use of nonessential programs/ports/services
-    satisfiedBy:
-    - cm-7
-  - id: CM.L2-3.4.8
-    name: Apply deny-by-exception (blacklist) or permit-by-exception (whitelist) policy
-    satisfiedBy:
-    - cm-7
-  - id: CM.L2-3.4.9
-    name: Control and monitor user-installed software
-    satisfiedBy:
-    - cm-11
-- key: ia
-  name: IA — Identification and Authentication
-  requirements:
-  - id: IA.L1-3.5.1
-    name: Identify system users, processes acting on behalf of users, and devices
-    satisfiedBy:
-    - ia-2
-    - ia-3
-  - id: IA.L1-3.5.2
-    name: Authenticate identities as a prerequisite to system access
-    satisfiedBy:
-    - ia-2
-  - id: IA.L2-3.5.3
-    name: Use multifactor authentication for local and network access
-    satisfiedBy:
-    - ia-2
-  - id: IA.L2-3.5.4
-    name: Employ replay-resistant authentication mechanisms
-    satisfiedBy:
-    - ia-2
-  - id: IA.L2-3.5.5
-    name: Prevent reuse of identifiers for a defined period
-    satisfiedBy:
-    - ia-4
-  - id: IA.L2-3.5.6
-    name: Disable identifiers after a defined period of inactivity
-    satisfiedBy:
-    - ia-4
-  - id: IA.L2-3.5.7
-    name: Enforce a minimum password complexity and change of characters
-    satisfiedBy:
-    - ia-5
-  - id: IA.L2-3.5.8
-    name: Prohibit password reuse for a specified number of generations
-    satisfiedBy:
-    - ia-5
-  - id: IA.L2-3.5.9
-    name: Allow temporary password use with immediate change to a permanent password
-    satisfiedBy:
-    - ia-5
-  - id: IA.L2-3.5.10
-    name: Store and transmit only cryptographically-protected passwords
-    satisfiedBy:
-    - ia-5
-  - id: IA.L2-3.5.11
-    name: Obscure feedback of authentication information
-    satisfiedBy:
-    - ia-6
-- key: ir
-  name: IR — Incident Response
-  requirements:
-  - id: IR.L2-3.6.1
-    name: Establish an operational incident-handling capability
-    satisfiedBy:
-    - ir-4
-  - id: IR.L2-3.6.2
-    name: Track, document, and report incidents to designated officials/authorities
-    satisfiedBy:
-    - ir-5
-    - ir-6
-  - id: IR.L2-3.6.3
-    name: Test the organizational incident response capability
-    satisfiedBy:
-    - ir-3
-- key: ma
-  name: MA — Maintenance
-  requirements:
-  - id: MA.L2-3.7.1
-    name: Perform maintenance on organizational systems
-    satisfiedBy:
-    - ma-2
-  - id: MA.L2-3.7.2
-    name: Provide controls on tools, techniques, mechanisms, and personnel for maintenance
-    satisfiedBy:
-    - ma-2
-    - ma-3
-  - id: MA.L2-3.7.3
-    name: Sanitize equipment removed for off-site maintenance of CUI
-    satisfiedBy:
-    - ma-2
-  - id: MA.L2-3.7.4
-    name: Check media containing diagnostic/test programs for malicious code
-    satisfiedBy:
-    - ma-3
-  - id: MA.L2-3.7.5
-    name: Require multifactor authentication for nonlocal maintenance sessions
-    satisfiedBy:
-    - ma-4
-  - id: MA.L2-3.7.6
-    name: Supervise maintenance activities of personnel without required access
-    satisfiedBy:
-    - ma-5
-- key: mp
-  name: MP — Media Protection
-  requirements:
-  - id: MP.L2-3.8.1
-    name: Protect (physically control and securely store) system media containing CUI
-    satisfiedBy:
-    - mp-2
-    - mp-4
-  - id: MP.L2-3.8.2
-    name: Limit access to CUI on system media to authorized users
-    satisfiedBy:
-    - mp-2
-  - id: MP.L1-3.8.3
-    name: Sanitize or destroy media containing CUI before disposal or reuse
-    satisfiedBy:
-    - mp-6
-  - id: MP.L2-3.8.4
-    name: Mark media with necessary CUI markings and distribution limitations
-    satisfiedBy:
-    - mp-3
-  - id: MP.L2-3.8.5
-    name: Control access to media and maintain accountability during transport
-    satisfiedBy:
-    - mp-5
-  - id: MP.L2-3.8.6
-    name: Implement cryptographic mechanisms to protect CUI on media during transport
-    satisfiedBy:
-    - mp-5
-    - sc-28
-  - id: MP.L2-3.8.7
-    name: Control the use of removable media on system components
-    satisfiedBy:
-    - mp-7
-  - id: MP.L2-3.8.8
-    name: Prohibit the use of portable storage devices with no identifiable owner
-    satisfiedBy:
-    - mp-7
-  - id: MP.L2-3.8.9
-    name: Protect the confidentiality of backup CUI at storage locations
-    satisfiedBy:
-    - cp-9
-    - sc-28
-- key: ps
-  name: PS — Personnel Security
-  requirements:
-  - id: PS.L2-3.9.1
-    name: Screen individuals prior to authorizing access to systems containing CUI
-    satisfiedBy:
-    - ps-3
-  - id: PS.L2-3.9.2
-    name: Ensure CUI and systems are protected during/after personnel actions
-    satisfiedBy:
-    - ps-4
-    - ps-5
-- key: pe
-  name: PE — Physical Protection
-  requirements:
-  - id: PE.L1-3.10.1
-    name: Limit physical access to systems, equipment, and operating environments
-    satisfiedBy:
-    - pe-2
-    - pe-3
-  - id: PE.L2-3.10.2
-    name: Protect and monitor the physical facility and support infrastructure
-    satisfiedBy:
-    - pe-6
-  - id: PE.L1-3.10.3
-    name: Escort visitors and monitor visitor activity
-    satisfiedBy:
-    - pe-3
-  - id: PE.L1-3.10.4
-    name: Maintain audit logs of physical access
-    satisfiedBy:
-    - pe-3
-    - pe-6
-  - id: PE.L1-3.10.5
-    name: Control and manage physical access devices
-    satisfiedBy:
-    - pe-3
-  - id: PE.L2-3.10.6
-    name: Enforce safeguarding measures for CUI at alternate work sites
-    satisfiedBy:
-    - pe-17
-- key: ra
-  name: RA — Risk Assessment
-  requirements:
-  - id: RA.L2-3.11.1
-    name: Periodically assess risk to organizational operations and assets
-    satisfiedBy:
-    - ra-3
-  - id: RA.L2-3.11.2
-    name: Scan for vulnerabilities in systems and applications periodically
-    satisfiedBy:
-    - ra-5
-  - id: RA.L2-3.11.3
-    name: Remediate vulnerabilities in accordance with risk assessments
-    satisfiedBy:
-    - ra-5
-- key: ca
-  name: CA — Security Assessment
-  requirements:
-  - id: CA.L2-3.12.1
-    name: Periodically assess security controls for effectiveness
-    satisfiedBy:
-    - ca-2
-  - id: CA.L2-3.12.2
-    name: Develop and implement plans of action to correct deficiencies
-    satisfiedBy:
-    - ca-5
-  - id: CA.L2-3.12.3
-    name: Monitor security controls on an ongoing basis
-    satisfiedBy:
-    - ca-7
-  - id: CA.L2-3.12.4
-    name: Develop, document, and periodically update system security plans
-    satisfiedBy:
-    - pl-2
-- key: sc
-  name: SC — System and Communications Protection
-  requirements:
-  - id: SC.L1-3.13.1
-    name: Monitor, control, and protect communications at external/internal boundaries
-    satisfiedBy:
-    - sc-7
-  - id: SC.L2-3.13.2
-    name: Employ architectural designs and principles that promote effective security
-    satisfiedBy:
-    - sc-7
-    - sa-8
-  - id: SC.L2-3.13.3
-    name: Separate user functionality from system management functionality
-    satisfiedBy:
-    - sc-2
-  - id: SC.L2-3.13.4
-    name: Prevent unauthorized and unintended information transfer via shared resources
-    satisfiedBy:
-    - sc-4
-  - id: SC.L1-3.13.5
-    name: Implement subnetworks for publicly accessible components (separated)
-    satisfiedBy:
-    - sc-7
-  - id: SC.L2-3.13.6
-    name: Deny network communications traffic by default; allow by exception
-    satisfiedBy:
-    - sc-7
-  - id: SC.L2-3.13.7
-    name: Prevent remote devices from simultaneously connecting (no split tunneling)
-    satisfiedBy:
-    - sc-7
-  - id: SC.L2-3.13.8
-    name: Implement cryptographic mechanisms to prevent unauthorized disclosure in transit
-    satisfiedBy:
-    - sc-8
-  - id: SC.L2-3.13.9
-    name: Terminate network connections at end of sessions or after inactivity
-    satisfiedBy:
-    - sc-10
-  - id: SC.L2-3.13.10
-    name: Establish and manage cryptographic keys
-    satisfiedBy:
-    - sc-12
-  - id: SC.L2-3.13.11
-    name: Employ FIPS-validated cryptography to protect CUI
-    satisfiedBy:
-    - sc-13
-  - id: SC.L2-3.13.12
-    name: Prohibit remote activation of collaborative devices; provide indication of use
-    satisfiedBy:
-    - sc-15
-  - id: SC.L2-3.13.13
-    name: Control and monitor the use of mobile code
-    satisfiedBy:
-    - sc-18
-  - id: SC.L2-3.13.14
-    name: Control and monitor the use of Voice over Internet Protocol (VoIP)
-    satisfiedBy:
-    - sc-19
-  - id: SC.L2-3.13.15
-    name: Protect the authenticity of communications sessions
-    satisfiedBy:
-    - sc-23
-  - id: SC.L2-3.13.16
-    name: Protect the confidentiality of CUI at rest
-    satisfiedBy:
-    - sc-28
-- key: si
-  name: SI — System and Information Integrity
-  requirements:
-  - id: SI.L1-3.14.1
-    name: Identify, report, and correct system flaws in a timely manner
-    satisfiedBy:
-    - si-2
-  - id: SI.L1-3.14.2
-    name: Provide protection from malicious code at designated locations
-    satisfiedBy:
-    - si-3
-  - id: SI.L2-3.14.3
-    name: Monitor system security alerts and advisories and take action
-    satisfiedBy:
-    - si-5
-  - id: SI.L1-3.14.4
-    name: Update malicious code protection mechanisms when new releases are available
-    satisfiedBy:
-    - si-3
-  - id: SI.L1-3.14.5
-    name: Perform periodic and real-time scans of the system and files
-    satisfiedBy:
-    - si-3
-  - id: SI.L2-3.14.6
-    name: Monitor the system, including inbound/outbound traffic, for attacks/indicators
-    satisfiedBy:
-    - si-4
-  - id: SI.L2-3.14.7
-    name: Identify unauthorized use of organizational systems
-    satisfiedBy:
-    - si-4
-    - au-6
+  - key: sec-501
+    name: User Behavior Monitoring (UBA)
+    requirements:
+      - id: cmmc-2.0-req-729
+        name: 'Windows Level 2 (AU.2.044): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-729
+      - id: cmmc-2.0-req-730
+        name: 'Windows Level 2 (AU.2.044): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-730
+      - id: cmmc-2.0-req-732
+        name: 'Windows Level 2 (AU.2.044): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-732
+      - id: cmmc-2.0-req-733
+        name: 'Windows Level 2 (AU.2.044): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-733
+      - id: cmmc-2.0-req-734
+        name: 'Windows Level 2 (AU.2.044): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-734
+      - id: cmmc-2.0-req-735
+        name: 'Windows Level 2 (AU.2.044): Access to Shared Resources'
+        satisfiedBy:
+          - cmmc-2.0-735
+      - id: cmmc-2.0-req-736
+        name: 'Windows Level 2 (AU.2.044): Unlocked Account'
+        satisfiedBy:
+          - cmmc-2.0-736
+      - id: cmmc-2.0-req-737
+        name: 'Windows Level 3 (AC.3.032): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-737
+      - id: cmmc-2.0-req-738
+        name: 'Windows Level 3 (AC.3.032): Installation of Services'
+        satisfiedBy:
+          - cmmc-2.0-738
+      - id: cmmc-2.0-req-932
+        name: 'AWS Level 2 (AU.2.044): Console Login'
+        satisfiedBy:
+          - cmmc-2.0-932
+      - id: cmmc-2.0-req-933
+        name: 'AWS Level 2 (AU.2.044): IAM User Deletion'
+        satisfiedBy:
+          - cmmc-2.0-933
+      - id: cmmc-2.0-req-934
+        name: 'AWS Level 2 (AU.2.044): User Policies Removal'
+        satisfiedBy:
+          - cmmc-2.0-934
+      - id: cmmc-2.0-req-935
+        name: 'AWS Level 2 (AU.2.044): User Listing Activity'
+        satisfiedBy:
+          - cmmc-2.0-935
+      - id: cmmc-2.0-req-936
+        name: 'AWS Level 3 (AC.3.032): Access Roles Assumption'
+        satisfiedBy:
+          - cmmc-2.0-936
+      - id: cmmc-2.0-req-937
+        name: 'AWS Level 3 (AC.3.032): Querying EC2 Instances'
+        satisfiedBy:
+          - cmmc-2.0-937
+      - id: cmmc-2.0-req-938
+        name: 'AWS Level 4 (AU.4.053): ListAccessKeys Logs'
+        satisfiedBy:
+          - cmmc-2.0-938
+      - id: cmmc-2.0-req-1021
+        name: 'Office 365 Level 2 (AU.2.044): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-1021
+      - id: cmmc-2.0-req-1022
+        name: 'Office 365 Level 2 (AU.2.044): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-1022
+      - id: cmmc-2.0-req-1023
+        name: 'Office 365 Level 2 (AU.2.044): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1023
+  - key: sec-502
+    name: Network and Endpoint Security
+    requirements:
+      - id: cmmc-2.0-req-753
+        name: 'Windows Level 2 (SI.2.216): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-753
+      - id: cmmc-2.0-req-754
+        name: 'Windows Level 2 (SI.2.216): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-754
+      - id: cmmc-2.0-req-755
+        name: 'Windows Level 2 (SI.2.216): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-755
+      - id: cmmc-2.0-req-756
+        name: 'Windows Level 3 (SI.3.219): Network Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-756
+      - id: cmmc-2.0-req-757
+        name: 'Windows Level 3 (SI.3.219): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-757
+      - id: cmmc-2.0-req-758
+        name: 'Windows Level 3 (SI.3.219): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-758
+      - id: cmmc-2.0-req-759
+        name: 'Windows Level 4 (SI.4.221): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-759
+      - id: cmmc-2.0-req-760
+        name: 'Windows Level 4 (SI.4.221): Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-760
+      - id: cmmc-2.0-req-761
+        name: 'Windows Level 5 (SI.5.223): Service Control Manager Log Information'
+        satisfiedBy:
+          - cmmc-2.0-761
+      - id: cmmc-2.0-req-762
+        name: 'Windows Level 1 (SI.1.210): Windows Error Reporting'
+        satisfiedBy:
+          - cmmc-2.0-762
+      - id: cmmc-2.0-req-763
+        name: 'Windows Level 1 (SI.1.210): Logging Unexpected System Shutdowns'
+        satisfiedBy:
+          - cmmc-2.0-763
+      - id: cmmc-2.0-req-764
+        name: 'Windows Level 1 (SI.1.210): Windows Unexpected Service Failures'
+        satisfiedBy:
+          - cmmc-2.0-764
+      - id: cmmc-2.0-req-765
+        name: 'Windows Level 2 (SI.2.216): Services Changes'
+        satisfiedBy:
+          - cmmc-2.0-765
+      - id: cmmc-2.0-req-766
+        name: 'Windows Level 3 (SI.3.219): Kerberos Service Ticket'
+        satisfiedBy:
+          - cmmc-2.0-766
+      - id: cmmc-2.0-req-767
+        name: 'Windows Level 5 (SI.5.223): Application of Group Policies Errors'
+        satisfiedBy:
+          - cmmc-2.0-767
+      - id: cmmc-2.0-req-768
+        name: 'Windows Level 5 (SI.5.223): Created and Terminated Processes'
+        satisfiedBy:
+          - cmmc-2.0-768
+      - id: cmmc-2.0-req-880
+        name: 'Windows Level 5 (SI.5.223): Additions to Security Groups'
+        satisfiedBy:
+          - cmmc-2.0-880
+      - id: cmmc-2.0-req-1234
+        name: 'Office 365 Level 1 (SI.1.210): Changes Applied to Mailboxes'
+        satisfiedBy:
+          - cmmc-2.0-1234
+  - key: sec-503
+    name: Real-time Alerting and Monitoring
+    requirements:
+      - id: cmmc-2.0-req-500
+        name: 'Windows Level 1 (SI.1.210): Audit Policy Change'
+        satisfiedBy:
+          - cmmc-2.0-500
+      - id: cmmc-2.0-req-501
+        name: 'Windows Level 2 (SI.2.212): User Accounts Enabled'
+        satisfiedBy:
+          - cmmc-2.0-501
+      - id: cmmc-2.0-req-502
+        name: 'Windows Level 2 (SI.2.212): User Password Reset Attempt'
+        satisfiedBy:
+          - cmmc-2.0-502
+      - id: cmmc-2.0-req-503
+        name: 'Windows Level 2 (SI.2.212): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-503
+      - id: cmmc-2.0-req-504
+        name: 'Windows Level 2 (SI.2.212): Filtering Platform'
+        satisfiedBy:
+          - cmmc-2.0-504
+      - id: cmmc-2.0-req-505
+        name: 'Windows Level 2 (SI.2.212): Protected Object Access Operation'
+        satisfiedBy:
+          - cmmc-2.0-505
+      - id: cmmc-2.0-req-506
+        name: 'Windows Level 2 (SI.2.212): Object Deletion'
+        satisfiedBy:
+          - cmmc-2.0-506
+      - id: cmmc-2.0-req-508
+        name: 'Windows Level 2 (SI.2.212): Monitoring of Critical System Services Status'
+        satisfiedBy:
+          - cmmc-2.0-508
+      - id: cmmc-2.0-req-509
+        name: 'Windows Level 3 (SI.3.217): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-509
+      - id: cmmc-2.0-req-510
+        name: 'Windows Level 3 (SI.3.217): Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-510
+      - id: cmmc-2.0-req-511
+        name: 'Windows Level 3 (SI.3.217): System Time Settings Changes'
+        satisfiedBy:
+          - cmmc-2.0-511
+      - id: cmmc-2.0-req-512
+        name: 'Windows Level 3 (SI.3.217): Certificate Configuration Changes'
+        satisfiedBy:
+          - cmmc-2.0-512
+      - id: cmmc-2.0-req-513
+        name: 'Windows Level 4 (SI.4.220): Windows Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-513
+      - id: cmmc-2.0-req-514
+        name: 'Windows Level 5 (SI.5.223): User Accounts Enumeration'
+        satisfiedBy:
+          - cmmc-2.0-514
+      - id: cmmc-2.0-req-515
+        name: 'Windows Level 5 (SI.5.223): Group Membership Enumerated'
+        satisfiedBy:
+          - cmmc-2.0-515
+      - id: cmmc-2.0-req-521
+        name: 'Windows Level 1 (SI.1.210): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-521
+      - id: cmmc-2.0-req-522
+        name: 'Windows Level 1 (SI.1.210): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-522
+      - id: cmmc-2.0-req-523
+        name: 'Windows Level 1 (SI.1.210): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-523
+      - id: cmmc-2.0-req-524
+        name: 'Windows Level 1 (SI.1.210): Windows Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-524
+      - id: cmmc-2.0-req-525
+        name: 'Windows Level 2 (SI.2.212): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-525
+      - id: cmmc-2.0-req-527
+        name: 'Windows Level 2 (SI.2.212): Attempt to Access a Protected Object'
+        satisfiedBy:
+          - cmmc-2.0-527
+      - id: cmmc-2.0-req-528
+        name: 'Windows Level 2 (SI.2.212): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-528
+      - id: cmmc-2.0-req-529
+        name: 'Windows Level 3 (SI.3.217): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-529
+      - id: cmmc-2.0-req-530
+        name: 'Windows Level 3 (SI.3.217): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-530
+      - id: cmmc-2.0-req-532
+        name: 'Windows Level 3 (SI.3.217): Restoration of default security policies'
+        satisfiedBy:
+          - cmmc-2.0-532
+      - id: cmmc-2.0-req-537
+        name: 'Windows Level 3 (SI.3.217): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-537
+      - id: cmmc-2.0-req-538
+        name: 'Windows Level 3 (SI.3.217): Installation of Services'
+        satisfiedBy:
+          - cmmc-2.0-538
+      - id: cmmc-2.0-req-542
+        name: 'Windows Level 3 (SI.3.217): Access to Shared Resources'
+        satisfiedBy:
+          - cmmc-2.0-542
+      - id: cmmc-2.0-req-543
+        name: 'Windows Level 4 (SI.4.220): Account Locks'
+        satisfiedBy:
+          - cmmc-2.0-543
+      - id: cmmc-2.0-req-544
+        name: 'Windows Level 4 (SI.4.220): Kerberos ticket requests'
+        satisfiedBy:
+          - cmmc-2.0-544
+      - id: cmmc-2.0-req-548
+        name: 'Windows Level 5 (SI.5.223): Protected Object Permission Change'
+        satisfiedBy:
+          - cmmc-2.0-548
+      - id: cmmc-2.0-req-628
+        name: 'Windows Level 2 (SI.2.212): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-628
+      - id: cmmc-2.0-req-629
+        name: 'Windows Level 2 (SI.2.212): Registry Value Modification'
+        satisfiedBy:
+          - cmmc-2.0-629
+      - id: cmmc-2.0-req-630
+        name: 'Windows Level 4 (SI.4.220): Local Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-630
+      - id: cmmc-2.0-req-930
+        name: 'AWS Level 1 (AU.1.001): IAM User Deletion'
+        satisfiedBy:
+          - cmmc-2.0-930
+      - id: cmmc-2.0-req-931
+        name: 'AWS Level 3 (SI.3.217): ListAccessKeys Logs'
+        satisfiedBy:
+          - cmmc-2.0-931
+      - id: cmmc-2.0-req-1006
+        name: 'Office 365 Level 1 (SI.1.210): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-1006
+      - id: cmmc-2.0-req-1007
+        name: 'Office 365 Level 1 (SI.1.210): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1007
+      - id: cmmc-2.0-req-1008
+        name: 'Office 365 Level 2 (SI.2.212): Sharing Set'
+        satisfiedBy:
+          - cmmc-2.0-1008
+      - id: cmmc-2.0-req-1009
+        name: 'Office 365 Level 2 (SI.2.212): Mailbox Permission Assigning'
+        satisfiedBy:
+          - cmmc-2.0-1009
+      - id: cmmc-2.0-req-1010
+        name: 'Office 365 Level 3 (SI.3.217): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-1010
+      - id: cmmc-2.0-req-1011
+        name: 'Office 365 Level 3 (SI.3.217): File Renamed'
+        satisfiedBy:
+          - cmmc-2.0-1011
+  - key: sec-504
+    name: Correlation of Events
+    requirements:
+      - id: cmmc-2.0-req-556
+        name: 'Windows Level 2 (AU.2.043): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-556
+      - id: cmmc-2.0-req-557
+        name: 'Windows Level 2 (AU.2.043): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-557
+      - id: cmmc-2.0-req-558
+        name: 'Windows Level 2 (AU.2.043): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-558
+      - id: cmmc-2.0-req-559
+        name: 'Windows Level 2 (AU.2.043): User Accounts Enabled'
+        satisfiedBy:
+          - cmmc-2.0-559
+      - id: cmmc-2.0-req-560
+        name: 'Windows Level 2 (AU.2.043): User Password Reset Attempt'
+        satisfiedBy:
+          - cmmc-2.0-560
+      - id: cmmc-2.0-req-561
+        name: Requirement 561
+        satisfiedBy:
+          - cmmc-2.0-561
+      - id: cmmc-2.0-req-562
+        name: 'Windows Level 3 (AU.3.045): Object Deletion'
+        satisfiedBy:
+          - cmmc-2.0-562
+      - id: cmmc-2.0-req-563
+        name: 'Windows Level 3 (AU.3.045): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-563
+      - id: cmmc-2.0-req-564
+        name: 'Windows Level 3 (AU.3.045): Windows Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-564
+      - id: cmmc-2.0-req-565
+        name: 'Windows Level 3 (AU.3.045): Access to Shared Resources'
+        satisfiedBy:
+          - cmmc-2.0-565
+      - id: cmmc-2.0-req-566
+        name: 'Windows Level 3 (AU.3.045): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-566
+      - id: cmmc-2.0-req-567
+        name: 'Windows Level 3 (AU.3.045): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-567
+      - id: cmmc-2.0-req-568
+        name: 'Windows Level 3 (AU.3.045): User Account Attributes Changes'
+        satisfiedBy:
+          - cmmc-2.0-568
+      - id: cmmc-2.0-req-569
+        name: 'Windows Level 4 (AU.4.054): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-569
+      - id: cmmc-2.0-req-570
+        name: 'Windows Level 4 (AU.4.054): Changes to Defender settings'
+        satisfiedBy:
+          - cmmc-2.0-570
+      - id: cmmc-2.0-req-571
+        name: 'Windows Level 4 (AU.4.054): Application Errors'
+        satisfiedBy:
+          - cmmc-2.0-571
+      - id: cmmc-2.0-req-631
+        name: 'Windows Level 2 (AU.2.043): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-631
+      - id: cmmc-2.0-req-632
+        name: 'Windows Level 2 (AU.2.043): Local Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-632
+      - id: cmmc-2.0-req-633
+        name: 'Windows Level 2 (AU.2.043): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-633
+      - id: cmmc-2.0-req-1012
+        name: 'Office 365 Level 2 (AU.2.043): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-1012
+      - id: cmmc-2.0-req-1013
+        name: 'Office 365 Level 2 (AU.2.043): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1013
+      - id: cmmc-2.0-req-1014
+        name: 'Office 365 Level 2 (AU.2.043): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-1014
+      - id: cmmc-2.0-req-1015
+        name: 'Office 365 Level 2 (AU.2.043): Sharing Set'
+        satisfiedBy:
+          - cmmc-2.0-1015
+      - id: cmmc-2.0-req-1016
+        name: 'Office 365 Level 2 (AU.2.043): File Renamed'
+        satisfiedBy:
+          - cmmc-2.0-1016
+      - id: cmmc-2.0-req-1017
+        name: 'Office 365 Level 3 (AU.3.045): Mailbox Permission Assigning'
+        satisfiedBy:
+          - cmmc-2.0-1017
+      - id: cmmc-2.0-req-1018
+        name: 'Office 365 Level 4 (AU.4.054): File Synchronization'
+        satisfiedBy:
+          - cmmc-2.0-1018
+  - key: sec-505
+    name: Data Integrity and Retention
+    requirements:
+      - id: cmmc-2.0-req-739
+        name: 'Windows Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-739
+      - id: cmmc-2.0-req-740
+        name: 'Windows Level 1 (AU.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-740
+      - id: cmmc-2.0-req-742
+        name: 'Windows Level 1 (AU.1.001): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-742
+      - id: cmmc-2.0-req-743
+        name: 'Windows Level 2 (AU.2.043): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-743
+      - id: cmmc-2.0-req-744
+        name: 'Windows Level 2 (AU.2.043): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-744
+      - id: cmmc-2.0-req-745
+        name: 'Windows Level 3 (AU.3.044): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-745
+      - id: cmmc-2.0-req-746
+        name: 'Windows Level 3 (AU.3.044): Unlocked Account'
+        satisfiedBy:
+          - cmmc-2.0-746
+      - id: cmmc-2.0-req-747
+        name: 'Windows Level 3 (AU.3.044): Kerberos pre-authentication failed'
+        satisfiedBy:
+          - cmmc-2.0-747
+      - id: cmmc-2.0-req-750
+        name: 'Windows Level 5 (AU.5.055): Event Logging Service Shut Down'
+        satisfiedBy:
+          - cmmc-2.0-750
+      - id: cmmc-2.0-req-751
+        name: 'Windows Level 4 (AU.4.053): Audit File integrity Validation Failed'
+        satisfiedBy:
+          - cmmc-2.0-751
+      - id: cmmc-2.0-req-752
+        name: 'Windows Level 5 (AU.5.055): Log Automatic Backup'
+        satisfiedBy:
+          - cmmc-2.0-752
+      - id: cmmc-2.0-req-1032
+        name: 'Office 365 Level 1 (AU.1.001): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1032
+      - id: cmmc-2.0-req-1033
+        name: 'Office 365 Level 1 (AU.1.001): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-1033
+      - id: cmmc-2.0-req-1034
+        name: 'Office 365 Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-1034
+      - id: cmmc-2.0-req-1035
+        name: 'Office 365 Level 2 (AU.2.043): File Renamed'
+        satisfiedBy:
+          - cmmc-2.0-1035
+      - id: cmmc-2.0-req-1036
+        name: 'Office 365 Level 3 (AU.3.044): Mailbox Permission Assigning'
+        satisfiedBy:
+          - cmmc-2.0-1036
+      - id: cmmc-2.0-req-1232
+        name: 'Office 365 Level 4 (AU.4.053): MailItems Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1232
+      - id: cmmc-2.0-req-1233
+        name: 'Office Level 5 (AU.5.055): File Sync Uploaded Full'
+        satisfiedBy:
+          - cmmc-2.0-1233
+  - key: sec-506
+    name: Change Management
+    requirements:
+      - id: cmmc-2.0-req-769
+        name: 'Windows Level 2 (CM.2.063): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-769
+      - id: cmmc-2.0-req-770
+        name: 'Windows Level 2 (CM.2.063): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-770
+      - id: cmmc-2.0-req-771
+        name: 'Windows Level 2 (CM.2.063): Installation of Services'
+        satisfiedBy:
+          - cmmc-2.0-771
+      - id: cmmc-2.0-req-772
+        name: 'Windows Level 3 (CM.3.068): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-772
+      - id: cmmc-2.0-req-773
+        name: 'Windows Level 3 (CM.3.068): Security enabled local group change'
+        satisfiedBy:
+          - cmmc-2.0-773
+      - id: cmmc-2.0-req-774
+        name: 'Windows Level 3 (CM.3.068): User Account Attributes Changes'
+        satisfiedBy:
+          - cmmc-2.0-774
+      - id: cmmc-2.0-req-775
+        name: 'Windows Level 3 (CM.3.068): Account Locks'
+        satisfiedBy:
+          - cmmc-2.0-775
+      - id: cmmc-2.0-req-776
+        name: 'Windows Level 3 (CM.3.068): Certificate Configuration Changes'
+        satisfiedBy:
+          - cmmc-2.0-776
+      - id: cmmc-2.0-req-777
+        name: 'Windows Level 4 (CM.4.070): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-777
+      - id: cmmc-2.0-req-778
+        name: 'Windows Level 4 (CM.4.070): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-778
+      - id: cmmc-2.0-req-779
+        name: 'Windows Level 4 (CM.4.070): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-779
+      - id: cmmc-2.0-req-780
+        name: 'Windows Level 4 (CM.4.070): Restoration of default security policies'
+        satisfiedBy:
+          - cmmc-2.0-780
+      - id: cmmc-2.0-req-781
+        name: 'Windows Level 4 (CM.4.070): Firewall Exception List Changed'
+        satisfiedBy:
+          - cmmc-2.0-781
+      - id: cmmc-2.0-req-1235
+        name: 'Office 365 Level 4 (CM.4.070): Changes Applied to Mailboxes'
+        satisfiedBy:
+          - cmmc-2.0-1235
+  - key: sec-507
+    name: Malware Detection and Response
+    requirements:
+      - id: cmmc-2.0-req-793
+        name: 'Windows Level 1 (SI.1.210): Windows Unexpected Service Failures'
+        satisfiedBy:
+          - cmmc-2.0-793
+      - id: cmmc-2.0-req-794
+        name: 'Windows Level 1 (SI.1.210): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-794
+      - id: cmmc-2.0-req-795
+        name: 'Windows Level 1 (SI.1.210): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-795
+      - id: cmmc-2.0-req-796
+        name: 'Windows Level 3 (SI.3.219): Filtering Platform'
+        satisfiedBy:
+          - cmmc-2.0-796
+      - id: cmmc-2.0-req-798
+        name: 'Windows Level 3 (SI.3.219): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-798
+      - id: cmmc-2.0-req-800
+        name: 'Windows Level 3 (SI.3.219): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-800
+      - id: cmmc-2.0-req-801
+        name: 'Windows Level 3 (SI.3.219): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-801
+      - id: cmmc-2.0-req-802
+        name: 'Windows Level 4 (SI.4.221): Service Control Manager Log Information'
+        satisfiedBy:
+          - cmmc-2.0-802
+      - id: cmmc-2.0-req-807
+        name: 'Windows Level 4 (SI.4.221): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-807
+      - id: cmmc-2.0-req-808
+        name: 'Windows Level 4 (AU.4.053): Use of Elevated Privileges'
+        satisfiedBy:
+          - cmmc-2.0-808
+      - id: cmmc-2.0-req-809
+        name: 'Windows Level 1 (SI.1.210): Windows Defender Action Against Detected Threat'
+        satisfiedBy:
+          - cmmc-2.0-809
+      - id: cmmc-2.0-req-810
+        name: 'Windows Level 1 (SI.1.210): Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-810
+      - id: cmmc-2.0-req-812
+        name: 'Windows Level 3 (SI.3.219): Connections and Port Assignments'
+        satisfiedBy:
+          - cmmc-2.0-812
+  - key: sec-508
+    name: Privileged Access Monitoring
+    requirements:
+      - id: cmmc-2.0-req-782
+        name: 'Windows Level 2 (AC.2.007): Additions to Security Groups'
+        satisfiedBy:
+          - cmmc-2.0-782
+      - id: cmmc-2.0-req-783
+        name: 'Windows Level 2 (AC.2.007): Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-783
+      - id: cmmc-2.0-req-784
+        name: 'Windows Level 2 (AC.2.007): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-784
+      - id: cmmc-2.0-req-785
+        name: 'Windows Level 2 (AC.2.007): Local Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-785
+      - id: cmmc-2.0-req-787
+        name: 'Windows Level 3 (AC.3.027): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-787
+      - id: cmmc-2.0-req-788
+        name: 'Windows Level 3 (AC.3.027): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-788
+      - id: cmmc-2.0-req-789
+        name: 'Windows Level 3 (AC.3.027): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-789
+      - id: cmmc-2.0-req-790
+        name: 'Windows Level 3 (AC.3.027): Use of Elevated Privileges'
+        satisfiedBy:
+          - cmmc-2.0-790
+      - id: cmmc-2.0-req-791
+        name: 'Windows Level 3 (AC.3.027): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-791
+      - id: cmmc-2.0-req-792
+        name: 'Windows Level 4 (AC.4.028): Privilege Escalation Alerts'
+        satisfiedBy:
+          - cmmc-2.0-792
+  - key: sec-509
+    name: Audit Trail and Forensic Investigation Support
+    requirements:
+      - id: cmmc-2.0-req-813
+        name: 'Windows Level 1 (AC.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-813
+      - id: cmmc-2.0-req-814
+        name: 'Windows Level 1 (AC.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-814
+      - id: cmmc-2.0-req-815
+        name: 'Windows Level 1 (AC.1.001): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-815
+      - id: cmmc-2.0-req-816
+        name: 'Windows Level 1 (AC.1.001): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-816
+      - id: cmmc-2.0-req-817
+        name: 'Windows Level 1 (AC.1.001): User Accounts Enabled'
+        satisfiedBy:
+          - cmmc-2.0-817
+      - id: cmmc-2.0-req-818
+        name: 'Windows Level 1 (AC.1.001): User Password Reset Attempt'
+        satisfiedBy:
+          - cmmc-2.0-818
+      - id: cmmc-2.0-req-819
+        name: 'Windows Level 1 (AC.1.001): Password Reset Attempts'
+        satisfiedBy:
+          - cmmc-2.0-819
+      - id: cmmc-2.0-req-820
+        name: 'Windows Level 1 (AC.1.001): User Account Attributes Changes'
+        satisfiedBy:
+          - cmmc-2.0-820
+      - id: cmmc-2.0-req-821
+        name: 'Windows Level 1 (AC.1.001): Protected Object Access Operation'
+        satisfiedBy:
+          - cmmc-2.0-821
+      - id: cmmc-2.0-req-822
+        name: 'Windows Level 1 (AC.1.001): Protected Object Permission Change'
+        satisfiedBy:
+          - cmmc-2.0-822
+      - id: cmmc-2.0-req-823
+        name: 'Windows Level 1 (AC.1.001): Restoration of default security policies'
+        satisfiedBy:
+          - cmmc-2.0-823
+      - id: cmmc-2.0-req-824
+        name: 'Windows Level 3 (AU.3.045): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-824
+      - id: cmmc-2.0-req-825
+        name: 'Windows Level 3 (AU.3.045): Access to Shared Resources'
+        satisfiedBy:
+          - cmmc-2.0-825
+      - id: cmmc-2.0-req-826
+        name: 'Windows Level 3 (AU.3.045): Object Deletion'
+        satisfiedBy:
+          - cmmc-2.0-826
+      - id: cmmc-2.0-req-828
+        name: 'Windows Level 3 (AU.3.045): Windows Connection blocked by Windows Firewall'
+        satisfiedBy:
+          - cmmc-2.0-828
+      - id: cmmc-2.0-req-829
+        name: 'Windows Level 3 (AU.3.045): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-829
+      - id: cmmc-2.0-req-830
+        name: 'Windows Level 4 (AU.4.053): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-830
+      - id: cmmc-2.0-req-831
+        name: 'Windows Level 4 (AU.4.053): Kerberos pre-authentication failed'
+        satisfiedBy:
+          - cmmc-2.0-831
+      - id: cmmc-2.0-req-832
+        name: 'Windows Level 4 (AU.4.053): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-832
+      - id: cmmc-2.0-req-836
+        name: 'Windows Level 1 (AC.1.001): User Account Logoff'
+        satisfiedBy:
+          - cmmc-2.0-836
+      - id: cmmc-2.0-req-837
+        name: 'Windows Level 3 (AU.3.045): Unexpected Logon Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-837
+  - key: sec-510
+    name: Access Control and Authentication
+    requirements:
+      - id: cmmc-2.0-req-476
+        name: 'Windows Level 1 (AC.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-476
+      - id: cmmc-2.0-req-477
+        name: 'Windows Level 2 (AU.2.043): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-477
+      - id: cmmc-2.0-req-478
+        name: 'Windows Level 2 (AC.2.007): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-478
+      - id: cmmc-2.0-req-479
+        name: 'Windows Level 2 (AC.2.007): User Accounts Enabled'
+        satisfiedBy:
+          - cmmc-2.0-479
+      - id: cmmc-2.0-req-480
+        name: 'Windows Level 2 (AC.2.007): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-480
+      - id: cmmc-2.0-req-481
+        name: 'Windows Level 3 (AC.3.014): Attempt to Access a Protected Object'
+        satisfiedBy:
+          - cmmc-2.0-481
+      - id: cmmc-2.0-req-482
+        name: 'Windows Level 2 (AC.2.007): Protected Object Permission Change'
+        satisfiedBy:
+          - cmmc-2.0-482
+      - id: cmmc-2.0-req-483
+        name: 'Windows Level 3 (AC.3.014): Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-483
+      - id: cmmc-2.0-req-484
+        name: 'Windows Level 5 (AC.5.025): Account Locks'
+        satisfiedBy:
+          - cmmc-2.0-484
+      - id: cmmc-2.0-req-485
+        name: 'Windows Level 3 (AC.3.014): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-485
+      - id: cmmc-2.0-req-487
+        name: 'Windows Level 2 (AC.2.007): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-487
+      - id: cmmc-2.0-req-488
+        name: 'Windows Level 5 (AU.5.055): Failed logon attempt'
+        satisfiedBy:
+          - cmmc-2.0-488
+      - id: cmmc-2.0-req-574
+        name: 'Windows Level 1 (AC.1.001): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-574
+      - id: cmmc-2.0-req-575
+        name: 'Windows Level 2 (AC.2.007): Additions to Security Groups'
+        satisfiedBy:
+          - cmmc-2.0-575
+      - id: cmmc-2.0-req-576
+        name: 'Windows Level 2 (AC.2.007): Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-576
+      - id: cmmc-2.0-req-577
+        name: 'Windows Level 2 (AC.2.007): Creation of Security-Enabled Local Group'
+        satisfiedBy:
+          - cmmc-2.0-577
+      - id: cmmc-2.0-req-578
+        name: 'Windows Level 2 (AC.2.007): Security enabled local group change'
+        satisfiedBy:
+          - cmmc-2.0-578
+      - id: cmmc-2.0-req-579
+        name: 'Windows Level 2 (AC.2.007): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-579
+      - id: cmmc-2.0-req-580
+        name: 'Windows Level 3 (AC.3.014): Registry Value Modification'
+        satisfiedBy:
+          - cmmc-2.0-580
+      - id: cmmc-2.0-req-585
+        name: 'Windows Level 3 (AC.3.014): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-585
+      - id: cmmc-2.0-req-587
+        name: 'Windows Level 3 (AC.3.014): Kerberos pre-authentication failed'
+        satisfiedBy:
+          - cmmc-2.0-587
+      - id: cmmc-2.0-req-588
+        name: 'Windows Level 4 (AC.4.021): Alerts'
+        satisfiedBy:
+          - cmmc-2.0-588
+      - id: cmmc-2.0-req-589
+        name: 'Windows Level 3 (AC.3.014): Network Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-589
+      - id: cmmc-2.0-req-590
+        name: 'Windows Level 5 (AC.5.025): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-590
+      - id: cmmc-2.0-req-599
+        name: 'Office 365 Level 1 (AC.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-599
+      - id: cmmc-2.0-req-600
+        name: 'Office 365 Level 1 (AC.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-600
+      - id: cmmc-2.0-req-602
+        name: 'Office 365 Level 2 (AC.2.007): SharePoint Group Membership Additions'
+        satisfiedBy:
+          - cmmc-2.0-602
+      - id: cmmc-2.0-req-603
+        name: 'Office 365 Level 3 (AC.3.014): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-603
+      - id: cmmc-2.0-req-604
+        name: 'Office 365 Level 2 (AC.2.007): Security Role Update'
+        satisfiedBy:
+          - cmmc-2.0-604
+      - id: cmmc-2.0-req-605
+        name: 'Office 365 Level 3 (AC.3.014): Sharing Link Operation'
+        satisfiedBy:
+          - cmmc-2.0-605
+      - id: cmmc-2.0-req-606
+        name: 'Office 365 Level 3 (AC.3.014): Secure Link Operation'
+        satisfiedBy:
+          - cmmc-2.0-606
+      - id: cmmc-2.0-req-607
+        name: 'Office 365 Level 3 (AC.3.014): Delegated Permission Grant'
+        satisfiedBy:
+          - cmmc-2.0-607
+      - id: cmmc-2.0-req-608
+        name: 'Office 365 Level 3 (AC.3.014): File Access and Activity'
+        satisfiedBy:
+          - cmmc-2.0-608
+      - id: cmmc-2.0-req-609
+        name: 'Office 365 Level 3 (AC.3.014): OneDrive File Download'
+        satisfiedBy:
+          - cmmc-2.0-609
+      - id: cmmc-2.0-req-610
+        name: 'AWS Level 4 (AC.4.021): Alerts'
+        satisfiedBy:
+          - cmmc-2.0-610
+      - id: cmmc-2.0-req-617
+        name: 'Windows Level 2 (AC.2.007): Local Security Group Member Removal'
+        satisfiedBy:
+          - cmmc-2.0-617
+      - id: cmmc-2.0-req-870
+        name: 'AWS Level 1 (AC.1.001): Console Login'
+        satisfiedBy:
+          - cmmc-2.0-870
+      - id: cmmc-2.0-req-871
+        name: 'AWS Level 1 (AC.1.001): Access Roles Assumption'
+        satisfiedBy:
+          - cmmc-2.0-871
+      - id: cmmc-2.0-req-872
+        name: 'AWS Level 2 (AC.2.007): Access Roles Assumption'
+        satisfiedBy:
+          - cmmc-2.0-872
+      - id: cmmc-2.0-req-873
+        name: 'AWS Level 2 (AC.2.007): Attach Role Policy'
+        satisfiedBy:
+          - cmmc-2.0-873
+      - id: cmmc-2.0-req-874
+        name: 'AWS Level 1 (AU.1.001): Console Login'
+        satisfiedBy:
+          - cmmc-2.0-874
+      - id: cmmc-2.0-req-997
+        name: 'Office 365 Level 3 (AC.3.014): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-997
+      - id: cmmc-2.0-req-998
+        name: 'Office 365 Level 2 (AC.2.007): Sharing Set'
+        satisfiedBy:
+          - cmmc-2.0-998
+  - key: sec-511
+    name: Log Collection and Monitoring
+    requirements:
+      - id: cmmc-2.0-req-489
+        name: 'Windows Level 1 (AU.1.001): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-489
+      - id: cmmc-2.0-req-490
+        name: 'Windows Level 1 (AU.1.001): Logins with explicit credentials'
+        satisfiedBy:
+          - cmmc-2.0-490
+      - id: cmmc-2.0-req-491
+        name: 'Windows Level 4 (AU.4.053): Changes in account status'
+        satisfiedBy:
+          - cmmc-2.0-491
+      - id: cmmc-2.0-req-492
+        name: 'Windows Level 4 (AU.4.053): Windows Kerberos ticket requests'
+        satisfiedBy:
+          - cmmc-2.0-492
+      - id: cmmc-2.0-req-494
+        name: 'Windows Level 4 (AU.4.053): Access to Shared Resources'
+        satisfiedBy:
+          - cmmc-2.0-494
+      - id: cmmc-2.0-req-495
+        name: 'Windows Level 4 (AU.4.053): Use of Elevated Privileges'
+        satisfiedBy:
+          - cmmc-2.0-495
+      - id: cmmc-2.0-req-497
+        name: 'Windows Level 4 (AU.4.053): PowerShell Script Block Registration'
+        satisfiedBy:
+          - cmmc-2.0-497
+      - id: cmmc-2.0-req-498
+        name: 'Windows Level 4 (AU.4.053): Installation of Services'
+        satisfiedBy:
+          - cmmc-2.0-498
+      - id: cmmc-2.0-req-499
+        name: 'Windows Level 5 (AU.5.055): Restoration of default security policies'
+        satisfiedBy:
+          - cmmc-2.0-499
+      - id: cmmc-2.0-req-516
+        name: 'Windows Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-516
+      - id: cmmc-2.0-req-517
+        name: 'Windows Level 1 (AU.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-517
+      - id: cmmc-2.0-req-518
+        name: 'Windows Level 3 (AU.3.045): Protected Object Permission Change'
+        satisfiedBy:
+          - cmmc-2.0-518
+      - id: cmmc-2.0-req-519
+        name: 'Windows Level 3 (AU.3.045): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-519
+      - id: cmmc-2.0-req-520
+        name: 'Windows Level 1 (AU.1.001): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-520
+      - id: cmmc-2.0-req-554
+        name: 'Windows Level 4 (AU.4.053): PowerShell Remote Session Creation'
+        satisfiedBy:
+          - cmmc-2.0-554
+      - id: cmmc-2.0-req-555
+        name: 'Windows Level 4 (AU.4.053): Installation of Services'
+        satisfiedBy:
+          - cmmc-2.0-555
+      - id: cmmc-2.0-req-592
+        name: 'Windows Level 1 (AU.1.001): Event Log Service'
+        satisfiedBy:
+          - cmmc-2.0-592
+      - id: cmmc-2.0-req-593
+        name: 'Windows Level 1 (AU.1.001): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-593
+      - id: cmmc-2.0-req-595
+        name: 'Windows Level 2 (AU.2.042): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-595
+      - id: cmmc-2.0-req-596
+        name: 'Windows Level 2 (AU.2.042): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-596
+      - id: cmmc-2.0-req-597
+        name: 'Windows Level 2 (AU.2.042): Password Reset Attempts'
+        satisfiedBy:
+          - cmmc-2.0-597
+      - id: cmmc-2.0-req-598
+        name: 'Windows Level 2 (AU.2.042): User Accounts Deleted'
+        satisfiedBy:
+          - cmmc-2.0-598
+      - id: cmmc-2.0-req-611
+        name: 'AWS Level 2 (AU.2.042): Activity By User and Event'
+        satisfiedBy:
+          - cmmc-2.0-611
+      - id: cmmc-2.0-req-612
+        name: 'AWS Level 2 (AU.2.042): Cloud'
+        satisfiedBy:
+          - cmmc-2.0-612
+      - id: cmmc-2.0-req-613
+        name: 'AWS Level 2 (AU.2.042): DescribeLogStreams Logs'
+        satisfiedBy:
+          - cmmc-2.0-613
+      - id: cmmc-2.0-req-614
+        name: 'AWS Level 2 (AU.2.042): PutObject Logs'
+        satisfiedBy:
+          - cmmc-2.0-614
+      - id: cmmc-2.0-req-615
+        name: 'AWS Level 2 (AU.2.042): GetBucketAcl Logs'
+        satisfiedBy:
+          - cmmc-2.0-615
+      - id: cmmc-2.0-req-616
+        name: 'AWS Level 2 (AU.2.042): DescribeLogGroups Logs'
+        satisfiedBy:
+          - cmmc-2.0-616
+      - id: cmmc-2.0-req-618
+        name: 'Windows Level 4 (AU.4.053): Windows Connection blocked by Windows Firewall'
+        satisfiedBy:
+          - cmmc-2.0-618
+      - id: cmmc-2.0-req-619
+        name: 'Windows Level 4 (AU.4.053): Registry Value Modification'
+        satisfiedBy:
+          - cmmc-2.0-619
+      - id: cmmc-2.0-req-620
+        name: 'Windows Level 4 (AU.4.053): Changes to Defender settings'
+        satisfiedBy:
+          - cmmc-2.0-620
+      - id: cmmc-2.0-req-621
+        name: 'Windows Level 4 (AU.4.053): Service Control Manager Log Information'
+        satisfiedBy:
+          - cmmc-2.0-621
+      - id: cmmc-2.0-req-622
+        name: 'Windows Level 5 (AU.5.055): Event Logging Service Shut Down'
+        satisfiedBy:
+          - cmmc-2.0-622
+      - id: cmmc-2.0-req-623
+        name: 'Windows Level 5 (AU.5.055): Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-623
+      - id: cmmc-2.0-req-625
+        name: 'Windows Level 5 (AU.5.055): Credential Access'
+        satisfiedBy:
+          - cmmc-2.0-625
+      - id: cmmc-2.0-req-626
+        name: 'Windows Level 5 (AU.5.055): Member Addition to a Security Local Group'
+        satisfiedBy:
+          - cmmc-2.0-626
+      - id: cmmc-2.0-req-627
+        name: 'Windows Level 2 (AU.2.042): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-627
+      - id: cmmc-2.0-req-875
+        name: 'AWS Level 1 (AU.1.001): Access Roles Assumption'
+        satisfiedBy:
+          - cmmc-2.0-875
+      - id: cmmc-2.0-req-876
+        name: 'AWS Level 2 (AU.2.042): Roles Assumption'
+        satisfiedBy:
+          - cmmc-2.0-876
+      - id: cmmc-2.0-req-877
+        name: 'AWS Level 2 (AU.2.042): Attach Role Policy'
+        satisfiedBy:
+          - cmmc-2.0-877
+      - id: cmmc-2.0-req-878
+        name: 'AWS Level 2 (AU.2.042): Bucket Access Policies'
+        satisfiedBy:
+          - cmmc-2.0-878
+      - id: cmmc-2.0-req-879
+        name: 'Windows Level 1 (AU.1.001): Account Logoff'
+        satisfiedBy:
+          - cmmc-2.0-879
+      - id: cmmc-2.0-req-999
+        name: 'Office 365 Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-999
+      - id: cmmc-2.0-req-1000
+        name: 'Office 365 Level 1 (AU.1.001): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1000
+      - id: cmmc-2.0-req-1001
+        name: 'Office 365 Level 1 (AU.1.001): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-1001
+      - id: cmmc-2.0-req-1002
+        name: 'Office 365 Level 2 (AU.2.042): Sharing Set'
+        satisfiedBy:
+          - cmmc-2.0-1002
+      - id: cmmc-2.0-req-1003
+        name: 'Office 365 Level 2 (AU.2.042): File Synchronization'
+        satisfiedBy:
+          - cmmc-2.0-1003
+      - id: cmmc-2.0-req-1004
+        name: 'Office 365 Level 3 (AU.3.045): Mailbox Permission Assigning'
+        satisfiedBy:
+          - cmmc-2.0-1004
+      - id: cmmc-2.0-req-1005
+        name: 'Office 365 Level 3 (AU.3.045): File Renamed'
+        satisfiedBy:
+          - cmmc-2.0-1005
+  - key: sec-512
+    name: Incident Response and Escalation
+    requirements:
+      - id: cmmc-2.0-req-939
+        name: 'Level 1 (IR.1.002): Incidents Generated from Alerts'
+        satisfiedBy:
+          - cmmc-2.0-939
+      - id: cmmc-2.0-req-940
+        name: 'Level 3 (IR.3.098): Threat Intelligence Activity'
+        satisfiedBy:
+          - cmmc-2.0-940
+      - id: cmmc-2.0-req-941
+        name: 'Level 5 (IR.5.102): Threat Detection and Response using SOC AI'
+        satisfiedBy:
+          - cmmc-2.0-941
+  - key: sec-513
+    name: Compliance Reporting
+    requirements:
+      - id: cmmc-2.0-req-942
+        name: 'Windows Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-942
+      - id: cmmc-2.0-req-943
+        name: 'Windows Level 1 (AU.1.001): Account Logon Failure'
+        satisfiedBy:
+          - cmmc-2.0-943
+      - id: cmmc-2.0-req-944
+        name: 'Windows Level 1 (AU.1.001): Account Logoff'
+        satisfiedBy:
+          - cmmc-2.0-944
+      - id: cmmc-2.0-req-945
+        name: 'Windows Level 1 (AU.1.001): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-945
+      - id: cmmc-2.0-req-946
+        name: 'Windows Level 2 (AU.2.041): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-946
+      - id: cmmc-2.0-req-947
+        name: 'Windows Level 2 (AU.2.041): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-947
+      - id: cmmc-2.0-req-948
+        name: 'Windows Level 2 (AU.2.041): Restoration of default security policies'
+        satisfiedBy:
+          - cmmc-2.0-948
+      - id: cmmc-2.0-req-949
+        name: 'Windows Level 3 (AU.3.045): Process Creation'
+        satisfiedBy:
+          - cmmc-2.0-949
+      - id: cmmc-2.0-req-950
+        name: 'Windows Level 3 (AU.3.045): Service Installed'
+        satisfiedBy:
+          - cmmc-2.0-950
+      - id: cmmc-2.0-req-951
+        name: 'Windows Level 3 (AU.3.045): Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-951
+      - id: cmmc-2.0-req-952
+        name: 'Windows Level 3 (AU.3.045): User Accounts Created'
+        satisfiedBy:
+          - cmmc-2.0-952
+      - id: cmmc-2.0-req-953
+        name: 'Windows Level 4 (AU.4.052): Process Termination'
+        satisfiedBy:
+          - cmmc-2.0-953
+      - id: cmmc-2.0-req-954
+        name: 'Windows Level 4 (AU.4.052): Account Authentication Using NTLM'
+        satisfiedBy:
+          - cmmc-2.0-954
+      - id: cmmc-2.0-req-955
+        name: 'Windows Level 4 (AU.4.052): BitLocker Settings Modification Attempts'
+        satisfiedBy:
+          - cmmc-2.0-955
+      - id: cmmc-2.0-req-1024
+        name: 'Office 365 Level 1 (AU.1.001): Account Logon Success'
+        satisfiedBy:
+          - cmmc-2.0-1024
+      - id: cmmc-2.0-req-1025
+        name: 'Office 365 Level 1 (AU.1.001): File Accessed'
+        satisfiedBy:
+          - cmmc-2.0-1025
+      - id: cmmc-2.0-req-1026
+        name: 'Office 365 Level 1 (AU.1.001): File Deleted'
+        satisfiedBy:
+          - cmmc-2.0-1026
+      - id: cmmc-2.0-req-1027
+        name: 'Office 365 Level 1 (AU.1.001): File Renamed'
+        satisfiedBy:
+          - cmmc-2.0-1027
+      - id: cmmc-2.0-req-1028
+        name: 'Office 365 Level 2 (AU.2.041): Mailbox Permission Assigning'
+        satisfiedBy:
+          - cmmc-2.0-1028
+      - id: cmmc-2.0-req-1029
+        name: 'Office 365 Level 2 (AU.2.041): Sharing Set'
+        satisfiedBy:
+          - cmmc-2.0-1029
+      - id: cmmc-2.0-req-1030
+        name: 'Office 365 Level 2 (AU.2.041): File Synchronization'
+        satisfiedBy:
+          - cmmc-2.0-1030
+      - id: cmmc-2.0-req-1031
+        name: 'Office 365 Level 2 (AU.2.041): Email access'
+        satisfiedBy:
+          - cmmc-2.0-1031
+  - key: sec-514
+    name: Data Loss Prevention (DLP) Monitoring
+    requirements:
+      - id: cmmc-2.0-req-956
+        name: 'Windows Level 3 (MP.3.123): Network Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-956
+      - id: cmmc-2.0-req-957
+        name: 'Windows Level 3 (MP.3.123): Object Deletion'
+        satisfiedBy:
+          - cmmc-2.0-957
+      - id: cmmc-2.0-req-958
+        name: 'Windows Level 3 (MP.3.123): Access to critical files or specific directories'
+        satisfiedBy:
+          - cmmc-2.0-958
+      - id: cmmc-2.0-req-959
+        name: 'Windows Level 3 (MP.3.123): Protected Object Permission Change'
+        satisfiedBy:
+          - cmmc-2.0-959
+      - id: cmmc-2.0-req-960
+        name: 'Windows Level 3 (MP.3.123): Attempt to Access a Protected Object'
+        satisfiedBy:
+          - cmmc-2.0-960
+      - id: cmmc-2.0-req-961
+        name: 'Windows Level 3 (MP.3.123): Shared Network Object Creation'
+        satisfiedBy:
+          - cmmc-2.0-961
+      - id: cmmc-2.0-req-962
+        name: 'Windows Level 3 (MP.3.123): Shared Resource Modification'
+        satisfiedBy:
+          - cmmc-2.0-962
+      - id: cmmc-2.0-req-963
+        name: 'Windows Level 3 (MP.3.123): File System Transaction Status Changes'
+        satisfiedBy:
+          - cmmc-2.0-963
+      - id: cmmc-2.0-req-964
+        name: 'Windows Level 3 (MP.3.123): Handle Closure in Security System'
+        satisfiedBy:
+          - cmmc-2.0-964
+      - id: cmmc-2.0-req-965
+        name: 'Windows Level 3 (MP.3.123): External Device Connection'
+        satisfiedBy:
+          - cmmc-2.0-965
+      - id: cmmc-2.0-req-966
+        name: 'Windows Level 4 (MP.4.125): Policy changes'
+        satisfiedBy:
+          - cmmc-2.0-966
+      - id: cmmc-2.0-req-967
+        name: 'Windows Level 4 (MP.4.125): Scheduled Task Creation'
+        satisfiedBy:
+          - cmmc-2.0-967
+      - id: cmmc-2.0-req-968
+        name: 'Windows Level 3 (MP.3.123): Delete Object Attempt'
+        satisfiedBy:
+          - cmmc-2.0-968
+  - key: sec-515
+    name: Encryption Monitoring
+    requirements:
+      - id: cmmc-2.0-req-969
+        name: 'Windows Level 3 (SC.3.177): Special privileges assigned to new logon'
+        satisfiedBy:
+          - cmmc-2.0-969
+      - id: cmmc-2.0-req-970
+        name: 'Windows Level 4 (SC.4.229): Access to shared resource'
+        satisfiedBy:
+          - cmmc-2.0-970
+      - id: cmmc-2.0-req-971
+        name: 'Windows Level 4 (SC.4.229): BitLocker Settings Modification Attempts'
+        satisfiedBy:
+          - cmmc-2.0-971
+      - id: cmmc-2.0-req-972
+        name: 'Windows Level 4 (SC.4.229): Application of Group Policies Errors'
+        satisfiedBy:
+          - cmmc-2.0-972
+      - id: cmmc-2.0-req-973
+        name: 'Windows Level 4 (SC.4.229): Cleaned Event Log'
+        satisfiedBy:
+          - cmmc-2.0-973
+      - id: cmmc-2.0-req-974
+        name: 'Windows Level 4 (SC.4.229): System Time Settings Changes'
+        satisfiedBy:
+          - cmmc-2.0-974
+      - id: cmmc-2.0-req-975
+        name: 'Windows Level 3 (SC.3.177): TLS protocol Errors'
+        satisfiedBy:
+          - cmmc-2.0-975
+      - id: cmmc-2.0-req-976
+        name: 'Windows Level 4 (SC.4.229): Protected Files Decryption'
+        satisfiedBy:
+          - cmmc-2.0-976
+  - key: sec-516
+    name: Third-Party Risk Monitoring
+    requirements:
+      - id: cmmc-2.0-req-977
+        name: Windows Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-977
+      - id: cmmc-2.0-req-978
+        name: Bitdefender Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-978
+      - id: cmmc-2.0-req-979
+        name: Linux Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-979
+      - id: cmmc-2.0-req-980
+        name: Firewall Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-980
+      - id: cmmc-2.0-req-981
+        name: Office 365 Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-981
+      - id: cmmc-2.0-req-982
+        name: AWS Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-982
+      - id: cmmc-2.0-req-983
+        name: Azure Activity Monitoring
+        satisfiedBy:
+          - cmmc-2.0-983
+  - key: sec-517
+    name: Disaster Recovery and Business Continuity Monitoring
+    requirements:
+      - id: cmmc-2.0-req-984
+        name: Windows Logging Unexpected System Shutdowns
+        satisfiedBy:
+          - cmmc-2.0-984
+      - id: cmmc-2.0-req-985
+        name: Windows Event Log Service
+        satisfiedBy:
+          - cmmc-2.0-985
+      - id: cmmc-2.0-req-986
+        name: Windows Error Reporting
+        satisfiedBy:
+          - cmmc-2.0-986
+      - id: cmmc-2.0-req-987
+        name: Windows Unexpected System Reboot
+        satisfiedBy:
+          - cmmc-2.0-987
+      - id: cmmc-2.0-req-988
+        name: Windows Scheduled System Shutdowns and Restarts
+        satisfiedBy:
+          - cmmc-2.0-988
+      - id: cmmc-2.0-req-989
+        name: Windows Failure to load system services
+        satisfiedBy:
+          - cmmc-2.0-989
+      - id: cmmc-2.0-req-990
+        name: Windows Application failure
+        satisfiedBy:
+          - cmmc-2.0-990
+      - id: cmmc-2.0-req-991
+        name: Windows .NET Runtime Error
+        satisfiedBy:
+          - cmmc-2.0-991
+      - id: cmmc-2.0-req-992
+        name: Windows Software installation completed successfully
+        satisfiedBy:
+          - cmmc-2.0-992
+      - id: cmmc-2.0-req-993
+        name: Windows Software installation failure
+        satisfiedBy:
+          - cmmc-2.0-993
+      - id: cmmc-2.0-req-994
+        name: Windows Permissions issues in DCOM
+        satisfiedBy:
+          - cmmc-2.0-994
+      - id: cmmc-2.0-req-995
+        name: Windows Possible Disk Errors
+        satisfiedBy:
+          - cmmc-2.0-995
+      - id: cmmc-2.0-req-996
+        name: Windows System Boots and Shutdowns
+        satisfiedBy:
+          - cmmc-2.0-996

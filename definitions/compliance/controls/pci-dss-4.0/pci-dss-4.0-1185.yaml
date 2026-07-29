@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1185
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Account Authentication Using NTLM
+scope: data
+statement: This report compiles relevant information from Windows event 4776 logs, which are generated when an account authentication attempt is made using the NTLM protocol. Event 4776 captures both successful and failed access attempts, allowing for the identification of invalid access attempts. This information is crucial for complying with PCI DSS requirement 10.2.1.4, which requires the capture of all invalid logical access attempts. Analyzing these events facilitates the detection of suspicious activity and forensic analysis of potential security incidents in environments that handle cardholder data.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

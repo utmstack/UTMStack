@@ -1,0 +1,21 @@
+id: banking-audit-902
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Account Locks
+scope: data
+statement: "The Windows Account Locks Report provides detailed logs of events where user accounts are locked due to failed login attempts or security policy enforcement. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as account locks can indicate brute force attacks, phishing attempts, or compromised accounts.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of account lock events to protect sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 8, ensuring that account lockouts are tracked and monitored to detect unauthorized access attempts.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately when accounts are locked, enabling rapid investigation and response to potential threats.<br/>\t•\tIncident Detection: Identifies patterns of suspicious login attempts, such as brute force attacks or repeated lockouts, which may indicate targeted attacks or misuse.<br/>\t•\tAudit Readiness: Tracks all account lock events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust access management practices."
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

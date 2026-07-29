@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1122
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.4 Kerberos Service Ticket
+scope: data
+statement: This report compiles relevant information from Windows 4769 events, with the goal of verifying compliance with PCI DSS Requirement 3.4.2. This requirement establishes that, when using remote access technologies, technical controls must be implemented to prevent the copying and/or relocation of the PAN (Primary Account Number) by anyone except those with explicit, documented authorization and a legitimate, defined business need.<br/><br/>Event 4769 refers to the issuance of a service grant ticket (TGT) to a user in the context of a Kerberos-based authentication system. This event is key for tracking and verifying remote authentication requests through a domain controller, providing details on authorized or denied access and allowing auditing of whether the remote access requests were made by personnel with valid permissions.<br/><br/>This report allows you to monitor and ensure that the technical controls implemented to prevent the copying and/or relocation of PAN are functioning properly, allowing only users with documented authorization and a legitimate business need to access sensitive data. It also allows you to verify whether remote access is being properly managed, following the remote access policies defined by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-kerberos-service-ticket
+    name: Windows Kerberos Service Ticket
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4769')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-service-ticket-by-encryption-type
+    name: Windows Kerberos Service Ticket by Encryption Type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4769')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

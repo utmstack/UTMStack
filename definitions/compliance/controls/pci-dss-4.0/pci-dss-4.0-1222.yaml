@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1222
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Password Reset Attempts
+scope: data
+statement: This report analyzes successful logon events (Event ID 4624) on Windows systems to evaluate the effectiveness of logical separation in multi-tenant environments according to PCI DSS Requirement A1.1. Authentication logs are reviewed to verify that access to customer and vendor environments is performed only by authorized users and that there is no unauthorized access between customer environments or from the vendor to the customer environments. The results of this report contribute to the validation of security controls, ensuring regulatory compliance and reducing the risk of unauthorized access to shared infrastructures.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

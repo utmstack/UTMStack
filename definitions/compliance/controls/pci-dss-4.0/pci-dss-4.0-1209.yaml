@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1209
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.5 Attempt to Access a Protected Object
+scope: data
+statement: This report aims to assess compliance with PCI DSS Requirement 11.5.2, which establishes the need to implement a change detection mechanism (e.g., file integrity monitoring tools) to alert staff about unauthorized modifications (including changes, additions, and deletions) to critical files. Using Windows event 4656 logs, the report gathers relevant information on access attempts to protected and critical system files, allowing identification of unauthorized modifications. Additionally, it ensures that critical file comparisons are performed at least once a week, as required by the PCI DSS standard, ensuring that any file alterations are detected and reported in a timely manner to prevent potential security risks.
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

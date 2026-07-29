@@ -1,0 +1,21 @@
+id: cmmc-2.0-617
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Local Security Group Member Removal'
+scope: data
+statement: This report collects the logs for Windows log event 4733, which document the removal of a user from a security group on the system. This information is essential to verify compliance with CMMC's Authentication and Access Control Policy Level 2 (AC.2.007), which requires the implementation of role-based access controls (RBAC).<br/><br/>The report includes key details such as the name of the security group from which the user was removed, the identity of the removed user, the account or system that performed the action, and the date and time of the modification. The analysis of these events ensures that actions to remove users from security groups are carried out in a controlled manner, ensuring that access to resources is appropriate and adheres to the principle of least privilege. This minimizes the risk of unauthorized access and ensures that access controls are managed according to the roles defined for each user, complying with CMMC security policies.
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

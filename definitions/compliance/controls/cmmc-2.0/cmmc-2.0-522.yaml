@@ -1,0 +1,21 @@
+id: cmmc-2.0-522
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (SI.1.210): Account Logon Failure'
+scope: data
+statement: Proper monitoring of 4625 events is a key component of CMMC (Cybersecurity Maturity Model Certification) compliance, specifically Level 1 (SI.1.210), which requires the identification and correction of security flaws in a timely manner. Analyzing these events allows you to identify patterns of failed access attempts and detect potential security gaps, such as weak passwords or the use of compromised credentials.<br/><br/>By identifying and logging all failed login attempts, additional security measures can be implemented, such as activating locks after multiple failed attempts or scanning users making failed attempts to detect compromised accounts. These logs also help evaluate the effectiveness of password security policies and other access controls.<br/><br/>In summary, the collection and analysis of event 4625 allows us to detect unauthorized access attempts early and correct security weaknesses that could be exploited by attackers. This monitoring helps meet CMMC's goal of quickly and efficiently identifying and fixing security vulnerabilities, thereby protecting critical infrastructure and sensitive data.
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

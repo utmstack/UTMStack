@@ -1,0 +1,21 @@
+id: cmmc-2.0-1031
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.041): Email access'
+scope: data
+statement: This report collects relevant audit events associated with the use of the SendOnBehalf permission in Office 365. The SendOnBehalf event indicates when a user has sent an email message on behalf of another user, which may involve sensitive activities within the organization.<br/><br/>Analyzing these logs helps verify that logs related to SendOnBehalf activity are maintained appropriately and available for review. This is critical to meeting the security log retention requirements set out in CMMC Level 2, which requires audit logs to be maintained to facilitate the detection of inappropriate activities and ensure the integrity of operations.
+strategy: ANY
+checks:
+  - key: o365-email-access
+    name: O365 Email access
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE ((logx.o365.Operation LIKE '%SendOnBehalf%'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-email-access-by-mailbox-owner
+    name: O365 Email access by Mailbox Owner
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SendOnBehalf')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

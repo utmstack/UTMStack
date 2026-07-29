@@ -1,0 +1,21 @@
+id: cmmc-2.0-495
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Use of Elevated Privileges'
+scope: data
+statement: This report compiles relevant information from events 4673 (A privileged service was called) and 4674 (An attempt was made to perform a privileged operation) in the Windows logs, with the purpose of verifying compliance with CMMC practice AU.4.053 Level 4, which requires advanced logging capabilities for threat detection.<br/><br/>Monitoring these events is crucial to identifying the use of elevated privileges within the system, as they may indicate attempts to exploit vulnerabilities, abuse of privileged accounts, or lateral movements within the network.<br/><br/>The report includes key information such as the user who performed the action, the tool or process executed with elevated privileges, the result of the operation, etc. This analysis allows you to detect suspicious activities, respond to potential security incidents, and strengthen privileged access controls.<br/><br/>By having this visibility, organizations can improve their ability to detect and respond to advanced threats, ensuring effective monitoring of critical events in the IT infrastructure.
+strategy: ANY
+checks:
+  - key: windows-use-of-elevated-privileges
+    name: Windows Use of Elevated Privileges
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-use-of-elevated-privileges-by-outcome
+    name: Windows Use of Elevated Privileges by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

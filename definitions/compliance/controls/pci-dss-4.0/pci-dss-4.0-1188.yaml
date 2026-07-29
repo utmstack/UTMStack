@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1188
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 User Account Attributes Changes
+scope: data
+statement: This report collects relevant information from Windows event 4738 logs, which are generated when a change is made to a user account, such as modifications to identification and authentication credentials. Event 4738 captures actions such as new account creation, privilege escalation, and all user account changes, additions, or deletions. This information is essential for compliance with PCI DSS Requirement 10.2.1.5, which establishes the need to capture all changes related to access credentials. Analyzing these events allows for auditing and detecting potentially unauthorized or malicious actions related to account and privilege management in environments that process cardholder data.
+strategy: ANY
+checks:
+  - key: windows-system-time-settings-changes
+    name: Windows System Time Settings Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-time-settings-changes-by-subject-user
+    name: Windows System Time Settings Changes by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

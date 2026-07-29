@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1163
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 User Accounts Enabled
+scope: data
+statement: This report collects and analyzes 4722 events (User Account Enablement) recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. It verifies that account activation is properly authorized and documented, ensuring that each user has a unique ID before accessing the systems. It also examines that accounts disabled due to inactivity or disassociation are not reactivated without proper justification and approval, and that third-party accounts are managed in a controlled manner. This analysis helps ensure proper account lifecycle management, reinforcing security and access traceability.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

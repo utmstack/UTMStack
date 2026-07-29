@@ -1,0 +1,21 @@
+id: cmmc-2.0-966
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (MP.4.125): Policy changes'
+scope: data
+statement: 'This report collects information from Windows events 4719, which record changes to system audit settings. Its monitoring is essential for compliance with CMMC Level 4 (MP.4.125): Automate DLP processes to secure sensitive information, since modifications to these policies may affect the ability to detect and prevent data loss (DLP).<br/><br/>The analysis of these events allows us to identify unauthorized or suspicious adjustments to security records, ensuring that processes for protecting sensitive information are consistent and automated to minimize risks of exposure.'
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

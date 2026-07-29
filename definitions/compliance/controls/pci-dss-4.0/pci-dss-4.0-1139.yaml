@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1139
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.2 Cleaned Event Log
+scope: data
+statement: This report compiles and analyzes relevant information extracted from Windows Event 1102 logs, used to assess compliance with PCI DSS Requirement 6.2, which addresses security in custom software development. The analysis focuses on how security best practices and standards are implemented throughout the software development lifecycle, including secure authentication, event logging, and code review, with the goal of identifying vulnerabilities and mitigating risks related to common software attacks. It also examines compliance with development staff training criteria, the use of software engineering techniques to prevent vulnerabilities, and the methodologies applied to ensure software complies with the security regulations required by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

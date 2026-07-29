@@ -1,0 +1,21 @@
+id: cmmc-2.0-987
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Unexpected System Reboot
+scope: data
+statement: This report presents the relevant data from the logs of Windows event ID 41, which indicates that the system has rebooted without shutting down cleanly. This type of event is crucial for monitoring system availability, as it can be indicative of unexpected interruptions that affect the operational continuity of the technological infrastructure. The analysis of these events allows us to verify the system's ability to recover from unexpected failures and maintain its proper functioning, fundamental aspects within the principles of Disaster Recovery and Business Continuity Monitoring established by the Cybersecurity Maturity Model Certification (CMMC).
+strategy: ANY
+checks:
+  - key: windows-unexpected-system-reboot
+    name: Windows Unexpected System Reboot
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '41')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-unexpected-system-reboot-by-host
+    name: Windows Unexpected System Reboot by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '41')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

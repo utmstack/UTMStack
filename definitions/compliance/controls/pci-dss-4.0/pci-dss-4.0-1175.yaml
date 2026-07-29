@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1175
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Cleaned Event Log
+scope: data
+statement: This report compiles relevant information from Windows Event 1102 logs, which indicate that the audit log has been deleted. Its analysis is critical to ensuring compliance with PCI DSS requirements 10.2 and 10.2.1, ensuring that audit logs are enabled, active, and protected against unauthorized modification or deletion. It also allows for the detection of anomalous activity and forensic security analysis.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-941
+family: cmmc-2.0
+familyName: CMMC
+name: 'Level 5 (IR.5.102): Threat Detection and Response using SOC AI'
+scope: data
+statement: This report compiles and analyzes relevant information from Threat Intelligence Activity logs to evaluate compliance with CMMC level 5 (IR.5.102), which emphasizes improving incident response through the use of machine learning and advanced analytics. Through data correlation, detection of anomalous patterns, and prediction of emerging threats, this report enables proactive response to security incidents. Additionally, it provides insights into how automated systems identify, classify and mitigate sophisticated threats, ensuring more effective protection against advanced attacks targeting critical infrastructure and sensitive data.
+strategy: ANY
+checks:
+  - key: windows-threat-detection-and-response-using-soc-ai
+    name: Windows Threat Detection and Response using SOC AI
+    indexPattern: v11-soc-ai
+    sql: SELECT count(*) AS c FROM v11-soc-ai
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-threat-detection-and-response-using-soc-ai-by-classification
+    name: Windows Threat Detection and Response using SOC AI by Classification
+    indexPattern: v11-soc-ai
+    sql: SELECT count(*) AS c FROM v11-soc-ai
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

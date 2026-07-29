@@ -1,0 +1,21 @@
+id: banking-audit-866
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Audit Policy Change
+scope: data
+statement: "The Windows Audit Policy Change Report provides a detailed log of modifications to audit policies, such as changes to audit settings, logging configurations, and retention policies. This report is a critical component of the Banking Audit framework, ensuring transparency and control over how audit data is captured and managed.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, demonstrating oversight of audit policy changes to protect the integrity of financial systems and sensitive customer data.<br/>\t•\tCompliance with Monitoring Standards: Supports compliance with PCI DSS Requirement 10, which mandates monitoring and logging of audit policy modifications to detect unauthorized changes.<br/>\t•\tAudit Readiness: Tracks audit policy changes to provide traceability and accountability, meeting the requirements of frameworks like SOC2 Type 2 and ISO 27001.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious audit policy changes, which could indicate attempts to disable monitoring or obscure malicious activity.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and restrict changes to audit settings to prevent data breaches or unauthorized access."
+strategy: ANY
+checks:
+  - key: windows-audit-policy-change
+    name: Windows Audit Policy Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-audit-policy-change-by-outcome
+    name: Windows Audit Policy Change by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-603
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): File Accessed'
+scope: data
+statement: This report collects and presents relevant information about FileAccessed and FileAccessedExtended events in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.3.014. The focus of the report is on controlling the flow of sensitive information (CUI) and protecting access points to sensitive files, ensuring that only authorized users can access critical data.<br/><br/>The report includes key details such as the file accessed, the user who accessed it, the time of the event, among others. This information is crucial for monitoring and auditing access to confidential information, identifying potential risks or unauthorized access, and ensuring that access controls are being correctly applied to protect sensitive data entry points within the organization.
+strategy: ANY
+checks:
+  - key: o365-file-accessed
+    name: O365 File Accessed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-accessed-by-object
+    name: O365 File Accessed by Object
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

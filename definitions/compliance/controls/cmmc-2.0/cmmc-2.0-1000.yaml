@@ -1,0 +1,21 @@
+id: cmmc-2.0-1000
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AU.1.001): File Accessed'
+scope: data
+statement: This report provides a detailed analysis of file access events (FileAccessed) in the O365 environment with the objective of verifying compliance with CMMC Level 1 control AU.1.001, which requires the implementation of audit logs<br/><br/>The report collects key information about file accesses which allows validating that file access events are being correctly recorded providing visibility into user interaction with information stored in the organization<br/><br/>The purpose of this monitoring is to ensure that all file accesses are properly audited, detect unusual accesses that may represent a security risk, and provide evidence for the review and audit of activities in the organization's information repositories<br/><br/>This report serves as an essential tool for CMMC Level 1 compliance by ensuring that the organization maintains a reliable and verifiable record of file accesses in its O365 environment contributing to the protection of information and the detection of suspicious activities.
+strategy: ANY
+checks:
+  - key: o365-file-accessed
+    name: O365 File Accessed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-accessed-by-object
+    name: O365 File Accessed by Object
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

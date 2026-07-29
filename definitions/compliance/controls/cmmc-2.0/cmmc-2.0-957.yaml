@@ -1,0 +1,21 @@
+id: cmmc-2.0-957
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Object Deletion'
+scope: data
+statement: 'This report collects and analyzes the logs for Windows event 4660, which indicates the deletion of an object within the system, such as files, folders, or registry keys. This event is crucial to monitor the manipulation of Controlled Unclassified Information (CUI) and detect possible attempts at unauthorized deletion of sensitive data.<br/><br/>Reviewing these logs allows you to verify compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, ensuring that protected information is protected against improper modifications or deletions. Through this analysis, suspicious activities, unauthorized access and possible attempts to exfiltrate or destroy critical information can be identified, thus strengthening data security and information loss prevention strategies.'
+strategy: ANY
+checks:
+  - key: windows-object-deletion
+    name: Windows Object Deletion
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-object-deletion-by-subject-user
+    name: Windows Object Deletion by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

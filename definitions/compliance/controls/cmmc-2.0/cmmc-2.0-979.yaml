@@ -1,0 +1,21 @@
+id: cmmc-2.0-979
+family: cmmc-2.0
+familyName: CMMC
+name: Linux Activity Monitoring
+scope: data
+statement: This report demonstrates how the SIEM monitors and analyzes activity logs on Linux servers with the objective of monitoring risks associated with third parties, in compliance with CMMC guidelines. The events captured in the systems are presented, allowing the identification of accesses, changes in critical configurations, unusual activities and possible security threats.<br/><br/>Analyzing these logs can detect anomalous behavior, such as unauthorized access attempts, modifications to key files, and suspicious system activity. Likewise, relevant details are included such as the affected host, IP addresses involved, type of logged events, log messages and occurrence times, providing visibility into third-party activity in the Linux environment.<br/><br/>This monitoring is essential to ensure information security and compliance with CMMC controls, ensuring that third parties interacting with the systems are effectively monitored and that any suspicious activity is identified and managed in a timely manner.
+strategy: ANY
+checks:
+  - key: linux-activity
+    name: Linux Activity
+    indexPattern: v11-log-linux-*
+    sql: SELECT count(*) AS c FROM v11-log-linux-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-activity-by-os
+    name: Linux Activity by OS
+    indexPattern: v11-log-linux-*
+    sql: SELECT count(*) AS c FROM v11-log-linux-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

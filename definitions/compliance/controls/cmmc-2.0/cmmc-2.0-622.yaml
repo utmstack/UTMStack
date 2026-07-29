@@ -1,0 +1,21 @@
+id: cmmc-2.0-622
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AU.5.055): Event Logging Service Shut Down'
+scope: data
+statement: This report collects relevant information from the Windows logs, specifically from event 1100 related to the Event Logging Service Shut Down. This event is generated when the Windows Event Logging service stops unexpectedly or on a scheduled basis. Stopping the event log service can have significant implications on the system's ability to audit, as it interrupts the collection of security logs and other important events.<br/><br/>Analysis of this event is crucial to ensure the continuity of audit logs in the system. In the context of the CMMC and compliance with level 5 (AU.5.055), the aim is to improve audit capabilities to detect advanced threats. The interruption of the event log service may be indicative of a technical or security problem, and monitoring it allows you to identify possible gaps in the audit system and react quickly.<br/><br/>This report helps ensure that the event logging service remains operational at all times, ensuring that log collection is not compromised and enabling timely response to security incidents.
+strategy: ANY
+checks:
+  - key: windows-event-logging-service-shut-down
+    name: Windows Event Logging Service Shut Down
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-event-logging-service-shutdowns-count-by-host
+    name: Windows Event Logging Service Shutdowns - Count by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

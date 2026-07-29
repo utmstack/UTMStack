@@ -1,0 +1,21 @@
+id: cmmc-2.0-872
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AC.2.007): Access Roles Assumption'
+scope: data
+statement: This report presents a detailed analysis of CreateRole events in AWS, focused on verifying the implementation of role-based access controls (RBAC) to ensure compliance with CMMC practice AC.2.007. The goal is to ensure that the creation and assignment of roles in the AWS infrastructure is done in a controlled manner and aligned with the principles of minimum access and segregation of duties. The report includes critical information such as the name of the role created, the associated policy, the AWS account involved, and details about the source of the request, allowing you to verify that only the appropriate roles are defined for access to sensitive resources and that They are maintained in accordance with established safety requirements.
+strategy: ANY
+checks:
+  - key: aws-access-roles-assumption
+    name: AWS Access Roles Assumption
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-access-roles-assumption-by-source-ip
+    name: AWS Access Roles Assumption by Source IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

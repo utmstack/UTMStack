@@ -1,0 +1,21 @@
+id: banking-audit-883
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Object Deletion
+scope: data
+statement: "The Windows Object Deletion Report provides a detailed record of deletion events for critical objects, such as files, folders, registry keys, and system components. This report is vital for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, enabling visibility and control over sensitive operations that may impact system integrity and data security.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of deletion activities to safeguard financial systems and sensitive customer data.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious deletion events, which could indicate malicious activity, insider threats, or system misuse.<br/>\t•\tReal-Time Monitoring: Captures deletion activities as they occur, enabling immediate response to unauthorized or risky operations.<br/>\t•\tAudit Readiness: Provides traceability for deletion events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure management of critical objects.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and restrict unauthorized deletion of data or configuration files."
+strategy: ANY
+checks:
+  - key: windows-object-deletion
+    name: Windows Object Deletion
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-object-deletion-by-subject-user
+    name: Windows Object Deletion by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

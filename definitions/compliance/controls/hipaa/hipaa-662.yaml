@@ -1,0 +1,21 @@
+id: hipaa-662
+family: hipaa
+familyName: HIPAA
+name: Windows Policy changes
+scope: data
+statement: This report collects and analyzes security events identified by ID 4719 on Windows systems. Event 4719 records changes to audit policy configurations, indicating modifications to how system activities are monitored and logged. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates the identification and auditing of audit policy modifications, ensuring that systems maintain adequate and continuous monitoring of critical activities, contributing to compliance with security policies and effective control.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

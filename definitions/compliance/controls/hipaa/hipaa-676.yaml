@@ -1,0 +1,21 @@
+id: hipaa-676
+family: hipaa
+familyName: HIPAA
+name: Windows Registry Value Modification
+scope: data
+statement: This report supports compliance with the NIST CSF PR.DS-3 requirement, which requires protective monitoring of data both at rest and in transit. By collecting and analyzing specific events on Windows systems, this report facilitates continuous monitoring of activities related to critical data management. This ensures that any changes to security settings or access to sensitive information are adequately detected, logged, and audited, contributing to the protection of data confidentiality, integrity, and availability within the IT infrastructure.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

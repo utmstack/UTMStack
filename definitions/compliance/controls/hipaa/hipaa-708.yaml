@@ -1,0 +1,21 @@
+id: hipaa-708
+family: hipaa
+familyName: HIPAA
+name: Windows User Accounts Deleted
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity for malicious activity. By analyzing event ID 4726 on Windows systems, this report facilitates monitoring user account deletions, which may indicate unauthorized or malicious activity. Monitoring these types of events helps identify changes in the system infrastructure that could compromise its security, enabling an immediate response to potential incidents and ensuring continuous network protection.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-deleted-over-time
+    name: Windows User Accounts Deleted Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-deleted
+    name: Windows User Accounts Deleted
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

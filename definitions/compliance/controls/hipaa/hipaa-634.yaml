@@ -1,0 +1,21 @@
+id: hipaa-634
+family: hipaa
+familyName: HIPAA
+name: Windows Account Logon Success
+scope: data
+statement: This report consolidates relevant information from successful logon events (Event ID 4624) logged on Windows systems, with the goal of verifying compliance with HIPAA 164.312(a)(1). This requirement mandates the implementation of technical policies to ensure that electronic systems maintaining ePHI (Electronic Protected Health Information) allow access only to authorized individuals. The report provides a detailed analysis of successful authentications, including user accounts, access source, and authentication methods used, to facilitate the identification of potential unauthorized access and reinforce secure access policies.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

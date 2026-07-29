@@ -1,0 +1,21 @@
+id: cmmc-2.0-959
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Protected Object Permission Change'
+scope: data
+statement: 'This report gathers relevant information extracted from the logs of Windows event 4670, which is designed to record changes in the permissions of system objects, such as files or folders. Event 4670 is triggered whenever an object''s access control lists (ACLs) are modified, allowing you to track and audit who has access to what data and what permissions have been granted or removed.<br/><br/>The analysis of these records is crucial to ensure compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, since it allows monitoring and controlling access to Controlled Unclassified Information (CUI), guaranteeing that there are no unauthorized modifications to access permissions that could put the integrity or confidentiality of sensitive data at risk. This report contributes to identifying and mitigating any attempted tampering with the security of the CUI, which reinforces protection measures against data loss or leak during handling and transportation.'
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

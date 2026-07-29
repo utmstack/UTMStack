@@ -1,0 +1,21 @@
+id: banking-audit-861
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Member Addition to a Security Local Group
+scope: data
+statement: "The Windows Member Addition to a Security Local Group Report provides a comprehensive log of events where users or accounts are added to local security groups. This report is vital within the Banking Audit framework to monitor and control group membership changes, ensuring compliance with access management policies and protecting sensitive financial systems.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of group membership changes to safeguard financial data and prevent unauthorized access.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 7, which mandates restricting access to critical systems to authorized personnel through proper group membership management.<br/>\t•\tAudit Readiness: Tracks all member additions to local security groups, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring secure and accountable access management.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious additions to privileged groups, such as the Administrators group, which could indicate potential insider threats or compromised accounts.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and restrict group membership changes that could expose sensitive financial data to unauthorized users."
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-487
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Special privileges assigned to new logon'
+scope: data
+statement: This report collects event 4672 logs from the Windows logs, which document logins by users with elevated privileges, such as those belonging to the Administrators group or with other special permissions. This event is essential to verify compliance with CMMC's Authentication and Access Control Level 2 policy (AC.2.007), which requires the implementation of role-based access controls (RBAC), ensuring that only authorized users have access. to sensitive resources and special privileges. <br/><br/>The report includes details such as the identity of the user logged in with elevated privileges, the source of access (IP address or source machine), and more. The analysis of these events allows us to verify that privileged access is restricted to users with specific and authorized roles, maintaining the principle of least privilege and minimizing the risk of unauthorized access.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

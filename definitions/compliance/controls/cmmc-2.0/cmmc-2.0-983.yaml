@@ -1,0 +1,21 @@
+id: cmmc-2.0-983
+family: cmmc-2.0
+familyName: CMMC
+name: Azure Activity Monitoring
+scope: data
+statement: This report aims to demonstrate third-party risk monitoring in Windows environments within the Azure infrastructure, in compliance with CMMC (Cybersecurity Maturity Model Certification) requirements. The security monitoring system analyzes events generated in Azure, recording administrative activities, accesses and modifications to critical resources. Logs of operations on virtual machines, computing resources, storage and networks are collected and analyzed to detect possible threats and unauthorized access. The main data sources analyzed include Azure Activity Logs, which record administrative activities; Azure Security Center Logs, which contain security events related to access and configurations; and Azure AD Logs, which monitor suspicious authentications and logins.<br/><br/>Key data analyzed include the type of action performed, the user ID and source IP, the affected resource, the status of the operation, and the correlation ID for tracking and auditing. Thanks to the analysis of these logs, risks such as access from suspicious IP addresses, administrative operations outside established hours and changes in virtual machine configurations without authorization have been identified and mitigated.<br/><br/>Active monitoring of activity logs in Azure helps ensure the security of Windows systems, reducing risks associated with third parties and complying with CMMC guidelines for the protection of data and resources in the cloud.
+strategy: ANY
+checks:
+  - key: azure-activity
+    name: Azure Activity
+    indexPattern: v11-log-azure-*
+    sql: SELECT count(*) AS c FROM v11-log-azure-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-activity-by-category
+    name: Azure Activity by Category
+    indexPattern: v11-log-azure-*
+    sql: SELECT count(*) AS c FROM v11-log-azure-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

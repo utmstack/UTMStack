@@ -1,0 +1,21 @@
+id: banking-audit-916
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Local Security Group Member Removal
+scope: data
+statement: "The Windows Local Security Group Member Removal report provides detailed logs of events where a user or object is removed from a local security group on a Windows system. This report is essential for monitoring privilege adjustments, detecting unauthorized modifications, and ensuring compliance with access control policies.<br/>\t•\tRegulatory Compliance: Ensures alignment with frameworks such as PCI DSS, ISO 27001, and SOC2, by documenting all group membership removals to maintain an auditable trail of privilege management activities.<br/>\t•\tPrivilege Management Monitoring: Tracks removals from local security groups to confirm that privilege reductions align with organizational policies and prevent unintended loss of access.<br/>\t•\tEvent Correlation: Links group membership removal events with related administrative actions, user accounts, and originating systems to build a comprehensive security audit trail.<br/>\t•\tReal-Time Alerts: Sends notifications when members are removed from critical groups, such as Administrators or Remote Desktop Users, enabling timely response to unauthorized actions or configuration changes.<br/>\t•\tIncident Detection: Identifies unexpected or unauthorized removals from security groups, which may indicate insider threats, administrative errors, or malicious activities.<br/>\t•\tAudit Readiness: Logs detailed information for each event, including the name of the group, the removed member, the user or process performing the action, and the timestamp, ensuring robust records for audits and investigations."
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

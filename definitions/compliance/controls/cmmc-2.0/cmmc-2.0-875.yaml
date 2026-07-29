@@ -1,0 +1,21 @@
+id: cmmc-2.0-875
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 1 (AU.1.001): Access Roles Assumption'
+scope: data
+statement: This report compiles and presents relevant information about CreateRole events in AWS, with the objective of verifying compliance with CMMC practice AU.1.001. It focuses on ensuring that role creation in AWS is properly audited, ensuring that changes to role configurations are effectively logged. The report includes key details about the roles created, such as the role name, the account involved, and the source of the request. This information is crucial to verify that actions related to role management in the system are correctly monitored, ensuring that access to sensitive resources is managed and documented in accordance with security policies. This allows any unauthorized activity or unapproved changes to be detected, helping to maintain the security and integrity of the system.
+strategy: ANY
+checks:
+  - key: aws-role-creation
+    name: AWS Role creation
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'CreateRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-role-creation-by-role
+    name: AWS Role creation by Role
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'CreateRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

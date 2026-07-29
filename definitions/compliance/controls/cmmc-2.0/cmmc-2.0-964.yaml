@@ -1,0 +1,21 @@
+id: cmmc-2.0-964
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Handle Closure in Security System'
+scope: data
+statement: This report gathers relevant information from security events logged with ID 4658 in Windows, which indicate that an object handler has been closed on the system. These events are essential for tracking access and manipulation of sensitive resources, such as files, registry keys, and other system objects.<br/><br/>In the context of CMMC Level 3 compliance (MP.3.123), monitoring these events is key to protecting controlled unclassified information (CUI) during its transport and preventing data loss. Auditing these closures allows us to verify whether the data has been handled securely, detect possible unauthorized access and ensure that critical information has not been compromised.<br/><br/>The analysis of these events allows organizations to strengthen their security controls, guarantee the integrity of protected data and detect possible vulnerabilities in the access and manipulation of critical information.
+strategy: ANY
+checks:
+  - key: windows-handle-closure-in-security-system
+    name: Windows Handle Closure in Security System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4658')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-handle-closure-in-security-system-by-user
+    name: Windows Handle Closure in Security System by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4658')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

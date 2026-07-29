@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1182
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Protected Object Permission Change
+scope: data
+statement: This report aggregates relevant information from Windows Event 4670 logs, which are generated when permissions are changed on a protected object on the system, such as files, folders, or other resources with specific security settings. The purpose of this report is to track and document changes to access permissions on sensitive objects, contributing to access control policy compliance and the protection of critical data in the environment. This information is essential for detecting and preventing unauthorized access to important resources, aligning with security best practices on Windows systems.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-525
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): User Accounts Created'
+scope: data
+statement: This report gathers relevant information on events related to the creation of new user accounts on the system, specifically event 4720, which is generated when a user account is created in a Windows domain. The event provides details about the account created, including the username, creation time, and origin of the request.<br/><br/>The analysis of these events is crucial for compliance with Level 2 (SI.2.212) of the CMMC (Cybersecurity Maturity Model Certification), which establishes the need to implement mechanisms for real-time monitoring of security events. Creating new user accounts can be a critical security action as it could indicate an unauthorized access attempt or modification of system credentials.<br/><br/>Monitoring these events allows you to quickly detect unauthorized account creation, facilitating a proactive response to potential security threats. This report helps ensure that all actions related to user creation are audited and available for review in real time, improving the organization's ability to detect and respond to potential security incidents in a timely manner.<br/><br/>By constantly tracking account creation events, you ensure that the organization is aligned with security policies and best practices for identity and access management, strengthening the overall security posture.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

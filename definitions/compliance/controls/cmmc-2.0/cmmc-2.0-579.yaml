@@ -1,0 +1,21 @@
+id: cmmc-2.0-579
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Member Addition to a Security Local Group'
+scope: data
+statement: This report collects the Windows log event 4732 logs, which document the addition of a user to a security group on the system. This information is crucial to verify compliance with the CMMC's Authentication and Access Control policy Level 2 (AC.2.007), which establishes the implementation of role-based access controls (RBAC). <br/><br/>The report includes key details such as the name of the security group to which the user was added, the identity of the added user, the account or system that performed the action, among others. The analysis of these events allows us to verify that users are assigned to security groups according to their role and need for access to specific resources. This ensures that access is adequate and that the risk of unauthorized access is minimized, complying with established security policies and facilitating the correct implementation of the RBAC model.
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

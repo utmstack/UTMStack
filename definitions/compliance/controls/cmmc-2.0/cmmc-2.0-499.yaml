@@ -1,0 +1,21 @@
+id: cmmc-2.0-499
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AU.5.055): Restoration of default security policies'
+scope: data
+statement: This report focuses on the collection and analysis of event 4907 in the Windows logs, which is related to changes in system security audit policies. This event is generated when an audit policy is modified, which may indicate a possible alteration in security configurations or an attempt to disable auditing of important events.<br/><br/>Monitoring events like 4907 is critical for CMMC (Cybersecurity Maturity Model Certification) compliance, especially at Level 5 (AU.5.055), which requires improving auditing capabilities to detect advanced threats. Altering audit policies can be an indication of malicious activity, such as manipulating audit logs to conceal unauthorized access, a technique commonly used in advanced attacks.<br/><br/>Detecting changes to auditing configurations helps prevent log collection from being disabled or circumvented, which is essential for constant vigilance against advanced threats. This event is also part of best practices for intrusion detection and protecting the IT environment from potential malicious actors attempting to modify audit settings to hide their activity.<br/><br/>Collecting and analyzing 4907 events can strengthen incident response capabilities, ensure the integrity of audit logs, and improve the ability to detect sophisticated attacks.
+strategy: ANY
+checks:
+  - key: windows-restoration-of-default-security-policies
+    name: Windows Restoration of default security policies
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-restoration-of-default-security-policies-by-outcome
+    name: Windows Restoration of default security policies by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

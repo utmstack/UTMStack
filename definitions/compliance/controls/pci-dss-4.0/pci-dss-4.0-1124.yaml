@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1124
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 4.1 Policy changes
+scope: data
+statement: This report compiles relevant information from 4719 events (System Audit Configuration Changed) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 4.1. This requirement establishes that processes and mechanisms for protecting cardholder data using strong cryptography during transmission over open, public networks must be defined and understood.<br/><br/>Event 4719 allows for auditing changes to system audit configurations, which is critical to ensuring oversight of data protection-related activities during transmission. Changing these parameters could impact the ability to detect unauthorized access, changes to security certificates, cryptographic protocol failures, or attempts to disable critical event monitoring.<br/><br/>Analysis of these events provides visibility into potential system audit changes, allowing verification that security policies and procedures are documented, up-to-date, and operational, in accordance with the controls established in PCI DSS for the secure transmission of cardholder data.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1133
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 5.3 Changes to Defender settings
+scope: data
+statement: This report collects and analyzes Windows 5007 events, which indicate changes to Windows Defender security policy settings. Since PCI DSS Requirement 5.3 establishes the need for anti-malware mechanisms and processes to be active, maintained, and monitored, this report helps identify unauthorized or unexpected changes to the security solution's configuration.<br/><br/>Monitoring these events helps ensure the integrity and effectiveness of anti-malware measures, ensuring that critical settings are not altered inappropriately and that malware protection remains operational at all times.
+strategy: ANY
+checks:
+  - key: windows-changes-to-defender-settings
+    name: Windows Changes to Defender settings
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-changes-to-defender-settings-by-host
+    name: Windows Changes to Defender settings by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

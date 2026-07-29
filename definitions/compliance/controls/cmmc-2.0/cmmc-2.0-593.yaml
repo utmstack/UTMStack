@@ -1,0 +1,21 @@
+id: cmmc-2.0-593
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Cleaned Event Log'
+scope: data
+statement: This report collects the Windows log event 1102 logs, which document the clearing of system security event logs. Event 1102 is generated when security event logs are cleared, providing key information about actions taken on the system to ensure the integrity and retention of audit logs. This information is crucial to verify compliance with CMMC's Level 1 (AU.1.001) Auditing and Monitoring policy, which requires audit logs to be made and ensure that they are properly managed to protect the integrity of the information.<br/><br/>The report includes key details such as the date and time the event occurred, and the name of the computer on which the action was executed, information about the reasons behind the deletion (if available), and any related actions or previous events that led to the deletion of the records. These types of events should be monitored closely, as deletion of security event logs could indicate attempts to conceal unauthorized or malicious activity.<br/><br/>Analysis of these events ensures that security audit logs are not deleted without adequate justification, protecting the integrity of the logs and ensuring that security controls are aligned with CMMC Level 1 audit requirements. This report contributes to the identification of possible attempts to manipulate records and facilitates proper management of security events within the organization's environment.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-847
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Protected Object Permission Change
+scope: data
+statement: The Windows Protected Object Permission Change Report provides a comprehensive overview of permission changes to critical system objects such as files, folders, registry keys, and other sensitive resources. This report is essential for compliance within the Banking Audit framework, ensuring the integrity of access control mechanisms and safeguarding sensitive financial systems.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

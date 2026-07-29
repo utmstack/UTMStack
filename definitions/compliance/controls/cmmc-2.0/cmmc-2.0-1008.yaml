@@ -1,0 +1,21 @@
+id: cmmc-2.0-1008
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (SI.2.212): Sharing Set'
+scope: data
+statement: This report gathers relevant information from the SharingSet event logs in Office 365, with the purpose of verifying compliance with CMMC Level 2 (SI.2.212), which requires the implementation of mechanisms for real-time monitoring of security events.<br/><br/>The SharingSet event is generated when a file or folder is shared with other users inside or outside the organization. Monitoring these actions is essential to detect misuse configurations, accidental sharing of sensitive information, or malicious attempts at data exfiltration.<br/><br/>This report provides key details that allow identifying behavior patterns and detecting any anomalies in the management of permissions and access to critical information.<br/><br/>The collection and analysis of these events in real time contribute to strengthening security controls, facilitating rapid response to possible incidents and minimizing the risk of sensitive data exposure.
+strategy: ANY
+checks:
+  - key: o365-sharing-set
+    name: O365 Sharing Set
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-sharing-set-by-geo-location
+    name: O365 Sharing Set By Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

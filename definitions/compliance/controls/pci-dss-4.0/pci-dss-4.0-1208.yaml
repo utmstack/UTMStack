@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1208
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.5 Access to critical files or specific directories
+scope: data
+statement: This report assesses compliance with PCI DSS Requirement 11.5.2, which requires a change detection mechanism (e.g., file integrity monitoring tools) to alert staff of unauthorized modifications (including changes, additions, and deletions) to critical files. Using Windows Event 4663 logs, the report compiles information on access and actions performed on critical files, providing evidence of modification and access activity. This analysis ensures that the change detection mechanism is properly configured to perform comparisons of critical files at least once a week and alerts staff of any unauthorized actions, thereby contributing to the protection and integrity of key files for PCI DSS compliance.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

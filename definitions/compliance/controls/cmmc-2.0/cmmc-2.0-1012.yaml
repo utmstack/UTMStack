@@ -1,0 +1,21 @@
+id: cmmc-2.0-1012
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): Account Logon Success'
+scope: data
+statement: This report presents relevant information extracted from Office 365 UserLoggedIn event logs, designed to assist in compliance with CMMC Level 2 (AU.2.043) control. The control establishes the need to review logs and correlate events to detect inappropriate activities that may compromise the security of the organization.<br/><br/>UserLoggedIn event logs contain essential data about user login attempts to Office 365 systems, allowing you to detect unauthorized access, unusual patterns of behavior, and potential malicious access attempts. This report facilitates the identification of security incidents by analyzing access data in real time and correlating it with other relevant security events.<br/><br/>This report provides a solid foundation for security audits and incident response, ensuring that access events are reviewed and correlated to quickly detect and respond to potential threats that may affect the integrity of systems and data in Office 365.
+strategy: ANY
+checks:
+  - key: o365-ad-successful-login-location
+    name: O365 AD Successful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-successful-login-by-user
+    name: O365 AD Successful Login by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

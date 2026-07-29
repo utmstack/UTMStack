@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1157
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.2 Group Membership Enumerated
+scope: data
+statement: This report compiles relevant information from Windows 4798 events, which record queries and access to specific system objects, such as changes to user groups and assigned permissions. The purpose of this report is to verify compliance with PCI DSS Requirement 7.2, which establishes that access to system components and data must be appropriately defined and assigned. Through 4798 events, the correct assignment of privileges can be tracked and audited, ensuring that access to systems and data is consistent with business needs and the principle of least privilege, and that permissions are granted only to those users whose role warrants it.
+strategy: ANY
+checks:
+  - key: windows-group-membership-enumerated
+    name: Windows Group Membership Enumerated
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-group-membership-enumerated-by-target-user
+    name: Windows Group Membership Enumerated by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

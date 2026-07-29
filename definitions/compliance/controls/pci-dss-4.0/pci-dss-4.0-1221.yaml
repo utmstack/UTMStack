@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1221
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.10 Logins with explicit credentials
+scope: data
+statement: This report compiles relevant information from Windows 4648 events, which record login attempts with explicit credentials, which is crucial for the early detection of potential security incidents. The report validates compliance with PCI DSS 12.10, which states that suspected or confirmed security incidents that may affect the Card Data Environment (CDE) must be responded to immediately.<br/><br/>4648 events provide evidence of access and actions that could be related to security incidents, facilitating rapid detection and response. The report also verifies that the incident response plan is up-to-date, tested, and ready to be activated when necessary. It also confirms that specific people have been designated to respond to security incidents 24/7 and that the personnel responsible for these incidents have been regularly trained. The report includes monitoring and response strategies for security systems, such as intrusion detection systems, network security controls, and mechanisms for detecting changes to critical files.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

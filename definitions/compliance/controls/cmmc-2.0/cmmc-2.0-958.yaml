@@ -1,0 +1,21 @@
+id: cmmc-2.0-958
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Access to critical files or specific directories'
+scope: data
+statement: 'This report collects and analyzes the logs of Windows event 4663, which captures information about accesses and modifications to objects within the system, such as files or directories. Event 4663 is essential for tracking activities related to data access and manipulation, especially when it involves Controlled Unclassified Information (CUI).<br/><br/>The analysis of these logs is essential to verify compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, since it allows identifying unauthorized access or attempts to transfer sensitive data, ensuring that the CUI is not compromised during its handling or transport. This report allows you to monitor and mitigate risks of data leakage or loss, strengthening the protection of critical information against unauthorized access and manipulation.'
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

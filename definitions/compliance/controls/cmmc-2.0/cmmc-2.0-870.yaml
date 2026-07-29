@@ -1,0 +1,21 @@
+id: cmmc-2.0-870
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 1 (AC.1.001): Console Login'
+scope: data
+statement: This report presents detailed logs of access attempts to the AWS console, focused on verifying that only authorized users have access to the system. Login activity is analyzed using the ConsoleLogin event to ensure that access is limited to authenticated and authorized users, in accordance with CMMC practice AC.1.001, which establishes the need to restrict access to systems to only authorized users. The report includes key information such as authentication status (with/without MFA), source IP address, and login username, to monitor and prevent unauthorized access.
+strategy: ANY
+checks:
+  - key: aws-console-login
+    name: AWS Console Login
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-console-login-by-ip
+    name: AWS Console Login by IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

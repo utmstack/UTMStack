@@ -1,0 +1,21 @@
+id: cmmc-2.0-614
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): PutObject Logs'
+scope: data
+statement: This report collects and analyzes key information about PutObject events in AWS, for the purpose of verifying compliance with CMMC practice AU.2.042. Its goal is to ensure that the creation and modification of objects in Amazon S3 are recorded and monitored for the detection and analysis of security events.<br/><br/>The report includes details such as the account involved, the destination bucket, the source IP address, and the source of the request. This information is essential to audit access and modifications to sensitive data, detect possible unauthorized activities, and ensure proper log collection and analysis in the AWS environment.
+strategy: ANY
+checks:
+  - key: aws-putobject-logs
+    name: AWS PutObject Logs
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'PutObject')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-putobject-logs-by-source-ip
+    name: AWS PutObject Logs by Source IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'PutObject')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

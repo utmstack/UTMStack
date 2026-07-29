@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1190
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Unlocked Account
+scope: data
+statement: This report consolidates key information from Windows Event 4767 logs, which is generated when a user account is unlocked. This event is relevant for compliance with PCI DSS Requirement 10.2.1.5, which requires the capture of all changes to identification and authentication credentials.<br/><br/>Account unlocking is an indicator of potential unauthorized access attempts or compromised credential management. Analyzing these events allows for the detection of anomalous patterns, such as brute-force attacks or unauthorized access attempts, contributing to the security and traceability of the cardholder data environment.
+strategy: ANY
+checks:
+  - key: windows-unlocked-account-by-subject-user
+    name: Windows Unlocked Account by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4767')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-unlocked-account
+    name: Windows Unlocked Account
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4767')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

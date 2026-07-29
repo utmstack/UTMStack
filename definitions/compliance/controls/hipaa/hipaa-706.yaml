@@ -1,0 +1,21 @@
+id: hipaa-706
+family: hipaa
+familyName: HIPAA
+name: Windows Service Installed
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity to detect malicious activity. By analyzing event ID 4697 on Windows systems, this report facilitates monitoring the installation of new services on the system, which may indicate unauthorized changes or the execution of malicious activity. This continuous monitoring allows for rapid detection and response to potential threats, helping to protect the network infrastructure and ensuring that security policies remain effective.
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

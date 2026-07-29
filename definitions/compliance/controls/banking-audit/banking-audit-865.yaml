@@ -1,0 +1,21 @@
+id: banking-audit-865
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Access to critical files or specific directories
+scope: data
+statement: "The Windows Access to Critical Files or Specific Directories Report provides a detailed record of attempts—both successful and unsuccessful—to access sensitive files and directories. This report is essential for compliance within the Banking Audit framework, as it ensures visibility into access attempts and protects critical financial data from unauthorized access.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of file and directory access to protect sensitive financial information.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 10, which mandates monitoring and logging of all access to critical resources to detect unauthorized activities.<br/>\t•\tAudit Readiness: Tracks access to files and directories, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring secure access management.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious access attempts, such as attempts to copy, delete, or modify critical data, which could indicate insider threats or compromised accounts.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, demonstrating controls to monitor and restrict access to sensitive financial data, protecting it from unauthorized processing."
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

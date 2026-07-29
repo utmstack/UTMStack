@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1166
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 Logins with explicit credentials
+scope: data
+statement: This report collects and analyzes 4648 events (Use of Explicit Credentials) recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. Credential usage is verified to ensure each user has a unique ID before accessing system components or cardholder data. The use of shared accounts, proper management of account additions, deletions, and modifications, and the attribution of actions to individual users are also monitored, ensuring strict account lifecycle management and compliance with authentication controls.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

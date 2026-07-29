@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1149
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.2 User Accounts Created
+scope: data
+statement: This report collects and analyzes Windows 4720 events, which record the creation of new user accounts. Its purpose is to assess compliance with PCI DSS Requirement 7.2, ensuring that access to system components and data is appropriately defined and assigned. Monitoring these events helps identify the creation of unauthorized accounts, verify the assignment of privileges based on job functions, and ensure the principle of least privilege in access management.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

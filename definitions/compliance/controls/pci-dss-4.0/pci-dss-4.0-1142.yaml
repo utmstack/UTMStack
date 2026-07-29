@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1142
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.3 Audit File integrity Validation Failed
+scope: data
+statement: This report collects and analyzes relevant information from the logs of Windows event 5038, which indicates that the system integrity policy configuration has been compromised. Its purpose is to assess compliance with PCI DSS Requirement 6.3, ensuring that security vulnerabilities are effectively identified and addressed. Analysis of these events allows for the detection of potential alterations to system integrity, which could indicate the presence of threats or unauthorized configurations that increase the risk of vulnerability exploitation. It also reviews whether response and mitigation measures, such as the application of security patches and vulnerability management in custom and third-party software, meet the timelines and criteria established by PCI DSS. This approach contributes to the protection of system components against known vulnerabilities, reducing the impact of potential attacks and ensuring environmental security.
+strategy: ANY
+checks:
+  - key: windows-audit-file-integrity-validation-failed
+    name: Windows Audit File Integrity Validation Failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5038')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-audit-file-integrity-validation-failed-by-host-over-time
+    name: Windows Audit File Integrity Validation Failed by Host Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5038')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

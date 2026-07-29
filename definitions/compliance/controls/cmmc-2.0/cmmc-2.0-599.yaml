@@ -1,0 +1,21 @@
+id: cmmc-2.0-599
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AC.1.001): Account Logon Success'
+scope: data
+statement: This report compiles and presents relevant information about UserLoggedIn events in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.1.001. Its purpose is to ensure that access to systems is limited to authorized users only, allowing logins to be monitored and audited on the platform.<br/><br/>The report includes details such as the user's identity, source IP address, geographic location, and the number of accesses they have had. This information is essential to detect unauthorized access, evaluate authentication patterns, and reinforce security controls to protect organizational data and resources.
+strategy: ANY
+checks:
+  - key: o365-ad-successful-login-location
+    name: O365 AD Successful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-successful-login-by-user
+    name: O365 AD Successful Login by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

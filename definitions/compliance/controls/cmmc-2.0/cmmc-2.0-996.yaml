@@ -1,0 +1,21 @@
+id: cmmc-2.0-996
+family: cmmc-2.0
+familyName: CMMC
+name: Windows System Boots and Shutdowns
+scope: data
+statement: his report compiles the records of Windows log events 18, 19, and 20, which correspond to system startup and shutdown activities. The information extracted from these events is used to verify compliance with the Disaster Recovery and Business Continuity Monitoring requirements of the CMMC framework. These events are critical in ensuring that the system initiates and shuts down in a controlled and reliable manner, in accordance with organizational policies for system availability and recovery.<br/><br/>The report includes details of system startup and shutdown times, as well as any anomalies or failures that may indicate potential issues with system availability. By analyzing these events, the report helps validate the effectiveness of disaster recovery procedures and business continuity plans, ensuring that the system can be restored promptly in case of a failure or disruption.
+strategy: ANY
+checks:
+  - key: windows-system-boots-and-shutdowns
+    name: Windows System Boots and Shutdowns
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('18', '19', '20'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-boots-and-shutdowns-by-event
+    name: Windows System Boots and Shutdowns by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('18', '19', '20'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

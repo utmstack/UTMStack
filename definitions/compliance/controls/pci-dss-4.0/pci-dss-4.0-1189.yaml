@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1189
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Account Locks
+scope: data
+statement: This report compiles relevant information from Windows Event 4740 logs, which is generated when a user account is locked out due to failed authentication attempts. This event is key for monitoring changes to identification and authentication credentials, as it may indicate unauthorized access attempts or suspicious activity related to account management.<br/><br/>The report contributes to compliance with PCI DSS Requirement 10.2.1.5, which requires the capture of events related to account and credential changes, including account lockouts that may lead to privilege escalation attempts or improper access. Its analysis strengthens security in environments that process cardholder data and facilitates the detection and response to security incidents.
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-717
+family: hipaa
+familyName: HIPAA
+name: Windows Account Authentication Using NTLM
+scope: data
+statement: This report contributes to compliance with the NIST CSF DE.CM-1 requirement, which requires continuous monitoring of network activities to detect potential malicious activity. By analyzing event ID 4776 on Windows systems, the report enables monitoring of authentication attempts, specifically those involving credential validation on networks and systems. Monitoring these events helps identify unusual access patterns or unauthorized authentication attempts that could be indicative of an attack, such as an unauthorized access attempt or a brute-force attack. This continuous monitoring is essential for detecting potential threats and maintaining the security of the IT infrastructure.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

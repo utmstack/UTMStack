@@ -1,0 +1,21 @@
+id: cmmc-2.0-519
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AU.3.045): Access to critical files or specific directories'
+scope: data
+statement: This report collects the Windows log event 4663 logs, which document attempts to access system security objects, such as protected files or folders. Event 4663 is generated when a user or process performs an operation (such as read, write, or delete) on a security object, providing details about the action performed, the type of access requested, and the result of the operation. This information is crucial to verify compliance with CMMC's Level 3 Auditing and Monitoring policy (AU.3.045), which requires correlating audit logs to support the analysis of security events and ensure that access to critical resources is monitored. and analyzed effectively.<br/>The report includes key details such as the name of the file or folder that was attempted to be accessed, the identity of the user or process that made the attempt, and the date and time of the attempt. <br/>Analysis of these events allows us to correlate audit logs and ensure that all access attempts to sensitive objects are properly monitored, ensuring that access controls are working correctly and that access is appropriate to the privileges of the user or process. This report facilitates the detection of relevant security events and provides information necessary for a comprehensive analysis, supporting compliance with CMMC Level 3 requirements for event correlation and protection of sensitive information.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

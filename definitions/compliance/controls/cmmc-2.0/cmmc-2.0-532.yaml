@@ -1,0 +1,21 @@
+id: cmmc-2.0-532
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Restoration of default security policies'
+scope: data
+statement: This report collects relevant information from event 4907 in the Windows logs, which is generated when auditing is disabled on the system. Disabling auditing is a critical action that can be used by attackers to hide malicious activities by disabling system event logs. This activity, although it may be legitimate in some cases, represents a significant risk when performed without adequate justification, as it prevents the collection of important information about actions taken on the system.<br/><br/>In the context of CMMC Level 3 (SI.3.217), monitoring this event is essential to detect potential attacks that may be manipulating system configuration to bypass auditing and surveillance measures. Disabling auditing could be an indication that an attacker is trying to avoid detection of their actions or movements within the infrastructure.<br/><br/>Analysis of this event helps identify unauthorized changes to the audit configuration, which could be a sign of a security compromise. Monitoring these events can detect attempts to conceal malicious activity and ensure that auditing systems continue to function properly to provide complete logs to help identify threats.<br/><br/>Compliance with CMMC Level 3 (SI.3.217) requirements is supported by active monitoring of these events, as it ensures that security monitoring and auditing mechanisms are functioning properly, and that any tampering or disabling attempts audit is detected immediately.
+strategy: ANY
+checks:
+  - key: windows-restoration-of-default-security-policies
+    name: Windows Restoration of default security policies
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-restoration-of-default-security-policies-by-outcome
+    name: Windows Restoration of default security policies by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

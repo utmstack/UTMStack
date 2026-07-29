@@ -1,0 +1,21 @@
+id: hipaa-660
+family: hipaa
+familyName: HIPAA
+name: Windows Event Log Service
+scope: data
+statement: This report collects and analyzes security events identified by IDs 6005 and 6006 on Windows systems. Event 6005 records the start of the event log service, while event 6006 records its stop, both providing relevant information on the status of system log collection. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates validation that the system is configured to properly log relevant events, contributing to adequate security governance and the implementation of effective monitoring policies for critical system activities.
+strategy: ANY
+checks:
+  - key: windows-event-log-service
+    name: Windows Event Log Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: event-log-service-count-by-event
+    name: Event Log Service Count by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

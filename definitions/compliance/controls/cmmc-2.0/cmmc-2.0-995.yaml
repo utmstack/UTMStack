@@ -1,0 +1,21 @@
+id: cmmc-2.0-995
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Possible Disk Errors
+scope: data
+statement: This report compiles and presents key information from the Windows Event 15 logs, which reflects the reorganization of system registry hives, a process related to disk space management. Data from these events is crucial for identifying potential performance issues or hard drive failures that could impact system stability. This information is essential to monitor and ensure disaster recovery and business continuity, meeting CMMC requirements. Analysis of these events allows you to detect storage-related anomalies and prevent interruptions in critical system services.
+strategy: ANY
+checks:
+  - key: windows-possible-disk-errors
+    name: Windows Possible Disk Errors
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '15')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-possible-disk-errors-by-level
+    name: Windows Possible Disk Errors by Level
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '15')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

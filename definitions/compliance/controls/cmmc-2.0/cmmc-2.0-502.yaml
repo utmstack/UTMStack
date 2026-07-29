@@ -1,0 +1,21 @@
+id: cmmc-2.0-502
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): User Password Reset Attempt'
+scope: data
+statement: This report gathers relevant information on events related to changing user account passwords in the system, specifically event 4723, which is generated when a user attempts to change their own password, whether successfully or not. This event is crucial to detect possible unauthorized access attempts or tampering with account credentials, especially when password change attempts are made by unauthorized users or under suspicious circumstances.<br/><br/>Monitoring this event is essential to comply with Level 2 (SI.2.212) of the CMMC (Cybersecurity Maturity Model Certification), which establishes the need to implement mechanisms for real-time monitoring of security events. Detecting password change attempts helps identify malicious user activity attempting to bypass access controls or perform compromising actions on specific accounts.<br/><br/>This report helps ensure that any password modification attempts are audited, providing real-time visibility into activities related to account credentials. This not only improves the organization's ability to detect and respond to security incidents, but also contributes to the implementation of strong password management policies.<br/><br/>By monitoring these types of events, the organization can identify potential vulnerabilities related to password tampering and prevent unauthorized access to its systems. In this way, a more solid security posture is ensured, aligned with best practices in cybersecurity.
+strategy: ANY
+checks:
+  - key: windows-user-password-reset-attempt
+    name: Windows User Password Reset Attempt
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4723')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-password-reset-attempt-by-outcome
+    name: Windows User Password Reset Attempt by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4723')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

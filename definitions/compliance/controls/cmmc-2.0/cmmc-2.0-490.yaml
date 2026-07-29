@@ -1,0 +1,21 @@
+id: cmmc-2.0-490
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Logins with explicit credentials'
+scope: data
+statement: This report collects the logs for event 4648 from the Windows logs, which document the login attempt using explicit credentials (that is, when a user or process logs in using a username and password directly, rather than (automatic login or through a network login service). Event 4648 is generated when a username and password are presented to authenticate a session, providing key information about system access. This information is crucial to verify compliance with CMMC's Level 1 (AU.1.001) Audit and Monitoring policy, which requires audit logs to ensure security and monitoring of system activities.<br/><br/>The report includes key details such as the identity of the user who attempted to log in, the date and time of the attempt. Additionally, information is provided about the action taken (whether the login was successful or unsuccessful), and details about the credentials used in the attempt, allowing access to sensitive systems to be tracked.<br/>The analysis of these events ensures that system access attempts are adequately audited, allowing unauthorized access to be detected and suspicious behavior to be monitored. This report is essential to ensure that an adequate record of system access is maintained, supporting the identification of malicious or unauthorized activities and complying with CMMC Level 1 auditing and monitoring requirements.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

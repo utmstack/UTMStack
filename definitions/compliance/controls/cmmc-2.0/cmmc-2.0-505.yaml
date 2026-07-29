@@ -1,0 +1,21 @@
+id: cmmc-2.0-505
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): Protected Object Access Operation'
+scope: data
+statement: This report focuses on the collection and analysis of relevant information from event 4662 in the Windows logs, with the objective of supporting compliance with CMMC Level 2 control SI.2.212. Control SI.2.212 requires the implementation of mechanisms for the Real-time monitoring of security events, which is critical to quickly identifying and responding to cyber threats.<br/><br/>Event 4662 is triggered when an attempt is made to access or modify a security object on the system, such as a file, folder, or registry key, that is under protection by an access control system. This event provides details about the operations performed, such as reading, writing, or deleting objects, and who attempted them. Details include the session identifier, the type of access requested, the object affected, and the identity of the user or process that performed the operation.<br/><br/>The analysis of this event in real time allows monitoring access to critical resources within the system, detecting unusual or potentially malicious behavior, and generating alerts regarding possible security violations. This helps identify unauthorized data manipulation attempts, which is crucial to meet CMMC's continuous security monitoring requirements.<br/><br/>In summary, event 4662 plays a key role in improving security auditing and monitoring capabilities, enabling the detection of potential security incidents related to access to sensitive objects, and directly contributes to compliance with CMMC Level controls. 2 (SI.2.212).
+strategy: ANY
+checks:
+  - key: windows-protected-object-access-operation
+    name: Windows Protected Object Access Operation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-protected-object-access-operation-by-object
+    name: Windows Protected Object Access Operation by Object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

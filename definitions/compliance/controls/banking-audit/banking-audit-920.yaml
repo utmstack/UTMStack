@@ -1,0 +1,21 @@
+id: banking-audit-920
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Process Creation
+scope: data
+statement: "The Windows Process Creation report provides detailed logs of events where new processes are created on a Windows system. This report is essential for monitoring system activities, detecting malicious behavior, and ensuring compliance with security frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks such as PCI DSS, ISO 27001, and SOC2, by logging process creation events to provide an auditable trail of system activities.<br/>\t•\tSystem Activity Monitoring: Tracks the creation of processes, ensuring that only legitimate applications and scripts are executed within the environment.<br/>\t•\tEvent Correlation: Links process creation events with user accounts, parent processes, command-line arguments, and originating systems to build a comprehensive security audit trail.<br/>\t•\tReal-Time Alerts: Generates notifications for the creation of suspicious or unauthorized processes, allowing for rapid investigation and mitigation of potential threats.<br/>\t•\tIncident Detection: Identifies anomalies, such as the execution of processes from unusual locations, processes spawned by suspicious parents, or unexpected command-line arguments, which may indicate malware or privilege abuse.<br/>\t•\tAudit Readiness: Logs detailed information for each process creation, including the process name, parent process, user or account responsible, command-line arguments, and timestamp, ensuring robust records for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-678
+family: hipaa
+familyName: HIPAA
+name: Windows Access to critical files or specific directories
+scope: data
+statement: This report collects and analyzes security events identified by ID 4663 on Windows systems. Event 4663 records access attempts to protected objects. These events are essential for verifying compliance with the NIST CSF PR.DS-3 requirement, which mandates the protective monitoring of data at rest and in transit. This report facilitates the identification and auditing of access to critical data, ensuring that any attempt to access sensitive data is appropriately monitored, logged, and reviewed to protect the confidentiality, integrity, and availability of the information.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

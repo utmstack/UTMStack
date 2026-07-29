@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1121
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.4 Account Authentication Using NTLM
+scope: data
+statement: This report compiles relevant information from Windows 4776 events to verify compliance with PCI DSS Requirement 3.4.2. This requirement establishes that, when using remote access technologies, technical controls must be implemented to prevent the copying and/or relocation of the PAN (Primary Account Number) by anyone except those with explicit, documented authorization and a defined, legitimate business need.<br/><br/>Event 4776 provides information on user authentication attempts, specifically related to the use of credentials to log in remotely. This event is useful for tracking remote access and ensuring that technical controls are operating properly to prevent unauthorized access and manipulation of the PAN.<br/><br/>This event can be used to verify that remote access is being performed only by authorized personnel with valid credentials and the necessary permissions to manipulate sensitive data such as the PAN, in compliance with the remote access policies defined by PCI DSS. The report allows you to review compliance with security measures and appropriate access controls, ensuring that account data is protected throughout the remote access process.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

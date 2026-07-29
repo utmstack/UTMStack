@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1213
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.1 Attempt to Access a Protected Object
+scope: data
+statement: This report compiles relevant information from 4656 events in Windows logs, which are critical for verifying compliance with PCI DSS Requirement 12.1, which requires that an information security policy be established, published, maintained, and disseminated to all relevant employees, vendors, and business partners.<br/><br/>4656 events are logged when access requests are made to an object or resource in the system, providing key insights into user interactions with information assets. By analyzing these events, we can confirm that access controls and related policies are being effectively enforced, supporting that the information security policy is adequately disseminated to relevant parties, as required by PCI DSS.<br/><br/>In addition, these logs help verify that the information security policy is reviewed at least once every 12 months and updated as needed to reflect changes in business objectives or environmental risks. They also help validate that security responsibilities are clearly defined for all staff and that ultimate responsibility for security is assigned to a trained CISO or executive.
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

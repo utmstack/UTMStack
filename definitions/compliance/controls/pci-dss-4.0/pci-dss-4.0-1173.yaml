@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1173
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.3 Account Locks
+scope: data
+statement: Report that compiles relevant information from Windows Event 4740 logs to verify compliance with PCI DSS Requirement 8.3 on strong authentication. It addresses aspects such as multi-factor authentication, the use of strong cryptography, control of failed attempts and account lockouts, and password change and complexity policies, ensuring that best practices are followed to protect user credentials.
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

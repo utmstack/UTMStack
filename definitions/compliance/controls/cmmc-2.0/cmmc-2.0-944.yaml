@@ -1,0 +1,21 @@
+id: cmmc-2.0-944
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Account Logoff'
+scope: data
+statement: This report collects relevant information from the logs of Windows event 4634, which is generated when a user logs out of a system. This event is essential for verifying compliance with CMMC's Level 1 requirement (AU.1.001), which establishes the need to capture logs of basic security events. Event 4634 provides important data about user sessions, allowing organizations to monitor and audit login and logout activities. Capturing these logs ensures traceability of user actions and helps identify potential suspicious or unusual behavior, contributing to overall system security and compliance with CMMC audit controls.
+strategy: ANY
+checks:
+  - key: windows-account-logoff
+    name: Windows Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4634')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-853
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Registry Value Modification
+scope: data
+statement: "The Windows Registry Value Modification Report provides detailed logs of changes made to critical Windows registry values. This report is essential for ensuring compliance within the Banking Audit framework, as the registry is a central component for system configuration and security settings.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight and monitoring of configuration changes to protect sensitive financial systems.<br/>\t•\tSystem Integrity Compliance: Supports compliance with PCI DSS Requirement 10, which mandates monitoring system component changes to detect unauthorized modifications.<br/>\t•\tAudit Readiness: Tracks registry value changes, ensuring traceability and accountability as required by frameworks like SOC2 Type 2 and ISO 27001.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious registry changes, which could indicate malware activity, privilege escalation, or insider threats.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and restrict unauthorized changes that might expose sensitive data."
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-982
+family: cmmc-2.0
+familyName: CMMC
+name: AWS Activity Monitoring
+scope: data
+statement: This report is intended to demonstrate that the SIEM system monitors third-party risks in AWS environments, in compliance with the security requirements established by CMMC for Windows systems. The SIEM is configured to analyze and correlate activity logs from AWS, specifically CloudTrail events, to detect potential threats, unauthorized access, and anomalous behavior on the monitored infrastructure. Continuous monitoring of AWS logs through the SIEM allows us to detect third-party risks in the infrastructure, aligning with the CMMC security guidelines for the protection of Windows systems. Proactive access and configuration monitoring helps mitigate vulnerabilities and ensure the integrity of cloud environments.
+strategy: ANY
+checks:
+  - key: aws-activity
+    name: AWS Activity
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-activity-by-user-iam
+    name: AWS Activity by User IAM
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-618
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Windows Connection blocked by Windows Firewall'
+scope: data
+statement: This report collects the Windows log event 5158 logs, which document attempts to establish incoming or outgoing network connections on the system. Event 5158 is generated when a Windows firewall allows or blocks a network connection based on configured security policies. This information is essential to verify compliance with CMMC's Level 4 Audit and Monitoring policy (AU.4.053), which requires improving logging capabilities to support threat detection, allowing the identification of suspicious or unauthorized connections that may be indicative. of an attempted intrusion or malicious activity.<br/><br/>The report includes key details such as the name of the application that attempted to make the connection, and the action taken by the firewall (allow or block), among others. Analyzing these events can improve auditing capabilities and detect traffic patterns that could be indicative of advanced threats, such as unauthorized access attempts or lateral movements within the network. This report facilitates early detection of malicious activity, ensuring that network security policies are properly configured and that unauthorized connections are effectively blocked, aligning with CMMC Level 4 requirements for threat detection and security protection. critical infrastructure.
+strategy: ANY
+checks:
+  - key: windows-connection-blocked-by-windows-firewall
+    name: Windows Connection blocked by Windows Firewall
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-connection-blocked-by-application
+    name: Windows Connection blocked by Application
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

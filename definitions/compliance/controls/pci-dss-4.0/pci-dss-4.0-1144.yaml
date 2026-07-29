@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1144
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.4 Additions to Security Groups
+scope: data
+statement: This report collects and analyzes relevant information from Windows event 4728 logs, which record the addition of a user to a security group. Its objective is to assess compliance with PCI DSS Requirement 6.4, ensuring that public-facing web applications are protected against attacks. Analysis of these events identifies changes in privilege assignment that could grant unauthorized access to critical resources related to web application security. It also reviews whether access controls and security group management comply with best practices to minimize exploitation risks, prevent privilege escalation attacks, and ensure that only authorized users can perform sensitive configurations. This approach contributes to the detection and mitigation of potential threats, aligning with the security controls established by PCI DSS for the protection of publicly exposed web applications.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

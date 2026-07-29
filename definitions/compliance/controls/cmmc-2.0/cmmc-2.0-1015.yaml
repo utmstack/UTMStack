@@ -1,0 +1,21 @@
+id: cmmc-2.0-1015
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): Sharing Set'
+scope: data
+statement: This report collects relevant information from the SharingSet event logs in Office 365, with the objective of verifying compliance with the CMMC Level 2 control (AU.2.043). This control establishes the need to review and correlate the logs to detect inappropriate activities that may compromise data security, especially when it comes to sensitive or controlled information within the organization.<br/><br/>The SharingSet event logs provide details about the permission settings and the assignment of access to share files and documents within Office 365, including SharePoint and OneDrive, which allows identifying incorrect or inappropriate configurations that may expose sensitive data in an unauthorized manner.<br/><br/>The analysis of these logs is crucial to detect suspicious activities, such as the assignment of access permissions to unauthorized users or changes in permissions that are not aligned with the organization's security policies. In addition, it allows the identification of anomalous patterns of behavior related to information sharing, such as unexpected or external access to documents that should be restricted.<br/><br/>By correlating these events with other user activity and system access logs, the report helps detect possible security incidents, such as information leaks or malicious access, which could put data confidentiality at risk. In this way, the report facilitates the early identification of risks, ensures compliance with regulations and improves the response to inappropriate activities, guaranteeing the protection of information assets in Office 365.
+strategy: ANY
+checks:
+  - key: o365-sharing-set
+    name: O365 Sharing Set
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-sharing-set-by-geo-location
+    name: O365 Sharing Set By Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-669
+family: hipaa
+familyName: HIPAA
+name: Windows Password Reset Attempts
+scope: data
+statement: This report contributes to compliance with the NIST CSF PR.DS-3 requirement, which requires protective monitoring of data at rest and in transit. By analyzing event ID 4724 on Windows systems, this report facilitates the monitoring of activities related to user account password resets. By logging and auditing password change attempts, it ensures that access to sensitive data is properly managed, protecting the integrity and confidentiality of the information. This monitoring contributes to data protection by detecting and preventing unauthorized access, ensuring compliance with established security policies.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

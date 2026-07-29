@@ -1,0 +1,21 @@
+id: cmmc-2.0-997
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): File Deleted'
+scope: data
+statement: This report provides a detailed analysis of file deletion events (FileDeleted) in the O365 (SharePoint) environment, with the objective of verifying compliance with the controls established in CMMC Level 3 (AC.3.014). The report collects information on file deletion activities to ensure that sensitive data, including CUI, is managed according to access and protection policies. The purpose of the report is to monitor the flow of CUI, ensuring that files containing this information are deleted according to expiration and retention policies, without unauthorized deletions. In addition, it verifies that only users with appropriate permissions are carrying out the deletion of sensitive files, ensuring that deletion operations are tracked and audited to detect any suspicious or unauthorized activity. It also allows you to identify patterns and unusual events related to the deletion of sensitive files, providing a key tool to ensure the protection of information and compliance with CMMC Level 3 regulations.
+strategy: ANY
+checks:
+  - key: o365-filedeleted
+    name: O365 FileDeleted
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-filedeleted-by-geo-location
+    name: O365 FileDeleted by Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

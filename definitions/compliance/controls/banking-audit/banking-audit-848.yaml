@@ -1,0 +1,21 @@
+id: banking-audit-848
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Access to critical files or specific directories
+scope: data
+statement: The Windows Access to Critical Files or Specific Directories Report provides detailed insights into access attempts—both successful and failed—on critical files and directories within the system. This report is a cornerstone for compliance within the Banking Audit framework, ensuring the protection of sensitive financial data and monitoring access to critical resources.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

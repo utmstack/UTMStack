@@ -1,0 +1,21 @@
+id: banking-audit-896
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Process Termination
+scope: data
+statement: "The Windows Process Termination Report provides detailed logs of events where processes are terminated on a system, including information about the process name, termination path, initiating user, and timestamp. This report is essential for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as monitoring process termination helps detect unauthorized or malicious activities.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of process terminations to protect financial systems and sensitive customer data.<br/>\t•\tThreat Detection: Identifies suspicious or unauthorized process terminations, such as forced terminations of security services or critical system processes, which may indicate malicious activity.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately of abnormal process termination events, enabling rapid response and investigation.<br/>\t•\tAudit Readiness: Tracks all process termination events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust monitoring of system activities.<br/>\t•\tSystem Integrity: Supports compliance with PCI DSS Requirement 10, ensuring visibility into system-level activities for secure and reliable operations."
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

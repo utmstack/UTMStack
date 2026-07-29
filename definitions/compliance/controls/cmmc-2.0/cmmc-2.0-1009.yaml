@@ -1,0 +1,21 @@
+id: cmmc-2.0-1009
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (SI.2.212): Mailbox Permission Assigning'
+scope: data
+statement: This report collects key information from the Add-MailboxPermission event logs in Office 365, with the purpose of verifying compliance with CMMC Level 2 (SI.2.212), which requires the implementation of mechanisms for real-time monitoring of security events.<br/><br/>The Add-MailboxPermission event is generated when permissions are granted on a mailbox to another user or entity. Monitoring these events is essential to detect unauthorized access, improper changes in email permissions, and possible attempts at data exfiltration.<br/><br/>The report includes relevant information that allows for the detection of anomalies in privilege management, ensuring the protection of sensitive information contained in emails.<br/><br/>The collection and real-time analysis of these events strengthens organizational security, allowing a rapid response to possible security incidents and helping to prevent improper access to critical information.
+strategy: ANY
+checks:
+  - key: o365-add-mailboxpermission
+    name: O365 Add-MailboxPermission
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add-MailboxPermission')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-add-mailboxpermission-by-origin-server
+    name: O365 Add-MailboxPermission by Origin Server
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add-MailboxPermission')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

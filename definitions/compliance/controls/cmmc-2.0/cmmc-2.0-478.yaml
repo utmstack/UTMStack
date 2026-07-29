@@ -1,0 +1,21 @@
+id: cmmc-2.0-478
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): User Accounts Created'
+scope: data
+statement: This report collects the logs of event 4720 from the Windows logs, which document the creation of new user accounts on the system. This information is key to verify compliance with CMMC's Level 2 Authentication and Access Control policy (AC.2.007), which requires the implementation of role-based access controls (RBAC) to ensure that users have access only to the resources necessary for their functions. <br/><br/>The report includes details such as the identities of the created users, assigned roles, account creation dates and times, as well as the user or system that performed the action. This analysis ensures that the creation of accounts and the assignment of roles is carried out in a controlled manner and in accordance with security policies, which facilitates the proper management of permissions and access to system resources.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

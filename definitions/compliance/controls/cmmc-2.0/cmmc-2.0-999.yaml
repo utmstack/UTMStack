@@ -1,0 +1,21 @@
+id: cmmc-2.0-999
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AU.1.001): Account Logon Success'
+scope: data
+statement: This report provides a detailed analysis of login events (UserLoggedIn) in the O365 environment with the goal of verifying compliance with CMMC Level 1 control AU.1.001, which requires the implementation of audit logs<br/><br/>The report collects key information about user accesses, which allows validating that login events are being properly logged, providing visibility into access activity in the organization<br/><br/>The purpose of this monitoring is to ensure that all logins are properly audited, detect failed or unusual access attempts that may indicate potential threats, and provide evidence for security review and access auditing in the organization<br/><br/>This report serves as an essential tool for CMMC Level 1 compliance by ensuring that the organization maintains a reliable and verifiable record of access to its O365 environment, contributing to the protection of information and the detection of suspicious activities.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

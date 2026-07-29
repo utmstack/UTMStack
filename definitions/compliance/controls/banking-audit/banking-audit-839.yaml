@@ -1,0 +1,21 @@
+id: banking-audit-839
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows  Account Logon Failure
+scope: data
+statement: "The Windows Account Logon Failure Report provides a consolidated overview of failed logon attempts, playing a vital role in compliance within the Banking Audit framework. This report enables organizations to monitor, detect, and address unauthorized access attempts, ensuring the protection of sensitive financial systems and data.<br/>\t•\tBanking Regulations: Supports compliance with financial regulations, such as the Safeguards Rule under GLBA, by demonstrating measures to prevent unauthorized access to customer data.<br/>\t•\tAccess Control: Tracks failed logon attempts to identify potential unauthorized access or brute force attacks, aligning with PCI DSS Requirement 10 for monitoring access control events.<br/>\t•\tAudit Readiness: Provides evidence of failed access attempts, contributing to the transparency required by standards like SOC2 Type 2 and ISO 27001, ensuring security incidents are logged and reviewed.<br/>\t•\tIncident Response: Enhances threat detection by identifying patterns of failed logon attempts, enabling organizations to respond to suspicious activity promptly.<br/>\t•\tData Protection: Aligns with global frameworks such as GDPR Article 32, showcasing controls that prevent unauthorized access to financial systems, protecting sensitive customer data.<br/><br/>By centralizing data on logon failures, this report empowers organizations to enhance their security posture, reduce the risk of data breaches, and comply with stringent banking audit requirements."
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

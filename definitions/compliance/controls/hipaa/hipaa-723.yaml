@@ -1,0 +1,21 @@
+id: hipaa-723
+family: hipaa
+familyName: HIPAA
+name: Office 365 File Accessed
+scope: data
+statement: This report supports compliance with HIPAA Security Rule 164.312(b), which establishes the need to implement mechanisms to log and examine system activity. By analyzing FileAccessed events in Office 365, this report enables monitoring of activities associated with the use and manipulation of sensitive data. This continuous monitoring helps ensure that all interactions with information are properly logged, which contributes to protecting the confidentiality, integrity, and availability of data, ensuring compliance with system security and audit policies.
+strategy: ANY
+checks:
+  - key: o365-file-accessed
+    name: O365 File Accessed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-accessed-by-object
+    name: O365 File Accessed by Object
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

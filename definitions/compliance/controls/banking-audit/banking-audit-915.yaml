@@ -1,0 +1,21 @@
+id: banking-audit-915
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Member Addition to a Security Local Group
+scope: data
+statement: "The Windows Member Addition to a Security Local Group report provides detailed logs of events where a user or object is added to a local security group on a Windows system. This report is critical for monitoring privilege changes, detecting unauthorized modifications, and ensuring compliance with security frameworks.<br/>\t•\tRegulatory Compliance: Supports standards such as PCI DSS, ISO 27001, and SOC2, by maintaining a record of all group membership changes to ensure access control policies are enforced.<br/>\t•\tPrivilege Management Monitoring: Tracks additions to local security groups to verify that privilege escalations are authorized and comply with internal policies.<br/>\t•\tEvent Correlation: Links group membership changes with associated user accounts, administrative actions, and originating machines to create a complete security audit trail.<br/>\t•\tReal-Time Alerts: Generates immediate notifications when users are added to critical groups, such as Administrators or Remote Desktop Users, enabling rapid response to potential threats.<br/>\t•\tIncident Detection: Identifies unauthorized or unexpected additions to security groups, which may indicate insider threats, privilege misuse, or malicious activities.<br/>\t•\tAudit Readiness: Logs comprehensive details, including the name of the group, the member added, the user or process performing the action, and the timestamp, ensuring robust records for audits and investigations."
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

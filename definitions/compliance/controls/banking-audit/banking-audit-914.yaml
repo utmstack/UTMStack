@@ -1,0 +1,21 @@
+id: banking-audit-914
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Password Reset Attempt
+scope: data
+statement: "The Windows User Password Reset Attempt report provides detailed logs of events where a user password reset attempt is made within a Windows system. This report is critical for monitoring account security, detecting unauthorized password changes, and ensuring compliance with security frameworks.<br/>\t•\tRegulatory Compliance: Ensures alignment with standards such as PCI DSS, ISO 27001, and SOC2, by documenting all password reset attempts to maintain an auditable trail of account security events.<br/>\t•\tAccount Security Monitoring: Tracks password reset attempts to ensure they are initiated through authorized processes and to identify potential misuse or unauthorized actions.<br/>\t•\tEvent Correlation: Links password reset attempts with associated user accounts, originating machines, and administrative actions to create a comprehensive audit trail for security analysis.<br/>\t•\tReal-Time Alerts: Generates alerts for password reset attempts, especially for privileged or sensitive accounts, allowing administrators to respond to potential threats immediately.<br/>\t•\tIncident Detection: Identifies suspicious activities, such as repeated or unexpected password reset attempts, which may indicate brute force attacks, compromised accounts, or insider threats.<br/>\t•\tAudit Readiness: Logs detailed information about each password reset attempt, including the username, time of the attempt, originating IP address, and the user or process initiating the reset, ensuring comprehensive records for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-user-password-reset-attempt
+    name: Windows User Password Reset Attempt
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4723')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-password-reset-attempt-by-outcome
+    name: Windows User Password Reset Attempt by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4723')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-621
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Service Control Manager Log Information'
+scope: data
+statement: This report gathers relevant information from the Windows logs, specifically from Service Control Manager event 7030. This event is raised when a service attempts to start but fails due to a configuration or security restriction, preventing it from running interactively. The collection and analysis of these events is crucial to identify possible failures in service configuration, security problems related to access policies or operational restrictions. The report is aimed at supporting compliance with level 4 (AU.4.053) of the CMMC, by providing clear visibility on failures in attempts to start services, allowing better detection and response to possible threats or operational irregularities in the environment. .<br/><br/>This type of report helps meet monitoring and auditing requirements for critical events, contributing to the early detection of security problems and the optimization of control over the execution of services within the system.
+strategy: ANY
+checks:
+  - key: windows-service-control-manager-log-information
+    name: Windows Service Control Manager Log Information
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-control-manager-log-information-distribution-by-host
+    name: 'Windows Service Control Manager Log Information Distribution by Host '
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

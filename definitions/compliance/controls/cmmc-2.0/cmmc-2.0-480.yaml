@@ -1,0 +1,21 @@
+id: cmmc-2.0-480
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): User Accounts Deleted'
+scope: data
+statement: This report compiles the Windows log event 4726 logs, which document the deletion of user accounts on the system. The extracted information is key to verify compliance with CMMC's Level 2 (AC.2.007) Access Control and Authentication policy, which requires the implementation of role-based access controls (RBAC). This principle ensures that only users with specific roles have access to necessary resources. <br/><br/>The report includes important details such as the identities of the deleted accounts, the date and time of deletion, and the user or system that executed the action. The analysis of these events ensures that accounts are deleted in a controlled manner and in accordance with established security policies, helping to maintain an IT environment free of unauthorized access and appropriately managing permissions according to the needs of each role.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-deleted-over-time
+    name: Windows User Accounts Deleted Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-deleted
+    name: Windows User Accounts Deleted
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

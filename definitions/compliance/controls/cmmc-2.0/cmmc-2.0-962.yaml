@@ -1,0 +1,21 @@
+id: cmmc-2.0-962
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Shared Resource Modification'
+scope: data
+statement: This report collects relevant information about security events identified with ID 5143 on Windows, which are generated when access rules are added or modified on shared resources.<br/><br/>The analysis of these events is essential to audit changes in the configuration of shared resource permissions on the network, ensuring that access is controlled and aligned with the organization's security policies.<br/><br/>This monitoring is especially critical in the context of compliance with CMMC Level 3 (MP.3.123), since it allows verifying the adequate protection of the CUI (Controlled Unclassified Information) during its transport and preventing data loss by detecting changes in the access configuration to shared resources.
+strategy: ANY
+checks:
+  - key: windows-shared-resource-modification
+    name: Windows Shared Resource Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5143')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-shared-resource-modification-by-user
+    name: Windows Shared Resource Modification by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5143')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

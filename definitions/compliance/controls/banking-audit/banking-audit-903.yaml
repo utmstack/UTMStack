@@ -1,0 +1,21 @@
+id: banking-audit-903
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Kerberos ticket requests
+scope: data
+statement: "The Windows Kerberos Ticket Requests Report provides detailed logs of Kerberos authentication events, including ticket-granting ticket (TGT) requests, service ticket requests, and renewal attempts. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as Kerberos ticket requests can reveal authentication misuse or security breaches.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of authentication events to safeguard sensitive financial systems and customer data.<br/>\t•\tAuthentication Monitoring: Supports compliance with PCI DSS Requirement 8, ensuring secure authentication mechanisms and tracking Kerberos ticket activities.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately when unusual Kerberos ticket requests occur, enabling rapid investigation and mitigation.<br/>\t•\tIncident Detection: Identifies suspicious Kerberos activities, such as golden ticket attacks, ticket reuse, or brute force attempts, which could indicate compromised accounts or insider threats.<br/>\t•\tAudit Readiness: Tracks all Kerberos ticket events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure and accountable authentication practices."
+strategy: ANY
+checks:
+  - key: windows-kerberos-ticket-requests
+    name: Windows Kerberos ticket requests
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-ticket-requests-by-outcome
+    name: Windows Kerberos ticket requests by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

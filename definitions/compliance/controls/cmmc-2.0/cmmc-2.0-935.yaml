@@ -1,0 +1,21 @@
+id: cmmc-2.0-935
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.044): User Listing Activity'
+scope: data
+statement: This report collects and analyzes AWS log events related to the ListUsers action in Amazon Cognito. Its purpose is to provide visibility into user listing requests within the environment, allowing unusual or potentially inappropriate behavior to be detected.<br/><br/>The report contributes to compliance with CMMC Level 2 (AU.2.044), which requires periodic review of audit logs to identify suspicious or unauthorized activities. By monitoring ListUsers events, you can detect unusual accesses, user enumeration attempts, or anomalous activity from unknown IP addresses.<br/><br/>The data includes key information that makes it easy to identify access patterns and implement corrective measures in case of suspicious activity.
+strategy: ANY
+checks:
+  - key: aws-user-listing-activity
+    name: AWS User Listing Activity
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListUsers')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-user-listing-activity-by-user
+    name: AWS User Listing Activity by User
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListUsers')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

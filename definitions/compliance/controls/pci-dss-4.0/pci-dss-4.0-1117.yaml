@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1117
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.3 Object Deletion
+scope: data
+statement: This report compiles relevant information from 4660 events (An object was deleted) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.3, which states that sensitive authentication data (SAD) should not be stored after authorization.<br/><br/>Event 4660 allows you to audit the deletion of objects from the system, providing visibility into when and what data is deleted. This event is essential for verifying that sensitive authentication data, such as card details, verification code, and PIN, are either deleted or rendered unrecoverable after authorization. Auditing this event ensures that any sensitive content, including the full content of the tracks, the card verification code, or the PIN, is not unnecessarily retained in the system after the authorization transaction is completed.<br/><br/>By analyzing the logs for this event, it is possible to verify that the mechanisms and processes for deleting sensitive data are correctly implemented, aligning with PCI DSS requirements for the protection of confidential information. This ensures that the principles of minimal storage and secure handling of sensitive authentication data are not violated.
+strategy: ANY
+checks:
+  - key: windows-object-deletion
+    name: Windows Object Deletion
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-object-deletion-by-subject-user
+    name: Windows Object Deletion by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

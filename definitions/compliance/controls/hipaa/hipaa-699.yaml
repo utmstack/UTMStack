@@ -1,0 +1,21 @@
+id: hipaa-699
+family: hipaa
+familyName: HIPAA
+name: Windows Kerberos pre-authentication failed
+scope: data
+statement: This report contributes to compliance with the NIST CSF PR.DS-3 requirement, which establishes the need to protectively monitor data both at rest and in transit. By analyzing event ID 4771 on Windows systems, this report facilitates the monitoring of authentication failures during the Kerberos ticket request process. This monitoring allows for the detection of unauthorized access attempts or potential security breaches, ensuring the continuous protection of sensitive data. Logging these events ensures the maintenance of information integrity and availability and strengthens secure access policies in the IT infrastructure.
+strategy: ANY
+checks:
+  - key: windows-kerberos-pre-authentication-failed
+    name: Windows Kerberos pre-authentication failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-pre-authentication-failed-by-user
+    name: Windows Kerberos pre-authentication failed by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

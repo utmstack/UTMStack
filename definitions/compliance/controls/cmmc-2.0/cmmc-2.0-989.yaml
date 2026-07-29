@@ -1,0 +1,21 @@
+id: cmmc-2.0-989
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Failure to load system services
+scope: data
+statement: This report collects and analyzes critical Windows system events, specifically events 7023 and 7026, recorded in the system log. These events are related to the unexpected termination of essential services and the failure to load drivers during system startup.<br/><br/>The purpose of this report is to provide visibility into possible failures in the technological infrastructure, identifying incidents that may affect the availability, resilience and operational continuity of the Windows environment. The information presented is key to evaluating compliance with the Disaster Recovery and Business Continuity Monitoring requirements established within the CMMC (Cybersecurity Maturity Model Certification) framework.
+strategy: ANY
+checks:
+  - key: windows-failure-to-load-system-services
+    name: Windows Failure to load system services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7023', '7026'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-failure-to-load-system-services-by-event
+    name: Windows Failure to load system services by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7023', '7026'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

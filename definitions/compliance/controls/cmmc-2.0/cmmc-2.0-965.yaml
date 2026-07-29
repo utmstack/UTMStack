@@ -1,0 +1,21 @@
+id: cmmc-2.0-965
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): External Device Connection'
+scope: data
+statement: 'This report consolidates information from Windows events 6416, which record the recognition of new external devices in the system. Its monitoring is essential to ensure compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, since the connection of unauthorized devices can represent a risk to information security.<br/><br/>The analysis of these events allows us to identify possible vulnerabilities and strengthen control measures to prevent the loss or exposure of Controlled Unclassified Information (CUI).'
+strategy: ANY
+checks:
+  - key: windows-external-device-connection
+    name: Windows External Device Connection
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6416')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-external-device-connection-by-user
+    name: Windows External Device Connection by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6416')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

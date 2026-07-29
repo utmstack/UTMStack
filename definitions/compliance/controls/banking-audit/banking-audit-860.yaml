@@ -1,0 +1,21 @@
+id: banking-audit-860
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Credential Access
+scope: data
+statement: "The Windows Credential Access Report provides detailed logs of events related to credential access, including successful and failed attempts to retrieve or use user credentials, such as password hashes, security tokens, or Kerberos tickets. This report is critical within the Banking Audit framework to monitor unauthorized credential access and ensure the protection of sensitive financial systems.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, demonstrating oversight and control over credential access to safeguard sensitive customer data and financial systems.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 8, which mandates secure authentication and management of user credentials to prevent unauthorized access.<br/>\t•\tAudit Readiness: Tracks credential access events, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring accountability in credential management.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious attempts to access credentials, such as pass-the-hash attacks, keylogging, or unauthorized Kerberos ticket usage.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor, restrict, and secure credential access to prevent unauthorized data breaches."
+strategy: ANY
+checks:
+  - key: windows-credential-access
+    name: Windows Credential Access
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-credential-access-by-domain
+    name: Windows Credential Access by Domain
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

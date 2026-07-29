@@ -1,0 +1,21 @@
+id: cmmc-2.0-972
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SC.4.229): Application of Group Policies Errors'
+scope: data
+statement: 'This report compiles relevant information from the logs of Windows Security Auditing event 1058 (Group Policy Management: The system failed to apply Group Policy settings), used to verify compliance with CMMC Level 4 (SC.4.229), which requires improving cryptographic protections using advanced tools. This event is raised when the system is unable to enforce a group policy, which could include policies related to cryptography settings and key management. The information contained in this log is key to monitoring possible failures in the implementation of cryptographic policies, ensuring that information protection policies, especially those related to CUI (Controlled Unclassified Information), are applied correctly. The report can be used to identify problems in the application of configurations that could affect the integrity of advanced cryptographic tools, facilitating early intervention to correct erroneous configurations and maintain the appropriate level of cryptographic protection for sensitive information.'
+strategy: ANY
+checks:
+  - key: windows-application-of-group-policies-errors
+    name: Windows Application of Group Policies Errors
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-application-of-group-policies-errors-by-domain-controller
+    name: Windows Application of Group Policies Errors by Domain Controller
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

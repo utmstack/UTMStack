@@ -1,115 +1,290 @@
-# Framework = checklist. References library controls via satisfiedBy. No queries.
 key: hipaa
-name: HIPAA Security Rule
-description: US HIPAA Security Rule safeguards for electronic protected health information (ePHI), 45
-  CFR Part 164 Subpart C.
-source: 45 CFR §164.308/310/312 (public domain). Control mapping per NIST SP 800-66 Rev 2 (public domain).
+name: HIPAA
+description: HIPAA (Health Insurance Portability and Accountability Act) is a United States federal law designed to protect the privacy and security of patients' health information. It establishes national standards for the handling of protected health information (PHI) in electronic formats (ePHI) and regulates how covered entities (such as healthcare providers, insurers, and business associates) must ensure the confidentiality, integrity, and availability of this information. HIPAA also promotes the secure use of technology for health data sharing and establishes penalties for non-compliance.
+source: Migrated from UTMStack v11
 sections:
-- key: administrative-safeguards
-  name: Administrative Safeguards (§164.308)
-  requirements:
-  - id: 164.308(a)(1)(ii)(D)
-    name: Information System Activity Review
-    satisfiedBy:
-    - au-6
-    - au-2
-    - au-12
-  - id: 164.308(a)(1)(ii)(A)
-    name: Risk Analysis
-    satisfiedBy:
-    - ra-3
-  - id: 164.308(a)(1)(ii)(C)
-    name: Sanction Policy
-    satisfiedBy:
-    - ps-8
-  - id: 164.308(a)(3)(i)
-    name: Workforce Security
-    satisfiedBy:
-    - ps-3
-    - ps-4
-    - ps-5
-    - ac-2
-  - id: 164.308(a)(4)(i)
-    name: Information Access Management
-    satisfiedBy:
-    - ac-2
-    - ac-3
-    - ac-6
-  - id: 164.308(a)(5)(i)
-    name: Security Awareness and Training
-    satisfiedBy:
-    - at-2
-    - at-3
-  - id: 164.308(a)(6)(i)
-    name: Security Incident Procedures
-    satisfiedBy:
-    - ir-4
-    - ir-5
-    - ir-6
-  - id: 164.308(a)(7)(i)
-    name: Contingency Plan
-    satisfiedBy:
-    - cp-2
-    - cp-9
-    - cp-10
-- key: physical-safeguards
-  name: Physical Safeguards (§164.310)
-  requirements:
-  - id: 164.310(a)(1)
-    name: Facility Access Controls
-    satisfiedBy:
-    - pe-2
-    - pe-3
-  - id: 164.310(c)
-    name: Workstation Security
-    satisfiedBy:
-    - pe-3
-  - id: 164.310(d)(1)
-    name: Device and Media Controls
-    satisfiedBy:
-    - mp-6
-    - mp-2
-- key: technical-safeguards
-  name: Technical Safeguards (§164.312)
-  requirements:
-  - id: 164.312(a)(1)
-    name: Access Control
-    satisfiedBy:
-    - ac-3
-    - ac-2
-    - ac-6
-  - id: 164.312(a)(2)(i)
-    name: Unique User Identification
-    satisfiedBy:
-    - ia-2
-    - ia-4
-  - id: 164.312(a)(2)(iii)
-    name: Automatic Logoff
-    satisfiedBy:
-    - ac-11
-    - ac-12
-  - id: 164.312(a)(2)(iv)
-    name: Encryption and Decryption
-    satisfiedBy:
-    - sc-28
-  - id: 164.312(b)
-    name: Audit Controls
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-6
-    - au-12
-  - id: 164.312(c)(1)
-    name: Integrity
-    satisfiedBy:
-    - si-7
-    - au-9
-  - id: 164.312(d)
-    name: Person or Entity Authentication
-    satisfiedBy:
-    - ia-2
-  - id: 164.312(e)(1)
-    name: Transmission Security
-    satisfiedBy:
-    - sc-8
-    - sc-13
+  - key: sec-601
+    name: Log Collection and Monitoring
+    requirements:
+      - id: hipaa-req-655
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - hipaa-655
+      - id: hipaa-req-657
+        name: Windows Account Logon Failure
+        satisfiedBy:
+          - hipaa-657
+      - id: hipaa-req-659
+        name: Windows Special privileges assigned to new logon
+        satisfiedBy:
+          - hipaa-659
+      - id: hipaa-req-660
+        name: Windows Event Log Service
+        satisfiedBy:
+          - hipaa-660
+      - id: hipaa-req-662
+        name: Windows Policy changes
+        satisfiedBy:
+          - hipaa-662
+      - id: hipaa-req-663
+        name: Windows Process Creation
+        satisfiedBy:
+          - hipaa-663
+      - id: hipaa-req-668
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - hipaa-668
+      - id: hipaa-req-669
+        name: Windows Password Reset Attempts
+        satisfiedBy:
+          - hipaa-669
+      - id: hipaa-req-674
+        name: Windows Access to Shared Resources
+        satisfiedBy:
+          - hipaa-674
+      - id: hipaa-req-675
+        name: Windows Attempt to Access a Protected Object
+        satisfiedBy:
+          - hipaa-675
+      - id: hipaa-req-676
+        name: Windows Registry Value Modification
+        satisfiedBy:
+          - hipaa-676
+      - id: hipaa-req-677
+        name: Windows Protected Object Permission Change
+        satisfiedBy:
+          - hipaa-677
+      - id: hipaa-req-678
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - hipaa-678
+      - id: hipaa-req-693
+        name: Windows Monitoring of Critical System Services Status
+        satisfiedBy:
+          - hipaa-693
+      - id: hipaa-req-694
+        name: Windows Process Termination
+        satisfiedBy:
+          - hipaa-694
+      - id: hipaa-req-695
+        name: Windows Restoration of default security policies
+        satisfiedBy:
+          - hipaa-695
+      - id: hipaa-req-696
+        name: Windows User Account Attributes Changes
+        satisfiedBy:
+          - hipaa-696
+      - id: hipaa-req-697
+        name: Windows Credential Access
+        satisfiedBy:
+          - hipaa-697
+      - id: hipaa-req-698
+        name: Windows Kerberos ticket requests
+        satisfiedBy:
+          - hipaa-698
+      - id: hipaa-req-699
+        name: Windows Kerberos pre-authentication failed
+        satisfiedBy:
+          - hipaa-699
+      - id: hipaa-req-721
+        name: Office 365 Account Logon Success
+        satisfiedBy:
+          - hipaa-721
+      - id: hipaa-req-722
+        name: Office 365 Account Logon Failure
+        satisfiedBy:
+          - hipaa-722
+      - id: hipaa-req-723
+        name: Office 365 File Accessed
+        satisfiedBy:
+          - hipaa-723
+      - id: hipaa-req-724
+        name: Office 365 OneDrive File Download
+        satisfiedBy:
+          - hipaa-724
+  - key: sec-602
+    name: Access Control and Authentication
+    requirements:
+      - id: hipaa-req-634
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - hipaa-634
+      - id: hipaa-req-635
+        name: Windows Account Logon Failure
+        satisfiedBy:
+          - hipaa-635
+      - id: hipaa-req-637
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - hipaa-637
+      - id: hipaa-req-639
+        name: Windows User Accounts Deleted
+        satisfiedBy:
+          - hipaa-639
+      - id: hipaa-req-644
+        name: Windows Protected Object Permission Change
+        satisfiedBy:
+          - hipaa-644
+      - id: hipaa-req-645
+        name: Windows Special privileges assigned to new logon
+        satisfiedBy:
+          - hipaa-645
+      - id: hipaa-req-646
+        name: Windows Member Addition to a Security Local Group
+        satisfiedBy:
+          - hipaa-646
+      - id: hipaa-req-647
+        name: Windows Local Security Group Member Removal
+        satisfiedBy:
+          - hipaa-647
+      - id: hipaa-req-649
+        name: Windows Registry Value Modification
+        satisfiedBy:
+          - hipaa-649
+      - id: hipaa-req-651
+        name: Windows Access to shared resource
+        satisfiedBy:
+          - hipaa-651
+      - id: hipaa-req-652
+        name: Windows Network Access to shared resource
+        satisfiedBy:
+          - hipaa-652
+      - id: hipaa-req-654
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - hipaa-654
+      - id: hipaa-req-679
+        name: Windows Logins with explicit credentials
+        satisfiedBy:
+          - hipaa-679
+      - id: hipaa-req-680
+        name: Windows Process Creation
+        satisfiedBy:
+          - hipaa-680
+      - id: hipaa-req-681
+        name: Windows User Account Attributes Changes
+        satisfiedBy:
+          - hipaa-681
+      - id: hipaa-req-682
+        name: Windows Password Reset Attempts
+        satisfiedBy:
+          - hipaa-682
+      - id: hipaa-req-683
+        name: Windows Policy changes
+        satisfiedBy:
+          - hipaa-683
+      - id: hipaa-req-684
+        name: Windows Restoration of default security policies
+        satisfiedBy:
+          - hipaa-684
+      - id: hipaa-req-685
+        name: Windows Failed logon attempt
+        satisfiedBy:
+          - hipaa-685
+      - id: hipaa-req-686
+        name: Windows Audit Policy Change
+        satisfiedBy:
+          - hipaa-686
+      - id: hipaa-req-690
+        name: Windows PowerShell Script Block Registration
+        satisfiedBy:
+          - hipaa-690
+      - id: hipaa-req-691
+        name: Windows User Password Reset Attempt
+        satisfiedBy:
+          - hipaa-691
+      - id: hipaa-req-692
+        name: Windows Monitoring of Critical System Services Status
+        satisfiedBy:
+          - hipaa-692
+      - id: hipaa-req-725
+        name: AWS DescribeLogStreams Logs
+        satisfiedBy:
+          - hipaa-725
+      - id: hipaa-req-726
+        name: AWS DescribeLogGroups Logs
+        satisfiedBy:
+          - hipaa-726
+      - id: hipaa-req-727
+        name: AWS PutObject Logs
+        satisfiedBy:
+          - hipaa-727
+      - id: hipaa-req-728
+        name: AWS GetBucketAcl Logs
+        satisfiedBy:
+          - hipaa-728
+  - key: sec-604
+    name: Real-time Alerting and Monitoring
+    requirements:
+      - id: hipaa-req-700
+        name: Windows Network Access to shared resource
+        satisfiedBy:
+          - hipaa-700
+      - id: hipaa-req-701
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - hipaa-701
+      - id: hipaa-req-702
+        name: Windows Account Logon Failure
+        satisfiedBy:
+          - hipaa-702
+      - id: hipaa-req-703
+        name: Windows Special privileges assigned to new logon
+        satisfiedBy:
+          - hipaa-703
+      - id: hipaa-req-704
+        name: Windows Logins with explicit credentials
+        satisfiedBy:
+          - hipaa-704
+      - id: hipaa-req-705
+        name: Windows Process Creation
+        satisfiedBy:
+          - hipaa-705
+      - id: hipaa-req-706
+        name: Windows Service Installed
+        satisfiedBy:
+          - hipaa-706
+      - id: hipaa-req-707
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - hipaa-707
+      - id: hipaa-req-708
+        name: Windows User Accounts Deleted
+        satisfiedBy:
+          - hipaa-708
+      - id: hipaa-req-709
+        name: Windows Kerberos ticket requests
+        satisfiedBy:
+          - hipaa-709
+      - id: hipaa-req-710
+        name: Windows Cleaned Event Log
+        satisfiedBy:
+          - hipaa-710
+      - id: hipaa-req-711
+        name: Windows Policy changes
+        satisfiedBy:
+          - hipaa-711
+      - id: hipaa-req-712
+        name: Windows Registry Value Modification
+        satisfiedBy:
+          - hipaa-712
+      - id: hipaa-req-713
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - hipaa-713
+      - id: hipaa-req-716
+        name: Windows Access to shared resource
+        satisfiedBy:
+          - hipaa-716
+      - id: hipaa-req-717
+        name: Windows Account Authentication Using NTLM
+        satisfiedBy:
+          - hipaa-717
+      - id: hipaa-req-719
+        name: Windows Service Control Manager Log Information
+        satisfiedBy:
+          - hipaa-719
+      - id: hipaa-req-720
+        name: Windows Alerts
+        satisfiedBy:
+          - hipaa-720

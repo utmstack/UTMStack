@@ -1,0 +1,21 @@
+id: banking-audit-909
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Group Membership Enumerated
+scope: data
+statement: "The Windows Group Membership Enumerated Report provides detailed logs of events where group membership information is queried or enumerated. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as unauthorized enumeration can indicate reconnaissance activities by attackers or insider threats attempting to identify privileged groups.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of group membership enumeration to protect sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that access to group membership details is restricted and tracked.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately when group membership enumeration is detected, enabling rapid investigation and mitigation of potential threats.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious queries of group membership, which may indicate attempts to map privileged accounts or escalate privileges.<br/>\t•\tAudit Readiness: Tracks all group membership enumeration events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust access management practices."
+strategy: ANY
+checks:
+  - key: windows-group-membership-enumerated
+    name: Windows Group Membership Enumerated
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-group-membership-enumerated-by-target-user
+    name: Windows Group Membership Enumerated by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

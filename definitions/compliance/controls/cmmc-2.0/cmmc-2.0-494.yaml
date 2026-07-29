@@ -1,0 +1,21 @@
+id: cmmc-2.0-494
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Access to Shared Resources'
+scope: data
+statement: This report collects relevant information from events 5140 (A network share object was accessed) and 5145 (A network share object was checked to see whether client can be granted desired access) in the Windows logs, with the objective of verifying compliance with CMMC Level 4 practice AU.4.053, which requires advanced logging capabilities for threat detection.<br/><br/>Monitoring these events allows you to analyze access to shared resources on the network, identifying unauthorized access attempts, lateral movements and possible data exfiltration. The report includes key details such as the user's name, source IP address, shared resource accessed, and the result of the operation, among others.<br/><br/>This analysis helps strengthen the security of the environment by monitoring access to sensitive files, detecting anomalous activity, and providing visibility into possible attack attempts or misuse of permissions. With this information, organizations can improve detection and response to advanced threats, ensuring effective management of security logs.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

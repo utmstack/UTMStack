@@ -1,0 +1,27 @@
+id: cmmc-2.0-611
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): Activity By User and Event'
+scope: data
+statement: This report compiles relevant information from AWS logs related to activity by user and event type, providing visibility into actions taken on cloud infrastructure. This monitoring is essential to comply with CMMC Level 2 control AU.2.042, which requires ensuring the collection of logs for the detection and analysis of security events.<br/><br/>Activity logs by user and event in AWS include detailed information about actions performed on cloud services, such as logins, configuration modifications, permission changes, resource accesses, and other critical operations. These logs help identify suspicious activities, unauthorized access attempts, or configurations that could compromise the security of your environment.<br/><br/>By capturing and analyzing these events, organizations can detect anomalous patterns, correlate potentially malicious activities, and proactively respond to security incidents. Additionally, the retention and ongoing analysis of these logs is key to conducting forensic audits and ensuring compliance with established security policies.<br/><br/>This report facilitates compliance with CMMC Level 2 control AU.2.042 by ensuring the effective collection and monitoring of security events in AWS. In this way, incident response capacity is improved, the traceability of actions within the cloud environment is reinforced, and the integrity and security of the organization's critical systems and data is guaranteed.
+strategy: ANY
+checks:
+  - key: aws-activity-console-logon
+    name: AWS Activity Console Logon
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-events
+    name: AWS Events
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-user-activity
+    name: AWS User Activity
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

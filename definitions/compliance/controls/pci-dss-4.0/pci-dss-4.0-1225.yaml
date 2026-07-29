@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1225
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Protected Object Permission Change
+scope: data
+statement: This report collects and analyzes object permission modification events (event ID 4670) on Windows systems to validate that access controls are properly implemented according to PCI DSS requirements A1.1.2 and A1.1.3. Through analysis of these logs, it is verified that each client only has permissions to their own cardholder information (CDE) and cannot access unassigned resources. Details are examined to support the assessment of data and resource segregation, ensuring that security controls are effective in multi-tenant environments and reducing the risk of unauthorized access.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

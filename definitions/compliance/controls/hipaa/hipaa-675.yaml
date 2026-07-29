@@ -1,0 +1,21 @@
+id: hipaa-675
+family: hipaa
+familyName: HIPAA
+name: Windows Attempt to Access a Protected Object
+scope: data
+statement: This report contributes to compliance with the NIST CSF PR.DS-3 requirement, which requires protective monitoring of data at rest and in transit. By reviewing relevant events on Windows systems, this report facilitates the identification and auditing of access to critical data, ensuring that any attempt to access, modify, or manipulate sensitive information is adequately monitored and logged to protect its confidentiality, integrity, and availability.
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

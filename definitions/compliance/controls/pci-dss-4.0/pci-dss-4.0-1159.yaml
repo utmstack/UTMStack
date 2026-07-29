@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1159
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.3 Account Logon Failure
+scope: data
+statement: This report compiles relevant information from Windows 4625 events, which record failed login attempts. These event data are essential for assessing compliance with PCI DSS Requirement 7.3, which mandates that access to system components and data must be managed through an access control system. 4625 events provide details on unauthorized access attempts, allowing you to verify that the system is configured to reject unauthorized access and to alert you to potential security risks. This report helps audit the effectiveness of access control, ensuring that only legitimate users with the necessary privileges have access to sensitive systems and data.
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

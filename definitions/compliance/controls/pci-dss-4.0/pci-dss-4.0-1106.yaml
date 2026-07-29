@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1106
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Policy changes
+scope: data
+statement: This report compiles relevant information from 4719 events (System audit policy was changed) generated in Windows, with the goal of verifying compliance with PCI DSS requirement 2.2.6, which requires that system security parameters be configured to prevent misuse.<br/><br/>Event 4719 allows you to audit changes to the system audit policy, providing visibility into modifications that could weaken security or allow unauthorized access. This event can detect unauthorized changes in audit logs, ensuring that security configurations remain aligned with best practices and compliance standards.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

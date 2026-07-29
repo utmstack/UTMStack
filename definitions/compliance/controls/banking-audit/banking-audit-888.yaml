@@ -1,0 +1,21 @@
+id: banking-audit-888
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Special privileges assigned to new logon
+scope: data
+statement: "The Windows Special Privileges Assigned to New Logon Report provides a detailed record of logon events where special privileges, such as administrative or elevated rights, are assigned to users. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as the misuse of special privileges can pose significant security risks.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of privilege assignment to protect financial systems and sensitive customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that privileged access is restricted to authorized users and monitored for unauthorized assignments.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators of special privilege assignments in real-time, enabling immediate action to mitigate risks.<br/>\t•\tIncident Detection: Identifies suspicious or unauthorized privilege assignments, which could indicate insider threats, privilege escalation, or account compromise.<br/>\t•\tAudit Readiness: Provides traceability of privileged logon events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust access management."
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

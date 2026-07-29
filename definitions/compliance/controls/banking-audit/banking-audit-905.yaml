@@ -1,0 +1,21 @@
+id: banking-audit-905
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Service Installed
+scope: data
+statement: "The Windows Service Installed Report provides detailed logs of events where new services are installed on a system, including information about the service name, installation path, initiating user, and timestamp. This report is crucial for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as unauthorized service installations can pose significant security risks.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of service installations to protect financial systems and sensitive customer data.<br/>\t•\tSystem Configuration Monitoring: Supports compliance with PCI DSS Requirement 10, ensuring that all system changes, including service installations, are logged and monitored.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately when a new service is installed, enabling rapid investigation and response to unauthorized or malicious activities.<br/>\t•\tIncident Detection: Identifies suspicious service installations that could indicate malware deployment, privilege escalation, or attempts to maintain unauthorized access.<br/>\t•\tAudit Readiness: Tracks all service installation events to ensure compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure system configuration management."
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

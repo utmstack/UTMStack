@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1207
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.4 Account Locks
+scope: data
+statement: This report aims to assess compliance with PCI DSS requirement 11.4.3, which establishes that external penetration tests must be performed according to the organization's defined methodology, at least once every 12 months, and after any significant change to the infrastructure or applications. Using Windows event 4740 logs, the report collects information on user account lockouts due to multiple failed login attempts, which may indicate penetration testing activities or unauthorized access attempts. This analysis verifies that external penetration tests are executed according to the organization's defined methodology, ensuring compliance with the established frequency and with qualified personnel, whether internal or external, as required by PCI DSS. It also ensures that these tests are performed after any significant changes to the infrastructure or applications.
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

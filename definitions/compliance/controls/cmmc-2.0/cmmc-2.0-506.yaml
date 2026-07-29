@@ -1,0 +1,21 @@
+id: cmmc-2.0-506
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): Object Deletion'
+scope: data
+statement: This report focuses on the collection and analysis of relevant information from event 4660 in the Windows logs, with the objective of supporting compliance with control SI.2.212 of CMMC Level 2, which requires the implementation of mechanisms for supervision in real time of security events.<br/><br/>Event 4660 is triggered when a process attempts to delete an object on the system, such as a file or folder, which may be related to sensitive data deletion actions or unauthorized changes to the system. This event records details about the affected object, the operation that was attempted (deletion), and the identity of the user or process that attempted the action.<br/><br/>Analysis of this event is essential to ensure that critical object removals are monitored in real time. This helps detect unauthorized activity, whether due to error or malicious intent, and generate alerts that allow administrators to quickly take preventive or corrective action.<br/><br/>By monitoring events such as 4660, you can strengthen control over data integrity and systems security, detecting unauthorized access or unexpected actions. Compliance with SI.2.212 is crucial for incident response capability and for maintaining active protection of sensitive resources within the infrastructure.<br/><br/>In summary, event 4660 plays a key role in detecting potentially hazardous activities related to the removal of critical objects, contributing to compliance with the real-time monitoring requirements mandated by CMMC Level 2 (SI.2.212).
+strategy: ANY
+checks:
+  - key: windows-object-deletion
+    name: Windows Object Deletion
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-object-deletion-by-subject-user
+    name: Windows Object Deletion by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-882
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Protected Object Access Operation
+scope: data
+statement: "The Windows Protected Object Access Operation Report provides a detailed log of access attempts—both successful and unsuccessful—on protected objects such as files, folders, registry keys, and other critical resources. This report is vital for ensuring compliance with Real-Time Alerting and Monitoring in the Banking Audit framework, enabling visibility into access to sensitive resources and the enforcement of security controls.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of access attempts to protect critical financial systems and sensitive customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 10, which mandates logging and monitoring of access to critical resources to detect unauthorized activities.<br/>\t•\tReal-Time Detection: Captures and reports unauthorized or suspicious access attempts in real-time, enabling immediate incident response.<br/>\t•\tIncident Detection and Mitigation: Identifies patterns of unauthorized access, such as privilege escalation or brute force attempts, which could indicate potential threats.<br/>\t•\tAudit Readiness: Provides traceability of protected object access events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001."
+strategy: ANY
+checks:
+  - key: windows-protected-object-access-operation
+    name: Windows Protected Object Access Operation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-protected-object-access-operation-by-object
+    name: Windows Protected Object Access Operation by Object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

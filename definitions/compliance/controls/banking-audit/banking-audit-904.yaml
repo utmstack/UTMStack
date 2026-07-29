@@ -1,0 +1,21 @@
+id: banking-audit-904
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Local Security Group Member Removal
+scope: data
+statement: "The Windows Local Security Group Member Removal Report provides detailed logs of events where users or accounts are removed from local security groups. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as group membership changes directly affect access control and system security.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of group membership changes to protect sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that access to critical resources is controlled and membership changes are tracked.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately when members are removed from security groups, enabling rapid response to potential unauthorized changes.<br/>\t•\tIncident Detection: Identifies suspicious or unauthorized member removals, which may indicate insider threats, account compromise, or policy violations.<br/>\t•\tAudit Readiness: Tracks all member removal events to ensure compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust access management practices."
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

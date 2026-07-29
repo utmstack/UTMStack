@@ -1,0 +1,21 @@
+id: cmmc-2.0-554
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): PowerShell Remote Session Creation'
+scope: data
+statement: This report compiles relevant information from 4105 events (WMI Event Filter activity detected) in Windows logs, with the objective of verifying compliance with CMMC Level 4 practice AU.4.053, which requires advanced logging capabilities for the detection of threats.<br/><br/>Event 4105 is generated when activity is detected in Windows Management Instrumentation (WMI) event filters, a mechanism used for task automation and system data collection. Attackers can abuse WMI filters to establish persistence or execute malicious commands without detection.<br/><br/>This report includes key details such as the user who performed the action, the date and time of the event, and the affected computer. Analyzing these logs can identify potential attempts at malicious use of WMI, detect suspicious activity, and strengthen security controls against advanced threats.<br/><br/>Continuous monitoring of these events is critical to preventing stealth persistence attacks and ensuring critical systems maintain a robust security posture against potential adversaries.
+strategy: ANY
+checks:
+  - key: windows-powershell-remote-session-creation
+    name: Windows PowerShell Remote Session Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4105')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-powershell-remote-session-creation-by-host
+    name: Windows PowerShell Remote Session Creation by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4105')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

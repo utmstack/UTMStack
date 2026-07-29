@@ -1,0 +1,21 @@
+id: cmmc-2.0-606
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): Secure Link Operation'
+scope: data
+statement: This report collects and presents relevant information about the AddedToSecureLink event in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.3.014. The report focuses on controlling the flow of sensitive information (CUI) and securing access points to shared resources securely, ensuring that secure links are used appropriately for access to sensitive data.<br/><br/>The report includes key details such as the users who have been added to the secure links, the time of the event, the type of file or share, among others. This information is crucial to ensure that access to the CUI is properly controlled, protecting the integrity of the shared data and ensuring that only authorized persons can access it through secure channels, in accordance with security and access control standards. required by CMMC.
+strategy: ANY
+checks:
+  - key: o365-secure-link-operation
+    name: O365 Secure Link Operation
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSecureLink')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-secure-link-operation-by-client
+    name: O365 Secure Link Operation by Client
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSecureLink')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

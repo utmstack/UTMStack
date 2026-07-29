@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1067
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.1 Cleaned Event Log
+scope: data
+statement: This report captures Windows system event 1102, which indicates the cleanup of system audit logs. Analysis of these events is essential to verify compliance with PCI DSS requirements, ensuring that audit policies and procedures are documented, up-to-date, and in use. It also monitors the integrity of audit logs, ensuring that they are not inappropriately altered or deleted, and that defined operational best practices for security are followed.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

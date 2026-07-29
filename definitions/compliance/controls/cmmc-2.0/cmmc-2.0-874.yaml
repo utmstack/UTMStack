@@ -1,0 +1,21 @@
+id: cmmc-2.0-874
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 1 (AU.1.001): Console Login'
+scope: data
+statement: This report compiles and presents relevant information about ConsoleLogin events in AWS, with the objective of verifying compliance with CMMC practice AU.1.001. It focuses on ensuring that AWS console logins are properly audited, ensuring that access to the system is effectively monitored. The report includes key details about login attempts, such as the user involved, the source IP address, and whether multi-factor authentication (MFA) was used. This information is crucial to verify that console accesses are recorded in a way that detects unauthorized activities, ensuring the integrity of the systems and compliance with audit requirements to protect sensitive data.
+strategy: ANY
+checks:
+  - key: aws-console-login
+    name: AWS Console Login
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-console-login-by-ip
+    name: AWS Console Login by IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

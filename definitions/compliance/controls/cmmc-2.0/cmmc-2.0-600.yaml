@@ -1,0 +1,21 @@
+id: cmmc-2.0-600
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AC.1.001): Account Logon Failure'
+scope: data
+statement: This report collects and presents relevant information about UserLoginFailed events in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.1.001. Its purpose is to ensure that access to the system is restricted to authorized users, and to detect failed login attempts, which could indicate unauthorized access attempts or brute force attacks.<br/><br/>The report includes details such as user identity, source IP address, geographic location. This information is crucial for identifying suspicious patterns, blocking unauthorized access, and enforcing authentication controls in the system, helping to protect sensitive data and corporate resources.
+strategy: ANY
+checks:
+  - key: o365-ad-failed-logins-by-user
+    name: O365 AD Failed Logins by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.ResultStatus.keyword = 'Failed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-unsuccesful-login-location
+    name: O365 AD Unsuccesful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoginFailed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1167
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 Special privileges assigned to new logon
+scope: data
+statement: This report collects and analyzes 4672 events (Special Privileges Assigned to a New Session) recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. It verifies the use of elevated privileges assigned to users and administrators, ensuring that each account has a unique ID and that privileged access is properly managed and controlled. It also monitors the use of shared accounts, the administration of account additions, deletions, and modifications, and the attribution of actions to individual users, ensuring strict account lifecycle management and compliance with authentication controls.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

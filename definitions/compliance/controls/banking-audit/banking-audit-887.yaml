@@ -1,0 +1,21 @@
+id: banking-audit-887
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Monitoring of Critical System Services Status
+scope: data
+statement: "The Windows Monitoring of Critical System Services Status Report provides detailed insights into the operational state of critical system services, tracking events such as service starts, stops, crashes, or failures. This report is essential for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as service disruptions can compromise system reliability and security.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of critical system services to safeguard financial systems and sensitive customer data.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators of service disruptions or failures in real-time, enabling immediate response to restore functionality and prevent downtime.<br/>\t•\tIncident Detection: Identifies recurring service failures or unauthorized modifications, which could indicate security threats or system misconfigurations.<br/>\t•\tAudit Readiness: Provides traceability of service status events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust monitoring and management practices.<br/>\t•\tSystem Reliability: Supports compliance with PCI DSS Requirement 10, ensuring critical services remain operational to maintain secure and reliable financial operations."
+strategy: ANY
+checks:
+  - key: windows-monitoring-of-critical-system-services-status
+    name: Windows Monitoring of Critical System Services Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-monitoring-of-critical-system-services-status-by-event
+    name: Windows Monitoring of Critical System Services Status by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

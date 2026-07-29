@@ -1,0 +1,21 @@
+id: cmmc-2.0-503
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): Cleaned Event Log'
+scope: data
+statement: This report collects key information from Windows logs related to event 1102, which is triggered when system event logs have been cleared, an action that may indicate an attempt to hide suspicious or malicious activity on the system.<br/><br/>Event 1102 is directly related to monitoring activity in the event logs, as it records when a user or process deletes the event logs, which is a critical action that can impact the integrity of the audit logs. In the context of compliance with SI.2.212 of CMMC Level 2, this event is essential to implement real-time monitoring mechanisms for security events, as it provides the visibility necessary to detect attempts to manipulate or delete audit records, which which could interfere with the ability to audit and respond to security incidents effectively.<br/><br/>This event is especially important for detecting suspicious or malicious activity, such as security breach cover-up attempts or unauthorized activities. Including Event 1102 in log analysis ensures that log integrity is maintained and effective real-time security monitoring can be performed, meeting the requirements of CMMC Level 2 (SI.2.212). .<br/><br/>The continuous collection and analysis of 1102 events ensures that organizations can detect any attempted security log manipulation and take the necessary corrective action to protect the system and its resources. This practice is essential to maintain traceability of security incidents and to meet the continuous monitoring requirements established by CMMC.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

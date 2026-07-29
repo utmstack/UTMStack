@@ -1,0 +1,21 @@
+id: hipaa-651
+family: hipaa
+familyName: HIPAA
+name: Windows Access to shared resource
+scope: data
+statement: This report collects and analyzes security events identified by ID 5145 on Windows systems. Event 5145 records detailed access to files and folders within network shares, providing relevant information on attempts to read, write, modify, or delete data that may contain ePHI (Electronic Protected Health Information). This event is essential for verifying compliance with HIPAA requirement 164.312(a)(1), which establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that maintain ePHI. This report facilitates the identification and monitoring of access to sensitive files, contributing to adequate access control and the implementation of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resource
+    name: Windows Access to shared resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-accesses-by-share-type
+    name: Windows Accesses by share type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

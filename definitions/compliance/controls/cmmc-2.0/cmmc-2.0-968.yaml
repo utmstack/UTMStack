@@ -1,0 +1,21 @@
+id: cmmc-2.0-968
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Delete Object Attempt'
+scope: data
+statement: This report gathers relevant information from the security events recorded in the Windows event 4659 logs. Such an event indicates that an identifier has been requested for an object with the intention of deleting it, which may represent a risk to the protection of Controlled Unclassified Information (CUI).<br/><br/>The objective of this analysis is to evaluate compliance with CMMC Level 3 control MP.3.123, which requires the protection of the CUI during its transport and the prevention of data loss. By reviewing these records, we seek to detect suspicious or unauthorized activities related to the deletion of files that contain sensitive information, guaranteeing the implementation of appropriate security measures to avoid improper access or loss of data.
+strategy: ANY
+checks:
+  - key: windows-delete-object-attempt
+    name: Windows Delete Object Attempt
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4659')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-delete-object-attempt-by-user
+    name: Windows Delete Object Attempt by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4659')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

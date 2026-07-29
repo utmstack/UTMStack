@@ -1,0 +1,21 @@
+id: banking-audit-898
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Access to Shared Resources
+scope: data
+statement: "The Windows Access to Shared Resources Report provides detailed logs of events where users or systems access shared resources, such as files, folders, printers, or shared drives. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as shared resource access can expose sensitive data if not properly monitored.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of shared resource access to protect sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that access to shared resources is restricted to authorized users and activities are logged.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately of unauthorized or suspicious access to shared resources, enabling rapid response to potential threats.<br/>\t•\tIncident Detection: Identifies patterns of unauthorized access, excessive data downloads, or unusual access times, which may indicate insider threats or compromised accounts.<br/>\t•\tAudit Readiness: Tracks all access events to shared resources, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure resource-sharing practices."
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

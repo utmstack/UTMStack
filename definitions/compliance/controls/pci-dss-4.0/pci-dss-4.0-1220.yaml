@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1220
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.6 Scheduled Task Creation
+scope: data
+statement: This report compiles relevant information from Windows 4698 events, which record configuration and modifications to security policies and user accounts. These events are critical to ensuring that staff receive ongoing security education, in accordance with PCI DSS Requirement 12.6.<br/><br/>The report validates that the organization has implemented a formal security awareness program, reviewed and updated annually to reflect new threats and vulnerabilities. It also ensures that staff receive security training at least once a year, utilizing various communication methodologies, and that employees' understanding of security policies is confirmed.<br/><br/>It also confirms that the training covers threats such as phishing, social engineering, and acceptable use of end-user technologies, in accordance with the guidelines established in the PCI DSS standard.
+strategy: ANY
+checks:
+  - key: windows-scheduled-task-creation-by-user
+    name: Windows Scheduled Task Creation by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-scheduled-task-creation
+    name: Windows Scheduled Task Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

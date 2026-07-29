@@ -1,0 +1,21 @@
+id: hipaa-724
+family: hipaa
+familyName: HIPAA
+name: Office 365 OneDrive File Download
+scope: data
+statement: This report supports compliance with the NIST CSF PR.DS-3 requirement, which requires protective monitoring of data both at rest and in transit. By analyzing events related to the FileDownloaded operation in Office 365, this report facilitates the monitoring of file download-related activities, allowing for the detection of unauthorized access or suspicious activity. This continuous monitoring helps ensure the protection of sensitive data, ensuring its integrity, confidentiality, and availability throughout its entire lifecycle.
+strategy: ANY
+checks:
+  - key: o365-onedrive-file-download
+    name: O365 OneDrive File Download
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileDownloaded')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-onedrive-file-download-by-extension
+    name: O365 OneDrive File Download by Extension
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileDownloaded')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

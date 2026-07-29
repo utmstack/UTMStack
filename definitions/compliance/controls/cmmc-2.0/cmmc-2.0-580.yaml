@@ -1,0 +1,21 @@
+id: cmmc-2.0-580
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Registry Value Modification'
+scope: data
+statement: This report collects the records of Windows log event 4657, which documents changes to the security settings of file and folder objects, especially those that contain Controlled Unclassified Information (CUI). Event 4657 is generated when a modification is made to the properties of an object, such as changes to access control lists (ACLs), the security property of a file or folder, or audit settings. This information is essential to verify compliance with CMMC's Level 3 policy (AC.3.014), which requires controlling the flow of CUI and adequately protecting access points to this data.<br/><br/>The report includes key details such as the name of the modified object, the type of change made (for example, modifications to ACLs, access permissions, or security attributes), the identity of the user or process that made the modification, and the date and time the change occurred. The analysis of these events allows us to verify that the security configurations of the objects that contain CUI are adequately managed and that access to this data is correctly controlled, aligning with the security policies that protect sensitive information.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

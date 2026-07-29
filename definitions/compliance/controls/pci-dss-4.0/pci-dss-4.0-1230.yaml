@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1230
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Logins with explicit credentials
+scope: data
+statement: This report collects and analyzes explicit credentials login events (Event ID 4648) on Windows systems to assess compliance with PCI DSS Requirement A1.2.2, which establishes the implementation of processes and mechanisms to facilitate rapid forensic investigations in the event of a suspected or confirmed security incident. Event 4648 is generated when a login process uses explicit credentials to authenticate a session, which may indicate unusual or suspicious access requiring further investigation. This analysis verifies that mechanisms are in place to support the collection and analysis of relevant logs, enabling timely forensic investigations in the event of security incidents. The findings in this report ensure that the system is configured to provide the necessary information for incident resolution and support security investigations, aligning with PCI DSS controls for incident response and evidence preservation.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

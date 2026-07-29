@@ -1,0 +1,21 @@
+id: banking-audit-919
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Special privileges assigned to new logon
+scope: data
+statement: "The Windows Special Privileges Assigned to New Logon report provides detailed logs of events where special privileges are granted to a user during the logon process. This report is critical for tracking privilege escalations, detecting unauthorized access, and ensuring compliance with access control policies.<br/>\t•\tRegulatory Compliance: Supports frameworks like PCI DSS, ISO 27001, and SOC2, by documenting privilege assignments at logon to ensure adherence to least privilege principles and audit requirements.<br/>\t•\tPrivilege Management Monitoring: Tracks the assignment of privileges such as SeDebugPrivilege, SeTakeOwnershipPrivilege, or SeBackupPrivilege, which could be misused if assigned improperly.<br/>\t•\tEvent Correlation: Links privilege assignment events with user accounts, originating systems, and subsequent activities, providing a comprehensive audit trail for security analysis.<br/>\t•\tReal-Time Alerts: Notifies administrators of special privilege assignments to users, especially for privileged accounts, enabling immediate investigation of potential threats.<br/>\t•\tIncident Detection: Identifies suspicious privilege assignments, such as repeated assignments to the same user or assignments outside of expected workflows, which may indicate insider threats or configuration errors.<br/>\t•\tAudit Readiness: Logs comprehensive details, including the user or account, the privileges assigned, the logon session ID, and the timestamp, ensuring robust records for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

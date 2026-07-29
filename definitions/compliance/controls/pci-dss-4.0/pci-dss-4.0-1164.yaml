@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1164
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 Account Logon Success
+scope: data
+statement: This report collects and analyzes 4624 (Successful Logon) events recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. It verifies that each user has a unique ID before accessing systems, preventing the misuse of generic or shared accounts. It also verifies that logged-in sessions correspond to authorized users, that inactive accounts are not used uncontrollably, and that third-party access is monitored and managed appropriately. This analysis ensures proper account management and access traceability, strengthening system security.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

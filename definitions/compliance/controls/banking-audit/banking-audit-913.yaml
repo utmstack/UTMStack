@@ -1,0 +1,21 @@
+id: banking-audit-913
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Enabled
+scope: data
+statement: "The Windows User Accounts Enabled report provides detailed logs of events where previously disabled user accounts are re-enabled on a Windows system. This report is critical for monitoring account management activities, detecting unauthorized actions, and ensuring compliance with security and audit frameworks.<br/>\t•\tRegulatory Compliance: Aligns with frameworks such as PCI DSS, ISO 27001, and SOC2, by maintaining records of account enablement activities to support access control and audit requirements.<br/>\t•\tAccount Management Monitoring: Tracks the re-enabling of user accounts, allowing administrators to ensure that such actions are performed only through authorized workflows and for legitimate reasons.<br/>\t•\tEvent Correlation: Links account enablement events with other related activities, such as privilege escalations, group modifications, or logon attempts, to provide a comprehensive audit trail.<br/>\t•\tReal-Time Alerts: Sends immediate notifications when accounts are re-enabled, particularly for high-privilege accounts or accounts that could pose a security risk if reactivated.<br/>\t•\tIncident Detection: Helps identify unauthorized actions, such as the reactivation of dormant accounts, which could indicate insider threats, privilege abuse, or malicious activities.<br/>\t•\tAudit Readiness: Logs detailed information, including the account name, enabling user or process, originating machine, and timestamp, ensuring comprehensive records for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

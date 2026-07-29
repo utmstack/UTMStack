@@ -1,0 +1,21 @@
+id: cmmc-2.0-1004
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AU.3.045): Mailbox Permission Assigning'
+scope: data
+statement: This report provides a detailed analysis of mailbox permission assignment (Add-MailboxPermission) events in the Office 365 (Exchange) environment, with the objective of verifying compliance with the control established in CMMC Level 3 (AU.3.045). The report collects relevant information from audit logs to correlate permission assignment actions with security events, allowing for a more effective analysis of activities related to mailbox access and management.
+strategy: ANY
+checks:
+  - key: o365-add-mailboxpermission
+    name: O365 Add-MailboxPermission
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add-MailboxPermission')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-add-mailboxpermission-by-origin-server
+    name: O365 Add-MailboxPermission by Origin Server
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add-MailboxPermission')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1206
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.3 Process Creation
+scope: data
+statement: This report aims to assess compliance with PCI DSS Requirement 11.3.1.3, which establishes that internal vulnerability scans must be performed after any significant change to system infrastructure. Using Windows event 4688 logs, which record the creation of new processes, the report gathers information on command execution and the installation of new applications or configurations that may indicate significant changes to the systems. This analysis verifies that, following these changes, internal vulnerability scans were performed to identify and resolve high-risk or critical vulnerabilities, in accordance with the risk classifications defined in PCI DSS Requirement 6.3.1. Furthermore, the report ensures that rescans are performed when necessary and that scans are conducted by qualified personnel, ensuring proper management and mitigation of vulnerabilities in the system environment following significant changes.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

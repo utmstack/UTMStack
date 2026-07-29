@@ -1,0 +1,21 @@
+id: cmmc-2.0-992
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Software installation completed successfully
+scope: data
+statement: This report consolidates and analyzes Windows event log events 11707, which record successful installation of applications through the MsiInstaller service.<br/><br/>The purpose of the report is to provide visibility into the installation of software on the monitored systems, ensuring that changes to the infrastructure are controlled and comply with Disaster Recovery and Business Continuity Monitoring policies within the CMMC (Cybersecurity Maturity Model Certification) framework.<br/><br/>The report includes key details that allow you to verify the correct implementation of critical applications, guaranteeing the stability and availability of essential services.
+strategy: ANY
+checks:
+  - key: windows-net-runtime-error
+    name: Windows .NET Runtime Error
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1026')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-net-runtime-error-by-os
+    name: Windows .NET Runtime Error by OS
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1026')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

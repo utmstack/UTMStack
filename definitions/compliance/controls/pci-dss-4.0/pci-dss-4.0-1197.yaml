@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1197
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.1 Additions to Security Groups
+scope: data
+statement: This report presents a detailed analysis of Windows security events with ID 4728, which record the addition of users to global security groups. The information collected verifies compliance with PCI DSS Requirement 11.1.2, ensuring that roles and responsibilities for system and network security activities are documented, assigned, and understood by the appropriate parties.<br/><br/>This analysis validates that privilege and role assignments in the system are carried out in accordance with established policies and that any changes are audited and traceable, contributing to security and PCI DSS compliance.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

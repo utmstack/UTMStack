@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1091
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.5 Service Installed
+scope: data
+statement: The report consolidates relevant information from Windows event 4697 logs, providing evidence for assessing compliance with PCI DSS Requirements. This event allows monitoring the installation of new services on devices that have connectivity to both untrusted networks and the CDE, facilitating the identification of potential configurations that could introduce risks to the network. By analyzing these logs, it is possible to verify that security controls are active, that the installation of unauthorized services is restricted, and that any modifications to device configurations are properly documented and approved in accordance with established security policies.
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

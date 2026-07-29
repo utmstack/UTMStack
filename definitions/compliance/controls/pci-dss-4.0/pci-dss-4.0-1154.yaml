@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1154
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.2 Local Security Group Member Removal
+scope: data
+statement: This report compiles information from Windows 4733 events, which record the removal of a user from a security group, indicating a change in system access privileges. Its purpose is to assess compliance with PCI DSS Requirement 7.2, which requires that access to system components and data be properly defined and assigned. By analyzing these logs, it is ensured that access is revoked appropriately and in a timely manner, ensuring that users have only the privileges necessary to perform their functions and thus protecting the security of sensitive data and system resources.
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1143
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows Process Creation
+scope: data
+statement: This report collects and analyzes relevant information from Windows event 4688 logs, which record the creation of new processes in the system. Its objective is to assess compliance with PCI DSS Requirement 6.3, ensuring that security vulnerabilities are identified and effectively managed. Analysis of these events allows for the detection of suspicious or unauthorized processes that may indicate the exploitation of vulnerabilities in the system. It also reviews whether the execution of custom and third-party software follows safe practices, such as the application of patches and security updates within established timeframes. This approach helps mitigate risks, identify potential threats, and ensure that systems are protected against known vulnerabilities, aligning with the security controls required by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

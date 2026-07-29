@@ -1,0 +1,21 @@
+id: banking-audit-891
+family: banking-audit
+familyName: BANKING AUDIT
+name: ' Windows Account Authentication Using NTLM'
+scope: data
+statement: "The Windows Account Authentication Using NTLM Report provides detailed logs of authentication events involving NTLM (NT LAN Manager), including successful and failed attempts. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as NTLM-based authentication can be a target for credential theft and relay attacks.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring visibility and oversight of NTLM authentication attempts to protect sensitive financial systems and customer data.<br/>\t•\tAuthentication Monitoring: Supports compliance with PCI DSS Requirement 8, which mandates secure authentication practices and tracking of all login attempts.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators of NTLM authentication failures or unusual patterns in real-time, enabling rapid response to potential security threats.<br/>\t•\tIncident Detection: Identifies suspicious activities such as NTLM relay attacks, brute force attempts, or compromised account usage.<br/>\t•\tAudit Readiness: Provides traceability for NTLM authentication events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure access management practices."
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

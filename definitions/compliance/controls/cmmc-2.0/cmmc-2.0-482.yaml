@@ -1,0 +1,21 @@
+id: cmmc-2.0-482
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Protected Object Permission Change'
+scope: data
+statement: This report collects event 4670 logs from the Windows logs, which document changes to the permissions of objects on the system (such as files, folders, or registry keys). The information obtained from these events is crucial to verify compliance with CMMC's Level 2 Authentication and Access Control policy (AC.2.007), which requires the implementation of role-based access controls (RBAC) to ensure that users have access only to the resources necessary for their functions. <br/><br/>The report includes details such as the name of the object whose permission was modified, the permissions assigned, the identity of the user or process that made the change, and the date and time the modification was made. The analysis of these events ensures that changes in object permissions are managed in a controlled manner, in accordance with security policies and the roles assigned to each user, which helps prevent unauthorized access and maintain the principle of least protection. privilege.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

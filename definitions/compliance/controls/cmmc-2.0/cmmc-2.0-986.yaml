@@ -1,0 +1,21 @@
+id: cmmc-2.0-986
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Error Reporting
+scope: data
+statement: This report presents an analysis of Windows Event Viewer events ID 1001, which are related to system shutdown errors or unexpected failures in the operating system. Event 1001 is generated when the system detects an unexpected shutdown or system crash, which may be an indication of problems related to system availability.<br/><br/>Tracking these events is crucial to meeting Disaster Recovery and Business Continuity requirements, as stipulated in the CMMC (Cybersecurity Maturity Model Certification) model. The collection and analysis of event ID 1001 logs allows the identification of critical failures that could affect the continued operation of the system, helping to ensure that recovery and contingency mechanisms are implemented and functioning correctly to maintain system stability and availability in the event of unexpected incidents.c
+strategy: ANY
+checks:
+  - key: windows-error-reporting
+    name: Windows Error Reporting
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1001')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-error-reporting-by-host
+    name: Windows Error Reporting by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1001')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11
