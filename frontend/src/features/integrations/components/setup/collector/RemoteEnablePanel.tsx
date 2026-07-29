@@ -186,10 +186,13 @@ export function RemoteEnablePanel({
   const isConfigLocked = isSyncingConfig || isLiveOnSelectedForwarder
 
   useEffect(() => {
+    setGeneratedSecret(null)
+  }, [collectorId])
+
+  useEffect(() => {
     if (collectorId == null) return
     if (!currentConfig.isSuccess) return
 
-    setGeneratedSecret(null)
     const data = currentConfig.data
 
     if (data.configured) {
