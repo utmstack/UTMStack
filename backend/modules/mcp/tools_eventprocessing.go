@@ -212,11 +212,11 @@ type epRuleCreateInput struct {
 	Technique       string `json:"technique,omitempty"`
 	Description     string `json:"description,omitempty"`
 
-	References    any `json:"references,omitempty"`
-	Definition    any `json:"definition"`
-	GroupBy       any `json:"groupBy,omitempty"`
-	DeduplicateBy any `json:"deduplicateBy,omitempty"`
-	Correlation   any `json:"correlation,omitempty"`
+	References    any `json:"references,omitempty" jsonschema:"Rule references (any JSON)"`
+	Definition    any `json:"definition" jsonschema:"Rule definition DSL (any JSON)"`
+	GroupBy       any `json:"groupBy,omitempty" jsonschema:"Group-by DSL (any JSON)"`
+	DeduplicateBy any `json:"deduplicateBy,omitempty" jsonschema:"Deduplicate-by DSL (any JSON)"`
+	Correlation   any `json:"correlation,omitempty" jsonschema:"Correlation DSL (any JSON)"`
 
 	RuleActive bool              `json:"ruleActive"`
 	DataTypes  []dto.DataTypeRef `json:"dataTypes,omitempty"`
