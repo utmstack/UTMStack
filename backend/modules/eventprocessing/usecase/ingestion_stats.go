@@ -13,7 +13,7 @@ import (
 var ErrInvalidStatsParam = errors.New("invalid ingestion-stats parameter")
 
 const (
-	defaultStatsWindow = 24 * time.Hour
+	defaultStatsWindow = "24h"
 	defaultTop         = 100
 	maxTop             = 1000
 )
@@ -132,7 +132,7 @@ func resolveStatus(status string) (string, string, error) {
 // resolveWindow defaults to the last 24h when from/to are absent (RFC3339).
 func resolveWindow(from, to string) (string, string) {
  	if to == "" { to = "now" }
-	if from == "" { from = "now-" + defaultStatsWindow.String() }
+	if from == "" { from = "now-" + defaultStatsWindow }
 	 return from, to
 }
 
