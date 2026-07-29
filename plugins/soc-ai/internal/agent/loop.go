@@ -4,18 +4,48 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync/atomic"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
 
-const defaultMaxIters = 12
+const (
+	defaultMaxIters     = 12
+	compactionThreshold = 0.80
+	summaryMaxTokens    = 400 // ~200 words + slack
+)
+
+var modelContextWindow = []struct {
+	prefix string
+	window int
+}{
+	{"claude", 200000},
+	{"gpt-5", 400000},
+	{"gpt-4o", 128000},
+	{"gpt-4-turbo", 128000},
+	{"gpt-4", 8192},
+	{"gpt-3.5", 16385},
+}
+
+func resolveContextWindow(model string) int {
+	m := strings.ToLower(model)
+	for _, e := range modelContextWindow {
+		if strings.HasPrefix(m, e.prefix) {
+			return e.window
+		}
+	}
+	return 128000
+}
 
 type EventKind string
 
 const (
-	EventToolCall   EventKind = "tool_call"
-	EventToolResult EventKind = "tool_result"
-	EventFinal      EventKind = "final"
-	EventError      EventKind = "error"
+	EventToolCall    EventKind = "tool_call"
+	EventToolResult  EventKind = "tool_result"
+	EventFinal       EventKind = "final"
+	EventError       EventKind = "error"
+	EventCompaction  EventKind = "compaction"
 )
 
 type Event struct {
@@ -51,14 +81,21 @@ type RunResult struct {
 }
 
 type Agent struct {
-	llm       LLMClient
-	broker    *ToolBroker
-	model     string
-	maxTokens int
+	llm           LLMClient
+	broker        *ToolBroker
+	model         string
+	maxTokens     int
+	contextWindow int // 0 = compaction disabled
 }
 
-func New(llm LLMClient, broker *ToolBroker, model string, maxTokens int) *Agent {
-	return &Agent{llm: llm, broker: broker, model: model, maxTokens: maxTokens}
+func New(llm LLMClient, broker *ToolBroker, model string, maxTokens, contextWindow int) *Agent {
+	cw := contextWindow
+	if cw == 0 {
+		cw = resolveContextWindow(model)
+	} else if cw < 0 {
+		cw = 0
+	}
+	return &Agent{llm: llm, broker: broker, model: model, maxTokens: maxTokens, contextWindow: cw}
 }
 
 func (a *Agent) Broker() *ToolBroker { return a.broker }
@@ -85,6 +122,20 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 
 	for step := 1; step <= maxIters; step++ {
 		result.Steps = step
+
+		if a.contextWindow > 0 && len(msgs) > 1 &&
+			estimateTokens(task.System, msgs) >= int(compactionThreshold*float64(a.contextWindow)) {
+			newMsgs, cErr := a.compact(ctx, task.Input, msgs)
+			if cErr != nil {
+				_ = catcher.Error("context compaction failed, continuing with full history", cErr, map[string]any{
+					"process": "plugin_com.utmstack.soc-ai",
+				})
+			} else {
+				msgs = newMsgs
+				sink.emit(Event{Kind: EventCompaction, Step: step})
+			}
+		}
+
 		resp, err := a.llm.Complete(ctx, CompletionRequest{
 			System:    task.System,
 			Messages:  msgs,
@@ -152,6 +203,49 @@ func filterTools(specs []ToolSpec, task RunTask) []ToolSpec {
 		}
 	}
 	return out
+}
+
+func estimateTokens(system string, msgs []Message) int {
+	n := len(system)
+	for _, m := range msgs {
+		n += len(m.Content)
+		for _, tc := range m.ToolCalls {
+			n += len(tc.Name) + len(tc.Args)
+		}
+		if m.ToolResult != nil {
+			n += len(m.ToolResult.Content) + len(m.ToolResult.Name)
+		}
+	}
+	return n / 4
+}
+
+func (a *Agent) compact(ctx context.Context, userInput string, msgs []Message) ([]Message, error) {
+	var b strings.Builder
+	for _, m := range msgs {
+		fmt.Fprintf(&b, "[%s] %s\n", m.Role, m.Content)
+		for _, tc := range m.ToolCalls {
+			fmt.Fprintf(&b, "  tool_call %s(%s)\n", tc.Name, string(tc.Args))
+		}
+		if m.ToolResult != nil {
+			fmt.Fprintf(&b, "  tool_result %s: %s\n", m.ToolResult.Name, m.ToolResult.Content)
+		}
+	}
+	resp, err := a.llm.Complete(ctx, CompletionRequest{
+		System:    "Summarize the following SOC analyst conversation in ~200 words. Preserve key facts, tool outputs, decisions, and unresolved next steps. Do not use tools.",
+		Messages:  []Message{{Role: RoleUser, Content: b.String()}},
+		Model:     a.model,
+		MaxTokens: summaryMaxTokens,
+	})
+	if err != nil {
+		return msgs, err
+	}
+	if strings.TrimSpace(resp.Content) == "" {
+		return msgs, fmt.Errorf("empty summary")
+	}
+	return []Message{{
+		Role:    RoleUser,
+		Content: "Original task:\n" + userInput + "\n\nProgress so far (summary of prior context):\n" + resp.Content + "\n\nContinue the task.",
+	}}, nil
 }
 
 var current atomic.Pointer[Agent]
