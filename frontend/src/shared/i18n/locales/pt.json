@@ -5009,7 +5009,9 @@
     "header": {
       "matchedInEnv": "coincidências em seu ambiente",
       "export": "Exportar IOCs",
-      "exporting": "Exportando…"
+      "exporting": "Exportando…",
+      "noInstanceIocs": "Sem indicadores de instância — exibindo dados genéricos",
+      "noInstanceIocsHint": "Nenhum indicador observado em seus alertas — exibindo dados genéricos dos feeds."
     },
     "overview": {
       "title": "Correspondências de IOC",
