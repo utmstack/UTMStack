@@ -4751,6 +4751,14 @@
       "save": "Guardar",
       "cancel": "Cancelar"
     },
+    "reasonModal": {
+      "title": "Motivo requerido",
+      "description": "Indica el motivo del cambio de estado. Se registrará.",
+      "label": "Motivo",
+      "placeholder": "Explica por qué cambias el estado de este control…",
+      "confirm": "Confirmar cambio",
+      "cancel": "Cancelar"
+    },
     "coverageLabel": "Cobertura",
     "activityLabel": "Actividad",
     "evidenceLabel": "Evidencia",
