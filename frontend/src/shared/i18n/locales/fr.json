@@ -5047,7 +5047,9 @@
     "header": {
       "matchedInEnv": "correspondances détectées dans votre environnement",
       "export": "Exporter les IOCs",
-      "exporting": "Exportation…"
+      "exporting": "Exportation…",
+      "noInstanceIocs": "Aucun indicateur d'instance — affichage de données génériques",
+      "noInstanceIocsHint": "Aucun indicateur observé dans vos alertes — affichage des données génériques des flux."
     },
     "overview": {
       "title": "Correspondances IOC",

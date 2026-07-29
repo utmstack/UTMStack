@@ -15,6 +15,9 @@ const TYPE_FAMILIES: Record<'ip' | 'url' | 'domain' | 'signatures', string[]> = 
   ],
 }
 
+const compact = (n: number) =>
+  n.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 })
+
 // Show time-of-day for sub-day intervals, date for day+ intervals.
 function formatTs(ts: number, interval: string): string {
   const perDay = /min|hour|^[0-9]+[mh]$/i.test(interval)
@@ -100,8 +103,11 @@ export function MatchOverviewCard({ body, interval }: MatchOverviewCardProps) {
             {t('threatIntel.overview.title')}
           </div>
           <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold tabular-nums">
-              {query.isPending ? '—' : total.toLocaleString()}
+            <span
+              className="text-3xl font-semibold tabular-nums"
+              title={query.isPending ? undefined : total.toLocaleString()}
+            >
+              {query.isPending ? '—' : compact(total)}
             </span>
             <span className="text-sm text-muted-foreground">{t('threatIntel.overview.totalIndicators')}</span>
           </div>
@@ -116,8 +122,11 @@ export function MatchOverviewCard({ body, interval }: MatchOverviewCardProps) {
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 {t(`threatIntel.overview.families.${family}`, { defaultValue: family })}
               </div>
-              <div className="text-lg font-semibold tabular-nums">
-                {query.isPending ? '—' : familyCounts[family].toLocaleString()}
+              <div
+                className="text-lg font-semibold tabular-nums"
+                title={query.isPending ? undefined : familyCounts[family].toLocaleString()}
+              >
+                {query.isPending ? '—' : compact(familyCounts[family])}
               </div>
             </div>
           ))}

@@ -5047,7 +5047,9 @@
     "header": {
       "matchedInEnv": "Treffer in Ihrer Umgebung",
       "export": "IOCs exportieren",
-      "exporting": "Wird exportiert…"
+      "exporting": "Wird exportiert…",
+      "noInstanceIocs": "Keine Instanz-Indikatoren – generische Daten werden angezeigt",
+      "noInstanceIocsHint": "In Ihren Warnmeldungen wurden keine Indikatoren beobachtet – generische Feed-Daten werden angezeigt."
     },
     "overview": {
       "title": "IOC-Treffer",

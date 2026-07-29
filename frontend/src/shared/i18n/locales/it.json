@@ -5047,7 +5047,9 @@
     "header": {
       "matchedInEnv": "corrispondenze nel tuo ambiente",
       "export": "Esporta IOCs",
-      "exporting": "Esportazione…"
+      "exporting": "Esportazione…",
+      "noInstanceIocs": "Nessun indicatore d'istanza — visualizzazione di dati generici",
+      "noInstanceIocsHint": "Nessun indicatore osservato nei tuoi avvisi — vengono mostrati i dati generici dei feed."
     },
     "overview": {
       "title": "Corrispondenze IOC",
