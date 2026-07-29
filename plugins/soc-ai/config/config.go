@@ -34,6 +34,7 @@ type Config struct {
 	AuthHeaderName string
 	CustomHeaders  map[string]string
 	MaxTokens      int
+	ContextWindow  int
 
 	// Agent behavior (from YAML)
 	MaxToolIterations int
@@ -53,6 +54,7 @@ type fileConfig struct {
 	AuthHeaderName    string            `yaml:"auth_header_name"`
 	CustomHeaders     map[string]string `yaml:"custom_headers"`
 	MaxTokens         int               `yaml:"max_tokens"`
+	ContextWindow     int               `yaml:"context_window"`
 	MaxToolIterations int               `yaml:"max_tool_iterations"`
 	AutoAnalyze       bool              `yaml:"auto_analyze"`
 	Capabilities      []string          `yaml:"capabilities"`
@@ -242,6 +244,7 @@ func readConfig(path, encKey, backend, internalKey string) *Config {
 	c.AuthHeaderName = fc.AuthHeaderName
 	c.CustomHeaders = customHeaders
 	c.MaxTokens = maxTokens
+	c.ContextWindow = fc.ContextWindow
 	c.MaxToolIterations = maxIters
 	c.AutoAnalyze = fc.AutoAnalyze
 	c.Capabilities = fc.Capabilities

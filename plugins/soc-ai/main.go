@@ -55,7 +55,7 @@ func applyConfigUpdates() {
 			CustomHeaders:  cfg.CustomHeaders,
 		})
 		broker := agent.NewToolBroker(cfg.Backend, cfg.InternalKey)
-		agent.SetCurrent(agent.New(llm, broker, cfg.Model, cfg.MaxTokens))
+		agent.SetCurrent(agent.New(llm, broker, cfg.Model, cfg.MaxTokens, cfg.ContextWindow))
 		catcher.Info("SOC-AI agent configured", map[string]any{
 			"process":  "plugin_com.utmstack.soc-ai",
 			"provider": cfg.Provider,
