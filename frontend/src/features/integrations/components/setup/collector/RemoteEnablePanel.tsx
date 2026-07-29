@@ -187,7 +187,7 @@ export function RemoteEnablePanel({
 
   useEffect(() => {
     setGeneratedSecret(null)
-  }, [collectorId])
+  }, [])
 
   useEffect(() => {
     if (collectorId == null) return
