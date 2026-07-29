@@ -3883,6 +3883,7 @@
       "status": "Stato",
       "technique": "Tecnica",
       "sourceAdversary": "Origine → Avversario",
+      "severity": "Gravità",
       "risk": "Rischio",
       "echoes": "Echi",
       "time": "Ora",
@@ -3931,6 +3932,7 @@
         "notes": "Note"
       },
       "details": {
+        "severity": "Gravità",
         "risk": "Rischio",
         "category": "Categoria",
         "technique": "Tecnica",

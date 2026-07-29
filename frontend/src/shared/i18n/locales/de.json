@@ -3883,6 +3883,7 @@
       "status": "Status",
       "technique": "Technik",
       "sourceAdversary": "Quelle → Angreifer",
+      "severity": "Schweregrad",
       "risk": "Risiko",
       "echoes": "Echos",
       "time": "Zeit",
@@ -3931,6 +3932,7 @@
         "notes": "Notizen"
       },
       "details": {
+        "severity": "Schweregrad",
         "risk": "Risiko",
         "category": "Kategorie",
         "technique": "Technik",

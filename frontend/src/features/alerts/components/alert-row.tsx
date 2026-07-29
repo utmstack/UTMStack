@@ -1,7 +1,7 @@
 import { Sparkles, Tag, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_META, TS, absTime, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag } from '../types/alert.types'
 import { AlertIncidentTarget } from './alert-incident-target'
@@ -129,6 +129,16 @@ export function AlertRow({
       </td>
       <td className={TD}>
         <FlowCell source={a.target} adversary={a.adversary} />
+      </td>
+      <td className={`${TD} text-center`}>
+        <span
+          className={cn(
+            'inline-flex items-center justify-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset',
+            SEV_BADGE[sk],
+          )}
+        >
+          {t(`alerts.severity.${sk}`)}
+        </span>
       </td>
       <td className={`${TD} text-center`}>
         <span
