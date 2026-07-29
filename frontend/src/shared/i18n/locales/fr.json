@@ -3883,6 +3883,7 @@
       "status": "Statut",
       "technique": "Technique",
       "sourceAdversary": "Source → Adversaire",
+      "severity": "Gravité",
       "risk": "Risque",
       "echoes": "Échos",
       "time": "Heure",
@@ -3931,6 +3932,7 @@
         "notes": "Notes"
       },
       "details": {
+        "severity": "Gravité",
         "risk": "Risque",
         "category": "Catégorie",
         "technique": "Technique",

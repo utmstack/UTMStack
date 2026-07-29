@@ -12,6 +12,14 @@ export const SEV_META: Record<SeverityKey, { label: string; bar: string; pill: s
   low: { label: 'Low', bar: 'bg-sky-500', pill: 'bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300' },
 }
 
+// Traffic-light badge (green/yellow/red) shown wherever the alert severity
+// itself is displayed as a chip (table column, drawer details).
+export const SEV_BADGE: Record<SeverityKey, string> = {
+  high: 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300',
+  medium: 'bg-yellow-500/15 text-yellow-700 ring-yellow-500/30 dark:text-yellow-300',
+  low: 'bg-emerald-500/15 text-emerald-600 ring-emerald-500/30 dark:text-emerald-300',
+}
+
 export const ST_META: Record<StatusKey, { label: string; pill: string }> = {
   open: { label: 'Open', pill: 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300' },
   in_review: { label: 'In review', pill: 'bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300' },

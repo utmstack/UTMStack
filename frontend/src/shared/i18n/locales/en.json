@@ -4169,6 +4169,7 @@
       "status": "Status",
       "technique": "Technique",
       "sourceAdversary": "Source → Adversary",
+      "severity": "Severity",
       "risk": "Risk",
       "echoes": "Echoes",
       "time": "Time",
@@ -4217,6 +4218,7 @@
         "notes": "Notes"
       },
       "details": {
+        "severity": "Severity",
         "risk": "Risk",
         "category": "Category",
         "technique": "Technique",

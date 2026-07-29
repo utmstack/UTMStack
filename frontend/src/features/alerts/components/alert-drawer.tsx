@@ -3,7 +3,7 @@ import { Flame, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
-import { SEV_META, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_BADGE, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
 import { type Alert, type AlertTag } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
@@ -56,9 +56,9 @@ export function AlertDrawer({
   const [notes, setNotes] = useState(userNotePart(a.notes))
   // The SOC AI agent may write its assessment into notes OR statusObservation.
   const aiNote = parseAiNote(a.notes) ?? parseAiNote(a.statusObservation)
-  const sm = SEV_META[sevKey(a)]
+  const sk = sevKey(a)
   const stm = ST_META[statusKey(a)]
-  const smLabel = t(`alerts.severity.${sevKey(a)}`)
+  const smLabel = t(`alerts.severity.${sk}`)
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   const tags = a.tags ?? []
 
@@ -75,7 +75,7 @@ export function AlertDrawer({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 font-medium ring-1 ring-inset', sm.pill)}>
+                <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 font-medium uppercase tracking-wide ring-1 ring-inset', SEV_BADGE[sk])}>
                   {smLabel}
                 </span>
                 <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 font-medium ring-1 ring-inset', stm.pill)}>
@@ -206,6 +206,16 @@ export function AlertDrawer({
               )}
               <Section title={t('alerts.drawer.section.details')}>
                 <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-xs">
+                  <Row k={t('alerts.drawer.details.severity')}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset',
+                        SEV_BADGE[sk],
+                      )}
+                    >
+                      {smLabel}
+                    </span>
+                  </Row>
                   <Row k={t('alerts.drawer.details.risk')}>{riskOf(a)}</Row>
                   <Row k={t('alerts.drawer.details.assignee')}>
                     {a.assignee ? a.assignee : <span className="text-muted-foreground">{t('alerts.drawer.unassigned')}</span>}

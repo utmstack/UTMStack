@@ -3992,6 +3992,7 @@
       "status": "Estado",
       "technique": "Técnica",
       "sourceAdversary": "Origen → Adversario",
+      "severity": "Severidad",
       "risk": "Riesgo",
       "echoes": "Ecos",
       "time": "Hora",
@@ -4040,6 +4041,7 @@
         "notes": "Notas"
       },
       "details": {
+        "severity": "Severidad",
         "risk": "Riesgo",
         "category": "Categoría",
         "technique": "Técnica",

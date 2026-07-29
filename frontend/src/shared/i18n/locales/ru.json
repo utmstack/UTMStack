@@ -3574,6 +3574,7 @@
       "status": "Статус",
       "technique": "Техника",
       "sourceAdversary": "Источник → Противник",
+      "severity": "Серьёзность",
       "risk": "Риск",
       "echoes": "Эхо",
       "time": "Время",
@@ -3622,6 +3623,7 @@
         "notes": "Заметки"
       },
       "details": {
+        "severity": "Серьёзность",
         "risk": "Риск",
         "category": "Категория",
         "technique": "Техника",
