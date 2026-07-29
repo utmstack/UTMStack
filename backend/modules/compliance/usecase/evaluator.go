@@ -127,6 +127,17 @@ func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, control
 	if !domain.ValidStatus(status) {
 		return domain.ErrInvalidStatus
 	}
+
+	note:=domain.UtmComplianceControlNote{
+		ControlID:    controlID,
+		Note: 		  reason,
+	}
+
+	err:=e.notes.Upsert(ctx,&note)
+	if err!=nil{
+		return err
+	}
+
 	return e.overrides.Upsert(ctx, &domain.UtmComplianceControlStatusOverride{
 		FrameworkKey: frameworkKey,
 		ControlID:    controlID,
@@ -370,12 +381,9 @@ func tally(s *domain.ReportSummary, status string) {
 	}
 }
 
-// finalizeSummary computes the compliance score over the controls that were
-// actually evaluated (compliant + non-compliant + at-risk); governance, pending
-// and not-covered are excluded from the percentage.
 func finalizeSummary(s *domain.ReportSummary) {
-	evaluated := s.Compliant + s.NonCompliant + s.AtRisk
+	evaluated := s.Compliant + s.NonCompliant + s.AtRisk + s.Pending
 	if evaluated > 0 {
-		s.CompliantPct = s.Compliant * 100 / evaluated
+		s.CompliantPct = (s.Compliant  / evaluated) * 100
 	}
 }
