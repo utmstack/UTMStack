@@ -1,14 +1,14 @@
 import { Sparkles, Tag, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag } from '../types/alert.types'
 import { AlertIncidentTarget } from './alert-incident-target'
 import { EchoesChip } from './echoes-chip'
+import { EndpointMini } from './endpoint-mini'
 import { StatusChangeMenu } from './status-change-menu'
 import { TagChip } from './tag-chip'
-import { FlowCell } from './flow-cell'
 
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
@@ -128,7 +128,10 @@ export function AlertRow({
         {a.technique || '—'}
       </td>
       <td className={TD}>
-        <FlowCell source={a.target} adversary={a.adversary} />
+        <EndpointMini ep={a.target} />
+      </td>
+      <td className={TD}>
+        <EndpointMini ep={a.adversary} accent />
       </td>
       <td className={`${TD} text-center`}>
         <span
@@ -138,17 +141,6 @@ export function AlertRow({
           )}
         >
           {t(`alerts.severity.${sk}`)}
-        </span>
-      </td>
-      <td className={`${TD} text-center`}>
-        <span
-          className={cn(
-            'inline-flex min-w-[26px] items-center justify-center rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums ring-1 ring-inset',
-            sev.pill,
-          )}
-          title={t('alerts.table.riskHint')}
-        >
-          {riskOf(a)}
         </span>
       </td>
       <td className={`${TD} text-center`}>
