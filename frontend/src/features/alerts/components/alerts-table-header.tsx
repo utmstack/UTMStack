@@ -19,7 +19,6 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
         <th className={TH}>{t('alerts.table.technique')}</th>
         <th className={TH}>{t('alerts.table.sourceAdversary')}</th>
         <th className={`${TH} text-center`}>{t('alerts.table.severity')}</th>
-        <th className={`${TH} text-center`} title={t('alerts.table.riskHint')}>{t('alerts.table.risk')}</th>
         <th className={`${TH} text-center`}>{t('alerts.table.echoes')}</th>
         <th className={`${TH} text-center`}>{t('alerts.table.time')}</th>
       </tr>
@@ -27,4 +26,4 @@ export function AlertsTableHeader({ allChecked, onTogglePage }: { allChecked: bo
   )
 }
 
-export const ALERTS_TABLE_COLUMN_COUNT = 12
+export const ALERTS_TABLE_COLUMN_COUNT = 11

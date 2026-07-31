@@ -1,7 +1,7 @@
 import { Sparkles, Tag, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
+import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, sevKey, statusKey } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag } from '../types/alert.types'
 import { AlertIncidentTarget } from './alert-incident-target'
@@ -138,17 +138,6 @@ export function AlertRow({
           )}
         >
           {t(`alerts.severity.${sk}`)}
-        </span>
-      </td>
-      <td className={`${TD} text-center`}>
-        <span
-          className={cn(
-            'inline-flex min-w-[26px] items-center justify-center rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums ring-1 ring-inset',
-            sev.pill,
-          )}
-          title={t('alerts.table.riskHint')}
-        >
-          {riskOf(a)}
         </span>
       </td>
       <td className={`${TD} text-center`}>
