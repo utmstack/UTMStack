@@ -11,13 +11,15 @@ import (
 type ADUserRepository interface {
 	Upsert(ctx context.Context, users []domain.ADUser) error
 	List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error)
-	All(ctx context.Context) ([]domain.ADUser, error)
+	All(ctx context.Context, source string) ([]domain.ADUser, error)
 	Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error)
+	ResolveLinuxIdentity(ctx context.Context, tenantID, hostname, machineID string) (int64, error)
 }
 
 type ADUserUsecase interface {
 	Ingest(ctx context.Context, req dto.IngestRequest) (int, error)
 	List(ctx context.Context, f dto.ADUserFilter) (*database.List[domain.ADUser], error)
-	All(ctx context.Context) ([]domain.ADUser, error)
+	All(ctx context.Context, source string) ([]domain.ADUser, error)
 	Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error)
+	ResolveLinuxIdentity(ctx context.Context, req dto.ResolveLinuxIdentityRequest) (int64, error)
 }

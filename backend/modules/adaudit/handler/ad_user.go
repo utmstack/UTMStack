@@ -51,7 +51,8 @@ func (h *ADUserHandler) Ingest(c *gin.Context) {
 //	@Tags			AD Audit
 //	@Security		BearerAuth
 //	@Produce		json
-//	@Param			search		query		string	false	"Substring on samAccountName/sid"
+//	@Param			search		query		string	false	"Substring on samAccountName/sid/username"
+//	@Param			source		query		string	false	"Filter by source: windows | linux (omit for all)"
 //	@Param			tenantId	query		string	false	"Filter by tenant"
 //	@Param			active		query		bool	false	"Filter by active"
 //	@Param			status		query		string	false	"Lifecycle bucket: active|disabled|deleted|stale|service (overrides active)"
@@ -60,12 +61,17 @@ func (h *ADUserHandler) Ingest(c *gin.Context) {
 //	@Param			size		query		int		false	"Page size"
 //	@Success		200			{array}		domain.ADUser
 //	@Header			200			{string}	X-Total-Count	"Total records"
+//	@Failure		400			{object}	map[string]string
 //	@Failure		500			{object}	map[string]string
 //	@Router			/ad-audit/users [get]
 func (h *ADUserHandler) List(c *gin.Context) {
 	var f dto.ADUserFilter
 	if err := c.ShouldBindQuery(&f); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if f.Source != "" && f.Source != "windows" && f.Source != "linux" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', or omitted"})
 		return
 	}
 	res, err := h.uc.List(c.Request.Context(), f)
@@ -108,17 +114,54 @@ func (h *ADUserHandler) Stats(c *gin.Context) {
 //
 //	@Summary		Export all AD users (internal)
 //	@Description	Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache.
+//	@Description	Accepts an optional `source` filter so the plugin can seed its Windows and Linux
 //	@Tags			AD Audit
 //	@Produce		json
-//	@Success		200	{array}	domain.ADUser
-//	@Failure		500	{object}	map[string]string
+//	@Param			source	query		string	false	"Filter by source: windows | linux (omit for all)"
+//	@Success		200		{array}		domain.ADUser
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
 //	@Router			/ad-audit/users/sync [get]
 func (h *ADUserHandler) Sync(c *gin.Context) {
-	users, err := h.uc.All(c.Request.Context())
+	source := c.Query("source")
+	if source != "" && source != "windows" && source != "linux" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', or omitted"})
+		return
+	}
+	users, err := h.uc.All(c.Request.Context(), source)
 	if err != nil {
 		_ = catcher.Error("adaudit: sync failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not export users"})
 		return
 	}
 	c.JSON(http.StatusOK, users)
+}
+
+// Resolve godoc
+//
+//	@Summary		Resolve provisional Linux user rows (internal)
+//	@Description	Internal endpoint the ad-audit plugin calls once it learns the
+//	@Description	machine-id for a host that already has provisional Linux user rows
+//	@Description	(machine_id IS NULL).
+//	@Tags			AD Audit
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		dto.ResolveLinuxIdentityRequest	true	"Resolution payload"
+//	@Success		200		{object}	map[string]int64
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/ad-audit/users/resolve [post]
+func (h *ADUserHandler) Resolve(c *gin.Context) {
+	var req dto.ResolveLinuxIdentityRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	n, err := h.uc.ResolveLinuxIdentity(c.Request.Context(), req)
+	if err != nil {
+		_ = catcher.Error("adaudit: resolve failed", err, nil)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not resolve provisional rows"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"resolved": n})
 }
