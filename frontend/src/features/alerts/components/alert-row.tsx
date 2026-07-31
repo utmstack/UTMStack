@@ -6,9 +6,9 @@ import { isAiNote } from '../lib/ai-note'
 import type { Alert, AlertTag } from '../types/alert.types'
 import { AlertIncidentTarget } from './alert-incident-target'
 import { EchoesChip } from './echoes-chip'
+import { EndpointMini } from './endpoint-mini'
 import { StatusChangeMenu } from './status-change-menu'
 import { TagChip } from './tag-chip'
-import { FlowCell } from './flow-cell'
 
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
@@ -128,7 +128,10 @@ export function AlertRow({
         {a.technique || '—'}
       </td>
       <td className={TD}>
-        <FlowCell source={a.target} adversary={a.adversary} />
+        <EndpointMini ep={a.target} />
+      </td>
+      <td className={TD}>
+        <EndpointMini ep={a.adversary} accent />
       </td>
       <td className={`${TD} text-center`}>
         <span
