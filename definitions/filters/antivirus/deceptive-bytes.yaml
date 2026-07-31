@@ -450,6 +450,14 @@ pipeline:
           valueSplit: "="
           source: log.pidStatusToKv
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'exists("log.action") && oneOf("log.action", ["blocked", "prevented"])'
+
       # Adding severity based on log.severityLabelCharacter
       - add:
           function: 'string'

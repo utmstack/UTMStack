@@ -664,6 +664,24 @@ pipeline:
             - log.sender.user_view_type
           to: log.senderUserViewType
 
+      # Adding action result
+      - rename:
+          from:
+            - log.workflow_run.conclusion
+          to: log.conclusion
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("log.conclusion", "success")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'oneOf("log.conclusion", ["failure", "timed_out", "startup_failure", "action_required"])'
+
       # Removing unused fields
       - delete:
           fields:

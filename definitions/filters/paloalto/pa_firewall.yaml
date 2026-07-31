@@ -6848,6 +6848,58 @@ pipeline:
           to: target.mac 
 
       # ................................................#
+      # Adding action result
+      # ................................................#
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "allow"
+          where: '!exists("log.status") && equalsIgnoreCase("action", "allow")'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: '!exists("log.status") && oneOf("action", ["deny", "Deny"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: '!exists("log.status") && oneOf("action", ["drop", "Drop", "reset-client", "reset-server", "reset-both", "block-url", "block-ip", "random-drop", "sinkhole"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "Succeeded"
+          where: '!exists("log.status") && oneOf("log.result", ["Succeeded", "Submitted"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: '!exists("log.status") && oneOf("log.result", ["Failed", "Unauthorized"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("log.status", "success")'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("log.status", "failure")'
+
+      # ................................................#
       # Fileds conversions
       # ................................................#
       - cast:

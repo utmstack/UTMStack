@@ -668,6 +668,34 @@ pipeline:
           where: exists("origin.ip")
 
       # .......................................................................#
+      # Adding action result
+      # .......................................................................#
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.eventSuccess") && oneOf("log.eventSuccess", [true, "true"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("log.eventSuccess") && oneOf("log.eventSuccess", [false, "false"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 399)'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("statusCode") && greaterOrEqual("statusCode", 400)'
+
+      # .......................................................................#
       # Normalizing request method and renaming to action
       # .......................................................................#
       - add:

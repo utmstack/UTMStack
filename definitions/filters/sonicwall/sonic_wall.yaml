@@ -334,6 +334,22 @@ pipeline:
           to: string
 
       #......................................................................#
+      # Adding action result
+      #......................................................................#
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "forward"
+          where: 'equals("action", "forward")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'equals("action", "drop")'
+
+      #......................................................................#
       # Define Syslog Group Category (gcat) Values
       #......................................................................#
       - add:

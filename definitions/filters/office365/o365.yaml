@@ -64,11 +64,6 @@ pipeline:
 
       - rename:  
           from:
-            - log.ResultStatus
-          to: actionResult
-
-      - rename:  
-          from:
             - log.UserId
           to: origin.user
 
@@ -91,6 +86,21 @@ pipeline:
           from:
             - log.DestFolder.Path
           to: log.destFolderPath
+
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful", "PartiallySucceeded", "True"])
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: oneOf("log.ResultStatus", ["Failure", "Failed"])
 
       # Adding geolocation to origin ip
       - dynamic:
