@@ -1,0 +1,21 @@
+id: hipaa-652
+family: hipaa
+familyName: HIPAA
+name: Windows Network Access to shared resource
+scope: data
+statement: This report collects and analyzes security events identified by IDs 5140 and 5145 on Windows systems. Event 5140 records access to network shares, while event 5145 provides specific details about access to files and folders within those shares. Both events provide relevant information for verifying compliance with HIPAA requirement 164.312(a)(1), which establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that maintain ePHI (Electronic Protected Health Information). This report facilitates the identification and monitoring of access to shared resources, contributing to adequate access control and the implementation of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

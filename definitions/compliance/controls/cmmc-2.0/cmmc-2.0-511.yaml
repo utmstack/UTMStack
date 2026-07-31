@@ -1,0 +1,21 @@
+id: cmmc-2.0-511
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): System Time Settings Changes'
+scope: data
+statement: The SI.3.217 (System Time Settings Changes) control in the CMMC (Cybersecurity Maturity Model Certification) focuses on monitoring and controlling changes in the system time settings. This control is critical to ensure the integrity of the systems and the security of the organization, as unauthorized changes to the system time may be indicative of attempts to tamper with or evade audit logs.
+strategy: ANY
+checks:
+  - key: windows-system-time-settings-changes
+    name: Windows System Time Settings Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-time-settings-changes-by-subject-user
+    name: Windows System Time Settings Changes by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

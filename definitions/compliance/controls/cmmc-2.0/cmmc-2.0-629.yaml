@@ -1,0 +1,21 @@
+id: cmmc-2.0-629
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): Registry Value Modification'
+scope: data
+statement: This report collects information relevant to event 4657 in the Windows logs, which is generated when a system object, either a file or a registry key, is modified. This event is crucial for real-time monitoring of activities that could involve changes to security settings or critical files of the organization.<br/><br/>In the context of Level 2 (SI.2.212) of the CMMC, monitoring events such as 4657 is essential to detect and prevent unauthorized activities that may compromise the integrity of systems or allow the execution of malicious actions. This event provides visibility into changes made to important objects, allowing you to identify unplanned or unusual modifications to the environment, such as alteration of sensitive files or system configurations.<br/><br/>The report helps ensure that all critical modifications are detected and analyzed in real time, allowing early intervention in the event of potential security incidents. Additionally, it ensures that a detailed record is maintained of activities that may have an impact on security, aligning with the continuous monitoring requirements and the improvement of audit capabilities that are fundamental in CMMC compliance.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

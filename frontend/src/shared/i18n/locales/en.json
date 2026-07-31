@@ -5049,6 +5049,14 @@
       "save": "Save",
       "cancel": "Cancel"
     },
+    "reasonModal": {
+      "title": "Reason required",
+      "description": "Provide a reason for this status change. It will be recorded.",
+      "label": "Reason",
+      "placeholder": "Explain why you are changing this control's status…",
+      "confirm": "Confirm change",
+      "cancel": "Cancel"
+    },
     "coverageLabel": "Coverage",
     "activityLabel": "Activity",
     "evidenceLabel": "Evidence",

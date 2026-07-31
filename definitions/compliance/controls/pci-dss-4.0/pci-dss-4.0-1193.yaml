@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1193
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.6 System Time Settings Changes
+scope: data
+statement: This report compiles relevant information from Windows Event 4616 logs, which are generated when a change occurs in the system time settings. Event 4616 is key for monitoring changes in system clock synchronization, helping to ensure the consistency of audit logs and the traceability of security events.<br/><br/>The report is aligned with PCI DSS Requirement 10.6.1, which requires system clocks to be synchronized to ensure accurate audit logs. Analyzing these events can detect unauthorized changes in time settings, helping to prevent alterations that could compromise the integrity of security logs.
+strategy: ANY
+checks:
+  - key: windows-system-time-settings-changes
+    name: Windows System Time Settings Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-time-settings-changes-by-subject-user
+    name: Windows System Time Settings Changes by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

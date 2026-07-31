@@ -1,0 +1,21 @@
+id: hipaa-686
+family: hipaa
+familyName: HIPAA
+name: Windows Audit Policy Change
+scope: data
+statement: This report collects and analyzes security events identified by ID 4902 on Windows systems. Event 4902 records changes to local audit policy settings, providing relevant information about modifications to the rules that govern access and activity monitoring on systems that may contain ePHI (Electronic Protected Health Information). This event is essential for verifying compliance with HIPAA requirement 164.312(a)(1), which establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that maintain ePHI. This report facilitates the identification and monitoring of audit policy modifications, contributing to adequate access control and the implementation of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-audit-policy-change
+    name: Windows Audit Policy Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-audit-policy-change-by-outcome
+    name: Windows Audit Policy Change by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

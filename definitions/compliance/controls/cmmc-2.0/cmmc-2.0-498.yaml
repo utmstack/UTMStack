@@ -1,0 +1,21 @@
+id: cmmc-2.0-498
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Installation of Services'
+scope: data
+statement: ' This report collects relevant information from 7045 (New Service Installed) events in Windows logs, for the purpose of verifying compliance with CMMC Level 4 practice AU.4.053, which requires advanced logging capabilities for threat detection.<br/><br/>Event 7045 is generated when a new service is installed on the system, which can be legitimate behavior or an indicator of malicious activity, such as the installation of persistent services used by attackers to maintain unauthorized access to a system.<br/><br/>This report includes key details such as the name of the service, the associated executable binary, the startup type of the service, the user who performed the installation, the date and time of the event, and the affected computer.<br/><br/>The analysis of these logs allows us to detect the creation of suspicious services, prevent persistence attacks and strengthen defenses against advanced threats that seek to compromise IT infrastructure.'
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

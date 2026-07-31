@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1187
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 User Accounts Deleted
+scope: data
+statement: This report captures key information from Windows Event 4726 logs, which are generated when a user account is deleted. Event 4726 is critical for monitoring changes to identification and authentication credentials, in compliance with PCI DSS Requirement 10.2.1.5, which requires the capture of all account changes, additions, or deletions, as well as the creation of new accounts or elevation of privileges. This audit log is essential for ensuring control and tracking of credential changes, facilitating the detection of unauthorized or anomalous actions and providing key support for forensic analysis of security-related events.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-deleted-over-time
+    name: Windows User Accounts Deleted Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-deleted
+    name: Windows User Accounts Deleted
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

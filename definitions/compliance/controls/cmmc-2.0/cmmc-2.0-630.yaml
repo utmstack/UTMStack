@@ -1,0 +1,21 @@
+id: cmmc-2.0-630
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SI.4.220): Local Security Group Member Removal'
+scope: data
+statement: 'This report is based on the Windows logs for event 4733, which is generated when a user is removed from a security group. This type of event is critical for monitoring access to sensitive systems, since changes in security group membership can be indicative of an attempted lateral movement or an internal attack that seeks to escalate privileges or modify access controls. unauthorized manner.<br/><br/>In the context of CMMC Level 4 (SI.4.220): Monitor for malicious behavior across the organization, event 4733 is relevant to identifying activities that may be associated with malicious modifications to user privileges or group settings that manage critical permissions. These changes may be indicative of suspicious activity, such as an attacker attempting to gain access to restricted resources or making an alteration to user permissions in order to facilitate unauthorized access.<br/><br/>Monitoring this event, especially when unauthorized deletions or modifications are detected in high-privilege groups (such as system administrators or sensitive data access groups), allows the organization to proactively respond to malicious behavior before it can compromise network security or critical systems.<br/><br/>This report provides visibility into changes in security groups, enabling early detection of anomalous behavior and improving the organization''s ability to prevent and mitigate potential internal attacks or external intrusions.'
+strategy: ANY
+checks:
+  - key: windows-local-security-group-member-removal
+    name: Windows Local Security Group Member Removal
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-local-security-group-member-removal-by-group
+    name: Windows Local Security Group Member Removal by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4733')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

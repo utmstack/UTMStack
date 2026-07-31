@@ -1,0 +1,21 @@
+id: cmmc-2.0-514
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (SI.5.223): User Accounts Enumeration'
+scope: data
+statement: This report collects relevant information from the Windows logs corresponding to event 4799, which is generated when a user logs out of the system. This event is crucial for monitoring user account behavior and detecting possible user account enumeration attempts, a technique used by attackers to obtain information about valid accounts on a system.<br/><br/>In the context of CMMC SI.5.223, which requires the implementation of advanced monitoring to detect anomalous behavior using machine learning, event 4799 is analyzed to identify unusual patterns that could indicate account enumeration attacks. Attempts to log out repeatedly with different credentials or at unusual times may signal activities of an attacker trying to discover valid user accounts or learn about network login and logout behavior.<br/><br/>The report is integrated with advanced tools that use machine learning to detect anomalous behavior associated with account enumeration attempts and other types of persistence attacks, improving the organization's ability to identify advanced threats early and effectively.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enumeration
+    name: Windows User Accounts Enumeration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enumeration-by-target-user
+    name: Windows User Accounts Enumeration by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-488
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AU.5.055): Failed logon attempt'
+scope: data
+statement: Provides valuable insights into system interactions and potential security risks to improve detection of unauthorized access attempts, strengthen compliance with security standards, and improve the overall integrity of your Windows environments.
+strategy: ANY
+checks:
+  - key: windows-logon-attempt-failed
+    name: Windows Logon attempt failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-failed-logon-attempt-by-domain-and-user
+    name: Windows Failed logon attempt by Domain and User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

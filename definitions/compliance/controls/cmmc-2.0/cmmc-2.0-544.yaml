@@ -1,0 +1,21 @@
+id: cmmc-2.0-544
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SI.4.220): Kerberos ticket requests'
+scope: data
+statement: 'This report is generated from the Windows logs of events 4768, 4769 and 4771, which are directly related to the user authentication process using the Kerberos protocol. These events are triggered in situations where authentication ticket requests, authentication failures, or ticket validation errors occur.<br/><br/>Event 4768: Indicates a Kerberos service ticket request for a successfully authenticated user.<br/>Event 4769: Triggered when there is a request for a service ticket for a user who could not be authenticated due to a Kerberos error.<br/>Event 4771: Raised when the Kerberos authentication process fails due to incorrect or expired credentials.<br/>Analysis of these events is crucial for monitoring malicious behavior within the organization. Authentication failures or repeated attempts to obtain service tickets may be indicative of malicious activity, such as spoofing attacks, unauthorized access attempts, or advanced intrusion behavior.<br/><br/>In the context of CMMC''s Level 4 (SI.4.220): Monitor for malicious behavior across the organization, these events are a key source of information to identify suspicious behavior related to credential management and access to sensitive resources. Monitoring and analyzing these events makes it possible to quickly detect attempted security breaches, which facilitates an early response to possible threats and contributes to strengthening the organization''s security infrastructure.<br/><br/>This report supports the implementation of robust security controls by detecting anomalous behavior, providing a detailed view of events that may be associated with attacks or attempts to compromise user credentials within the network.'
+strategy: ANY
+checks:
+  - key: windows-kerberos-ticket-requests
+    name: Windows Kerberos ticket requests
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-ticket-requests-by-outcome
+    name: Windows Kerberos ticket requests by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

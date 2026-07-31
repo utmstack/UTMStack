@@ -1,0 +1,21 @@
+id: banking-audit-867
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Created
+scope: data
+statement: "The Windows User Accounts Created Report provides a comprehensive log of all user account creation events within the system. This report is crucial within the Banking Audit framework to monitor, control, and document account creation, ensuring compliance with regulatory requirements and secure access management.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of account creation to safeguard sensitive financial systems and customer data.<br/>\t•\tAccess Control Compliance: Supports compliance with PCI DSS Requirement 7, mandating that only authorized personnel can create accounts and ensuring accounts are assigned appropriate access levels.<br/>\t•\tAudit Readiness: Tracks account creation events to provide traceability and accountability, meeting requirements for frameworks like SOC2 Type 2 and ISO 27001.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious account creation, which could indicate insider threats or compromised administrative credentials.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, demonstrating controls to monitor and restrict the creation of user accounts that could expose sensitive financial data."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

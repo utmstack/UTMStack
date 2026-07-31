@@ -1,0 +1,21 @@
+id: cmmc-2.0-1001
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AU.1.001): File Deleted'
+scope: data
+statement: This report provides a detailed analysis of FileDeleted events in the O365 environment with the goal of verifying compliance with CMMC Level 1 control AU.1.001, which requires the implementation of audit logs<br/><br/>The report collects key information which allows validating that file deletions are being properly logged providing visibility into data deletion activities in the organization<br/><br/>The purpose of this monitoring is to ensure that all file deletions are properly audited, detect unauthorized or suspicious deletions, and provide evidence for the review and audit of sensitive information deletion actions<br/><br/>This report serves as an essential tool for CMMC Level 1 compliance by ensuring that the organization maintains a reliable and verifiable record of file deletions in its O365 environment contributing to the protection of information and the detection of unauthorized activities.
+strategy: ANY
+checks:
+  - key: o365-filedeleted
+    name: O365 FileDeleted
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-filedeleted-by-geo-location
+    name: O365 FileDeleted by Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

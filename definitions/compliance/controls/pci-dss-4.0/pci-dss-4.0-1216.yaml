@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1216
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.4 User Accounts Created
+scope: data
+statement: This report compiles Windows 4720 events, which record when a user is added to a security group. These events are key to verifying the assignment of responsibilities for PCI DSS compliance. They help ensure that security tasks and operational policies are being properly implemented.<br/><br/>The report confirms that quarterly PCI DSS compliance reviews are conducted, including reviewing logs, security configurations, and responding to alerts, ensuring that the organization and its vendors maintain compliance.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-716
+family: hipaa
+familyName: HIPAA
+name: Windows Access to shared resource
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity to identify potential malicious activity. By analyzing event ID 5145 on Windows systems, the report facilitates the monitoring of access to shared resources and files, which may reveal unauthorized attempts to manipulate or access sensitive data. Monitoring these types of events allows for the detection of unusual patterns or suspicious activity that could jeopardize the security of the network infrastructure, ensuring a swift response to threats and maintaining the integrity of systems and information.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resource
+    name: Windows Access to shared resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-accesses-by-share-type
+    name: Windows Accesses by share type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

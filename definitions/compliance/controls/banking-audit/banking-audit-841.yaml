@@ -1,0 +1,21 @@
+id: banking-audit-841
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Logins with explicit credentials
+scope: data
+statement: The Windows Logins with Explicit Credentials Report provides a detailed record of login events where explicit credentials (e.g., usernames and passwords) were used. This report plays a vital role in ensuring compliance within the Banking Audit framework by monitoring authentication activities and safeguarding sensitive financial systems.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

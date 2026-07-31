@@ -1,0 +1,21 @@
+id: banking-audit-901
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Certificate Configuration Changes
+scope: data
+statement: "The Windows Certificate Configuration Changes Report provides detailed logs of modifications to certificate stores, such as the addition, deletion, or modification of certificates or trust settings. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as certificate changes can directly impact secure communication and trust relationships.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of certificate configuration changes to safeguard sensitive financial systems and customer data.<br/>\t•\tSecurity Monitoring: Supports compliance with PCI DSS Requirement 10, which mandates monitoring and logging of system configuration changes, including certificates.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately when certificate changes occur, enabling rapid response to potential threats.<br/>\t•\tIncident Detection: Identifies suspicious changes to certificates, such as unauthorized trust additions or the removal of critical certificates, which could indicate malicious activity.<br/>\t•\tAudit Readiness: Tracks all certificate-related changes, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust configuration management practices."
+strategy: ANY
+checks:
+  - key: windows-certificate-configuration-changes
+    name: Windows Certificate Configuration Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-certificate-configuration-changes-by-key-name
+    name: Windows Certificate Configuration Changes by Key Name
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

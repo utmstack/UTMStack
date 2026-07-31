@@ -1,0 +1,21 @@
+id: hipaa-722
+family: hipaa
+familyName: HIPAA
+name: Office 365 Account Logon Failure
+scope: data
+statement: This report supports compliance with HIPAA Security Rule 164.312(b), which establishes the need to implement mechanisms to log and examine system activity. By analyzing events related to failed login attempts in Office 365, this report facilitates the detection of suspicious activity and provides detailed tracking of unauthorized access. Ensuring continuous review of these events promotes effective system security monitoring, helping to protect the confidentiality, integrity, and availability of sensitive data in compliance with established security and audit policies.
+strategy: ANY
+checks:
+  - key: o365-ad-failed-logins-by-user
+    name: O365 AD Failed Logins by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.ResultStatus.keyword = 'Failed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-unsuccesful-login-location
+    name: O365 AD Unsuccesful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoginFailed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-1013
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): File Accessed'
+scope: data
+statement: This report collects relevant information from the FileAccessed event logs in Office 365, with the purpose of verifying compliance with CMMC Level 2 (AU.2.043) control. The control establishes the need to review logs and correlate events to identify inappropriate activities that may indicate potential risks to information security, particularly those affecting the integrity of sensitive files and data.<br/><br/>FileAccessed event logs provide details on file access and modification in Office 365, allowing you to detect unusual or unauthorized behavior, such as access to sensitive documents outside established patterns or by unauthorized users. This report allows you to perform a comprehensive review of files accessed by users, including information about the documents, the applications used, the dates and times of access, as well as the IP address of the devices.<br/><br/>By correlating these events with other security activities on the platform, the report makes it easier to detect inappropriate access or suspicious patterns of behavior, which is crucial to preventing information leaks, unauthorized manipulation, or misuse of files.<br/><br/>Analysis of these logs provides a solid foundation for conducting effective security audits, responding quickly to incidents, and improving critical data access management practices. By reviewing and correlating these events, the organization can ensure that only the appropriate users have access to relevant documents and that any activity that does not comply with security policies is identified in a timely manner.
+strategy: ANY
+checks:
+  - key: o365-file-accessed
+    name: O365 File Accessed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-accessed-by-object
+    name: O365 File Accessed by Object
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword IN ('FileAccessed', 'FileAccessedExtended'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

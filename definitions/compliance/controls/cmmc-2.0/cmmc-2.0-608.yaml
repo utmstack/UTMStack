@@ -1,0 +1,21 @@
+id: cmmc-2.0-608
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): File Access and Activity'
+scope: data
+statement: This report gathers relevant information about the FileTranscriptContentAccessed event from Office 365 logs, with the goal of verifying compliance with CMMC practice AC.3.014. The focus is on controlling the flow of sensitive information, specifically as it relates to the transcribed contents of files, ensuring that access to CUI (Controlled Unclassified Information) is adequately monitored and protected.<br/><br/> The report includes details about the users who have accessed file transcripts, as well as the identifiers of the files involved. Additionally, the type of access performed (read, modify, etc.) and any relevant details about the security settings applied (for example, access policies, multi-factor authentication) are documented. This information is crucial to detect possible unauthorized or inappropriate access to CUI, ensuring that the flow of said information is controlled and protected, in accordance with the security standards established by CMMC.
+strategy: ANY
+checks:
+  - key: o365-file-access-and-activity
+    name: O365 File Access and Activity
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileTranscriptContentAccessed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-access-and-activity-by-client-ip
+    name: O365 File Access and Activity by Client IP
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileTranscriptContentAccessed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

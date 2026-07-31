@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1119
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.3 Audit File integrity Validation Failed
+scope: data
+statement: This report compiles relevant information from 5038 (Code Integrity Policy Change) events generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.3.3. This requirement establishes that the storage of sensitive authentication data (SAD) must be limited to what is necessary for legitimate business purposes and must be adequately secured.<br/><br/>Event 5038 provides logs of changes to code integrity policies, which is crucial for ensuring that configurations related to SAD storage have not been modified unauthorizedly. Through this event, changes to security policies that affect the protection of sensitive authentication data can be tracked, ensuring that any SAD storage is subject to strict controls and remains within the parameters necessary for business operations.<br/><br/>This report facilitates the assessment of whether SAD storage meets legitimate business needs by providing evidence that security policies are appropriately configured to protect such data and prevent unauthorized access, in compliance with PCI DSS requirements.
+strategy: ANY
+checks:
+  - key: windows-audit-file-integrity-validation-failed
+    name: Windows Audit File Integrity Validation Failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5038')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-audit-file-integrity-validation-failed-by-host-over-time
+    name: Windows Audit File Integrity Validation Failed by Host Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5038')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

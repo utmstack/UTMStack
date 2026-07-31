@@ -1,0 +1,21 @@
+id: banking-audit-838
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Account Logon Success
+scope: data
+statement: "The Windows Account Logon Success Report provides a comprehensive view of successful logon events, serving as a crucial tool for compliance within the Banking Audit framework. This report ensures alignment with security controls that manage and monitor user access, safeguarding sensitive financial information and meeting regulatory requirements.<br/>\t•\tBanking Regulations: Supports compliance with financial regulations, such as the Safeguards Rule under GLBA, by demonstrating a security program that protects customer data.<br/>\t•\tAccess Control: Reinforces principles of access management by tracking and validating that only authorized users can access banking systems, aligning with PCI DSS Requirement 8.<br/>\t•\tAudit Readiness: Provides evidence for maintaining security and access control, essential for audits and adherence to standards like ISO 27001 and SOC2 Type 2, ensuring secure access is granted only to legitimate users.<br/>\t•\tIncident Detection and Prevention: Helps detect unauthorized access attempts by analyzing patterns of successful logons, thereby reducing the risk of data breaches.<br/>\t•\tData Protection: Aligns with global frameworks such as GDPR Article 32, ensuring access to sensitive financial data is restricted to authorized individuals to prevent unauthorized data processing.<br/><br/>By centralizing and monitoring logon events, this report strengthens an organization’s ability to maintain cybersecurity resilience, protect financial systems, and achieve compliance with stringent banking audit requirements."
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

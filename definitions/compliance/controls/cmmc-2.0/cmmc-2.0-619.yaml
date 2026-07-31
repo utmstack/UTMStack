@@ -1,0 +1,21 @@
+id: cmmc-2.0-619
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Registry Value Modification'
+scope: data
+statement: This report collects event 4657 logs from the Windows logs, which document modifications to system security objects, such as files, folders, or registry keys. Event 4657 is generated when a significant change is made to the security attributes of an object, such as modifying access permissions or auditing settings for a resource. This information is crucial to verify compliance with CMMC's Level 4 Audit and Monitoring policy (AU.4.053), which requires improving logging capabilities to support threat detection, allowing the identification and analysis of critical changes that may be related to malicious behavior or unauthorized activities.<br/>The report includes key details such as the name of the modified object, the type of change made (for example, modifications to ACLs, access permissions, or security attributes), the identity of the user or process that made the modification , and the date and time the change occurred.<br/>Analyzing these events can enhance logging capabilities to identify changes that could be indicative of an attempt to compromise system security or manipulate access to sensitive resources. This report facilitates early detection of threats related to unauthorized modification of security configuration and contributes to the visibility of security-relevant events, ensuring that access and audit controls are aligned with CMMC Level security requirements 4.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

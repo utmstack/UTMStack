@@ -1,0 +1,21 @@
+id: hipaa-712
+family: hipaa
+familyName: HIPAA
+name: Windows Registry Value Modification
+scope: data
+statement: This report contributes to compliance with the NIST CSF DE.CM-1 requirement, which requires continuous monitoring of network activity to detect potential malicious activity. By analyzing event ID 4657 on Windows systems, the report facilitates the monitoring of changes to system security objects, which may indicate unauthorized actions that alter system configuration or allow unauthorized access. Monitoring these events is crucial for identifying suspicious alterations or modifications that may affect security, enabling a rapid and proactive response to security incidents and ensuring the integrity of the network infrastructure.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

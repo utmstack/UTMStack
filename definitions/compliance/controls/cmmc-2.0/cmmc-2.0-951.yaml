@@ -1,0 +1,21 @@
+id: cmmc-2.0-951
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AU.3.045): Access to shared resource'
+scope: data
+statement: This report compiles relevant information from the logs of Windows event 5145, which is generated when a file or folder on a network share is accessed. This event is crucial to verify compliance with CMMC's Level 3 requirement (AU.3.045), which requires auditing of key events for compliance and incident response. By monitoring these logs, organizations can identify unauthorized access, data exfiltration attempts, or suspicious activity on shared resources. The analysis of these events allows us to strengthen security, detect possible internal or external threats and ensure the protection of sensitive information.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resource
+    name: Windows Access to shared resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-accesses-by-share-type
+    name: Windows Accesses by share type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

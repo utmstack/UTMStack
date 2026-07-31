@@ -1,0 +1,21 @@
+id: hipaa-693
+family: hipaa
+familyName: HIPAA
+name: Windows Monitoring of Critical System Services Status
+scope: data
+statement: This report collects and analyzes security events identified by ID 7036 on Windows systems. Event 7036 records changes in the status of system services, such as the start or stop of key services. These events provide relevant information for verifying compliance with the HITRUST CSF 01.v requirement, which establishes the obligation to log key system activities. This report facilitates the identification and monitoring of essential services, ensuring that critical system activities are properly logged and audited, and contributing to the implementation of monitoring policies and adequate control of system activities.
+strategy: ANY
+checks:
+  - key: windows-monitoring-of-critical-system-services-status
+    name: Windows Monitoring of Critical System Services Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-monitoring-of-critical-system-services-status-by-event
+    name: Windows Monitoring of Critical System Services Status by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-934
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.044): User Policies Removal'
+scope: data
+statement: This report collects and analyzes relevant information from AWS logs about the DetachUserPolicy event, with the objective of verifying compliance with the Cybersecurity Maturity Model Certification (CMMC) Level 2 control (AU.2.044).<br/><br/>The DetachUserPolicy event is raised when a policy attached to a user is deleted in AWS IAM, which may indicate changes to access permissions. The periodic review of these events allows us to detect possible inappropriate activities, unauthorized access or incorrect security configurations that could compromise the integrity and security of the infrastructure.<br/><br/>The review of these records contributes to the strengthening of auditing and monitoring practices for the protection of sensitive information.
+strategy: ANY
+checks:
+  - key: aws-user-policies-removal
+    name: AWS User Policies Removal
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DetachUserPolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-user-policy-removals-daily-trend
+    name: AWS User Policy Removals - Daily Trend
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DetachUserPolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

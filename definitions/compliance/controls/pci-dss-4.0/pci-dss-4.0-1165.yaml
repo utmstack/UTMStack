@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1165
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 Account Logoff
+scope: data
+statement: This report collects and analyzes 4634 (Logoff) events recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. It verifies that each user session is properly terminated, ensuring that unauthorized access is prevented and accounts are properly managed. It also reviews the use of unique IDs, the management of inactive accounts, and proper monitoring of third-party access, ensuring that all actions are attributable to individual users and strengthening the security of the environment.
+strategy: ANY
+checks:
+  - key: windows-account-logoff
+    name: Windows Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4634')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

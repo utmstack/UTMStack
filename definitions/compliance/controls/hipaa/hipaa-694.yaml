@@ -1,0 +1,21 @@
+id: hipaa-694
+family: hipaa
+familyName: HIPAA
+name: Windows Process Termination
+scope: data
+statement: This report collects and analyzes security events identified by ID 4689 on Windows systems. Event 4689 records the termination of a process on the system, providing relevant information about which processes have been stopped, who executed them, and when. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which requires the logging of key system activities. This report facilitates the identification and auditing of terminated processes, contributing to the comprehensive monitoring of system activities, ensuring that all key activities are logged and audited to comply with security and control standards.
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

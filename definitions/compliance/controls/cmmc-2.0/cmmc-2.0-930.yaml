@@ -1,0 +1,21 @@
+id: cmmc-2.0-930
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 1 (AU.1.001): IAM User Deletion'
+scope: data
+statement: 'This report collects and analyzes relevant information from AWS logs about the DeleteUser event, used to verify compliance with CMMC Level 1 (SI.1.210): Identify and correct security flaws in a timely manner.<br/><br/>The DeleteUser event in AWS IAM records the deletion of user accounts, which can pose a security risk if not handled properly. This report allows you to identify and correct possible vulnerabilities by monitoring user deletions, detecting unauthorized access, suspicious changes and ensuring the integrity of access controls in the organization.<br/><br/>Analysis of these events helps to:<br/>-Identify unauthorized or accidental user deletions.<br/>-Verify which accounts have been deleted and who performed the action.<br/>-Review the origin of the request and the devices or IP addresses involved.<br/>-Evaluate compliance with security controls related to user management.<br/><br/>This report helps ensure that user removal actions are legitimate and that any suspicious activity is investigated and corrected in a timely manner, aligning with the security requirements established by CMMC.'
+strategy: ANY
+checks:
+  - key: aws-iam-user-deletion
+    name: AWS IAM User Deletion
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-iam-user-deletion-by-ip
+    name: AWS IAM User Deletion by IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

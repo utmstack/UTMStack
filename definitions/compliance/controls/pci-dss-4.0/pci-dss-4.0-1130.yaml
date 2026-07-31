@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1130
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 4.2 Scheduled Task Creation
+scope: data
+statement: This report gathers relevant information from event 4698 generated in Windows logs, with the aim of assessing compliance with PCI DSS requirement 4.2.2. This requirement establishes that the PAN (cardholder account number) must be protected using strong cryptography whenever it is transmitted through messaging technologies used by end users.<br/><br/>Event 4698 allows for auditing configurations related to the use of messaging technologies, ensuring that the necessary security controls are in place to protect the transmission of the PAN. This includes verifying that the cryptographic methods used are appropriate and that sensitive information is properly encrypted in transit.<br/><br/>This analysis ensures compliance with the PAN protection policy during transmission through messaging channels, validating that security and cryptographic technologies are configured correctly and that the information is adequately protected against unauthorized access, in accordance with the requirements established by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-scheduled-task-creation-by-user
+    name: Windows Scheduled Task Creation by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-scheduled-task-creation
+    name: Windows Scheduled Task Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

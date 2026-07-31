@@ -1,0 +1,21 @@
+id: cmmc-2.0-946
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AU.2.041): Cleaned Event Log'
+scope: data
+statement: This report collects relevant information from the logs of Windows event 1102, which is generated when the system audit log is deleted. This event is essential to verify compliance with the CMMC Level 2 requirement (AU.2.041), which requires the retention of audit logs for security events. Detecting and documenting audit log deletion is key to ensuring data integrity and preventing attempts to hide malicious activity. The analysis of these events allows us to identify possible evidence manipulation attempts, strengthening the system's ability to maintain reliable traceability and comply with the security standards required by CMMC.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

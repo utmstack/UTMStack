@@ -1,0 +1,21 @@
+id: hipaa-709
+family: hipaa
+familyName: HIPAA
+name: Windows Kerberos ticket requests
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity for malicious activity. By analyzing events identified by IDs 4768, 4769, and 4771 on Windows systems, this report facilitates the monitoring of authentication attempts in the network environment, including failures and errors related to account authentication. Monitoring these events allows for the identification of unusual or suspicious patterns that could indicate malicious activity, facilitating a rapid and proactive response to potential security incidents.
+strategy: ANY
+checks:
+  - key: windows-kerberos-ticket-requests
+    name: Windows Kerberos ticket requests
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-ticket-requests-by-outcome
+    name: Windows Kerberos ticket requests by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

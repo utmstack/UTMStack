@@ -1,0 +1,21 @@
+id: cmmc-2.0-574
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AC.1.001): Account Authentication Using NTLM'
+scope: data
+statement: This report compiles and presents the relevant information extracted from the Windows event logs corresponding to event 4776, which is triggered during authentication attempts on systems using network authentication (NTLM). Analysis of these logs is essential to verify compliance with CMMC practice AC.1.001, which establishes the need to limit system access to authorized users only.<br/><br/>Event 4776 is used to audit access attempts, both successful and unsuccessful, and can provide key data on unauthorized access or inappropriate access attempts. This report includes details such as the username, the origin of the authentication request, and the authentication status.<br/><br/>Based on the information obtained, this report validates that access to the systems is restricted to previously authorized users and provides evidence to ensure compliance with access control and authentication policies.
+strategy: ANY
+checks:
+  - key: windows-account-authentication-using-ntlm
+    name: Windows Account authentication using NTLM
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-authentication-using-ntlm-by-outcome
+    name: Windows Account authentication using NTLM by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

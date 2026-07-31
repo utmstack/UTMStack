@@ -1,0 +1,21 @@
+id: banking-audit-895
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Process Creation
+scope: data
+statement: "The Windows Process Creation Report provides detailed logs of events where processes are initiated on a system, including the name, execution path, user, and timestamp. This report is essential for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as monitoring process creation helps detect unauthorized or malicious activities.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of process creation to protect financial systems and sensitive customer data.<br/>\t•\tThreat Detection: Identifies suspicious or unauthorized processes, such as malware execution, privilege escalation attempts, or unauthorized script launches.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators in real-time of process creation events that deviate from normal behavior, enabling immediate investigation.<br/>\t•\tAudit Readiness: Tracks all process creation activities, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust monitoring of system activities.<br/>\t•\tSystem Integrity: Supports compliance with PCI DSS Requirement 10, ensuring visibility into system-level activities for secure operations."
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

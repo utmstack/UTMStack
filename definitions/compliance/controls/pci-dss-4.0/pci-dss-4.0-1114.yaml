@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1114
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.2 Access to critical files or specific directories
+scope: data
+statement: This report compiles relevant information from 4663 events (An attempt was made to access an object) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.2. This requirement establishes that account data storage must be kept to a minimum, through the implementation of appropriate policies, procedures, and processes for data retention and deletion.<br/><br/>Event 4663 allows for auditing attempts to access objects in the system, providing visibility into the processes for manipulating stored data. This event can detect unauthorized or inappropriate access to sensitive account data, which could indicate unnecessary storage or a failure to comply with data retention policies. Additionally, this event helps verify that secure deletion processes or the disabling of stored data are being carried out in accordance with defined policies, thereby minimizing the risk of information exposure beyond the time necessary to comply with legal, regulatory, or business requirements.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

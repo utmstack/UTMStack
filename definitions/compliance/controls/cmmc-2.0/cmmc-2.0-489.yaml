@@ -1,0 +1,21 @@
+id: cmmc-2.0-489
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Policy changes'
+scope: data
+statement: This report collects the Windows log event 4719 logs, which document changes to the system audit policy configuration. Event 4719 is generated when security auditing configurations are modified, such as parameters related to what activities will be logged and how event logs will be managed. This information is crucial to verify compliance with the CMMC Audit and Monitoring Policy Level 1 (AU.1.001), which requires audit logs to ensure security and adequate monitoring of system activities.<br/><br/>The report includes key details such as the identity of the user who made the change to the audit policy, the date and time of the change, and information about the context of the change (if available), among others.<br/><br/>Analysis of these events allows you to verify that audit policies are not modified without adequate justification, ensuring that audit configurations remain in line with security requirements. This report is essential to ensure that audit records are managed consistently and that any changes in audit policy are duly recorded, supporting compliance with CMMC Level 1 requirements and ensuring the integrity and continuity of monitoring activities. of the system.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

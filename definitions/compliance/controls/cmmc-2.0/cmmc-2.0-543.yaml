@@ -1,0 +1,21 @@
+id: cmmc-2.0-543
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SI.4.220): Account Locks'
+scope: data
+statement: 'This report is generated from the Windows logs of event 4740, which is triggered when a user account is locked due to multiple failed login attempts. This type of event is crucial for monitoring user behavior within the organization, helping to identify suspicious access patterns that may be indicative of intrusion attempts, such as brute force attacks or unauthorized attempts to access protected accounts.<br/><br/>In the context of CMMC''s Level 4 (SI.4.220): Monitor for malicious behavior across the organization, analysis of these events is critical to detecting and mitigating malicious behavior across the organization. Proactive monitoring of these types of events ensures that threat detection strategies are aligned with security best practices, allowing rapid response to anomalous activities that may compromise the integrity of organizational systems and data.<br/><br/>This report contributes to strengthening real-time monitoring capabilities, improving the ability to detect advanced threats and ensuring that the organization''s security infrastructure is aligned with CMMC requirements.'
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

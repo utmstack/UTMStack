@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1176
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Policy changes
+scope: data
+statement: This report compiles relevant information from Windows Event 4719 logs, which indicate changes to system audit policy settings. Its purpose is to verify the activation and maintenance of audit logs on all system components and environments that process cardholder data, in compliance with PCI DSS requirements 10.2 and 10.2.1. It also facilitates the detection of unauthorized modifications to audit policies, contributing to the identification of suspicious activity and forensic analysis of events.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

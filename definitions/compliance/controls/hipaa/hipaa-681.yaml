@@ -1,0 +1,21 @@
+id: hipaa-681
+family: hipaa
+familyName: HIPAA
+name: Windows User Account Attributes Changes
+scope: data
+statement: This report collects and analyzes security events identified by ID 4738 on Windows systems. Event 4738 records changes to user account properties, providing relevant information for verifying compliance with HIPAA requirement 164.312(a)(1). This requirement establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that store or process ePHI (Electronic Protected Health Information). This report facilitates the identification and monitoring of user account modifications, contributing to adequate access control and the implementation of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

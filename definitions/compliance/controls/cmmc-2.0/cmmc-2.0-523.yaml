@@ -1,0 +1,21 @@
+id: cmmc-2.0-523
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (SI.1.210): Policy changes'
+scope: data
+statement: This report focuses on the analysis of events 4719 generated in the Windows security logs, which occur when a modification is made to the system audit configuration. This event is important as it allows you to record and monitor any changes made to audit settings, which are crucial for detecting and analyzing security events in the system.<br/><br/>Event 4719 may be indicative of adjustments made to audit policies, such as changes to access log parameters, modifications to critical event tracking configurations, or adjustments to the monitoring of administrative and user actions. These changes can directly impact the organization's ability to detect security incidents, so it is essential to ensure that audit configurations are appropriate and are not altered without valid justification.<br/><br/>The collection and analysis of 4719 events is essential for compliance with CMMC (Cybersecurity Maturity Model Certification) at Level 1 (SI.1.210), which requires the identification and correction of security vulnerabilities in a timely manner. Tracking this event helps ensure that systems auditing remains active and that unauthorized modifications are not made to security configurations that could impact the visibility and analysis of security events.<br/><br/>Además, el monitoreo adecuado de estos cambios permite verificar si los ajustes en las configuraciones de auditoría están alineados con las mejores prácticas de seguridad y que no se están deshabilitando o modificando controles de auditoría críticos, lo que podría abrir puertas a posibles ataques sin ser detectados.<br/><br/>En resumen, la recopilación y análisis de los eventos 4719 garantiza que las configuraciones de auditoría del sistema se mantengan intactas y efectivas, permitiendo una detección oportuna de fallos de seguridad. Este proceso contribuye al cumplimiento del objetivo de CMMC de identificar y corregir debilidades de seguridad de forma rápida y eficiente, protegiendo la infraestructura y los datos críticos de la organización.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

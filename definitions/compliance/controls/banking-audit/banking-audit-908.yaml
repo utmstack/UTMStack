@@ -1,0 +1,21 @@
+id: banking-audit-908
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Enumeration
+scope: data
+statement: "The Windows User Accounts Enumeration Report provides detailed logs of attempts to list or enumerate user accounts on a system. This report is crucial for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as unauthorized enumeration activities can indicate reconnaissance efforts by attackers or insider threats.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of user enumeration events to protect sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 8, ensuring that access to user account information is restricted and monitored.<br/>\t•\tReal-Time Alerting: Captures and alerts administrators immediately of suspicious enumeration activities, enabling rapid investigation and mitigation.<br/>\t•\tIncident Detection: Identifies unauthorized enumeration attempts, which could indicate reconnaissance, brute force attacks, or credential harvesting.<br/>\t•\tAudit Readiness: Tracks all user enumeration events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure access and identity management practices."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enumeration
+    name: Windows User Accounts Enumeration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enumeration-by-target-user
+    name: Windows User Accounts Enumeration by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

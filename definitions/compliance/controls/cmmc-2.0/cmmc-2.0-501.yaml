@@ -1,0 +1,21 @@
+id: cmmc-2.0-501
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): User Accounts Enabled'
+scope: data
+statement: This report gathers relevant information on events related to enabling user accounts on the system, specifically event 4722, which is generated when a user account in the Windows domain is enabled. This type of event is important as it can signal that a previously disabled account has been activated, which could have security implications if the account is associated with unauthorized access or users who should not have access to the system.<br/><br/>Monitoring this event is essential to comply with Level 2 (SI.2.212) of the CMMC (Cybersecurity Maturity Model Certification), which requires the implementation of mechanisms for real-time supervision of security events. Detecting the enablement of accounts, especially those that have been previously disabled for security reasons, is crucial to identifying possible vulnerabilities in the system.<br/><br/>This report helps ensure that all actions related to account enablement are audited and available for review in real time, improving the organization's ability to quickly detect and respond to security incidents. It allows greater visibility into actions taken on user accounts and helps prevent unauthorized access to critical system resources.<br/><br/>By actively monitoring the enablement of user accounts, identity and access management practices are reinforced, contributing to a more robust security posture aligned with industry best practices.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

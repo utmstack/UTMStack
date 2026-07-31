@@ -1,0 +1,21 @@
+id: banking-audit-857
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Installation of Services
+scope: data
+statement: "The Windows Installation of Services Report provides detailed logs of service installation events within the system. This report is essential for compliance within the Banking Audit framework, as unauthorized or malicious services can compromise system integrity and sensitive financial data.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, demonstrating control and oversight over installed services to ensure the security of financial systems and customer information.<br/>\t•\tSystem Configuration Compliance: Supports compliance with PCI DSS Requirement 2, ensuring only authorized services are installed and that configurations are securely managed.<br/>\t•\tAudit Readiness: Tracks service installation activities, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring accountability for system changes.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious service installations, which could indicate malware, privilege escalation, or insider threats.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls that restrict and monitor the installation of services to protect sensitive financial data from unauthorized processing or breaches."
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

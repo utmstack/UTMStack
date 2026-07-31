@@ -1,0 +1,21 @@
+id: cmmc-2.0-500
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (SI.1.210): Audit Policy Change'
+scope: data
+statement: This report is designed to monitor and analyze events related to system security configuration and policy changes. Event 4902 is generated when there is a change to the Windows auditing system configuration, including enabling or disabling auditing policies that can affect the collection and analysis of security logs.<br/><br/>The analysis of these events is crucial for compliance with Level 1 (SI.1.210) of the CMMC (Cybersecurity Maturity Model Certification), which requires the timely identification and correction of security flaws. This event may indicate that system audit configurations are being adjusted, impacting the visibility of security activity within the organization's IT environment. An unauthorized or unexpected change to these settings could decrease the ability to detect malicious activity or compromise the integrity of security logs.<br/><br/>This report facilitates continuous monitoring of system audit configurations, allowing rapid correction of any changes that affect the ability to detect security incidents. Ensures that the organization is aligned with best practices to maintain complete visibility of system activities, contributing to the protection of critical assets and data, as well as the continuous improvement of security control.
+strategy: ANY
+checks:
+  - key: windows-audit-policy-change
+    name: Windows Audit Policy Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-audit-policy-change-by-outcome
+    name: Windows Audit Policy Change by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4902')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

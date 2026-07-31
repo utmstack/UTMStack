@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1113
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.1 Additions to Security Groups
+scope: data
+statement: This report compiles relevant information from 4728 events (A member was added to a security-enabled local group) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.1.2. This requirement establishes that roles and responsibilities for performing activities related to the protection of stored account data must be documented, assigned, and understood.<br/><br/>Event 4728 allows for auditing the addition of members to local security groups, providing visibility into changes to roles and responsibilities within the system. This event allows for verifying that the correct users are assigned to the appropriate roles, ensuring that tasks related to the protection of account data are performed by authorized and properly trained personnel. This contributes to maintaining the integrity of roles and responsibilities management, as required by the security policies defined in the PCI DSS standard.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

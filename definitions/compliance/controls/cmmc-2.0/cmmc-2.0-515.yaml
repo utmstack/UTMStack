@@ -1,0 +1,21 @@
+id: cmmc-2.0-515
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (SI.5.223): Group Membership Enumerated'
+scope: data
+statement: This report collects relevant information from the Windows logs associated with event 4798, which is generated when the configuration of user accounts in the system is consulted. This event is crucial to detect possible anomalous behavior related to account enumeration or unauthorized access to sensitive account settings.<br/><br/>In the context of CMMC SI.5.223, which promotes the use of advanced monitoring with machine learning to identify anomalous behavior, event 4798 is monitored to detect unusual patterns of account inquiries. Repeated queries to user account settings or unauthorized access could be indicative of an attacker attempting to obtain information about system accounts, such as privileges, settings, and other associated characteristics.<br/><br/>The report provides a detailed view of events related to querying account settings and uses machine learning tools to identify anomalous behavior, such as unusual query patterns, that could signal exploitation attempts or attacks aimed at obtaining sensitive information. .<br/><br/>This type of advanced monitoring helps the organization detect attacks early, improving the ability to respond to potential threats before they can impact system security.
+strategy: ANY
+checks:
+  - key: windows-group-membership-enumerated
+    name: Windows Group Membership Enumerated
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-group-membership-enumerated-by-target-user
+    name: Windows Group Membership Enumerated by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4798')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-928
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Application Errors
+scope: data
+statement: "The Windows Application Errors report provides detailed logs of events where applications encounter errors on a Windows system. This report is essential for identifying software issues, monitoring system health, and ensuring compliance with operational and security frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks such as ISO 27001, SOC2, and ITIL, by documenting application errors to ensure adherence to incident management and operational reliability standards.<br/>\t•\tApplication Health Monitoring: Tracks error occurrences, helping administrators identify and resolve application issues that may impact user experience or operational efficiency.<br/>\t•\tEvent Correlation: Links application error events to user actions, system configurations, or external dependencies, providing a comprehensive audit trail for root cause analysis.<br/>\t•\tReal-Time Alerts: Generates immediate notifications for critical application errors, enabling rapid investigation and mitigation to minimize downtime or service disruptions.<br/>\t•\tIncident Detection: Identifies patterns such as repeated crashes, errors in high-priority applications, or issues stemming from configuration changes, which may indicate underlying problems or security threats.<br/>\t•\tAudit Readiness: Logs comprehensive details, including the application name, error code, user or process involved, and timestamp, ensuring robust records for compliance and forensic investigations."
+strategy: ANY
+checks:
+  - key: windows-application-errors
+    name: Windows Application Errors
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-application-errors-by-exception-code
+    name: Windows Application Errors by Exception Code
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

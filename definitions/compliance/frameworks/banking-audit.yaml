@@ -1,0 +1,334 @@
+key: banking-audit
+name: BANKING AUDIT
+description: Banking Audit focuses on ensuring that financial institutions meet stringent security, regulatory, and risk management requirements. By centralizing log collection, enabling real-time threat detection, and automating incident response.
+source: Migrated from UTMStack v11
+sections:
+  - key: sec-701
+    name: Real-time Alerting and Monitoring
+    requirements:
+      - id: banking-audit-req-862
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - banking-audit-862
+      - id: banking-audit-req-863
+        name: Windows Account Logon Failure
+        satisfiedBy:
+          - banking-audit-863
+      - id: banking-audit-req-864
+        name: Windows Policy changes
+        satisfiedBy:
+          - banking-audit-864
+      - id: banking-audit-req-865
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - banking-audit-865
+      - id: banking-audit-req-866
+        name: Windows Audit Policy Change
+        satisfiedBy:
+          - banking-audit-866
+      - id: banking-audit-req-867
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - banking-audit-867
+      - id: banking-audit-req-868
+        name: Windows User Accounts Enabled
+        satisfiedBy:
+          - banking-audit-868
+      - id: banking-audit-req-869
+        name: Windows User Password Reset Attempt
+        satisfiedBy:
+          - banking-audit-869
+      - id: banking-audit-req-881
+        name: Windows Filtering Platform
+        satisfiedBy:
+          - banking-audit-881
+      - id: banking-audit-req-882
+        name: Windows Protected Object Access Operation
+        satisfiedBy:
+          - banking-audit-882
+      - id: banking-audit-req-883
+        name: Windows Object Deletion
+        satisfiedBy:
+          - banking-audit-883
+      - id: banking-audit-req-884
+        name: Windows Attempt to Access a Protected Object
+        satisfiedBy:
+          - banking-audit-884
+      - id: banking-audit-req-885
+        name: Windows Cleaned Event Log
+        satisfiedBy:
+          - banking-audit-885
+      - id: banking-audit-req-886
+        name: Windows Critical Hardware Failure
+        satisfiedBy:
+          - banking-audit-886
+      - id: banking-audit-req-887
+        name: Windows Monitoring of Critical System Services Status
+        satisfiedBy:
+          - banking-audit-887
+      - id: banking-audit-req-888
+        name: Windows Special privileges assigned to new logon
+        satisfiedBy:
+          - banking-audit-888
+      - id: banking-audit-req-889
+        name: Windows Member Addition to a Security Local Group
+        satisfiedBy:
+          - banking-audit-889
+      - id: banking-audit-req-890
+        name: Windows Registry Value Modification
+        satisfiedBy:
+          - banking-audit-890
+      - id: banking-audit-req-891
+        name: ' Windows Account Authentication Using NTLM'
+        satisfiedBy:
+          - banking-audit-891
+      - id: banking-audit-req-892
+        name: Windows Logins with explicit credentials
+        satisfiedBy:
+          - banking-audit-892
+      - id: banking-audit-req-893
+        name: Windows User Accounts Deleted
+        satisfiedBy:
+          - banking-audit-893
+      - id: banking-audit-req-894
+        name: Windows Restoration of default security policies
+        satisfiedBy:
+          - banking-audit-894
+      - id: banking-audit-req-895
+        name: Windows Process Creation
+        satisfiedBy:
+          - banking-audit-895
+      - id: banking-audit-req-896
+        name: Windows Process Termination
+        satisfiedBy:
+          - banking-audit-896
+      - id: banking-audit-req-897
+        name: Windows Installation of Services
+        satisfiedBy:
+          - banking-audit-897
+      - id: banking-audit-req-898
+        name: Windows Access to Shared Resources
+        satisfiedBy:
+          - banking-audit-898
+      - id: banking-audit-req-900
+        name: Windows System Time Settings Changes
+        satisfiedBy:
+          - banking-audit-900
+      - id: banking-audit-req-901
+        name: Windows Certificate Configuration Changes
+        satisfiedBy:
+          - banking-audit-901
+      - id: banking-audit-req-902
+        name: Windows Account Locks
+        satisfiedBy:
+          - banking-audit-902
+      - id: banking-audit-req-903
+        name: Windows Kerberos ticket requests
+        satisfiedBy:
+          - banking-audit-903
+      - id: banking-audit-req-904
+        name: Windows Local Security Group Member Removal
+        satisfiedBy:
+          - banking-audit-904
+      - id: banking-audit-req-905
+        name: Windows Service Installed
+        satisfiedBy:
+          - banking-audit-905
+      - id: banking-audit-req-906
+        name: Windows PowerShell Remote Session Creation
+        satisfiedBy:
+          - banking-audit-906
+      - id: banking-audit-req-907
+        name: Windows Protected Object Permission Change
+        satisfiedBy:
+          - banking-audit-907
+      - id: banking-audit-req-908
+        name: Windows User Accounts Enumeration
+        satisfiedBy:
+          - banking-audit-908
+      - id: banking-audit-req-909
+        name: Windows Group Membership Enumerated
+        satisfiedBy:
+          - banking-audit-909
+  - key: sec-702
+    name: Correlation of Events
+    requirements:
+      - id: banking-audit-req-910
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - banking-audit-910
+      - id: banking-audit-req-911
+        name: Windows Account Logon Failure
+        satisfiedBy:
+          - banking-audit-911
+      - id: banking-audit-req-912
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - banking-audit-912
+      - id: banking-audit-req-913
+        name: Windows User Accounts Enabled
+        satisfiedBy:
+          - banking-audit-913
+      - id: banking-audit-req-914
+        name: Windows User Password Reset Attempt
+        satisfiedBy:
+          - banking-audit-914
+      - id: banking-audit-req-915
+        name: Windows Member Addition to a Security Local Group
+        satisfiedBy:
+          - banking-audit-915
+      - id: banking-audit-req-916
+        name: Windows Local Security Group Member Removal
+        satisfiedBy:
+          - banking-audit-916
+      - id: banking-audit-req-917
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - banking-audit-917
+      - id: banking-audit-req-918
+        name: Windows User Account Attributes Changes
+        satisfiedBy:
+          - banking-audit-918
+      - id: banking-audit-req-919
+        name: Windows Special privileges assigned to new logon
+        satisfiedBy:
+          - banking-audit-919
+      - id: banking-audit-req-920
+        name: Windows Process Creation
+        satisfiedBy:
+          - banking-audit-920
+      - id: banking-audit-req-921
+        name: Windows Service Installed
+        satisfiedBy:
+          - banking-audit-921
+      - id: banking-audit-req-922
+        name: Windows Access to Shared Resources
+        satisfiedBy:
+          - banking-audit-922
+      - id: banking-audit-req-923
+        name: Windows User Accounts Deleted
+        satisfiedBy:
+          - banking-audit-923
+      - id: banking-audit-req-924
+        name: Windows Logins with explicit credentials
+        satisfiedBy:
+          - banking-audit-924
+      - id: banking-audit-req-925
+        name: Windows PowerShell Script Block Registration
+        satisfiedBy:
+          - banking-audit-925
+      - id: banking-audit-req-926
+        name: Windows Logging Unexpected System Shutdowns
+        satisfiedBy:
+          - banking-audit-926
+      - id: banking-audit-req-927
+        name: Windows Access to Shared Resources
+        satisfiedBy:
+          - banking-audit-927
+      - id: banking-audit-req-928
+        name: Windows Application Errors
+        satisfiedBy:
+          - banking-audit-928
+      - id: banking-audit-req-929
+        name: Windows Object Deletion
+        satisfiedBy:
+          - banking-audit-929
+  - key: sec-703
+    name: Log Collection and Monitoring
+    requirements:
+      - id: banking-audit-req-838
+        name: Windows Account Logon Success
+        satisfiedBy:
+          - banking-audit-838
+      - id: banking-audit-req-839
+        name: Windows  Account Logon Failure
+        satisfiedBy:
+          - banking-audit-839
+      - id: banking-audit-req-840
+        name: Windows Account Logoff
+        satisfiedBy:
+          - banking-audit-840
+      - id: banking-audit-req-841
+        name: Windows Logins with explicit credentials
+        satisfiedBy:
+          - banking-audit-841
+      - id: banking-audit-req-842
+        name: Windows Cleaned Event Log
+        satisfiedBy:
+          - banking-audit-842
+      - id: banking-audit-req-843
+        name: Windows Policy changes
+        satisfiedBy:
+          - banking-audit-843
+      - id: banking-audit-req-844
+        name: Windows User Accounts Created
+        satisfiedBy:
+          - banking-audit-844
+      - id: banking-audit-req-845
+        name: Windows Password Reset Attempts
+        satisfiedBy:
+          - banking-audit-845
+      - id: banking-audit-req-846
+        name: 'Windows User Accounts Deleted '
+        satisfiedBy:
+          - banking-audit-846
+      - id: banking-audit-req-847
+        name: Windows Protected Object Permission Change
+        satisfiedBy:
+          - banking-audit-847
+      - id: banking-audit-req-848
+        name: Windows Access to critical files or specific directories
+        satisfiedBy:
+          - banking-audit-848
+      - id: banking-audit-req-849
+        name: Windows Connection blocked by Windows Firewall
+        satisfiedBy:
+          - banking-audit-849
+      - id: banking-audit-req-850
+        name: Windows Changes in account status
+        satisfiedBy:
+          - banking-audit-850
+      - id: banking-audit-req-851
+        name: Windows Kerberos ticket requests
+        satisfiedBy:
+          - banking-audit-851
+      - id: banking-audit-req-852
+        name: Windows Use of Elevated Privileges
+        satisfiedBy:
+          - banking-audit-852
+      - id: banking-audit-req-853
+        name: Windows Registry Value Modification
+        satisfiedBy:
+          - banking-audit-853
+      - id: banking-audit-req-854
+        name: Windows Changes to Defender settings
+        satisfiedBy:
+          - banking-audit-854
+      - id: banking-audit-req-855
+        name: Windows PowerShell Script Block Registration
+        satisfiedBy:
+          - banking-audit-855
+      - id: banking-audit-req-856
+        name: Windows PowerShell Remote Session Creation
+        satisfiedBy:
+          - banking-audit-856
+      - id: banking-audit-req-857
+        name: Windows Installation of Services
+        satisfiedBy:
+          - banking-audit-857
+      - id: banking-audit-req-858
+        name: Windows Service Control Manager Log Information
+        satisfiedBy:
+          - banking-audit-858
+      - id: banking-audit-req-859
+        name: Windows Failed logon attempt
+        satisfiedBy:
+          - banking-audit-859
+      - id: banking-audit-req-860
+        name: Windows Credential Access
+        satisfiedBy:
+          - banking-audit-860
+      - id: banking-audit-req-861
+        name: Windows Member Addition to a Security Local Group
+        satisfiedBy:
+          - banking-audit-861

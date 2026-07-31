@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1087
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.4 User Accounts Enumeration
+scope: data
+statement: This report compiles relevant information from Windows event 4799 logs, which refers to network configuration changes involving access and disclosure of internal IP address and routing information. This event is key to verifying compliance with PCI DSS Requirements, which establishes that disclosure of internal IP addresses and routing information must be limited to authorized parties only. By reviewing these events, unauthorized access to sensitive network configurations can be monitored, ensuring that only authorized personnel have visibility into this critical information.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enumeration
+    name: Windows User Accounts Enumeration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enumeration-by-target-user
+    name: Windows User Accounts Enumeration by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

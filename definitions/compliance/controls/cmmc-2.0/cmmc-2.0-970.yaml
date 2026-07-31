@@ -1,0 +1,21 @@
+id: cmmc-2.0-970
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SC.4.229): Access to shared resource'
+scope: data
+statement: This report gathers relevant information from the logs of Windows Security Auditing event 5145 (A network share object was accessed), used to verify compliance with CMMC Level 4 (SC.4.229), which requires the improvement of cryptographic protections through advanced tools. Event 5145 is triggered when a shared object is accessed on the network, and its analysis allows monitoring how sensitive data is protected and accessed, especially those protected by cryptographic mechanisms. This type of access is crucial to verify if information, including CUI, is properly handled with encryption both at rest and in transit, using advanced tools that ensure the confidentiality and integrity of the data. <br/><br/>This report helps identify unauthorized access, potential vulnerabilities in encryption tools, and ensures that cryptographic policies are properly enforced and verified in environments that handle critical information.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resource
+    name: Windows Access to shared resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-accesses-by-share-type
+    name: Windows Accesses by share type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5145')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-877
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): Attach Role Policy'
+scope: data
+statement: This report compiles and presents relevant information about AttachRolePolicy events in AWS, with the objective of verifying compliance with CMMC level 2 practice AU.2.042. It focuses on ensuring that audit logs related to the association of policies to roles are collected effectively, allowing the detection and analysis of security events. The report includes key details such as the identity of the user performing the action, the ARN of the attached policy, the affected role, the account involved, and the source of the request. This information is critical to monitoring permission changes, detecting unauthorized activity, and ensuring that necessary logs are available to support event analysis and improve response to potential security incidents.
+strategy: ANY
+checks:
+  - key: aws-attach-role-policy
+    name: AWS Attach Role Policy
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AttachRolePolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-attach-role-policy-mfa-distribution
+    name: AWS Attach Role Policy - MFA Distribution
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AttachRolePolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

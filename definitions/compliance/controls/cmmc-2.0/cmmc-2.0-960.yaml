@@ -1,0 +1,21 @@
+id: cmmc-2.0-960
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): Attempt to Access a Protected Object'
+scope: data
+statement: 'This report compiles relevant information from the Windows event 4663 and 4656 logs, which are used to track access and actions performed on protected objects on the system, such as files and folders. Event 4663 records actions performed on specific objects, such as reading, writing or deleting files, while event 4656 captures when an access attempt is made to a protected object, detailing the type of access requested and the success or failure of that attempt.<br/><br/>These events are essential to verify compliance with CMMC Level 3 (MP.3.123): Protect CUI during transport and prevent data loss, as they provide visibility into how users interact with sensitive data (CUI) and if there are attempts to access or manipulate it without proper authorization. By analyzing these logs, you can ensure that data in transit is protected, preventing loss, unauthorized access or alteration during handling and transportation. In addition, they allow us to identify possible security breaches that could put the confidentiality and integrity of the CUI at risk.'
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

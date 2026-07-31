@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1219
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.6 Registry Value Modification
+scope: data
+statement: This report compiles relevant information from Windows 4657 events, which record changes to system objects, including files and settings, which may require updates related to the security awareness program. Data from these events is used to verify that the organization is implementing a security awareness program, properly informing all staff about security policies and procedures, as well as their role in protecting credit card data.<br/><br/>The report ensures that ongoing security training is conducted, with an annual review of the program and updates based on new threats or vulnerabilities. It also confirms that staff receive training on specific threats such as phishing, social engineering, and acceptable use of endpoint technologies, ensuring that the security policy is understood and acknowledged annually by all employees.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

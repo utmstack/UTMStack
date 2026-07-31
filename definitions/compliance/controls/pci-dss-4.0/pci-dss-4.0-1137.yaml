@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1137
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.1 Process Termination
+scope: data
+statement: This report collects relevant information from Windows Event 4689 logs to assess compliance with PCI DSS Requirement 6.1. Event 4689 provides details on process terminations within the system, allowing validation that security policies and operational procedures are documented, up-to-date, and in use, in accordance with 6.1.1. It also ensures that the roles and responsibilities associated with developing and maintaining secure systems are clearly defined and understood, as required by 6.1.2.
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

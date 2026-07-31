@@ -1,0 +1,21 @@
+id: cmmc-2.0-932
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.044): Console Login'
+scope: data
+statement: This report collects and analyzes relevant information from AWS logs related to the ConsoleLogin event, with the objective of verifying compliance with the Level 2 requirement (AU.2.044) of the CMMC framework. Reviewing these logs can detect inappropriate behavior, such as unauthorized access attempts, access from unusual locations, or multiple failed login attempts. By monitoring these events, you strengthen the security of your environment and facilitate early identification of potential insider threats or compromised credentials.
+strategy: ANY
+checks:
+  - key: aws-console-login
+    name: AWS Console Login
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-console-login-by-ip
+    name: AWS Console Login by IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'ConsoleLogin')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

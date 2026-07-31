@@ -1,0 +1,21 @@
+id: cmmc-2.0-512
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Certificate Configuration Changes'
+scope: data
+statement: The SI.3.217 (Certificate Configuration Changes) control of the CMMC (Cybersecurity Maturity Model Certification) focuses on the management of changes in the configuration of digital certificates in systems. This control is essential to maintain confidence in security systems, especially in a business environment where data protection is critical.
+strategy: ANY
+checks:
+  - key: windows-certificate-configuration-changes
+    name: Windows Certificate Configuration Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-certificate-configuration-changes-by-key-name
+    name: Windows Certificate Configuration Changes by Key Name
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

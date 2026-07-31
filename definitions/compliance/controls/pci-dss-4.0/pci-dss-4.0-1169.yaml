@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1169
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 User Account Attributes Changes
+scope: data
+statement: This report collects and analyzes 4738 events (User Account Modification) recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. Changes to user accounts are monitored, including changes to privileges, authentication information, and other key attributes, ensuring that all modifications are properly authorized and documented. Additionally, the assignment of unique IDs, restriction on the use of shared accounts, immediate revocation of access for inactive or deregistered users, and attribution of actions to individual users are verified, ensuring strict account lifecycle management in accordance with required authentication controls.
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

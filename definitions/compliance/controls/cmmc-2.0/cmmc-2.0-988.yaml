@@ -1,0 +1,21 @@
+id: cmmc-2.0-988
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Scheduled System Shutdowns and Restarts
+scope: data
+statement: This report presents key information extracted from the Windows event logs (event 1074) related to planned system shutdowns and restarts. The goal is to ensure that shutdown and restart activities are performed in a controlled and documented manner, which is critical to compliance with Disaster Recovery and Business Continuity Monitoring policies as required by CMMC. The collection of this data guarantees the traceability of actions related to the maintenance and operational availability of the systems.
+strategy: ANY
+checks:
+  - key: windows-scheduled-system-shutdowns-and-restarts
+    name: Windows Scheduled System Shutdowns and Restarts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1074')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-scheduled-system-shutdowns-and-restarts-by-type
+    name: Windows Scheduled System Shutdowns and Restarts by Type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1074')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

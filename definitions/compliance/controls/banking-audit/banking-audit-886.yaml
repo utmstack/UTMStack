@@ -1,0 +1,21 @@
+id: banking-audit-886
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Critical Hardware Failure
+scope: data
+statement: "The Windows Critical Hardware Failure Report provides detailed logs of hardware-related issues, such as disk failures, memory errors, or overheating events. This report is vital for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as hardware failures can lead to data loss, downtime, or system vulnerabilities.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring that critical hardware failures are monitored and mitigated to protect financial systems and sensitive data.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators in real-time of hardware issues, enabling immediate action to minimize risks and prevent system downtime.<br/>\t•\tIncident Response: Identifies patterns of recurring hardware issues, supporting root cause analysis and proactive maintenance planning.<br/>\t•\tAudit Readiness: Provides traceability of hardware failure events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure and reliable system operations.<br/>\t•\tData Protection: Supports compliance with PCI DSS Requirement 5, ensuring the availability and integrity of hardware components critical to financial systems."
+strategy: ANY
+checks:
+  - key: windows-critical-hardware-failure
+    name: Windows Critical Hardware Failure
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '13')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-critical-hardware-failure-by-certification-authority
+    name: Windows Critical Hardware Failure by Certification Authority
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '13')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

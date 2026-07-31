@@ -1,0 +1,21 @@
+id: cmmc-2.0-1024
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 1 (AU.1.001): Account Logon Success'
+scope: data
+statement: This report collects relevant information from the FileSyncDownloadedFull event logs in Office 365, providing a detailed view of completed file downloads performed through OneDrive and SharePoint synchronization. Its purpose is to support CMMC Level 1 (AU.1.001) compliance, which requires capturing audit logs for basic security events.<br/><br/>The report allows you to identify which users have downloaded files, from which location, and at what time, making it easier to monitor data access and movement within the corporate environment. Capturing these events enables the ability to track the flow of information and detect potential unauthorized activities or file management anomalies.<br/><br/>Additionally, this report can serve as a reference tool to assess usage patterns, strengthen data security, and comply with regulatory requirements related to auditing and retention of security event logs.
+strategy: ANY
+checks:
+  - key: o365-ad-successful-login-location
+    name: O365 AD Successful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-successful-login-by-user
+    name: O365 AD Successful Login by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

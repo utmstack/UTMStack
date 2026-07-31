@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1205
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.3 Installation of Services
+scope: data
+statement: This report assesses compliance with PCI DSS Requirement 11.3.1.3, which establishes that internal vulnerability scans must be performed after any significant system changes. Using Windows Event 7045 logs, the report collects information on the installation of new services and drivers, which may be indicative of significant changes to the system infrastructure. This analysis verifies that, after these changes were made, internal vulnerability scans were performed to detect and resolve high-risk or critical vulnerabilities, in accordance with the risk classifications defined in PCI DSS Requirement 6.3.1. It also ensures that rescans are performed when necessary and that scans are conducted by qualified personnel, ensuring effectiveness and an appropriate response to system vulnerabilities following significant changes.
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1151
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.2 Additions to Security Groups
+scope: data
+statement: This report collects and analyzes Windows 4728 events, which record the addition of users to security groups. The objective of this report is to assess compliance with PCI DSS Requirement 7.2, which establishes that access to system components and data must be properly defined and assigned. By monitoring these events, we ensure that users are assigned to the appropriate groups based on their job functions, ensuring the principle of least privilege is applied and that access to data and systems is restricted according to business needs.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

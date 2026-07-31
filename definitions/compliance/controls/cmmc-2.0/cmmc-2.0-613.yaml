@@ -1,0 +1,21 @@
+id: cmmc-2.0-613
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): DescribeLogStreams Logs'
+scope: data
+statement: This report collects and analyzes key information about DescribeLogStreams events in AWS, for the purpose of verifying compliance with CMMC practice AU.2.042. Its objective is to ensure that the query and retrieval of log streams in AWS CloudWatch Logs are recorded and monitored for the detection and analysis of security events.<br/><br/>The report includes details such as the account involved, the identity of the user who made the request, and the source of the request. This information is essential to audit access to critical logs, detect unusual activities, and ensure proper log collection and analysis in the AWS environment.
+strategy: ANY
+checks:
+  - key: aws-describelogstreams-logs
+    name: AWS DescribeLogStreams Logs
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogStreams')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-describelogstreams-logs-by-source
+    name: AWS DescribeLogStreams Logs by Source
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogStreams')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

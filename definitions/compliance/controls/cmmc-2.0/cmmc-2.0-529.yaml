@@ -1,0 +1,21 @@
+id: cmmc-2.0-529
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Logins with explicit credentials'
+scope: data
+statement: This report collects relevant information from event 4648 in the Windows logs, which is generated when a login attempt is made using explicit credentials (username and password) by a process or program. This type of event is significant for monitoring access activities in IT infrastructure, as it can indicate potentially unauthorized access attempts or manipulations in authentication processes.<br/><br/>In the context of CMMC Level 3 (SI.3.217), event 4648 helps detect login attempts that could be part of a credentials attack, such as brute force attacks or reuse of compromised credentials. This type of monitoring is essential to identify unauthorized access or anomalous authentication behavior that could compromise the security of the organization.<br/><br/>The report allows you to identify unusual access patterns, such as login attempts from unusual locations or outside normal working hours, which is indicative of possible external or internal attacks. This information is key to activating alerts and taking immediate action against unauthorized access threats.<br/><br/>The collection and analysis of these events are essential to comply with CMMC requirements, since they allow early detection of attacks and help strengthen the security posture of the IT infrastructure by implementing protective measures, preventing attackers from achieving access critical systems.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

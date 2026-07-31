@@ -1,0 +1,21 @@
+id: cmmc-2.0-792
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AC.4.028): Privilege Escalation Alerts'
+scope: data
+statement: This report compiles relevant information from Windows logs associated with Account Manipulation, Domain Policy Modification, Impair Defenses, and Account Access Removal alerts, which are key events for the detection and prevention of privilege escalation in the IT environment. This information is used to verify compliance with CMMC Level 4 control AC.4.028, which requires automation of privilege escalation detection.<br/><br/>Account Manipulation events include activities such as modifying user accounts, assigning roles and privileges, which may indicate attempts to gain elevated access in an unauthorized manner. Domain Policy Modification alerts reflect changes to domain policies that could allow privilege escalation at the network level, and Impair Defenses alerts detect modifications that affect security measures implemented to protect the system. Finally, Account Access Removal alerts record attempts to remove account access, which may be a sign of an attempt to cover the tracks of an attack.<br/><br/>Monitoring these events helps identify anomalous patterns or suspicious actions related to unauthorized elevation of privileges, which is crucial to preventing unauthorized access and potential security compromises. Automating the detection of these events ensures a faster and more accurate response to any attempted privilege escalation, minimizing the risk that an attacker can gain access to critical resources without being detected.<br/><br/>This report contributes significantly to compliance with AC.4.028 by providing a centralized, automated view of key events related to privilege escalation. By automating detection, you strengthen your organization's security posture, enabling you to efficiently detect and mitigate privilege escalation attacks before they severely impact sensitive data and infrastructure.
+strategy: ANY
+checks:
+  - key: windows-privilege-escalation-alerts
+    name: Windows Privilege Escalation Alerts
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (tactic IN ('Account Manipulation', 'Domain Policy Modification', 'Impair Defenses', 'Account Access Removal'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-privilege-escalation-alerts-by-tactic
+    name: Windows Privilege Escalation Alerts by Tactic
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (tactic IN ('Account Manipulation', 'Domain Policy Modification', 'Impair Defenses', 'Account Access Removal'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

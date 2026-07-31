@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1105
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Installation of Services
+scope: data
+statement: This report compiles relevant information from 7045 events (A service was installed in the system) generated in Windows, with the goal of verifying compliance with PCI DSS requirement 2.2.4. This requirement establishes that only services, protocols, daemons, and functions necessary for system operation should be enabled, and that all unnecessary functionality should be removed or disabled.<br/><br/>Event 7045 allows you to audit the installation of new services on the system, providing visibility into the activation of software that could introduce security risks. This event allows you to identify unauthorized services, verify that only essential processes are running, and detect improper configurations that could expose the infrastructure to unnecessary threats.
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

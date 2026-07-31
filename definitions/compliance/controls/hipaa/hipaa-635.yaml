@@ -1,0 +1,21 @@
+id: hipaa-635
+family: hipaa
+familyName: HIPAA
+name: Windows Account Logon Failure
+scope: data
+statement: This report collects and analyzes security events identified by ID 4625 on Windows systems. Event 4625 records failed login attempts, providing relevant information for verifying compliance with HIPAA requirement 164.312(a)(1). This requirement establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that store or process ePHI (Electronic Protected Health Information). This report facilitates the identification of unauthorized access attempts and contributes to the implementation and monitoring of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

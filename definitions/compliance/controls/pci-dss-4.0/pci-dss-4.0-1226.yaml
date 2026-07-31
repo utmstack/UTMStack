@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1226
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Attempt to Access a Protected Object
+scope: data
+statement: This report analyzes Object Access Request events (Event ID 4656) on Windows systems to assess compliance with PCI DSS requirements A1.1.2 and A1.1.3 in multi-tenant environments. This event is generated when a process requests access to a protected object, such as files, registry keys, or system services. Therefore, its analysis allows verification that each client only attempts to access its own cardholder information (CDE) and the resources assigned to it, preventing unauthorized access to other clients' data or systems. Details are examined that contribute to the validation of access controls, ensuring proper segregation of data and resources, and reducing the risk of exposure in shared infrastructures.
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

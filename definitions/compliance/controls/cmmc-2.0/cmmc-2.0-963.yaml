@@ -1,0 +1,21 @@
+id: cmmc-2.0-963
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (MP.3.123): File System Transaction Status Changes'
+scope: data
+statement: This report gathers relevant information from security events recorded with ID 4985 in Windows, which indicate that the state of a transaction has changed within the system. These events allow monitoring modifications in transactional processes that may be related to the management and protection of sensitive information.<br/><br/>In the context of CMMC Level 3 (MP.3.123) compliance, tracking these events is essential to ensure the protection of the CUI (Controlled Unclassified Information) during its transport and prevent data loss. Auditing changes to system transactions helps detect suspicious activity, improper access, or potential vulnerabilities in the manipulation of protected data.<br/><br/>Analysis of these events allows organizations to improve their security controls, detect unauthorized modifications and strengthen data protection in environments where classified or critical information is handled.
+strategy: ANY
+checks:
+  - key: windows-file-system-transaction-status-changes
+    name: Windows File System Transaction Status Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4985')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-system-transaction-status-changes-by-new-state
+    name: Windows File System Transaction Status Changes by New State
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4985')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

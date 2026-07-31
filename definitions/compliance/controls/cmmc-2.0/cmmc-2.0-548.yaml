@@ -1,0 +1,21 @@
+id: cmmc-2.0-548
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (SI.5.223): Protected Object Permission Change'
+scope: data
+statement: This report gathers relevant information from the Windows logs corresponding to event 4670, which is triggered when the permissions of a security object, such as a file or folder, are modified. This type of event is key to detecting changes in the security configuration of the organization's critical resources, which can be an indication of malicious or unauthorized behavior.<br/><br/>Through this report, we seek to identify unauthorized changes in access permissions, which could reflect attempts to escalate privileges or manipulate sensitive data. To comply with the CMMC requirement of SI.5.223, which requires the implementation of advanced monitoring techniques and the use of machine learning to detect anomalous behavior, this event is analyzed within a continuous monitoring framework using behavioral analysis tools .<br/><br/>This report helps identify unusual or unexpected patterns in permission modification, which can enable early detection of advanced threats or targeted attacks. Additionally, the integration of machine learning technologies into the analysis process makes it possible to identify atypical behaviors that might otherwise go undetected with traditional monitoring methods.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

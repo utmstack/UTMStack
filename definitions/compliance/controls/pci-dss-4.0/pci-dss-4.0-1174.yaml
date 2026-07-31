@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1174
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Event Logging Service Shut Down
+scope: data
+statement: This report consolidates relevant information from Windows Event 1100 logs, which indicates the closure of the audit log. Its purpose is to verify the implementation and activation of audit logs on all system components and in environments that process cardholder data, in compliance with PCI DSS requirements 10.2 and 10.2.1. It also enables the detection of anomalous activity and forensic analysis of events.
+strategy: ANY
+checks:
+  - key: windows-event-logging-service-shut-down
+    name: Windows Event Logging Service Shut Down
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-event-logging-service-shutdowns-count-by-host
+    name: Windows Event Logging Service Shutdowns - Count by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

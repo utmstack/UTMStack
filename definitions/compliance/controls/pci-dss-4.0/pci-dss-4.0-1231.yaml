@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1231
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 User Accounts Created
+scope: data
+statement: This report analyzes user account creation events (Event ID 4720) on Windows systems to assess compliance with PCI DSS Requirement A1.2.2, which establishes the implementation of processes or mechanisms to facilitate rapid forensic investigations in the event of a suspected or confirmed security incident. Event 4720 is generated when a new user account is created, which can be relevant in situations where unauthorized or unexpected account creation is indicative of a security incident. This analysis verifies that event logs provide the information necessary to conduct timely and detailed forensic investigations, enabling a rapid incident response. The findings in this report help ensure that the system has adequate mechanisms for recording and storing critical information, facilitating the resolution of security incidents and ensuring compliance with PCI DSS controls for evidence preservation and forensic investigation.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,175 +1,661 @@
-# PCI DSS v4.0 (checklist). Public IDs/titles, NO normative text (PCI SSC copyright).
-# satisfiedBy = 800-53 controls (best-effort mapping, review).
 key: pci-dss-4.0
-name: PCI DSS v4.0
-description: Payment Card Industry Data Security Standard v4.0. Reference IDs and short titles only;
-  the normative text is PCI SSC copyright and is not reproduced.
-source: PCI SSC (copyright) — public structure. 800-53 mapping best-effort (review).
+name: PCI DSS
+description: The PCI DSS (Payment Card Industry Data Security Standard) establishes a set of security requirements to protect payment card data and ensure the integrity of financial transactions. In a SIEM (Security Information and Event Management), PCI DSS compliance is achieved by collecting, monitoring, measuring, and retaining event logs related to the access, use, and security of payment data.
+source: Migrated from UTMStack v11
 sections:
-- key: req-1
-  name: 'Requirement 1: Install and maintain network security controls'
-  requirements:
-  - id: '1'
-    name: Install and maintain network security controls
-    satisfiedBy:
-    - sc-7
-    - ac-4
-    - cm-7
-- key: req-2
-  name: 'Requirement 2: Apply secure configurations to all system components'
-  requirements:
-  - id: '2'
-    name: Apply secure configurations to all system components
-    satisfiedBy:
-    - cm-2
-    - cm-6
-    - cm-7
-- key: req-3
-  name: 'Requirement 3: Protect stored account data'
-  requirements:
-  - id: '3'
-    name: Protect stored account data
-    satisfiedBy:
-    - sc-28
-    - mp-4
-- key: req-4
-  name: 'Requirement 4: Protect cardholder data with strong cryptography during transmission'
-  requirements:
-  - id: '4'
-    name: Protect cardholder data with strong cryptography during transmission
-    satisfiedBy:
-    - sc-8
-    - sc-13
-- key: req-5
-  name: 'Requirement 5: Protect all systems and networks from malicious software'
-  requirements:
-  - id: '5'
-    name: Protect all systems and networks from malicious software
-    satisfiedBy:
-    - si-3
-- key: req-6
-  name: 'Requirement 6: Develop and maintain secure systems and software'
-  requirements:
-  - id: '6'
-    name: Develop and maintain secure systems and software
-    satisfiedBy:
-    - sa-3
-    - sa-11
-    - si-2
-    - ra-5
-- key: req-7
-  name: 'Requirement 7: Restrict access by business need to know'
-  requirements:
-  - id: '7'
-    name: Restrict access by business need to know
-    satisfiedBy:
-    - ac-2
-    - ac-3
-    - ac-6
-  - id: '7.2'
-    name: Access to system components and data is appropriately defined and assigned
-    satisfiedBy:
-    - ac-2
-    - ac-3
-    - ac-6
-  - id: '7.3'
-    name: Access is managed via an access control system(s)
-    satisfiedBy:
-    - ac-3
-- key: req-8
-  name: 'Requirement 8: Identify users and authenticate access'
-  requirements:
-  - id: '8'
-    name: Identify users and authenticate access
-    satisfiedBy:
-    - ia-2
-    - ia-4
-    - ia-5
-    - ac-7
-  - id: '8.2'
-    name: User identification and related accounts are managed throughout lifecycle
-    satisfiedBy:
-    - ia-4
-    - ac-2
-  - id: '8.3'
-    name: Strong authentication for users and administrators is established
-    satisfiedBy:
-    - ia-2
-    - ia-5
-  - id: '8.4'
-    name: Multi-factor authentication is implemented to secure access
-    satisfiedBy:
-    - ia-2
-  - id: '8.6'
-    name: Use of application and system accounts and associated factors is managed
-    satisfiedBy:
-    - ac-2
-    - ia-5
-- key: req-9
-  name: 'Requirement 9: Restrict physical access to cardholder data'
-  requirements:
-  - id: '9'
-    name: Restrict physical access to cardholder data
-    satisfiedBy:
-    - pe-2
-    - pe-3
-- key: req-10
-  name: 'Requirement 10: Log and monitor all access to system components and cardholder data'
-  requirements:
-  - id: '10'
-    name: Log and monitor all access to system components and cardholder data
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-6
-    - au-8
-    - au-9
-    - au-11
-    - au-12
-    - si-4
-  - id: '10.2'
-    name: Audit logs capture all access to system components
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-12
-  - id: '10.3'
-    name: Audit logs are protected from destruction and unauthorized modification
-    satisfiedBy:
-    - au-9
-  - id: '10.4'
-    name: Audit logs are reviewed to identify anomalies or suspicious activity
-    satisfiedBy:
-    - au-6
-    - si-4
-  - id: '10.5'
-    name: Audit log history is retained and available for analysis
-    satisfiedBy:
-    - au-11
-  - id: '10.6'
-    name: Time-synchronization mechanisms support consistent time settings
-    satisfiedBy:
-    - au-8
-  - id: '10.7'
-    name: Failures of critical security control systems are detected and addressed
-    satisfiedBy:
-    - si-4
-    - au-5
-- key: req-11
-  name: 'Requirement 11: Test security of systems and networks regularly'
-  requirements:
-  - id: '11'
-    name: Test security of systems and networks regularly
-    satisfiedBy:
-    - ra-5
-    - ca-7
-    - si-4
-- key: req-12
-  name: 'Requirement 12: Support information security with organizational policies and programs'
-  requirements:
-  - id: '12'
-    name: Support information security with organizational policies and programs
-    satisfiedBy:
-    - pl-1
-    - at-2
-    - ir-1
+  - key: sec-801
+    name: Secure configuration of system components
+    requirements:
+      - id: pci-dss-4.0-req-1096
+        name: Windows 2.1 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1096
+      - id: pci-dss-4.0-req-1097
+        name: Windows 2.1 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1097
+      - id: pci-dss-4.0-req-1098
+        name: Windows 2.1 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1098
+      - id: pci-dss-4.0-req-1099
+        name: Windows 2.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1099
+      - id: pci-dss-4.0-req-1100
+        name: Windows 2.2 Registry Value Modification
+        satisfiedBy:
+          - pci-dss-4.0-1100
+      - id: pci-dss-4.0-req-1101
+        name: Windows 2.2 Service Installed
+        satisfiedBy:
+          - pci-dss-4.0-1101
+      - id: pci-dss-4.0-req-1102
+        name: Windows 2.1 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1102
+      - id: pci-dss-4.0-req-1103
+        name: Windows 2.2 Password Reset Attempts
+        satisfiedBy:
+          - pci-dss-4.0-1103
+      - id: pci-dss-4.0-req-1104
+        name: Windows 2.2 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1104
+      - id: pci-dss-4.0-req-1105
+        name: Windows 2.2 Installation of Services
+        satisfiedBy:
+          - pci-dss-4.0-1105
+      - id: pci-dss-4.0-req-1106
+        name: Windows 2.2 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1106
+      - id: pci-dss-4.0-req-1107
+        name: Windows 2.3 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1107
+      - id: pci-dss-4.0-req-1108
+        name: Windows 2.3 User Account Attributes Changes
+        satisfiedBy:
+          - pci-dss-4.0-1108
+  - key: sec-802
+    name: Protection and Secure Management of Stored Account Data
+    requirements:
+      - id: pci-dss-4.0-req-1109
+        name: Windows 3.1 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1109
+      - id: pci-dss-4.0-req-1110
+        name: Windows 3.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1110
+      - id: pci-dss-4.0-req-1111
+        name: Windows 3.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1111
+      - id: pci-dss-4.0-req-1112
+        name: Windows 3.1 Local Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1112
+      - id: pci-dss-4.0-req-1113
+        name: Windows 3.1 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1113
+      - id: pci-dss-4.0-req-1114
+        name: Windows 3.2 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1114
+      - id: pci-dss-4.0-req-1115
+        name: Windows 3.2 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1115
+      - id: pci-dss-4.0-req-1116
+        name: Windows 3.2 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1116
+      - id: pci-dss-4.0-req-1117
+        name: Windows 3.3 Object Deletion
+        satisfiedBy:
+          - pci-dss-4.0-1117
+      - id: pci-dss-4.0-req-1118
+        name: Windows 3.3 Credential Access
+        satisfiedBy:
+          - pci-dss-4.0-1118
+      - id: pci-dss-4.0-req-1119
+        name: Windows 3.3 Audit File integrity Validation Failed
+        satisfiedBy:
+          - pci-dss-4.0-1119
+      - id: pci-dss-4.0-req-1120
+        name: Windows 3.4 Account Logon Success
+        satisfiedBy:
+          - pci-dss-4.0-1120
+      - id: pci-dss-4.0-req-1121
+        name: Windows 3.4 Account Authentication Using NTLM
+        satisfiedBy:
+          - pci-dss-4.0-1121
+      - id: pci-dss-4.0-req-1122
+        name: Windows 3.4 Kerberos Service Ticket
+        satisfiedBy:
+          - pci-dss-4.0-1122
+  - key: sec-803
+    name: Cardholder Data Protection During Transmission
+    requirements:
+      - id: pci-dss-4.0-req-1123
+        name: Windows 4.1 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1123
+      - id: pci-dss-4.0-req-1124
+        name: Windows 4.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1124
+      - id: pci-dss-4.0-req-1125
+        name: Windows 4.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1125
+      - id: pci-dss-4.0-req-1126
+        name: Windows 4.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1126
+      - id: pci-dss-4.0-req-1127
+        name: Windows 4.1 Local Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1127
+      - id: pci-dss-4.0-req-1128
+        name: Windows 4.2 TLS protocol Errors
+        satisfiedBy:
+          - pci-dss-4.0-1128
+      - id: pci-dss-4.0-req-1129
+        name: Windows 4.2 Use of Elevated Privileges
+        satisfiedBy:
+          - pci-dss-4.0-1129
+      - id: pci-dss-4.0-req-1130
+        name: Windows 4.2 Scheduled Task Creation
+        satisfiedBy:
+          - pci-dss-4.0-1130
+  - key: sec-804
+    name: Malware and Phishing Protection
+    requirements:
+      - id: pci-dss-4.0-req-1131
+        name: Windows 5.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1131
+      - id: pci-dss-4.0-req-1132
+        name: Windows 5.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1132
+      - id: pci-dss-4.0-req-1133
+        name: Windows 5.3 Changes to Defender settings
+        satisfiedBy:
+          - pci-dss-4.0-1133
+      - id: pci-dss-4.0-req-1134
+        name: Windows 5.4 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1134
+  - key: sec-805
+    name: Access Control Management
+    requirements:
+      - id: pci-dss-4.0-req-1147
+        name: Windows 7.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1147
+      - id: pci-dss-4.0-req-1148
+        name: Windows 7.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1148
+      - id: pci-dss-4.0-req-1149
+        name: Windows 7.2 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1149
+      - id: pci-dss-4.0-req-1150
+        name: Windows 7.2 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1150
+      - id: pci-dss-4.0-req-1151
+        name: Windows 7.2 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1151
+      - id: pci-dss-4.0-req-1152
+        name: Windows 7.2 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1152
+      - id: pci-dss-4.0-req-1153
+        name: Windows 7.2 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1153
+      - id: pci-dss-4.0-req-1154
+        name: Windows 7.2 Local Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1154
+      - id: pci-dss-4.0-req-1155
+        name: Windows 7.2 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1155
+      - id: pci-dss-4.0-req-1156
+        name: Windows 7.2 Protected Object Access Operation
+        satisfiedBy:
+          - pci-dss-4.0-1156
+      - id: pci-dss-4.0-req-1157
+        name: Windows 7.2 Group Membership Enumerated
+        satisfiedBy:
+          - pci-dss-4.0-1157
+      - id: pci-dss-4.0-req-1158
+        name: Windows 7.3 Account Logon Success
+        satisfiedBy:
+          - pci-dss-4.0-1158
+      - id: pci-dss-4.0-req-1159
+        name: Windows 7.3 Account Logon Failure
+        satisfiedBy:
+          - pci-dss-4.0-1159
+      - id: pci-dss-4.0-req-1160
+        name: Windows 7.3 Account Authentication Using NTLM
+        satisfiedBy:
+          - pci-dss-4.0-1160
+      - id: pci-dss-4.0-req-1161
+        name: Windows 7.3 Kerberos ticket requests
+        satisfiedBy:
+          - pci-dss-4.0-1161
+  - key: sec-806
+    name: Secure Development and Maintenance of Systems and Software
+    requirements:
+      - id: pci-dss-4.0-req-1135
+        name: Windows 6.1 Special privileges assigned to new logon
+        satisfiedBy:
+          - pci-dss-4.0-1135
+      - id: pci-dss-4.0-req-1136
+        name: Windows 6.1 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1136
+      - id: pci-dss-4.0-req-1137
+        name: Windows 6.1 Process Termination
+        satisfiedBy:
+          - pci-dss-4.0-1137
+      - id: pci-dss-4.0-req-1138
+        name: Windows 6.1 Protected Object Access Operation
+        satisfiedBy:
+          - pci-dss-4.0-1138
+      - id: pci-dss-4.0-req-1139
+        name: Windows 6.2 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1139
+      - id: pci-dss-4.0-req-1140
+        name: Windows 6.2 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1140
+      - id: pci-dss-4.0-req-1141
+        name: Windows 6.2 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1141
+      - id: pci-dss-4.0-req-1142
+        name: Windows 6.3 Audit File integrity Validation Failed
+        satisfiedBy:
+          - pci-dss-4.0-1142
+      - id: pci-dss-4.0-req-1143
+        name: Windows Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1143
+      - id: pci-dss-4.0-req-1144
+        name: Windows 6.4 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1144
+      - id: pci-dss-4.0-req-1145
+        name: Windows 6.4 Logins with explicit credentials
+        satisfiedBy:
+          - pci-dss-4.0-1145
+      - id: pci-dss-4.0-req-1146
+        name: Windows 6.5 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1146
+  - key: sec-807
+    name: ' Implementation and maintenance of network security controls'
+    requirements:
+      - id: pci-dss-4.0-req-1053
+        name: Windows 1.2 Restoration of default security policies
+        satisfiedBy:
+          - pci-dss-4.0-1053
+      - id: pci-dss-4.0-req-1054
+        name: Windows 1.2 Registry Value Modification
+        satisfiedBy:
+          - pci-dss-4.0-1054
+      - id: pci-dss-4.0-req-1055
+        name: Windows 1.2 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1055
+      - id: pci-dss-4.0-req-1056
+        name: Windows 1.1 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1056
+      - id: pci-dss-4.0-req-1057
+        name: Windows 1.2 Filtering Platform
+        satisfiedBy:
+          - pci-dss-4.0-1057
+      - id: pci-dss-4.0-req-1058
+        name: Windows 1.2 Kerberos ticket requests
+        satisfiedBy:
+          - pci-dss-4.0-1058
+      - id: pci-dss-4.0-req-1060
+        name: Windows 1.2 File System Transaction Status Changes
+        satisfiedBy:
+          - pci-dss-4.0-1060
+      - id: pci-dss-4.0-req-1061
+        name: Windows 1.2 Attempt to Access a Protected Object
+        satisfiedBy:
+          - pci-dss-4.0-1061
+      - id: pci-dss-4.0-req-1064
+        name: Windows 1.1 Firewall Exception List Changed
+        satisfiedBy:
+          - pci-dss-4.0-1064
+      - id: pci-dss-4.0-req-1065
+        name: Windows 1.1 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1065
+      - id: pci-dss-4.0-req-1067
+        name: Windows 1.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1067
+      - id: pci-dss-4.0-req-1068
+        name: Windows 1.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1068
+      - id: pci-dss-4.0-req-1069
+        name: Windows 1.1 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1069
+      - id: pci-dss-4.0-req-1070
+        name: Windows 1.1 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1070
+      - id: pci-dss-4.0-req-1071
+        name: Windows 1.1 User Accounts Deleted
+        satisfiedBy:
+          - pci-dss-4.0-1071
+      - id: pci-dss-4.0-req-1072
+        name: Windows 1.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1072
+      - id: pci-dss-4.0-req-1073
+        name: Windows 1.1 Local Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1073
+      - id: pci-dss-4.0-req-1075
+        name: Windows 1.1 Special privileges assigned to new logon
+        satisfiedBy:
+          - pci-dss-4.0-1075
+      - id: pci-dss-4.0-req-1076
+        name: Windows 1.1 Logins with explicit credentials
+        satisfiedBy:
+          - pci-dss-4.0-1076
+      - id: pci-dss-4.0-req-1079
+        name: Windows 1.1 Account Logon Success
+        satisfiedBy:
+          - pci-dss-4.0-1079
+      - id: pci-dss-4.0-req-1080
+        name: Windows 1.1 Account Logon Failure
+        satisfiedBy:
+          - pci-dss-4.0-1080
+      - id: pci-dss-4.0-req-1083
+        name: Windows 1.4 Connections and Port Assignments
+        satisfiedBy:
+          - pci-dss-4.0-1083
+      - id: pci-dss-4.0-req-1085
+        name: Windows 1.4 Account Locks
+        satisfiedBy:
+          - pci-dss-4.0-1085
+      - id: pci-dss-4.0-req-1087
+        name: Windows 1.4 User Accounts Enumeration
+        satisfiedBy:
+          - pci-dss-4.0-1087
+      - id: pci-dss-4.0-req-1091
+        name: Windows 1.5 Service Installed
+        satisfiedBy:
+          - pci-dss-4.0-1091
+      - id: pci-dss-4.0-req-1095
+        name: Windows 1.5  Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1095
+  - key: sec-808
+    name: 8. Authentication, Identification and Access Control
+    requirements:
+      - id: pci-dss-4.0-req-1162
+        name: Windows 8.2 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1162
+      - id: pci-dss-4.0-req-1163
+        name: Windows 8.2 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1163
+      - id: pci-dss-4.0-req-1164
+        name: Windows 8.2 Account Logon Success
+        satisfiedBy:
+          - pci-dss-4.0-1164
+      - id: pci-dss-4.0-req-1165
+        name: Windows 8.2 Account Logoff
+        satisfiedBy:
+          - pci-dss-4.0-1165
+      - id: pci-dss-4.0-req-1166
+        name: Windows 8.2 Logins with explicit credentials
+        satisfiedBy:
+          - pci-dss-4.0-1166
+      - id: pci-dss-4.0-req-1167
+        name: Windows 8.2 Special privileges assigned to new logon
+        satisfiedBy:
+          - pci-dss-4.0-1167
+      - id: pci-dss-4.0-req-1168
+        name: Windows 8.2 User Accounts Deleted
+        satisfiedBy:
+          - pci-dss-4.0-1168
+      - id: pci-dss-4.0-req-1169
+        name: Windows 8.2 User Account Attributes Changes
+        satisfiedBy:
+          - pci-dss-4.0-1169
+      - id: pci-dss-4.0-req-1171
+        name: Windows 8.3 Account Authentication Using NTLM
+        satisfiedBy:
+          - pci-dss-4.0-1171
+      - id: pci-dss-4.0-req-1172
+        name: Windows 8.3 Kerberos ticket requests
+        satisfiedBy:
+          - pci-dss-4.0-1172
+      - id: pci-dss-4.0-req-1173
+        name: Windows 8.3 Account Locks
+        satisfiedBy:
+          - pci-dss-4.0-1173
+  - key: sec-809
+    name: 10. Cardholder Data Recording and Monitoring
+    requirements:
+      - id: pci-dss-4.0-req-1174
+        name: Windows 10.2 Event Logging Service Shut Down
+        satisfiedBy:
+          - pci-dss-4.0-1174
+      - id: pci-dss-4.0-req-1175
+        name: Windows 10.2 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1175
+      - id: pci-dss-4.0-req-1176
+        name: Windows 10.2 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1176
+      - id: pci-dss-4.0-req-1177
+        name: Windows 10.2 Account Logon Failure
+        satisfiedBy:
+          - pci-dss-4.0-1177
+      - id: pci-dss-4.0-req-1178
+        name: Windows 10.2 Special privileges assigned to new logon
+        satisfiedBy:
+          - pci-dss-4.0-1178
+      - id: pci-dss-4.0-req-1179
+        name: Windows 10.2 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1179
+      - id: pci-dss-4.0-req-1180
+        name: Windows 10.2 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1180
+      - id: pci-dss-4.0-req-1181
+        name: Windows 10.2 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1181
+      - id: pci-dss-4.0-req-1182
+        name: Windows 10.2 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1182
+      - id: pci-dss-4.0-req-1185
+        name: Windows 10.2 Account Authentication Using NTLM
+        satisfiedBy:
+          - pci-dss-4.0-1185
+      - id: pci-dss-4.0-req-1186
+        name: Windows 10.2 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1186
+      - id: pci-dss-4.0-req-1187
+        name: Windows 10.2 User Accounts Deleted
+        satisfiedBy:
+          - pci-dss-4.0-1187
+      - id: pci-dss-4.0-req-1188
+        name: Windows 10.2 User Account Attributes Changes
+        satisfiedBy:
+          - pci-dss-4.0-1188
+      - id: pci-dss-4.0-req-1189
+        name: Windows 10.2 Account Locks
+        satisfiedBy:
+          - pci-dss-4.0-1189
+      - id: pci-dss-4.0-req-1190
+        name: Windows 10.2 Unlocked Account
+        satisfiedBy:
+          - pci-dss-4.0-1190
+      - id: pci-dss-4.0-req-1193
+        name: Windows 10.6 System Time Settings Changes
+        satisfiedBy:
+          - pci-dss-4.0-1193
+  - key: sec-810
+    name: 11. Network Security and Protection
+    requirements:
+      - id: pci-dss-4.0-req-1195
+        name: Windows 11.1 Policy changes
+        satisfiedBy:
+          - pci-dss-4.0-1195
+      - id: pci-dss-4.0-req-1196
+        name: Windows 11.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1196
+      - id: pci-dss-4.0-req-1197
+        name: Windows 11.1 Additions to Security Groups
+        satisfiedBy:
+          - pci-dss-4.0-1197
+      - id: pci-dss-4.0-req-1198
+        name: Windows 11.1 Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1198
+      - id: pci-dss-4.0-req-1199
+        name: Windows 11.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1199
+      - id: pci-dss-4.0-req-1200
+        name: Windows 11.1 Local Security Group Member Removal
+        satisfiedBy:
+          - pci-dss-4.0-1200
+      - id: pci-dss-4.0-req-1201
+        name: Windows 11.2 Event Logging Service Shut Down
+        satisfiedBy:
+          - pci-dss-4.0-1201
+      - id: pci-dss-4.0-req-1202
+        name: Windows 11.3 Error Reporting
+        satisfiedBy:
+          - pci-dss-4.0-1202
+      - id: pci-dss-4.0-req-1203
+        name: Windows 11.3 Account Logon Success
+        satisfiedBy:
+          - pci-dss-4.0-1203
+      - id: pci-dss-4.0-req-1204
+        name: Windows 11.3 Account Logon Failure
+        satisfiedBy:
+          - pci-dss-4.0-1204
+      - id: pci-dss-4.0-req-1205
+        name: Windows 11.3 Installation of Services
+        satisfiedBy:
+          - pci-dss-4.0-1205
+      - id: pci-dss-4.0-req-1206
+        name: Windows 11.3 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1206
+      - id: pci-dss-4.0-req-1207
+        name: Windows 11.4 Account Locks
+        satisfiedBy:
+          - pci-dss-4.0-1207
+      - id: pci-dss-4.0-req-1208
+        name: Windows 11.5 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1208
+      - id: pci-dss-4.0-req-1209
+        name: Windows 11.5 Attempt to Access a Protected Object
+        satisfiedBy:
+          - pci-dss-4.0-1209
+  - key: sec-811
+    name: 12. Security and Risk Management Policy
+    requirements:
+      - id: pci-dss-4.0-req-1210
+        name: Windows 12.1 Member Addition to a Security Local Group
+        satisfiedBy:
+          - pci-dss-4.0-1210
+      - id: pci-dss-4.0-req-1211
+        name: Windows 12.1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1211
+      - id: pci-dss-4.0-req-1212
+        name: Windows 12.1 Access to critical files or specific directories
+        satisfiedBy:
+          - pci-dss-4.0-1212
+      - id: pci-dss-4.0-req-1213
+        name: Windows 12.1 Attempt to Access a Protected Object
+        satisfiedBy:
+          - pci-dss-4.0-1213
+      - id: pci-dss-4.0-req-1214
+        name: Windows 12.2 Process Creation
+        satisfiedBy:
+          - pci-dss-4.0-1214
+      - id: pci-dss-4.0-req-1215
+        name: Windows 12.3 Process Termination
+        satisfiedBy:
+          - pci-dss-4.0-1215
+      - id: pci-dss-4.0-req-1216
+        name: Windows 12.4 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1216
+      - id: pci-dss-4.0-req-1217
+        name: Windows 12.4 User Accounts Enabled
+        satisfiedBy:
+          - pci-dss-4.0-1217
+      - id: pci-dss-4.0-req-1219
+        name: Windows 12.6 Registry Value Modification
+        satisfiedBy:
+          - pci-dss-4.0-1219
+      - id: pci-dss-4.0-req-1220
+        name: Windows 12.6 Scheduled Task Creation
+        satisfiedBy:
+          - pci-dss-4.0-1220
+      - id: pci-dss-4.0-req-1221
+        name: Windows 12.10 Logins with explicit credentials
+        satisfiedBy:
+          - pci-dss-4.0-1221
+  - key: sec-812
+    name: A. Security and Separation in Multi-Tenant Environments
+    requirements:
+      - id: pci-dss-4.0-req-1222
+        name: Windows A1 Password Reset Attempts
+        satisfiedBy:
+          - pci-dss-4.0-1222
+      - id: pci-dss-4.0-req-1223
+        name: Windows A1 Account Logoff
+        satisfiedBy:
+          - pci-dss-4.0-1223
+      - id: pci-dss-4.0-req-1224
+        name: Windows A1 User Account Logoff
+        satisfiedBy:
+          - pci-dss-4.0-1224
+      - id: pci-dss-4.0-req-1225
+        name: Windows A1 Protected Object Permission Change
+        satisfiedBy:
+          - pci-dss-4.0-1225
+      - id: pci-dss-4.0-req-1226
+        name: Windows A1 Attempt to Access a Protected Object
+        satisfiedBy:
+          - pci-dss-4.0-1226
+      - id: pci-dss-4.0-req-1227
+        name: Windows A1 Network Access to shared resource
+        satisfiedBy:
+          - pci-dss-4.0-1227
+      - id: pci-dss-4.0-req-1228
+        name: Windows A1 User Account Attributes Changes
+        satisfiedBy:
+          - pci-dss-4.0-1228
+      - id: pci-dss-4.0-req-1229
+        name: Windows A1 Cleaned Event Log
+        satisfiedBy:
+          - pci-dss-4.0-1229
+      - id: pci-dss-4.0-req-1230
+        name: Windows A1 Logins with explicit credentials
+        satisfiedBy:
+          - pci-dss-4.0-1230
+      - id: pci-dss-4.0-req-1231
+        name: Windows A1 User Accounts Created
+        satisfiedBy:
+          - pci-dss-4.0-1231

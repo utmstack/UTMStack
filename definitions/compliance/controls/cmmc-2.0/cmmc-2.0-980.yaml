@@ -1,0 +1,21 @@
+id: cmmc-2.0-980
+family: cmmc-2.0
+familyName: CMMC
+name: Firewall Activity Monitoring
+scope: data
+statement: This report presents a detailed analysis of firewall logs with the goal of demonstrating that the SIEM monitors third-party risks in Windows environments, meeting CMMC requirements. Key events such as incoming and outgoing network traffic, unauthorized access, suspicious DNS queries, and other security activities that may indicate potential threats are examined.<br/><br/>Through the collection and correlation of these logs, continuous surveillance of third-party connections is ensured, allowing early detection of anomalous behavior and the application of mitigation measures. Monitoring includes information about source and destination IP addresses, ports, protocols used, policies applied, and security events detected.<br/><br/>This monitoring contributes to the identification and reduction of risks associated with external suppliers and access to critical systems, aligning with the best cybersecurity practices established by the CMMC.
+strategy: ANY
+checks:
+  - key: firewall-activity
+    name: Firewall Activity
+    indexPattern: v11-log-firewall-*
+    sql: SELECT count(*) AS c FROM v11-log-firewall-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: firewall-activity-by-data-source
+    name: Firewall Activity by Data Source
+    indexPattern: v11-log-firewall-*
+    sql: SELECT count(*) AS c FROM v11-log-firewall-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

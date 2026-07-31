@@ -1,0 +1,21 @@
+id: cmmc-2.0-578
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Security enabled local group change'
+scope: data
+statement: This report compiles the Windows log event 4735 logs, which document the modification of the properties of a security group on the system. This information is key to verify compliance with CMMC's Level 2 (AC.2.007) Access Control and Authentication policy, which requires the implementation of role-based access controls (RBAC). <br/><br/>The report includes details such as the name of the modified security group, the changes made to its properties, as well as the identity of the user or system that performed the action. The date and time of the modification is also included. The analysis of these events ensures that modifications to security groups are carried out in a controlled manner and in accordance with established security policies, ensuring that users maintain appropriate access and permissions according to their roles and minimizing the risk of unauthorized access.
+strategy: ANY
+checks:
+  - key: windows-security-enabled-local-group-change
+    name: Windows Security enabled local group change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4735')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-security-enabled-local-group-change-by-user
+    name: Windows Security enabled local group change by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4735')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

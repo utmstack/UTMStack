@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1100
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Registry Value Modification
+scope: data
+statement: This report gathers relevant information from 4657 events recorded in Windows logs, which are triggered when a change is made to a system's configuration. This type of event is crucial for compliance with PCI DSS Requirement 2.2.1, which requires the development, implementation, and maintenance of configuration standards for all system components, covering all known security areas and aligning with industry- or vendor-accepted system hardening recommendations.<br/><br/>Through 4657 events, all changes made to system configurations can be tracked and audited, allowing verification of whether security configuration standards are being applied appropriately, whether updates are being made in accordance with newly identified vulnerabilities, and whether they are being applied in a timely manner when a new system is configured.<br/><br/>This report provides evidence that security configurations are being maintained and updated in accordance with PCI DSS best practices and requirements, ensuring that all system components are securely configured before being connected to the production environment.
+strategy: ANY
+checks:
+  - key: windows-registry-value-modification-by-process
+    name: Windows Registry Value Modification by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-registry-value-modification
+    name: Windows Registry Value Modification
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4657')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-858
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Service Control Manager Log Information
+scope: data
+statement: "The Windows Service Control Manager Log Information Report provides a detailed record of activities related to the Service Control Manager (SCM), including service starts, stops, failures, and configuration changes. This report is critical for compliance within the Banking Audit framework, ensuring visibility into the management of services that impact system security and performance.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, demonstrating oversight and control of service activities to protect financial systems and sensitive customer data.<br/>\t•\tSystem Monitoring Compliance: Supports compliance with PCI DSS Requirement 10, ensuring logging and monitoring of critical service activities to detect unauthorized or suspicious changes.<br/>\t•\tAudit Readiness: Tracks all SCM events, providing traceability for frameworks like SOC2 Type 2 and ISO 27001, ensuring accountability and secure management of service operations.<br/>\t•\tIncident Detection: Identifies unauthorized service manipulations, abnormal service failures, or configuration changes, which could indicate malware activity or insider threats.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls to monitor and secure services that may process or protect sensitive financial data."
+strategy: ANY
+checks:
+  - key: windows-service-control-manager-log-information
+    name: Windows Service Control Manager Log Information
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-control-manager-log-information-distribution-by-host
+    name: 'Windows Service Control Manager Log Information Distribution by Host '
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

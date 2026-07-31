@@ -1,0 +1,21 @@
+id: cmmc-2.0-933
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.044): IAM User Deletion'
+scope: data
+statement: This report collects and analyzes relevant information from AWS logs related to the DeleteUser event, with the objective of verifying compliance with the Level 2 requirement (AU.2.044) of the CMMC framework. Reviewing these logs can detect potentially inappropriate activities, such as unauthorized deletion of user accounts, actions taken outside of business hours, or from unusual locations. By monitoring these events, you improve your ability to identify potential insider threats, administrative errors, or malicious attempts to remove evidence of unauthorized activity.
+strategy: ANY
+checks:
+  - key: aws-iam-user-deletion
+    name: AWS IAM User Deletion
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-iam-user-deletion-by-ip
+    name: AWS IAM User Deletion by IP
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

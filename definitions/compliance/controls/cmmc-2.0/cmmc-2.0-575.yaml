@@ -1,0 +1,21 @@
+id: cmmc-2.0-575
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AC.2.007): Additions to Security Groups'
+scope: data
+statement: This report collects the Windows log event 4728 logs, which document the addition of a user to a security group on the system. This information is essential to verify compliance with CMMC's Level 2 (AC.2.007) Access Control and Authentication policy, which requires the implementation of role-based access controls (RBAC), ensuring that users only have access to the necessary resources according to their function and role. <br/><br/>The report includes key details such as the identities of users added to security groups, the name of the group to which they were assigned, the date and time of the modification, as well as the account that performed the action. The analysis of these events ensures that the assignment of roles and permissions is carried out in a controlled manner and in accordance with established security policies, helping to maintain the principle of least privilege and prevent unauthorized access.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

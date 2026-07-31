@@ -1,0 +1,21 @@
+id: banking-audit-921
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Service Installed
+scope: data
+statement: "The Windows Service Installed report provides detailed logs of events where new services are installed on a Windows system. This report is essential for monitoring system integrity, detecting unauthorized installations, and ensuring compliance with security and audit frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks like PCI DSS, ISO 27001, and SOC2, by documenting service installations to maintain a clear audit trail of system modifications.<br/>\t•\tSystem Integrity Monitoring: Tracks the installation of services to ensure that only authorized services are added, preventing potential malware or unnecessary services from compromising system performance or security.<br/>\t•\tEvent Correlation: Links service installation events with administrative actions, user accounts, and originating systems to build a comprehensive audit trail for analysis.<br/>\t•\tReal-Time Alerts: Notifies administrators of new service installations, particularly those installed by unauthorized users or from suspicious sources, enabling timely response to potential threats.<br/>\t•\tIncident Detection: Identifies unusual service installations, such as those with obscure names, running from unexpected directories, or configured with excessive privileges, which may indicate malicious activity.<br/>\t•\tAudit Readiness: Logs detailed information for each service installed, including the service name, executable path, user or account responsible for the installation, and the timestamp, ensuring robust records for audits and investigations.<br/><br/>By monitoring and correlating Windows Service Installed events, this report strengthens system security, supports compliance with audit requirements, and provides actionable insights for threat detection and response."
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

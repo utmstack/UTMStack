@@ -1,0 +1,21 @@
+id: hipaa-702
+family: hipaa
+familyName: HIPAA
+name: Windows Account Logon Failure
+scope: data
+statement: This report contributes to compliance with the NIST CSF DE.CM-1 requirement, which establishes the need for continuous monitoring of network activity to detect malicious activity. By analyzing event ID 4625 on Windows systems, this report facilitates the monitoring of failed login attempts. These events may indicate unauthorized access attempts or suspicious activity, helping to identify potential threats and prevent malicious access. This continuous monitoring contributes to the protection of network resources and strengthens system security policies.
+strategy: ANY
+checks:
+  - key: windows-failed-logon-attempts-by-reason-status
+    name: Windows Failed Logon Attempts by Reason Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-failure-by-user-and-host
+    name: Windows Logon Failure by User and Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

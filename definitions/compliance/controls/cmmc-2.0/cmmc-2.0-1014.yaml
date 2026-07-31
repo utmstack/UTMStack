@@ -1,0 +1,21 @@
+id: cmmc-2.0-1014
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): File Deleted'
+scope: data
+statement: This report collects relevant information from the FileDeleted event logs in Office 365, with the aim of verifying compliance with CMMC Level 2 control (AU.2.043). This control establishes the need to review and correlate logs to detect inappropriate activities that may put data integrity and information security at risk, especially when it comes to sensitive or confidential files.<br/><br/>FileDeleted event logs provide details about file deletion within Office 365, which is essential for identifying unauthorized or suspicious deletions, such as access to high-risk files by unauthorized users or deletions outside of normal operating patterns.<br/><br/>By correlating these events with other activity logs on the platform, the report makes it easier to detect potential security incidents, such as malicious data manipulation or attempts to delete critical information without justification. It also allows for accurate tracking and auditing of actions performed on files, ensuring that any unauthorized or policy-infringed deletion is identified early.<br/><br/>This analysis is essential to ensure data protection and facilitate rapid responses to any incidents related to inappropriate file deletion, which contributes to compliance with security regulations and preserving the integrity of information stored in Office 365.
+strategy: ANY
+checks:
+  - key: o365-filedeleted
+    name: O365 FileDeleted
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-filedeleted-by-geo-location
+    name: O365 FileDeleted by Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

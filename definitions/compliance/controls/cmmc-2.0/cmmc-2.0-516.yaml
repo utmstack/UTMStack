@@ -1,0 +1,21 @@
+id: cmmc-2.0-516
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Account Logon Success'
+scope: data
+statement: This report collects the Windows log event 4624 logs, which document successful login attempts to the system. Event 4624 is generated when a user or process logs in successfully, providing key information about system access. This information is crucial to verify compliance with the CMMC's Level 1 (AU.1.001) Audit and Monitoring policy, which requires audit records to ensure adequate monitoring of activities and access to the system.<br/><br/>The details provided in the report include user IDs and host names to ensure that only people with specific privileges have access to the system. The analysis of these events ensures that access to the system is being correctly recorded and monitored, contributing to the detection of unauthorized access and ensuring that appropriate access controls are applied. This report is essential to meet the audit requirements established by CMMC Level 1, ensuring that activities within the system are properly recorded and audited to detect possible security threats.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

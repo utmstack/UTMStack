@@ -1,0 +1,21 @@
+id: cmmc-2.0-524
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (SI.1.210): Windows Access to critical files or specific directories'
+scope: data
+statement: This report aims to monitor access to objects within the system, identifying and recording relevant security events related to access to sensitive files or directories. Analysis of these events is crucial to detect unauthorized or anomalous activities that may compromise the integrity and confidentiality of critical data in the organization's environment.<br/><br/>In the context of compliance with CMMC (Cybersecurity Maturity Model Certification), at Level 1 (SI.1.210), which requires the identification and correction of security flaws in a timely manner, monitoring these events is essential to ensure that access to sensitive resources are carried out only by authorized users. Detection of anomalous access or unauthorized attempts allows for rapid intervention to mitigate any potential risk.<br/><br/>The continuous collection and analysis of these access events helps maintain adequate control over system security and ensure that any vulnerabilities are quickly identified and corrected. This contributes significantly to the protection of critical data and assets of the organization, aligning with CMMC requirements for proactive security management and remediation of any vulnerabilities that may be exploited.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-1010
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (SI.3.217): File Deleted'
+scope: data
+statement: This report collects relevant information from the FileDeleted event logs in Office 365, used to verify compliance with CMMC Level 3 (SI.3.217), which establishes the need to use monitoring tools to detect potential attacks.<br/><br/>The FileDeleted event is generated when a file is deleted within the Office 365 environment, which may indicate a legitimate or potentially malicious action. Deleting critical files, especially those containing sensitive or controlled information, requires close monitoring to detect suspicious activities that may be associated with ransomware attacks, unauthorized deletion of data, or attempts to hide evidence of an attack.<br/><br/>The report includes essential details such as the ID of the deleted file, the user who performed the action, the source and destination of the file, as well as the date and time the deletion occurred. In addition, the location from which the deletion was performed and the device involved are recorded.<br/><br/>Monitoring file deletion events is a key tool for identifying anomalous activity patterns, such as mass file deletion or deletion to unauthorized locations. This report facilitates the detection of security incidents, enabling a rapid response to mitigate any potential attack or malicious behavior that compromises data integrity.
+strategy: ANY
+checks:
+  - key: o365-filedeleted
+    name: O365 FileDeleted
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-filedeleted-by-geo-location
+    name: O365 FileDeleted by Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileDeleted')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

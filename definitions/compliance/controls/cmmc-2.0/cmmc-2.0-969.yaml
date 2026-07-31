@@ -1,0 +1,21 @@
+id: cmmc-2.0-969
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SC.3.177): Special privileges assigned to new logon'
+scope: data
+statement: This report collects and analyzes Windows Security Auditing ID 4672 (Special Privileges Assigned to New Logon) events, used to verify compliance with CMMC Level 3 (SC.3.177), which requires the implementation of cryptographic protections for Controlled Unclassified Information (CUI). Event 4672 is crucial because it indicates when an account is granted special administrative privileges upon login, which could include access to security settings, cryptographic keys, and encryption mechanisms for data in transit and at rest. Its analysis allows you to identify accounts with access to critical encryption operations, detect possible improper access or changes in encryption policies and correlate this event with other security logs, such as 5061 – Cryptographic Operation and 1102 – Audit Log Cleared, to identify attempts to manipulate encryption or audit evasion. This ensures the correct assignment and monitoring of administrative privileges in environments that manage CUI, helps prevent unauthorized access to cryptographic configurations, and allows effective auditing of critical events related to data security. In this way, this report contributes to strengthening the security posture and compliance with the requirements of CMMC Level 3 (SC.3.177), ensuring the confidentiality and integrity of the CUI.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

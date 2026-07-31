@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1104
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 2.2 Process Creation
+scope: data
+statement: This report compiles relevant information from 4688 events (A new process has been created) generated in Windows, with the aim of verifying compliance with PCI DSS requirement 2.2.3. This requirement establishes that core functions requiring different levels of security must be managed appropriately, either by ensuring that each system contains only one core function, isolating functions with different security levels, or applying the highest security level if they share a single system.<br/><br/>Event 4688 allows the auditing of process creation in the system, providing visibility into which applications and services are running. Through this event, it is possible to identify processes associated with critical functions, verify the correct segmentation of tasks within systems, and detect potential misconfigurations that allow functions with different security levels to coexist in the same component.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

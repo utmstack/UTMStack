@@ -1,0 +1,21 @@
+id: hipaa-705
+family: hipaa
+familyName: HIPAA
+name: Windows Process Creation
+scope: data
+statement: This report contributes to compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activity to detect malicious activity. By analyzing event ID 4688 on Windows systems, this report allows monitoring the creation of new processes on the system, which may indicate the execution of malicious software or unauthorized activity. This continuous monitoring facilitates early threat detection and enables a rapid response to potential security incidents, helping to maintain the integrity and security of the network and systems.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-592
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Event Log Service'
+scope: data
+statement: This report collects the logs for Windows log events 6005 and 6006, which document the startup and shutdown of events from the system event log service (Event Log). Event 6005 is generated when the event log service starts, while event 6006 is generated when the event log service stops. These events provide key information about the state of the system and ensure that audit logs are being generated and maintained correctly. This information is crucial to verify compliance with CMMC's Level 1 (AU.1.001) Audit and Monitoring policy, which requires audit logs to ensure security and monitoring of system activities.<br/><br/>The report includes key details such as the date and time in which the event registration service was started or stopped and information about the computer on which the event was registered, among others. Analyzing these events allows you to verify that the event logging service is working correctly and that audit logs have not been disabled or interrupted. This report is essential to ensure that system audit logs are being properly managed, supporting compliance with CMMC Level 1 requirements and allowing monitoring of system access and activities.
+strategy: ANY
+checks:
+  - key: windows-event-log-service
+    name: Windows Event Log Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: event-log-service-count-by-event
+    name: Event Log Service Count by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

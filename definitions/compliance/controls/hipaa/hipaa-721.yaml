@@ -1,0 +1,21 @@
+id: hipaa-721
+family: hipaa
+familyName: HIPAA
+name: Office 365 Account Logon Success
+scope: data
+statement: This report contributes to compliance with HIPAA Security Rule 164.312(b), which establishes the implementation of mechanisms for recording and examining system activity. By analyzing events logged by the UserLoggedIn ID in Office 365, this report facilitates the monitoring of system access and enables the detection and auditing of any activity related to system use. This monitoring helps ensure that all interactions with ePHI (Electronic Protected Health Information) data are properly logged, allowing for ongoing review of system activity to ensure the confidentiality, integrity, and availability of the information.
+strategy: ANY
+checks:
+  - key: o365-ad-successful-login-location
+    name: O365 AD Successful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-successful-login-by-user
+    name: O365 AD Successful Login by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

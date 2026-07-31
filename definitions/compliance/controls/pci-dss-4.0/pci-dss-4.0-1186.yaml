@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1186
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 User Accounts Enabled
+scope: data
+statement: This report compiles relevant information from Windows event 4722 logs, which are generated when a user account is enabled or activated on the system. This event is essential for compliance with PCI DSS requirement 10.2.1.5, which requires the capture of all changes related to identification and authentication credentials, including the creation of new accounts, elevation of privileges, and any modification, addition, or deletion of accounts. Monitoring these events allows for the detection of critical credential changes, which is critical for forensic analysis and identifying suspicious activity in environments that handle cardholder data.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

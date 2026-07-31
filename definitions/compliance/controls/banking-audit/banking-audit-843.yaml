@@ -1,0 +1,21 @@
+id: banking-audit-843
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Policy changes
+scope: data
+statement: The Windows Policy Changes Report provides a comprehensive record of system policy modifications, including changes to group policies, security configurations, and access controls. This report is critical within the Banking Audit framework, ensuring traceability and compliance with regulatory requirements by monitoring configuration changes that could impact the security of financial systems.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

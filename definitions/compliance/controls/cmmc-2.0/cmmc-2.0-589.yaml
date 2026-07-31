@@ -1,0 +1,21 @@
+id: cmmc-2.0-589
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Network Access to shared resource'
+scope: data
+statement: This report collects and analyzes the records of events 5140 and 5145 of the Windows logs, which monitor access to shared resources on the network, such as files and folders that may contain Controlled Unclassified Information (CUI).<br/>Event 5140 is generated when a shared resource on the network is accessed by a user or process, providing key information about the established session and the users involved.<br/>Event 5145 documents specific attempts to access files or folders within a share, indicating whether the action was allowed or denied and detailing the permissions used.<br/>These events are critical to verify compliance with CMMC Level 3 policy AC.3.014, which requires controlling the flow of CUI and protecting access points to this sensitive data within the network infrastructure.<br/><br/>The report includes key details such as:<br/>-Name of the accessed share.<br/>-Identity of the user or process that performed the action.<br/>-IP address or source computer from where the resource was accessed.<br/>-Date and time of the access attempt
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

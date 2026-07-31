@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1211
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.1 Cleaned Event Log
+scope: data
+statement: This report compiles key information from 1102 events in Windows logs, used to assess compliance with PCI DSS Requirement 12.1, which requires an information security policy that is known, established, published, maintained, and appropriately distributed to all relevant personnel, as well as to suppliers and business partners. Event 1102 is linked to the audit event log, and its analysis helps ensure that information security policies are reviewed and updated at least once every 12 months, reflecting changes in business risks and objectives.<br/><br/>The report verifies that the information security policy is in place and that all relevant individuals within the organization have access to it. It also helps validate that information security responsibilities are clearly defined and assigned, and that security responsibility is formally delegated to a senior executive with the necessary knowledge, as required by the PCI DSS standard.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -4642,6 +4642,14 @@
       "save": "Enregistrer",
       "cancel": "Annuler"
     },
+    "reasonModal": {
+      "title": "Motif requis",
+      "description": "Indiquez le motif du changement de statut. Il sera enregistré.",
+      "label": "Motif",
+      "placeholder": "Expliquez pourquoi vous modifiez le statut de ce contrôle…",
+      "confirm": "Confirmer le changement",
+      "cancel": "Annuler"
+    },
     "coverageLabel": "Couverture",
     "activityLabel": "Activité",
     "evidenceLabel": "Preuve",

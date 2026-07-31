@@ -1,0 +1,21 @@
+id: cmmc-2.0-1021
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.044): Account Logon Success'
+scope: data
+statement: This report collects and analyzes UserLoggedIn events in Office 365 to assess compliance with CMMC Level 2 requirement AU.2.044, which requires audit logs to be reviewed for inappropriate behavior.<br/><br/>Monitoring these events helps identify unusual access patterns, such as logins from unexpected geographic locations, unauthorized devices, or attempts to access sensitive resources outside of normal business hours. By analyzing these activities, it is possible to detect potential improper access, compromised credentials, or suspicious behavior that may indicate internal or external threats.<br/><br/>The information obtained in this report is key to strengthening user behavior monitoring within Office 365, facilitating early detection of security incidents and ensuring compliance with the audit practices established in CMMC Level 2.
+strategy: ANY
+checks:
+  - key: o365-ad-successful-login-location
+    name: O365 AD Successful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-successful-login-by-user
+    name: O365 AD Successful Login by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

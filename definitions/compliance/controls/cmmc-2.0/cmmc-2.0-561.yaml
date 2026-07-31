@@ -1,0 +1,21 @@
+id: cmmc-2.0-561
+family: cmmc-2.0
+familyName: CMMC
+name: Control 561
+scope: data
+statement: Log of access attempts to critical files or specific directories, capturing detailed information about the subject (user or process), the object (file or directory), the type of access requested, and the outcome.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-585
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Service Installed'
+scope: data
+statement: This report collects the records of event 4697 from the Windows logs, which document the installation of new services on the system. Event 4697 is generated when a service is installed, providing key information about the user who performed the installation, the associated executable, and the privileges with which the service is running. This information is crucial to verify compliance with CMMC's Level 3 (AC.3.014) Access Control and Authentication policy, which requires controlling the flow of CUI and adequately protecting access points to this sensitive data.<br/><br/>The report includes key details such as the name of the installed service, the identity of the user or process that performed the installation, the date and time of the installation, among others. The analysis of these events allows us to verify that only authorized users can install services in the environment, avoiding unauthorized access, the execution of malicious software and possible leaks of Controlled Unclassified Information (CUI), ensuring that security controls are aligned with the CMMC policies.<br/>
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

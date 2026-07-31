@@ -1,0 +1,21 @@
+id: hipaa-663
+family: hipaa
+familyName: HIPAA
+name: Windows Process Creation
+scope: data
+statement: This report collects and analyzes security events identified with ID 4688 on Windows systems. Event 4688 records the creation of new processes. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which requires the logging of key system activities. This report facilitates the identification of critical process execution and allows you to audit system activity to ensure all key actions are monitored and logged, contributing to the implementation of appropriate security policies and system protection.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1217
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.4 User Accounts Enabled
+scope: data
+statement: This report gathers relevant information from Windows 4722 events, which record changes to user accounts, such as account activation or deactivation. These events are crucial for verifying compliance with security policies and the PCI DSS compliance program.<br/><br/>The report ensures that quarterly reviews of security-related activities, such as log review, security configuration assessment, and alert response, have been conducted. It also documents the corrective actions taken for any deviations found during the reviews, ensuring that the PCI DSS compliance program is being properly implemented.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-enabled
+    name: Windows User Accounts Enabled
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-enabled-by-target-user
+    name: Windows User Accounts Enabled by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4722')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

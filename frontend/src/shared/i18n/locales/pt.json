@@ -4751,6 +4751,14 @@
       "save": "Salvar",
       "cancel": "Cancelar"
     },
+    "reasonModal": {
+      "title": "Motivo obrigatório",
+      "description": "Informe o motivo da alteração de status. Ele será registrado.",
+      "label": "Motivo",
+      "placeholder": "Explique por que está alterando o status deste controle…",
+      "confirm": "Confirmar alteração",
+      "cancel": "Cancelar"
+    },
     "coverageLabel": "Cobertura",
     "activityLabel": "Atividade",
     "evidenceLabel": "Evidência",

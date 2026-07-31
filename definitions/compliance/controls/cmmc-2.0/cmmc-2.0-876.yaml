@@ -1,0 +1,21 @@
+id: cmmc-2.0-876
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): Roles Assumption'
+scope: data
+statement: This report compiles and presents relevant information about AssumeRole events in AWS, with the objective of verifying compliance with CMMC level 2 practice AU.2.042. The main focus is to ensure that audit logs related to role assumption are collected comprehensively, allowing security events to be detected and analyzed. The report includes details such as the identity of the user assuming the role, the ARN of the assumed role, the account involved, and the source of the request. This information is essential to monitor critical activities, identify unusual patterns, and ensure that necessary logs are available to support event analysis and respond effectively to potential security incidents.
+strategy: ANY
+checks:
+  - key: aws-roles-assumption
+    name: AWS Roles Assumption
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-roles-assumption-by-arn
+    name: AWS Roles Assumption by ARN
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

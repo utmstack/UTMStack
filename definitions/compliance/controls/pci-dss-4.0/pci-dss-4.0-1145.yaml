@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1145
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.4 Logins with explicit credentials
+scope: data
+statement: This report collects and analyzes relevant information from Windows event 4648 logs, which record the use of explicit credentials for authentication on the system. Its objective is to assess compliance with PCI DSS Requirement 6.4, ensuring that public web applications are protected against attacks. Analysis of these events allows for the detection of suspicious authentication attempts, misuse of privileged credentials, or potential phishing attacks. It also reviews whether access controls, authentication management, and credential protection mechanisms comply with security best practices to minimize exploitation risks. This approach contributes to the early detection of threats, ensuring the protection of web applications against vulnerabilities and aligning them with the security controls required by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

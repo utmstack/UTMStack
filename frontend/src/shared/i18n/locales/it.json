@@ -4642,6 +4642,14 @@
       "save": "Salva",
       "cancel": "Annulla"
     },
+    "reasonModal": {
+      "title": "Motivazione richiesta",
+      "description": "Indica il motivo del cambio di stato. Verrà registrato.",
+      "label": "Motivazione",
+      "placeholder": "Spiega perché stai cambiando lo stato di questo controllo…",
+      "confirm": "Conferma cambio",
+      "cancel": "Annulla"
+    },
     "coverageLabel": "Copertura",
     "activityLabel": "Attività",
     "evidenceLabel": "Evidenza",

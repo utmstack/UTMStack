@@ -1,0 +1,21 @@
+id: cmmc-2.0-605
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): Sharing Link Operation'
+scope: data
+statement: This report collects and presents relevant information about the AddedToSharingLink event in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.3.014. The focus of the report is on controlling the flow of sensitive information (CUI) and protecting access points to shared resources, ensuring that the use of file sharing links is restricted and appropriately monitored.<br/><br/>The report includes key details such as the shared file or folder, users added to the sharing links, time of the event, access settings (for example, read-only or edit access), and security policies associated with the shared link. . This information is essential to ensure that only authorized users can access sensitive information through sharing links, minimizing the risk of unauthorized exposure and maintaining control over the flow of CUI in the organization.
+strategy: ANY
+checks:
+  - key: o365-sharing-link-operation
+    name: O365 Sharing Link Operation
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSharingLink')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-sharing-link-operation-by-client
+    name: O365 Sharing Link Operation by Client
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSharingLink')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

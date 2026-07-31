@@ -1,0 +1,21 @@
+id: cmmc-2.0-520
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Special privileges assigned to new logon'
+scope: data
+statement: This report collects the logs of event 4672 from the Windows logs, which document the login of an account with special privileges. Event 4672 is generated when an elevated user, such as an administrator or an account with system privileges, logs on to the system. This information is crucial to verify compliance with CMMC's Level 1 Audit and Monitoring policy (AU.1.001), which requires audit records to ensure that activities and access to systems are adequately monitored, especially for accounts. with special privileges.<br/><br/>The report includes details such as the identity of the user who has logged in with elevated privileges, the origin of the access (IP address or originating machine), among others. Analysis of these events is critical to monitoring access to privileged accounts, ensuring that only authorized users with the appropriate credentials can access critical systems. This report helps verify that audit logs are correctly configured and effective in detecting suspicious or unauthorized access, which is key to system security and compliance with CMMC Level 1 requirements.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

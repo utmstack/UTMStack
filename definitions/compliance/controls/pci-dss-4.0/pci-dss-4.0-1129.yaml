@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1129
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 4.2 Use of Elevated Privileges
+scope: data
+statement: This report compiles relevant information from events 4673 (Attempt to access an audit object) and 4674 (Action performed on an audit object) generated in Windows, with the goal of verifying compliance with PCI DSS requirement 4.2.2. This requirement establishes that the PAN (cardholder account number) must be protected using strong cryptography whenever it is sent via messaging technologies used by end users.<br/><br/>Events 4673 and 4674 are essential for auditing actions performed on audit objects that involve the transmission of PAN. These events allow for the identification and monitoring of attempts to access sensitive information and actions performed on card account data, ensuring that only authorized users can interact with said information.<br/><br/>By analyzing these events, it is verified that the PAN transmission is adequately protected with strong cryptography technologies, ensuring that the information remains confidential during its transfer via messaging channels used by users. This control is essential to meet the security requirements established by PCI DSS, ensuring that cardholder data is not exposed to unnecessary risks during transmission.
+strategy: ANY
+checks:
+  - key: windows-use-of-elevated-privileges
+    name: Windows Use of Elevated Privileges
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-use-of-elevated-privileges-by-outcome
+    name: Windows Use of Elevated Privileges by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

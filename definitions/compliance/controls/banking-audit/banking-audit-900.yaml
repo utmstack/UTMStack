@@ -1,0 +1,21 @@
+id: banking-audit-900
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows System Time Settings Changes
+scope: data
+statement: "The Windows System Time Settings Changes Report provides detailed logs of events where system time, time zone, or clock settings are modified. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as changes to time settings can disrupt time-sensitive operations, affect audit log integrity, or indicate unauthorized activity.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of time settings changes to maintain the integrity of financial systems and customer data.<br/>\t•\tSystem Integrity Monitoring: Supports compliance with PCI DSS Requirement 10, ensuring that time settings changes are logged and monitored to maintain reliable audit trails.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately when system time settings are altered, enabling rapid investigation and response.<br/>\t•\tIncident Detection: Identifies suspicious changes to system time, which could indicate attempts to bypass security measures, manipulate logs, or hide unauthorized activities.<br/>\t•\tAudit Readiness: Tracks time setting changes, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust configuration and log management practices."
+strategy: ANY
+checks:
+  - key: windows-system-time-settings-changes
+    name: Windows System Time Settings Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-time-settings-changes-by-subject-user
+    name: Windows System Time Settings Changes by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

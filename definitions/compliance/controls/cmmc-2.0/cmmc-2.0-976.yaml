@@ -1,0 +1,21 @@
+id: cmmc-2.0-976
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SC.4.229): Protected Files Decryption'
+scope: data
+statement: This report consolidates and analyzes Windows registry ID 5061 events generated when cryptographic operations are performed on the system, such as accessing, using, or modifying keys stored in security providers. The information collected is key to verify compliance with CMMC Level 4 control SC.4.229, which requires the improvement of cryptographic protections through advanced tools. This analysis allows monitoring the use of cryptographic keys, identifying unauthorized or unusual access that may compromise the security of the information, verifying the integrity and correct implementation of encryption algorithms in the system, ensuring that the keys used comply with the required security standards, and detecting possible attempts at exploitation or misuse of protected keys within the security environment. This report provides visibility into critical cryptographic operations, allowing you to defense strengthens against advanced threats and ensuring effective protection of controlled unclassified information (CUI).
+strategy: ANY
+checks:
+  - key: windows-protected-files-decryption
+    name: Windows Protected Files Decryption
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5061')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-protected-files-decryption-by-key-type
+    name: Windows Protected Files Decryption by Key Type
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5061')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

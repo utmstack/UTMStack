@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1214
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.2 Process Creation
+scope: data
+statement: This report compiles relevant information from 4688 events in the Windows logs, which are generated each time a new process is created in the system. These events are essential for verifying compliance with PCI DSS Requirement 12.2.1, which establishes that acceptable use policies for end-user technologies must be documented and implemented.<br/><br/>Analyzing these events determines that explicit approvals from authorized authorities are being properly implemented, ensuring that users only use the technologies they have been authorized to use. Furthermore, the logs verify that acceptable use of technologies is being followed, verifying that users are only using approved tools for purposes permitted by the company. This includes both approved hardware and software usage, ensuring that the company maintains an up-to-date inventory of products permitted for employee use.<br/><br/>This report is critical to demonstrating that the company is compliant with PCI DSS regulations by ensuring that acceptable use policies for technology are effectively implemented and monitored through event logging in systems.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

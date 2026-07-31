@@ -1,0 +1,21 @@
+id: cmmc-2.0-530
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): User Accounts Deleted'
+scope: data
+statement: This report compiles relevant information about event 4726 in the Windows logs, which is generated when a user account is deleted from the system. Deleting user accounts is a critical action that can be related to both legitimate account management and malicious behavior or insider attacks.<br/><br/>In the context of CMMC Level 3 (SI.3.217), monitoring event 4726 is crucial to identify any suspicious activity that may indicate an attack or system tampering. An attacker who has gained elevated privileges could delete user accounts to hide their tracks or prevent administrators from accessing certain resources or identifying their actions.<br/><br/>Analysis of this event helps detect unauthorized actions in the system, such as the deletion of accounts that have not been properly managed or that do not comply with internal security policies. Additionally, it can identify unusual patterns, such as deleting user accounts at atypical times or locations, which could be indicative of internal attacks or external malicious activity.<br/><br/>Collecting and monitoring these events contributes to meeting CMMC requirements by allowing early detection of potential attacks that could be focused on disrupting system security through unauthorized deletion of user accounts.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-deleted-over-time
+    name: Windows User Accounts Deleted Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-deleted
+    name: Windows User Accounts Deleted
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

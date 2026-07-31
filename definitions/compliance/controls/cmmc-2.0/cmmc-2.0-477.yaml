@@ -1,0 +1,21 @@
+id: cmmc-2.0-477
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AU.2.043): Account Logon Success'
+scope: data
+statement: This report compiles the records of Windows log event 4624, which correspond to successful login attempts to the system. The information extracted from these events is used to verify compliance with the Level 1 policy (AC.1.001) of the CMMC Access Control and Authentication framework, which establishes that access to the system must be limited exclusively to authorized users. <br/><br/>The details provided in the report include user names and host names to ensure that only people with specific privileges have access to the system. The analysis of these events contributes to the detection of unauthorized access and facilitates the validation of the appropriate implementation of access controls.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

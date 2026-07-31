@@ -1,0 +1,21 @@
+id: banking-audit-924
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Logins with explicit credentials
+scope: data
+statement: "The Windows Logins with Explicit Credentials report provides detailed logs of events where users or applications perform logins using explicit credentials. This report is essential for monitoring account usage, detecting unauthorized access, and ensuring compliance with security frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks such as PCI DSS, ISO 27001, and SOC2, by documenting logins with explicit credentials to ensure adherence to access control policies and audit requirements.<br/>\t•\tCredential Management Monitoring: Tracks logins where explicit credentials are supplied, ensuring such access aligns with internal security policies and identifying unauthorized credential usage.<br/>\t•\tEvent Correlation: Links login events with explicit credentials to the originating user, process, and system, providing a comprehensive audit trail for security analysis and compliance.<br/>\t•\tReal-Time Alerts: Sends notifications for logins with explicit credentials, especially for sensitive accounts or from untrusted sources, enabling rapid response to potential threats.<br/>\t•\tIncident Detection: Identifies anomalies, such as repeated login attempts with explicit credentials, use of outdated or compromised credentials, or logins originating from unusual locations or systems.<br/>\t•\tAudit Readiness: Logs detailed information, including the account used, the user or process initiating the login, the target system, and the timestamp, ensuring robust records for investigations and audits."
+strategy: ANY
+checks:
+  - key: windows-logins-with-explicit-credentials
+    name: Windows Logins with explicit credentials
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logins-with-explicit-credentials-by-user
+    name: Windows Logins with explicit credentials by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4648')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

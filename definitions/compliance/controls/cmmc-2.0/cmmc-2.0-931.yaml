@@ -1,0 +1,21 @@
+id: cmmc-2.0-931
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 3 (SI.3.217): ListAccessKeys Logs'
+scope: data
+statement: This report gathers relevant information from AWS logs related to the ListAccessKeys event, which is generated when a user's access keys are listed in AWS IAM. The analysis of these events is essential to comply with CMMC Level 3 control SI.3.217, which requires the use of monitoring tools to detect possible attacks.<br/><br/>Unauthorized or suspicious access to the access key enumeration may indicate reconnaissance attempts by malicious actors within the cloud infrastructure. This report provides key details such as the user's identity, source IP address, the source of the event, and the time it occurred, allowing for proactive security assessment and identification of potential threats.
+strategy: ANY
+checks:
+  - key: aws-listaccesskeys-logs-by-mfa-authenticated
+    name: AWS ListAccessKeys Logs by MFA Authenticated
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-listaccesskeys-logs
+    name: AWS ListAccessKeys Logs
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

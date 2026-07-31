@@ -1,0 +1,21 @@
+id: cmmc-2.0-615
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): GetBucketAcl Logs'
+scope: data
+statement: This report collects and analyzes relevant information about GetBucketAcl events in AWS, for the purpose of verifying compliance with CMMC practice AU.2.042. Its objective is to ensure that queries to the access control lists (ACLs) of Amazon S3 buckets are recorded and monitored to detect and analyze possible security events.<br/><br/>The report includes key details such as the account involved, the bucket queried, the identity of the user who made the request, the originating IP address, and the source of the request. This information is essential to audit attempts to access bucket permissions, identify possible unauthorized activities, and ensure proper log collection and analysis in the AWS environment.
+strategy: ANY
+checks:
+  - key: aws-getbucketacl-logs
+    name: AWS GetBucketAcl Logs
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'GetBucketAcl')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-getbucketacl-logs-by-region
+    name: AWS GetBucketAcl Logs by Region
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'GetBucketAcl')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

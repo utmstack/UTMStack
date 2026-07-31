@@ -1,0 +1,21 @@
+id: cmmc-2.0-974
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SC.4.229): System Time Settings Changes'
+scope: data
+statement: This report compiles relevant information from the logs of Windows Security Auditing event 4616 (The system time was changed), used to verify compliance with CMMC Level 4 (SC.4.229), which seeks to improve cryptographic protections with advanced tools. Event 4616 is generated when a change is made to the system time, which can affect the validation and synchronization of cryptographic certificates, encryption keys, and other components essential to cryptographic security. An unauthorized change to the system time could compromise the integrity of cryptographic tools and affect the protection of sensitive information, including CUI (Controlled Unclassified Information). Monitoring this event is crucial to detect alterations in time synchronization, which is essential for the correct implementation and verification of cryptographic policies, ensuring that encrypted communications and data are not compromised. This report allows you to identify any deviations that may interfere with security controls related to cryptography.
+strategy: ANY
+checks:
+  - key: windows-system-time-settings-changes
+    name: Windows System Time Settings Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-system-time-settings-changes-by-subject-user
+    name: Windows System Time Settings Changes by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

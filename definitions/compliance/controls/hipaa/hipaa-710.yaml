@@ -1,0 +1,21 @@
+id: hipaa-710
+family: hipaa
+familyName: HIPAA
+name: Windows Cleaned Event Log
+scope: data
+statement: This report contributes to compliance with the NIST CSF DE.CM-1 requirement, which establishes the need for continuous monitoring of network activity to detect malicious activity. By analyzing event ID 1102 on Windows systems, this report facilitates monitoring the cleanup of security logs, which may indicate an attempt to conceal unauthorized or malicious activity. Monitoring these types of events allows for the detection of log alterations that could compromise system security, enabling an immediate response to security incidents and ensuring the integrity of the network and data.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

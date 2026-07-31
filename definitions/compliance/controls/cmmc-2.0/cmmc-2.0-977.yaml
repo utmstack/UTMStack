@@ -1,0 +1,21 @@
+id: cmmc-2.0-977
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Activity Monitoring
+scope: data
+statement: This report presents an analysis of Windows activity logs to demonstrate that the SIEM monitors third-party risks, in compliance with CMMC requirements. Through the collection and analysis of logs, access, changes in privileges, process execution and data manipulation are monitored in systems that manage CUI.<br/><br/>Monitoring allows you to identify unauthorized access, detect suspicious activities and verify that third parties comply with established security policies. In addition, event triggering mechanisms and automatic alerts are implemented to respond to possible threats in real time.<br/><br/>This approach reinforces CMMC compliance, ensuring effective oversight of third parties and reducing the risks associated with their access to critical systems. The information presented demonstrates that the SIEM contributes to the protection of sensitive data and the strengthening of security in Windows environments.
+strategy: ANY
+checks:
+  - key: windows-activity
+    name: Windows Activity
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-activity-by-event
+    name: Windows Activity by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

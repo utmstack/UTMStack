@@ -1,0 +1,21 @@
+id: hipaa-646
+family: hipaa
+familyName: HIPAA
+name: Windows Member Addition to a Security Local Group
+scope: data
+statement: This report collects and analyzes security events identified by ID 4732 on Windows systems. Event 4732 records the addition of a user to a local security group, providing relevant information for verifying compliance with the HITRUST CSF 01.p requirement, which establishes that access to log data and monitoring systems must be controlled. This report facilitates the identification and monitoring of changes in security group membership, especially those with access privileges to monitoring systems and log data, contributing to appropriate access control and the implementation of effective security policies.
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

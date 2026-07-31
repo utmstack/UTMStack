@@ -1,0 +1,21 @@
+id: banking-audit-885
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Cleaned Event Log
+scope: data
+statement: "The Windows Cleaned Event Log Report provides detailed logs of events where system event logs have been cleared. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as log clearing can indicate attempts to hide malicious activity or compromise system integrity.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of log management activities to protect financial systems and sensitive data.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators in real-time when event logs are cleared, enabling immediate investigation and response to potential incidents.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious log clearing activities, which could indicate insider threats or attempts to conceal malicious actions.<br/>\t•\tAudit Readiness: Provides traceability for log clearing events, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure log management practices.<br/>\t•\tData Integrity Protection: Supports compliance with PCI DSS Requirement 10, ensuring that all log management activities, including clearing logs, are monitored and documented."
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

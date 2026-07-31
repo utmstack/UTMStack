@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1227
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Network Access to shared resource
+scope: data
+statement: This report analyzes shared resource access and permission modification events (Event IDs 5140 and 5145) on Windows systems to assess compliance with PCI DSS Requirement A1.2, which relates to enabling auditing capabilities and incident response in multi-tenant environments. These events provide key information to ensure that auditing and incident response controls are effective, protecting the integrity of multi-tenant environments and complying with established security regulations.
+strategy: ANY
+checks:
+  - key: windows-access-to-shared-resources
+    name: Windows Access to Shared Resources
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-access-to-shared-resources-by-resource
+    name: Windows Access to Shared Resources by Resource
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

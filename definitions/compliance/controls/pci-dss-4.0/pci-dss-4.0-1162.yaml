@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1162
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 8.2 User Accounts Created
+scope: data
+statement: This report collects and analyzes 4720 events (Creation of a New User Account) recorded in Windows logs to assess compliance with PCI DSS Requirement 8.2. It verifies that all created accounts have a unique ID before granting access to systems, that generic or shared accounts are not used without documented justification and approval, that account creation is properly authorized with the minimum necessary privileges, that inactive or disassociated user accounts are appropriately managed, and that third-party accounts are activated and deactivated as needed, with activity monitoring. This analysis helps ensure secure and controlled management of the user account lifecycle, in line with PCI DSS requirements.
+strategy: ANY
+checks:
+  - key: windows-user-accounts-created
+    name: Windows User Accounts Created
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-new-accounts-created-over-time
+    name: Windows New Accounts Created Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

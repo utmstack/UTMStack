@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1224
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 User Account Logoff
+scope: data
+statement: This report analyzes user-initiated logoff events (Event ID 4647) on Windows systems to assess compliance with PCI DSS Requirement A1.1 in multi-tenant environments. Activity logs are reviewed to verify that users terminate their sessions in a controlled manner and that no unauthorized access exists between customer and vendor environments. The analysis includes key information that contributes to the validation of security controls, ensuring that sessions are properly managed and reducing the risk of unauthorized persistence on shared infrastructures.
+strategy: ANY
+checks:
+  - key: windows-user-account-logoff
+    name: Windows User Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

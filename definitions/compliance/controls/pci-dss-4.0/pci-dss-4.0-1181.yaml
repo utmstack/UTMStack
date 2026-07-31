@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1181
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Access to critical files or specific directories
+scope: data
+statement: This report compiles relevant information from Windows event 4663 logs, which document access to system audit logs. Its objective is to verify that all activity related to access to audit logs is captured, in compliance with PCI DSS requirement 10.2.1.3. This control ensures the integrity and traceability of access to audit logs, enabling the detection of potential unauthorized access and facilitating forensic analysis of events.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-626
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AU.5.055): Member Addition to a Security Local Group'
+scope: data
+statement: This report collects Windows log event 4732 logs, which document attempts to add users to system security groups. Event 4732 is generated when a user or process is added to a security group, providing information about the group to which it was added, the identity of the user who made the modification, and the details of the security group to which the user was added. added. This information is crucial to verify compliance with CMMC's Level 5 Auditing and Monitoring policy (AU.5.055), which requires improving auditing capabilities for advanced threat detection, allowing for the identification of possible changes in the privileges of users who may be related to privilege escalation or unauthorized activities.<br/>The report includes key details such as the name of the security group to which the user was added, the identity of the added user, the account or system that performed the action, among others. <br/>Analyzing these events can improve auditing capabilities to detect unusual patterns or anomalous behavior related to changes in user privileges and access to sensitive resources. This report contributes to advanced threat detection by identifying changes to security groups that could be indicative of a privilege escalation attempt or security breach. Ensures auditing of security configurations is aligned with CMMC Level 5 security controls, ensuring adequate visibility for early detection of advanced threats.
+strategy: ANY
+checks:
+  - key: windows-member-addition-to-a-security-local-group
+    name: Windows Member Addition to a Security Local Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-member-addition-to-a-security-local-group-by-group
+    name: Windows Member Addition to a Security Local Group by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

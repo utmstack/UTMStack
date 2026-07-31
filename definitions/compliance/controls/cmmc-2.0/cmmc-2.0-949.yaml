@@ -1,0 +1,21 @@
+id: cmmc-2.0-949
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AU.3.045): Process Creation'
+scope: data
+statement: This report compiles relevant information from the logs of Windows event 4688, which is generated when a new process is created in the system. This event is essential to verify compliance with CMMC's Level 3 requirement (AU.3.045), which requires auditing of key events for compliance and incident response. Monitoring these logs allows you to track process execution, identify suspicious activity, and provide visibility into potential threats or malicious actions within the environment. By analyzing this data, organizations can strengthen their detection, response and compliance capabilities, ensuring effective security incident management.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

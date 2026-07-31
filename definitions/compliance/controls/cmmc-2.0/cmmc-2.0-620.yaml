@@ -1,0 +1,21 @@
+id: cmmc-2.0-620
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Changes to Defender settings'
+scope: data
+statement: This report compiles relevant information from 5007 events (The auditing settings on object were changed) in Windows logs, with the objective of verifying compliance with CMMC Level 4 practice AU.4.053, which requires advanced logging capabilities for threat detection.<br/><br/>Event 5007 is generated when changes are made to system auditing settings, which may indicate attempts to disable or modify critical records in order to evade detection of malicious activity.<br/><br/>The analysis of the displayed data allows us to detect suspicious alterations in audit policies, identify possible attempts to conceal malicious activity and strengthen security controls.<br/><br/>Monitoring these events is essential to ensure the integrity of audit logs and improve the ability to detect and respond to advanced threats, ensuring the protection of critical systems within the organization.
+strategy: ANY
+checks:
+  - key: windows-changes-to-defender-settings
+    name: Windows Changes to Defender settings
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-changes-to-defender-settings-by-host
+    name: Windows Changes to Defender settings by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

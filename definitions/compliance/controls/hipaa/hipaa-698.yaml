@@ -1,0 +1,21 @@
+id: hipaa-698
+family: hipaa
+familyName: HIPAA
+name: Windows Kerberos ticket requests
+scope: data
+statement: This report supports compliance with the NIST CSF PR.DS-3 requirement, which mandates protective monitoring of data at rest and in transit. By analyzing events identified by IDs 4768, 4769, and 4771 on Windows systems, this report facilitates the oversight of processes related to authentication and access to protected resources. By monitoring authentication attempts and Kerberos ticket requests, it ensures that access to sensitive data is properly managed and logged. This contributes to protecting the confidentiality, integrity, and availability of data, ensuring effective monitoring of critical activities and compliance with established security policies.
+strategy: ANY
+checks:
+  - key: windows-kerberos-ticket-requests
+    name: Windows Kerberos ticket requests
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-ticket-requests-by-outcome
+    name: Windows Kerberos ticket requests by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

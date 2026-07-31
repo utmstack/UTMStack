@@ -1,0 +1,21 @@
+id: cmmc-2.0-939
+family: cmmc-2.0
+familyName: CMMC
+name: 'Level 1 (IR.1.002): Incidents Generated from Alerts'
+scope: data
+statement: This report consolidates relevant information from the alert logs that have generated security incidents, providing visibility on critical events and their management. Its objective is to demonstrate compliance with CMMC's Level 1 requirement (IR.1.002), ensuring that a basic incident response capability is in place. It includes key details about the alerts and incidents created, allowing you to evaluate the effectiveness of the process and ensure adequate detection and management of threats.
+strategy: ANY
+checks:
+  - key: windows-incidents-generated-from-alerts
+    name: Windows Incidents Generated from Alerts
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (isIncident = 'true' AND dataType = 'wineventlog')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-incidents-generated-from-alerts-by-status
+    name: Windows Incidents Generated from Alerts by Status
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (isIncident = 'true' AND dataType = 'wineventlog')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

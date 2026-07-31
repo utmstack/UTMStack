@@ -1,0 +1,21 @@
+id: cmmc-2.0-1035
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.043): File Renamed'
+scope: data
+statement: This report compiles key information about FileRenamed events in Office 365, ensuring the protection and retention of audit records against unauthorized modifications, in compliance with CMMC Level 2 requirement AU.2.043.<br/><br/>Analysis of these events allows you to track when and by whom files have been renamed within your organization's environment, verify changes to sensitive documents, and ensure record integrity. The information included in this report is essential for detecting suspicious activity, auditing file modifications, and implementing controls that prevent unauthorized alteration of audit logs.
+strategy: ANY
+checks:
+  - key: o365-file-renamed
+    name: O365 File Renamed
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileRenamed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-renamed-by-workload
+    name: O365 File Renamed by Workload
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileRenamed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

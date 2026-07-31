@@ -1,0 +1,21 @@
+id: cmmc-2.0-588
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AC.4.021): Alerts'
+scope: data
+statement: This report compiles the records of security alerts generated in the Windows logs, used to monitor access patterns and detect possible anomalies in the use of system resources. These alerts are triggered in response to significant security events, such as unauthorized access, suspicious modifications to critical files, or privilege escalation attempts. The collection and analysis of these alerts is essential to verify compliance with CMMC's Level 4 Access Control and Authentication policy (AC.4.021), which requires the use of automated tools to monitor access patterns and detect unusual activities that may compromise the security of Controlled Unclassified Information (CUI).<br/><br/>The report includes key details such as:<br/>-Events that caused the alert, providing context about the suspicious activity.<br/>-Severity of the alert, indicating the level of associated risk.<br/>-Status of the alert, specifying whether it is active, resolved or under investigation.<br/>-Alert category, classifying the type of threat detected (for example, unauthorized access, permission changes, failed authentication attempts).<br/>-Source of the event, identifying the system, user or process that generated the alert.<br/>-Date and time of the event, allowing the activity to be correlated with other security events.<br/><br/>The analysis of these alerts allows us to detect anomalous access patterns, improve incident response capacity, and strengthen security controls in environments that handle CUI. By using automated tools for continuous access monitoring, this report helps ensure that access points and the flow of sensitive information are proactively protected, in alignment with CMMC Level 4 requirements.
+strategy: ANY
+checks:
+  - key: windows-alerts-and-status
+    name: Windows Alerts and Status
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword IN ('wineventlog'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-alerts-by-category
+    name: Windows Alerts by category
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword = 'wineventlog')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-971
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SC.4.229): BitLocker Settings Modification Attempts'
+scope: data
+statement: This report compiles relevant information from the logs of Windows Security Auditing event 4826 (Cryptographic operation performed), used to verify compliance with CMMC Level 4 (SC.4.229), which requires improving cryptographic protections using advanced tools. Event 4826 is triggered when a cryptographic operation is performed on the system, such as encryption, decryption, or validation of cryptographic signatures. This logging is essential to monitor the use and integrity of cryptography tools deployed in the environment, especially those that protect sensitive information, such as CUI (Controlled Unclassified Information). By analyzing these events, it can be verified that cryptographic operations are being carried out in accordance with established policies, ensuring that the cryptographic technologies and algorithms used are appropriate and that advanced tools are working correctly to protect data both at rest and in transit. In addition, it can be identified whether cryptographic operations are carried out properly, without vulnerabilities or poor configurations that could compromise the protection of confidential information.
+strategy: ANY
+checks:
+  - key: windows-bitlocker-settings-modification-attempts
+    name: Windows BitLocker Settings Modification Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-bitlocker-settings-modification-attempts-by-outcome
+    name: Windows BitLocker Settings Modification Attempts by Outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

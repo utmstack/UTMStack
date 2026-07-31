@@ -1,0 +1,21 @@
+id: cmmc-2.0-984
+family: cmmc-2.0
+familyName: CMMC
+name: Windows Logging Unexpected System Shutdowns
+scope: data
+statement: This report collects and analyzes relevant information from Windows Event Viewer events ID 6008, which indicate unexpected system shutdowns. Monitoring these events is essential to evaluate the availability and stability of the systems within the framework of compliance with Disaster Recovery and Business Continuity Monitoring according to the requirements of CMMC (Cybersecurity Maturity Model Certification).<br/><br/>The analysis of these logs allows us to identify unplanned interruptions, possible hardware or software failures, and evaluate the effectiveness of disaster recovery plans, ensuring operational resilience and business continuity.
+strategy: ANY
+checks:
+  - key: windows-logging-unexpected-system-shutdowns
+    name: Windows Logging Unexpected System Shutdowns
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6008')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logging-unexpected-system-shutdowns-by-host
+    name: Windows Logging Unexpected System Shutdowns by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '6008')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

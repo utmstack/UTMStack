@@ -1,0 +1,21 @@
+id: cmmc-2.0-942
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (AU.1.001): Account Logon Success'
+scope: data
+statement: This report consolidates relevant information from the Windows event 4624 logs to evaluate compliance with the CMMC Level 1 requirement (AU.1.001), which requires the capture of basic security events. By recording successful logins, these logs provide evidence of activity in the system, allowing the organization to maintain access traceability and strengthen its monitoring and incident response capabilities. The collection and analysis of these logs contributes to the early detection of threats, facilitating audits and ensuring compliance with established security controls.
+strategy: ANY
+checks:
+  - key: windows-user-successful-logon-event-by-host
+    name: Windows User Successful Logon Event by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-logon-success-by-host
+    name: Windows Logon success by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

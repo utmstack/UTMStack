@@ -1,0 +1,21 @@
+id: cmmc-2.0-587
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (AC.3.014): Kerberos pre-authentication failed'
+scope: data
+statement: This report collects the Windows log event 4771 logs, which document failed Kerberos authentication attempts on the system. Event 4771 is generated when a Kerberos authentication attempt cannot complete, which may indicate unauthorized access or an attempted access to protected resources, such as those containing Controlled Unclassified Information (CUI). This information is crucial to verify compliance with CMMC's Level 3 (AC.3.014) Access Control and Authentication policy, which requires controlling the flow of CUI and adequately protecting access points to this sensitive data. <br/><br/>The report includes key details such as the identity of the user or system that attempted the failed authentication, the date and time of the attempt, the source of the access attempt (IP address or source computer), and the resource or service that was attempted to be accessed. . The analysis of these events is essential to identify and mitigate possible unauthorized access threats, ensuring that CUI access points are properly protected against attacks and non-legitimate access, in accordance with the security policies required by CMMC.
+strategy: ANY
+checks:
+  - key: windows-kerberos-pre-authentication-failed
+    name: Windows Kerberos pre-authentication failed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-kerberos-pre-authentication-failed-by-user
+    name: Windows Kerberos pre-authentication failed by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4771'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

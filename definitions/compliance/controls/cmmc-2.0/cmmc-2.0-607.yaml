@@ -1,0 +1,21 @@
+id: cmmc-2.0-607
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): Delegated Permission Grant'
+scope: data
+statement: This report compiles and presents relevant information about the Add delegated permission granted event in Office 365 logs, with the objective of verifying compliance with CMMC practice AC.3.014. It focuses on controlling the flow of sensitive information (CUI) and protecting resource access points, ensuring that permission delegations are appropriately and securely assigned.<br/><br/>The report includes key details about the delegated permissions granted. This information is essential to ensure that CUI-sensitive access points are strictly controlled, allowing only authorized access through delegated permissions that are aligned with established security policies. In this way, access to sensitive data is protected and misuse of permissions is prevented, complying with CMMC access control and information flow requirements.
+strategy: ANY
+checks:
+  - key: o365-delegated-permission-grant
+    name: O365 Delegated Permission Grant
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add delegated permission grant')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-delegated-permission-grant-distribution
+    name: O365 Delegated Permission Grant Distribution
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'Add delegated permission grant')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

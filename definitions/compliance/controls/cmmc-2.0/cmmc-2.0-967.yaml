@@ -1,0 +1,21 @@
+id: cmmc-2.0-967
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (MP.4.125): Scheduled Task Creation'
+scope: data
+statement: This report gathers relevant information from event 4698 (A scheduled task was created) logs on Windows, used to evaluate compliance with CMMC Level 4 control MP.4.125. This control requires the automation of Data Loss Prevention (DLP) processes to protect sensitive information, including Controlled Unclassified Information (CUI) during processing and storage.<br/><br/>The analysis of these events allows us to identify the creation of scheduled tasks in the system, ensuring that unauthorized processes are not implemented that could compromise the security of the information. In addition, it facilitates the detection of changes in the configuration of critical tasks and possible persistence attempts through automated execution of scripts or applications.
+strategy: ANY
+checks:
+  - key: windows-scheduled-task-creation-by-user
+    name: Windows Scheduled Task Creation by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-scheduled-task-creation
+    name: Windows Scheduled Task Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4698')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1064
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.1 Firewall Exception List Changed
+scope: data
+statement: This report consolidates 4946 Windows system events, which record the creation of new firewall rules on the system. Its analysis allows you to verify compliance with PCI DSS Requirements, ensuring that network security policies and procedures are documented, up-to-date, and in use. It also provides visibility into firewall configuration changes, helping to identify unauthorized modifications or inconsistencies in the implementation of security controls.
+strategy: ANY
+checks:
+  - key: windows-firewall-exception-list-changed
+    name: Windows Firewall Exception List Changed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4946')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-firewall-exception-list-changed-by-day
+    name: Windows Firewall Exception List Changed by Day
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4946')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

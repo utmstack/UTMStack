@@ -1,0 +1,21 @@
+id: hipaa-659
+family: hipaa
+familyName: HIPAA
+name: Windows Special privileges assigned to new logon
+scope: data
+statement: This report collects and analyzes security events identified by ID 4672 on Windows systems. Event 4672 records the assignment of special privileges to users, such as administrator privileges or access to critical system functions. These events provide key information about who has been granted elevated permissions and when, which is critical for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates the identification and auditing of changes in access privileges, ensuring that access to critical system functions is monitored and controlled, and that all key activities are properly logged to maintain security and regulatory compliance.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

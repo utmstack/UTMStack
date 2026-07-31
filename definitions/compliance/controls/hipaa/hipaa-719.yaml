@@ -1,0 +1,21 @@
+id: hipaa-719
+family: hipaa
+familyName: HIPAA
+name: Windows Service Control Manager Log Information
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which mandates continuous monitoring of network activity to detect malicious activity. By analyzing event ID 7030 on Windows systems, the report facilitates monitoring the status and actions of critical services on the system. This monitoring is key to identifying potential failures or unauthorized modifications to services that could indicate malicious activity, such as denial-of-service attacks or attempts to disable security services. The information provided by this event helps maintain system integrity and security, enabling efficient detection and response to potential threats.
+strategy: ANY
+checks:
+  - key: windows-service-control-manager-log-information
+    name: Windows Service Control Manager Log Information
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-control-manager-log-information-distribution-by-host
+    name: 'Windows Service Control Manager Log Information Distribution by Host '
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

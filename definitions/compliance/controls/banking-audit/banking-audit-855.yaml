@@ -1,0 +1,21 @@
+id: banking-audit-855
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows PowerShell Script Block Registration
+scope: data
+statement: "The Windows PowerShell Script Block Registration Report provides a detailed record of PowerShell script block execution and registration events. This report is essential for compliance within the Banking Audit framework, enabling organizations to monitor and control the use of scripting, which can be a common vector for cyber threats.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring oversight of scripting activities to protect financial systems and sensitive customer data.<br/>\t•\tScript Execution Monitoring: Supports compliance with PCI DSS Requirement 10, ensuring logging and monitoring of script activities to detect unauthorized or suspicious behavior.<br/>\t•\tAudit Readiness: Provides traceability for all script block registrations, meeting the requirements of frameworks like SOC2 Type 2 and ISO 27001, ensuring visibility into scripting activities.<br/>\t•\tThreat Detection: Identifies unauthorized or suspicious script execution, such as attempts to execute malicious scripts or escalate privileges via PowerShell.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls that restrict and monitor the execution of scripts to prevent unauthorized data access or manipulation."
+strategy: ANY
+checks:
+  - key: windows-powershell-script-block-registration
+    name: Windows PowerShell Script Block Registration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-powershell-script-block-registration-by-host
+    name: Windows PowerShell Script Block Registration by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

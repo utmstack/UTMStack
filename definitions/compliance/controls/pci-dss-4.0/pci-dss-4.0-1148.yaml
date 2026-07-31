@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1148
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 7.1 Cleaned Event Log
+scope: data
+statement: This report collects and analyzes Windows 1102 events, which indicate the deletion of the security audit log. Its purpose is to assess compliance with PCI DSS Requirement 7.1, ensuring that processes and mechanisms for restricting access to system components and cardholder data are defined, understood, and in use. Monitoring these events can detect potential attempts to conceal unauthorized activity, ensuring the integrity and availability of audit logs.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

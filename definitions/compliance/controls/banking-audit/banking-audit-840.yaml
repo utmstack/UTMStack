@@ -1,0 +1,21 @@
+id: banking-audit-840
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Account Logoff
+scope: data
+statement: The Windows Account Logoff Report provides a comprehensive view of user logoff events, serving as a critical compliance tool within the Banking Audit framework. This report ensures transparency and accountability in user sessions, enabling organizations to track session terminations and ensure adherence to access control policies.
+strategy: ANY
+checks:
+  - key: windows-account-logoff
+    name: Windows Account Logoff
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4634')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-account-logoff-by-user
+    name: Windows Account Logoff by User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4647')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

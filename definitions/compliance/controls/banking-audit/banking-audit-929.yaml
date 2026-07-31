@@ -1,0 +1,21 @@
+id: banking-audit-929
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Object Deletion
+scope: data
+statement: "The Windows Object Deletion report provides detailed logs of events where objects such as files, directories, registry keys, or other system resources are deleted. This report is crucial for tracking changes, detecting unauthorized actions, and ensuring compliance with security policies and audit frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks like PCI DSS, ISO 27001, and SOC2, by documenting deletion events to demonstrate proper governance and adherence to change management processes.<br/>\t•\tObject Management Monitoring: Tracks the deletion of critical objects, ensuring such actions are authorized and aligned with internal policies to protect data integrity and system reliability.<br/>\t•\tEvent Correlation: Links deletion events to user accounts, originating systems, and preceding activities, providing a comprehensive audit trail for root cause analysis and compliance reporting.<br/>\t•\tReal-Time Alerts: Sends notifications for deletions of critical objects, enabling immediate investigation of unauthorized or suspicious activities.<br/>\t•\tIncident Detection: Identifies anomalies such as bulk deletions, deletions during off-hours, or removal of protected system objects, which may indicate malicious intent, insider threats, or operational errors.<br/>\t•\tAudit Readiness: Logs detailed information for each deletion event, including the object name, location, user or process initiating the deletion, and the timestamp, ensuring robust documentation for compliance and forensic investigations."
+strategy: ANY
+checks:
+  - key: windows-object-deletion
+    name: Windows Object Deletion
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-object-deletion-by-subject-user
+    name: Windows Object Deletion by Subject User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4660')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

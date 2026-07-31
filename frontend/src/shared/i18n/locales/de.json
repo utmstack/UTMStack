@@ -4642,6 +4642,14 @@
       "save": "Speichern",
       "cancel": "Abbrechen"
     },
+    "reasonModal": {
+      "title": "Begründung erforderlich",
+      "description": "Gib einen Grund für die Statusänderung an. Er wird protokolliert.",
+      "label": "Begründung",
+      "placeholder": "Erkläre, warum du den Status dieses Controls änderst…",
+      "confirm": "Änderung bestätigen",
+      "cancel": "Abbrechen"
+    },
     "coverageLabel": "Abdeckung",
     "activityLabel": "Aktivität",
     "evidenceLabel": "Nachweis",

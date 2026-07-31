@@ -1,0 +1,21 @@
+id: hipaa-696
+family: hipaa
+familyName: HIPAA
+name: Windows User Account Attributes Changes
+scope: data
+statement: This report collects and analyzes security events identified with ID 4738 on Windows systems. Event 4738 records changes to user account properties, providing relevant information essential for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates the identification and auditing of changes to user accounts, ensuring that all changes are appropriately monitored, logged, and reviewed to maintain security, integrity, and compliance with controlled access policies.
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

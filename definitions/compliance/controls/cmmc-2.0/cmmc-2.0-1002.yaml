@@ -1,0 +1,21 @@
+id: cmmc-2.0-1002
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.042): Sharing Set'
+scope: data
+statement: This report provides a detailed analysis of file sharing events (SharingSet) in the O365 environment with the objective of verifying compliance with CMMC Level 2 control AU.2.042, which requires ensuring that logs are collected to detect and analyze security events<br/><br/>The report collects key information about file sharing actions, which allows detecting unusual or risky activities related to file sharing, such as assigning excessive permissions or sharing sensitive information with unauthorized users<br/><br/>The purpose of this monitoring is to ensure that file sharing actions are correctly recorded and audited, identifying behavioral patterns that could represent a security threat and providing data for incident analysis<br/><br/>This report is an essential tool for CMMC Level 2 compliance, ensuring that file sharing events are correctly collected and analyzed to detect possible security incidents in the O365 environment, contributing to the protection of information and the prevention of unauthorized access authorized.
+strategy: ANY
+checks:
+  - key: o365-sharing-set
+    name: O365 Sharing Set
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-sharing-set-by-geo-location
+    name: O365 Sharing Set By Geo Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

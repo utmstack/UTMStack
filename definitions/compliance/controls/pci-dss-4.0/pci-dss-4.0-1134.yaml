@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1134
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 5.4 Process Creation
+scope: data
+statement: This report collects and analyzes Windows 4688 events, which record the creation of new processes on the system. Since PCI DSS Requirement 5.4 establishes the need for protection mechanisms against phishing attacks, this report identifies the execution of suspicious or malicious processes related to phishing attempts, such as the opening of malicious scripts, dangerous attachments, or exploit tools.<br/><br/>Analyzing these events helps evaluate the effectiveness of implemented anti-phishing solutions, ensuring that threat detection and response controls are adequate and operational.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1095
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.5  Additions to Security Groups
+scope: data
+statement: This report compiles relevant information from Windows Event 4728 logs, which is used to verify the proper implementation of security controls on devices connecting to both untrusted networks and the Cardholder Data Entity (CDE). Event 4728, related to the addition of members to a security group, is analyzed to ensure that the devices in question have specific configurations that prevent threats to the entity's network. Additionally, it verifies that security controls are active and cannot be modified by device users, except when there are documented authorizations approved by management in limited situations. This report ensures compliance with security policies for both company and employee-owned devices, contributing to the protection of the CDE and risk mitigation in accordance with PCI DSS requirements.
+strategy: ANY
+checks:
+  - key: windows-additions-to-security-groups
+    name: Windows Additions to Security Groups
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-additions-to-security-groups-by-group
+    name: Windows Additions to Security Groups by Group
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4728')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: banking-audit-849
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Connection blocked by Windows Firewall
+scope: data
+statement: "The Windows Connection Blocked by Windows Firewall Report provides a detailed overview of network connection attempts that were denied by the firewall. This report is a critical compliance tool within the Banking Audit framework, helping organizations monitor and enforce network security policies while safeguarding sensitive financial systems.<br/>\t•\tBanking Regulations: Aligns with the GLBA Safeguards Rule, ensuring the protection of customer information by monitoring and controlling unauthorized network activity.<br/>\t•\tNetwork Security Compliance: Supports compliance with PCI DSS Requirement 1, which mandates the implementation of robust firewall configurations to secure sensitive networks.<br/>\t•\tAudit Readiness: Documents blocked connections, providing evidence for frameworks like SOC2 Type 2 and ISO 27001, demonstrating proper enforcement of network access policies.<br/>\t•\tIncident Detection: Identifies repeated or suspicious connection attempts, which could indicate network scanning, unauthorized access attempts, or malicious activity.<br/>\t•\tData Protection: Ensures compliance with GDPR Article 32, showcasing controls that protect sensitive data by preventing unauthorized network connections to critical systems."
+strategy: ANY
+checks:
+  - key: windows-connection-blocked-by-windows-firewall
+    name: Windows Connection blocked by Windows Firewall
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-connection-blocked-by-application
+    name: Windows Connection blocked by Application
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

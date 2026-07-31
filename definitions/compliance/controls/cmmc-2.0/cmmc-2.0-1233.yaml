@@ -1,0 +1,21 @@
+id: cmmc-2.0-1233
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office Level 5 (AU.5.055): File Sync Uploaded Full'
+scope: data
+statement: This report collects and analyzes Office 365 FileSyncUploadedFull event logs to comply with the CMMC Level 5 standard (AU.5.055), which requires the use of advanced tools to ensure the integrity and availability of audit logs.<br/><br/>Data about users, applications, IP addresses, devices, platforms, geographic locations, names and sizes of synchronized files, and whether they are synchronized from managed devices is examined. This analysis helps identify legitimate access and detect suspicious activity that could compromise information security.
+strategy: ANY
+checks:
+  - key: o365-file-sync-uploaded-full
+    name: O365 File Sync Uploaded Full
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncUploadedFull')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-sync-uploaded-full-by-platform
+    name: O365 File Sync Uploaded Full by Platform
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncUploadedFull')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

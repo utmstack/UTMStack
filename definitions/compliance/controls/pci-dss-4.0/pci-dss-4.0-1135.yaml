@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1135
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.1 Special privileges assigned to new logon
+scope: data
+statement: This report presents information extracted from Windows event 4672 logs, used to verify compliance with PCI DSS Requirement 6.1. Event 4672 is generated when a user gains administrative privileges, which is crucial to ensure that the security policies and procedures defined in Requirement 6 are documented, up-to-date, in use, and known to all affected parties. It also helps verify that roles and responsibilities related to the management and secure development of systems and software are clearly assigned and understood. Reviewing this event ensures that security configurations and practices are aligned with organizational policies and defined responsibilities for system security.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

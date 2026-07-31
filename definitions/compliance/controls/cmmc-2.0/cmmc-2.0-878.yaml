@@ -1,0 +1,21 @@
+id: cmmc-2.0-878
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 2 (AU.2.042): Bucket Access Policies'
+scope: data
+statement: This report compiles and presents relevant information about PutBucketPolicy events in AWS, with the objective of verifying compliance with CMMC practice AU.2.042. It focuses on ensuring that S3 bucket policies are properly monitored and logged to detect and analyze security events.<br/><br/>The report includes key details such as the affected account, the bucket in question, the policy applied, the identity of the user who performed the action, and the source of the request. This information is critical to ensuring that changes to bucket access policies are tracked, allowing for effective response to potential misconfigurations or unauthorized access.
+strategy: ANY
+checks:
+  - key: aws-bucket-access-policies
+    name: AWS Bucket Access Policies
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'PutBucketPolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-bucket-access-policies-by-assumed-role-arn
+    name: AWS Bucket Access Policies by Assumed Role ARN
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'PutBucketPolicy')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

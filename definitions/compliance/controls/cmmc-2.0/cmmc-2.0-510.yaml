@@ -1,0 +1,21 @@
+id: cmmc-2.0-510
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 3 (SI.3.217): Process Termination'
+scope: data
+statement: This report compiles relevant information about event 4688 in the Windows logs, which is generated every time a process is created on the system. This event is of vital importance for security monitoring, since it allows identifying the execution of new processes that may be part of normal activities or, in the case of being malicious, an indication of compromise or attack on the system.<br/><br/>In the context of CMMC Level 3 (SI.3.217), monitoring this event is crucial to detect possible attacks. The creation of unauthorized or unusual processes can be a sign of malicious activities such as running malware, unauthorized scripts, or launching attack tools. In addition, attackers often use techniques such as executing code on the system to maintain their presence, which would be reflected in these types of events.<br/><br/>Analysis of 4688 events allows the detection of anomalous behavior patterns, such as the creation of processes from unusual locations or associated with illegitimate activities, which facilitates early identification of threats. The collection and analysis of this information contributes to maintaining effective control over activities within the systems, ensuring that you can react quickly to potential security incidents.<br/><br/>This report is essential to meet the threat monitoring and detection requirements established in CMMC Level 3 (SI.3.217), allowing organizations to implement efficient monitoring tools that support the detection of attacks and suspicious activities in real time.
+strategy: ANY
+checks:
+  - key: windows-process-termination
+    name: Windows Process Termination
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-termination-by-process
+    name: Windows Process Termination by Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4689')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

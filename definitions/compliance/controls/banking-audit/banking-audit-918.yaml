@@ -1,0 +1,21 @@
+id: banking-audit-918
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Account Attributes Changes
+scope: data
+statement: "The Windows User Account Attributes Changes report provides detailed logs of events where attributes of user accounts, such as group memberships, permissions, or profile settings, are modified. This report is vital for monitoring changes to account configurations, detecting unauthorized modifications, and ensuring compliance with security and audit frameworks.<br/>\t•\tRegulatory Compliance: Aligns with standards like PCI DSS, ISO 27001, and SOC2, by maintaining an auditable trail of account attribute changes to support access control and security policies.<br/>\t•\tAccount Management Monitoring: Tracks changes to user account attributes, ensuring they are performed through authorized administrative actions and comply with internal security policies.<br/>\t•\tEvent Correlation: Links attribute change events with associated user accounts, administrative actions, and originating systems, providing a comprehensive security audit trail.<br/>\t•\tReal-Time Alerts: Sends notifications for critical attribute changes, such as updates to group memberships, privilege escalations, or security settings, enabling rapid incident response.<br/>\t•\tIncident Detection: Identifies suspicious or unauthorized modifications to account attributes, which may indicate insider threats, administrative errors, or malicious activities.<br/>\t•\tAudit Readiness: Logs detailed information, including the affected account, the specific attributes changed, the user or process initiating the change, and the timestamp, ensuring robust records for audits and investigations."
+strategy: ANY
+checks:
+  - key: windows-user-account-attributes-changes
+    name: Windows User Account Attributes Changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: distribution-of-account-attribute-changes-by-operating-system
+    name: Distribution of Account Attribute Changes by Operating System
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

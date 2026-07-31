@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1136
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.1 Process Creation
+scope: data
+statement: This report collects relevant information extracted from Windows event logs (Event 4688) used to verify compliance with PCI DSS Requirement 6.1. Requirement 6.1 establishes that processes and mechanisms for developing and maintaining secure systems and software must be defined and understood by all involved parties.<br/><br/>Event 4688 is generated each time a new process is started in the system, allowing tracking of program execution and role assignment. This information is critical for verifying that the security policies and operational procedures identified in Requirement 6.1.1 are being properly implemented. Specifically, this event verifies that policies related to software and process execution are documented, up-to-date, and in use.<br/><br/>Additionally, the event helps identify the assignment of roles and responsibilities within software processes, ensuring that the tasks described in Requirement 6.1.2, such as secure system development and maintenance activities, are documented, assigned, and understood by the responsible personnel.<br/><br/>The report generated with this information allows for auditing and validating that the actions of users and processes interacting with the system are consistent with the organization's security policies and procedures, thus meeting PCI DSS requirements.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-677
+family: hipaa
+familyName: HIPAA
+name: Windows Protected Object Permission Change
+scope: data
+statement: This report collects and analyzes security events identified by ID 4670 on Windows systems. Event 4670 records attempts to modify permissions or properties of an object protected by a DACL (Discretionary Access Control List), providing relevant information about changes to security settings and access to critical resources. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates the identification and auditing of attempts to modify permissions, ensuring that changes to security settings are appropriately monitored, logged, and reviewed to maintain the integrity and protection of critical systems.
+strategy: ANY
+checks:
+  - key: windows-protected-object-permission-change
+    name: Windows Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-distribution-of-protected-object-permission-change
+    name: Windows Process Distribution of Protected Object Permission Change
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4670')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

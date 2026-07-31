@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1229
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows A1 Cleaned Event Log
+scope: data
+statement: This report analyzes Security Log Closure events (Event ID 1102) on Windows systems to assess compliance with PCI DSS Requirement A1.2.3, which establishes the implementation of processes or mechanisms for reporting and addressing security incidents and vulnerabilities. Event 1102 is generated when the system's Security Log is cleared or closed, which may indicate an action related to security event management or incident response. This analysis verifies that logs are managed appropriately and that security incidents and vulnerabilities are communicated and addressed securely. It also ensures that the vendor has established mechanisms to remediate incidents in accordance with PCI DSS Requirement 6.3.1, ensuring that customers can safely report incidents and that they are addressed in accordance with security policies. The findings in this report support the validation of audit and incident response processes, ensuring that appropriate records are maintained for security incident investigation and PCI DSS compliance.
+strategy: ANY
+checks:
+  - key: windows-cleaned-event-log
+    name: Windows Cleaned Event Log
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-cleaned-event-log-by-source
+    name: Windows Cleaned Event Log by Source
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1102')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

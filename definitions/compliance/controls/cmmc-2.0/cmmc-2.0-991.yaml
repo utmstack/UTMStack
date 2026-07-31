@@ -1,0 +1,21 @@
+id: cmmc-2.0-991
+family: cmmc-2.0
+familyName: CMMC
+name: Windows .NET Runtime Error
+scope: data
+statement: This report consolidates and analyzes Windows event log 1026 events, which indicate unhandled exceptions in applications that use the .NET Framework environment.<br/><br/>The objective of the report is to identify applications that experience failures due to execution errors in .NET, evaluate their impact on system stability, and determine potential risks to operational continuity. This information is crucial to monitor the resilience of the technological environment and ensure compliance with the Disaster Recovery and Business Continuity Monitoring requirements within the CMMC (Cybersecurity Maturity Model Certification) framework.<br/><br/>The report includes key details that facilitate the analysis of trends and the implementation of corrective measures to mitigate interruptions in critical services.
+strategy: ANY
+checks:
+  - key: windows-net-runtime-error
+    name: Windows .NET Runtime Error
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1026')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-net-runtime-error-by-os
+    name: Windows .NET Runtime Error by OS
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1026')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

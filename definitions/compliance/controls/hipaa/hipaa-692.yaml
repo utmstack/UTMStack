@@ -1,0 +1,21 @@
+id: hipaa-692
+family: hipaa
+familyName: HIPAA
+name: Windows Monitoring of Critical System Services Status
+scope: data
+statement: This report collects and analyzes security events identified by ID 4723 on Windows systems. Event 4723 records attempts to change a user's password, providing relevant information for verifying compliance with the NIST CSF PR.AC-1 requirement, which establishes that access to systems and assets should be limited based on defined roles. This report facilitates the identification and monitoring of successful or failed password change attempts, contributing to adequate access control and the implementation of identity and role management policies.
+strategy: ANY
+checks:
+  - key: windows-monitoring-of-critical-system-services-status
+    name: Windows Monitoring of Critical System Services Status
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-monitoring-of-critical-system-services-status-by-event
+    name: Windows Monitoring of Critical System Services Status by Event
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

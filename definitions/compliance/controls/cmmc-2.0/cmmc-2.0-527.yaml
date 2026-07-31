@@ -1,0 +1,21 @@
+id: cmmc-2.0-527
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (SI.2.212): Attempt to Access a Protected Object'
+scope: data
+statement: 'This report gathers and analyzes the information from events 4663 and 4656 in the Windows logs, with the objective of complying with control SI.2.212 of CMMC Level 2, which requires the implementation of mechanisms for real-time supervision of the security events.<br/><br/>Event 4663: This event is raised when an object, such as a file or folder, is accessed or modified in some way. Records important details about the action performed, such as the type of access (read, write, delete, etc.), the object identifier, and the identity of the user or process that performed the action. It is a key indicator of file access and modifications, which can help detect anomalous or unauthorized behavior.<br/><br/>Event 4656: Similar to event 4663, event 4656 is triggered when a process attempts to access an object on the system. Records details about the type of access requested and the identifier of the object being accessed, providing additional information about access attempts to specific resources on the system.<br/><br/>Both events 4663 and 4656 are critical for monitoring actions related to access and modification of files and resources on the system. The ability to detect unauthorized access or suspicious modifications in real time is essential for the implementation of effective security controls, allowing rapid identification of potential incidents and immediate intervention to mitigate risks.<br/><br/>The joint analysis of these events helps to reinforce real-time monitoring measures, detecting access to sensitive data, file manipulations or any activity that could compromise the integrity of the systems. Meeting the SI.2.212 requirements of CMMC Level 2 by collecting and analyzing these events is crucial to maintaining a secure environment and protecting the most critical resources within the technology infrastructure.'
+strategy: ANY
+checks:
+  - key: windows-attempt-to-access-a-protected-object
+    name: Windows Attempt to access a protected object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-file-access-events
+    name: Windows File Access Events
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: cmmc-2.0-794
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 1 (SI.1.210): Process Creation'
+scope: data
+statement: Este reporte recopila información relevante de los logs de Windows generados por el evento 4688, el cual se activa cuando un proceso es creado en el sistema. El evento es particularmente importante para identificar actividades sospechosas, como la ejecución de procesos maliciosos, que podrían estar relacionados con infecciones de malware, y es esencial para cumplir con el control SI.1.210 de CMMC Level 1, que exige identificar y corregir infecciones de malware.<br/><br/>El evento 4688 proporciona detalles sobre los procesos que se inician, incluyendo el nombre del ejecutable, la ruta, el ID del proceso padre y otros detalles asociados. Estos datos permiten detectar si un proceso está relacionado con malware o comportamientos no autorizados en el sistema. La creación de nuevos procesos no autorizados o el comportamiento inusual de procesos conocidos puede ser un indicio de una infección activa o un ataque en curso.<br/><br/>Monitorear los eventos 4688 es crucial para identificar posibles infecciones de malware en sus primeras etapas, así como para detectar actividades anómalas relacionadas con la ejecución de código malicioso. Esta información permite a los equipos de seguridad tomar medidas inmediatas, como la detención de procesos maliciosos, la cuarentena de archivos o el análisis forense para determinar el origen y el impacto de la amenaza.<br/><br/>Este reporte es una herramienta clave para fortalecer las capacidades de detección de malware dentro de la infraestructura de la organización, contribuyendo así al cumplimiento del control SI.1.210 de CMMC Level 1.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

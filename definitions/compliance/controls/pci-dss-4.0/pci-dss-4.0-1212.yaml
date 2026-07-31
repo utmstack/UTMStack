@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1212
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 12.1 Access to critical files or specific directories
+scope: data
+statement: This report gathers relevant information from 4663 events in Windows logs, which are essential for verifying compliance with PCI DSS Requirement 12.1, which establishes that the information security policy must be known and updated. 4663 events are generated when attempts are made to access files or directories, which is critical to ensuring that information security policies are effectively applied to the entity's information assets.<br/><br/>By analyzing these events, it is possible to verify that the information security policy is established, published, maintained, and appropriately disseminated to all relevant personnel, including suppliers and business partners, as required by the PCI DSS standard. Furthermore, the logs verify that the policy is reviewed at least every 12 months and updated in response to changes in business risks and objectives. This analysis also confirms that security responsibilities are clearly defined for all staff and that ultimate responsibility rests with a CISO or security executive with the necessary expertise.
+strategy: ANY
+checks:
+  - key: windows-access-to-critical-files-or-specific-directories
+    name: Windows Access to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-distribution-of-access-results-to-critical-files-or-specific-directories
+    name: Windows Distribution of access results to critical files or specific directories
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

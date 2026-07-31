@@ -1,0 +1,21 @@
+id: cmmc-2.0-609
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 3 (AC.3.014): OneDrive File Download'
+scope: data
+statement: This report compiles key information about the FileDownloaded event in Office 365 logs, with the goal of verifying compliance with CMMC practice AC.3.014. The main purpose is to monitor the flow of sensitive information and protect access points to CUI (Controlled Unclassified Information), ensuring that files with critical information are downloaded only by authorized users.<br/><br/>The report includes details about the users downloading files, the names and locations of the files involved, as well as the IP addresses from which the downloads were made. Additionally, security settings such as access controls and any suspicious or unauthorized activity related to file downloads are documented. This information is essential to detect and prevent improper access to CUI, ensuring compliance with the security standards established by CMMC to protect the integrity of critical information.
+strategy: ANY
+checks:
+  - key: o365-onedrive-file-download
+    name: O365 OneDrive File Download
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileDownloaded')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-onedrive-file-download-by-extension
+    name: O365 OneDrive File Download by Extension
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileDownloaded')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

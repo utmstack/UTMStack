@@ -1,0 +1,21 @@
+id: cmmc-2.0-938
+family: cmmc-2.0
+familyName: CMMC
+name: 'AWS Level 4 (AU.4.053): ListAccessKeys Logs'
+scope: data
+statement: This report collects and analyzes AWS log events related to ListAccessKeys, with the objective of evaluating compliance with CMMC Level 4 control (AU.4.053), which requires the detection of anomalous user behavior using automated tools.<br/><br/>The ListAccessKeys event is used to list the access keys associated with an AWS account, which can be an indicator of suspicious activity or credential scanning attempts. Continuous monitoring of this event allows us to detect unusual access, identify possible account compromises and mitigate risks associated with exposed or misused credentials.<br/><br/>Analysis of these logs includes key information such as the user or role that executed the action, the source IP address, the service from which the request was made, and the frequency of these events. Correlation with automated behavioral analysis tools allows irregular patterns to be identified and alerts generated for potential threats, contributing to a proactive approach to cloud infrastructure security.
+strategy: ANY
+checks:
+  - key: aws-listaccesskeys-logs-by-mfa-authenticated
+    name: AWS ListAccessKeys Logs by MFA Authenticated
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-listaccesskeys-logs
+    name: AWS ListAccessKeys Logs
+    indexPattern: v11-log-aws-*
+    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

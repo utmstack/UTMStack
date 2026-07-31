@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1178
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 10.2 Special privileges assigned to new logon
+scope: data
+statement: This report gathers relevant information from Windows Event 4672 logs, which indicates the assignment of special privileges to an account. Its purpose is to verify the enablement and activation of audit logs on all system components and environments that handle cardholder data, in compliance with PCI DSS requirements 10.2 and 10.2.1. It also facilitates the detection of unusual or suspicious activity and enables forensic analysis of events related to the use of elevated privileges.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

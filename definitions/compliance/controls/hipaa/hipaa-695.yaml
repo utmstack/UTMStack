@@ -1,0 +1,21 @@
+id: hipaa-695
+family: hipaa
+familyName: HIPAA
+name: Windows Restoration of default security policies
+scope: data
+statement: This report collects and analyzes security events identified by ID 4907 on Windows systems. Event 4907 records changes to the configuration of centralized access control lists (Audit Policy Changes), providing relevant information about modifications to system audit policies. These events are essential for verifying compliance with the HITRUST CSF 01.v requirement, which mandates the logging of key system activities. This report facilitates the identification and auditing of audit policy adjustments, ensuring that any modifications are appropriately logged, reviewed, and approved to maintain effective and continuous monitoring of critical system activities.
+strategy: ANY
+checks:
+  - key: windows-restoration-of-default-security-policies
+    name: Windows Restoration of default security policies
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-restoration-of-default-security-policies-by-outcome
+    name: Windows Restoration of default security policies by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

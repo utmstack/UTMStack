@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1115
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 3.2 Process Creation
+scope: data
+statement: This report compiles relevant information from 4688 events (A new process has been created) generated in Windows, with the goal of verifying compliance with PCI DSS Requirement 3.2. This requirement establishes that account data storage must be kept to a minimum through the implementation of appropriate policies, procedures, and processes for data retention and deletion.<br/><br/>Event 4688 allows the creation of new processes in the system to be audited, helping to identify activities that could generate, process, or store account data. This event allows you to verify that applications and processes that handle sensitive data are aligned with defined retention policies, ensuring that account data is retained only in the necessary locations and for the duration stipulated in the policies. Additionally, this event helps verify that, if the data is no longer needed, secure deletion or data deprecation processes are carried out in accordance with established procedures. This ensures that data storage is limited and complies with legal, regulatory, and business requirements, and that data is not retained beyond the required period.
+strategy: ANY
+checks:
+  - key: windows-process-creation
+    name: Windows Process Creation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-process-creation-by-parent-process
+    name: Windows Process Creation By Parent Process
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4688')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

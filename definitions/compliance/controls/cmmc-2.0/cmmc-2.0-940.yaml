@@ -1,0 +1,33 @@
+id: cmmc-2.0-940
+family: cmmc-2.0
+familyName: CMMC
+name: 'Level 3 (IR.3.098): Threat Intelligence Activity'
+scope: data
+statement: This report compiles relevant information from Threat Intelligence activity logs used to improve incident response, aligning with compliance with CMMC's Level 3 requirement (IR.3.098). It contains details on the indicators of attack (IOCs) identified, the analysis methods applied and how this data was used to optimize incident responses. The report allows us to evaluate how threat indicators are integrated into incident response operations, strengthening the ability to detect and mitigate cybersecurity risks.
+strategy: ANY
+checks:
+  - key: threat-intelligence-by-ip
+    name: Threat Intelligence by IP
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (source.ip.keyword IS NOT NULL AND source.ip.keyword <> '')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-threat-intelligence-alerts
+    name: Windows Threat Intelligence Alerts
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (name.keyword = 'Connection attempt from a blacklisted IP address')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-threat-intelligence-by-ip
+    name: Windows Threat Intelligence by IP
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (source.ip.keyword IS NOT NULL AND source.ip.keyword <> '' AND dataType = 'wineventlog' AND isIncident = 'true')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-threat-intelligence-alert
+    name: Windows Threat Intelligence Alert
+    indexPattern: v11-alert-*
+    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (name.keyword = 'Connection attempt from a blacklisted IP address' AND dataType = 'wineventlog' AND isIncident = 'true')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

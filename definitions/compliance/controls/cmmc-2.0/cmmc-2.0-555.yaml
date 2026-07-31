@@ -1,0 +1,21 @@
+id: cmmc-2.0-555
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (AU.4.053): Installation of Services'
+scope: data
+statement: The AU.4.053 control helps ensure that only authorized services are installed on Windows systems, preventing unauthorized or malicious services from compromising the system. By auditing service installations and ensuring strict controls, this measure reduces the risk of persistent threats or unauthorized access. Additionally, it contributes to compliance with organizational security policies and the requirements set forth in CMMC, reinforcing a secure and well-maintained system environment.
+strategy: ANY
+checks:
+  - key: windows-installation-of-services
+    name: Windows Installation of Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-installation-of-services-by-services
+    name: Windows Installation of Services by Services
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

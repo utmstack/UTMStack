@@ -1,0 +1,21 @@
+id: banking-audit-881
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Filtering Platform
+scope: data
+statement: "The Windows Filtering Platform Report provides detailed insights into network traffic filtering events, including allowed and blocked connections, policy updates, and rule modifications. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework by detecting unauthorized network activity and ensuring security policies are enforced.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring visibility and oversight of network activity to protect sensitive financial systems and customer data.<br/>\t•\tNetwork Security Monitoring: Supports compliance with PCI DSS Requirement 1, which mandates robust firewall and traffic filtering mechanisms to safeguard network environments.<br/>\t•\tReal-Time Detection: Captures and reports policy violations or suspicious traffic patterns in real-time, enabling immediate response to potential threats.<br/>\t•\tIncident Response: Identifies unauthorized changes to filtering policies or attempts to bypass security rules, ensuring a proactive approach to threat mitigation.<br/>\t•\tAudit Readiness: Provides traceability of filtering events, meeting requirements for frameworks like SOC2 Type 2 and ISO 27001, demonstrating robust monitoring of network security."
+strategy: ANY
+checks:
+  - key: windows-filtering-platform
+    name: Windows Filtering Platform
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-filtering-platform-by-protocol
+    name: Windows Filtering Platform by Protocol
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-682
+family: hipaa
+familyName: HIPAA
+name: Windows Password Reset Attempts
+scope: data
+statement: This report collects and analyzes security events identified by ID 4724 on Windows systems. Event 4724 records password reset attempts on user accounts, providing relevant information for verifying compliance with HIPAA requirement 164.312(a)(1). This requirement establishes the implementation of technical policies to ensure that only authorized individuals have access to electronic systems that store or process ePHI (Electronic Protected Health Information). This report facilitates the identification and monitoring of password changes, contributing to adequate access control and the implementation of secure access policies.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

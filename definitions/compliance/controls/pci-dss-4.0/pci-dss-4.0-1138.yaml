@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1138
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 6.1 Protected Object Access Operation
+scope: data
+statement: This report compiles relevant information from Windows Event 4662 logs to verify compliance with PCI DSS Requirement 6.1. Event 4662 provides details on attempts to modify or access objects, enabling verification that security policies and operational procedures are properly documented, up-to-date, and in use (6.1.1), and that roles and responsibilities related to developing and maintaining secure systems are documented, assigned, and understood (6.1.2), as required by PCI DSS.
+strategy: ANY
+checks:
+  - key: windows-protected-object-access-operation
+    name: Windows Protected Object Access Operation
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-protected-object-access-operation-by-object
+    name: Windows Protected Object Access Operation by Object
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

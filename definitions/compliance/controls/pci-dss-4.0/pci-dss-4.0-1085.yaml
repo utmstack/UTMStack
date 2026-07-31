@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1085
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 1.4 Account Locks
+scope: data
+statement: This report compiles relevant information from Windows event 4740 logs, which relates to user account lockouts due to failed login attempts. It is used to verify compliance with PCI DSS Requirements, which mandates that anti-spoofing measures must be implemented to detect and block spoofed source IP addresses attempting to access the trusted network. This event helps identify unauthorized attempts that could be related to phishing activities, helping to ensure that access to the trusted network is protected from attacks using spoofed or deceptive IP addresses.
+strategy: ANY
+checks:
+  - key: windows-account-locks
+    name: Windows Account locks
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-successful-account-locks-over-time
+    name: Windows Successful Account Locks Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4740')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

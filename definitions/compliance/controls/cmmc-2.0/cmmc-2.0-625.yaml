@@ -1,0 +1,21 @@
+id: cmmc-2.0-625
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 5 (AU.5.055): Credential Access'
+scope: data
+statement: This report analyzes event 5379 in the Windows logs, which refers to smart card authentication attempts. Monitoring this event is key in detecting Credential Access, a technique commonly used by attackers to gain unauthorized access to systems through theft or spoofing of credentials.<br/><br/>In this specific case, events 5379 indicate when a smart card authentication attempt has occurred, whether successful or failed. Attackers can use techniques such as stealing smart cards or misusing credentials associated with smart cards to gain access to protected systems and networks. Detecting these authentication attempts is essential to prevent the exploitation of stolen or compromised credentials.<br/><br/>This event is part of the advanced auditing capabilities required in compliance with the CMMC (Cybersecurity Maturity Model Certification), in particular for Level 5 (AU.5.055), which seeks to improve auditing capabilities to detect advanced threats. Proactively monitoring these events can identify suspicious access and block Credential Access attempts, protecting the integrity of credentials and critical systems.
+strategy: ANY
+checks:
+  - key: windows-credential-access
+    name: Windows Credential Access
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-credential-access-by-domain
+    name: Windows Credential Access by Domain
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5379')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

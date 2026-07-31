@@ -1,0 +1,21 @@
+id: banking-audit-845
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Password Reset Attempts
+scope: data
+statement: The Windows Password Reset Attempts Report provides a comprehensive overview of password reset activities, tracking both successful and failed attempts. This report is a critical tool in the Banking Audit framework, ensuring accountability and security in the management of user credentials.The Windows Password Reset Attempts Report provides a comprehensive overview of password reset activities, tracking both successful and failed attempts. This report is a critical tool in the Banking Audit framework, ensuring accountability and security in the management of user credentials.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

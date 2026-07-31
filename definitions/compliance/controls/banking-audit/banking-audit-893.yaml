@@ -1,0 +1,21 @@
+id: banking-audit-893
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows User Accounts Deleted
+scope: data
+statement: "The Windows User Accounts Deleted Report provides detailed logs of events where user accounts are removed from the system. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as account deletions can indicate unauthorized actions, insider threats, or security policy violations.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring visibility and oversight of account deletions to safeguard sensitive financial systems and customer data.<br/>\t•\tAccess Control Monitoring: Supports compliance with PCI DSS Requirement 7, ensuring that user account deletions are logged and reviewed to prevent unauthorized actions.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately when accounts are deleted, enabling prompt investigation and response to potential threats.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious account deletions, which could indicate malicious intent, such as erasing traces of compromised accounts.<br/>\t•\tAudit Readiness: Tracks account deletions to ensure compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure and accountable user management practices."
+strategy: ANY
+checks:
+  - key: windows-user-accounts-deleted-over-time
+    name: Windows User Accounts Deleted Over Time
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-user-accounts-deleted
+    name: Windows User Accounts Deleted
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

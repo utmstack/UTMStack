@@ -1,0 +1,21 @@
+id: cmmc-2.0-1022
+family: cmmc-2.0
+familyName: CMMC
+name: 'Office 365 Level 2 (AU.2.044): Account Logon Failure'
+scope: data
+statement: This report collects and analyzes UserLoginFailed events in Office 365 to assess compliance with CMMC Level 2 requirement AU.2.044, which requires audit logs to be reviewed for inappropriate behavior.<br/><br/>Monitoring these events helps identify patterns of failed authentication attempts that could indicate suspicious activity, such as brute force attacks, compromised credentials, or attempts to log in from unauthorized locations or devices. Detecting anomalous behavior in login attempts helps prevent unauthorized access and facilitates corrective action to mitigate security risks.<br/><br/>The information obtained in this report is key to strengthening user behavior monitoring within Office 365, ensuring an effective response to potential threats and ensuring compliance with the audit practices established in CMMC Level 2.
+strategy: ANY
+checks:
+  - key: o365-ad-failed-logins-by-user
+    name: O365 AD Failed Logins by User
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.ResultStatus.keyword = 'Failed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-ad-unsuccesful-login-location
+    name: O365 AD Unsuccesful Login Location
+    indexPattern: v11-log-o365-*
+    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoginFailed')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

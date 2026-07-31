@@ -1,0 +1,21 @@
+id: cmmc-2.0-513
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 4 (SI.4.220): Windows Service Installed'
+scope: data
+statement: 'This report focuses on the Windows logs for event 4697, which is generated when a service is installed on a system. Installing services is a critical operation that can be used by both legitimate administrators and malicious actors to alter systems configuration, establish persistence, or hide malicious activities.<br/><br/>In the context of CMMC Level 4 (SI.4.220): Monitor for malicious behavior across the organization, event 4697 is essential to detect unauthorized installation of services that could indicate a malware attack, persistence activity, or the establishment of backdoors. The presence of a service installed without proper authorization or outside of standard procedures can be a sign of suspicious behavior and is therefore an important monitoring target.<br/><br/>This type of malicious behavior can be an early indicator of an advanced attack, where an attacker installs a service to maintain control over the compromised system, or to continuously execute code without being detected. For example, an attacker could install a service to run a Trojan horse or rootkit that remains on the system even after reboots or configuration changes.<br/><br/>Monitoring this event allows you to quickly identify unauthorized installations of services, facilitating early detection of intrusions and response to possible security incidents. This surveillance capability contributes to risk reduction by allowing security teams to proactively act against potential threats before they can escalate and compromise critical systems or sensitive data.'
+strategy: ANY
+checks:
+  - key: windows-service-installed
+    name: Windows Service Installed
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-service-installed-by-service
+    name: Windows Service Installed by Service
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4697')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

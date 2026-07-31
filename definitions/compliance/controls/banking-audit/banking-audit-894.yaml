@@ -1,0 +1,21 @@
+id: banking-audit-894
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows Restoration of default security policies
+scope: data
+statement: "The Windows Restoration of Default Security Policies Report provides detailed logs of events where system security policies are reset to their default configurations. This report is critical for ensuring compliance with Real-Time Alerting and Monitoring within the Banking Audit framework, as such actions can impact the security posture and may indicate unauthorized changes or recovery efforts.<br/>\t•\tRegulatory Compliance: Aligns with the GLBA Safeguards Rule, ensuring oversight of policy restoration activities to safeguard sensitive financial systems and customer data.<br/>\t•\tSystem Integrity Monitoring: Supports compliance with PCI DSS Requirement 10, ensuring that changes to security policies, including restorations, are logged and monitored.<br/>\t•\tReal-Time Alerting: Captures and notifies administrators immediately when default security policies are restored, enabling rapid investigation and response.<br/>\t•\tIncident Detection: Identifies unauthorized or suspicious policy restorations, which could indicate an attempt to bypass hardened security configurations or revert critical controls.<br/>\t•\tAudit Readiness: Tracks all events of policy restoration, ensuring compliance with frameworks like SOC2 Type 2 and ISO 27001, demonstrating secure configuration management practices."
+strategy: ANY
+checks:
+  - key: windows-restoration-of-default-security-policies
+    name: Windows Restoration of default security policies
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-restoration-of-default-security-policies-by-outcome
+    name: Windows Restoration of default security policies by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4907')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

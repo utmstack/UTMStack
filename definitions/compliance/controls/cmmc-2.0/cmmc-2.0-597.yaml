@@ -1,0 +1,21 @@
+id: cmmc-2.0-597
+family: cmmc-2.0
+familyName: CMMC
+name: 'Windows Level 2 (AU.2.042): Password Reset Attempts'
+scope: data
+statement: This report collects the Windows log event 4724 logs, which document password reset attempts for user accounts on the system. Event 4724 is generated when a password reset attempt is made, either by an administrator or by the account user themselves, and provides key information about credential modification attempts. This information is crucial to verify compliance with CMMC's Level 2 Auditing and Monitoring policy (AU.2.042), which requires ensuring the collection of logs to detect and analyze security events related to access and changes in credentials.<br/><br/>The report includes key details such as the identity of the user whose password was reset, the identity of the user or administrator who executed the action, the date and time of the event, among others. The analysis of these events allows us to detect unauthorized or undocumented attempts to modify credentials, providing an effective way to monitor access and activities related to user credentials. This report is essential for auditing password management processes, ensuring that appropriate controls are applied to protect access credentials and contributing to compliance with CMMC Level 2 security policies.
+strategy: ANY
+checks:
+  - key: windows-password-reset-attempts
+    name: Windows Password Reset Attempts
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-password-reset-attempts-by-target-user
+    name: Windows Password Reset Attempts by Target User
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4724')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

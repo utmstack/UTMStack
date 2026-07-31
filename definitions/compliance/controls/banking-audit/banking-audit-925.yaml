@@ -1,0 +1,21 @@
+id: banking-audit-925
+family: banking-audit
+familyName: BANKING AUDIT
+name: Windows PowerShell Script Block Registration
+scope: data
+statement: "The Windows PowerShell Script Block Registration report provides detailed logs of events where PowerShell script blocks are registered for execution. This report is critical for monitoring the use of PowerShell, detecting potential security threats, and ensuring compliance with security policies and audit frameworks.<br/>\t•\tRegulatory Compliance: Supports frameworks such as PCI DSS, ISO 27001, and SOC2, by logging PowerShell script block executions to ensure adherence to access control and script execution policies.<br/>\t•\tPowerShell Activity Monitoring: Tracks all script blocks executed via PowerShell, ensuring visibility into administrative tasks, automation scripts, and potentially malicious activity.<br/>\t•\tEvent Correlation: Links PowerShell script block registration events with user accounts, originating systems, and subsequent activities, providing a comprehensive audit trail.<br/>\t•\tReal-Time Alerts: Sends notifications for suspicious or unauthorized script block registrations, enabling rapid response to potential threats or misconfigurations.<br/>\t•\tIncident Detection: Identifies anomalies, such as obfuscated scripts, scripts executed with elevated privileges, or script blocks executed from unusual sources, which may indicate malware or insider threats.<br/>\t•\tAudit Readiness: Logs detailed information for each registered script block, including the script content (if available), the user or account responsible, the execution host, and the timestamp, ensuring robust documentation for compliance and investigations."
+strategy: ANY
+checks:
+  - key: windows-powershell-script-block-registration
+    name: Windows PowerShell Script Block Registration
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-powershell-script-block-registration-by-host
+    name: Windows PowerShell Script Block Registration by Host
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4103')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

@@ -1,0 +1,21 @@
+id: hipaa-703
+family: hipaa
+familyName: HIPAA
+name: Windows Special privileges assigned to new logon
+scope: data
+statement: This report supports compliance with the NIST CSF DE.CM-1 requirement, which establishes the need to continuously monitor network activities to detect malicious behavior. By analyzing event ID 4672 on Windows systems, this report allows monitoring of highly privileged account logins, which can be a critical point in network security. Monitoring these events helps identify potentially suspicious or unauthorized access, enabling a rapid response to malicious activity. This approach helps ensure the continuous protection and security of network assets.
+strategy: ANY
+checks:
+  - key: windows-special-privileges-assigned-to-new-logon
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-special-privileges-assigned-to-new-logon-2
+    name: Windows Special privileges assigned to new logon
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11

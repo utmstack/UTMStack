@@ -1,0 +1,21 @@
+id: pci-dss-4.0-1195
+family: pci-dss-4.0
+familyName: PCI DSS
+name: Windows 11.1 Policy changes
+scope: data
+statement: This report gathers and analyzes security events associated with Windows Event 4719, which indicates changes to the system's audit configuration. The information provided allows verification of the application and updating of security policies in accordance with PCI DSS Requirement 11.1.1, ensuring that operational and security procedures are documented, up-to-date, in use, and known to affected parties.<br/><br/>Analyzing these events helps detect unauthorized or unexpected modifications to audit controls, ensuring the integrity of monitoring mechanisms and validating that security processes are regularly evaluated.
+strategy: ANY
+checks:
+  - key: windows-policy-changes
+    name: Windows Policy changes
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4663')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: windows-policy-changes-by-outcome
+    name: Windows Policy changes by outcome
+    indexPattern: v11-log-wineventlog-*
+    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4719')
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+source: Migrated from UTMStack v11
