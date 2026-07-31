@@ -538,6 +538,20 @@ pipeline:
             - log.objName
             - log.osUserID
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.returnCode") && equals("log.returnCode", "0")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("log.returnCode") && !equals("log.returnCode", "0")'
+
       # Adding geolocation to origin.ip
       - dynamic:
           plugin: com.utmstack.geolocation

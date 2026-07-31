@@ -304,6 +304,26 @@ pipeline:
             - log.sentpkt
           to: origin.packagesSent
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "accept"
+          where: 'equals("action", "accept")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'equals("action", "deny")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'oneOf("action", ["client-rst", "server-rst", "ip-conn"])'
+
       # Type casting for numeric fields.
       - cast:
           fields:

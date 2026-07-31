@@ -363,6 +363,26 @@ pipeline:
             - log.rt
           to: log.ruleTime
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("log.threatStatus", "mitigation_failed")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("log.status", "failed") && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'contains("log.mitigationStatus", "fail") && !exists("actionResult")'
+
       # Removing unused fields
       - delete:
           fields:

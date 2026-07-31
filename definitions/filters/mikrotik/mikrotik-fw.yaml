@@ -205,6 +205,14 @@ pipeline:
             destination: target.geolocation
           where: exists("target.ip")
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'exists("log.action") && equals("log.action", "drop")'
+
       # Removing unused fields
       - delete:
           fields:

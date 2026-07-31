@@ -133,6 +133,64 @@ pipeline:
           fields:
             - log.facilityMnemonic
       #......................................................................#
+      # Extract ACL action word from log.ciscoMsg for ACL log events
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'list'
+            - fieldName: log.aclName
+              pattern: '{{.notSpace}}'
+            - fieldName: log.aclAction
+              pattern: '{{.word}}'
+          where: oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"])
+      # Handle "access-list" prefix variant (some Cisco IOS variants emit "access-list" instead of "list")
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'access-list'
+            - fieldName: log.aclName
+              pattern: '{{.notSpace}}'
+            - fieldName: log.aclAction
+              pattern: '{{.word}}'
+          where: 'oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"]) && !exists("log.aclAction")'
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.aclAction", "permitted")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.aclAction", "denied")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.facility", "DOT1X") && equals("log.facilityMnemonic", "FAIL")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.facility", "DOT1X") && equals("log.facilityMnemonic", "SUCCESS")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: blocked
+          where: equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["DHCP_SNOOPING_DENY", "INVALID_ARP", "ACL_DENY"])
+      #......................................................................#
       # Decoding severity
       - add:
           function: 'string'
@@ -159,3 +217,5 @@ pipeline:
             - log.switchHeader
             - log.irrelevant
             - log.tmpFacilityMnemonic
+            - log.aclName
+            - log.aclAction
