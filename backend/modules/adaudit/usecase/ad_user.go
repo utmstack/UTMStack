@@ -21,24 +21,54 @@ func NewADUserUsecase(repo connectors.ADUserRepository) connectors.ADUserUsecase
 func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int, error) {
 	users := make([]domain.ADUser, 0, len(req.Users))
 	for _, in := range req.Users {
-		if strings.TrimSpace(in.SID) == "" {
+		source := in.Source
+		if source == "" {
+			source = "windows"
+		}
+
+		switch source {
+		case "windows":
+			if strings.TrimSpace(in.SID) == "" {
+				continue
+			}
+		case "linux":
+			hasResolved := in.MachineID != nil && strings.TrimSpace(*in.MachineID) != "" &&
+				in.UIDNumber != nil && strings.TrimSpace(*in.UIDNumber) != ""
+			hasProvisional := in.Hostname != nil && strings.TrimSpace(*in.Hostname) != "" &&
+				in.Username != nil && strings.TrimSpace(*in.Username) != ""
+			if !hasResolved && !hasProvisional {
+				continue
+			}
+		default:
 			continue
 		}
+
 		active := true
 		if in.Active != nil {
 			active = *in.Active
 		}
-		users = append(users, domain.ADUser{
+
+		ad := domain.ADUser{
 			TenantID:         in.TenantID,
-			SID:              in.SID,
+			Source:           source,
 			SamAccountName:   in.SamAccountName,
 			Domain:           in.Domain,
+			MachineID:        in.MachineID,
+			UIDNumber:        in.UIDNumber,
+			Hostname:         in.Hostname,
+			Username:         in.Username,
 			Active:           active,
 			AccountCreatedAt: in.AccountCreatedAt,
 			LastLogon:        in.LastLogon,
 			AccountDeletedAt: in.AccountDeletedAt,
 			LastSeen:         in.LastSeen,
-		})
+		}
+		if source == "windows" {
+			sid := strings.TrimSpace(in.SID)
+			ad.SID = &sid
+		}
+
+		users = append(users, ad)
 	}
 	if err := u.repo.Upsert(ctx, users); err != nil {
 		return 0, err
@@ -54,10 +84,14 @@ func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database
 	return &database.List[domain.ADUser]{Items: items, Total: total}, nil
 }
 
-func (u *adUserUsecase) All(ctx context.Context) ([]domain.ADUser, error) {
-	return u.repo.All(ctx)
+func (u *adUserUsecase) All(ctx context.Context, source string) ([]domain.ADUser, error) {
+	return u.repo.All(ctx, source)
 }
 
 func (u *adUserUsecase) Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error) {
 	return u.repo.Stats(ctx, tenantID)
+}
+
+func (u *adUserUsecase) ResolveLinuxIdentity(ctx context.Context, req dto.ResolveLinuxIdentityRequest) (int64, error) {
+	return u.repo.ResolveLinuxIdentity(ctx, req.TenantID, req.Hostname, req.MachineID)
 }
