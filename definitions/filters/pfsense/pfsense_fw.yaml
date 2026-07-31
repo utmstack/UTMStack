@@ -320,6 +320,22 @@ pipeline:
           to: target.port
 
       # ................................................#
+      # Adding action result
+      # ................................................#
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "pass"
+          where: 'equalsIgnoreCase("action", "pass")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'equalsIgnoreCase("action", "block")'
+
+      # ................................................#
       # Fileds conversions
       # ................................................#
       - cast:

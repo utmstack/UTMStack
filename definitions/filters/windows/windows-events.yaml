@@ -226,6 +226,21 @@ pipeline:
 
       - rename:
           from:
+            - log.data.TargetSid
+          to: log.eventDataTargetSid
+
+      - rename:
+          from:
+            - log.data.CallerProcessId
+          to: log.eventDataCallerProcessId
+
+      - rename:
+          from:
+            - log.data.CallerProcessName
+          to: log.eventDataCallerProcessName
+
+      - rename:
+          from:
             - log.data.TransmittedServices
           to: log.eventDataTransmittedServices
 
@@ -2344,49 +2359,49 @@ pipeline:
           params:
             key: log.failureReasonDescription
             value: 'The specified user account has expired.'
-          where: equals("log.eventDataFailureReason", "%%2305") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2305") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'The password for the specified account has expired'
-          where: equals("log.eventDataFailureReason", "%%2309") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2309") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Account currently disabled'
-          where: equals("log.eventDataFailureReason", "%%2310") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2310") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Account logon time restriction violation'
-          where: equals("log.eventDataFailureReason", "%%2311") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2311") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'User not allowed to logon at this computer'
-          where: equals("log.eventDataFailureReason", "%%2312") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2312") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'Unknown user name or bad password'
-          where: equals("log.eventDataFailureReason", "%%2313") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2313") && equals("log.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
             key: log.failureReasonDescription
             value: 'An Error occurred during Logon'
-          where: equals("log.eventDataFailureReason", "%%2304") && equals("log.eventCode", 4625)
+          where: equals("log.eventDataFailureReason", "2304") && equals("log.eventCode", 4625)
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
@@ -2605,91 +2620,91 @@ pipeline:
           params:
             key: log.statusDescription
             value: 'Account locked out'
-          where: equals("log.eventDataStatus", "0xC0000234")
+          where: equals("log.eventDataStatus", "3221226036")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account expired'
-          where: equals("log.eventDataStatus", "0xC0000193")
+          where: equals("log.eventDataStatus", "3221225875")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clocks out of sync'
-          where: equals("log.eventDataStatus", "0xC0000133")
+          where: equals("log.eventDataStatus", "3221225779")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password change required'
-          where: equals("log.eventDataStatus", "0xC0000224")
+          where: equals("log.eventDataStatus", "3221226020")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'User does not have logon right'
-          where: equals("log.eventDataStatus", "0xc000015b")
+          where: equals("log.eventDataStatus", "3221225819")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Logon failure'
-          where: equals("log.eventDataStatus", "0xc000006d")
+          where: equals("log.eventDataStatus", "3221225581")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account restriction'
-          where: equals("log.eventDataStatus", "0xc000006e")
+          where: equals("log.eventDataStatus", "3221225582")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'An error occurred during logon'
-          where: equals("log.eventDataStatus", "0xc00002ee")
+          where: equals("log.eventDataStatus", "3221226222")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password expired'
-          where: equals("log.eventDataStatus", "0xC0000071")
+          where: equals("log.eventDataStatus", "3221225585")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account disabled'
-          where: equals("log.eventDataStatus", "0xC0000072")
+          where: equals("log.eventDataStatus", "3221225586")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Authentication firewall prohibits logon'
-          where: equals("log.eventDataStatus", "0xC0000413")
+          where: equals("log.eventDataStatus", "3221226515")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect password'
-          where: equals("log.eventDataStatus", "0xc000006a")
+          where: equals("log.eventDataStatus", "3221225578")
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Account does not exist'
-          where: equals("log.eventDataStatus", "0xc0000064")
+          where: equals("log.eventDataStatus", "3221225572")
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
@@ -2697,322 +2712,354 @@ pipeline:
           params:
             key: log.statusDescription
             value: 'Customer database entry has expired'
-          where: equals("log.eventDataStatus", "0x1") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "1") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The server database entry has expired'
-          where: equals("log.eventDataStatus", "0x2") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "2") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Requested protocol version not supported'
-          where: equals("log.eventDataStatus", "0x3") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "3") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Customer key encrypted in old master key'
-          where: equals("log.eventDataStatus", "0x4") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "4") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server key encrypted with old master key'
-          where: equals("log.eventDataStatus", "0x5") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "5") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Client not found in Kerberos database'
-          where: equals("log.eventDataStatus", "0x6") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "6") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server not found in Kerberos database'
-          where: equals("log.eventDataStatus", "0x7") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "7") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Multiple principal entries in database'
-          where: equals("log.eventDataStatus", "0x8") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "8") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The client or server has a null key'
-          where: equals("log.eventDataStatus", "0x9") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "9") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket not eligible for postdating'
-          where: equals("log.eventDataStatus", "0xA") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "10") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Requested start time is later than end time'
-          where: equals("log.eventDataStatus", "0xB") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "11") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC policy rejects request'
-          where: equals("log.eventDataStatus", "0xC") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "12") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC cannot accommodate requested option'
-          where: equals("log.eventDataStatus", "0xD") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "13") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for encryption type'
-          where: equals("log.eventDataStatus", "0xE") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "14") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for checksum type'
-          where: equals("log.eventDataStatus", "0xF") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "15") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for padata type'
-          where: equals("log.eventDataStatus", "0x10") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "16") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'KDC has no support for transited type'
-          where: equals("log.eventDataStatus", "0x11") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "17") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clients credentials have been revoked'
-          where: equals("log.eventDataStatus", "0x12") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "18") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Credentials for server have been revoked'
-          where: equals("log.eventDataStatus", "0x13") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "19") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'TGT has been revoked'
-          where: equals("log.eventDataStatus", "0x14") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "20") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Client not yet valid - try again later'
-          where: equals("log.eventDataStatus", "0x15") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "21") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Server not yet valid - try again later'
-          where: equals("log.eventDataStatus", "0x16") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "22") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Password has expired'
-          where: equals("log.eventDataStatus", "0x17") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "23") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Pre-authentication information was invalid'
-          where: equals("log.eventDataStatus", "0x18") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "24") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Additional pre-authentication required'
-          where: equals("log.eventDataStatus", "0x19") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "25") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Integrity check on decrypted field failed'
-          where: equals("log.eventDataStatus", "0x1F") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "31") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket expired'
-          where: equals("log.eventDataStatus", "0x20") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "32") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket not yet valid'
-          where: equals("log.eventDataStatus", "0x21") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "33") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Request is a replay'
-          where: equals("log.eventDataStatus", "0x22") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "34") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'The ticket is not for us'
-          where: equals("log.eventDataStatus", "0x23") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "35") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Ticket and authenticator is not match'
-          where: equals("log.eventDataStatus", "0x24") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "36") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Clock skew too great'
-          where: equals("log.eventDataStatus", "0x25") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "37") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect net address'
-          where: equals("log.eventDataStatus", "0x26") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "38") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Protocol version mismatch'
-          where: equals("log.eventDataStatus", "0x27") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "39") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Invalid msg type'
-          where: equals("log.eventDataStatus", "0x28") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "40") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Message stream modified'
-          where: equals("log.eventDataStatus", "0x29") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "41") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Message out of order'
-          where: equals("log.eventDataStatus", "0x2A") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "42") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Specified version of key is not available'
-          where: equals("log.eventDataStatus", "0x2C") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "44") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Service key not available'
-          where: equals("log.eventDataStatus", "0x2D") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "45") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Mutual authentication failed'
-          where: equals("log.eventDataStatus", "0x2E") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "46") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect message direction'
-          where: equals("log.eventDataStatus", "0x2F") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "47") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Alternative authentication method required'
-          where: equals("log.eventDataStatus", "0x30") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "48") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Incorrect sequence number in message'
-          where: equals("log.eventDataStatus", "0x31") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "49") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Inappropriate type of checksum in message'
-          where: equals("log.eventDataStatus", "0x32") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "50") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Generic error (description in e-text)'
-          where: equals("log.eventDataStatus", "0x3C") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "60") && equals("log.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
             key: log.statusDescription
             value: 'Field is too long for this implementation'
-          where: equals("log.eventDataStatus", "0x3D") && equals("log.eventCode", 4771)
+          where: equals("log.eventDataStatus", "61") && equals("log.eventCode", 4771)
+
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: "success"
+          where: 'oneOf("log.eventCode", [4624, 4648, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'oneOf("log.eventCode", [4725, 4726, 4740])'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'oneOf("log.eventCode", [4625, 4771])'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("log.eventCode", 4776) && equals("log.eventDataStatus", "0")'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !equals("log.eventDataStatus", "0")'
 
       - delete:
           fields:

@@ -1102,6 +1102,21 @@ pipeline:
             destination: target.geolocation
           where: exists("target.ip")
 
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "Allow"
+          where: 'oneOf("action", ["Allow", "Allowed"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'oneOf("action", ["Block", "Blocked", "blocked", "Redirect", "terminate", "delete", "quarantine"])'
+
       # .......................................................................#
       # Removing unused fields
       # .......................................................................#
