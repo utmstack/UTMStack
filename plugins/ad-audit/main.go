@@ -24,10 +24,6 @@ import (
 const pluginName = "com.utmstack.ad-audit"
 
 func main() {
-	if plugins.GetCfg("plugin_"+pluginName).Env.Mode != "manager" {
-		return
-	}
-
 	loadBackendConfig()
 	seedCacheFromBackend()
 
