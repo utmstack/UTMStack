@@ -5143,6 +5143,49 @@
   },
   "playground": {
     "titleFilter": "Testar pipeline",
-    "titleRule": "Testar regra"
+    "titleRule": "Testar regra",
+    "noDataTypes": "Este pipeline ainda não tem tipos de dados atribuídos — adicione um para testá-lo.",
+    "dataTypeLabel": "Tipo de dado",
+    "dataTypePlaceholder": "Nenhum tipo de dado disponível",
+    "dataTypeSingleHint": "Este pipeline só tem um tipo de dado — adicione mais para poder escolher.",
+    "rawLogLabel": "Log bruto",
+    "rawLogPlaceholder": "Cole uma linha de log de exemplo…",
+    "rawLogCounter": "{{chars}} caracteres · {{kb}} KB",
+    "rawLogTooLarge": "Este log excede o limite de 1 MB — reduza-o antes de executar o teste.",
+    "run": {
+      "label": "Executar",
+      "running": "Testando…",
+      "waitHint": "Isso pode levar até 15 segundos enquanto o pipeline processa o log."
+    },
+    "errors": {
+      "busy": "O playground está ocupado com outro teste — tente novamente em instantes.",
+      "timeout": "O teste expirou — normalmente significa que o tipo de dado selecionado não corresponde ao formato do log.",
+      "validation": "A requisição foi inválida — verifique o log bruto e o conteúdo do pipeline.",
+      "server": "O playground não conseguiu concluir o teste — tente novamente."
+    },
+    "result": {
+      "label": "Resultado processado",
+      "empty": "Execute um teste para ver aqui o evento processado.",
+      "loading": "Aguardando o evento processado…",
+      "tabs": {
+        "fields": "Campos",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "elapsed": "Processado em {{time}}",
+      "elapsedHint": "Tempo entre Executar e o resultado processado",
+      "searchPlaceholder": "Buscar campos…",
+      "noMatch": "Nenhum campo corresponde à sua busca."
+    },
+    "alerts": {
+      "label": "Alertas",
+      "empty": "Execute um teste para ver aqui os alertas gerados.",
+      "none": "Nenhum alerta foi disparado.",
+      "count_one": "{{count}} alerta",
+      "count_other": "{{count}} alertas"
+    }
   }
 }
