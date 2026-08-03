@@ -5178,5 +5178,52 @@
       "level2": "Stufe 2",
       "level3": "Stufe 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Pipeline testen",
+    "titleRule": "Regel testen",
+    "noDataTypes": "Dieser Pipeline sind noch keine Datentypen zugewiesen — füge einen hinzu, um sie zu testen.",
+    "dataTypeLabel": "Datentyp",
+    "dataTypePlaceholder": "Keine Datentypen verfügbar",
+    "dataTypeSingleHint": "Diese Pipeline hat nur einen Datentyp — füge weitere hinzu, um zwischen ihnen zu wählen.",
+    "rawLogLabel": "Rohprotokoll",
+    "rawLogPlaceholder": "Füge eine Beispielprotokollzeile ein…",
+    "rawLogCounter": "{{chars}} Zeichen · {{kb}} KB",
+    "rawLogTooLarge": "Dieses Protokoll überschreitet das 1-MB-Limit — kürze es vor dem Test.",
+    "run": {
+      "label": "Ausführen",
+      "running": "Wird getestet…",
+      "waitHint": "Dies kann bis zu 15 Sekunden dauern, während die Pipeline das Protokoll verarbeitet."
+    },
+    "errors": {
+      "busy": "Der Playground führt bereits einen anderen Test aus — bitte versuche es gleich erneut.",
+      "timeout": "Der Test hat das Zeitlimit überschritten — meist passt der gewählte Datentyp nicht zum Protokollformat.",
+      "validation": "Die Anfrage war ungültig — prüfe das Rohprotokoll und den Pipeline-Inhalt.",
+      "server": "Der Playground konnte den Test nicht abschließen — bitte erneut versuchen."
+    },
+    "result": {
+      "label": "Verarbeitetes Ergebnis",
+      "empty": "Führe einen Test aus, um das verarbeitete Ereignis hier zu sehen.",
+      "loading": "Warte auf das verarbeitete Ereignis…",
+      "tabs": {
+        "fields": "Felder",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} Feld",
+      "fieldsCount_other": "{{count}} Felder",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "elapsed": "Verarbeitet in {{time}}",
+      "elapsedHint": "Zeit von „Ausführen“ bis zum verarbeiteten Ergebnis",
+      "searchPlaceholder": "Felder suchen…",
+      "noMatch": "Keine Felder entsprechen deiner Suche."
+    },
+    "alerts": {
+      "label": "Alarme",
+      "empty": "Führe einen Test aus, um hier ausgelöste Alarme zu sehen.",
+      "none": "Es wurden keine Alarme ausgelöst.",
+      "count_one": "{{count}} Alarm",
+      "count_other": "{{count}} Alarme"
+    }
   }
 }

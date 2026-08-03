@@ -5178,5 +5178,52 @@
       "level2": "Niveau 2",
       "level3": "Niveau 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Tester le pipeline",
+    "titleRule": "Tester la règle",
+    "noDataTypes": "Aucun type de données n'est encore attribué à ce pipeline — ajoutez-en un pour le tester.",
+    "dataTypeLabel": "Type de données",
+    "dataTypePlaceholder": "Aucun type de données disponible",
+    "dataTypeSingleHint": "Ce pipeline n'a qu'un seul type de données — ajoutez-en d'autres pour pouvoir choisir.",
+    "rawLogLabel": "Journal brut",
+    "rawLogPlaceholder": "Collez une ligne de journal d'exemple…",
+    "rawLogCounter": "{{chars}} car. · {{kb}} Ko",
+    "rawLogTooLarge": "Ce journal dépasse la limite de 1 Mo — réduisez-le avant d'exécuter le test.",
+    "run": {
+      "label": "Exécuter",
+      "running": "Test en cours…",
+      "waitHint": "Cela peut prendre jusqu'à 15 secondes pendant que le pipeline traite le journal."
+    },
+    "errors": {
+      "busy": "Le playground exécute déjà un autre test — veuillez réessayer sous peu.",
+      "timeout": "Le test a expiré — cela signifie généralement que le type de données sélectionné ne correspond pas au format du journal.",
+      "validation": "La requête est invalide — vérifiez le journal brut et le contenu du pipeline.",
+      "server": "Le playground n'a pas pu terminer le test — veuillez réessayer."
+    },
+    "result": {
+      "label": "Résultat analysé",
+      "empty": "Exécutez un test pour voir ici l'événement analysé.",
+      "loading": "En attente de l'événement analysé…",
+      "tabs": {
+        "fields": "Champs",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} champ",
+      "fieldsCount_other": "{{count}} champs",
+      "copy": "Copier",
+      "copied": "Copié",
+      "elapsed": "Analysé en {{time}}",
+      "elapsedHint": "Temps entre Exécuter et le résultat analysé",
+      "searchPlaceholder": "Rechercher des champs…",
+      "noMatch": "Aucun champ ne correspond à votre recherche."
+    },
+    "alerts": {
+      "label": "Alertes",
+      "empty": "Exécutez un test pour voir ici les alertes déclenchées.",
+      "none": "Aucune alerte n'a été déclenchée.",
+      "count_one": "{{count}} alerte",
+      "count_other": "{{count}} alertes"
+    }
   }
 }

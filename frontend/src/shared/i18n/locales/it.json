@@ -5178,5 +5178,52 @@
       "level2": "Livello 2",
       "level3": "Livello 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Prova pipeline",
+    "titleRule": "Prova regola",
+    "noDataTypes": "A questa pipeline non è ancora assegnato alcun tipo di dato — aggiungine uno per provarla.",
+    "dataTypeLabel": "Tipo di dato",
+    "dataTypePlaceholder": "Nessun tipo di dato disponibile",
+    "dataTypeSingleHint": "Questa pipeline ha un solo tipo di dato — aggiungine altri per poter scegliere.",
+    "rawLogLabel": "Log grezzo",
+    "rawLogPlaceholder": "Incolla una riga di log di esempio…",
+    "rawLogCounter": "{{chars}} caratteri · {{kb}} KB",
+    "rawLogTooLarge": "Questo log supera il limite di 1 MB — riducilo prima di eseguire il test.",
+    "run": {
+      "label": "Esegui",
+      "running": "Test in corso…",
+      "waitHint": "Può richiedere fino a 15 secondi mentre la pipeline elabora il log."
+    },
+    "errors": {
+      "busy": "Il playground sta eseguendo un altro test — riprova a breve.",
+      "timeout": "Il test è scaduto — di solito significa che il tipo di dato selezionato non corrisponde al formato del log.",
+      "validation": "La richiesta non è valida — controlla il log grezzo e il contenuto della pipeline.",
+      "server": "Il playground non è riuscito a completare il test — riprova."
+    },
+    "result": {
+      "label": "Risultato elaborato",
+      "empty": "Esegui un test per vedere qui l'evento elaborato.",
+      "loading": "In attesa dell'evento elaborato…",
+      "tabs": {
+        "fields": "Campi",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campi",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "elapsed": "Elaborato in {{time}}",
+      "elapsedHint": "Tempo tra Esegui e il risultato elaborato",
+      "searchPlaceholder": "Cerca campi…",
+      "noMatch": "Nessun campo corrisponde alla tua ricerca."
+    },
+    "alerts": {
+      "label": "Avvisi",
+      "empty": "Esegui un test per vedere qui gli avvisi generati.",
+      "none": "Nessun avviso è stato generato.",
+      "count_one": "{{count}} avviso",
+      "count_other": "{{count}} avvisi"
+    }
   }
 }

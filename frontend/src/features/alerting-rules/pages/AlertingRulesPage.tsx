@@ -295,7 +295,7 @@ export function AlertingRulesPage() {
       {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}
       {creating && <RuleDrawer create dataTypeOptions={dataTypeOptions} onClose={() => setCreating(false)} onSaved={() => { setCreating(false); refresh() }} t={t} />}
       {importResults && <ImportResultsDialog res={importResults} onClose={() => setImportResults(null)} t={t} />}
-      {showTestModal && <TestPlaygroundModal mode="rule" dataTypeOptions={testDataTypes} onClose={() => setShowTestModal(false)} />}
+      {showTestModal && <TestPlaygroundModal mode="rule" titleKey="playground.titleRule" dataTypeOptions={testDataTypes} onClose={() => setShowTestModal(false)} />}
       <ConfirmDialog
         open={pendingDelete != null}
         title={t('alertingRules.editor.delete') ?? 'Delete'}

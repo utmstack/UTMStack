@@ -5140,5 +5140,52 @@
       "level2": "Nivel 2",
       "level3": "Nivel 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Probar pipeline",
+    "titleRule": "Probar regla",
+    "noDataTypes": "Este pipeline aún no tiene tipos de datos asignados — añade uno para probarlo.",
+    "dataTypeLabel": "Tipo de dato",
+    "dataTypePlaceholder": "No hay tipos de datos disponibles",
+    "dataTypeSingleHint": "Este pipeline solo tiene un tipo de dato — añade más para poder elegir.",
+    "rawLogLabel": "Log en crudo",
+    "rawLogPlaceholder": "Pega una línea de log de ejemplo…",
+    "rawLogCounter": "{{chars}} caracteres · {{kb}} KB",
+    "rawLogTooLarge": "Este log supera el límite de 1 MB — recórtalo antes de ejecutar la prueba.",
+    "run": {
+      "label": "Ejecutar",
+      "running": "Probando…",
+      "waitHint": "Esto puede tardar hasta 15 segundos mientras el pipeline procesa el log."
+    },
+    "errors": {
+      "busy": "El playground está ocupado con otra prueba — inténtalo de nuevo en un momento.",
+      "timeout": "La prueba agotó el tiempo — normalmente significa que el tipo de dato seleccionado no coincide con el formato del log.",
+      "validation": "La solicitud no era válida — revisa el log en crudo y el contenido del pipeline.",
+      "server": "El playground no pudo completar la prueba — inténtalo de nuevo."
+    },
+    "result": {
+      "label": "Resultado procesado",
+      "empty": "Ejecuta una prueba para ver aquí el evento procesado.",
+      "loading": "Esperando el evento procesado…",
+      "tabs": {
+        "fields": "Campos",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "elapsed": "Procesado en {{time}}",
+      "elapsedHint": "Tiempo desde Ejecutar hasta el resultado procesado",
+      "searchPlaceholder": "Buscar campos…",
+      "noMatch": "Ningún campo coincide con tu búsqueda."
+    },
+    "alerts": {
+      "label": "Alertas",
+      "empty": "Ejecuta una prueba para ver aquí las alertas resultantes.",
+      "none": "No se activó ninguna alerta.",
+      "count_one": "{{count}} alerta",
+      "count_other": "{{count}} alertas"
+    }
   }
 }
