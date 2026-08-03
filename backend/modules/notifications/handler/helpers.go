@@ -126,6 +126,14 @@ func queryType(c *gin.Context, key string) *domain.NotificationType {
 	return &t
 }
 
+func queryString(c *gin.Context, key string) *string {
+	v := c.Query(key)
+	if v == "" {
+		return nil
+	}
+	return &v
+}
+
 func queryStatus(c *gin.Context, key string) *domain.NotificationStatus {
 	v := c.Query(key)
 	if v == "" {

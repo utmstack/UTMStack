@@ -10,6 +10,7 @@ import (
 type NotificationUsecase interface {
 	Create(ctx context.Context, req dto.CreateNotificationRequest) (*domain.UtmNotification, error)
 	List(ctx context.Context, q dto.NotificationListQuery) ([]domain.UtmNotification, int64, error)
+	ListGrouped(ctx context.Context, q dto.NotificationListQuery) ([]domain.NotificationGroup, int64, error)
 	GetByID(ctx context.Context, id int64) (*domain.UtmNotification, error)
 	MarkRead(ctx context.Context, id int64, read bool) (*domain.UtmNotification, error)
 	UpdateStatus(ctx context.Context, id int64, status domain.NotificationStatus) (*domain.UtmNotification, error)

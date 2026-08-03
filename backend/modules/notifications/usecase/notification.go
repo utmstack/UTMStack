@@ -51,6 +51,10 @@ func (u *notificationUsecase) List(ctx context.Context, q dto.NotificationListQu
 	return u.repo.FindAll(ctx, q)
 }
 
+func (u *notificationUsecase) ListGrouped(ctx context.Context, q dto.NotificationListQuery) ([]domain.NotificationGroup, int64, error) {
+	return u.repo.FindAllGrouped(ctx, q)
+}
+
 func (u *notificationUsecase) GetByID(ctx context.Context, id int64) (*domain.UtmNotification, error) {
 	row, err := u.repo.FindByID(ctx, id)
 	if err != nil {
