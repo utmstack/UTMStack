@@ -1797,6 +1797,7 @@
       "filterValues": "Filter values…",
       "loadingValues": "Loading values…",
       "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
       "cancel": "Cancel",
       "confirm": "Add"
     },
