@@ -287,7 +287,6 @@
     "team": "Équipe",
     "settings": "Paramètres",
     "back": "Retour",
-    "regexPatterns": "Expressions régulières",
     "taggingRules": "Règles d'étiquetage",
     "parsingFilters": "Pipelines",
     "overview": "Vue d'ensemble"
@@ -4298,53 +4297,6 @@
       "approved": "Approuvés",
       "rejected": "Rejetés",
       "done": "Terminé"
-    }
-  },
-  "regexPatterns": {
-    "title": "Expressions régulières",
-    "subtitle": "Expressions régulières réutilisables référencées par les filtres d'analyse.",
-    "new": "Nouveau motif",
-    "search": "Rechercher des motifs…",
-    "refresh": "Actualiser",
-    "view": "Voir",
-    "system": "Système",
-    "user": "Personnalisé",
-    "loading": "Chargement des motifs…",
-    "loadError": "Impossible de charger les motifs.",
-    "retry": "Réessayer",
-    "empty": "Aucun motif ne correspond à cette vue.",
-    "tabs": {
-      "all": "Tous",
-      "system": "Système",
-      "user": "Personnalisés"
-    },
-    "cols": {
-      "pattern": "Motif",
-      "definition": "Définition",
-      "type": "Type"
-    },
-    "editor": {
-      "titleNew": "Nouveau motif",
-      "patternId": "ID du motif",
-      "patternIdHint": "Nom unique référencé depuis les filtres.",
-      "description": "Description",
-      "descriptionPlaceholder": "Ce que ce motif reconnaît (facultatif)",
-      "definition": "Définition (regex)",
-      "definitionHint": "Une expression régulière. Peut référencer d'autres motifs.",
-      "readOnly": "Motif système — en lecture seule.",
-      "save": "Enregistrer",
-      "saving": "Enregistrement…",
-      "delete": "Supprimer",
-      "confirmDelete": "Confirmer la suppression",
-      "cancel": "Annuler"
-    },
-    "toast": {
-      "saved": "Motif enregistré",
-      "saveError": "Échec de l'enregistrement du motif",
-      "deleted": "Motif supprimé",
-      "deleteError": "Échec de la suppression du motif",
-      "patternIdRequired": "L'ID du motif est requis",
-      "definitionRequired": "La définition est requise"
     }
   },
   "parsingFilters": {

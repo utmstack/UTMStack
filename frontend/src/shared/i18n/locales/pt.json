@@ -288,7 +288,6 @@
     "settings": "Configurações",
     "back": "Voltar",
     "parsingFilters": "Pipelines",
-    "regexPatterns": "Expressões regulares",
     "taggingRules": "Regras de Marcação",
     "overview": "Visão geral"
   },
@@ -4499,53 +4498,6 @@
       "approved": "Aprovadas",
       "rejected": "Rejeitadas",
       "done": "Concluído"
-    }
-  },
-  "regexPatterns": {
-    "title": "Expressões regulares",
-    "subtitle": "Expressões regulares reutilizáveis referenciadas pelos filtros de parsing.",
-    "new": "Novo padrão",
-    "search": "Buscar padrões…",
-    "refresh": "Atualizar",
-    "view": "Ver",
-    "system": "Sistema",
-    "user": "Personalizado",
-    "loading": "Carregando padrões…",
-    "loadError": "Não foi possível carregar os padrões.",
-    "retry": "Tentar novamente",
-    "empty": "Nenhum padrão corresponde a esta visão.",
-    "tabs": {
-      "all": "Todos",
-      "system": "Sistema",
-      "user": "Personalizados"
-    },
-    "cols": {
-      "pattern": "Padrão",
-      "definition": "Definição",
-      "type": "Tipo"
-    },
-    "editor": {
-      "titleNew": "Novo padrão",
-      "patternId": "ID do padrão",
-      "patternIdHint": "Nome único referenciado pelos filtros.",
-      "description": "Descrição",
-      "descriptionPlaceholder": "O que este padrão reconhece (opcional)",
-      "definition": "Definição (regex)",
-      "definitionHint": "Uma expressão regular. Pode referenciar outros padrões.",
-      "readOnly": "Padrão do sistema — somente leitura.",
-      "save": "Salvar",
-      "saving": "Salvando…",
-      "delete": "Excluir",
-      "confirmDelete": "Confirmar exclusão",
-      "cancel": "Cancelar"
-    },
-    "toast": {
-      "saved": "Padrão salvo",
-      "saveError": "Falha ao salvar o padrão",
-      "deleted": "Padrão excluído",
-      "deleteError": "Falha ao excluir o padrão",
-      "patternIdRequired": "O ID do padrão é obrigatório",
-      "definitionRequired": "A definição é obrigatória"
     }
   },
   "soar": {

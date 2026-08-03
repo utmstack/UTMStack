@@ -30,7 +30,6 @@ import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
 import { IntegrationsPage } from '@/features/integrations/pages/IntegrationsPage'
 import { AlertingRulesPage } from '@/features/alerting-rules/pages/AlertingRulesPage'
 import { ParsingFiltersPage } from '@/features/parsing-filters/pages/ParsingFiltersPage'
-import { RegexPatternsPage } from '@/features/regex-patterns/pages/RegexPatternsPage'
 import { DataProcessingPage } from '@/features/data-processing/pages/DataProcessingPage'
 import { TeamPage } from '@/features/team/pages/TeamPage'
 import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
@@ -137,7 +136,6 @@ export function AppRoutes() {
         <Route path="integrations" element={<IntegrationsPage />} />
         <Route path="alerting-rules" element={<AlertingRulesPage />} />
         <Route path="pipelines" element={<ParsingFiltersPage />} />
-        <Route path="regex-patterns" element={<RegexPatternsPage />} />
         <Route path="data-processing" element={<DataProcessingPage />} />
         {/* Federation serves its own flat team page from the admin chrome (top-level). */}
         {!IS_FEDERATION && <Route path="team" element={<TeamPage />} />}

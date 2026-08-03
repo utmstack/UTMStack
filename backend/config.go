@@ -101,11 +101,12 @@ func loadConfig() *config {
 
 		playgroundBaseURL: env.String("PLAYGROUND_BASE_URL", "", false),
 
-		uploadDir: env.String("UPLOAD_DIR", "./uploads", false),
+		uploadDir: env.String("UPLOAD_DIR", "/workdir/uploads", false),
 
 		tfaEnabled: env.Bool("APP_TFA_ENABLED", true),
 
 		mcpEnabled: env.Bool("MCP_ENABLED", true),
+
 		mcpVersion: env.String("MCP_SERVER_VERSION", "v1", false),
 	}
 }

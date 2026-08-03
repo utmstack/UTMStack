@@ -289,7 +289,6 @@
     "settings": "Settings",
     "back": "Back",
     "parsingFilters": "Pipelines",
-    "regexPatterns": "Regex Patterns",
     "overview": "Overview"
   },
   "dashboards": {
@@ -4797,53 +4796,6 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "done": "Done"
-    }
-  },
-  "regexPatterns": {
-    "title": "Regex Patterns",
-    "subtitle": "Reusable regular expressions referenced by parsing filters.",
-    "new": "New pattern",
-    "search": "Search patterns…",
-    "refresh": "Refresh",
-    "view": "View",
-    "system": "System",
-    "user": "Custom",
-    "loading": "Loading patterns…",
-    "loadError": "Could not load patterns.",
-    "retry": "Retry",
-    "empty": "No patterns match this view.",
-    "tabs": {
-      "all": "All",
-      "system": "System",
-      "user": "Custom"
-    },
-    "cols": {
-      "pattern": "Pattern",
-      "definition": "Definition",
-      "type": "Type"
-    },
-    "editor": {
-      "titleNew": "New pattern",
-      "patternId": "Pattern ID",
-      "patternIdHint": "Unique name referenced from filters.",
-      "description": "Description",
-      "descriptionPlaceholder": "What this pattern matches (optional)",
-      "definition": "Definition (regex)",
-      "definitionHint": "A regular expression. Can reference other patterns.",
-      "readOnly": "System pattern — read-only.",
-      "save": "Save",
-      "saving": "Saving…",
-      "delete": "Delete",
-      "confirmDelete": "Confirm delete",
-      "cancel": "Cancel"
-    },
-    "toast": {
-      "saved": "Pattern saved",
-      "saveError": "Failed to save pattern",
-      "deleted": "Pattern deleted",
-      "deleteError": "Failed to delete pattern",
-      "patternIdRequired": "Pattern ID is required",
-      "definitionRequired": "Definition is required"
     }
   },
   "soar": {

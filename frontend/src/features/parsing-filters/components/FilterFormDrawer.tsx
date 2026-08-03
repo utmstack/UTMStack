@@ -52,10 +52,6 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
   const [patternOptions, setPatternOptions] = useState<RegexPattern[]>([])
   const yamlTaRef = useRef<HTMLTextAreaElement | null>(null)
 
-  // A pattern created on the fly is added to the catalog so it's immediately referenceable.
-  const addPattern = (p: RegexPattern) =>
-    setPatternOptions((prev) => (prev.some((x) => x.patternId === p.patternId) ? prev : [p, ...prev]))
-
   // Catalog of known dataTypes to pick from in the visual editor.
   useEffect(() => {
     filtersHttpService
@@ -216,7 +212,6 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
                     value={model.steps}
                     readOnly={readOnly}
                     patternOptions={patternOptions}
-                    onPatternCreated={addPattern}
                     onChange={(steps) => onModelChange({ ...model, steps })}
                   />
                 </div>
@@ -230,7 +225,6 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
                       value={content}
                       onChange={setContent}
                       patternOptions={patternOptions}
-                      onPatternCreated={addPattern}
                     />
                   </div>
                 )}

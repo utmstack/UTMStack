@@ -45,7 +45,7 @@ export function SocAiPanel() {
           <IconBtn label={expanded ? t('socAi.chat.collapse') : t('socAi.chat.expand')} onClick={toggleExpand}>
             {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </IconBtn>
-          <IconBtn label={t('socAi.chat.clear')} onClick={clear}>
+          <IconBtn label={t('socAi.chat.clear')} onClick={() => clear('panel')}>
             <Trash2 size={16} />
           </IconBtn>
           <IconBtn label={t('socAi.chat.close')} onClick={closePanel}>

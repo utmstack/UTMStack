@@ -287,7 +287,6 @@
     "team": "Team",
     "settings": "Einstellungen",
     "back": "Zurück",
-    "regexPatterns": "Reguläre Ausdrücke",
     "taggingRules": "Tagging-Regeln",
     "parsingFilters": "Pipelines",
     "overview": "Übersicht"
@@ -4298,53 +4297,6 @@
       "approved": "Genehmigt",
       "rejected": "Abgelehnt",
       "done": "Fertig"
-    }
-  },
-  "regexPatterns": {
-    "title": "Reguläre Ausdrücke",
-    "subtitle": "Wiederverwendbare reguläre Ausdrücke, die von Parsing-Filtern referenziert werden.",
-    "new": "Neues Muster",
-    "search": "Muster suchen…",
-    "refresh": "Aktualisieren",
-    "view": "Ansehen",
-    "system": "System",
-    "user": "Benutzerdefiniert",
-    "loading": "Muster werden geladen…",
-    "loadError": "Muster konnten nicht geladen werden.",
-    "retry": "Wiederholen",
-    "empty": "Keine Muster entsprechen dieser Ansicht.",
-    "tabs": {
-      "all": "Alle",
-      "system": "System",
-      "user": "Benutzerdefiniert"
-    },
-    "cols": {
-      "pattern": "Muster",
-      "definition": "Definition",
-      "type": "Typ"
-    },
-    "editor": {
-      "titleNew": "Neues Muster",
-      "patternId": "Muster-ID",
-      "patternIdHint": "Eindeutiger Name, der von Filtern referenziert wird.",
-      "description": "Beschreibung",
-      "descriptionPlaceholder": "Was dieses Muster erkennt (optional)",
-      "definition": "Definition (Regex)",
-      "definitionHint": "Ein regulärer Ausdruck. Kann andere Muster referenzieren.",
-      "readOnly": "Systemmuster — schreibgeschützt.",
-      "save": "Speichern",
-      "saving": "Wird gespeichert…",
-      "delete": "Löschen",
-      "confirmDelete": "Löschen bestätigen",
-      "cancel": "Abbrechen"
-    },
-    "toast": {
-      "saved": "Muster gespeichert",
-      "saveError": "Muster konnte nicht gespeichert werden",
-      "deleted": "Muster gelöscht",
-      "deleteError": "Muster konnte nicht gelöscht werden",
-      "patternIdRequired": "Muster-ID ist erforderlich",
-      "definitionRequired": "Definition ist erforderlich"
     }
   },
   "parsingFilters": {

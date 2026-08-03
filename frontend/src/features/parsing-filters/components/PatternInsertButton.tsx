@@ -14,13 +14,11 @@ export function PatternInsertButton({
   value,
   onChange,
   patternOptions,
-  onPatternCreated,
 }: {
   taRef: React.RefObject<HTMLTextAreaElement | null>
   value: string
   onChange: (v: string) => void
   patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
 }) {
   const { t } = useTranslation()
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -72,13 +70,7 @@ export function PatternInsertButton({
       </button>
       {open && (
         <div className="absolute right-0 top-[calc(100%+4px)] z-20 w-[340px] max-w-[90vw] overflow-hidden rounded-md border border-border bg-popover shadow-lg">
-          <PatternMenu
-            patternOptions={patternOptions}
-            query={query}
-            onQueryChange={setQuery}
-            onPick={insert}
-            onPatternCreated={onPatternCreated}
-          />
+          <PatternMenu patternOptions={patternOptions} query={query} onQueryChange={setQuery} onPick={insert} />
         </div>
       )}
     </div>

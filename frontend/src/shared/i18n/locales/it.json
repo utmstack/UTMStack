@@ -287,7 +287,6 @@
     "team": "Team",
     "settings": "Impostazioni",
     "back": "Indietro",
-    "regexPatterns": "Espressioni regolari",
     "taggingRules": "Regole di etichettatura",
     "parsingFilters": "Pipeline",
     "overview": "Panoramica"
@@ -4298,53 +4297,6 @@
       "approved": "Approvate",
       "rejected": "Rifiutate",
       "done": "Fatto"
-    }
-  },
-  "regexPatterns": {
-    "title": "Espressioni regolari",
-    "subtitle": "Espressioni regolari riutilizzabili referenziate dai filtri di parsing.",
-    "new": "Nuovo pattern",
-    "search": "Cerca pattern…",
-    "refresh": "Aggiorna",
-    "view": "Visualizza",
-    "system": "Sistema",
-    "user": "Personalizzato",
-    "loading": "Caricamento pattern…",
-    "loadError": "Impossibile caricare i pattern.",
-    "retry": "Riprova",
-    "empty": "Nessun pattern corrisponde a questa vista.",
-    "tabs": {
-      "all": "Tutti",
-      "system": "Sistema",
-      "user": "Personalizzati"
-    },
-    "cols": {
-      "pattern": "Pattern",
-      "definition": "Definizione",
-      "type": "Tipo"
-    },
-    "editor": {
-      "titleNew": "Nuovo pattern",
-      "patternId": "ID pattern",
-      "patternIdHint": "Nome univoco referenziato dai filtri.",
-      "description": "Descrizione",
-      "descriptionPlaceholder": "Cosa riconosce questo pattern (opzionale)",
-      "definition": "Definizione (regex)",
-      "definitionHint": "Un'espressione regolare. Può referenziare altri pattern.",
-      "readOnly": "Pattern di sistema — sola lettura.",
-      "save": "Salva",
-      "saving": "Salvataggio…",
-      "delete": "Elimina",
-      "confirmDelete": "Conferma eliminazione",
-      "cancel": "Annulla"
-    },
-    "toast": {
-      "saved": "Pattern salvato",
-      "saveError": "Salvataggio del pattern non riuscito",
-      "deleted": "Pattern eliminato",
-      "deleteError": "Eliminazione del pattern non riuscita",
-      "patternIdRequired": "L'ID pattern è obbligatorio",
-      "definitionRequired": "La definizione è obbligatoria"
     }
   },
   "parsingFilters": {

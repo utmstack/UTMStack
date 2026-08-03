@@ -17,12 +17,6 @@ export interface RegexPattern {
   systemOwner: boolean
 }
 
-export interface SaveRegexPatternRequest {
-  patternId: string
-  patternDescription: string
-  patternDefinition: string
-}
-
 export interface RegexPatternListQuery {
   search?: string
   system?: boolean // nil = both; true = system only; false = user only
@@ -41,11 +35,11 @@ function listQuery(q: RegexPatternListQuery): string {
 
 const BASE = '/eventprocessing/regex-pattern'
 
+// Read-only. Patterns are a shared vocabulary seeded by the backend's pipeline
+// bootstrap and referenced from filter YAMLs as {{.name}}; the API exposes no
+// create, update or delete.
 export const regexPatternsHttpService = {
   // Returns { data: RegexPattern[], total } — total comes from X-Total-Count.
   list: (q: RegexPatternListQuery = {}) => api.getPaged<RegexPattern[]>(`${BASE}?${listQuery(q)}`),
   get: (patternId: string) => api.get<RegexPattern>(`${BASE}/${encodeURIComponent(patternId)}`),
-  create: (input: SaveRegexPatternRequest) => api.post<RegexPattern>(BASE, input),
-  update: (input: SaveRegexPatternRequest) => api.put<RegexPattern>(BASE, input),
-  remove: (patternId: string) => api.delete<{ message: string }>(`${BASE}/${encodeURIComponent(patternId)}`),
 }

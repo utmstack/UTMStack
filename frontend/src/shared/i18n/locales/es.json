@@ -288,7 +288,6 @@
     "settings": "Configuración",
     "back": "Atrás",
     "parsingFilters": "Pipelines",
-    "regexPatterns": "Expresiones regulares",
     "taggingRules": "Reglas de etiquetado",
     "overview": "Resumen"
   },
@@ -4499,53 +4498,6 @@
       "approved": "Aprobadas",
       "rejected": "Rechazadas",
       "done": "Listo"
-    }
-  },
-  "regexPatterns": {
-    "title": "Expresiones regulares",
-    "subtitle": "Expresiones regulares reutilizables referenciadas por los filtros de parseo.",
-    "new": "Nuevo patrón",
-    "search": "Buscar patrones…",
-    "refresh": "Actualizar",
-    "view": "Ver",
-    "system": "Sistema",
-    "user": "Personalizado",
-    "loading": "Cargando patrones…",
-    "loadError": "No se pudieron cargar los patrones.",
-    "retry": "Reintentar",
-    "empty": "Ningún patrón coincide con esta vista.",
-    "tabs": {
-      "all": "Todos",
-      "system": "Sistema",
-      "user": "Personalizados"
-    },
-    "cols": {
-      "pattern": "Patrón",
-      "definition": "Definición",
-      "type": "Tipo"
-    },
-    "editor": {
-      "titleNew": "Nuevo patrón",
-      "patternId": "ID del patrón",
-      "patternIdHint": "Nombre único referenciado desde los filtros.",
-      "description": "Descripción",
-      "descriptionPlaceholder": "Qué reconoce este patrón (opcional)",
-      "definition": "Definición (regex)",
-      "definitionHint": "Una expresión regular. Puede referenciar otros patrones.",
-      "readOnly": "Patrón de sistema — solo lectura.",
-      "save": "Guardar",
-      "saving": "Guardando…",
-      "delete": "Eliminar",
-      "confirmDelete": "Confirmar eliminación",
-      "cancel": "Cancelar"
-    },
-    "toast": {
-      "saved": "Patrón guardado",
-      "saveError": "No se pudo guardar el patrón",
-      "deleted": "Patrón eliminado",
-      "deleteError": "No se pudo eliminar el patrón",
-      "patternIdRequired": "El ID del patrón es obligatorio",
-      "definitionRequired": "La definición es obligatoria"
     }
   },
   "soar": {

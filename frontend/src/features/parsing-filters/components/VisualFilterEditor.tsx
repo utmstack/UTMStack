@@ -13,14 +13,13 @@ interface Props {
   value: Step[]
   readOnly?: boolean
   patternOptions?: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
   onChange: (steps: Step[]) => void
 }
 
 /** A single filter's step pipeline — the dataType/order live one level up
  * (fixed by which dataType card you're in / managed by the reorder buttons),
  * so this editor only ever deals with the ordered list of processor steps. */
-export function VisualFilterEditor({ value, readOnly, patternOptions = [], onPatternCreated, onChange }: Props) {
+export function VisualFilterEditor({ value, readOnly, patternOptions = [], onChange }: Props) {
   const { t } = useTranslation()
 
   const setStep = (i: number, s: Step) => onChange(value.map((x, k) => (k === i ? s : x)))
@@ -45,7 +44,6 @@ export function VisualFilterEditor({ value, readOnly, patternOptions = [], onPat
           step={step}
           readOnly={readOnly}
           patternOptions={patternOptions}
-          onPatternCreated={onPatternCreated}
           canUp={i > 0}
           canDown={i < value.length - 1}
           onChange={(s) => setStep(i, s)}
@@ -86,7 +84,6 @@ function StepCard({
   step,
   readOnly,
   patternOptions,
-  onPatternCreated,
   canUp,
   canDown,
   onChange,
@@ -96,7 +93,6 @@ function StepCard({
   step: Step
   readOnly?: boolean
   patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
   canUp: boolean
   canDown: boolean
   onChange: (s: Step) => void
@@ -151,7 +147,6 @@ function StepCard({
           config={step.config}
           readOnly={readOnly}
           patternOptions={patternOptions}
-          onPatternCreated={onPatternCreated}
           onChange={setConfig}
         />
       </div>
@@ -165,14 +160,12 @@ function StepFields({
   config,
   readOnly,
   patternOptions,
-  onPatternCreated,
   onChange,
 }: {
   kind: StepKind
   config: Record<string, unknown>
   readOnly?: boolean
   patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
   onChange: (config: Record<string, unknown>) => void
 }) {
   const { t } = useTranslation()
@@ -199,7 +192,6 @@ function StepFields({
             value={config.patterns}
             readOnly={readOnly}
             patternOptions={patternOptions}
-            onPatternCreated={onPatternCreated}
             onChange={(v) => set('patterns', v)}
           />
           <WhereField value={str('where')} readOnly={readOnly} onChange={(v) => set('where', v)} />
@@ -357,13 +349,11 @@ function PatternsField({
   value,
   readOnly,
   patternOptions,
-  onPatternCreated,
   onChange,
 }: {
   value: unknown
   readOnly?: boolean
   patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
   onChange: (v: Array<{ fieldName: string; pattern: string }>) => void
 }) {
   const { t } = useTranslation()
@@ -395,7 +385,6 @@ function PatternsField({
               value={p.pattern}
               readOnly={readOnly}
               patternOptions={patternOptions}
-              onPatternCreated={onPatternCreated}
               onChange={(v) => setAt(i, { pattern: v })}
             />
             {!readOnly && (
@@ -437,13 +426,11 @@ function PatternInput({
   value,
   readOnly,
   patternOptions,
-  onPatternCreated,
   onChange,
 }: {
   value: string
   readOnly?: boolean
   patternOptions: RegexPattern[]
-  onPatternCreated?: (p: RegexPattern) => void
   onChange: (v: string) => void
 }) {
   const { t } = useTranslation()
@@ -554,7 +541,6 @@ function PatternInput({
             query={query}
             onQueryChange={token ? undefined : setQuery}
             onPick={insert}
-            onPatternCreated={onPatternCreated}
           />
         </div>
       )}

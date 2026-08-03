@@ -287,6 +287,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"LOG_LEVEL=200",
 			"GIN_MODE=release",
 			"MODE=worker",
+			"LOG_INDEX_PREFIX=v11-log",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -333,6 +334,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"GIN_MODE=release",
 			"MODE=manager",
 			"NODE_NAME=manager",
+			"LOG_INDEX_PREFIX=v11-log",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

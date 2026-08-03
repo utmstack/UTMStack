@@ -30,7 +30,10 @@ interface SocAiContextValue {
   togglePanel: () => void
   toggleExpand: () => void
   submit: (text: string, opts?: { openPanel?: boolean; scope?: SocAiScope }) => void
-  clear: (scope?: SocAiScope) => void
+  // scope is required rather than defaulted: an optional parameter makes this
+  // assignable to `() => void`, so passing it straight to an onClick type-checks
+  // and then silently receives the click event as its scope.
+  clear: (scope: SocAiScope) => void
 }
 
 const SocAiContext = createContext<SocAiContextValue | null>(null)
@@ -75,7 +78,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const closePanel = useCallback(() => setOpen(false), [])
   const togglePanel = useCallback(() => setOpen((v) => !v), [])
   const toggleExpand = useCallback(() => setExpanded((v) => !v), [])
-  const clear = useCallback((scope: SocAiScope = 'panel') => {
+  const clear = useCallback((scope: SocAiScope) => {
     abortRef.current?.abort()
     setters[scope]([])
   }, [])
