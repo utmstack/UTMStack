@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { EmailChipInput } from '@/shared/components/ui/email-chip-input'
 import { configHttpService } from '../services/config-http.service'
 
 /* Backend config keys (utm_configuration_parameter), read/written via /config/:key. */
@@ -17,7 +18,12 @@ const K = {
   baseUrl: 'utmstack.mail.baseUrl',
   organization: 'utmstack.mail.organization',
   auth: 'utmstack.mail.properties.mail.smtp.auth',
+  notificationTo: 'utmstack.alerts.notification_to',
+  notificationCc: 'utmstack.alerts.notification_cc',
 } as const
+
+const splitCsv = (s: string): string[] =>
+  s.split(',').map((x) => x.trim()).filter(Boolean)
 
 type Encryption = 'TLS' | 'SSL' | 'NONE'
 const ENCRYPTIONS: Encryption[] = ['TLS', 'SSL', 'NONE']
@@ -55,6 +61,13 @@ export function EmailConfigurationPage() {
   const [saving, setSaving] = useState(false)
   const [test, setTest] = useState<'idle' | 'sending' | 'success' | 'fail'>('idle')
 
+  // Alert recipient lists — persisted as comma-separated strings under two config keys.
+  const [notifyTo, setNotifyTo] = useState<string[]>([])
+  const [notifyCc, setNotifyCc] = useState<string[]>([])
+  const [initialNotifyTo, setInitialNotifyTo] = useState<string[]>([])
+  const [initialNotifyCc, setInitialNotifyCc] = useState<string[]>([])
+  const [savingRecipients, setSavingRecipients] = useState(false)
+
   useEffect(() => {
     let cancelled = false
     configHttpService
@@ -76,6 +89,12 @@ export function EmailConfigurationPage() {
         setForm(v)
         setInitial(v)
         setPasswordSet(!!m.get(K.password)?.is_set)
+        const to = splitCsv(val(K.notificationTo))
+        const cc = splitCsv(val(K.notificationCc))
+        setNotifyTo(to)
+        setNotifyCc(cc)
+        setInitialNotifyTo(to)
+        setInitialNotifyCc(cc)
       })
       .catch(() => {
         if (!cancelled) toast.error(t('emailConfig.loadError'))
@@ -123,6 +142,26 @@ export function EmailConfigurationPage() {
       toast.error(t('emailConfig.saveError'))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i])
+  const recipientsDirty = !sameList(notifyTo, initialNotifyTo) || !sameList(notifyCc, initialNotifyCc)
+
+  const saveRecipients = async () => {
+    setSavingRecipients(true)
+    try {
+      const updates: Promise<unknown>[] = []
+      if (!sameList(notifyTo, initialNotifyTo)) updates.push(configHttpService.set(K.notificationTo, { value: notifyTo.join(',') }))
+      if (!sameList(notifyCc, initialNotifyCc)) updates.push(configHttpService.set(K.notificationCc, { value: notifyCc.join(',') }))
+      await Promise.all(updates)
+      setInitialNotifyTo(notifyTo)
+      setInitialNotifyCc(notifyCc)
+      toast.success(t('emailConfig.saved'))
+    } catch {
+      toast.error(t('emailConfig.saveError'))
+    } finally {
+      setSavingRecipients(false)
     }
   }
 
@@ -273,6 +312,26 @@ export function EmailConfigurationPage() {
               {saving ? t('emailConfig.saving') : t('emailConfig.save')}
             </Button>
           </div>
+
+          {/* Alert recipients — global To/CC applied to every outgoing alert. */}
+          <Section title={t('emailConfig.recipients.title', 'Alert Recipients')}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label={t('emailConfig.recipients.to', 'To')}>
+                <EmailChipInput values={notifyTo} onChange={setNotifyTo} placeholder="alice@example.com" />
+              </Field>
+              <Field label={t('emailConfig.recipients.cc', 'CC')}>
+                <EmailChipInput values={notifyCc} onChange={setNotifyCc} placeholder="bob@example.com" />
+              </Field>
+            </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              {t('emailConfig.recipients.helper', 'If both lists are empty, alerts will be sent to all platform users.')}
+            </p>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" disabled={!recipientsDirty || savingRecipients} onClick={() => void saveRecipients()}>
+                {savingRecipients ? t('emailConfig.saving') : t('emailConfig.save')}
+              </Button>
+            </div>
+          </Section>
         </div>
       )}
     </div>
