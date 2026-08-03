@@ -28,7 +28,7 @@ export function AdversariesPage() {
   const { data, loading, error, refresh } = useAdversaries(filters)
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-56px)] w-full max-w-[1400px] flex-col px-6 pb-6 pt-3">
+    <div className="flex h-[calc(100vh-56px)] w-full  flex-col px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <ShieldAlert size={14} strokeWidth={1.75} />
