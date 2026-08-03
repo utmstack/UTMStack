@@ -4,17 +4,17 @@ import { Bell, CheckCheck, ChevronLeft, ChevronRight, Loader2 } from 'lucide-rea
 import { Button } from '@/shared/components/ui/button'
 import { useNotifications } from '../services/notifications.context'
 import { notificationsHttpService } from '../services/notifications-http.service'
-import { NotificationRow } from '../components/NotificationRow'
-import type { Notification } from '../types/notification.types'
+import { NotificationGroupRow } from '../components/NotificationGroupRow'
+import type { NotificationGroup } from '../types/notification.types'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
 export function NotificationsPage() {
   const { t } = useTranslation()
-  const { markRead, remove, markAllRead, unreadCount, refreshUnread } = useNotifications()
+  const { markAllRead, unreadCount, refreshUnread } = useNotifications()
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(20)
-  const [items, setItems] = useState<Notification[]>([])
+  const [groups, setGroups] = useState<NotificationGroup[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -26,12 +26,12 @@ export function NotificationsPage() {
       setLoading(true)
       setError(false)
       try {
-        const { data, total } = await notificationsHttpService.listPaged({
+        const { data, total } = await notificationsHttpService.listGrouped({
           page: p,
           size: pageSize,
           status: 'ACTIVE',
         })
-        setItems(data)
+        setGroups(data)
         setTotal(total)
       } catch {
         setError(true)
@@ -51,36 +51,13 @@ export function NotificationsPage() {
     setPage(0)
   }
 
-  const onToggleRead = async (n: Notification) => {
-    setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: !n.read } : x)))
-    try {
-      await markRead(n.id, !n.read)
-    } catch {
-      setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: n.read } : x)))
-    }
-  }
-
-  const onDelete = async (n: Notification) => {
-    // Optimistic: drop the row immediately so there's no dead time / reload flash.
-    const remaining = items.length - 1
-    setItems((prev) => prev.filter((x) => x.id !== n.id))
-    setTotal((t) => Math.max(0, t - 1))
-    try {
-      await remove(n.id)
-      // If that emptied a non-first page, step back one (this reloads).
-      if (remaining === 0 && page > 0) setPage((p) => p - 1)
-    } catch {
-      // Failed — re-sync the page from the server.
-      void load(page)
-    }
-  }
-
   const onMarkAll = async () => {
-    setItems((prev) => prev.map((x) => ({ ...x, read: true })))
+    setGroups((prev) => prev.map((g) => ({ ...g, unreadCount: 0 })))
     try {
       await markAllRead()
     } catch {
       void refreshUnread()
+      void load(page)
     }
   }
 
@@ -99,7 +76,7 @@ export function NotificationsPage() {
         </Button>
       </header>
 
-      <div className="relative mt-6 min-h-[180px] divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+      <div className="relative mt-6 min-h-[78dvh] divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-card/60">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -115,18 +92,18 @@ export function NotificationsPage() {
           </div>
         )}
 
-        {!loading && !error && items.length === 0 && (
+        {!loading && !error && groups.length === 0 && (
           <div className="px-4 py-16 text-center text-sm text-muted-foreground">
             {t('notifications.empty')}
           </div>
         )}
 
-        {items.map((n) => (
-          <NotificationRow
-            key={n.id}
-            notification={n}
-            onToggleRead={(x) => void onToggleRead(x)}
-            onDelete={(x) => void onDelete(x)}
+        {groups.map((g) => (
+          <NotificationGroupRow
+            key={`${g.source}::${g.type}::${g.message}`}
+            group={g}
+            onChanged={() => void refreshUnread()}
+            itemsMaxHeightClass="max-h-96"
           />
         ))}
       </div>

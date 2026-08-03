@@ -12,6 +12,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	g.POST("", middleware.RequireInternal(), nh.Create)
 	g.GET("", nh.List)
+	g.GET("/grouped", nh.ListGrouped)
 	g.GET("/unread-count", nh.UnreadCount)
 	g.PUT("/read-all", nh.MarkAllRead)
 	g.GET("/:id", nh.GetByID)

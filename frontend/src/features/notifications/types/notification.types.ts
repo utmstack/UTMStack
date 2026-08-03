@@ -20,8 +20,20 @@ export interface NotificationListQuery {
   status?: NotificationStatus
   type?: NotificationType
   source?: string
+  /** Exact message (used to pull the notifications of a specific group). */
+  message?: string
   from?: string
   to?: string
   /** "field,asc|desc"; backend defaults to created_at desc. */
   sort?: string
+}
+
+/** One row of the /notifications/grouped response — a stack of same source/type/message. */
+export interface NotificationGroup {
+  source: string
+  type: NotificationType
+  message: string
+  count: number
+  unreadCount: number
+  lastCreated: string
 }

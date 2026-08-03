@@ -47,29 +47,31 @@ func (h *NotificationHandler) Create(c *gin.Context) {
 // @Tags        Notifications
 // @Security    BearerAuth
 // @Produce     json
-// @Param       source query string false "Filter by source"
-// @Param       type   query string false "Filter by type"
-// @Param       status query string false "Filter by status"
-// @Param       read   query bool   false "Filter by read flag"
-// @Param       from   query string false "Created at >= (RFC3339)"
-// @Param       to     query string false "Created at <= (RFC3339)"
-// @Param       page   query int    false "Page (default 1)"
-// @Param       size   query int    false "Page size (default 20, max 200)"
-// @Param       sort   query string false "field,asc|desc"
+// @Param       source  query string false "Filter by source"
+// @Param       type    query string false "Filter by type"
+// @Param       status  query string false "Filter by status"
+// @Param       message query string false "Filter by exact message"
+// @Param       read    query bool   false "Filter by read flag"
+// @Param       from    query string false "Created at >= (RFC3339)"
+// @Param       to      query string false "Created at <= (RFC3339)"
+// @Param       page    query int    false "Page (default 1)"
+// @Param       size    query int    false "Page size (default 20, max 200)"
+// @Param       sort    query string false "field,asc|desc"
 // @Success     200 {array} dto.NotificationResponse
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
 // @Router      /notifications [get]
 func (h *NotificationHandler) List(c *gin.Context) {
 	q := dto.NotificationListQuery{
-		Source: querySource(c, "source"),
-		Type:   queryType(c, "type"),
-		Status: queryStatus(c, "status"),
-		Read:   queryBool(c, "read"),
-		From:   queryTime(c, "from"),
-		To:     queryTime(c, "to"),
-		Params: database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
-		Sort:   c.Query("sort"),
+		Source:  querySource(c, "source"),
+		Type:    queryType(c, "type"),
+		Status:  queryStatus(c, "status"),
+		Message: queryString(c, "message"),
+		Read:    queryBool(c, "read"),
+		From:    queryTime(c, "from"),
+		To:      queryTime(c, "to"),
+		Params:  database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
+		Sort:    c.Query("sort"),
 	}
 	rows, total, err := h.usecase.List(c.Request.Context(), q)
 	if err != nil {
@@ -82,6 +84,41 @@ func (h *NotificationHandler) List(c *gin.Context) {
 	}
 	page, size := q.Normalized()
 	writePagedArray(c, resp, total, page, size)
+}
+
+// @Summary     List notifications grouped by source, type and message
+// @Tags        Notifications
+// @Security    BearerAuth
+// @Produce     json
+// @Param       source query string false "Filter by source"
+// @Param       type   query string false "Filter by type"
+// @Param       status query string false "Filter by status"
+// @Param       read   query bool   false "Filter by read flag"
+// @Param       from   query string false "Created at >= (RFC3339)"
+// @Param       to     query string false "Created at <= (RFC3339)"
+// @Param       page   query int    false "Page (default 1)"
+// @Param       size   query int    false "Page size (default 20, max 200)"
+// @Success     200 {array} domain.NotificationGroup
+// @Header      200 {string} X-Total-Count "Total groups"
+// @Failure     500 {object} map[string]string
+// @Router      /notifications/grouped [get]
+func (h *NotificationHandler) ListGrouped(c *gin.Context) {
+	q := dto.NotificationListQuery{
+		Source: querySource(c, "source"),
+		Type:   queryType(c, "type"),
+		Status: queryStatus(c, "status"),
+		Read:   queryBool(c, "read"),
+		From:   queryTime(c, "from"),
+		To:     queryTime(c, "to"),
+		Params: database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
+	}
+	rows, total, err := h.usecase.ListGrouped(c.Request.Context(), q)
+	if err != nil {
+		writeNotificationError(c, err)
+		return
+	}
+	page, size := q.Normalized()
+	writePagedArray(c, rows, total, page, size)
 }
 
 // @Summary     Get notification by ID
