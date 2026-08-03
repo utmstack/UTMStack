@@ -28,7 +28,6 @@ import (
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
 	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
-	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
@@ -188,7 +187,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("UPDATES_DIR", "/updates", false))
 	incidentsMod := incidents.NewModule(
 		db,
-		incidents_connectors.NewNoopMailer(),
+		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store(), userRepo),
 		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
 		incidents.NewIAMGatewayFromRepo(userRepo),
 		auditMod.Logger(),
