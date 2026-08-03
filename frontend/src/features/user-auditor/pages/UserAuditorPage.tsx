@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Fingerprint,
   LayoutGrid,
-  ListFilter,
   ListIcon,
   Loader2,
   RefreshCw,
@@ -28,8 +27,14 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
+import type {
+  CustomFilter,
+  FilterFieldDef,
+  FilterOpDef,
+} from '@/shared/components/filters/custom-filter.types'
 import { adAuditHttpService } from '../services/ad-audit-http.service'
-import type { ADUser, ADUserSource, ADUserStats } from '../types/ad-user.types'
+import type { ADUser, ADUserSource, ADUserStats, ADUserStatus } from '../types/ad-user.types'
 
 const SIZE = 50
 const STALE_MS = 30 * 86_400_000
@@ -82,6 +87,8 @@ const STATUS_TEXT: Record<Status, string> = {
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
+const STATUS_VALUES: ADUserStatus[] = ['active', 'disabled', 'deleted', 'stale', 'service']
+
 export function UserAuditorPage() {
   const { t } = useTranslation()
   const [view, setView] = useState<ViewId>('all')
@@ -90,6 +97,7 @@ export function UserAuditorPage() {
   const [tenant, setTenant] = useState('') // '' = all
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
   const [page, setPage] = useState(0)
+  const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
 
   const [users, setUsers] = useState<ADUser[]>([])
   const [total, setTotal] = useState(0)
@@ -97,6 +105,26 @@ export function UserAuditorPage() {
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
   const [openUser, setOpenUser] = useState<ADUser | null>(null)
+
+  const filterFields: FilterFieldDef[] = [
+    { field: 'status', label: t('userAuditor.filterFields.status') },
+  ]
+  const filterOps: FilterOpDef[] = [{ id: 'IS', label: t('userAuditor.ops.is'), needsValue: true }]
+  const filterLabels = {
+    add: t('userAuditor.filters.add'),
+    clearAll: t('userAuditor.filters.clearAll'),
+    filterValues: t('userAuditor.filters.filterValues'),
+    loadingValues: t('userAuditor.filters.loadingValues'),
+    noValues: t('userAuditor.filters.noValues'),
+    pickValue: t('userAuditor.filters.pickValue'),
+    empty: t('userAuditor.filters.empty'),
+    cancel: t('userAuditor.filters.cancel'),
+    addBtn: t('userAuditor.filters.addBtn'),
+  }
+  const fetchFilterValues = async (field: string) => {
+    if (field === 'status') return STATUS_VALUES.map((v) => ({ value: v, count: 0 }))
+    return []
+  }
 
   // Debounce the search box.
   useEffect(() => {
@@ -107,7 +135,7 @@ export function UserAuditorPage() {
   // Any filter change resets to the first page.
   useEffect(() => {
     setPage(0)
-  }, [view, search, tenant])
+  }, [view, search, tenant, customFilters])
 
   const loadStats = useCallback(async () => {
     try {
@@ -121,10 +149,12 @@ export function UserAuditorPage() {
     setLoading(true)
     setError(false)
     try {
+      const statusFilter = customFilters.find((f) => f.field === 'status' && f.operator === 'IS')?.value
       const res = await adAuditHttpService.list({
         search: search || undefined,
         tenantId: tenant || undefined,
         source: view === 'all' ? undefined : view,
+        status: statusFilter ? (statusFilter as ADUserStatus) : undefined,
         sort: 'recent',
         page,
         size: SIZE,
@@ -138,7 +168,7 @@ export function UserAuditorPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, tenant, view, page])
+  }, [search, tenant, view, page, customFilters])
 
   useEffect(() => {
     void load()
@@ -182,6 +212,20 @@ export function UserAuditorPage() {
         loading={loading}
         t={t}
       />
+
+      <div className="mt-3">
+        <CustomFilterBar
+          filters={customFilters}
+          onAdd={(f) => setCustomFilters((c) => [...c, f])}
+          onUpdate={(i, f) => setCustomFilters((c) => c.map((x, idx) => (idx === i ? f : x)))}
+          onRemove={(i) => setCustomFilters((c) => c.filter((_, idx) => idx !== i))}
+          onClear={() => setCustomFilters([])}
+          fields={filterFields}
+          operators={filterOps}
+          fetchValues={fetchFilterValues}
+          labels={filterLabels}
+        />
+      </div>
 
       {error ? (
         <div className="mt-3 flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-12 text-sm">
@@ -404,10 +448,6 @@ function Toolbar({
           <ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60" />
         </div>
       )}
-      <Button variant="outline" size="sm">
-        <ListFilter size={14} className="mr-2" />
-        {t('userAuditor.filters')}
-      </Button>
       <div className="ml-auto flex items-center gap-1 rounded-md border border-border p-0.5">
         <button
           onClick={() => onLayoutChange('list')}
