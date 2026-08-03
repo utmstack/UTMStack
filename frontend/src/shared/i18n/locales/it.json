@@ -1347,7 +1347,7 @@
   "branding": {
     "title": "Brand",
     "subtitle": "Personalizza UTMStack con l’identità della tua organizzazione — applicata ovunque: schermata di accesso, barra laterale, email e report.",
-    "msspRequired": "Il white-label è una funzione MSSP.",
+    "enterpriseRequired": "Il white-label è una funzione Enterprise.",
     "manageLicense": "Gestisci licenza",
     "enable": {
       "title": "White-label",

@@ -1499,7 +1499,7 @@
   "branding": {
     "title": "Branding",
     "subtitle": "White-label UTMStack with your organization’s identity — applied everywhere: the login screen, sidebar, emails and reports.",
-    "msspRequired": "White-labeling is an MSSP feature.",
+    "enterpriseRequired": "White-labeling is an Enterprise feature.",
     "manageLicense": "Manage license",
     "enable": {
       "title": "White-label",

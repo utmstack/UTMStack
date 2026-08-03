@@ -1347,7 +1347,7 @@
   "branding": {
     "title": "Branding",
     "subtitle": "Versehen Sie UTMStack mit der Identität Ihrer Organisation — überall angewendet: Login-Bildschirm, Seitenleiste, E-Mails und Berichte.",
-    "msspRequired": "White-Labeling ist eine MSSP-Funktion.",
+    "enterpriseRequired": "White-Labeling ist eine Enterprise-Funktion.",
     "manageLicense": "Lizenz verwalten",
     "enable": {
       "title": "White-Label",
