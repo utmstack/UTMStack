@@ -119,13 +119,10 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	enterprise := middleware.RequireEnterprise(func() bool {
 		return m.billing.License().Current().IsEnterprise()
 	})
-	mssp := middleware.RequireMSSP(func() bool {
-		return m.billing.License().Current().IsMSSP()
-	})
 
 	iam.RegisterRoutes(api, m.iam, userAuth, enterprise)
 	audit.RegisterRoutes(api, m.audit, userAuth)
-	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)
+	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
 	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth)

@@ -12,7 +12,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/appconfig/dto"
 )
 
-var ErrWhiteLabelNotEntitled = errors.New("white-labeling requires an MSSP license")
+var ErrWhiteLabelNotEntitled = errors.New("white-labeling requires an enterprise license")
 var ErrUnknownAssetSlot = errors.New("unknown branding asset slot")
 
 const (

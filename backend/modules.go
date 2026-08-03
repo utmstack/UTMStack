@@ -107,9 +107,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
-	// White-labeling renders only under an MSSP license (resolved from billing).
+	// White-labeling renders only under an Enterprise license (resolved from billing).
 	configMod.SetWhiteLabelEntitlement(func() bool {
-		return billingMod.License().Current().IsMSSP()
+		return billingMod.License().Current().IsEnterprise()
 	})
 	brand := configMod.Branding()
 	complianceMod := compliance.NewModule(db, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
