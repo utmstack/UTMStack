@@ -53,6 +53,7 @@ export function AdversariesPage() {
         <AlertsFilterBar
           filters={customFilters}
           onAdd={(f) => setCustomFilters((c) => [...c, f])}
+          onUpdate={(i, f) => setCustomFilters((c) => c.map((x, idx) => (idx === i ? f : x)))}
           onRemove={(i) => setCustomFilters((c) => c.filter((_, idx) => idx !== i))}
           onClear={() => setCustomFilters([])}
         />
