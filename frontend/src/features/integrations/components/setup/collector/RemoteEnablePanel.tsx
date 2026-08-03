@@ -518,7 +518,7 @@ export function RemoteEnablePanel({
             <Button
               size="sm"
               variant="outline"
-              disabled={!canSubmit || isPending}
+              disabled={!canSubmit || isPending || !isLiveOnSelectedForwarder}
               onClick={() => submit(false)}
             >
               {t(`${ROOT}.disableButton`)}
