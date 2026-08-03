@@ -4241,7 +4241,9 @@
       "noUsers": "Sem usuários",
       "assigned": "Atribuído a {{user}}",
       "unassigned": "Incidente sem atribuição",
-      "error": "Não foi possível alterar o responsável"
+      "error": "Não foi possível alterar o responsável",
+      "custom": "Atribuir personalizado",
+      "customPlaceholder": "Digite um login…"
     }
   },
   "parsingFilters": {
