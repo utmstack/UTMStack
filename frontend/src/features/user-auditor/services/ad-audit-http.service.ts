@@ -9,6 +9,7 @@ function listQuery(q: ADUserListQuery): string {
   const p = new URLSearchParams()
   if (q.search) p.set('search', q.search)
   if (q.tenantId) p.set('tenantId', q.tenantId)
+  if (q.source) p.set('source', q.source)
   if (q.status) p.set('status', q.status)
   if (q.sort) p.set('sort', q.sort)
   p.set('page', String(q.page ?? 0))

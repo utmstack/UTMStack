@@ -1252,15 +1252,28 @@
     },
     "views": {
       "all": "All accounts",
-      "active": "Active",
-      "disabled": "Disabled",
-      "deleted": "Deleted",
-      "service": "Service accounts",
-      "stale": "Stale (30d+)"
+      "windows": "Windows",
+      "linux": "Linux"
     },
-    "searchPlaceholder": "Search by account name or SID…",
+    "searchPlaceholder": "Search by account name, SID or username…",
     "allTenants": "All tenants",
-    "filters": "Filters",
+    "filters": {
+      "add": "Add filter",
+      "clearAll": "Clear all",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
+      "empty": "(empty)",
+      "cancel": "Cancel",
+      "addBtn": "Add"
+    },
+    "filterFields": {
+      "status": "Lifecycle status"
+    },
+    "ops": {
+      "is": "is"
+    },
     "refresh": "Refresh",
     "layout": {
       "list": "List",
@@ -1268,6 +1281,7 @@
     },
     "list": {
       "account": "Account",
+      "identity": "Identity",
       "sid": "SID",
       "status": "Status",
       "lastLogon": "Last logon",
@@ -1296,11 +1310,15 @@
       "stale": "stale 30d+",
       "viewInLogs": "View events in Log Explorer",
       "copySid": "Copy SID",
+      "copyUid": "Copy identity",
       "copied": "Copied",
       "identity": "Identity",
       "accountName": "Account name",
       "domain": "Domain",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "Machine ID",
       "tenant": "Tenant",
       "adStatus": "AD status",
       "enabled": "Enabled",
@@ -1779,6 +1797,7 @@
       "filterValues": "Filter values…",
       "loadingValues": "Loading values…",
       "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
       "cancel": "Cancel",
       "confirm": "Add"
     },

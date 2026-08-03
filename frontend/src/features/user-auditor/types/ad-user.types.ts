@@ -1,12 +1,22 @@
 /* Types mirror the backend adaudit DTOs (modules/adaudit/dto, domain.ADUser). */
 
-/** One Active Directory account observed in ingested Windows security logs. */
+export type ADUserSource = 'windows' | 'linux'
+
+/** One user account observed in ingested Windows or Linux logs. */
 export interface ADUser {
   id: number
   tenantId: string
-  sid: string
-  samAccountName: string
-  domain: string
+  source: ADUserSource
+  /* Windows-only fields */
+  sid?: string
+  samAccountName?: string
+  domain?: string
+  /* Linux-only fields */
+  machineId?: string
+  uidNumber?: string
+  hostname?: string
+  username?: string
+  /* Shared lifecycle */
   active: boolean
   accountCreatedAt?: string
   lastLogon?: string
@@ -22,6 +32,7 @@ export type ADUserSort = 'recent' | 'name'
 export interface ADUserListQuery {
   search?: string
   tenantId?: string
+  source?: ADUserSource
   status?: ADUserStatus
   sort?: ADUserSort
   page?: number // zero-based
@@ -33,6 +44,11 @@ export interface DomainCount {
   count: number
 }
 
+export interface SourceCount {
+  windows: number
+  linux: number
+}
+
 /** GET /ad-audit/stats — inventory roll-up for the overview. */
 export interface ADUserStats {
   total: number
@@ -42,6 +58,7 @@ export interface ADUserStats {
   stale: number
   service: number
   seen_24h: number
+  by_source: SourceCount
   by_domain: DomainCount[]
   tenants: string[]
 }

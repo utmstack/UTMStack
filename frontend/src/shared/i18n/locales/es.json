@@ -1100,15 +1100,28 @@
     },
     "views": {
       "all": "Todas las cuentas",
-      "active": "Activas",
-      "disabled": "Deshabilitadas",
-      "deleted": "Borradas",
-      "service": "Cuentas de servicio",
-      "stale": "Inactivas (30d+)"
+      "windows": "Windows",
+      "linux": "Linux"
     },
-    "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
+    "searchPlaceholder": "Buscar por nombre de cuenta, SID o usuario…",
     "allTenants": "Todos los tenants",
-    "filters": "Filtros",
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Borrar todos",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "Sin valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
+    "filterFields": {
+      "status": "Estado de ciclo de vida"
+    },
+    "ops": {
+      "is": "es"
+    },
     "refresh": "Actualizar",
     "layout": {
       "list": "Lista",
@@ -1116,6 +1129,7 @@
     },
     "list": {
       "account": "Cuenta",
+      "identity": "Identidad",
       "sid": "SID",
       "status": "Estado",
       "lastLogon": "Último inicio",
@@ -1144,11 +1158,15 @@
       "stale": "inactiva 30d+",
       "viewInLogs": "Ver eventos en el Log Explorer",
       "copySid": "Copiar SID",
+      "copyUid": "Copiar identidad",
       "copied": "Copiado",
       "identity": "Identidad",
       "accountName": "Nombre de cuenta",
       "domain": "Dominio",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID de máquina",
       "tenant": "Tenant",
       "adStatus": "Estado en AD",
       "enabled": "Habilitada",

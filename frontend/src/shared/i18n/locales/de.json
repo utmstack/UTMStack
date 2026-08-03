@@ -1100,15 +1100,28 @@
     },
     "views": {
       "all": "Alle Konten",
-      "active": "Aktiv",
-      "disabled": "Deaktiviert",
-      "deleted": "Gelöscht",
-      "service": "Dienstkonten",
-      "stale": "Inaktiv (30T+)"
+      "windows": "Windows",
+      "linux": "Linux"
     },
-    "searchPlaceholder": "Nach Kontoname oder SID suchen…",
+    "searchPlaceholder": "Nach Kontoname, SID oder Benutzername suchen…",
     "allTenants": "Alle Mandanten",
-    "filters": "Filter",
+    "filters": {
+      "add": "Filter hinzufügen",
+      "clearAll": "Alle löschen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+      "empty": "(leer)",
+      "cancel": "Abbrechen",
+      "addBtn": "Hinzufügen"
+    },
+    "filterFields": {
+      "status": "Lebenszyklus-Status"
+    },
+    "ops": {
+      "is": "ist"
+    },
     "refresh": "Aktualisieren",
     "layout": {
       "list": "Liste",
@@ -1116,6 +1129,7 @@
     },
     "list": {
       "account": "Konto",
+      "identity": "Kennung",
       "sid": "SID",
       "status": "Status",
       "lastLogon": "Letzte Anmeldung",
@@ -1144,11 +1158,15 @@
       "stale": "inaktiv 30T+",
       "viewInLogs": "Ereignisse im Log Explorer ansehen",
       "copySid": "SID kopieren",
+      "copyUid": "Kennung kopieren",
       "copied": "Kopiert",
       "identity": "Identität",
       "accountName": "Kontoname",
       "domain": "Domäne",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "Maschinen-ID",
       "tenant": "Mandant",
       "adStatus": "AD-Status",
       "enabled": "Aktiviert",

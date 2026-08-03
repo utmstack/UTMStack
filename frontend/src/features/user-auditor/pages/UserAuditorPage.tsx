@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Fingerprint,
   LayoutGrid,
-  ListFilter,
   ListIcon,
   Loader2,
   RefreshCw,
@@ -28,14 +27,20 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
+import type {
+  CustomFilter,
+  FilterFieldDef,
+  FilterOpDef,
+} from '@/shared/components/filters/custom-filter.types'
 import { adAuditHttpService } from '../services/ad-audit-http.service'
-import type { ADUser, ADUserStats, ADUserStatus } from '../types/ad-user.types'
+import type { ADUser, ADUserSource, ADUserStats, ADUserStatus } from '../types/ad-user.types'
 
 const SIZE = 50
 const STALE_MS = 30 * 86_400_000
 
-type ViewId = 'all' | ADUserStatus
-const VIEW_IDS: ViewId[] = ['all', 'active', 'disabled', 'deleted', 'service', 'stale']
+type ViewId = 'all' | ADUserSource
+const VIEW_IDS: ViewId[] = ['all', 'windows', 'linux']
 
 /* ─── Derived (per-row, display-only) ──────────────────────────────────── */
 
@@ -50,7 +55,23 @@ function isStale(u: ADUser): boolean {
   return statusOf(u) === 'active' && !!u.lastLogon && Date.now() - new Date(u.lastLogon).getTime() > STALE_MS
 }
 function isService(u: ADUser): boolean {
-  return /^svc/i.test(u.samAccountName)
+  return u.source === 'windows' && /^svc/i.test(u.samAccountName ?? '')
+}
+
+/* Windows accounts key off SID + samAccountName; Linux accounts off username + uid@host. */
+function accountName(u: ADUser): string {
+  return (u.source === 'linux' ? u.username : u.samAccountName) ?? '—'
+}
+function accountIdentity(u: ADUser): string {
+  if (u.source === 'linux') {
+    const uid = u.uidNumber ? `uid=${u.uidNumber}` : ''
+    const host = u.hostname ?? ''
+    return [uid, host].filter(Boolean).join(' · ') || '—'
+  }
+  return u.sid ?? '—'
+}
+function accountScope(u: ADUser): string {
+  return (u.source === 'linux' ? u.hostname : u.domain) ?? '—'
 }
 
 const STATUS_DOT: Record<Status, string> = {
@@ -66,6 +87,8 @@ const STATUS_TEXT: Record<Status, string> = {
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
+const STATUS_VALUES: ADUserStatus[] = ['active', 'disabled', 'deleted', 'stale', 'service']
+
 export function UserAuditorPage() {
   const { t } = useTranslation()
   const [view, setView] = useState<ViewId>('all')
@@ -74,6 +97,7 @@ export function UserAuditorPage() {
   const [tenant, setTenant] = useState('') // '' = all
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
   const [page, setPage] = useState(0)
+  const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
 
   const [users, setUsers] = useState<ADUser[]>([])
   const [total, setTotal] = useState(0)
@@ -81,6 +105,26 @@ export function UserAuditorPage() {
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
   const [openUser, setOpenUser] = useState<ADUser | null>(null)
+
+  const filterFields: FilterFieldDef[] = [
+    { field: 'status', label: t('userAuditor.filterFields.status') },
+  ]
+  const filterOps: FilterOpDef[] = [{ id: 'IS', label: t('userAuditor.ops.is'), needsValue: true }]
+  const filterLabels = {
+    add: t('userAuditor.filters.add'),
+    clearAll: t('userAuditor.filters.clearAll'),
+    filterValues: t('userAuditor.filters.filterValues'),
+    loadingValues: t('userAuditor.filters.loadingValues'),
+    noValues: t('userAuditor.filters.noValues'),
+    pickValue: t('userAuditor.filters.pickValue'),
+    empty: t('userAuditor.filters.empty'),
+    cancel: t('userAuditor.filters.cancel'),
+    addBtn: t('userAuditor.filters.addBtn'),
+  }
+  const fetchFilterValues = async (field: string) => {
+    if (field === 'status') return STATUS_VALUES.map((v) => ({ value: v, count: 0 }))
+    return []
+  }
 
   // Debounce the search box.
   useEffect(() => {
@@ -91,7 +135,7 @@ export function UserAuditorPage() {
   // Any filter change resets to the first page.
   useEffect(() => {
     setPage(0)
-  }, [view, search, tenant])
+  }, [view, search, tenant, customFilters])
 
   const loadStats = useCallback(async () => {
     try {
@@ -105,10 +149,12 @@ export function UserAuditorPage() {
     setLoading(true)
     setError(false)
     try {
+      const statusFilter = customFilters.find((f) => f.field === 'status' && f.operator === 'IS')?.value
       const res = await adAuditHttpService.list({
         search: search || undefined,
         tenantId: tenant || undefined,
-        status: view === 'all' ? undefined : view,
+        source: view === 'all' ? undefined : view,
+        status: statusFilter ? (statusFilter as ADUserStatus) : undefined,
         sort: 'recent',
         page,
         size: SIZE,
@@ -122,7 +168,7 @@ export function UserAuditorPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, tenant, view, page])
+  }, [search, tenant, view, page, customFilters])
 
   useEffect(() => {
     void load()
@@ -138,11 +184,8 @@ export function UserAuditorPage() {
 
   const counts: Record<ViewId, number> = {
     all: stats?.total ?? 0,
-    active: stats?.active ?? 0,
-    disabled: stats?.disabled ?? 0,
-    deleted: stats?.deleted ?? 0,
-    service: stats?.service ?? 0,
-    stale: stats?.stale ?? 0,
+    windows: stats?.by_source?.windows ?? 0,
+    linux: stats?.by_source?.linux ?? 0,
   }
 
   return (
@@ -169,6 +212,20 @@ export function UserAuditorPage() {
         loading={loading}
         t={t}
       />
+
+      <div className="mt-3">
+        <CustomFilterBar
+          filters={customFilters}
+          onAdd={(f) => setCustomFilters((c) => [...c, f])}
+          onUpdate={(i, f) => setCustomFilters((c) => c.map((x, idx) => (idx === i ? f : x)))}
+          onRemove={(i) => setCustomFilters((c) => c.filter((_, idx) => idx !== i))}
+          onClear={() => setCustomFilters([])}
+          fields={filterFields}
+          operators={filterOps}
+          fetchValues={fetchFilterValues}
+          labels={filterLabels}
+        />
+      </div>
 
       {error ? (
         <div className="mt-3 flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-12 text-sm">
@@ -391,10 +448,6 @@ function Toolbar({
           <ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60" />
         </div>
       )}
-      <Button variant="outline" size="sm">
-        <ListFilter size={14} className="mr-2" />
-        {t('userAuditor.filters')}
-      </Button>
       <div className="ml-auto flex items-center gap-1 rounded-md border border-border p-0.5">
         <button
           onClick={() => onLayoutChange('list')}
@@ -440,7 +493,7 @@ function ListHeader({ t }: { t: TFunction }) {
     >
       <div />
       <div>{t('userAuditor.list.account')}</div>
-      <div>{t('userAuditor.list.sid')}</div>
+      <div>{t('userAuditor.list.identity')}</div>
       <div>{t('userAuditor.list.status')}</div>
       <div>{t('userAuditor.list.lastLogon')}</div>
       <div>{t('userAuditor.list.lastSeen')}</div>
@@ -460,6 +513,7 @@ function LoadingRows() {
 
 function UserListRow({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TFunction }) {
   const status = statusOf(user)
+  const identity = accountIdentity(user)
   return (
     <div
       onClick={onOpen}
@@ -469,7 +523,10 @@ function UserListRow({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t:
       <AccountAvatar user={user} />
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{user.samAccountName}</span>
+          <span className="truncate text-sm font-medium">{accountName(user)}</span>
+          <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase text-muted-foreground ring-1 ring-border">
+            {user.source}
+          </span>
           {isService(user) && (
             <span className="rounded bg-violet-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-violet-600 ring-1 ring-violet-500/30 dark:text-violet-300">
               {t('userAuditor.badge.service')}
@@ -481,10 +538,10 @@ function UserListRow({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t:
             </span>
           )}
         </div>
-        <div className="truncate font-mono text-[11px] text-muted-foreground">{user.domain}</div>
+        <div className="truncate font-mono text-[11px] text-muted-foreground">{accountScope(user)}</div>
       </div>
-      <div className="min-w-0 truncate font-mono text-[11px] text-muted-foreground" title={user.sid}>
-        {user.sid}
+      <div className="min-w-0 truncate font-mono text-[11px] text-muted-foreground" title={identity}>
+        {identity}
       </div>
       <div>
         <span className={cn('inline-flex items-center gap-1.5 text-[11px]', STATUS_TEXT[status])}>
@@ -506,6 +563,7 @@ function UserListRow({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t:
 
 function UserCard({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TFunction }) {
   const status = statusOf(user)
+  const identity = accountIdentity(user)
   return (
     <button
       onClick={onOpen}
@@ -514,8 +572,13 @@ function UserCard({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TF
       <div className="flex items-start gap-3">
         <AccountAvatar user={user} large />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">{user.samAccountName}</div>
-          <div className="truncate font-mono text-[11px] text-muted-foreground">{user.domain}</div>
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-semibold">{accountName(user)}</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase text-muted-foreground ring-1 ring-border">
+              {user.source}
+            </span>
+          </div>
+          <div className="truncate font-mono text-[11px] text-muted-foreground">{accountScope(user)}</div>
           <div className="mt-1">
             <span className={cn('inline-flex items-center gap-1.5 text-[11px]', STATUS_TEXT[status])}>
               <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[status])} />
@@ -524,8 +587,8 @@ function UserCard({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TF
           </div>
         </div>
       </div>
-      <div className="truncate border-t border-border pt-2 font-mono text-[10px] text-muted-foreground" title={user.sid}>
-        {user.sid}
+      <div className="truncate border-t border-border pt-2 font-mono text-[10px] text-muted-foreground" title={identity}>
+        {identity}
       </div>
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
         <span>
@@ -560,12 +623,28 @@ function AccountAvatar({ user, large }: { user: ADUser; large?: boolean }) {
 
 /* ─── Drawer ───────────────────────────────────────────────────────────── */
 
+function logExplorerHref(user: ADUser): string {
+  const p: Record<string, string> = { tenantId: user.tenantId, '@timestamp': '30d' }
+  if (user.source === 'linux') {
+    p.dataType = 'linux'
+    if (user.username) p.username = user.username
+    if (user.hostname) p.hostname = user.hostname
+  } else {
+    p.dataType = 'wineventlog'
+    p.eventCode = '4720,4726,4624'
+    if (user.sid) p.eventDataTargetSid = user.sid
+  }
+  return `/log-explorer?${new URLSearchParams(p).toString()}`
+}
+
 function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t: TFunction }) {
   const status = statusOf(user)
-  const copySid = () => {
-    void navigator.clipboard?.writeText(user.sid)
+  const identity = accountIdentity(user)
+  const copyId = () => {
+    void navigator.clipboard?.writeText(identity)
     toast.success(t('userAuditor.drawer.copied'))
   }
+  const isLinux = user.source === 'linux'
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -579,12 +658,15 @@ function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <Server size={11} />
-                  <span className="font-mono">{user.domain}</span>
+                  <span className="font-mono">{accountScope(user)}</span>
                   <span>·</span>
                   <span>{t('userAuditor.drawer.tenantInline', { id: user.tenantId })}</span>
                 </div>
-                <h2 className="mt-0.5 truncate text-xl font-semibold">{user.samAccountName}</h2>
+                <h2 className="mt-0.5 truncate text-xl font-semibold">{accountName(user)}</h2>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                  <span className="rounded-md bg-muted px-1.5 py-0.5 font-medium uppercase text-muted-foreground ring-1 ring-border">
+                    {user.source}
+                  </span>
                   <span className={cn('inline-flex items-center gap-1.5', STATUS_TEXT[status])}>
                     <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[status])} />
                     {t(`userAuditor.status.${status}`)}
@@ -612,22 +694,14 @@ function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" asChild>
-              <Link
-                to={`/log-explorer?${new URLSearchParams({
-                  dataType: 'wineventlog',
-                  tenantId: user.tenantId,
-                  eventCode: '4720,4726,4624',
-                  eventDataTargetSid: user.sid,
-                  '@timestamp': '30d',
-                }).toString()}`}
-              >
+              <Link to={logExplorerHref(user)}>
                 <ExternalLink size={14} className="mr-1.5" />
                 {t('userAuditor.drawer.viewInLogs')}
               </Link>
             </Button>
-            <Button size="sm" variant="outline" onClick={copySid}>
+            <Button size="sm" variant="outline" onClick={copyId}>
               <Copy size={14} className="mr-1.5" />
-              {t('userAuditor.drawer.copySid')}
+              {isLinux ? t('userAuditor.drawer.copyUid') : t('userAuditor.drawer.copySid')}
             </Button>
           </div>
         </header>
@@ -636,14 +710,25 @@ function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t
           <Section title={t('userAuditor.drawer.identity')}>
             <dl className="grid grid-cols-[150px_1fr] gap-y-2 text-xs">
               <Row k={t('userAuditor.drawer.accountName')}>
-                <span className="font-mono">{user.samAccountName}</span>
+                <span className="font-mono">{accountName(user)}</span>
               </Row>
-              <Row k={t('userAuditor.drawer.domain')}>
-                <span className="font-mono">{user.domain}</span>
+              <Row k={isLinux ? t('userAuditor.drawer.hostname') : t('userAuditor.drawer.domain')}>
+                <span className="font-mono">{accountScope(user)}</span>
               </Row>
-              <Row k={t('userAuditor.drawer.sid')}>
-                <span className="break-all font-mono">{user.sid}</span>
-              </Row>
+              {isLinux ? (
+                <>
+                  <Row k={t('userAuditor.drawer.uidNumber')}>
+                    <span className="font-mono">{user.uidNumber ?? '—'}</span>
+                  </Row>
+                  <Row k={t('userAuditor.drawer.machineId')}>
+                    <span className="break-all font-mono">{user.machineId ?? '—'}</span>
+                  </Row>
+                </>
+              ) : (
+                <Row k={t('userAuditor.drawer.sid')}>
+                  <span className="break-all font-mono">{user.sid ?? '—'}</span>
+                </Row>
+              )}
               <Row k={t('userAuditor.drawer.tenant')}>
                 <span className="font-mono">{user.tenantId}</span>
               </Row>
