@@ -1347,7 +1347,7 @@
   "branding": {
     "title": "Marca",
     "subtitle": "Personalize o UTMStack com a identidade da sua organização — aplicado em tudo: tela de login, menu lateral, e-mails e relatórios.",
-    "msspRequired": "O white-label é um recurso MSSP.",
+    "enterpriseRequired": "O white-label é um recurso Enterprise.",
     "manageLicense": "Gerenciar licença",
     "enable": {
       "title": "White-label",
