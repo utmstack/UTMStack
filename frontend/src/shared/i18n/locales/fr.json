@@ -4132,7 +4132,9 @@
       "noUsers": "Aucun utilisateur",
       "assigned": "Assigné à {{user}}",
       "unassigned": "Incident désassigné",
-      "error": "Impossible de changer l’assigné"
+      "error": "Impossible de changer l’assigné",
+      "custom": "Assigner personnalisé",
+      "customPlaceholder": "Saisir un identifiant…"
     }
   },
   "alertingRules": {

@@ -4132,7 +4132,9 @@
       "noUsers": "Keine Benutzer",
       "assigned": "Zugewiesen an {{user}}",
       "unassigned": "Zuweisung aufgehoben",
-      "error": "Zuweisung konnte nicht geändert werden"
+      "error": "Zuweisung konnte nicht geändert werden",
+      "custom": "Benutzerdefiniert zuweisen",
+      "customPlaceholder": "Login eingeben…"
     }
   },
   "alertingRules": {

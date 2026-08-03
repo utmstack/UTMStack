@@ -4132,7 +4132,9 @@
       "noUsers": "Nessun utente",
       "assigned": "Assegnato a {{user}}",
       "unassigned": "Incidente non assegnato",
-      "error": "Impossibile cambiare l’assegnatario"
+      "error": "Impossibile cambiare l’assegnatario",
+      "custom": "Assegna personalizzato",
+      "customPlaceholder": "Inserisci un login…"
     }
   },
   "alertingRules": {
