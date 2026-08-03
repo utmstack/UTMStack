@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next'
 import { AlertTriangle, Check, ChevronDown, Plus, Trash2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
+import { ChipInput } from '@/shared/components/ui/chip-input'
 import type { CorrelationRule, DataTypeOption, DataTypeRef, SaveRuleInput } from '../services/alerting-rules-http.service'
 
 /* ─── Structured form model ────────────────────────────────────────────── */
@@ -380,35 +381,6 @@ function DataTypeSelect({ values, options, onChange, t }: { values: string[]; op
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-/* ─── Chip input ───────────────────────────────────────────────────────── */
-
-function ChipInput({ values, onChange, placeholder, mono }: { values: string[]; onChange: (v: string[]) => void; placeholder?: string; mono?: boolean }) {
-  const [draft, setDraft] = useState('')
-  const add = () => {
-    const v = draft.trim()
-    if (v && !values.includes(v)) onChange([...values, v])
-    setDraft('')
-  }
-  return (
-    <div className="flex min-h-8 flex-wrap items-center gap-1 rounded-md border border-input bg-background p-1">
-      {values.map((v) => (
-        <span key={v} className={cn('inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[11px]', mono && 'font-mono')}>
-          {v}
-          <button onClick={() => onChange(values.filter((x) => x !== v))} className="text-muted-foreground hover:text-foreground"><X size={11} /></button>
-        </span>
-      ))}
-      <input
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add() } else if (e.key === 'Backspace' && !draft && values.length) onChange(values.slice(0, -1)) }}
-        onBlur={add}
-        placeholder={values.length ? '' : placeholder}
-        className={cn('min-w-[80px] flex-1 bg-transparent px-1 text-xs outline-none', mono && 'font-mono')}
-      />
     </div>
   )
 }
