@@ -4241,7 +4241,9 @@
       "noUsers": "Sin usuarios",
       "assigned": "Asignado a {{user}}",
       "unassigned": "Incidente sin asignar",
-      "error": "No se pudo cambiar el asignado"
+      "error": "No se pudo cambiar el asignado",
+      "custom": "Asignar personalizado",
+      "customPlaceholder": "Escribe un usuario…"
     }
   },
   "parsingFilters": {

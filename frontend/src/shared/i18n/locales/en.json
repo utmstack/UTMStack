@@ -4489,7 +4489,9 @@
       "noUsers": "No users",
       "assigned": "Assigned to {{user}}",
       "unassigned": "Incident unassigned",
-      "error": "Could not change the assignee"
+      "error": "Could not change the assignee",
+      "custom": "Assign custom",
+      "customPlaceholder": "Type a login…"
     }
   },
   "parsingFilters": {

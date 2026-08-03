@@ -33,7 +33,7 @@ export function IncidentDrawer({
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="flex w-full max-w-[760px] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
+        className="flex w-full max-w-[46em] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="border-b border-border px-6 py-4">
