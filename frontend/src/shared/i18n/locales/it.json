@@ -5178,5 +5178,9 @@
       "level2": "Livello 2",
       "level3": "Livello 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Prova pipeline",
+    "titleRule": "Prova regola"
   }
 }

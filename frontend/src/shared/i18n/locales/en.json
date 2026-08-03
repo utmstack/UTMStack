@@ -4589,7 +4589,8 @@
     "testPipeline": "Test pipeline"
   },
   "playground": {
-    "title": "Test pipeline",
+    "titleFilter": "Test pipeline",
+    "titleRule": "Test rule",
     "noDataTypes": "This pipeline has no data types assigned yet — add one to test it.",
     "dataTypeLabel": "Data type",
     "dataTypePlaceholder": "No data types available",

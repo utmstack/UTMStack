@@ -181,6 +181,7 @@ export function RuleDrawer({
       {showTestModal && (
         <TestPlaygroundModal
           mode="rule"
+          titleKey="playground.titleRule"
           dataTypeOptions={form.dataTypes}
           draftContent={ruleFormToYaml(form)}
           onClose={() => setShowTestModal(false)}

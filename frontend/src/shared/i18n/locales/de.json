@@ -5178,5 +5178,9 @@
       "level2": "Stufe 2",
       "level3": "Stufe 3"
     }
+  },
+  "playground": {
+    "titleFilter": "Pipeline testen",
+    "titleRule": "Regel testen"
   }
 }
