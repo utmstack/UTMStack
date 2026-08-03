@@ -627,8 +627,8 @@ function logExplorerHref(user: ADUser): string {
   const p: Record<string, string> = { tenantId: user.tenantId, '@timestamp': '30d' }
   if (user.source === 'linux') {
     p.dataType = 'linux'
-    if (user.username) p.username = user.username
-    if (user.hostname) p.hostname = user.hostname
+    if (user.username) p['origin.user'] = user.username
+    if (user.hostname) p['origin.host'] = user.hostname
   } else {
     p.dataType = 'wineventlog'
     p.eventCode = '4720,4726,4624'
