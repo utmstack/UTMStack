@@ -8,6 +8,9 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 type SocAIClient struct {
@@ -34,6 +37,12 @@ func NewSocAIClient(baseURL, internalKey string) *SocAIClient {
 	}
 }
 
+func setActingTenant(req *http.Request, ctx context.Context) {
+	if t := authz.TenantIDFromContext(ctx); t != "" {
+		req.Header.Set(middleware.TenantHeader, t)
+	}
+}
+
 func (c *SocAIClient) StreamAgentTask(ctx context.Context, body []byte) (*http.Response, error) {
 	url := c.baseURL + "/api/v1/agent/task"
 
@@ -44,6 +53,7 @@ func (c *SocAIClient) StreamAgentTask(ctx context.Context, body []byte) (*http.R
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("X-Internal-Key", c.internalKey)
+	setActingTenant(req, ctx)
 
 	resp, err := c.streamClient.Do(req)
 	if err != nil {
@@ -61,6 +71,7 @@ func (c *SocAIClient) Analyze(ctx context.Context, alertJSON []byte) (int, []byt
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Internal-Key", c.internalKey)
+	setActingTenant(req, ctx)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

@@ -3,15 +3,43 @@ package handler
 import (
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/textproto"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 )
+
+var proxyTransport = &http.Transport{
+	Proxy: http.ProxyFromEnvironment,
+	DialContext: (&net.Dialer{
+		Timeout:   10 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}).DialContext,
+	ForceAttemptHTTP2:     true,
+	MaxIdleConns:          100,
+	IdleConnTimeout:       90 * time.Second,
+	TLSHandshakeTimeout:   10 * time.Second,
+	ExpectContinueTimeout: 1 * time.Second,
+	ResponseHeaderTimeout: 30 * time.Second,
+}
+
+func writeUpstreamError(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json")
+
+	status, body := http.StatusBadGateway, `{"error":"upstream service error"}`
+	if os.IsTimeout(err) {
+		status, body = http.StatusGatewayTimeout, `{"error":"upstream service timed out"}`
+	}
+
+	w.WriteHeader(status)
+	_, _ = w.Write([]byte(body))
+}
 
 // ReverseProxyHandler creates a reverse proxy that maps a local route to a CM proxy target.
 type ReverseProxyHandler struct {
@@ -39,11 +67,10 @@ func (h *ReverseProxyHandler) Handle(c *gin.Context) {
 
 	// Create reverse proxy with custom director
 	proxy := &httputil.ReverseProxy{
-		Director: h.directorFunc(cfg, targetURL),
-		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte(`{"error":"upstream service error"}`))
+		Director:  h.directorFunc(cfg, targetURL),
+		Transport: proxyTransport,
+		ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
+			writeUpstreamError(w, err)
 		},
 	}
 
@@ -122,7 +149,8 @@ func (h *ReverseProxyHandler) HandleUsageEndpoint(c *gin.Context) {
 
 	// Execute request
 	client := &http.Client{
-		Timeout: 20 * time.Second,
+		Transport: proxyTransport,
+		Timeout:   20 * time.Second,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

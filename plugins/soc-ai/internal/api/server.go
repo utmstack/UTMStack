@@ -60,12 +60,14 @@ func StartHTTPServer() {
 	}
 }
 
+func tenantOf(r *http.Request) string { return r.Header.Get("X-Tenant-Id") }
+
 // authMiddleware validates the X-Internal-Key header for protected endpoints
 func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		cfg := config.GetConfig()
+		cfg := config.GetPlatform()
 		if cfg == nil || cfg.InternalKey == "" {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			json.NewEncoder(w).Encode(AnalyzeResponse{
@@ -109,7 +111,7 @@ func handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if module is active
-	if config.GetConfig() == nil || !config.GetConfig().ModuleActive {
+	if cfg := config.GetConfig(tenantOf(r)); cfg == nil || !cfg.ModuleActive {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(AnalyzeResponse{
 			Status:  "error",
@@ -140,7 +142,7 @@ func handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Enqueue for processing
-	if !queue.EnqueueManual(&req.AlertFields) {
+	if !queue.EnqueueManual(&req.AlertFields, tenantOf(r)) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(AnalyzeResponse{
 			Status:  "error",
@@ -164,7 +166,9 @@ func handleAgentTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ag := agent.Current()
+	tenantID := tenantOf(r)
+
+	ag := agent.For(tenantID)
 	if ag == nil {
 		writeJSONError(w, http.StatusServiceUnavailable, "SOC-AI agent is not configured")
 		return
@@ -202,7 +206,7 @@ func handleAgentTask(w http.ResponseWriter, r *http.Request) {
 
 	maxIters := 0
 	var capabilities []string
-	if cfg := config.GetConfig(); cfg != nil {
+	if cfg := config.GetConfig(tenantID); cfg != nil {
 		maxIters = cfg.MaxToolIterations
 		capabilities = cfg.Capabilities
 	}

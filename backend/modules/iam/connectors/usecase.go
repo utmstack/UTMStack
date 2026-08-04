@@ -58,7 +58,7 @@ type UserUsecase interface {
 
 	// CreateTenantAdmin is called by the tenant module during provisioning.
 	CreateTenantAdmin(ctx context.Context, tenantID, login, email string) error
-	EnsureBootstrapAdmin(ctx context.Context, password string) (created bool, generated string, err error)
+	EnsureBootstrapAdmin(ctx context.Context, password string) (created bool, err error)
 	Update(ctx context.Context, actor string, id uint64, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error)
 	Deactivate(ctx context.Context, id uint64) error
 	AssignRoles(ctx context.Context, actor string, id uint64, input dto.AssignRolesRequest) error

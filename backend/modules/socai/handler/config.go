@@ -7,12 +7,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/socai/dto"
+	"github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/socai/usecase"
 )
 
 type configService interface {
 	Get(ctx context.Context) (*dto.ConfigResponse, error)
 	Update(ctx context.Context, req dto.ConfigRequest) (*dto.ConfigResponse, error)
+	ResetToDefault(ctx context.Context) (*dto.ConfigResponse, error)
 }
 
 type ConfigHandler struct {
@@ -66,6 +68,30 @@ func (h *ConfigHandler) Update(c *gin.Context) {
 	if err != nil {
 		// A failed connection check is a bad-config (400), not a server error.
 		if errors.Is(err, usecase.ErrVerificationFailed) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// ResetToDefault godoc
+//
+// @Summary     Stop overriding the SOC AI configuration
+// @Description Drops this tenant's own configuration so it goes back to inheriting the instance default. Refused for a caller acting for no tenant, since the default is not an override.
+// @Tags        SOC AI
+// @Security    BearerAuth
+// @Produce     json
+// @Success     200 {object} dto.ConfigResponse
+// @Failure     400 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /soc-ai/config [delete]
+func (h *ConfigHandler) ResetToDefault(c *gin.Context) {
+	resp, err := h.svc.ResetToDefault(c.Request.Context())
+	if err != nil {
+		if errors.Is(err, repository.ErrNoInstanceDefault) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}

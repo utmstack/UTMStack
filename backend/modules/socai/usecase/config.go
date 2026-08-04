@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/socai/dto"
 	"github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/socai/verifier"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 )
@@ -47,7 +48,7 @@ func (s *ConfigService) StartEnsureDefaultLoop() {
 }
 
 func (s *ConfigService) EnsureDefault() bool {
-	existing, err := s.store.Load()
+	existing, err := s.store.Load("")
 	if err != nil {
 		catcher.Warn("socai: failed to check existing config for default provisioning", map[string]any{"error": err.Error()})
 		return false
@@ -82,7 +83,7 @@ func (s *ConfigService) EnsureDefault() bool {
 		MaxToolIterations: 12,
 		AutoAnalyze:       true,
 	}
-	if err := s.store.Save(fc); err != nil {
+	if err := s.store.Save("", fc); err != nil {
 		catcher.Warn("socai: failed to save default ThreatWinds config", map[string]any{"error": err.Error()})
 		return false
 	}
@@ -105,14 +106,22 @@ func NewConfigService(store *repository.ConfigStore, cipher *secret.Cipher, v co
 	return &ConfigService{store: store, cipher: cipher, verifier: v}
 }
 
-// Get returns the masked current config (never exposes stored secrets).
-func (s *ConfigService) Get(_ context.Context) (*dto.ConfigResponse, error) {
-	fc, err := s.store.Load()
+// Get returns the masked config the acting tenant runs under, which is its own
+// when it has one and the instance default otherwise (never exposes secrets).
+func (s *ConfigService) Get(ctx context.Context) (*dto.ConfigResponse, error) {
+	tenantID := authz.TenantIDFromContext(ctx)
+
+	fc, err := s.store.Load(tenantID)
 	if err != nil {
 		return nil, err
 	}
 	if fc == nil {
 		return &dto.ConfigResponse{Configured: false}, nil
+	}
+
+	own, err := s.store.LoadOwn(tenantID)
+	if err != nil {
+		return nil, err
 	}
 
 	maskedHeaders := make(map[string]string, len(fc.CustomHeaders))
@@ -122,6 +131,7 @@ func (s *ConfigService) Get(_ context.Context) (*dto.ConfigResponse, error) {
 
 	return &dto.ConfigResponse{
 		Configured:        true,
+		Inherited:         own == nil,
 		Provider:          fc.Provider,
 		Model:             fc.Model,
 		URL:               fc.URL,
@@ -136,11 +146,27 @@ func (s *ConfigService) Get(_ context.Context) (*dto.ConfigResponse, error) {
 	}, nil
 }
 
+// ResetToDefault drops the acting tenant's own configuration so it goes back to
+// the instance default, and returns what it now runs under.
+func (s *ConfigService) ResetToDefault(ctx context.Context) (*dto.ConfigResponse, error) {
+	if err := s.store.Delete(authz.TenantIDFromContext(ctx)); err != nil {
+		return nil, err
+	}
+	return s.Get(ctx)
+}
+
 // Update persists the config. Flow (mirrors the integrations tenant save):
 // resolve masked secrets to plaintext → verify the LLM connection (fail fast,
 // nothing written) → encrypt secrets → write the plugin YAML.
+// Update writes the acting tenant's own configuration, or the instance default
+// when the caller acts for no tenant — which on an MSSP install is the platform
+// administrator, and on every other one is simply everybody.
 func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto.ConfigResponse, error) {
-	existing, err := s.store.Load()
+	tenantID := authz.TenantIDFromContext(ctx)
+
+	// Against its own entry, so a tenant saving for the first time is not shown
+	// the instance default's masked secrets as if they were its own.
+	existing, err := s.store.LoadOwn(tenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +267,7 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 		Capabilities:      req.Capabilities,
 	}
 
-	if err := s.store.Save(fc); err != nil {
+	if err := s.store.Save(tenantID, fc); err != nil {
 		return nil, err
 	}
 	return s.Get(ctx)

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync/atomic"
+	"sync"
 
 	"github.com/threatwinds/go-sdk/catcher"
 )
@@ -41,11 +41,11 @@ func resolveContextWindow(model string) int {
 type EventKind string
 
 const (
-	EventToolCall    EventKind = "tool_call"
-	EventToolResult  EventKind = "tool_result"
-	EventFinal       EventKind = "final"
-	EventError       EventKind = "error"
-	EventCompaction  EventKind = "compaction"
+	EventToolCall   EventKind = "tool_call"
+	EventToolResult EventKind = "tool_result"
+	EventFinal      EventKind = "final"
+	EventError      EventKind = "error"
+	EventCompaction EventKind = "compaction"
 )
 
 type Event struct {
@@ -248,13 +248,40 @@ func (a *Agent) compact(ctx context.Context, userInput string, msgs []Message) (
 	}}, nil
 }
 
-var current atomic.Pointer[Agent]
+type registry struct {
+	mu     sync.Mutex
+	build  func(tenantID string) *Agent
+	agents map[string]*Agent
+}
 
-func SetCurrent(a *Agent) {
-	old := current.Swap(a)
-	if old != nil && old.broker != nil && old != a {
-		old.broker.Close()
+var reg = &registry{agents: map[string]*Agent{}}
+
+func SetBuilder(build func(tenantID string) *Agent) {
+	reg.mu.Lock()
+	old := reg.agents
+	reg.build = build
+	reg.agents = map[string]*Agent{}
+	reg.mu.Unlock()
+
+	for _, a := range old {
+		if a != nil && a.broker != nil {
+			a.broker.Close()
+		}
 	}
 }
 
-func Current() *Agent { return current.Load() }
+func For(tenantID string) *Agent {
+	reg.mu.Lock()
+	defer reg.mu.Unlock()
+
+	if reg.build == nil {
+		return nil
+	}
+	if a, ok := reg.agents[tenantID]; ok {
+		return a
+	}
+
+	a := reg.build(tenantID)
+	reg.agents[tenantID] = a
+	return a
+}

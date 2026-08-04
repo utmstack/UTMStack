@@ -17,7 +17,13 @@ type ConfigRequest struct {
 }
 
 type ConfigResponse struct {
-	Configured        bool              `json:"configured"`
+	Configured bool `json:"configured"`
+
+	// Inherited reports that this is the instance default rather than the
+	// tenant's own, so the UI can say so and offer to stop inheriting — or, if
+	// it already has its own, offer to go back.
+	Inherited bool `json:"inherited"`
+
 	Provider          string            `json:"provider"`
 	Model             string            `json:"model"`
 	URL               string            `json:"url"`

@@ -15,23 +15,28 @@ import (
 type ToolBroker struct {
 	endpoint string
 	key      string
+	tenantID string
 
 	mu      sync.Mutex
 	session *mcp.ClientSession
 }
 
-func NewToolBroker(backendURL, internalKey string) *ToolBroker {
+func NewToolBroker(backendURL, internalKey, tenantID string) *ToolBroker {
 	endpoint := strings.TrimRight(backendURL, "/") + "/api/v1/mcp"
-	return &ToolBroker{endpoint: endpoint, key: internalKey}
+	return &ToolBroker{endpoint: endpoint, key: internalKey, tenantID: tenantID}
 }
 
 type keyRoundTripper struct {
-	base http.RoundTripper
-	key  string
+	base     http.RoundTripper
+	key      string
+	tenantID string
 }
 
 func (k keyRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	r.Header.Set("X-Internal-Key", k.key)
+	if k.tenantID != "" {
+		r.Header.Set("X-Tenant-Id", k.tenantID)
+	}
 	return k.base.RoundTrip(r)
 }
 
@@ -50,7 +55,8 @@ func (b *ToolBroker) ensure(ctx context.Context) (*mcp.ClientSession, error) {
 				TLSClientConfig:     &tls.Config{InsecureSkipVerify: true}, // backend may use a self-signed internal cert
 				MaxIdleConnsPerHost: 10,
 			},
-			key: b.key,
+			key:      b.key,
+			tenantID: b.tenantID,
 		},
 	}
 	client := mcp.NewClient(&mcp.Implementation{Name: "com.utmstack.soc-ai", Version: "1.0.0"}, nil)

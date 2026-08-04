@@ -39,28 +39,42 @@ func main() {
 }
 
 func applyConfigUpdates() {
-	for cfg := range config.GetConfigUpdateChannel() {
-		if cfg == nil || !cfg.ModuleActive {
-			agent.SetCurrent(nil)
-			catcher.Info("SOC-AI inactive (incomplete configuration)", map[string]any{"process": "plugin_com.utmstack.soc-ai"})
+	for set := range config.GetConfigUpdateChannel() {
+		if set == nil || set.Default == nil {
+			agent.SetBuilder(nil)
 			continue
 		}
-		llm := agent.NewLLMClient(agent.LLMConfig{
-			Provider:       cfg.Provider,
-			URL:            cfg.URL,
-			Model:          cfg.Model,
-			APIKey:         cfg.APIKey,
-			AuthType:       cfg.AuthType,
-			AuthHeaderName: cfg.AuthHeaderName,
-			CustomHeaders:  cfg.CustomHeaders,
+
+		agent.SetBuilder(func(tenantID string) *agent.Agent {
+			cfg := config.GetConfig(tenantID)
+			if cfg == nil || !cfg.ModuleActive {
+				return nil
+			}
+
+			llm := agent.NewLLMClient(agent.LLMConfig{
+				Provider:       cfg.Provider,
+				URL:            cfg.URL,
+				Model:          cfg.Model,
+				APIKey:         cfg.APIKey,
+				AuthType:       cfg.AuthType,
+				AuthHeaderName: cfg.AuthHeaderName,
+				CustomHeaders:  cfg.CustomHeaders,
+			})
+			broker := agent.NewToolBroker(cfg.Backend, cfg.InternalKey, tenantID)
+
+			catcher.Info("SOC-AI agent configured", map[string]any{
+				"process":  "plugin_com.utmstack.soc-ai",
+				"tenant":   tenantID,
+				"provider": cfg.Provider,
+				"model":    cfg.Model,
+			})
+
+			return agent.New(llm, broker, cfg.Model, cfg.MaxTokens, cfg.ContextWindow)
 		})
-		broker := agent.NewToolBroker(cfg.Backend, cfg.InternalKey)
-		agent.SetCurrent(agent.New(llm, broker, cfg.Model, cfg.MaxTokens, cfg.ContextWindow))
-		catcher.Info("SOC-AI agent configured", map[string]any{
-			"process":  "plugin_com.utmstack.soc-ai",
-			"provider": cfg.Provider,
-			"model":    cfg.Model,
-		})
+
+		if !set.Default.ModuleActive && len(set.Tenants) == 0 {
+			catcher.Info("SOC-AI inactive (incomplete configuration)", map[string]any{"process": "plugin_com.utmstack.soc-ai"})
+		}
 	}
 }
 
@@ -75,11 +89,11 @@ func correlate(_ context.Context, alert *plugins.Alert) (*emptypb.Empty, error) 
 		}
 	}()
 
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(alert.TenantId)
 	if cfg == nil || !cfg.ModuleActive || !cfg.AutoAnalyze {
 		return &emptypb.Empty{}, nil
 	}
-	if agent.Current() == nil {
+	if agent.For(alert.TenantId) == nil {
 		return &emptypb.Empty{}, nil
 	}
 

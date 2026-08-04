@@ -12,10 +12,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	g := api.Group("/soc-ai", userAuth)
 
-	// Configuration (admin-only): writes the encrypted plugin YAML.
 	cfg := handler.NewConfigHandler(m.config)
 	g.GET("/config", middleware.RequireAdmin(), cfg.Get)
 	g.PUT("/config", middleware.RequireAdmin(), cfg.Update)
+	g.DELETE("/config", middleware.RequireAdmin(), cfg.ResetToDefault)
 
 	// Live agent operations (chat-style SSE stream).
 	chat := handler.NewChatHandler(m.client)

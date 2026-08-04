@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"testing"
 
@@ -42,6 +43,8 @@ func (f *fakeRBACRepo) ReplaceUserRoles(_ context.Context, userID uint64, roles 
 	return nil
 }
 
+const bootstrapTestPassword = "installer-generated-password"
+
 func newBootstrapUsecase(users *fakeUserRepo, rbac *fakeRBACRepo) *userUsecase {
 	return &userUsecase{userRepo: users, rbacRepo: rbac}
 }
@@ -50,15 +53,12 @@ func TestBootstrapCreatesTheFirstAdmin(t *testing.T) {
 	users := &fakeUserRepo{}
 	rbac := &fakeRBACRepo{}
 
-	created, generated, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), "")
+	created, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), bootstrapTestPassword)
 	if err != nil {
 		t.Fatalf("EnsureBootstrapAdmin: %v", err)
 	}
 	if !created {
 		t.Fatal("no admin was created on an empty install")
-	}
-	if generated == "" {
-		t.Fatal("no password was returned; the operator would have no way in")
 	}
 	if len(users.created) != 1 {
 		t.Fatalf("created %d users, want 1", len(users.created))
@@ -86,8 +86,8 @@ func TestBootstrapCreatesTheFirstAdmin(t *testing.T) {
 		t.Errorf("TenantID = %q, want the tenant every backfilled row uses", admin.TenantID)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(generated)); err != nil {
-		t.Fatalf("the returned password does not match the stored hash: %v", err)
+	if err := bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(bootstrapTestPassword)); err != nil {
+		t.Fatalf("the supplied password does not match the stored hash: %v", err)
 	}
 
 	// Both roles: an instance is installed as Community and licensed later, so
@@ -108,19 +108,16 @@ func TestBootstrapIsIdempotent(t *testing.T) {
 	rbac := &fakeRBACRepo{}
 	uc := newBootstrapUsecase(users, rbac)
 
-	if _, _, err := uc.EnsureBootstrapAdmin(context.Background(), ""); err != nil {
+	if _, err := uc.EnsureBootstrapAdmin(context.Background(), bootstrapTestPassword); err != nil {
 		t.Fatalf("first boot: %v", err)
 	}
 
-	created, generated, err := uc.EnsureBootstrapAdmin(context.Background(), "")
+	created, err := uc.EnsureBootstrapAdmin(context.Background(), bootstrapTestPassword)
 	if err != nil {
 		t.Fatalf("second boot: %v", err)
 	}
 	if created {
 		t.Fatal("a second admin was created on the next boot")
-	}
-	if generated != "" {
-		t.Fatalf("a password was returned without creating anything: %q", generated)
 	}
 	if len(users.created) != 1 {
 		t.Fatalf("%d users exist, want 1", len(users.created))
@@ -133,7 +130,8 @@ func TestBootstrapSkipsAnInstallThatHasUsers(t *testing.T) {
 	users := &fakeUserRepo{count: 3}
 	rbac := &fakeRBACRepo{}
 
-	created, _, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), "")
+	// Deliberately with no password: an upgrade must not need one set.
+	created, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), "")
 	if err != nil {
 		t.Fatalf("EnsureBootstrapAdmin: %v", err)
 	}
@@ -145,23 +143,17 @@ func TestBootstrapSkipsAnInstallThatHasUsers(t *testing.T) {
 	}
 }
 
-func TestBootstrapUsesTheSuppliedPassword(t *testing.T) {
+// Nothing generates a password any more, so an empty one has to be refused
+// loudly rather than producing an account nobody can sign in to.
+func TestBootstrapRefusesWithoutAPassword(t *testing.T) {
 	users := &fakeUserRepo{}
 	rbac := &fakeRBACRepo{}
 
-	const chosen = "a-password-the-installer-picked"
-	created, generated, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), chosen)
-	if err != nil {
-		t.Fatalf("EnsureBootstrapAdmin: %v", err)
+	created, err := newBootstrapUsecase(users, rbac).EnsureBootstrapAdmin(context.Background(), "")
+	if !errors.Is(err, ErrBootstrapPasswordRequired) {
+		t.Fatalf("EnsureBootstrapAdmin without a password = %v, want ErrBootstrapPasswordRequired", err)
 	}
-	if !created {
-		t.Fatal("no admin was created")
-	}
-	// Nothing generated means nothing to log: the caller already knows it.
-	if generated != "" {
-		t.Fatalf("generated = %q, want empty when a password was supplied", generated)
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(users.created[0].PasswordHash), []byte(chosen)); err != nil {
-		t.Fatalf("the supplied password does not match the stored hash: %v", err)
+	if created || len(users.created) != 0 {
+		t.Fatal("an account was created without a password")
 	}
 }

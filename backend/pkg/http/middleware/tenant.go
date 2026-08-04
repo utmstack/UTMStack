@@ -10,9 +10,14 @@ import (
 
 const HostTenantKey = "host_tenant_id"
 
-func ResolveTenant(isMSSP func() bool, resolve func(ctx context.Context, host string) (string, error)) gin.HandlerFunc {
+func ResolveTenant(isMSSP func() bool, internalKey string, resolve func(ctx context.Context, host string) (string, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if isMSSP == nil || !isMSSP() || resolve == nil {
+			c.Next()
+			return
+		}
+
+		if HasInternalKey(c, internalKey) {
 			c.Next()
 			return
 		}

@@ -60,9 +60,14 @@ type fileConfig struct {
 	Capabilities      []string          `yaml:"capabilities"`
 }
 
-// pluginsFile matches the flat wrapper the backend writes: plugins.soc-ai.*
+type socAIFile struct {
+	fileConfig `yaml:",inline"`
+	Tenants    map[string]fileConfig `yaml:"tenants,omitempty"`
+}
+
+// pluginsFile matches the wrapper the backend writes: plugins.soc-ai.*
 type pluginsFile struct {
-	Plugins map[string]fileConfig `yaml:"plugins"`
+	Plugins map[string]socAIFile `yaml:"plugins"`
 }
 
 const pluginKey = "soc-ai"
@@ -80,27 +85,39 @@ var providerDefaultURLs = map[string]string{
 
 var sensitiveKeys = map[string]bool{"api_key": true}
 
-var (
-	mu      sync.RWMutex
-	current Config
-	updates = make(chan *Config, 1)
-)
-
-func GetConfig() *Config {
-	mu.RLock()
-	defer mu.RUnlock()
-	c := current
-	return &c
+type Set struct {
+	Default *Config
+	Tenants map[string]*Config
 }
 
-func GetConfigUpdateChannel() <-chan *Config { return updates }
+var (
+	mu      sync.RWMutex
+	current Set
+	updates = make(chan *Set, 1)
+)
 
-func set(c *Config) {
+func GetConfig(tenantID string) *Config {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	if tenantID != "" {
+		if c, ok := current.Tenants[tenantID]; ok && c != nil {
+			return c
+		}
+	}
+	return current.Default
+}
+
+func GetPlatform() *Config { return GetConfig("") }
+
+func GetConfigUpdateChannel() <-chan *Set { return updates }
+
+func set(s *Set) {
 	mu.Lock()
-	current = *c
+	current = *s
 	mu.Unlock()
 	select {
-	case updates <- c:
+	case updates <- s:
 	default:
 	}
 }
@@ -174,28 +191,43 @@ func StartConfigurationSystem() {
 	}
 }
 
-func readConfig(path, encKey, backend, internalKey string) *Config {
-	c := &Config{Backend: backend, InternalKey: internalKey}
+func readConfig(path, encKey, backend, internalKey string) *Set {
+	inactive := &Set{Default: &Config{Backend: backend, InternalKey: internalKey}}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			_ = catcher.Error("failed to read config file", err, map[string]any{"process": processName, "file": path})
 		}
-		return c // inactive
+		return inactive
 	}
 
 	var pf pluginsFile
 	if err := yaml.Unmarshal(data, &pf); err != nil {
 		_ = catcher.Error("failed to parse config file", err, map[string]any{"process": processName, "file": path})
-		return c // inactive
+		return inactive
 	}
-	fc, ok := pf.Plugins[pluginKey]
+	file, ok := pf.Plugins[pluginKey]
 	if !ok {
-		return c // inactive: module not configured
+		return inactive // module not configured
 	}
 
 	cipher := NewCipher(encKey)
+	out := &Set{Default: build(file.fileConfig, cipher, encKey, backend, internalKey)}
+
+	if len(file.Tenants) > 0 {
+		out.Tenants = make(map[string]*Config, len(file.Tenants))
+		for tenantID, fc := range file.Tenants {
+			out.Tenants[tenantID] = build(fc, cipher, encKey, backend, internalKey)
+		}
+	}
+
+	return out
+}
+
+func build(fc fileConfig, cipher *Cipher, encKey, backend, internalKey string) *Config {
+	c := &Config{Backend: backend, InternalKey: internalKey}
+
 	apiKey := fc.APIKey
 	if encKey != "" && sensitiveKeys["api_key"] && apiKey != "" {
 		if dec, derr := cipher.Decrypt(apiKey); derr == nil {

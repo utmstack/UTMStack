@@ -130,6 +130,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 
 	api.Use(middleware.ResolveTenant(
 		func() bool { return m.billing.License().Current().IsMSSP() },
+		cfg.internalKey,
 		func(ctx context.Context, host string) (string, error) {
 			t, err := m.tenant.GetTenantUsecase().ResolveDomain(ctx, host)
 			if err != nil {

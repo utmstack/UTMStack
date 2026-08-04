@@ -14,6 +14,8 @@ import (
 
 const InternalKeyHeader = "X-Internal-Key"
 
+const TenantHeader = "X-Tenant-Id"
+
 // Actor is re-exported for callers that already import the middleware package.
 // New code should depend on pkg/authz directly.
 type Actor = authz.Actor
@@ -108,16 +110,17 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 			c.Next()
 			return
 		}
-		if internalKey != "" {
-			if k := c.GetHeader(InternalKeyHeader); k != "" &&
-				subtle.ConstantTimeCompare([]byte(k), []byte(internalKey)) == 1 {
-				c.Set("internal", true)
-				if !setActor(c, Actor{Login: "internal", Internal: true}) {
-					return
-				}
-				c.Next()
+		if HasInternalKey(c, internalKey) {
+			c.Set("internal", true)
+			if !setActor(c, Actor{
+				Login:    "internal",
+				Internal: true,
+				TenantID: c.GetHeader(TenantHeader),
+			}) {
 				return
 			}
+			c.Next()
+			return
 		}
 		if apiKeyAuth != nil {
 			if apiKey := c.GetHeader("Utm-Api-Key"); apiKey != "" {
@@ -203,6 +206,18 @@ func RequireInternal() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+// HasInternalKey reports whether the request carries the shared internal key.
+// Authenticate and ResolveTenant both need to agree on what counts as an
+// internal caller: if they diverged, a request could be internal to one and a
+// tenant's to the other.
+func HasInternalKey(c *gin.Context, internalKey string) bool {
+	if internalKey == "" {
+		return false
+	}
+	k := c.GetHeader(InternalKeyHeader)
+	return k != "" && subtle.ConstantTimeCompare([]byte(k), []byte(internalKey)) == 1
 }
 
 func abortAuthzErr(c *gin.Context, err error, msg string) {

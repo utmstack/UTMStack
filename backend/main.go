@@ -9,6 +9,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	// _ "github.com/utmstack/utmstack/backend/docs"
+	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 )
 
@@ -38,6 +39,35 @@ func main() {
 
 	modules := initModules(db, cfg)
 
+	created, err := modules.iam.GetUserUsecase().EnsureBootstrapAdmin(
+		appCtx, env.String("UTMSTACK_ADMIN_PASSWORD", "", false))
+	if err != nil {
+		_ = catcher.Error("failed to create the initial administrator", err, nil)
+		panic(err)
+	}
+	if created {
+		// Never the password: the installer already showed it once, and these
+		// logs are kept.
+		catcher.Info(fmt.Sprintf("created the initial administrator %q", iam_usecase.BootstrapAdminLogin), nil)
+	}
+
+	// TODO(scaling): these Start calls launch periodic jobs, and every replica
+	// runs all of them. That is fine today because the backend runs as one
+	// replica, and it is not the layer where the problem should be solved
+	// anyway: the direction is for plugins to own the scheduling and drive the
+	// backend, which leaves it request-driven with nothing periodic to
+	// coordinate.
+	//
+	// Whatever survives that move needs the fix SOAR and the compliance report
+	// scheduler already have — an atomic claim on the row being worked
+	// (ClaimPending / ClaimDue). That is correct under polling, under an
+	// external trigger and with N replicas, because it does not depend on how
+	// the work is kicked off. Coordinating at the job level instead only
+	// serialises replicas that could have processed different rows.
+	//
+	// Cache reloads (filter_store, rule_store, flow_store, reloadCoverage) are
+	// the exception: they rebuild in-process state and every replica has to run
+	// them.
 	if err := modules.opensearchGateway.Start(appCtx); err != nil {
 		_ = catcher.Error("opensearch module failed to start", err, nil)
 		panic(err)

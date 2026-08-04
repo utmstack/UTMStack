@@ -22,6 +22,7 @@ type Item struct {
 	AlertFields *schema.AlertFields // for manual submissions (already converted)
 	Timestamp   time.Time
 	IsManual    bool
+	TenantID    string
 }
 
 type AlertQueue struct {
@@ -72,15 +73,24 @@ func Enqueue(pluginAlert *plugins.Alert) bool {
 	if instance == nil {
 		return false
 	}
-	return enqueueItem(&Item{Alert: pluginAlert, Timestamp: time.Now()}, pluginAlert.Id)
+	return enqueueItem(&Item{
+		Alert:     pluginAlert,
+		Timestamp: time.Now(),
+		TenantID:  pluginAlert.TenantId,
+	}, pluginAlert.Id)
 }
 
 // EnqueueManual adds an alert to the processing queue (from the HTTP API).
-func EnqueueManual(alertFields *schema.AlertFields) bool {
+func EnqueueManual(alertFields *schema.AlertFields, tenantID string) bool {
 	if instance == nil {
 		return false
 	}
-	return enqueueItem(&Item{AlertFields: alertFields, Timestamp: time.Now(), IsManual: true}, alertFields.Id)
+	return enqueueItem(&Item{
+		AlertFields: alertFields,
+		Timestamp:   time.Now(),
+		IsManual:    true,
+		TenantID:    tenantID,
+	}, alertFields.Id)
 }
 
 func enqueueItem(item *Item, alertID string) bool {
@@ -143,13 +153,13 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 		}
 	}()
 
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(item.TenantID)
 	if cfg == nil || !cfg.ModuleActive {
 		atomic.AddInt64(&aq.processedCount, 1)
 		return
 	}
 
-	ag := agent.Current()
+	ag := agent.For(item.TenantID)
 	if ag == nil {
 		atomic.AddInt64(&aq.processedCount, 1)
 		return
