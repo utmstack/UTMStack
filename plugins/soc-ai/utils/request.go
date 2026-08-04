@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,9 +14,8 @@ import (
 
 // Connection pooling - reusable HTTP clients
 var (
-	defaultClient  *http.Client
-	insecureClient *http.Client
-	clientOnce     sync.Once
+	defaultClient *http.Client
+	clientOnce    sync.Once
 )
 
 // initClients initializes the pooled HTTP clients
@@ -29,16 +27,6 @@ func initClients() {
 				MaxIdleConns:        100,
 				MaxIdleConnsPerHost: 10,
 				IdleConnTimeout:     90 * time.Second,
-			},
-		}
-
-		// Insecure client for OpenSearch (self-signed certs)
-		insecureClient = &http.Client{
-			Transport: &http.Transport{
-				MaxIdleConns:        100,
-				MaxIdleConnsPerHost: 10,
-				IdleConnTimeout:     90 * time.Second,
-				TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 			},
 		}
 	})
@@ -53,7 +41,6 @@ type RequestOptions struct {
 	TimeoutSec    int
 	BasicAuthUser string
 	BasicAuthPass string
-	SkipTLSVerify bool
 }
 
 // doRequest is the base HTTP request function with connection pooling
@@ -77,13 +64,7 @@ func doRequest(opts RequestOptions) ([]byte, int, error) {
 		req.SetBasicAuth(opts.BasicAuthUser, opts.BasicAuthPass)
 	}
 
-	// Select the appropriate pooled client
-	client := defaultClient
-	if opts.SkipTLSVerify {
-		client = insecureClient
-	}
-
-	resp, err := client.Do(req)
+	resp, err := defaultClient.Do(req)
 	if err != nil {
 		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 			return nil, http.StatusInternalServerError, fmt.Errorf("request timed out: %v: %s", err, opts.Data)
@@ -130,19 +111,5 @@ func DoReq(url string, data []byte, method string, headers map[string]string, ti
 		Method:     method,
 		Headers:    headers,
 		TimeoutSec: timeoutInSec,
-	})
-}
-
-// DoOpenSearchReq makes an HTTP request to OpenSearch with basic auth and TLS skip
-func DoOpenSearchReq(url string, data []byte, method string, headers map[string]string, user, password string, timeoutInSec int) ([]byte, int, error) {
-	return doRequest(RequestOptions{
-		URL:           url,
-		Data:          data,
-		Method:        method,
-		Headers:       headers,
-		TimeoutSec:    timeoutInSec,
-		BasicAuthUser: user,
-		BasicAuthPass: password,
-		SkipTLSVerify: true,
 	})
 }

@@ -11,7 +11,7 @@ import (
 
 type IncidentProcessor struct {
 	backendClient      *client.BackendClient
-	opensearchClient   *client.OpenSearchClient
+	alertClient        *client.AlertClient
 	threadwindsClient  *client.ThreadWindsClient
 	alertProcessor     *AlertProcessor
 	associationBuilder *association.AssociationBuilder
@@ -24,7 +24,7 @@ func NewIncidentProcessor(
 ) *IncidentProcessor {
 	return &IncidentProcessor{
 		backendClient:      deps.Backend,
-		opensearchClient:   deps.OpenSearch,
+		alertClient:        deps.Alerts,
 		threadwindsClient:  deps.ThreadWinds,
 		alertProcessor:     alertProcessor,
 		associationBuilder: associationBuilder,

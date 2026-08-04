@@ -11,20 +11,20 @@ import (
 )
 
 type AlertProcessor struct {
-	opensearchClient *client.OpenSearchClient
-	fieldExtractor   *extractor.FieldExtractor
-	entityBuilder    *EntityBuilder
+	alertClient    *client.AlertClient
+	fieldExtractor *extractor.FieldExtractor
+	entityBuilder  *EntityBuilder
 }
 
 func NewAlertProcessor(
-	opensearchClient *client.OpenSearchClient,
+	alertClient *client.AlertClient,
 	fieldExtractor *extractor.FieldExtractor,
 	entityBuilder *EntityBuilder,
 ) *AlertProcessor {
 	return &AlertProcessor{
-		opensearchClient: opensearchClient,
-		fieldExtractor:   fieldExtractor,
-		entityBuilder:    entityBuilder,
+		alertClient:    alertClient,
+		fieldExtractor: fieldExtractor,
+		entityBuilder:  entityBuilder,
 	}
 }
 
@@ -34,7 +34,7 @@ func (p *AlertProcessor) ProcessAlertWithAssociations(
 	incident *models.Incident,
 	associationBuilder *association.AssociationBuilder,
 ) error {
-	alert, err := p.opensearchClient.GetAlertByID(ctx, incidentAlert.AlertID)
+	alert, err := p.alertClient.GetAlertByID(ctx, incidentAlert.AlertID)
 	if err != nil {
 		return catcher.Error("failed to get alert", err, map[string]any{
 			"alert_id":    incidentAlert.AlertID,

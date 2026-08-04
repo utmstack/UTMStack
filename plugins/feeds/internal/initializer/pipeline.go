@@ -19,7 +19,7 @@ func (a *App) buildProcessingPipeline() error {
 	entityBuilder := service.NewEntityBuilder(entityMapper)
 
 	alertProcessor := service.NewAlertProcessor(
-		a.clients.OpenSearch,
+		a.clients.Alerts,
 		fieldExtractor,
 		entityBuilder,
 	)

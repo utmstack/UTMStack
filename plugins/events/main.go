@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -11,7 +14,10 @@ import (
 )
 
 func main() {
-	startQueue()
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
+	startQueue(ctx)
 
 	err := plugins.InitAnalysisPlugin("com.utmstack.events", analyze)
 	if err != nil {

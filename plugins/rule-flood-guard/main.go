@@ -6,28 +6,49 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/store"
+	ch "github.com/threatwinds/go-sdk/store/clickhouse"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const pluginID = "com.utmstack.rule-flood-guard"
 
+const (
+	datasetAlerts      = store.Dataset("alerts")
+	defaultAlertsTable = "alerts"
+)
+
+var alertStore *ch.Driver
+
 func main() {
 	initialCfg, configPath := loadConfig()
 
-	osCfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
-	host := osCfg.Get("host").String()
-	port := osCfg.Get("port").String()
-	user := osCfg.Get("user").String()
-	password := osCfg.Get("password").String()
-	osURL := "https://" + host + ":" + port
+	cfg := plugins.PluginCfg("clickhouse")
+	table := cfg.Get("alertsTable").String()
+	if table == "" {
+		table = defaultAlertsTable
+	}
 
-	if err := sdkos.Connect([]string{osURL}, user, password); err != nil {
-		_ = catcher.Error("rule-flood-guard: failed connecting to OpenSearch", err, map[string]any{"process": "plugin_" + pluginID})
+	var err error
+	alertStore, err = ch.New(ch.Config{
+		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
+		Database: cfg.Get("database").String(),
+		Username: cfg.Get("user").String(),
+		Password: cfg.Get("password").String(),
+		Tables: map[store.Dataset]string{
+			datasetAlerts: table,
+		},
+		TenantColumn:   "tenantId",
+		TimeColumn:     "@timestamp",
+		DataTypeColumn: "dataType",
+	})
+	if err != nil {
+		_ = catcher.Error("rule-flood-guard: cannot build the alert store", err, map[string]any{"process": "plugin_" + pluginID})
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
+	defer alertStore.Close()
 
 	client := newBackendClient(initialCfg.BackendURL, initialCfg.InternalKey)
 	holder := newConfigHolder(initialCfg)

@@ -2,18 +2,15 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
-	sdkos "github.com/threatwinds/go-sdk/os"
+	"github.com/threatwinds/go-sdk/store"
 )
 
 const (
-	alertIndex           = "v11-alert-*"
-	falsePositiveTag     = "False positive"
-	ruleNameAgg          = "by_rule_name"
-	dataSourceAgg        = "by_data_source"
-	maxDataSourceBuckets = 10000
+	falsePositiveTag = "False positive"
+	statusOpen       = 2
+	maxCombinations  = 10000
 )
 
 type ruleBucket struct {
@@ -22,81 +19,41 @@ type ruleBucket struct {
 	Count      int64
 }
 
-func buildFloodQuery(window time.Duration, now time.Time) map[string]any {
-	gte := now.Add(-window).UTC().Format(time.RFC3339)
-	return map[string]any{
-		"size": 0,
-		"query": map[string]any{
-			"bool": map[string]any{
-				"must": []map[string]any{
-					{"term": map[string]any{"status": 2}},
-					{"range": map[string]any{"@timestamp": map[string]any{"gte": gte}}},
-				},
-				"must_not": []map[string]any{
-					{"term": map[string]any{"tags": falsePositiveTag}},
-					{"exists": map[string]any{"field": "parentId.keyword"}},
-				},
-			},
-		},
-		"aggs": map[string]any{
-			ruleNameAgg: map[string]any{
-				"terms": map[string]any{
-					"field": "name.keyword",
-					"size":  1000,
-				},
-				"aggs": map[string]any{
-					dataSourceAgg: map[string]any{
-						"terms": map[string]any{
-							"field": "dataSource.keyword",
-							"size":  maxDataSourceBuckets,
-						},
-					},
-				},
-			},
-		},
+func floodFilters() []store.Filter {
+	return []store.Filter{
+		{Field: "status", Op: store.OpEq, Value: statusOpen},
+		{Field: "tags", Op: store.OpNotContains, Value: falsePositiveTag},
+		{Field: "parentId", Op: store.OpEq, Value: ""},
 	}
-}
-
-type termsBucketsResponse struct {
-	Buckets []struct {
-		Key      string `json:"key"`
-		DocCount int64  `json:"doc_count"`
-		Sub      struct {
-			Buckets []struct {
-				Key      string `json:"key"`
-				DocCount int64  `json:"doc_count"`
-			} `json:"buckets"`
-		} `json:"by_data_source"`
-	} `json:"buckets"`
-}
-
-func parseRuleBuckets(aggs map[string]interface{}) ([]ruleBucket, error) {
-	raw, ok := aggs[ruleNameAgg]
-	if !ok {
-		return nil, nil
-	}
-	b, err := json.Marshal(raw)
-	if err != nil {
-		return nil, err
-	}
-	var parsed termsBucketsResponse
-	if err := json.Unmarshal(b, &parsed); err != nil {
-		return nil, err
-	}
-	buckets := make([]ruleBucket, 0, len(parsed.Buckets))
-	for _, bucket := range parsed.Buckets {
-		for _, sub := range bucket.Sub.Buckets {
-			buckets = append(buckets, ruleBucket{RuleName: bucket.Key, DataSource: sub.Key, Count: sub.DocCount})
-		}
-	}
-	return buckets, nil
 }
 
 func searchRuleBuckets(ctx context.Context, window time.Duration) ([]ruleBucket, error) {
-	query := buildFloodQuery(window, time.Now())
-	result, err := sdkos.RawSearch(ctx, []string{alertIndex}, query)
+	now := time.Now().UTC()
+	scope := store.Scope{
+		Tenant:  store.AllTenants,
+		Dataset: datasetAlerts,
+		From:    now.Add(-window),
+		To:      now,
+	}
+
+	groups, err := alertStore.GroupBy(ctx, scope,
+		[]string{"name", "dataSource"},
+		floodFilters(),
+		store.GroupOpts{Limit: maxCombinations},
+	)
 	if err != nil {
 		return nil, err
 	}
-	return parseRuleBuckets(result.Aggregations)
+	buckets := make([]ruleBucket, 0, len(groups))
+	for _, byName := range groups {
+		for _, bySource := range byName.Children {
+			buckets = append(buckets, ruleBucket{
+				RuleName:   byName.Key,
+				DataSource: bySource.Key,
+				Count:      bySource.Count,
+			})
+		}
+	}
+
+	return buckets, nil
 }
