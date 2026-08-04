@@ -6,13 +6,18 @@ require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
+	github.com/redis/go-redis/v9 v9.22.0
 	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.11
 	gorm.io/driver/postgres v1.6.2
 	gorm.io/gorm v1.31.2
 )
 
-require go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
+require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+)
 
 require (
 	github.com/bytedance/gopkg v0.1.4 // indirect

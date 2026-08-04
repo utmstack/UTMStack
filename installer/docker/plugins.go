@@ -12,17 +12,32 @@ type PluginsConfig struct {
 	Plugins map[string]PluginConfig `yaml:"plugins"`
 }
 
+type ClickHousePluginsConfig struct {
+	Plugins map[string]ClickHouseConfig `yaml:"plugins"`
+}
+
 type PluginConfig struct {
-	Order         []string         `yaml:"order,omitempty"`
-	Port          int              `yaml:"port,omitempty"`
-	OpenSearch    OpenSearchConfig `yaml:"opensearch,omitempty"`
-	PostgreSQL    PostgreConfig    `yaml:"postgresql,omitempty"`
-	InternalKey   string           `yaml:"internalKey,omitempty"`
-	EncryptionKey string           `yaml:"encryptionKey,omitempty"`
-	Env           string           `yaml:"env,omitempty"`
-	AgentManager  string           `yaml:"agentManager,omitempty"`
-	Backend       string           `yaml:"backend,omitempty"`
-	CertsFolder   string           `yaml:"certsFolder,omitempty"`
+	Order         []string      `yaml:"order,omitempty"`
+	Port          int           `yaml:"port,omitempty"`
+	PostgreSQL    PostgreConfig `yaml:"postgresql,omitempty"`
+	InternalKey   string        `yaml:"internalKey,omitempty"`
+	EncryptionKey string        `yaml:"encryptionKey,omitempty"`
+	Env           string        `yaml:"env,omitempty"`
+	AgentManager  string        `yaml:"agentManager,omitempty"`
+	Backend       string        `yaml:"backend,omitempty"`
+	CertsFolder   string        `yaml:"certsFolder,omitempty"`
+}
+
+type ClickHouseConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Database string `yaml:"database"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+
+	LogsTable       string `yaml:"logsTable"`
+	AlertsTable     string `yaml:"alertsTable"`
+	StatisticsTable string `yaml:"statisticsTable"`
 }
 
 type PostgreConfig struct {
@@ -31,13 +46,6 @@ type PostgreConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
-}
-
-type OpenSearchConfig struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
 }
 
 func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
@@ -77,15 +85,18 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		CertsFolder:   "/cert",
 	}
 
-	openSearchPipeline := PluginsConfig{}
-	openSearchPipeline.Plugins = make(map[string]PluginConfig)
-	openSearchPipeline.Plugins["org.opensearch"] = PluginConfig{
-		OpenSearch: OpenSearchConfig{
-			Host:     "node1",
-			Port:     "9200",
-			User:     "admin",
-			Password: conf.OpenSearchPassword,
-		},
+	clickHousePipeline := ClickHousePluginsConfig{}
+	clickHousePipeline.Plugins = make(map[string]ClickHouseConfig)
+	clickHousePipeline.Plugins["clickhouse"] = ClickHouseConfig{
+		Host:     "clickhouse",
+		Port:     "9000",
+		Database: "utmstack",
+		User:     "default",
+		Password: conf.Password,
+
+		LogsTable:       "logs",
+		AlertsTable:     "alerts",
+		StatisticsTable: "statistics",
 	}
 
 	pipelineDir := filepath.Join(stack.EventsEngineWorkdir, "pipeline")
@@ -111,9 +122,9 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		return fmt.Errorf("error writing UTMStack pipeline config: %w", err)
 	}
 
-	err = utils.WriteYAML(filepath.Join(pipelineDir, "opensearch_plugins.yaml"), openSearchPipeline)
+	err = utils.WriteYAML(filepath.Join(pipelineDir, "clickhouse_plugins.yaml"), clickHousePipeline)
 	if err != nil {
-		return fmt.Errorf("error writing OpenSearch pipeline config: %w", err)
+		return fmt.Errorf("error writing ClickHouse pipeline config: %w", err)
 	}
 
 	return nil

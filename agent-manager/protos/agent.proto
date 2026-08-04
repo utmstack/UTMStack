@@ -22,7 +22,10 @@ service PanelService {
   rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
 }
 
-message ConnectionKeyRequest {}
+message ConnectionKeyRequest {
+  // Which tenant's enrolment key. Empty means the default tenant.
+  string tenantId = 1;
+}
 
 message ConnectionKeyResponse {
   string connection_key = 1;

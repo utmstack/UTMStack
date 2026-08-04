@@ -9,6 +9,9 @@ message ListRequest {
   int32 page_size = 2;
   string search_query = 3;
   string sort_by = 4;
+  // Which tenant to list. Empty means every tenant, which only the platform
+  // may ask for; a tenant-scoped caller always sets it.
+  string tenantId = 5;
 }
 
 enum Status {

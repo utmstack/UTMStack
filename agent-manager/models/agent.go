@@ -31,6 +31,7 @@ type Agent struct {
 	OsMinorVersion string
 	Aliases        string
 	Addresses      string
+	TenantID       string `gorm:"not null;index"`
 }
 
 type AgentCommand struct {

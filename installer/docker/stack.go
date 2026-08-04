@@ -18,8 +18,10 @@ type StackConfig struct {
 	FrontEndNginx       string
 	ServiceResources    map[string]*system.ServiceConfig
 	Threads             int
-	ESData              string
-	ESBackups           string
+	ClickHouseData      string
+	ClickHouseSchema    string
+	NATSData            string
+	RedisData           string
 	Cert                string
 	EventsEngineWorkdir string
 	LocksDir            string
@@ -54,14 +56,21 @@ func GetStackConfig() *StackConfig {
 		stackConfig.Cert = utils.MakeDir(0777, cnf.DataDir, "cert")
 		stackConfig.FrontEndNginx = utils.MakeDir(0777, cnf.DataDir, "front-end", "nginx")
 		stackConfig.EventsEngineWorkdir = utils.MakeDir(0777, cnf.DataDir, "events-engine-workdir")
-		stackConfig.ESData = utils.MakeDir(0777, cnf.DataDir, "opensearch", "data")
-		stackConfig.ESBackups = utils.MakeDir(0777, cnf.DataDir, "opensearch", "backups")
+		stackConfig.ClickHouseData = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "data")
+		// The server runs whatever is here on first boot, which is how the
+		// tables come to exist without anything else having to create them.
+		stackConfig.ClickHouseSchema = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "init")
+		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
+		stackConfig.RedisData = utils.MakeDir(0777, cnf.DataDir, "redis")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
 		Services = []system.ServiceConfig{
 			{Name: "event-processor", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
-			{Name: "opensearch", Priority: 1, MinMemory: 4350, MaxMemory: 60 * 1024},
+			{Name: "clickhouse", Priority: 1, MinMemory: 2048, MaxMemory: 60 * 1024},
+			{Name: "log-input", Priority: 2, MinMemory: 256, MaxMemory: 1024},
+			{Name: "nats", Priority: 3, MinMemory: 256, MaxMemory: 2 * 1024},
+			{Name: "redis", Priority: 3, MinMemory: 128, MaxMemory: 1024},
 			{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},

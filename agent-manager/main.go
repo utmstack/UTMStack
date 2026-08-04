@@ -10,6 +10,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/agent"
+	"github.com/utmstack/UTMStack/agent-manager/authcache"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/recovery"
 	"github.com/utmstack/UTMStack/agent-manager/updates"
@@ -61,6 +62,16 @@ func main() {
 
 	go agent.InitCollectorService()
 	agent.InitLastSeenService()
+
+	// Publishing keys where the log input reads them is what makes a deletion
+	// take effect at once instead of when the input's own copy expires.
+	agent.AuthCache = authcache.New(
+		os.Getenv("REDIS_ADDR"),
+		os.Getenv("REDIS_PASSWORD"),
+		0,
+	)
+	defer func() { _ = agent.AuthCache.Close() }()
+	go agent.AuthCache.Run(ctx, agent.AuthSnapshot)
 
 	recovery.SetStreamProvider(&recoveryProvider{
 		server:       agent.AgentServ,

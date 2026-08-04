@@ -179,6 +179,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 
 	s.CacheCollectorKeyMutex.Lock()
 	s.CacheCollectorKey[collector.ID] = key
+	AuthCache.PublishCollector(collector.ID, key)
 	s.CacheCollectorKeyMutex.Unlock()
 
 	LastSeenChannel <- models.LastSeen{
@@ -217,6 +218,7 @@ func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteReque
 
 	s.CacheCollectorKeyMutex.Lock()
 	delete(s.CacheCollectorKey, uint(idInt))
+	AuthCache.DeleteCollector(uint(idInt))
 	s.CacheCollectorKeyMutex.Unlock()
 
 	s.CollectorStreamMutex.Lock()

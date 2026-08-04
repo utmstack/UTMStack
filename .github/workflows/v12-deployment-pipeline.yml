@@ -381,7 +381,6 @@ jobs:
           - events
           - gcp
           - geolocation
-          - inputs
           - o365
           - sophos
           - stats
@@ -485,6 +484,16 @@ jobs:
       API_SECRET: ${{ secrets.API_SECRET }}
       CM_SIGN_PUBLIC_KEY: ${{ secrets.CM_SIGN_PUBLIC_KEY }}
       CM_ENCRYPT_SALT: ${{ secrets.CM_ENCRYPT_SALT }}
+  build_log_input:
+    name: Build Log Input Microservice
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    uses: ./.github/workflows/reusable-golang.yml
+    with:
+      image_name: log-input
+      tag: ${{ needs.setup_deployment.outputs.tag }}
+    secrets:
+      API_SECRET: ${{ secrets.API_SECRET }}
   build_frontend:
     name: Build Frontend Microservice
     needs: [setup_deployment]
@@ -499,9 +508,10 @@ jobs:
       build_agent_manager,
       build_event_processor,
       build_backend,
-      build_frontend
+      build_frontend,
+      build_log_input
     ]
-    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' }}
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_log_input.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."

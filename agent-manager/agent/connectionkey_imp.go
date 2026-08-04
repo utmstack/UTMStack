@@ -8,80 +8,137 @@ import (
 	"fmt"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
-func (s *AgentService) loadConnectionKey() error {
+func (s *AgentService) loadConnectionKeys() error {
 	var rows []models.ConnectionKey
 	if _, err := s.DBConnection.GetAll(&rows, ""); err != nil {
-		return fmt.Errorf("failed to load connection key: %v", err)
+		return fmt.Errorf("failed to load connection keys: %v", err)
 	}
 
-	if len(rows) > 0 {
-		s.connKeyMutex.Lock()
-		s.connKeyID = rows[0].ID
-		s.connKey = rows[0].Key
-		s.connKeyMutex.Unlock()
-		return nil
+	byTenant := make(map[string]models.ConnectionKey, len(rows)+1)
+	for _, row := range rows {
+		// Rows from before enrolment was per-tenant carry no tenant; they are
+		// the default tenant's key.
+		if row.TenantID == "" {
+			row.TenantID = config.DefaultTenantID
+		}
+		byTenant[row.TenantID] = row
 	}
 
-	key, err := generateConnectionKey()
-	if err != nil {
-		return err
-	}
-	row := models.ConnectionKey{Key: key}
-	if err := s.DBConnection.Create(&row); err != nil {
-		return fmt.Errorf("failed to create connection key: %v", err)
-	}
 	s.connKeyMutex.Lock()
-	s.connKeyID = row.ID
-	s.connKey = row.Key
+	s.connKeys = byTenant
 	s.connKeyMutex.Unlock()
-	catcher.Info("Generated agent connection key", map[string]any{"process": "agent-manager"})
+
+	if _, ok := byTenant[config.DefaultTenantID]; !ok {
+		if _, err := s.issueConnectionKey(config.DefaultTenantID); err != nil {
+			return err
+		}
+		catcher.Info("Generated the default tenant's connection key", map[string]any{"process": "agent-manager"})
+	}
+
 	return nil
 }
 
-// ValidateConnectionKey reports whether the presented key matches the current
-// connection key.
-func (s *AgentService) ValidateConnectionKey(key string) bool {
+// issueConnectionKey creates or replaces a tenant's key and returns it.
+func (s *AgentService) issueConnectionKey(tenantID string) (string, error) {
+	key, err := generateConnectionKey()
+	if err != nil {
+		return "", err
+	}
+
+	s.connKeyMutex.RLock()
+	existing, ok := s.connKeys[tenantID]
+	s.connKeyMutex.RUnlock()
+
+	row := models.ConnectionKey{TenantID: tenantID, Key: key}
+	if ok {
+		row.Model = gorm.Model{ID: existing.ID}
+		if err := s.DBConnection.Upsert(&row, "id = ?",
+			map[string]interface{}{"key": key, "tenant_id": tenantID}, existing.ID); err != nil {
+			return "", fmt.Errorf("failed to persist connection key: %v", err)
+		}
+	} else if err := s.DBConnection.Create(&row); err != nil {
+		return "", fmt.Errorf("failed to create connection key: %v", err)
+	}
+
+	s.connKeyMutex.Lock()
+	s.connKeys[tenantID] = row
+	s.connKeyMutex.Unlock()
+
+	return key, nil
+}
+
+// TenantForConnectionKey reports which tenant a presented key enrols into.
+// Comparison is constant-time against every key rather than a map lookup: a
+// map would leak, through timing, whether a guessed prefix exists.
+func (s *AgentService) TenantForConnectionKey(key string) (string, bool) {
+	if key == "" {
+		return "", false
+	}
+
 	s.connKeyMutex.RLock()
 	defer s.connKeyMutex.RUnlock()
-	if s.connKey == "" {
-		return false
+
+	for tenantID, row := range s.connKeys {
+		if subtle.ConstantTimeCompare([]byte(key), []byte(row.Key)) == 1 {
+			return tenantID, true
+		}
 	}
-	return subtle.ConstantTimeCompare([]byte(key), []byte(s.connKey)) == 1
+	return "", false
+}
+
+// ValidateConnectionKey reports whether the key enrols into any tenant.
+func (s *AgentService) ValidateConnectionKey(key string) bool {
+	_, ok := s.TenantForConnectionKey(key)
+	return ok
 }
 
 func (s *AgentService) GetConnectionKey(ctx context.Context, req *ConnectionKeyRequest) (*ConnectionKeyResponse, error) {
+	tenantID := tenantOrDefault(req.GetTenantId())
+
 	s.connKeyMutex.RLock()
-	key := s.connKey
+	row, ok := s.connKeys[tenantID]
 	s.connKeyMutex.RUnlock()
+
+	if ok {
+		return &ConnectionKeyResponse{ConnectionKey: row.Key}, nil
+	}
+
+	// A tenant created after this service started has no key yet, and asking
+	// for it is how one comes to exist.
+	key, err := s.issueConnectionKey(tenantID)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 	return &ConnectionKeyResponse{ConnectionKey: key}, nil
 }
 
 func (s *AgentService) RotateConnectionKey(ctx context.Context, req *ConnectionKeyRequest) (*ConnectionKeyResponse, error) {
-	key, err := generateConnectionKey()
+	tenantID := tenantOrDefault(req.GetTenantId())
+
+	key, err := s.issueConnectionKey(tenantID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to generate connection key: %v", err))
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	s.connKeyMutex.RLock()
-	id := s.connKeyID
-	s.connKeyMutex.RUnlock()
-
-	if err := s.DBConnection.Upsert(&models.ConnectionKey{Model: gorm.Model{ID: id}, Key: key}, "id = ?", map[string]interface{}{"key": key}, id); err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to persist connection key: %v", err))
-	}
-
-	s.connKeyMutex.Lock()
-	s.connKey = key
-	s.connKeyMutex.Unlock()
-
-	catcher.Info("Rotated agent connection key", map[string]any{"process": "agent-manager"})
+	catcher.Info("Rotated a tenant's connection key", map[string]any{
+		"process": "agent-manager",
+		"tenant":  tenantID,
+	})
 	return &ConnectionKeyResponse{ConnectionKey: key}, nil
+}
+
+func tenantOrDefault(tenantID string) string {
+	if tenantID == "" {
+		return config.DefaultTenantID
+	}
+	return tenantID
 }
 
 func generateConnectionKey() (string, error) {

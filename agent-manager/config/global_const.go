@@ -48,6 +48,8 @@ func InternalKeyRoutes() []string {
 	}
 }
 
+const DefaultTenantID = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+
 var (
 	CheckEvery                = 5 * time.Minute
 	CertPath                  = "/cert/utm.crt"

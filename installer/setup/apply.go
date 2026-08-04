@@ -209,18 +209,6 @@ func Apply(version string, updating bool) (string, error) {
 		fmt.Println(" [OK]")
 	}
 
-	if utils.GetLock(7, stack.LocksDir) {
-		fmt.Print("Initializing OpenSearch. This may take a while.")
-		if err := services.InitOpenSearch(); err != nil {
-			return "", err
-		}
-
-		if err := utils.SetLock(7, stack.LocksDir); err != nil {
-			return "", err
-		}
-		fmt.Println(" [OK]")
-	}
-
 	if !updating {
 		fmt.Print("Waiting for Backend to be ready. This may take a while.")
 

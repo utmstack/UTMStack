@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/utmstack/UTMStack/installer/config"
-	"github.com/utmstack/UTMStack/installer/system"
 	"github.com/utmstack/UTMStack/installer/utils"
 	"gopkg.in/yaml.v3"
 )
@@ -91,6 +90,11 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		return err
 	}
 
+	// Before any service is declared: the store cannot create its own tables.
+	if err := writeClickHouseSchema(stack.ClickHouseSchema); err != nil {
+		return err
+	}
+
 	c.Services = make(map[string]Service)
 	c.Volumes = make(map[string]Volume)
 
@@ -127,6 +131,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"DB_PORT=5432",
 			"DB_NAME=agentmanager",
 			"PANEL_SERV_NAME=http://backend:8080",
+			"REDIS_ADDR=redis:6379",
+			"REDIS_PASSWORD=" + conf.Password,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -139,7 +145,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		DependsOn: []string{
 			"postgres",
-			"node1",
+			"redis",
 		},
 	}
 
@@ -203,10 +209,11 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"DB_HOST=postgres",
 		"DB_PORT=5432",
 		"DB_NAME=utmstack",
-		"ELASTICSEARCH_HOST=node1",
-		"ELASTICSEARCH_PORT=9200",
-		"ELASTICSEARCH_USER=admin",
-		"ELASTICSEARCH_PASSWORD=" + conf.OpenSearchPassword,
+		"CLICKHOUSE_HOST=clickhouse",
+		"CLICKHOUSE_PORT=9000",
+		"CLICKHOUSE_DB=utmstack",
+		"CLICKHOUSE_USER=default",
+		"CLICKHOUSE_PASSWORD=" + conf.Password,
 		"INTERNAL_KEY=" + conf.InternalKey,
 		"ENCRYPTION_KEY=" + conf.InternalKey,
 		"GRPC_AGENT_MANAGER_HOST=agentmanager",
@@ -228,7 +235,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/backend:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"postgres",
-			"node1",
+			"clickhouse",
 			"agentmanager",
 		},
 		Environment: backendEnv,
@@ -263,18 +270,17 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
-				"node1",
+				"clickhouse",
+				"nats",
 				"backend",
 			},
 			"cloud": []string{
 				"postgres",
-				"node1",
+				"clickhouse",
+				"nats",
 				"backend",
 			},
 		}).([]string),
-		Ports: []string{
-			"50051:50051",
-		},
 		Volumes: []string{
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "logs") + ":/workdir/logs",
@@ -288,7 +294,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"LOG_LEVEL=200",
 			"GIN_MODE=release",
 			"MODE=worker",
-			"LOG_INDEX_PREFIX=v11-log",
+			"NATS_URL=nats://nats:4222",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -309,12 +315,14 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
 			"aio": []string{
 				"postgres",
-				"node1",
+				"clickhouse",
+				"nats",
 				"backend",
 			},
 			"cloud": []string{
 				"postgres",
-				"node1",
+				"clickhouse",
+				"nats",
 				"backend",
 			},
 		}).([]string),
@@ -353,37 +361,107 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	opensearchMem := system.GetOddValue(stack.ServiceResources["opensearch"].AssignedMemory)
-	c.Services["node1"] = Service{
-		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/opensearch:latest"),
+	clickHouseMem := stack.ServiceResources["clickhouse"].AssignedMemory
+	c.Services["clickhouse"] = Service{
+		Image: utils.PointerOf[string]("clickhouse/clickhouse-server:25.3"),
 		Volumes: []string{
-			stack.ESData + ":/usr/share/opensearch/data",
-			stack.ESBackups + ":/usr/share/opensearch/backups",
-			stack.Cert + ":/usr/share/opensearch/config/certificates:ro",
+			stack.ClickHouseData + ":/var/lib/clickhouse",
+			// Run on first boot only; this is what creates the tables.
+			stack.ClickHouseSchema + ":/docker-entrypoint-initdb.d:ro",
 		},
 		Environment: []string{
-			"cluster.name=utmstack",
-			"node.name=node1",
-			"discovery.seed_hosts=node1",
-			"cluster.initial_master_nodes=node1",
-			"bootstrap.memory_lock=false",
-			"OPENSEARCH_INITIAL_ADMIN_PASSWORD=" + conf.OpenSearchPassword,
-			"JAVA_HOME=/usr/share/opensearch/jdk",
-			"action.auto_create_index=true",
-			"compatibility.override_main_response_version=true",
-			"path.repo=/usr/share/opensearch",
-			fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem/2, opensearchMem/2),
-			"network.host=0.0.0.0",
+			"CLICKHOUSE_DB=utmstack",
+			"CLICKHOUSE_PASSWORD=" + conf.Password,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", clickHouseMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", opensearchMem/2)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", clickHouseMem/2)),
+				},
+			},
+		},
+	}
+
+	natsMem := stack.ServiceResources["nats"].AssignedMemory
+	c.Services["nats"] = Service{
+		Image: utils.PointerOf[string]("nats:2.10-alpine"),
+		Volumes: []string{
+			stack.NATSData + ":/data",
+		},
+		// JetStream on disk: the queue between ingest and processing has to
+		// survive a restart of either side.
+		Command: []string{"-js", "-sd", "/data"},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", natsMem)),
+				},
+			},
+		},
+	}
+
+	redisMem := stack.ServiceResources["redis"].AssignedMemory
+	c.Services["redis"] = Service{
+		Image: utils.PointerOf[string]("redis:7-alpine"),
+		Volumes: []string{
+			stack.RedisData + ":/data",
+		},
+		// Holds the shared auth cache, which is rebuildable, so eviction under
+		// pressure is preferable to refusing writes.
+		Command: []string{
+			"redis-server", "--requirepass", conf.Password,
+			"--maxmemory-policy", "allkeys-lru",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", redisMem)),
+				},
+			},
+		},
+	}
+
+	logInputMem := stack.ServiceResources["log-input"].AssignedMemory
+	c.Services["log-input"] = Service{
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/log-input:${UTMSTACK_TAG}"),
+		DependsOn: []string{
+			"nats",
+			"redis",
+			"agentmanager",
+		},
+		Ports: []string{
+			"50051:50051",
+		},
+		Volumes: []string{
+			stack.Cert + ":/cert",
+		},
+		Environment: []string{
+			"NATS_URL=nats://nats:4222",
+			"REDIS_ADDR=redis:6379",
+			"REDIS_PASSWORD=" + conf.Password,
+			"AGENT_MANAGER=agentmanager:9000",
+			"BACKEND=http://backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"CERTS_FOLDER=/cert",
+		},
+		Logging: &dLogging,
+		// Global rather than replicated: this is what agents connect to, and it
+		// holds no state of its own, so one per node is the cheapest way to
+		// scale it with the cluster.
+		Deploy: &Deploy{
+			Mode: utils.PointerOf[string]("global"),
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", logInputMem)),
 				},
 			},
 		},

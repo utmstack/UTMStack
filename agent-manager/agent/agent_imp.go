@@ -10,16 +10,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/agent-manager/authcache"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
 var (
 	AgentServ     *AgentService
 	agentServOnce sync.Once
+
+	// AuthCache publishes keys where the log input reads them. Nil until
+	// configured, and every call on a nil publisher is a no-op.
+	AuthCache *authcache.Publisher
 )
 
 type AgentService struct {
@@ -32,8 +38,7 @@ type AgentService struct {
 	CacheAgentKeyMutex    sync.RWMutex
 	CommandResultChannel  map[string]chan *CommandResult
 	CommandResultChannelM sync.Mutex
-	connKey               string
-	connKeyID             uint
+	connKeys              map[string]models.ConnectionKey // tenant -> key
 	connKeyMutex          sync.RWMutex
 	DBConnection          *database.DB
 }
@@ -52,6 +57,7 @@ func InitAgentService() error {
 			AgentStreamMap:       make(map[uint]AgentService_AgentStreamServer),
 			CacheAgentKey:        make(map[uint]string),
 			CommandResultChannel: make(map[string]chan *CommandResult),
+			connKeys:             make(map[string]models.ConnectionKey),
 			DBConnection:         database.GetDB(),
 		}
 
@@ -65,7 +71,7 @@ func InitAgentService() error {
 			AgentServ.CacheAgentKey[agent.ID] = agent.AgentKey
 		}
 
-		if e := AgentServ.loadConnectionKey(); e != nil {
+		if e := AgentServ.loadConnectionKeys(); e != nil {
 			err = e
 			return
 		}
@@ -74,7 +80,13 @@ func InitAgentService() error {
 }
 
 func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*AuthResponse, error) {
+	tenantID, ok := s.tenantFromEnrolment(ctx)
+	if !ok {
+		return nil, status.Error(codes.PermissionDenied, "connection key does not belong to a tenant")
+	}
+
 	agent := &models.Agent{
+		TenantID:       tenantID,
 		Ip:             req.GetIp(),
 		Hostname:       req.GetHostname(),
 		Os:             req.GetOs(),
@@ -108,6 +120,7 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 
 	s.CacheAgentKeyMutex.Lock()
 	s.CacheAgentKey[agent.ID] = key
+	AuthCache.PublishAgent(agent.ID, key)
 	s.CacheAgentKeyMutex.Unlock()
 
 	LastSeenChannel <- models.LastSeen{
@@ -217,6 +230,7 @@ func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*Au
 
 	s.CacheAgentKeyMutex.Lock()
 	delete(s.CacheAgentKey, uint(idInt))
+	AuthCache.DeleteAgent(uint(idInt))
 	s.CacheAgentKeyMutex.Unlock()
 
 	s.AgentStreamMutex.Lock()
@@ -235,8 +249,15 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 	filter := utils.NewFilter(req.SearchQuery)
 
+	// Scoped by the caller: the panel asks for one tenant, and only the
+	// platform asks for all of them.
+	where := ""
+	if req.GetTenantId() != "" {
+		where = fmt.Sprintf("tenant_id = '%s'", sanitizeTenant(req.GetTenantId()))
+	}
+
 	agents := []models.Agent{}
-	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false)
+	total, err := s.DBConnection.GetByPagination(&agents, page, filter, where, false)
 	if err != nil {
 		catcher.Error("failed to fetch agents", err, map[string]any{"process": "agent-manager"})
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)
@@ -427,4 +448,58 @@ func (s *AgentService) ListAgentCommands(ctx context.Context, req *ListRequest) 
 		Rows:  convertModelToAgentCommandsProto(commands),
 		Total: int32(total),
 	}, nil
+}
+
+// tenantFromEnrolment resolves which tenant the presented connection key
+// enrols into. The interceptor has already accepted the key; this is what says
+// whose it is.
+func (s *AgentService) tenantFromEnrolment(ctx context.Context) (string, bool) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", false
+	}
+	keys := md.Get("connection-key")
+	if len(keys) == 0 {
+		return "", false
+	}
+	return s.TenantForConnectionKey(keys[0])
+}
+
+// sanitizeTenant keeps a tenant id to the shape an id has, because it is
+// interpolated into a where clause rather than bound.
+func sanitizeTenant(id string) string {
+	out := make([]rune, 0, len(id))
+	for _, r := range id {
+		if r == '-' || (r >= '0' && r <= '9') || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
+			out = append(out, r)
+		}
+	}
+	return string(out)
+}
+
+// AuthSnapshot is every key that should be published, used to heal an evicted
+// or restarted cache.
+func AuthSnapshot() authcache.Snapshot {
+	s := authcache.Snapshot{
+		Agents:     make(map[uint]string),
+		Collectors: make(map[uint]string),
+	}
+
+	if AgentServ != nil {
+		AgentServ.CacheAgentKeyMutex.RLock()
+		for id, key := range AgentServ.CacheAgentKey {
+			s.Agents[id] = key
+		}
+		AgentServ.CacheAgentKeyMutex.RUnlock()
+	}
+
+	if CollectorServ != nil {
+		CollectorServ.CacheCollectorKeyMutex.RLock()
+		for id, key := range CollectorServ.CacheCollectorKey {
+			s.Collectors[id] = key
+		}
+		CollectorServ.CacheCollectorKeyMutex.RUnlock()
+	}
+
+	return s
 }
