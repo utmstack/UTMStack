@@ -163,6 +163,17 @@ export function TestPlaygroundModal({ mode, titleKey, dataTypeOptions, draftCont
                 <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {t(`playground.errors.${errorKind}`)}
               </div>
             )}
+
+            {mode === 'rule' && (
+              <>
+                <div className="flex items-start gap-2 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
+                  <Info size={13} className="mt-0.5 shrink-0" /> {t('playground.notices.geo')}
+                </div>
+                <div className="flex items-start gap-2 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
+                  <Info size={13} className="mt-0.5 shrink-0" /> {t('playground.notices.correlation')}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Right column: result */}

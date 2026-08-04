@@ -5181,6 +5181,10 @@
       "validation": "A requisição foi inválida — verifique o log bruto e o conteúdo do pipeline.",
       "server": "O playground não conseguiu concluir o teste — tente novamente."
     },
+    "notices": {
+      "geo": "O plugin de geolocalização não está disponível nesta versão lite do teste de filtros e regras.",
+      "correlation": "As regras que referenciam eventos anteriores por meio das cláusulas afterEvent ou correlation exigem que eventos correspondentes já existam no sistema para que o alerta em teste seja disparado."
+    },
     "result": {
       "label": "Resultado processado",
       "empty": "Execute um teste para ver aqui o evento processado.",
