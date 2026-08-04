@@ -37,12 +37,14 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	"github.com/utmstack/utmstack/backend/modules/tenant"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 	"github.com/utmstack/utmstack/backend/pkg/ratelimit"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"gorm.io/gorm"
 )
 
@@ -65,6 +67,7 @@ type modules struct {
 	compliance        *compliance.Module
 	dashboards        *dashboards.Module
 	loganalyzer       *loganalyzer.Module
+	tenant            *tenant.Module
 	alerts            *alerts.Module
 	soar              *soar.Module
 	datasources       *datasources.Module
@@ -103,7 +106,14 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	limiter := ratelimit.NewLoginLimiter(loginMaxFailures, loginBlockTTL, loginWindowTTL)
 
 	auditMod := audit.NewModule(db)
-	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false), 25)
+	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false))
+
+	if err := tenancy.Register(db, func() bool {
+		return billingMod.License().Current().IsMSSP()
+	}); err != nil {
+		_ = catcher.Error("failed to register tenancy callbacks", err, nil)
+		panic(err)
+	}
 	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
@@ -117,12 +127,12 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	dashboardsMod := dashboards.NewModule(db)
 	loganalyzerMod := loganalyzer.NewModule(db)
 
-	userRepo := iam_repository.NewUserRepository(db)
+	userRepo := iam_repository.NewUserRepository(db, cipher)
 	rbacRepo := iam_repository.NewRBACRepository(db)
 	refreshRepo := iam_repository.NewRefreshTokenRepository(db)
 	resetMailer := iam_repository.NewPasswordResetMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
 	invitationMailer := iam_repository.NewUserInvitationMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
-	tfaStateRepo := iam_repository.NewInMemoryTfaStateRepository(tfaChallengeTTL)
+	tfaStateRepo := iam_repository.NewTfaStateRepository(db, tfaChallengeTTL, cipher)
 	tfaMailer := iam_repository.NewTfaMailer(mailMod.Service(), mailMod.ConfigRepo())
 
 	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, rbacRepo, tfaStateRepo, tfaMailer, signer, preAuthSigner, refreshTokenTTL, cfg.tfaEnabled, brand)
@@ -162,7 +172,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	if cfg.esHost != "" {
 		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, ns_repository.NewStatsReader())
 	}
-	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, billingMod.License(), agentClient)
+	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, agentClient)
 
 	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
 	notificationsMod := notifications.NewModule(db, auditMod.Logger())
@@ -181,8 +191,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		)
 	}
 
-
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
+
+	tenantMod := tenant.NewModule(db, userUsecase)
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false))
@@ -239,6 +250,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		compliance:        complianceMod,
 		dashboards:        dashboardsMod,
 		loganalyzer:       loganalyzerMod,
+		tenant:            tenantMod,
 		alerts:            alertsMod,
 		soar:              soarMod,
 		datasources:       datasourcesMod,

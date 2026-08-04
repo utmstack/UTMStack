@@ -216,6 +216,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
 		"PLAYGROUND_BASE_URL=http://event-processor-manager:8091",
 		"UPLOAD_DIR=/uploads",
+		"UTMSTACK_ADMIN_PASSWORD=" + conf.Password,
 	}
 
 	// Disable TFA in dev and rc environments

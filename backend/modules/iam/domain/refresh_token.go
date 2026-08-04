@@ -5,6 +5,7 @@ import "time"
 type RefreshToken struct {
 	ID        uint64    `gorm:"primaryKey;autoIncrement"`
 	UserID    uint64    `gorm:"index;not null"`
+	TenantID  string    `gorm:"column:tenant_id;size:36;not null;default:'';index"`
 	TokenHash string    `gorm:"size:64;uniqueIndex;not null"`
 	ExpiresAt time.Time `gorm:"not null;index"`
 	RevokedAt *time.Time

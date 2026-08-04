@@ -279,10 +279,14 @@ func (u *tfaUsecase) VerifyLoginCode(ctx context.Context, input dto.TfaVerifyCod
 
 	switch claims.Method {
 	case domain.TfaMethodTotp:
-		if user.TFASecret == "" {
+		tfaSecret, err := u.userRepo.TfaSecret(ctx, user.ID)
+		if err != nil {
+			return nil, err
+		}
+		if tfaSecret == "" {
 			return nil, domain.ErrTfaInvalidCode
 		}
-		if !totp.Validate(input.Code, user.TFASecret) {
+		if !totp.Validate(input.Code, tfaSecret) {
 			return nil, domain.ErrTfaInvalidCode
 		}
 	case domain.TfaMethodEmail:

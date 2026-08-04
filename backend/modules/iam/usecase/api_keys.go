@@ -219,6 +219,7 @@ func (u *apiKeyUsecase) Authenticate(ctx context.Context, apiKey, clientIP strin
 		Email:       user.Email,
 		Roles:       roles,
 		Permissions: perms,
+		TenantID:    user.TenantID,
 	}, nil
 }
 

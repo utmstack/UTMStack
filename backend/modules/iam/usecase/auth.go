@@ -255,7 +255,7 @@ func IssueTokenPair(
 	if err := refreshRepo.Create(ctx, rt); err != nil {
 		return nil, err
 	}
-	access, accessExp, err := signer.Sign(user.ID, user.Login, user.Email, permissions, roles, rt.ID)
+	access, accessExp, err := signer.Sign(user.ID, user.Login, user.Email, permissions, roles, rt.ID, user.TenantID)
 	if err != nil {
 		return nil, err
 	}

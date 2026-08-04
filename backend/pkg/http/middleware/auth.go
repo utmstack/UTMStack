@@ -18,13 +18,25 @@ const InternalKeyHeader = "X-Internal-Key"
 // New code should depend on pkg/authz directly.
 type Actor = authz.Actor
 
-func setActor(c *gin.Context, a Actor) {
+func setActor(c *gin.Context, a Actor) bool {
+	if host, ok := c.Get(HostTenantKey); ok && !a.Internal {
+		if h, _ := host.(string); h != "" && a.TenantID != h {
+			AbortUnauthorized(c, "credential does not belong to this tenant")
+			return false
+		}
+	}
+
 	c.Set("user_id", a.UserID)
 	c.Set("user_login", a.Login)
 	c.Set("user_email", a.Email)
 	c.Set("user_permissions", a.Permissions)
 	c.Set("user_roles", a.Roles)
 	c.Set("session_id", a.SessionID)
+	c.Set("tenant_id", a.TenantID)
+
+	c.Request = c.Request.WithContext(authz.WithTenantID(c.Request.Context(), a.TenantID))
+
+	return true
 }
 
 // ActorFromGin reconstructs an *authz.Actor from the values stashed in the
@@ -50,6 +62,7 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 	rolesRaw, _ := c.Get("user_roles")
 	perms, _ := permsRaw.([]string)
 	roles, _ := rolesRaw.([]string)
+	tenantID := c.GetString("tenant_id")
 	return &authz.Actor{
 		UserID:      uid,
 		Login:       login,
@@ -58,6 +71,7 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 		Permissions: perms,
 		SessionID:   sid,
 		Internal:    internal,
+		TenantID:    tenantID,
 	}
 }
 
@@ -80,14 +94,17 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				AbortUnauthorized(c, "invalid token subject")
 				return
 			}
-			setActor(c, Actor{
+			if !setActor(c, Actor{
 				UserID:      userID,
 				Login:       claims.Login,
 				Email:       claims.Email,
 				Roles:       claims.Roles,
 				Permissions: claims.Permissions,
 				SessionID:   claims.SessionID,
-			})
+				TenantID:    claims.TenantID,
+			}) {
+				return
+			}
 			c.Next()
 			return
 		}
@@ -95,7 +112,9 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 			if k := c.GetHeader(InternalKeyHeader); k != "" &&
 				subtle.ConstantTimeCompare([]byte(k), []byte(internalKey)) == 1 {
 				c.Set("internal", true)
-				setActor(c, Actor{Login: "internal", Internal: true})
+				if !setActor(c, Actor{Login: "internal", Internal: true}) {
+					return
+				}
 				c.Next()
 				return
 			}
@@ -107,7 +126,9 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 					AbortUnauthorized(c, "invalid api key")
 					return
 				}
-				setActor(c, *actor)
+				if !setActor(c, *actor) {
+					return
+				}
 				c.Next()
 				return
 			}
@@ -156,6 +177,17 @@ func RequireRole(role string) gin.HandlerFunc {
 		actor := ActorFromGin(c)
 		if err := authz.RequireRole(actor, role); err != nil {
 			abortAuthzErr(c, err, "missing required role: "+role)
+			return
+		}
+		c.Next()
+	}
+}
+
+func RequirePlatform(isMSSP func() bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		actor := ActorFromGin(c)
+		if err := authz.RequirePlatform(actor, isMSSP); err != nil {
+			abortAuthzErr(c, err, "this operation requires the platform administrator role")
 			return
 		}
 		c.Next()

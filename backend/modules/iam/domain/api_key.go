@@ -5,6 +5,7 @@ import "time"
 type APIKey struct {
 	ID          uint64     `gorm:"primaryKey;autoIncrement"`
 	UserID      uint64     `gorm:"column:user_id;not null;index"`
+	TenantID    string     `gorm:"column:tenant_id;size:36;not null;default:'';index"`
 	Name        string     `gorm:"size:255;not null"`
 	APIKey      string     `gorm:"column:api_key;size:255;not null;uniqueIndex"`
 	AllowedIP   string     `gorm:"column:allowed_ip;type:text"`

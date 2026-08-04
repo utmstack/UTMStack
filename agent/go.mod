@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
 	github.com/spf13/cobra v1.10.2
-	github.com/threatwinds/go-sdk v1.1.26
+	github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
 	golang.org/x/sys v0.47.0

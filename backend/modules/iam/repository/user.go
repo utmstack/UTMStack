@@ -7,15 +7,17 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
+	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"gorm.io/gorm"
 )
 
 type pgUserRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	cipher *secret.Cipher
 }
 
-func NewUserRepository(db *gorm.DB) connectors.UserRepository {
-	return &pgUserRepository{db: db}
+func NewUserRepository(db *gorm.DB, cipher *secret.Cipher) connectors.UserRepository {
+	return &pgUserRepository{db: db, cipher: cipher}
 }
 
 func (r *pgUserRepository) FindByID(ctx context.Context, id uint64) (*domain.User, error) {
@@ -160,13 +162,33 @@ func (r *pgUserRepository) ClearResetKey(ctx context.Context, userID uint64) err
 		}).Error
 }
 
-func (r *pgUserRepository) SetTfaConfig(ctx context.Context, userID uint64, secret, method string) error {
+// SetTfaConfig stores the TOTP secret encrypted. Anyone reading the database
+// would otherwise be able to generate valid codes for every account with 2FA on,
+// indefinitely and without the user noticing.
+func (r *pgUserRepository) SetTfaConfig(ctx context.Context, userID uint64, tfaSecret, method string) error {
+	stored, err := encryptTfaSecret(r.cipher, tfaSecret)
+	if err != nil {
+		return err
+	}
 	return r.db.WithContext(ctx).Model(&domain.User{}).
 		Where("id = ?", userID).
 		Updates(map[string]any{
-			"tfa_secret": secret,
+			"tfa_secret": stored,
 			"tfa_method": method,
 		}).Error
+}
+
+// TfaSecret is the only way to read the secret back. domain.User.TFASecret holds
+// ciphertext, so reading that field directly would silently fail to validate.
+func (r *pgUserRepository) TfaSecret(ctx context.Context, userID uint64) (string, error) {
+	var stored string
+	err := r.db.WithContext(ctx).Model(&domain.User{}).
+		Where("id = ?", userID).
+		Pluck("tfa_secret", &stored).Error
+	if err != nil {
+		return "", err
+	}
+	return decryptTfaSecret(r.cipher, stored)
 }
 
 func (r *pgUserRepository) ClearTfaConfig(ctx context.Context, userID uint64) error {

@@ -32,6 +32,7 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	"github.com/utmstack/utmstack/backend/modules/tenant"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
@@ -112,6 +113,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 			Email:       r.Email,
 			Roles:       r.Roles,
 			Permissions: r.Permissions,
+			TenantID:    r.TenantID,
 		}, nil
 	}
 	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey)
@@ -122,8 +124,23 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	mssp := middleware.RequireMSSP(func() bool {
 		return m.billing.License().Current().IsMSSP()
 	})
+	platform := middleware.RequirePlatform(func() bool {
+		return m.billing.License().Current().IsMSSP()
+	})
+
+	api.Use(middleware.ResolveTenant(
+		func() bool { return m.billing.License().Current().IsMSSP() },
+		func(ctx context.Context, host string) (string, error) {
+			t, err := m.tenant.GetTenantUsecase().ResolveDomain(ctx, host)
+			if err != nil {
+				return "", err
+			}
+			return t.ID, nil
+		},
+	))
 
 	iam.RegisterRoutes(api, m.iam, userAuth, enterprise)
+	tenant.RegisterRoutes(api, m.tenant, userAuth, mssp, platform)
 	audit.RegisterRoutes(api, m.audit, userAuth)
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)
 	billing.RegisterRoutes(api, m.billing, userAuth)

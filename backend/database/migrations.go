@@ -18,6 +18,7 @@ import (
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
+	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	"gorm.io/gorm"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -30,6 +31,7 @@ import (
 func Models() []any {
 	return []any{
 		iam_domain.User{},
+		tenant_domain.Tenant{},
 		iam_domain.Authority{},
 		iam_domain.Permission{},
 		iam_domain.AuthorityPermission{},
@@ -37,6 +39,7 @@ func Models() []any {
 		iam_domain.APIKey{},
 		iam_domain.RefreshToken{},
 		iam_domain.IdentityProviderConfig{},
+		iam_domain.TfaSetupState{},
 		audit_domain.AuditLog{},
 		appconfig_domain.Config{},
 		alerts_domain.UtmAlertTag{},

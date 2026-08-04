@@ -16,8 +16,9 @@ var (
 
 type IdentityProviderConfig struct {
 	ID               uint64    `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name             string    `gorm:"column:name;size:255;not null;uniqueIndex:idx_idp_provider_name" json:"name"`
-	ProviderType     string    `gorm:"column:provider_type;size:50;not null;uniqueIndex:idx_idp_provider_name;index" json:"providerType"`
+	TenantID         string    `gorm:"column:tenant_id;size:36;not null;default:'';index;uniqueIndex:idx_idp_provider_name,priority:1" json:"-"`
+	Name             string    `gorm:"column:name;size:255;not null;uniqueIndex:idx_idp_provider_name,priority:2" json:"name"`
+	ProviderType     string    `gorm:"column:provider_type;size:50;not null;uniqueIndex:idx_idp_provider_name,priority:3;index" json:"providerType"`
 	MetadataURL      string    `gorm:"column:metadata_url;size:512;not null" json:"metadataUrl"`
 	SpEntityID       string    `gorm:"column:sp_entity_id;size:512;not null" json:"spEntityId"`
 	SpAcsURL         string    `gorm:"column:sp_acs_url;size:512;not null" json:"spAcsUrl"`

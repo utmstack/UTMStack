@@ -16,6 +16,7 @@ type Claims struct {
 	Permissions []string `json:"permissions,omitempty"`
 	Roles       []string `json:"roles,omitempty"`
 	SessionID   uint64   `json:"sid,omitempty"`
+	TenantID    string   `json:"tid,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -39,7 +40,7 @@ func NewSigner(secret string, ttl time.Duration) *Signer {
 	return &Signer{secret: []byte(secret), ttl: ttl}
 }
 
-func (s *Signer) Sign(userID uint64, login, email string, permissions, roles []string, sessionID uint64) (string, time.Time, error) {
+func (s *Signer) Sign(userID uint64, login, email string, permissions, roles []string, sessionID uint64, tenantID string) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(s.ttl)
 	claims := Claims{
@@ -48,6 +49,7 @@ func (s *Signer) Sign(userID uint64, login, email string, permissions, roles []s
 		Permissions: permissions,
 		Roles:       roles,
 		SessionID:   sessionID,
+		TenantID:    tenantID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   strconv.FormatUint(userID, 10),
 			IssuedAt:  jwt.NewNumericDate(now),

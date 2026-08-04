@@ -1,16 +1,13 @@
-// Package authz holds transport-agnostic authorization predicates and the
-// Actor type representing an authenticated caller. The HTTP middleware in
-// pkg/http/middleware and the MCP tool handlers in modules/mcp both call into
-// this package so the gates that reject a REST request reject the equivalent
-// MCP tool call.
 package authz
 
 import (
+	"context"
 	"errors"
 	"slices"
 )
 
 const RoleAdmin = "ROLE_ADMIN"
+const RolePlatformAdmin = "ROLE_PLATFORM_ADMIN"
 
 type Actor struct {
 	UserID      uint64
@@ -20,6 +17,7 @@ type Actor struct {
 	Permissions []string
 	SessionID   uint64
 	Internal    bool
+	TenantID    string
 }
 
 var (
@@ -99,6 +97,23 @@ func RequireMSSP(a *Actor, isMSSP func() bool) error {
 	return ErrMSSPRequired
 }
 
+// RequirePlatform gates the platform plane. On a single-tenant install there is
+// no separate plane to protect, so the ordinary administrator is it; once the
+// instance serves several tenants the platform role becomes mandatory, because
+// a tenant admin holding ROLE_ADMIN must not reach the other tenants.
+func RequirePlatform(a *Actor, isMSSP func() bool) error {
+	if a == nil {
+		return ErrUnauthenticated
+	}
+	if HasRole(a, RolePlatformAdmin) {
+		return nil
+	}
+	if isMSSP != nil && isMSSP() {
+		return ErrMissingRole
+	}
+	return RequireRole(a, RoleAdmin)
+}
+
 func RequireInternal(a *Actor) error {
 	if a == nil {
 		return ErrUnauthenticated
@@ -107,4 +122,21 @@ func RequireInternal(a *Actor) error {
 		return nil
 	}
 	return ErrInternalOnly
+}
+
+type ctxTenantKey struct{}
+
+// WithTenantID stashes the acting tenant on ctx, for usecases that need it
+// without threading a new parameter through every call. Handlers set this
+// once (from the request's Actor) before calling into a usecase.
+func WithTenantID(ctx context.Context, tenantID string) context.Context {
+	return context.WithValue(ctx, ctxTenantKey{}, tenantID)
+}
+
+// TenantIDFromContext returns the acting tenant stashed by WithTenantID, or
+// "" if none was set — the same "empty means global/on-prem" convention used
+// everywhere else.
+func TenantIDFromContext(ctx context.Context) string {
+	v, _ := ctx.Value(ctxTenantKey{}).(string)
+	return v
 }

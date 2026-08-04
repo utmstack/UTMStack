@@ -25,6 +25,10 @@ func (r *pgTenantRepository) Update(ctx context.Context, t *domain.Tenant) error
 	return r.db.WithContext(ctx).Save(t).Error
 }
 
+func (r *pgTenantRepository) Delete(ctx context.Context, id string) error {
+	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&domain.Tenant{}).Error
+}
+
 func (r *pgTenantRepository) FindByID(ctx context.Context, id string) (*domain.Tenant, error) {
 	return r.findOne(ctx, "id = ?", id)
 }

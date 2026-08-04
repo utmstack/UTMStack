@@ -55,6 +55,10 @@ type UserUsecase interface {
 	List(ctx context.Context, q dto.ListUsersQuery) (*dto.UserListResponse, error)
 	Get(ctx context.Context, id uint64) (*dto.UserDetailResponse, error)
 	Create(ctx context.Context, actor string, input dto.CreateUserRequest) (*dto.UserDetailResponse, error)
+
+	// CreateTenantAdmin is called by the tenant module during provisioning.
+	CreateTenantAdmin(ctx context.Context, tenantID, login, email string) error
+	EnsureBootstrapAdmin(ctx context.Context, password string) (created bool, generated string, err error)
 	Update(ctx context.Context, actor string, id uint64, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error)
 	Deactivate(ctx context.Context, id uint64) error
 	AssignRoles(ctx context.Context, actor string, id uint64, input dto.AssignRolesRequest) error
@@ -75,6 +79,7 @@ type APIKeyAuthResult struct {
 	Email       string
 	Roles       []string
 	Permissions []string
+	TenantID    string
 }
 
 type APIKeyUsecase interface {

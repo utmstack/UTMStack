@@ -9,6 +9,7 @@ import (
 
 type TenantRepository interface {
 	Create(ctx context.Context, t *domain.Tenant) error
+	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, t *domain.Tenant) error
 	FindByID(ctx context.Context, id string) (*domain.Tenant, error)
 	FindByDomain(ctx context.Context, domain string) (*domain.Tenant, error)

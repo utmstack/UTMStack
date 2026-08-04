@@ -3,8 +3,10 @@ package dto
 import "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 
 type CreateRequest struct {
-	Name   string `json:"name"   binding:"required"`
-	Domain string `json:"domain" binding:"required"`
+	Name       string `json:"name"   binding:"required"`
+	Domain     string `json:"domain" binding:"required"`
+	AdminEmail string `json:"adminEmail" binding:"required,email"`
+	AdminLogin string `json:"adminLogin,omitempty"`
 }
 
 type UpdateRequest struct {

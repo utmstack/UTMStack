@@ -2,10 +2,13 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strings"
 
 	"github.com/google/uuid"
+
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 
 	"github.com/utmstack/utmstack/backend/modules/tenant/connectors"
 	"github.com/utmstack/utmstack/backend/modules/tenant/domain"
@@ -14,10 +17,15 @@ import (
 
 const defaultPageSize = 25
 
-type tenantUsecase struct{ repo connectors.TenantRepository }
+const defaultAdminLogin = "admin"
 
-func NewTenantUsecase(repo connectors.TenantRepository) connectors.TenantUsecase {
-	return &tenantUsecase{repo: repo}
+type tenantUsecase struct {
+	repo  connectors.TenantRepository
+	admin connectors.AdminProvisioner
+}
+
+func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.AdminProvisioner) connectors.TenantUsecase {
+	return &tenantUsecase{repo: repo, admin: admin}
 }
 
 func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*domain.Tenant, error) {
@@ -39,6 +47,11 @@ func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*dom
 		return nil, domain.ErrDomainTaken
 	}
 
+	login := strings.TrimSpace(req.AdminLogin)
+	if login == "" {
+		login = defaultAdminLogin
+	}
+
 	t := &domain.Tenant{
 		ID:     uuid.NewString(),
 		Name:   name,
@@ -49,22 +62,15 @@ func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*dom
 		return nil, err
 	}
 
-	// TODO(multi-tenant): create the tenant's first administrator here, in the
-	// same transaction as the row above.
-	//
-	// A tenant with no user is worse than no tenant: provisioning reports
-	// success and nobody can log in. So the two writes have to succeed or fail
-	// together — see rbac.go:62 for the transaction shape already in use.
-	//
-	// Blocked on User.Login and User.Email being globally unique: today only
-	// one tenant in the whole instance can own the login "admin". They need
-	// (tenant_id, login) and (tenant_id, email) first.
-	//
-	// The account is created inactive with an activation key — the fields are
-	// already on the model — and the invitation reuses the existing password
-	// reset flow. Delivery is best effort and stays OUTSIDE the transaction:
-	// a tenant must not be rolled back because SMTP hiccuped. That implies a
-	// resend endpoint.
+	if u.admin != nil {
+		adminCtx := authz.WithTenantID(ctx, t.ID)
+		if err := u.admin.CreateTenantAdmin(adminCtx, t.ID, login, req.AdminEmail); err != nil {
+			if delErr := u.repo.Delete(ctx, t.ID); delErr != nil {
+				return nil, fmt.Errorf("%w (and the tenant row could not be rolled back: %v)", err, delErr)
+			}
+			return nil, err
+		}
+	}
 
 	return t, nil
 }
@@ -82,8 +88,6 @@ func (u *tenantUsecase) Update(ctx context.Context, id string, req dto.UpdateReq
 		t.Name = name
 	}
 
-	// Changing the domain is allowed but never routine: it breaks bookmarks and
-	// whatever the customer pointed at the instance.
 	if req.Domain != "" {
 		host, err := normalizeDomain(req.Domain)
 		if err != nil {
@@ -136,8 +140,6 @@ func (u *tenantUsecase) List(ctx context.Context, f dto.Filter) ([]domain.Tenant
 	return u.repo.List(ctx, f)
 }
 
-// Terminate is a status change, not a delete: the data outlives the
-// subscription and an operator has to be able to see what was terminated.
 func (u *tenantUsecase) Terminate(ctx context.Context, id string) error {
 	t, err := u.GetByID(ctx, id)
 	if err != nil {
@@ -153,8 +155,6 @@ func (u *tenantUsecase) Terminate(ctx context.Context, id string) error {
 }
 
 func (u *tenantUsecase) ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error) {
-	// Hosts arrive with the port attached often enough to strip it here rather
-	// than in every caller.
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
 	}
@@ -178,9 +178,6 @@ func validStatus(s domain.TenantStatus) bool {
 	return false
 }
 
-// normalizeDomain lower-cases and validates a hostname. It is deliberately
-// strict: the value ends up in URLs and TLS certificates, so a typo here is
-// expensive to undo once customers have bookmarked it.
 func normalizeDomain(raw string) (string, error) {
 	host := strings.ToLower(strings.TrimSpace(raw))
 	host = strings.TrimSuffix(host, ".")

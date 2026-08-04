@@ -8,6 +8,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -158,6 +159,18 @@ func (u *userUsecase) Create(ctx context.Context, actor string, input dto.Create
 	}
 
 	return u.toDetail(ctx, user)
+}
+
+// CreateTenantAdmin provisions a tenant's first administrator. The tenant is
+// forced onto the context here rather than trusted from the caller's, so the
+// account lands in the tenant being created and not in whoever asked for it.
+func (u *userUsecase) CreateTenantAdmin(ctx context.Context, tenantID, login, email string) error {
+	_, err := u.Create(authz.WithTenantID(ctx, tenantID), "provisioning", dto.CreateUserRequest{
+		Login:     login,
+		Email:     email,
+		RoleNames: []string{authz.RoleAdmin},
+	})
+	return err
 }
 
 func (u *userUsecase) Update(ctx context.Context, actor string, id uint64, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error) {
