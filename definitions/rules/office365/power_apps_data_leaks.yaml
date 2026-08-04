@@ -30,8 +30,7 @@ where: |
   equals("actionResult", "Success") &&
   equals("log.Workload", "PowerApps")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
@@ -41,8 +40,7 @@ afterEvents:
     within: 12h
     count: 2
     or:
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'
@@ -51,8 +49,7 @@ afterEvents:
             value: 'UpdateDataConnection'
         within: 12h
         count: 2
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'

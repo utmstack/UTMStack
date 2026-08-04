@@ -38,8 +38,7 @@ where: |
     (contains("log.message", "lpp_source") && contains("log.message", "define"))
   )
 afterEvents:
-  - indexPattern: v11-log-ibm-aix-*
-    with:
+  - with:
       - field: origin.host
         operator: filter_term
         value: '{{.origin.host}}'

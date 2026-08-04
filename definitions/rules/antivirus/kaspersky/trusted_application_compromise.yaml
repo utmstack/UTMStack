@@ -36,4 +36,4 @@ where: |
    containsAll("log.msg", ["behavior", "trusted"])) &&
   oneOf("log.cefDeviceSeverity", ["High", "Medium"])
 groupBy:
-  - origin.host
+  - adversary.host

@@ -29,8 +29,7 @@ where: |
    contains("raw", "constructor.prototype") ||
    contains("raw", "Object.prototype"))
 afterEvents:
-  - indexPattern: v11-log-json-input-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

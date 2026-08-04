@@ -33,7 +33,7 @@ where: |
     (oneOf("log.cs5Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs5") && contains("log.message", "mismatch")) ||
     (oneOf("log.cs6Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs6") && contains("log.message", "mismatch")) ||
     (exists("log.fileHash") && contains("log.message", "mismatch")) ||
-    (exists("log.oldFileHash") && exists("log.fileHash") && safe(log.oldFileHash, "") != safe(log.fileHash, "")) ||
+    (exists("log.oldFileHash") && exists("log.fileHash") && safe("log.oldFileHash", "") != safe("log.fileHash", "")) ||
     contains("log.message", "hash mismatch") ||
     contains("log.message", "checksum failure") ||
     contains("log.message", "integrity violation")

@@ -29,8 +29,7 @@ where: |
   oneOf("target.port", [445, 3389]) &&
   (inCIDR("origin.ip", "10.0.0.0/8") || inCIDR("origin.ip", "172.16.0.0/12") || inCIDR("origin.ip", "192.168.0.0/16"))
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
@@ -40,8 +39,7 @@ afterEvents:
     within: 10m
     count: 10
     or:
-      - indexPattern: v11-log-netflow-*
-        with:
+      - with:
           - field: origin.ip
             operator: filter_term
             value: '{{.origin.ip}}'

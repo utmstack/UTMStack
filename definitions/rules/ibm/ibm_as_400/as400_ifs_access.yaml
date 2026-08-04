@@ -42,8 +42,7 @@ where: |
     (contains("log.message", "FTP") && contains("log.message", "GET") && contains("log.message", "/QSYS"))
   )
 afterEvents:
-  - indexPattern: v11-log-ibm-as400-*
-    with:
+  - with:
       - field: log.message
         operator: filter_match
         value: 'IFS OR CPYFRMSTMF OR CPYTOSTMF OR NetServer'

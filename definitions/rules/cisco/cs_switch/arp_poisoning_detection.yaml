@@ -31,8 +31,7 @@ where: |
   || contains("log.message", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
   || (lessOrEqual("log.severity", 3) && contains("log.message", ["arp spoofing", "arp poison", "man in the middle"]))
 afterEvents:
-  - indexPattern: v11-log-cisco-switch-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

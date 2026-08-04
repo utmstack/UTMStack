@@ -27,8 +27,7 @@ description: |
   8. Document the incident and update IAM policies to prevent future occurrences
 where: (contains("log.eventName", "Delete") || contains("log.eventName", "Terminate") || contains("log.eventName", "Remove")) && equals("log.errorCode", "") && !equals("log.eventSource", "s3.amazonaws.com")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentity.arn
         operator: filter_term
         value: '{{.log.userIdentity.arn}}'

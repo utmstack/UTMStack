@@ -20,5 +20,5 @@ where: |
   equalsIgnoreCase("log.operationName", "Consent to application") &&
   equals("log.resultType", "0")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

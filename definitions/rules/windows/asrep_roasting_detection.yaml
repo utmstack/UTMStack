@@ -35,13 +35,12 @@ where: |
   !regexMatch("target.user", "(?i)\\$$") &&
   exists("target.user")
 afterEvents:
-  - indexPattern: v11-log-wineventlog-*
-    with:
-      - field: origin.ip.keyword
+  - with:
+      - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
     within: 15m
     count: 3
 groupBy:
-  - origin.ip
-  - origin.host
+  - adversary.ip
+  - adversary.host

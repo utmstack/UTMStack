@@ -18,5 +18,5 @@ references:
   - "https://attack.mitre.org/techniques/T1059/004/"
 where: regexMatch("log.message", "((nc|ncat|netcat|netcat.openbsd|netcat.traditional) (-l|-p|-lp|(-e)(.+)(\\/bin\\/bash|\\/bin\\/sh)|(\\/bin\\/bash|\\/bin\\/sh)(.+)(-e)))")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

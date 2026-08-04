@@ -28,8 +28,7 @@ where: |
   (contains("log.eventMessage", "rename") || contains("log.eventMessage", "modified") ||
    contains("log.eventMessage", "write"))
 afterEvents:
-  - indexPattern: v11-log-macos-*
-    with:
+  - with:
       - field: origin.host
         operator: filter_term
         value: '{{.origin.host}}'

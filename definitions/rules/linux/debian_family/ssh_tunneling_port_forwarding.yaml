@@ -33,5 +33,5 @@ where: |
    contains("log.message", "tunnel") ||
    regexMatch("log.message", "(?i)open forward.*port"))
 groupBy:
-  - origin.host
-  - origin.ip
+  - adversary.host
+  - adversary.ip

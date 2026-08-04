@@ -20,5 +20,5 @@ references:
   - "https://attack.mitre.org/techniques/T1059/004/"
 where: regexMatch("log.message", "((sh|bash|openssl) (-i|-connect))") && exists("log.host.id")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

@@ -37,8 +37,7 @@ where: |
   exists("target.ip") &&
   greaterOrEqual("log.cefDeviceSeverity", "3")
 afterEvents:
-  - indexPattern: v11-log-antivirus-kaspersky-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
@@ -48,5 +47,5 @@ afterEvents:
     within: 30m
     count: 5
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.ip

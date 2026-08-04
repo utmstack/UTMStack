@@ -30,5 +30,5 @@ where: |
   oneOf("log.eventId", ["4765", "4766"]) &&
   equals("log.channel", "Security")
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

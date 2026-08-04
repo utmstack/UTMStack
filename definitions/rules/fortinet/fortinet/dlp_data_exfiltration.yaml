@@ -31,8 +31,7 @@ where: |
   (exists("log.dlp_profile") && equals("log.dlp_action", "block")) ||
   (contains("log.msg", "Data pattern matched"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

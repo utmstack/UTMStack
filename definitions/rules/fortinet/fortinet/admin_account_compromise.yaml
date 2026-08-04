@@ -32,8 +32,7 @@ where: |
   exists("origin.ip") &&
   exists("log.user")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

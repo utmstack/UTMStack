@@ -35,8 +35,7 @@ where: |
   equals("log.deceptionTriggered", true) &&
   greaterOrEqual("log.behaviorScore", 80)
 afterEvents:
-  - indexPattern: v11-log-deceptive-bytes-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

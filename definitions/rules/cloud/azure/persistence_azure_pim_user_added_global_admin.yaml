@@ -77,5 +77,5 @@ where: |
   (contains("log.operationName", "Add eligible member to role") || contains("log.operationName", "Add member to role")) &&
   (contains("log.properties.targetResources.displayName", "Global Administrator") || contains("log.properties.targetResources.displayName", "Company Administrator"))
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

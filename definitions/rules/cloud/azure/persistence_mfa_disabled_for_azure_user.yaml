@@ -80,5 +80,5 @@ where: |
   equalsIgnoreCase("log.operationName", "Disable Strong Authentication") &&
   (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

@@ -34,4 +34,4 @@ where: |
    (equals("log.cat", "Behavior Detection") &&
     contains("log.msg", ["delay", "sleep"])))
 deduplicateBy:
-  - origin.host
+  - adversary.host

@@ -30,8 +30,7 @@ where: |
   exists("origin.ip") &&
   contains("log.chain", "response")
 afterEvents:
-  - indexPattern: v11-log-firewall-mikrotik-*
-    with:
+  - with:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'

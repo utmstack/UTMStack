@@ -28,5 +28,5 @@ description: |
 where: equals("log.eventCode", "4624") && equals("log.eventDataLogonType", "3") && exists("log.eventDataProcessName") && (contains("log.eventDataProcessName", "wsmprovhost.exe") || contains("log.eventDataProcessName", "winrshost.exe") || contains("log.eventDataProcessName", "powershell.exe"))
 groupBy:
   - target.user
-  - origin.host
-  - origin.ip
+  - adversary.host
+  - adversary.ip

@@ -30,8 +30,7 @@ where: |
   (contains("log.message", "clean") && contains("log.message", "failed") &&
    contains("log.message", "threat"))
 afterEvents:
-  - indexPattern: v11-log-antivirus-esmc-eset-*
-    with:
+  - with:
       - field: log.headHostname
         operator: filter_term
         value: '{{.log.headHostname}}'

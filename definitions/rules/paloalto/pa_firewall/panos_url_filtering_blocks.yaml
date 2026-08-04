@@ -30,8 +30,7 @@ where: |
   (oneOf("log.urlCategory", ["malware", "phishing", "command-and-control", "grayware", "hacking"]) ||
    contains("log.category", ["malware", "phishing", "command-and-control", "grayware", "hacking"]))
 afterEvents:
-  - indexPattern: v11-log-firewall-paloalto-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

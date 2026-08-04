@@ -26,8 +26,7 @@ description: |
   7. Document the attack pattern for future reference and threat intelligence
 where: exists("target.ip") && exists("origin.ip") && (greaterThan("origin.bytesSent", 10000000) || greaterThan("origin.packagesSent", 50000))
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'

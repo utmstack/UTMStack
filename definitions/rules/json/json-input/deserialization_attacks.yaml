@@ -37,8 +37,7 @@ where: |
    contains("raw", "ysoserial") ||
    contains("raw", "java.net.URLClassLoader"))
 afterEvents:
-  - indexPattern: v11-log-json-input-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

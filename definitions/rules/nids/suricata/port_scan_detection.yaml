@@ -43,15 +43,13 @@ where: |
      contains("log.anomaly.event", "scan"))
   )
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
     within: 10m
     count: 50
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

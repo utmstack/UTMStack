@@ -41,8 +41,7 @@ where: |
      greaterThan("log.flow.bytes_toserver", 5000))
   )
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

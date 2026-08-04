@@ -32,4 +32,4 @@ where: |
   greaterOrEqual("log.cefDeviceSeverity", "3")
 groupBy:
   - log.cs5
-  - origin.host
+  - adversary.host

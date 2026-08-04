@@ -19,5 +19,5 @@ where: equals("log.eventCode", 4663) &&
        regexMatch("log.eventDataObjectName", "\\Windows\\System32\\spool\\drivers\\") &&
        regexMatch("log.eventDataObjectName", "\\.(dll|exe)$") && !contains("log.eventDataProcessName", "spoolsv.exe")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1059/"
 where: regexMatch("log.message", "(perl)") && regexMatch("log.message", "(exec \\'/bin/sh\\';|exec \\'/bin/dash\\';|exec \\'/bin/bash\\';)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

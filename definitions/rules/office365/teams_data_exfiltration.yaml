@@ -27,8 +27,7 @@ description: |
 where: |
   oneOf("action", ["MessagesListed", "MessagesExported", "RecordingExported", "TranscriptsExported"]) && exists("origin.user") && equals("log.Workload", "MicrosoftTeams")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

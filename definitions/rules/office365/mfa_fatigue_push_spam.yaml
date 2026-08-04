@@ -32,8 +32,7 @@ where: |
    contains("log.LogonError", "MfaIncomplete") ||
    equals("log.LogonError", "InvalidStrongAuthenticationMethod"))
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

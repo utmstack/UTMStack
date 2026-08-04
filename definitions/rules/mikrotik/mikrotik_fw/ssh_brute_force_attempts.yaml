@@ -28,8 +28,7 @@ where: |
   (contains("log.chain", "input") || contains("log.action", "drop")
   || (contains("log.topics", "system") && contains("log.kvMessage", "ssh")))
 afterEvents:
-  - indexPattern: v11-log-firewall-mikrotik-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

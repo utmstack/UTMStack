@@ -27,8 +27,7 @@ where: |
   contains("log.properties", "urn:ietf:params:oauth:grant-type:password") ||
   (contains("log.operationName", "Sign-in") && contains("log.properties", "ropc"))
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

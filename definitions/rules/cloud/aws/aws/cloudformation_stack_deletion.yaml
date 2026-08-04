@@ -26,8 +26,7 @@ description: |
   7. Review and implement least privilege access policies for CloudFormation operations
 where: equals("log.eventSource", "cloudformation.amazonaws.com") && equals("log.eventName", "DeleteStack") && equals("log.errorCode", "")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentityArn
         operator: filter_term
         value: '{{.log.userIdentityArn}}'

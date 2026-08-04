@@ -30,8 +30,7 @@ where: |
   exists("origin.user") &&
   equals("actionResult", "Succeeded")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

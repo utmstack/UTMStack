@@ -34,5 +34,5 @@ where: |
   ) &&
   oneOf("log.eventDataAccessMask", ["131097", "2032127", "64", "32", "1"])
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

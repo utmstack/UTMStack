@@ -30,8 +30,7 @@ where: |
   oneOf("log.eventName", ["StartSession", "ResumeSession", "SendCommand", "StartAutomationExecution"]) &&
   equals("log.errorCode", "")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentityArn
         operator: filter_term
         value: '{{.log.userIdentityArn}}'

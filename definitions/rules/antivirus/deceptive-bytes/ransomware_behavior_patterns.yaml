@@ -31,8 +31,7 @@ where: |
   equals("log.event_type", "ransomware_behavior") &&
   oneOf("log.behavior_pattern", ["mass_encryption", "file_enumeration", "ransom_note_drop"])
 afterEvents:
-  - indexPattern: v11-log-deceptive-bytes-*
-    with:
+  - with:
       - field: log.process
         operator: filter_term
         value: '{{.log.process}}'

@@ -16,5 +16,5 @@ references:
   - "https://attack.mitre.org/techniques/T1484/"
 where: regexMatch("log.message", "(((adduser|useradd|usermod)(.+)([Aa]dded user|new user|add)(.+)to(.+)group)(.+)sudo)") && contains("log.message", "usermod -aG sudo")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

@@ -38,8 +38,7 @@ where: |
    (exists("log.target.ip") && exists("log.dpt"))) &&
   equals("action", "Blocked")
 afterEvents:
-  - indexPattern: v11-log-antivirus-kaspersky-*
-    with:
+  - with:
       - field: log.src
         operator: filter_term
         value: '{{.log.src}}'

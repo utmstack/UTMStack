@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1068/"
 where: contains("log.message", "pkexec") && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY") || regexMatch("log.message", "The value for the SHELL variable was not found"))
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

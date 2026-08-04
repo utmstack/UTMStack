@@ -32,8 +32,7 @@ where: |
    (equals("log.severity", "10") && contains("log.eventType", "malware"))) &&
   exists("log.severity")
 afterEvents:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    with:
+  - with:
       - field: log.hostId
         operator: filter_term
         value: '{{.log.hostId}}'

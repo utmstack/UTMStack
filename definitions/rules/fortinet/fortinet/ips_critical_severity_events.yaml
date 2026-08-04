@@ -26,8 +26,7 @@ description: |
   7. Document the incident and notify the security team if this is part of a larger campaign
 where: contains("log.msg", "type=utm") && contains("log.msg", "subtype=ips") && (contains("log.msg", "severity=critical") || contains("log.msg", "severity=high")) && contains("log.msg", "action=blocked")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

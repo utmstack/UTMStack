@@ -29,5 +29,5 @@ where: |
     contains("log.message", "2755") || contains("log.message", "6755") ||
     contains("log.message", "u+s") || contains("log.message", "g+s")))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

@@ -28,8 +28,7 @@ description: |
 where: |
   equals("action", "FileDownloaded") && exists("origin.user") && oneOf("log.Workload", ["SharePoint", "OneDrive"])
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

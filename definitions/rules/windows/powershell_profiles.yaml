@@ -18,5 +18,5 @@ references:
 where: equals("log.eventCode", 4663) &&
        regexMatch("log.eventDataObjectName", "(:\\Users\\.*\\Documents\\(WindowsPowerShell|PowerShell)\\.*profile\\.ps1$|:\\Windows\\System32\\WindowsPowerShell\\.*profile\\.ps1$)")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

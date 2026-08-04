@@ -28,8 +28,7 @@ where: |
   oneOf("action", ["Set-AdminAuditLogConfig", "Set-TransportRule", "Set-MalwareFilterPolicy", "Set-HostedContentFilterPolicy", "Set-DkimSigningConfig", "Set-OrganizationConfig", "Set-RoleGroup", "Add-RoleGroupMember", "Remove-RoleGroupMember", "New-ManagementRoleAssignment", "Remove-ManagementRoleAssignment"]) && 
   equals("actionResult", "Success")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

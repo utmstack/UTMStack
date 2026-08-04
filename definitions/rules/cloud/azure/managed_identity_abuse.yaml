@@ -31,8 +31,7 @@ where: |
   (contains("log.properties.message", "token") ||
    contains("log.operationName", "tokens"))
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

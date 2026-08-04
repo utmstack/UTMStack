@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1562/001/"
 where: regexMatch("log.message", "(modprobe(.+)sudo(.+)(-r|--remove)|modprobe(.+)(-r|--remove)(.+)sudo|sudo(.+)modprobe(.+)(-r|--remove)|sudo(.+)(-r|--remove)(.+)modprobe|(-r|--remove)modprobe(.+)sudo|(-r|--remove)(.+)sudo(.+)modprobe)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

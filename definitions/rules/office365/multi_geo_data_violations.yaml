@@ -32,8 +32,7 @@ where: |
   equals("actionResult", "Succeeded") &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
@@ -43,8 +42,7 @@ afterEvents:
     within: 24h
     count: 3
     or:
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'

@@ -35,8 +35,7 @@ where: |
    equals("target.ip", "185.228.168.168") || equals("target.ip", "185.228.169.168") ||
    equals("target.ip", "104.16.248.249") || equals("target.ip", "104.16.249.249"))
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

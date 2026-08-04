@@ -31,8 +31,7 @@ where: |
    contains("log.operationName", "Activate PIM role")) &&
   equals("log.categoryValue", "Administrative")
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

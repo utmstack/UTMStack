@@ -32,8 +32,7 @@ where: |
    (exists("log.ipspri") && !equals("log.ipspri", "0"))) &&
   (equals("action", "blocked") || equals("log.fw_action", "drop"))
 afterEvents:
-  - indexPattern: v11-log-firewall-sonicwall-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

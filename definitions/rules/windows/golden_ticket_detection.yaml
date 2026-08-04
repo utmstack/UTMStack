@@ -52,13 +52,12 @@ where: |
     !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
   )
 afterEvents:
-  - indexPattern: v11-log-wineventlog-*
-    with:
+  - with:
       - field: origin.host
         operator: filter_term
         value: '{{.origin.host}}'
     within: 30m
     count: 3
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

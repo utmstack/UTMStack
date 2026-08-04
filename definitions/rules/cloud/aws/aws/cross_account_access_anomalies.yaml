@@ -30,10 +30,9 @@ where: |
   exists("log.responseElementsAssumedRoleUserArn") &&
   exists("log.sourceIPAddress") &&
   equals("log.errorCode", "") &&
-  !contains(safe(log.responseElementsAssumedRoleUserArn, ""), safe(log.userIdentityAccountId, ""))
+  !contains(safe("log.responseElementsAssumedRoleUserArn", ""), safe("log.userIdentityAccountId", ""))
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.sourceIPAddress
         operator: filter_term
         value: '{{.log.sourceIPAddress}}'

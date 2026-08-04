@@ -42,11 +42,10 @@ where: |
      greaterThan("log.flow.pkts_toserver", 500) &&
      lessThan("log.flow.duration", 5)) ||
     (equals("target.port", 123) &&
-     safe("log.flow.bytes_toclient", 0) > safe("log.flow.bytes_toserver", 0) * 10)
+     safe("log.flow.bytes_toclient", 0.0) > safe("log.flow.bytes_toserver", 0.0) * 10.0)
   )
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'

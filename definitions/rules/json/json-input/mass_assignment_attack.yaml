@@ -33,8 +33,7 @@ where: |
     contains("raw", "\"__proto__\"")
   )
 afterEvents:
-  - indexPattern: v11-log-json-input-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

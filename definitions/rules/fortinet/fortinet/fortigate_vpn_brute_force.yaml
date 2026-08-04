@@ -30,8 +30,7 @@ where: |
    contains("log.logdesc", ["SSL VPN login fail", "IPsec phase1 negotiation failed", "VPN tunnel down"])) &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

@@ -27,8 +27,7 @@ description: |
 where: |
   oneOf("action", ["HardDelete", "SoftDelete"]) && exists("origin.user") && exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
@@ -38,8 +37,7 @@ afterEvents:
     within: 15m
     count: 100
     or:
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'

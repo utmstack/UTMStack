@@ -25,8 +25,7 @@ description: |
   6. Document the incident and update threat intelligence feeds
 where: (contains("log.msg", "Capture ATP") || contains("log.msg", "Gateway Anti-Virus") || contains("log.msg", "Sandbox") || equals("log.category", "Anti-Virus") || equals("log.af_type", "ATP")) && (contains("log.msg", "malicious") || contains("log.msg", "blocked") || contains("log.msg", "threat detected") || equals("log.result", "malicious") || equals("action", "blocked"))
 afterEvents:
-  - indexPattern: v11-log-firewall-sonicwall-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

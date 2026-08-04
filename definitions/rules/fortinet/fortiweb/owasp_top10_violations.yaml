@@ -30,8 +30,7 @@ where: |
   oneOf("action", ["deny", "alert_deny", "block", "blocked"]) &&
   regexMatch("log.msg", "(?i)(injection|traversal|xxe|xml external entity|broken auth|sensitive data|security misconfig|owasp|sqli|xss|csrf|command injection|path traversal|lfi|rfi|deserialization)")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortiweb-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

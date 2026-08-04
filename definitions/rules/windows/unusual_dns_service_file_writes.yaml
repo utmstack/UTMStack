@@ -19,5 +19,5 @@ where: equals("log.eventCode", 4663) &&
        contains("log.eventDataProcessName", "dns.exe") && !regexMatch("log.eventDataFileName", "(dns\\.log$|\\.dns$|\\Windows\\System32\\dns\\)") &&
        regexMatch("log.eventDataFileName", "\\.(dll|exe|bat|ps1|vbs)$")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

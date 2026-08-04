@@ -15,13 +15,12 @@ references:
   - "https://suricata.readthedocs.io/en/latest/"
 where: equals("log.eventType", "alert") && equals("severity", "medium")
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
     within: 15m
     count: 5
 deduplicateBy:
-  - target.ip
-  - target.ip
+  - adversary.ip
+  - adversary.ip

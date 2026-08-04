@@ -27,8 +27,7 @@ description: |
   8. Review and restrict IAM policies for Route 53 access
 where: equals("log.eventSource", "route53.amazonaws.com") && equals("log.eventName", "ChangeResourceRecordSets") && equals("log.errorCode", "")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentityArn
         operator: filter_term
         value: '{{.log.userIdentityArn}}'

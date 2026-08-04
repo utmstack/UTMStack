@@ -43,5 +43,5 @@ where: |
   ) &&
   !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|TrustedInstaller)$")
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

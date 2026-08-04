@@ -18,5 +18,5 @@ references:
 where: |
     !regexMatch("log.eventDataProcessName", "(spoolsv.exe|printfilterpipelinesvc.exe|PrintIsolationHost.exe|splwow64.exe|msiexec.exe|poqexec.exe)") && regexMatch("log.eventDataObjectName", ":\\Windows\\System32\\spool\\PRINTERS\\")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

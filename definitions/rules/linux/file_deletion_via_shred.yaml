@@ -18,5 +18,5 @@ references:
   - "https://attack.mitre.org/techniques/T1070/004/"
 where: regexMatch("log.message", "(shred (-u|--remove|-z|--zero))")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

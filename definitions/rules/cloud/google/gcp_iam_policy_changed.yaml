@@ -25,6 +25,6 @@ description: |
   5. Review the actor's session for other privilege escalation attempts
   6. Check if the service account's workload identity was compromised
 where: |
-  oneof("log.protoPayloadServiceName", ["cloudresourcemanager.googleapis.com", "pubsub.googleapis.com"]) &&
-  oneof("log.protoPayloadMethodName", ["SetIamPolicy", "google.iam.v1.IAMPolicy.SetIamPolicy"]) &&
+  oneOf("log.protoPayloadServiceName", ["cloudresourcemanager.googleapis.com", "pubsub.googleapis.com"]) &&
+  oneOf("log.protoPayloadMethodName", ["SetIamPolicy", "google.iam.v1.IAMPolicy.SetIamPolicy"]) &&
   exists("log.protoPayload.request.policy.bindings") && contains("log.logName", "activity") && exists("origin.user")

@@ -25,8 +25,7 @@ description: |
   6. Investigate other activities from the same source IP or user identity
 where: equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("log.errorCode", "")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.sourceIPAddress
         operator: filter_term
         value: '{{.log.sourceIPAddress}}'

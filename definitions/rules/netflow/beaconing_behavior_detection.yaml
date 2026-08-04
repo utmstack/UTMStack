@@ -30,8 +30,7 @@ where: |
   lessThan("origin.packagesSent", 50) &&
   oneOf("target.port", [443, 80, 8080, 8443])
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

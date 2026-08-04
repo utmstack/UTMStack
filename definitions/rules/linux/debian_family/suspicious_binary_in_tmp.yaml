@@ -33,5 +33,5 @@ where: |
     contains("log.process", "yum") || contains("log.process", "dnf") ||
     contains("log.process", "pip"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

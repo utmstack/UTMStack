@@ -31,8 +31,7 @@ where: |
    exists("log.DNSSICategory")) &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-paloalto-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

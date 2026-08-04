@@ -34,5 +34,5 @@ where: |
   !(contains("log.process", "systemd") || contains("log.process", "cilium") ||
     contains("log.process", "falco") || contains("log.process", "bpftrace"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

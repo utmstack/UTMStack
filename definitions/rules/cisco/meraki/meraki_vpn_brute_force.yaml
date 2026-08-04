@@ -28,8 +28,7 @@ where: |
    (contains("log.message", "VPN") && contains("log.message", ["auth fail", "authentication failed", "invalid credentials"]))) &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-meraki-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

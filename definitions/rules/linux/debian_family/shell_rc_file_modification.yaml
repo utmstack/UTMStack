@@ -30,5 +30,5 @@ where: |
   (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
    contains("log.message", "write") || contains("log.message", "changed"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

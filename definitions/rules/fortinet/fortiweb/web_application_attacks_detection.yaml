@@ -42,8 +42,7 @@ where: |
     equals("log.main_type", "SQL/XSS Syntax Based Detection")
   )
 afterEvents:
-  - indexPattern: v11-log-firewall-fortiweb-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

@@ -44,5 +44,5 @@ where: |
   contains("log.operationName", "Delete diagnostic setting")) &&
   equalsIgnoreCase("log.resultType", "0")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

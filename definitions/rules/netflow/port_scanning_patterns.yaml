@@ -31,8 +31,7 @@ where: |
   greaterThan("target.port", 0) &&
   equals("protocol", "TCP")
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

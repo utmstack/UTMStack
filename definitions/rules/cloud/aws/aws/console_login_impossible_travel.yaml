@@ -30,8 +30,7 @@ where: |
   equals("log.responseElements.ConsoleLogin", "Success") &&
   exists("origin.geolocation.countryCode")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentityArn
         operator: filter_term
         value: '{{.log.userIdentityArn}}'

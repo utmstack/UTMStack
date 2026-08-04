@@ -28,8 +28,7 @@ where: |
   oneOf("action", ["New-TransportRule", "Set-TransportRule", "Remove-TransportRule", "Enable-TransportRule", "Disable-TransportRule"]) &&
   equals("actionResult", "Success")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

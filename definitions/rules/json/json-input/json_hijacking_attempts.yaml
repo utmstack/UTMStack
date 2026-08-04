@@ -33,7 +33,7 @@ where: |
    contains("raw", "postMessage") ||
    (exists("log.callback") && contains("log.callback", "eval")) ||
    (exists("origin.url") && exists("target.domain") && 
-    !contains(safe(origin.url, ""), safe(target.domain, ""))))
+    !contains(safe("origin.url", ""), safe("target.domain", ""))))
 groupBy:
   - adversary.ip
   - target.domain

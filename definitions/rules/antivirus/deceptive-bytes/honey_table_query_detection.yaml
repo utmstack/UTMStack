@@ -28,8 +28,7 @@ description: |
   9. Document the incident and update security monitoring rules if needed
 where: equals("log.eventType", "decoy_access") && equals("log.resourceType", "database_table") && equals("log.action", "query") && exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-deceptive-bytes-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

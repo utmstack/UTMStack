@@ -29,23 +29,20 @@ where: |
   equals("log.eventName", "AssumeRoleWithSAML") &&
   equals("log.errorCode", "")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.userIdentityAccountId
         operator: filter_term
         value: '{{.log.userIdentityAccountId}}'
     within: 24h
     count: 1
     or:
-      - indexPattern: v11-log-aws-*
-        with:
+      - with:
           - field: log.eventName
             operator: filter_term
             value: 'UpdateSAMLProvider'
         within: 24h
         count: 1
-      - indexPattern: v11-log-aws-*
-        with:
+      - with:
           - field: log.eventName
             operator: filter_term
             value: 'CreateSAMLProvider'

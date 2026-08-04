@@ -31,8 +31,7 @@ where: |
   equals("action", "blocked") &&
   (exists("origin.ip") || exists("target.ip"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
+  - with:
       - field: log.type
         operator: filter_term
         value: utm

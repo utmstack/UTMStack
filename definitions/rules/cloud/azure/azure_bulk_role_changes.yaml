@@ -27,8 +27,7 @@ where: |
   contains("log.operationName", "Add member to role") ||
   contains("log.operationName", "Add eligible member to role")
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

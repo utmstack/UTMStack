@@ -18,8 +18,7 @@ description: "Adversaries may use brute force techniques to gain access to accou
                 Brute forcing passwords can take place via interaction with a service that will check the validity of those credentials or offline against previously acquired credential data, such as password hashes."
 where: equals("log.type", "Event::ZTNA::ZTNAAuthenticationFailure")
 afterEvents:
-    - indexPattern: v11-log-sophos-central-*
-      with:
+    - with:
         - field: log.type
           operator: filter_term
           value: "Event::ZTNA::ZTNAAuthenticationFailure"

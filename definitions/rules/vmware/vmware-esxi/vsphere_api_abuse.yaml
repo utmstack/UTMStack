@@ -41,8 +41,7 @@ where: |
     contains("log.message", "flood") ||
     contains("log.message", "excessive")))
 afterEvents:
-  - indexPattern: v11-log-vmware-esxi-*
-    with:
+  - with:
       - field: origin.hostname
         operator: filter_term
         value: '{{.origin.hostname}}'

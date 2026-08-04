@@ -32,8 +32,7 @@ where: |
     regexMatch("raw", "(?i)(query|mutation)\\s*\\{.*\\{.*\\{.*\\{.*\\{.*\\{.*\\{")
   )
 afterEvents:
-  - indexPattern: v11-log-json-input-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

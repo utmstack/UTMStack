@@ -30,8 +30,7 @@ where: |
   (contains("log.protoPayloadMethodName", "CreateRole") ||
    contains("log.protoPayloadMethodName", "UpdateRole"))
 afterEvents:
-  - indexPattern: v11-log-google-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

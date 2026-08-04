@@ -40,8 +40,7 @@ where: |
     (contains("log.message", "JDBC") && contains("log.message", "syntax error"))
   )
 afterEvents:
-  - indexPattern: v11-log-ibm-as400-*
-    with:
+  - with:
       - field: log.message
         operator: filter_match
         value: 'SQL error OR syntax error OR UNION SELECT OR DROP'

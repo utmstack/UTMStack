@@ -26,8 +26,7 @@ description: |
   7. Check if default credentials are still in use on the device
 where: contains("log.topics", "system") && contains("log.topics", "error") && contains("log.topics", "critical") && contains("log.message", "login failure") && exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-mikrotik-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

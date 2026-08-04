@@ -61,5 +61,5 @@ where: |
     )
   )
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

@@ -33,4 +33,4 @@ where: |
    exists("log.actionResult"))
 groupBy:
   - log.cs4
-  - origin.host
+  - adversary.host

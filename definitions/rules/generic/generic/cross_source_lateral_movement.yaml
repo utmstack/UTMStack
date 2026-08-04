@@ -42,8 +42,7 @@ where: |
     ))
   )
 afterEvents:
-  - indexPattern: v11-log-generic-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

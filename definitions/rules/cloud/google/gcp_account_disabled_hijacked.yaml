@@ -19,5 +19,5 @@ references:
 where: |
   equals("log.protoPayloadMethodName", "google.login.LoginService.accountDisabledHijacked")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

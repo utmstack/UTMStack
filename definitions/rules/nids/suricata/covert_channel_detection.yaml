@@ -37,8 +37,7 @@ where: |
      contains("log.dns.query.rrname", ".base64."))
   )
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

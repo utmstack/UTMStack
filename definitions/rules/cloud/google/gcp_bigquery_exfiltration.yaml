@@ -31,8 +31,7 @@ where: |
    contains("log.protoPayloadMethodName", "tableservice.exportdata") ||
    contains("log.protoPayloadMethodName", "datasets.copy"))
 afterEvents:
-  - indexPattern: v11-log-google-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

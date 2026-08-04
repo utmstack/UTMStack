@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1543/"
 where: regexMatch("log.message", "libkeyutils.so") && !regexMatch("log.message", "(dpkg|yum|dnf|dnf-automatic)") && regexMatch("log.message", "(/usr/sbin/sshd|/usr/bin/ssh|/usr/bin/sftp|/usr/bin/scp)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

@@ -29,5 +29,5 @@ where: |
   (contains("log.message", "write") || contains("log.message", "modified") ||
    contains("log.message", "open"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

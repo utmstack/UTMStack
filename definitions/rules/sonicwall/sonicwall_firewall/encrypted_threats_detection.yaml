@@ -29,8 +29,7 @@ where: |
   (contains("log.eventName", "SSL") || contains("log.eventName", "TLS") || contains("log.eventName", "encrypted") || contains("log.eventName", "DPI-SSL") || contains("log.message", "SSL") || contains("log.message", "TLS") || contains("log.message", "encrypted") || contains("protocol", "SSL") || contains("protocol", "TLS")) &&
   (contains("log.eventName", "threat") || contains("log.eventName", "malware") || contains("log.eventName", "blocked") || contains("log.eventName", "violation") || contains("log.message", "threat") || contains("log.message", "malware") || contains("log.message", "blocked") || equals("log.result", "blocked") || equals("action", "blocked") || exists("log.ipscat") || exists("log.spycat"))
 afterEvents:
-  - indexPattern: v11-log-firewall-sonicwall-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

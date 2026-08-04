@@ -16,5 +16,5 @@ where: >
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(wevtutil\\s+cl.*|Clear-EventLog.*|Remove-EventLog.*).*")
 groupBy: 
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

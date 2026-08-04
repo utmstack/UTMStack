@@ -26,8 +26,7 @@ description: |
   7. Scan the host with updated antivirus/anti-malware tools
 where: (equals("log.category", "Botnet") || contains("log.message", "botnet") || contains("log.message", "infected") || contains("log.message", "C&C") || contains("log.message", "command and control") || equals("log.af_service", "botnet")) && (equals("action", "blocked") || equals("action", "dropped") || equals("log.fw_action", "drop"))
 afterEvents:
-  - indexPattern: v11-log-firewall-sonicwall-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

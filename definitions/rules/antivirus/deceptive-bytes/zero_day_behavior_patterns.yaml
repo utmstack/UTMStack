@@ -38,8 +38,7 @@ where: |
   equals("log.knownMalwareFamily", "") &&
   exists("log.exploitTechnique")
 afterEvents:
-  - indexPattern: v11-log-deceptive-bytes-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

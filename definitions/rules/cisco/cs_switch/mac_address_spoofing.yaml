@@ -31,8 +31,7 @@ where: |
   || regexMatch("log.message", "(?i)(Host [0-9a-fA-F:.]+.*is flapping between port)")
   || (lessOrEqual("log.severity", 4) && regexMatch("log.message", "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
 afterEvents:
-  - indexPattern: v11-log-cisco-switch-*
-    with:
+  - with:
       - field: origin.mac
         operator: filter_term
         value: '{{.origin.mac}}'

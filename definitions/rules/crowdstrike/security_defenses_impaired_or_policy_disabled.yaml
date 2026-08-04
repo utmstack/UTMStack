@@ -15,5 +15,5 @@ where: >
     equals("log.eventPatternDispositionFlagsPolicyDisabled", true) || 
     oneOf("log.eventPatternDispositionValue", [8192, 8208, 8320, 8704, 9216, 10240, 12304, 73728, 73744])
 groupBy: 
-  - origin.host
+  - adversary.host
   - lastEvent.log.eventPatternDispositionDescription

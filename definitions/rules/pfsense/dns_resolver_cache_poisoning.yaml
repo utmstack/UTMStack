@@ -25,8 +25,7 @@ description: |
   6. Monitor for subsequent DNS queries to verify if cache poisoning was successful
 where: equals("log.eventType", "unbound") && contains("log.reason", "reply") && (!equals("log.rcode", "NOERROR") || contains("log.flags", "FORGED"))
 afterEvents:
-  - indexPattern: v11-log-firewall-pfsense-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

@@ -28,8 +28,7 @@ where: |
   equals("log.type", "ATP") && equals("log.component", "Threat Protection") &&
   (oneOf("log.subType", ["Malware", "Threat"]) || exists("log.virus"))
 afterEvents:
-  - indexPattern: v11-log-firewall-sophos-xg-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

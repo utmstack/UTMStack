@@ -35,4 +35,4 @@ where: |
   (exists("log.module_name") && equals("log.action", "kernel_module_load") && contains("log.module_path", "/boot/"))
 groupBy:
   - lastEvent.log.file_path
-  - origin.host
+  - adversary.host

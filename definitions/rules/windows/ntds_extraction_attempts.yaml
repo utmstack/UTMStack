@@ -37,13 +37,12 @@ where: |
   ) &&
   !equals("log.eventDataAccessMask", "0")
 afterEvents:
-  - indexPattern: v11-log-wineventlog-*
-    with:
+  - with:
       - field: origin.host
         operator: filter_term
         value: '{{.origin.host}}'
     within: 30m
     count: 2
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

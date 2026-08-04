@@ -32,5 +32,5 @@ where: |
   exists("target.ip")
 groupBy:
   - lastEvent.log.alert.signature
-  - target.ip
-  - target.ip
+  - adversary.ip
+  - adversary.ip

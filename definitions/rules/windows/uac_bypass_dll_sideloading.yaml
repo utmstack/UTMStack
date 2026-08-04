@@ -18,5 +18,5 @@ references:
 where: regexMatch("log.eventDataFileName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)") &&
        regexMatch("log.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("log.eventDataFileName", "(C:\\\\Windows\\\\SoftwareDistribution\\\\|C:\\\\Windows\\\\WinSxS\\\\)")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

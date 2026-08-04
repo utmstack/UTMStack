@@ -30,8 +30,7 @@ where: |
   exists("log.senderLogin") &&
   contains("log.commitMessage", "dependabot")
 afterEvents:
-  - indexPattern: v11-log-github-*
-    with:
+  - with:
       - field: log.repositoryName
         operator: filter_term
         value: '{{.log.repositoryName}}'

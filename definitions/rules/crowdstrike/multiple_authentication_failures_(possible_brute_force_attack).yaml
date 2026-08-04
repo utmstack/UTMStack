@@ -16,8 +16,7 @@ where: >
   equals("log.eventSuccess", false) && 
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-crowdstrike-*
-    within: 15m
+  - within: 15m
     count: 5
     with:
       - field: origin.ip
@@ -27,4 +26,4 @@ afterEvents:
         operator: filter_term
         value: 'false'
 deduplicateBy:
-  - origin.ip
+  - adversary.ip

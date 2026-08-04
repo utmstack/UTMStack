@@ -30,8 +30,7 @@ description: |
 where: |
   oneOf("action", ["FileAccessed", "FileAccessedExtended", "FilePreviewed"]) && exists("origin.user") && equals("log.Workload", "OneDrive")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
@@ -44,8 +43,7 @@ afterEvents:
     within: 30m
     count: 67
     or:
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'
@@ -57,8 +55,7 @@ afterEvents:
             value: 'OneDrive'
         within: 30m
         count: 67
-      - indexPattern: v11-log-o365-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'

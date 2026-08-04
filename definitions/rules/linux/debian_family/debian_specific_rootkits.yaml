@@ -55,4 +55,4 @@ where: |
    !equals("log.process_name", "dpkg"))
 groupBy:
   - lastEvent.log.process_name
-  - origin.host
+  - adversary.host

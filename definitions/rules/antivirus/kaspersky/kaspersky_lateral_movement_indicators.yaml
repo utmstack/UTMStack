@@ -34,10 +34,9 @@ where: |
    contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
   exists("log.dst") &&
   exists("log.src") &&
-  safe(log.src, "") != safe(log.dst, "")
+  safe("log.src", "") != safe("log.dst", "")
 afterEvents:
-  - indexPattern: v11-log-antivirus-kaspersky-*
-    with:
+  - with:
       - field: log.src
         operator: filter_term
         value: '{{.log.src}}'

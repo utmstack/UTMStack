@@ -30,8 +30,7 @@ where: |
   equals("actionResult", "Success") &&
   contains("log.Parameters", "#EXT#")
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

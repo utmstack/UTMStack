@@ -29,8 +29,7 @@ where: |
    contains("log.eventType", "sshguard")) &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-pfsense-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

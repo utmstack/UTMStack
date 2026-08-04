@@ -30,7 +30,7 @@ where: |
    contains("log.msg", ["callback", "beacon", "botnet", "command and control"]) ||
    equals("log.cat", "NetworkThreat")) &&
   exists("target.ip") &&
-  action != "blocked" && action != "Blocked"
+  safe("action", "") != "blocked" && safe("action", "") != "Blocked"
 groupBy:
-  - origin.host
+  - adversary.host
   - target.ip

@@ -15,23 +15,22 @@ references:
   - "https://attack.mitre.org/techniques/T1110/"
 where: equals("log.eventCode", 4625)
 afterEvents:
-    - indexPattern: v11-log-wineventlog-*
-      with:
+    - with:
         - field: log.eventCode
           operator: filter_term
           value: "{{.log.eventCode}}"
-        - field: target.user.keyword
+        - field: target.user
           operator: filter_term
           value: "{{.target.user}}"
-        - field: origin.host.keyword
+        - field: origin.host
           operator: filter_term
           value: "{{.origin.host}}"
-        - field: origin.ip.keyword
+        - field: origin.ip
           operator: filter_term
           value: "{{.origin.ip}}"
       within: 5m
       count: 10
 deduplicateBy:
-  - origin.host
+  - adversary.host
   - target.user
-  - origin.ip
+  - adversary.ip

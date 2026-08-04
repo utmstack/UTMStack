@@ -27,4 +27,4 @@ description: |
 where: (equals("log.eventId", "4886") || equals("log.eventId", "4887")) && equals("log.providerName", "Microsoft-Windows-Security-Auditing") && (contains("log.eventDataSubjectUserName", "$") || equals("log.eventDataSubjectUserName", "ANONYMOUS LOGON"))
 groupBy:
   - lastEvent.log.eventDataSubjectUserName
-  - origin.host
+  - adversary.host

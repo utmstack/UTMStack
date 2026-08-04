@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1046/"
 where: contains("log.message", "nping")
 deduplicateBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

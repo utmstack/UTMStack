@@ -44,4 +44,4 @@ where: |
   )
 groupBy:
   - lastEvent.log.container_id
-  - origin.host
+  - adversary.host

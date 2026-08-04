@@ -18,5 +18,5 @@ references:
   - "https://attack.mitre.org/techniques/T1543/"
 where: contains("log.message", "unshare") && !contains("log.message", "/usr/bin/snap") && !regexMatch("log.message", "(\\/usr\\/bin\\/udevadm|\\/lib\\/systemd\\/systemd-udevd|\\/usr\\/bin\\/unshare)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

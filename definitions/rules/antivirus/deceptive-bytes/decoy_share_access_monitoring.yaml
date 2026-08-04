@@ -26,8 +26,7 @@ description: |
   - Update security controls to block or monitor the attacker's techniques
 where: equals("log.eventType", "decoy_access") && equals("log.resourceType", "network_share") && exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-deceptive-bytes-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

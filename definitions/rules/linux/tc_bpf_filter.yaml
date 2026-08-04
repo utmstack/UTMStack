@@ -19,5 +19,5 @@ references:
   - "https://attack.mitre.org/techniques/T1059/004/"
 where: containsAll("log.message", ["tc", "filter", "bpf"])
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

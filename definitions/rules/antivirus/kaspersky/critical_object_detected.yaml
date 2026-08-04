@@ -34,5 +34,5 @@ where: |
    contains("log.cs4", ["Trojan", "HEUR:", "PDM:", "UDS:"]) ||
    contains("log.msg", ["infected", "malicious", "dangerous"]))
 groupBy:
-  - origin.host
+  - adversary.host
   - log.signatureID

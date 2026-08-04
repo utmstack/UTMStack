@@ -33,5 +33,5 @@ where: |
    (contains("log.message", "EDIT") && contains("log.message", "crontab")) ||
    (contains("log.message", "BEGIN EDIT") || contains("log.message", "END EDIT")))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

@@ -29,8 +29,7 @@ where: |
    contains("log.attack_type", "sql_injection") ||
    contains("log.signature", "SQL Injection"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortiweb-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

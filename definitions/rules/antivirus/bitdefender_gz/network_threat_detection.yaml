@@ -34,16 +34,14 @@ where: |
    contains("log.restData", ["malware", "threat", "blocked", "c2", "botnet"])) ||
   (equals("log.severity", "critical") && contains("log.product", "network"))
 afterEvents:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
     within: 2h
     count: 5
     or:
-      - indexPattern: v11-log-antivirus-bitdefender-gz-*
-        with:
+      - with:
           - field: log.hostId
             operator: filter_term
             value: '{{.log.hostId}}'

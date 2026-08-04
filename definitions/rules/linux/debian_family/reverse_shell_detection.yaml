@@ -36,5 +36,5 @@ where: |
   regexMatch("log.message", "(?i)mkfifo\\s+.*nc\\s+") ||
   regexMatch("log.message", "(?i)\\b0<&\\d+-;exec\\s+\\d+<>/dev/tcp/")
 groupBy:
-  - origin.host
-  - origin.ip
+  - adversary.host
+  - adversary.ip

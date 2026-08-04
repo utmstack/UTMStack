@@ -40,8 +40,7 @@ where: |
    (equals("log.process", "vpxd") && equals("severity", "error"))) &&
   exists("origin.hostname")
 afterEvents:
-  - indexPattern: v11-log-vmware-esxi-*
-    with:
+  - with:
       - field: origin.hostname
         operator: filter_term
         value: '{{.origin.hostname}}'

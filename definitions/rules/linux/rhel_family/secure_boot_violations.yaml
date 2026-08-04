@@ -35,5 +35,5 @@ where: |
   (oneOf("log.efi_variable", ["SecureBoot", "SetupMode", "PK", "KEK", "db", "dbx"]) && oneOf("log.action", ["modify", "delete"])) ||
   (contains("log.shim_message", "verification failed") || contains("log.shim_message", "signature invalid"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

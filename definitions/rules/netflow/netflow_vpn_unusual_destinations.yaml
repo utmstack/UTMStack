@@ -31,8 +31,7 @@ where: |
   !inCIDR("target.ip", "172.16.0.0/12") &&
   !inCIDR("target.ip", "192.168.0.0/16")
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

@@ -28,8 +28,7 @@ where: |
   (contains("log.message", ["auth", "login"]) && contains("log.message", ["fail", "invalid", "denied"])) &&
   exists("origin.ip")
 afterEvents:
-  - indexPattern: v11-log-firewall-paloalto-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

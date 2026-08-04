@@ -33,8 +33,7 @@ where: |
    contains("log.operationName", "exec")) &&
   equals("log.resultType", "Success")
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

@@ -31,5 +31,5 @@ where: |
     contains("action", ["terminate", "delete", "quarantine"]))) &&
   contains("log.msg", ["lsass", "csrss", "winlogon", "services", "svchost", "explorer"])
 deduplicateBy:
-  - origin.host
+  - adversary.host
   - log.cs4

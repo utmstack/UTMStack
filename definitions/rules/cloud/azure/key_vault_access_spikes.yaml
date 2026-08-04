@@ -27,8 +27,7 @@ where: |
   equals("log.category", "AuditEvent") &&
   oneOf("log.operationName", ["SecretGet", "SecretList", "KeyGet"])
 afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

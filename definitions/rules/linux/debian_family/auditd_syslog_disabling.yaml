@@ -31,5 +31,5 @@ where: |
    contains("log.message", "syslog")) &&
   !(contains("log.message", "restart") || contains("log.message", "reload"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

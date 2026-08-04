@@ -35,8 +35,7 @@ where: |
     (contains("log.message", "SBMRMTCMD") && exists("origin.user"))
   )
 afterEvents:
-  - indexPattern: v11-log-ibm-as400-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

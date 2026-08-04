@@ -38,5 +38,5 @@ where: |
          contains("log.message", "ProtectSystem=false")
        )
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

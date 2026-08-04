@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1572/"
 where: contains("log.message", "iodine")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

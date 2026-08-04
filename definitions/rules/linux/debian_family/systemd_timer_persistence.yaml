@@ -30,5 +30,5 @@ where: |
    contains("log.message", "started") || contains("log.message", "Reloading") ||
    contains("log.message", "loaded"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

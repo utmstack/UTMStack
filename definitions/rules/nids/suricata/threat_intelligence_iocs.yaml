@@ -32,8 +32,7 @@ where: |
   exists("origin.ip") &&
   oneOf("log.threat_type", ["malicious_ip", "c2_server", "known_malware", "botnet"])
 afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

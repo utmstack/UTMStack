@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1059/"
 where: contains("log.message", "python") && regexMatch("log.message", "(import pty; pty.spawn\\(\\'\\/bin\\/(sh|dash|bash)\\'\\))")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

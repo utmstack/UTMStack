@@ -17,8 +17,7 @@ references:
   - "https://attack.mitre.org/techniques/T1110/"
 where: equals("action", "system.auth") && regexMatch("log.message", "([Ss]ession opened)") && exists("origin.user") && exists("log.hostId")
 afterEvents:
-  - indexPattern: v11-log-linux-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
@@ -31,8 +30,7 @@ afterEvents:
     within: 15m
     count: 10
     or:
-      - indexPattern: v11-log-linux-*
-        with:
+      - with:
           - field: origin.user
             operator: filter_term
             value: '{{.origin.user}}'
@@ -45,5 +43,5 @@ afterEvents:
         within: 15m
         count: 10
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

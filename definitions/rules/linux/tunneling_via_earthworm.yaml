@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1572/"
 where: contains("log.message", "-s") && contains("log.message", "-d") && contains("log.message", "rssocks")
 groupBy:
-  - target.ip
-  - target.user
+  - adversary.ip
+  - adversary.user

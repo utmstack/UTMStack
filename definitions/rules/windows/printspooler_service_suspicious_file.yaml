@@ -18,5 +18,5 @@ references:
   - "https://attack.mitre.org/techniques/T1068/"
 where: contains("log.eventDataProcessName", "spoolsv.exe") && !regexMatch("log.eventDataProcessPath", "^C:\\\\Windows\\\\System32\\\\spoolsv.exe$")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

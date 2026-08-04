@@ -17,5 +17,5 @@ description: "Identifies network activity from unexpected system applications. T
               applications are often leveraged by adversaries to execute code and evade detection."
 where: regexMatch("log.eventDataProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

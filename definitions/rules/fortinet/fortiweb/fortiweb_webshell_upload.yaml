@@ -25,7 +25,7 @@ description: |
   6. If a web shell was successfully uploaded, immediately isolate the server
 where: |
   oneOf("action", ["deny", "block", "alert_deny", "alert"]) &&
-  (regexMatch("log.msg", "(?i)(web.*shell|backdoor.*upload|cmd.*shell|reverse.*shell|\.php.*upload|\.asp.*upload|\.jsp.*upload|c99|r57|china.*chopper|weevely|b374k)") ||
+  (regexMatch("log.msg", "(?i)(web.*shell|backdoor.*upload|cmd.*shell|reverse.*shell|\\.php.*upload|\\.asp.*upload|\\.jsp.*upload|c99|r57|china.*chopper|weevely|b374k)") ||
    (contains("log.attack_type", "file_upload") && contains("log.msg", ["shell", "backdoor", "malicious"])) ||
    regexMatch("log.msg", "(?i)(file.*upload.*violat|upload.*restrict|dangerous.*file.*type)"))
 groupBy:

@@ -35,8 +35,7 @@ where: |
     (equals("log.eventName", "ModifyFlowLogsAttribute") && equals("log.requestParameters.deliverLogsStatus", "INACTIVE"))
   )
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
+  - with:
       - field: log.sourceIPAddress
         operator: filter_term
         value: '{{.log.sourceIPAddress}}'

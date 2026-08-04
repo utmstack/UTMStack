@@ -25,16 +25,15 @@ where: |
   !(regexMatch("log.eventDataObjectName", "(?i).*\\.(tmp|log|etl|dmp|pf|evtx|cache|dat|bak)$")) &&
   regexMatch("log.eventDataObjectName", "(?i).*\\.(doc[x]?|xls[x]?|ppt[x]?|pdf|txt|jpg|jpeg|png|gif|bmp|mp4|avi|mp3|zip|rar|7z)$")
 afterEvents:
-    - indexPattern: v11-log-wineventlog-*
-      with:
+    - with:
         - field: log.eventCode
           operator: filter_term
           value: "4663"
-        - field: target.user.keyword
+        - field: target.user
           operator: filter_term
           value: "{{.target.user}}"
       within: 5m
       count: 50
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

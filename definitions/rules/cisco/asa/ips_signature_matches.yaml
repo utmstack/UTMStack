@@ -30,8 +30,7 @@ where: |
   || (contains("log.message", "IPS") && contains("log.message", "signature") && contains("log.message", ["matched", "triggered", "detected"]))
   || oneOf("log.action", ["ips_alert", "ids_alert", "threat_detected"])
 afterEvents:
-  - indexPattern: v11-log-firewall-cisco-asa-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

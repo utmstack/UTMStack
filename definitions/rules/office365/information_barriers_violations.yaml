@@ -26,8 +26,7 @@ description: |
 where: |
   equals("action", "InformationBarrierPolicyViolation") || (equals("log.PolicyType", "InformationBarrier") && equals("actionResult", "Blocked")) || (equals("log.ViolationType", "InformationBarrier") && equals("action", "CommunicationBlocked"))
 afterEvents:
-  - indexPattern: v11-log-o365-*
-    with:
+  - with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'

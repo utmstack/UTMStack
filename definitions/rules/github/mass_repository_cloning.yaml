@@ -32,8 +32,7 @@ where: |
   exists("log.repositoryName") &&
   exists("log.senderLogin")
 afterEvents:
-  - indexPattern: v11-log-github-*
-    with:
+  - with:
       - field: log.senderLogin
         operator: filter_term
         value: '{{.log.senderLogin}}'

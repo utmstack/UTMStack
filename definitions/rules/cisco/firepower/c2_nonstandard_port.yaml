@@ -32,8 +32,7 @@ where: |
    equals("log.appProto", "unknown-tcp")) &&
   equals("log.initiatorPackets", true)
 afterEvents:
-  - indexPattern: v11-log-firewall-cisco-firepower-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

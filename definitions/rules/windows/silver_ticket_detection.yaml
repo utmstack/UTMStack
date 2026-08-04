@@ -39,13 +39,12 @@ where: |
     exists("origin.ip")
   )
 afterEvents:
-  - indexPattern: v11-log-wineventlog-*
-    with:
-      - field: origin.ip.keyword
+  - with:
+      - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
     within: 15m
     count: 5
 groupBy:
-  - origin.ip
-  - origin.host
+  - adversary.ip
+  - adversary.host

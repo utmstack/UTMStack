@@ -30,5 +30,5 @@ where: |
    contains("log.message", "changed") || contains("log.process", "sshd") ||
    contains("log.message", ".ssh") && contains("log.message", "write"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

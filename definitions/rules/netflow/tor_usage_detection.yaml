@@ -29,8 +29,7 @@ where: |
   oneOf("target.port", [9001, 9030, 9050, 9051]) &&
   equals("protocol", "6") && greaterThan("log.bytes", 512)
 afterEvents:
-  - indexPattern: v11-log-netflow-*
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
