@@ -4629,6 +4629,10 @@
       "validation": "The request was invalid — check the raw log and pipeline content.",
       "server": "The playground couldn't complete the test — please try again."
     },
+    "notices": {
+      "geo": "The geolocation plugin isn't available in this lite version of the filter and rule test.",
+      "correlation": "Rules that reference prior events through afterEvent or correlation clauses require matching historical events to already exist in the system for the tested alert to trigger."
+    },
     "result": {
       "label": "Parsed result",
       "empty": "Run a test to see the parsed event here.",

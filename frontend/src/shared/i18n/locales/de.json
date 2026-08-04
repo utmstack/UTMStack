@@ -5219,6 +5219,10 @@
       "validation": "Die Anfrage war ungültig — prüfe das Rohprotokoll und den Pipeline-Inhalt.",
       "server": "Der Playground konnte den Test nicht abschließen — bitte erneut versuchen."
     },
+    "notices": {
+      "geo": "Das Geolocation-Plugin ist in dieser Lite-Version des Filter- und Regeltests nicht verfügbar.",
+      "correlation": "Regeln, die über afterEvent- oder correlation-Klauseln auf frühere Ereignisse verweisen, setzen voraus, dass entsprechende Ereignisse bereits im System vorhanden sind, damit die getestete Warnung ausgelöst wird."
+    },
     "result": {
       "label": "Verarbeitetes Ergebnis",
       "empty": "Führe einen Test aus, um das verarbeitete Ereignis hier zu sehen.",

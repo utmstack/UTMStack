@@ -5181,6 +5181,10 @@
       "validation": "La solicitud no era válida — revisa el log en crudo y el contenido del pipeline.",
       "server": "El playground no pudo completar la prueba — inténtalo de nuevo."
     },
+    "notices": {
+      "geo": "El plugin de geolocation no está disponible para esta versión lite del test de filtros y reglas.",
+      "correlation": "Las reglas que consultan eventos previos mediante las cláusulas afterEvent o correlation requieren que ya existan eventos coincidentes en el sistema para que la alerta bajo prueba se dispare."
+    },
     "result": {
       "label": "Resultado procesado",
       "empty": "Ejecuta una prueba para ver aquí el evento procesado.",

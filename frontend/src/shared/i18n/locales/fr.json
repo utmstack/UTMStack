@@ -5219,6 +5219,10 @@
       "validation": "La requête est invalide — vérifiez le journal brut et le contenu du pipeline.",
       "server": "Le playground n'a pas pu terminer le test — veuillez réessayer."
     },
+    "notices": {
+      "geo": "Le plugin de géolocalisation n'est pas disponible dans cette version allégée du test de filtres et de règles.",
+      "correlation": "Les règles qui référencent des événements antérieurs via les clauses afterEvent ou correlation nécessitent que des événements correspondants existent déjà dans le système pour que l'alerte testée se déclenche."
+    },
     "result": {
       "label": "Résultat analysé",
       "empty": "Exécutez un test pour voir ici l'événement analysé.",
