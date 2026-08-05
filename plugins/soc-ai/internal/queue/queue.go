@@ -165,6 +165,16 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 		return
 	}
 
+	if !item.IsManual && !consumeQuota(aq.ctx, cfg.Backend, cfg.InternalKey, item.TenantID) {
+		atomic.AddInt64(&aq.processedCount, 1)
+		catcher.Info("skipping automatic analysis: the tenant has used its AI allowance for today", map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+			"tenant":  item.TenantID,
+			"alert":   alertFields.Id,
+		})
+		return
+	}
+
 	alertJSON, err := json.Marshal(&alertFields)
 	if err != nil {
 		atomic.AddInt64(&aq.errorCount, 1)

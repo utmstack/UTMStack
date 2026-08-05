@@ -11,9 +11,10 @@ import (
 type Module struct {
 	client *SocAIClient
 	config *usecase.ConfigService
+	quota  *AIQuota
 }
 
-func NewModule(baseURL, internalKey string, cipher *secret.Cipher, pipelineDir, updatesDir string) *Module {
+func NewModule(baseURL, internalKey string, cipher *secret.Cipher, pipelineDir, updatesDir string, quota *AIQuota) *Module {
 	instanceconfig.Init(updatesDir)
 
 	config := usecase.NewConfigService(repository.NewConfigStore(pipelineDir), cipher, verifier.New())
@@ -22,6 +23,7 @@ func NewModule(baseURL, internalKey string, cipher *secret.Cipher, pipelineDir, 
 	return &Module{
 		client: NewSocAIClient(baseURL, internalKey),
 		config: config,
+		quota:  quota,
 	}
 }
 

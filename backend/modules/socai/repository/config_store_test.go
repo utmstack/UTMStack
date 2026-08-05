@@ -1,6 +1,10 @@
 package repository
 
-import "testing"
+import (
+	"fmt"
+	"sync"
+	"testing"
+)
 
 func TestSaveKeepsTheOtherTenantsAndTheDefault(t *testing.T) {
 	s := NewConfigStore(t.TempDir())
@@ -154,5 +158,51 @@ func TestDeleteOnATenantThatNeverSavedIsFine(t *testing.T) {
 
 	if err := s.Delete("never-saved"); err != nil {
 		t.Fatalf("delete: %v", err)
+	}
+}
+
+// Two replicas share the config directory through the same bind mount. Saving
+// for a tenant is read-modify-write over a file holding every tenant, so
+// without a lock that other processes see, the slower save erases the other
+// tenant's entry.
+func TestConcurrentSavesDoNotLoseATenant(t *testing.T) {
+	dir := t.TempDir()
+
+	// Separate stores: the in-process mutex is what a second replica does not
+	// share, so one store per writer is what the deployment actually looks like.
+	const writers = 8
+	var wg sync.WaitGroup
+	errs := make(chan error, writers)
+
+	for i := range writers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			s := NewConfigStore(dir)
+			errs <- s.Save(fmt.Sprintf("tenant-%d", i), &FileConfig{Model: fmt.Sprintf("m%d", i)})
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("Save: %v", err)
+		}
+	}
+
+	s := NewConfigStore(dir)
+	for i := range writers {
+		got, err := s.LoadOwn(fmt.Sprintf("tenant-%d", i))
+		if err != nil {
+			t.Fatalf("LoadOwn: %v", err)
+		}
+		if got == nil {
+			t.Errorf("tenant-%d was lost", i)
+			continue
+		}
+		if want := fmt.Sprintf("m%d", i); got.Model != want {
+			t.Errorf("tenant-%d model = %q, want %q", i, got.Model, want)
+		}
 	}
 }

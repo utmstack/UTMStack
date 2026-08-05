@@ -10,31 +10,47 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/audit/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-type service struct {
-	repo connectors.Repository
+type Service struct {
+	repo   connectors.Repository
+	writer *writer
+	purger *purger
 }
 
-func New(repo connectors.Repository) *service {
-	return &service{repo: repo}
+func New(repo connectors.Repository, retainDays int) *Service {
+	return &Service{
+		repo:   repo,
+		writer: newWriter(repo),
+		purger: newPurger(repo, retainDays),
+	}
 }
 
-func (s *service) Log(ctx context.Context, ev connectors.Event) {
+func (s *Service) Start(ctx context.Context) {
+	s.writer.Start()
+	go s.purger.Start(ctx)
+}
+
+func (s *Service) Stop() { s.writer.Stop() }
+
+func (s *Service) Log(ctx context.Context, ev connectors.Event) {
 	row := &domain.AuditLog{
-		Timestamp:    time.Now().UTC(),
-		Action:       ev.Action,
-		Status:       ev.Status,
-		ErrorMessage: ev.ErrorMessage,
-		ResourceType: ev.ResourceType,
-		ResourceID:   ev.ResourceID,
-		IP:           ev.IP,
-		UserAgent:    ev.UserAgent,
-		UserLogin:    ev.UserLogin,
-		UserID:       ev.UserID,
-		SessionID:    ev.SessionID,
-		EventType:    ev.EventType,
+		TenantID:      tenantOf(ctx),
+		SupportAccess: ev.SupportAccess,
+		Timestamp:     time.Now().UTC(),
+		Action:        ev.Action,
+		Status:        ev.Status,
+		ErrorMessage:  ev.ErrorMessage,
+		ResourceType:  ev.ResourceType,
+		ResourceID:    ev.ResourceID,
+		IP:            ev.IP,
+		UserAgent:     ev.UserAgent,
+		UserLogin:     ev.UserLogin,
+		UserID:        ev.UserID,
+		SessionID:     ev.SessionID,
+		EventType:     ev.EventType,
 	}
 	if ev.Status == "" {
 		row.Status = domain.StatusSuccess
@@ -46,10 +62,14 @@ func (s *service) Log(ctx context.Context, ev connectors.Event) {
 	}
 
 	emitToStdout(ev, row)
+	s.writer.enqueue(row)
+}
 
-	if err := s.repo.Insert(ctx, row); err != nil {
-		_ = catcher.Error("audit insert failed", err, nil)
+func tenantOf(ctx context.Context) string {
+	if t := authz.TenantIDFromContext(ctx); t != "" {
+		return t
 	}
+	return authz.DefaultTenantID
 }
 
 func emitToStdout(ev connectors.Event, row *domain.AuditLog) {
@@ -91,7 +111,7 @@ func emitToStdout(ev connectors.Event, row *domain.AuditLog) {
 	catcher.Info(ev.Action, args)
 }
 
-func (s *service) List(ctx context.Context, q dto.ListQuery) (*dto.ListResponse, error) {
+func (s *Service) List(ctx context.Context, q dto.ListQuery) (*dto.ListResponse, error) {
 	res, err := s.repo.List(ctx, q)
 	if err != nil {
 		return nil, err
@@ -100,7 +120,7 @@ func (s *service) List(ctx context.Context, q dto.ListQuery) (*dto.ListResponse,
 	return &out, nil
 }
 
-func (s *service) Get(ctx context.Context, id uint64) (*dto.LogResponse, error) {
+func (s *Service) Get(ctx context.Context, id uint64) (*dto.LogResponse, error) {
 	row, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err

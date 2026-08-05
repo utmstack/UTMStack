@@ -73,6 +73,8 @@ func main() {
 		panic(err)
 	}
 
+	modules.audit.Start(appCtx)
+
 	modules.billing.Start(appCtx)
 	modules.eventProcessing.Start(appCtx)
 	modules.compliance.Start(appCtx)
@@ -87,4 +89,5 @@ func main() {
 
 	// startServer blocks until appCtx is cancelled (signal received).
 	startServer(engine, cfg, appCtx)
+	modules.audit.Stop()
 }

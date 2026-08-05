@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -28,8 +29,24 @@ func NewRepository(db *gorm.DB) connectors.Repository {
 	}
 }
 
-func (r *pgRepo) Insert(ctx context.Context, log *domain.AuditLog) error {
-	return r.db.Create(ctx, log)
+func (r *pgRepo) InsertBatch(ctx context.Context, logs []*domain.AuditLog) error {
+	if len(logs) == 0 {
+		return nil
+	}
+	return r.db.GORM().WithContext(ctx).Create(&logs).Error
+}
+
+func (r *pgRepo) DeleteOlderThan(ctx context.Context, cutoff time.Time, limit int) (int64, error) {
+	res := r.db.GORM().WithContext(ctx).Exec(`
+		DELETE FROM audit_logs
+		WHERE id IN (
+			SELECT id FROM audit_logs
+			WHERE timestamp < ?
+			ORDER BY id
+			LIMIT ?
+			FOR UPDATE SKIP LOCKED
+		)`, cutoff, limit)
+	return res.RowsAffected, res.Error
 }
 
 func (r *pgRepo) List(ctx context.Context, req common_models.IListRequest) (common_models.ListResponse[domain.AuditLog], error) {

@@ -5,10 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/threatintel/handler"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
-	g := api.Group("/threat-intel", userAuth)
+	g := api.Group("/threat-intel", userAuth, middleware.RequirePermission("threatintel.read"))
 
 	// POST /api/v1/threat-intel/search → /proxy/api/search/v1/entities/simple
 	searchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/simple")

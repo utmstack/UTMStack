@@ -7,6 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/tenant/connectors"
 	"github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	"github.com/utmstack/utmstack/backend/modules/tenant/dto"
@@ -39,6 +42,12 @@ func (h *TenantHandler) Create(c *gin.Context) {
 	}
 
 	t, err := h.uc.Create(c.Request.Context(), req)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.create",
+		ResourceType: "tenant",
+		ResourceID:   tenantID(t),
+		Metadata:     map[string]any{"name": req.Name, "domain": req.Domain},
+	}, audit_domain.TENANT_CREATE_ATTEMPT, audit_domain.TENANT_CREATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
 		return
@@ -69,6 +78,12 @@ func (h *TenantHandler) Update(c *gin.Context) {
 	}
 
 	t, err := h.uc.Update(c.Request.Context(), c.Param("id"), req)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.update",
+		ResourceType: "tenant",
+		ResourceID:   c.Param("id"),
+		Metadata:     updateMetadata(req),
+	}, audit_domain.TENANT_UPDATE_ATTEMPT, audit_domain.TENANT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
 		return
@@ -139,7 +154,13 @@ func (h *TenantHandler) List(c *gin.Context) {
 //	@Failure		404	{object}	map[string]string
 //	@Router			/tenants/{id} [delete]
 func (h *TenantHandler) Terminate(c *gin.Context) {
-	if err := h.uc.Terminate(c.Request.Context(), c.Param("id")); err != nil {
+	err := h.uc.Terminate(c.Request.Context(), c.Param("id"))
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.terminate",
+		ResourceType: "tenant",
+		ResourceID:   c.Param("id"),
+	}, audit_domain.TENANT_TERMINATE_ATTEMPT, audit_domain.TENANT_TERMINATE_SUCCESS, err)
+	if err != nil {
 		writeError(c, err)
 		return
 	}
@@ -185,10 +206,42 @@ func (h *TenantHandler) SetSupportAccess(c *gin.Context) {
 	}
 
 	t, err := h.uc.SetSupportAccess(c.Request.Context(), c.Param("id"), req.SupportAccess)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.support_access.set",
+		ResourceType: "tenant",
+		ResourceID:   c.Param("id"),
+		Metadata:     map[string]any{"level": string(req.SupportAccess)},
+	}, audit_domain.TENANT_SUPPORT_ACCESS_ATTEMPT, audit_domain.TENANT_SUPPORT_ACCESS_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, t)
+}
+
+func tenantID(t *domain.Tenant) string {
+	if t == nil {
+		return ""
+	}
+	return t.ID
+}
+
+// updateMetadata records what the request asked to change, not the whole tenant:
+// an audit entry is for answering what was touched.
+func updateMetadata(req dto.UpdateRequest) map[string]any {
+	m := map[string]any{}
+	if req.Name != "" {
+		m["name"] = req.Name
+	}
+	if req.Domain != "" {
+		m["domain"] = req.Domain
+	}
+	if req.Status != "" {
+		m["status"] = string(req.Status)
+	}
+	if req.MaxAIRequests != nil {
+		m["maxAIRequests"] = *req.MaxAIRequests
+	}
+	return m
 }

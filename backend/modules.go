@@ -104,8 +104,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	signer := jwtpkg.NewSigner(cfg.jwtSecret, accessTokenTTL)
 	preAuthSigner := jwtpkg.NewPreAuthSigner(cfg.jwtSecret, tfaPreAuthTTL)
 	limiter := ratelimit.NewLoginLimiter(loginMaxFailures, loginBlockTTL, loginWindowTTL)
-
-	auditMod := audit.NewModule(db)
+	auditMod := audit.NewModule(db, env.Int("AUDIT_RETENTION_DAYS", 365, false))
 	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false))
 
 	if err := tenancy.Register(db, func() bool {

@@ -92,28 +92,26 @@ func (s *ConfigStore) Save(tenantID string, fc *FileConfig) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := os.MkdirAll(s.dir, 0o755); err != nil {
-		return err
-	}
-
-	cfg, err := s.read()
-	if err != nil {
-		return err
-	}
-	if cfg == nil {
-		cfg = &socAIConfig{}
-	}
-
-	if tenantID == "" {
-		cfg.FileConfig = *fc
-	} else {
-		if cfg.Tenants == nil {
-			cfg.Tenants = map[string]FileConfig{}
+	return s.withFileLock(func() error {
+		cfg, err := s.read()
+		if err != nil {
+			return err
 		}
-		cfg.Tenants[tenantID] = *fc
-	}
+		if cfg == nil {
+			cfg = &socAIConfig{}
+		}
 
-	return s.write(cfg)
+		if tenantID == "" {
+			cfg.FileConfig = *fc
+		} else {
+			if cfg.Tenants == nil {
+				cfg.Tenants = map[string]FileConfig{}
+			}
+			cfg.Tenants[tenantID] = *fc
+		}
+
+		return s.write(cfg)
+	})
 }
 
 var ErrNoInstanceDefault = errors.New("socai: the instance default cannot be removed")
@@ -126,17 +124,19 @@ func (s *ConfigStore) Delete(tenantID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	cfg, err := s.read()
-	if err != nil || cfg == nil {
-		return err
-	}
-	if _, ok := cfg.Tenants[tenantID]; !ok {
-		return nil
-	}
+	return s.withFileLock(func() error {
+		cfg, err := s.read()
+		if err != nil || cfg == nil {
+			return err
+		}
+		if _, ok := cfg.Tenants[tenantID]; !ok {
+			return nil
+		}
 
-	delete(cfg.Tenants, tenantID)
+		delete(cfg.Tenants, tenantID)
 
-	return s.write(cfg)
+		return s.write(cfg)
+	})
 }
 
 func (s *ConfigStore) read() (*socAIConfig, error) {

@@ -9,6 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/catcher"
+
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 )
 
 type socAIAnalyzer interface {
@@ -60,6 +64,11 @@ func (h *SocAIHandler) Analyze(c *gin.Context) {
 	}
 
 	statusCode, _, err := h.client.Analyze(c.Request.Context(), bodyBytes)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "socai.analyze",
+		ResourceType: "alert",
+		ResourceID:   fmt.Sprint(envelope.ID),
+	}, audit_domain.SOCAI_ANALYZE_ATTEMPT, audit_domain.SOCAI_ANALYZE_SUCCESS, err)
 	if err != nil {
 		_ = catcher.Error(ctx+": analyze request failed", err, nil)
 		status, msg := classifyClientErr(err)

@@ -35,5 +35,6 @@ func Record(c *gin.Context, ev connectors.Event, attemptType, successType domain
 	if sid := c.GetUint64("session_id"); sid != 0 {
 		ev.SessionID = &sid
 	}
+	ev.SupportAccess = c.GetString("support_access")
 	auditLogger.Log(c.Request.Context(), ev)
 }
