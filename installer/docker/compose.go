@@ -94,6 +94,9 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	if err := writeClickHouseSchema(stack.ClickHouseSchema); err != nil {
 		return err
 	}
+	if err := writeClickHouseSettings(stack.ClickHouseConf); err != nil {
+		return err
+	}
 
 	c.Services = make(map[string]Service)
 	c.Volumes = make(map[string]Volume)
@@ -363,11 +366,12 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 
 	clickHouseMem := stack.ServiceResources["clickhouse"].AssignedMemory
 	c.Services["clickhouse"] = Service{
-		Image: utils.PointerOf[string]("clickhouse/clickhouse-server:25.3"),
+		Image: utils.PointerOf[string]("clickhouse/clickhouse-server:25.8"),
 		Volumes: []string{
 			stack.ClickHouseData + ":/var/lib/clickhouse",
 			// Run on first boot only; this is what creates the tables.
 			stack.ClickHouseSchema + ":/docker-entrypoint-initdb.d:ro",
+			stack.ClickHouseConf + "/" + settingsFileName + ":/etc/clickhouse-server/users.d/" + settingsFileName + ":ro",
 		},
 		Environment: []string{
 			"CLICKHOUSE_DB=utmstack",

@@ -55,6 +55,7 @@ func parseAgentToProto(agent models.Agent) *Agent {
 		Mac:            agent.Mac,
 		OsMajorVersion: agent.OsMajorVersion,
 		OsMinorVersion: agent.OsMinorVersion,
+		TenantId:       tenantOrDefault(agent.TenantID),
 	}
 	return agentResult
 }
@@ -121,5 +122,6 @@ func modelToProtoCollector(model models.Collector) *Collector {
 		Status:       Status(collectorStatus),
 		LastSeen:     lastSeen,
 		Module:       CollectorModule(CollectorModule_value[string(model.Module)]),
+		TenantId:     tenantOrDefault(model.TenantID),
 	}
 }

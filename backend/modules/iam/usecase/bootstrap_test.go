@@ -90,15 +90,15 @@ func TestBootstrapCreatesTheFirstAdmin(t *testing.T) {
 		t.Fatalf("the supplied password does not match the stored hash: %v", err)
 	}
 
-	// Both roles: an instance is installed as Community and licensed later, so
-	// without the platform role the operator loses tenant management the moment
-	// they apply an MSSP licence.
 	roles := rbac.granted[admin.ID]
 	if !slices.Contains(roles, AdminRoleName) {
 		t.Errorf("granted roles = %v, want it to include %s", roles, AdminRoleName)
 	}
-	if !slices.Contains(roles, authz.RolePlatformAdmin) {
-		t.Errorf("granted roles = %v, want it to include %s", roles, authz.RolePlatformAdmin)
+	if len(roles) != 1 {
+		t.Errorf("granted roles = %v, want only %s", roles, AdminRoleName)
+	}
+	if admin.TenantID != authz.DefaultTenantID {
+		t.Errorf("tenant = %q, want the default tenant", admin.TenantID)
 	}
 }
 

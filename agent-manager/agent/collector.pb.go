@@ -200,6 +200,7 @@ type Collector struct {
 	Version       string                 `protobuf:"bytes,6,opt,name=version,proto3" json:"version,omitempty"`
 	Module        CollectorModule        `protobuf:"varint,7,opt,name=module,proto3,enum=agent.CollectorModule" json:"module,omitempty"`
 	LastSeen      string                 `protobuf:"bytes,8,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	TenantId      string                 `protobuf:"bytes,9,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -286,6 +287,13 @@ func (x *Collector) GetModule() CollectorModule {
 func (x *Collector) GetLastSeen() string {
 	if x != nil {
 		return x.LastSeen
+	}
+	return ""
+}
+
+func (x *Collector) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
 	}
 	return ""
 }
@@ -860,7 +868,7 @@ const file_collector_proto_rawDesc = "" +
 	"\tcollector\x18\x04 \x01(\x0e2\x16.agent.CollectorModuleR\tcollector\"S\n" +
 	"\x15ListCollectorResponse\x12$\n" +
 	"\x04rows\x18\x01 \x03(\v2\x10.agent.CollectorR\x04rows\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xfa\x01\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\x97\x02\n" +
 	"\tCollector\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12%\n" +
 	"\x06status\x18\x02 \x01(\x0e2\r.agent.StatusR\x06status\x12#\n" +
@@ -869,7 +877,8 @@ const file_collector_proto_rawDesc = "" +
 	"\bhostname\x18\x05 \x01(\tR\bhostname\x12\x18\n" +
 	"\aversion\x18\x06 \x01(\tR\aversion\x12.\n" +
 	"\x06module\x18\a \x01(\x0e2\x16.agent.CollectorModuleR\x06module\x12\x1b\n" +
-	"\tlast_seen\x18\b \x01(\tR\blastSeen\"\x89\x01\n" +
+	"\tlast_seen\x18\b \x01(\tR\blastSeen\x12\x1b\n" +
+	"\ttenant_id\x18\t \x01(\tR\btenantId\"\x89\x01\n" +
 	"\x11CollectorMessages\x120\n" +
 	"\x06config\x18\x01 \x01(\v2\x16.agent.CollectorConfigH\x00R\x06config\x120\n" +
 	"\x06result\x18\x02 \x01(\v2\x16.agent.ConfigKnowledgeH\x00R\x06resultB\x10\n" +

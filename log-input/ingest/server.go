@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"context"
 	"crypto/tls"
 	"net"
 	"time"
@@ -99,7 +100,7 @@ func (s *Server) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 			return err
 		}
 
-		s.applyDefaults(l)
+		s.applyDefaults(ctx, l)
 
 		if err := s.pub.Publish(ctx, l); err != nil {
 			return catcher.Error("cannot publish the log", err, map[string]any{
@@ -118,9 +119,12 @@ func (s *Server) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 	}
 }
 
-func (s *Server) applyDefaults(l *plugins.Log) {
+func (s *Server) applyDefaults(ctx context.Context, l *plugins.Log) {
 	if l.Id == "" {
 		l.Id = uuid.NewString()
+	}
+	if tenant := tenantFrom(ctx); tenant != "" {
+		l.TenantId = tenant
 	}
 	if l.TenantId == "" {
 		l.TenantId = s.cfg.DefaultTenant

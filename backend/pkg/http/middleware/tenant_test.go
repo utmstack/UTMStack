@@ -17,7 +17,7 @@ const testInternalKey = "internal-key"
 func init() { gin.SetMode(gin.TestMode) }
 
 // run wires ResolveTenant in front of a handler that records what it saw.
-func run(t *testing.T, isMSSP func() bool, resolve func(context.Context, string) (string, error), req *http.Request) (*httptest.ResponseRecorder, string, bool) {
+func run(t *testing.T, isMSSP func() bool, resolve func(context.Context, string) (string, string, error), req *http.Request) (*httptest.ResponseRecorder, string, bool) {
 	t.Helper()
 
 	rec := httptest.NewRecorder()
@@ -42,12 +42,12 @@ func newReq(host string) *http.Request {
 	return r
 }
 
-func byDomain(m map[string]string) func(context.Context, string) (string, error) {
-	return func(_ context.Context, host string) (string, error) {
+func byDomain(m map[string]string) func(context.Context, string) (string, string, error) {
+	return func(_ context.Context, host string) (string, string, error) {
 		if id, ok := m[host]; ok {
-			return id, nil
+			return id, "", nil
 		}
-		return "", errors.New("not found")
+		return "", "", errors.New("not found")
 	}
 }
 
@@ -123,9 +123,9 @@ func TestResolveTenantIgnoresAWrongInternalKey(t *testing.T) {
 // takes an MSSP licence behaves exactly as it did before.
 func TestResolveTenantIsInertWithoutMSSP(t *testing.T) {
 	called := false
-	resolve := func(context.Context, string) (string, error) {
+	resolve := func(context.Context, string) (string, string, error) {
 		called = true
-		return "", errors.New("should not be consulted")
+		return "", "", errors.New("should not be consulted")
 	}
 
 	rec, tenant, reached := run(t, func() bool { return false }, resolve, newReq("anything"))
@@ -198,7 +198,7 @@ func runAuthenticate(t *testing.T, req *http.Request) (*httptest.ResponseRecorde
 	engine := gin.New()
 
 	var sawTenant string
-	engine.Use(Authenticate(nil, nil, testInternalKey))
+	engine.Use(Authenticate(nil, nil, testInternalKey, nil))
 	engine.GET("/x", func(c *gin.Context) {
 		sawTenant = authz.TenantIDFromContext(c.Request.Context())
 		c.Status(http.StatusOK)

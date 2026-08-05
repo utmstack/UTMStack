@@ -4,13 +4,12 @@ import "math"
 
 //for securely generic typing
 
-type IListResponse[T any] interface{
-	GetItems()       []T
-	GetPageNumber()  int
-	GetPageSize()   int
-	GetTotalItems()  int
-	GetTotalPages()  int
-
+type IListResponse[T any] interface {
+	GetItems() []T
+	GetPageNumber() int
+	GetPageSize() int
+	GetTotalItems() int
+	GetTotalPages() int
 
 	SetItems([]T)
 	SetPageNumber(int)
@@ -19,13 +18,12 @@ type IListResponse[T any] interface{
 	SetTotalPages(int)
 }
 
-
 type ListResponse[T any] struct {
-	Items       []T    `json:"items"`
-	PageNumber  int    `json:"page_number"`
-	PageSize    int    `json:"page_size"`
-	TotalItems  int    `json:"total_items"`
-	TotalPages  int    `json:"total_pages"`
+	Items      []T `json:"items"`
+	PageNumber int `json:"page_number"`
+	PageSize   int `json:"page_size"`
+	TotalItems int `json:"total_items"`
+	TotalPages int `json:"total_pages"`
 }
 
 func (lr *ListResponse[T]) SetItems(items []T) {

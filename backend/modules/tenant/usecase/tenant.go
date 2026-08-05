@@ -112,6 +112,13 @@ func (u *tenantUsecase) Update(ctx context.Context, id string, req dto.UpdateReq
 		t.Status = req.Status
 	}
 
+	if req.MaxAIRequests != nil {
+		t.Limits.MaxAIRequests = *req.MaxAIRequests
+	}
+	if !t.Limits.Valid() {
+		return nil, domain.ErrLimitNegative
+	}
+
 	if err := u.repo.Update(ctx, t); err != nil {
 		return nil, err
 	}
@@ -140,7 +147,35 @@ func (u *tenantUsecase) List(ctx context.Context, f dto.Filter) ([]domain.Tenant
 	return u.repo.List(ctx, f)
 }
 
+func (u *tenantUsecase) SetSupportAccess(ctx context.Context, id string, level domain.SupportAccess) (*domain.Tenant, error) {
+	if !level.Valid() {
+		return nil, domain.ErrSupportInvalid
+	}
+	if id == authz.DefaultTenantID {
+		return nil, domain.ErrDefaultTenant
+	}
+
+	t, err := u.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if t.Status == domain.StatusTerminated {
+		return nil, domain.ErrAlreadyTerminated
+	}
+
+	t.SupportAccess = level
+	if err := u.repo.Update(ctx, t); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
 func (u *tenantUsecase) Terminate(ctx context.Context, id string) error {
+	// Authorisation reads from this tenant: terminating it leaves no way back.
+	if id == authz.DefaultTenantID {
+		return domain.ErrDefaultTenant
+	}
+
 	t, err := u.GetByID(ctx, id)
 	if err != nil {
 		return err

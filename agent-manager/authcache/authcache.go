@@ -7,6 +7,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/threatwinds/go-sdk/catcher"
+
+	"github.com/utmstack/UTMStack/agent-manager/utils"
 )
 
 const (
@@ -52,19 +54,22 @@ func (p *Publisher) Close() error {
 	return p.rdb.Close()
 }
 
-func (p *Publisher) PublishAgent(id uint, key string)     { p.publish(prefixAgent, id, key) }
-func (p *Publisher) PublishCollector(id uint, key string) { p.publish(prefixCollector, id, key) }
-func (p *Publisher) DeleteAgent(id uint)                  { p.delete(prefixAgent, id) }
-func (p *Publisher) DeleteCollector(id uint)              { p.delete(prefixCollector, id) }
+func (p *Publisher) PublishAgent(id uint, e utils.ConnectorAuth) { p.publish(prefixAgent, id, e) }
+func (p *Publisher) PublishCollector(id uint, e utils.ConnectorAuth) {
+	p.publish(prefixCollector, id, e)
+}
+func (p *Publisher) DeleteAgent(id uint)     { p.delete(prefixAgent, id) }
+func (p *Publisher) DeleteCollector(id uint) { p.delete(prefixCollector, id) }
+func encode(e utils.ConnectorAuth) string    { return e.TenantID + "\x00" + e.Key }
 
-func (p *Publisher) publish(prefix string, id uint, key string) {
-	if p == nil || key == "" {
+func (p *Publisher) publish(prefix string, id uint, e utils.ConnectorAuth) {
+	if p == nil || e.Key == "" {
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), opTimeout)
 	defer cancel()
 
-	if err := p.rdb.Set(ctx, prefix+fmt.Sprint(id), key, keyTTL).Err(); err != nil {
+	if err := p.rdb.Set(ctx, prefix+fmt.Sprint(id), encode(e), keyTTL).Err(); err != nil {
 		// Not fatal: the input resolves a missing key by asking this service.
 		_ = catcher.Error("cannot publish a connector key", err, map[string]any{
 			"process": processName,
@@ -93,8 +98,8 @@ func (p *Publisher) delete(prefix string, id uint) {
 
 // Snapshot is what a republish pass hands over: every key that should exist.
 type Snapshot struct {
-	Agents     map[uint]string
-	Collectors map[uint]string
+	Agents     map[uint]utils.ConnectorAuth
+	Collectors map[uint]utils.ConnectorAuth
 }
 
 // Run republishes on a timer until ctx ends.
@@ -123,11 +128,11 @@ func (p *Publisher) republish(ctx context.Context, s Snapshot) {
 	defer cancel()
 
 	pipe := p.rdb.Pipeline()
-	for id, key := range s.Agents {
-		pipe.Set(cCtx, prefixAgent+fmt.Sprint(id), key, keyTTL)
+	for id, e := range s.Agents {
+		pipe.Set(cCtx, prefixAgent+fmt.Sprint(id), encode(e), keyTTL)
 	}
-	for id, key := range s.Collectors {
-		pipe.Set(cCtx, prefixCollector+fmt.Sprint(id), key, keyTTL)
+	for id, e := range s.Collectors {
+		pipe.Set(cCtx, prefixCollector+fmt.Sprint(id), encode(e), keyTTL)
 	}
 
 	if _, err := pipe.Exec(cCtx); err != nil {

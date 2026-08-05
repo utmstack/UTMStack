@@ -36,7 +36,7 @@ func (h *APIKeyHandler) Authenticate(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"userId": res.UserID, "login": res.Login})
+	c.JSON(http.StatusOK, gin.H{"userId": res.UserID, "login": res.Login, "tenantId": res.TenantID})
 }
 
 func apiKeyID(c *gin.Context) (uint64, bool) {

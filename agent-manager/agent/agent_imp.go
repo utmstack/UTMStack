@@ -34,7 +34,7 @@ type AgentService struct {
 
 	AgentStreamMap        map[uint]AgentService_AgentStreamServer
 	AgentStreamMutex      sync.Mutex
-	CacheAgentKey         map[uint]string
+	CacheAgentKey         map[uint]utils.ConnectorAuth
 	CacheAgentKeyMutex    sync.RWMutex
 	CommandResultChannel  map[string]chan *CommandResult
 	CommandResultChannelM sync.Mutex
@@ -55,7 +55,7 @@ func InitAgentService() error {
 	agentServOnce.Do(func() {
 		AgentServ = &AgentService{
 			AgentStreamMap:       make(map[uint]AgentService_AgentStreamServer),
-			CacheAgentKey:        make(map[uint]string),
+			CacheAgentKey:        make(map[uint]utils.ConnectorAuth),
 			CommandResultChannel: make(map[string]chan *CommandResult),
 			connKeys:             make(map[string]models.ConnectionKey),
 			DBConnection:         database.GetDB(),
@@ -68,7 +68,7 @@ func InitAgentService() error {
 			return
 		}
 		for _, agent := range agents {
-			AgentServ.CacheAgentKey[agent.ID] = agent.AgentKey
+			AgentServ.CacheAgentKey[agent.ID] = utils.ConnectorAuth{Key: agent.AgentKey, TenantID: tenantOrDefault(agent.TenantID)}
 		}
 
 		if e := AgentServ.loadConnectionKeys(); e != nil {
@@ -119,8 +119,9 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	}
 
 	s.CacheAgentKeyMutex.Lock()
-	s.CacheAgentKey[agent.ID] = key
-	AuthCache.PublishAgent(agent.ID, key)
+	entry := utils.ConnectorAuth{Key: key, TenantID: tenantOrDefault(agent.TenantID)}
+	s.CacheAgentKey[agent.ID] = entry
+	AuthCache.PublishAgent(agent.ID, entry)
 	s.CacheAgentKeyMutex.Unlock()
 
 	LastSeenChannel <- models.LastSeen{
@@ -481,8 +482,8 @@ func sanitizeTenant(id string) string {
 // or restarted cache.
 func AuthSnapshot() authcache.Snapshot {
 	s := authcache.Snapshot{
-		Agents:     make(map[uint]string),
-		Collectors: make(map[uint]string),
+		Agents:     make(map[uint]utils.ConnectorAuth),
+		Collectors: make(map[uint]utils.ConnectorAuth),
 	}
 
 	if AgentServ != nil {

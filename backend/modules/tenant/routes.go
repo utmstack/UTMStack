@@ -11,14 +11,17 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth, mssp, platform gi
 
 	read := middleware.RequirePermission("tenant.read")
 	write := middleware.RequirePermission("tenant.write")
-	internal := middleware.RequireInternal()
 
 	g := api.Group("/tenants", userAuth, mssp, platform)
 
 	g.GET("", read, h.List)
 	g.GET("/:id", read, h.GetByID)
+	g.POST("", write, h.Create)
 	g.PUT("/:id", write, h.Update)
+	g.DELETE("/:id", write, h.Terminate)
 
-	g.POST("", internal, h.Create)
-	g.DELETE("/:id", internal, h.Terminate)
+	// Outside the platform gate: the one thing about a tenant the platform may
+	// not decide.
+	own := api.Group("/tenants", userAuth, mssp)
+	own.PUT("/:id/support-access", middleware.RequireAdmin(), middleware.RequireOwnTenant("id"), h.SetSupportAccess)
 }

@@ -36,7 +36,13 @@ func newAgentManagerClient(cfg *config.Config) *agentManagerClient {
 	return &agentManagerClient{cfg: cfg}
 }
 
-func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint64]string, error) {
+// ConnectorAuth is a connector's key and the tenant it enrolled into.
+type ConnectorAuth struct {
+	Key      string
+	TenantID string
+}
+
+func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint64]ConnectorAuth, error) {
 	// Self-signed certificate on an internal address; the internal key is what
 	// authenticates the call.
 	creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
@@ -62,9 +68,9 @@ func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint
 		if err != nil {
 			return nil, err
 		}
-		out := make(map[uint64]string, len(resp.Rows))
+		out := make(map[uint64]ConnectorAuth, len(resp.Rows))
 		for _, row := range resp.Rows {
-			out[uint64(row.Id)] = row.AgentKey
+			out[uint64(row.Id)] = ConnectorAuth{Key: row.AgentKey, TenantID: row.TenantId}
 		}
 		return out, nil
 
@@ -73,9 +79,9 @@ func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint
 		if err != nil {
 			return nil, err
 		}
-		out := make(map[uint64]string, len(resp.Rows))
+		out := make(map[uint64]ConnectorAuth, len(resp.Rows))
 		for _, row := range resp.Rows {
-			out[uint64(row.Id)] = row.CollectorKey
+			out[uint64(row.Id)] = ConnectorAuth{Key: row.CollectorKey, TenantID: row.TenantId}
 		}
 		return out, nil
 	}
@@ -95,10 +101,12 @@ func newBackendClient(cfg *config.Config) *backendClient {
 	}
 }
 
-func (c *backendClient) authenticate(ctx context.Context, apiKey, clientIP string) bool {
+// authenticate returns the tenant the key belongs to. The backend derives it
+// from the key row: this service has no tenant of its own to scope by.
+func (c *backendClient) authenticate(ctx context.Context, apiKey, clientIP string) (string, bool) {
 	base := strings.TrimRight(c.cfg.Backend, "/")
 	if base == "" {
-		return false
+		return "", false
 	}
 	if !strings.HasPrefix(base, "http://") && !strings.HasPrefix(base, "https://") {
 		base = "http://" + base
@@ -106,7 +114,7 @@ func (c *backendClient) authenticate(ctx context.Context, apiKey, clientIP strin
 
 	body, err := json.Marshal(map[string]string{"apiKey": apiKey, "clientIp": clientIP})
 	if err != nil {
-		return false
+		return "", false
 	}
 
 	cCtx, cancel := context.WithTimeout(ctx, upstreamTimeout)
@@ -114,16 +122,26 @@ func (c *backendClient) authenticate(ctx context.Context, apiKey, clientIP strin
 
 	req, err := http.NewRequestWithContext(cCtx, http.MethodPost, base+apiKeyAuthPath, bytes.NewReader(body))
 	if err != nil {
-		return false
+		return "", false
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set(internalHeader, c.cfg.InternalKey)
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		return false
+		return "", false
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	return resp.StatusCode == http.StatusOK
+	if resp.StatusCode != http.StatusOK {
+		return "", false
+	}
+
+	var out struct {
+		TenantID string `json:"tenantId"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return "", false
+	}
+	return out.TenantID, true
 }

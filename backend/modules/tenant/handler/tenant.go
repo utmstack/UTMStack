@@ -21,8 +21,9 @@ func NewTenantHandler(uc connectors.TenantUsecase) *TenantHandler {
 // Create godoc
 //
 //	@Summary		Provision a tenant
-//	@Description	Creates a platform tenant. Internal-only: a tenant is created by whatever sells the subscription, never from inside an instance.
+//	@Description	Provisions a tenant. Limited to administrators of the default tenant, which is the platform plane.
 //	@Tags			Tenants
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			input	body		dto.CreateRequest	true	"Tenant to provision"
@@ -49,7 +50,7 @@ func (h *TenantHandler) Create(c *gin.Context) {
 // Update godoc
 //
 //	@Summary		Update a tenant
-//	@Description	Renames a tenant, corrects its domain or changes its status.
+//	@Description	Renames a tenant, corrects its domain, changes its status or sets what its plan allows.
 //	@Tags			Tenants
 //	@Security		BearerAuth
 //	@Accept			json
@@ -152,11 +153,42 @@ func writeError(c *gin.Context, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrDomainTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	case errors.Is(err, domain.ErrNotOwnTenant), errors.Is(err, domain.ErrDefaultTenant):
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrDomainRequired),
 		errors.Is(err, domain.ErrDomainInvalid), errors.Is(err, domain.ErrStatusInvalid),
-		errors.Is(err, domain.ErrAlreadyTerminated):
+		errors.Is(err, domain.ErrAlreadyTerminated), errors.Is(err, domain.ErrSupportInvalid),
+		errors.Is(err, domain.ErrLimitNegative):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
+}
+
+// SetSupportAccess godoc
+//
+//	@Summary		Grant or revoke platform support access to this tenant
+//	@Tags			Tenants
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string							true	"Tenant id"
+//	@Param			request	body		dto.SupportAccessRequest		true	"Access level"
+//	@Success		200		{object}	domain.Tenant
+//	@Failure		403		{object}	map[string]string
+//	@Router			/tenants/{id}/support-access [put]
+func (h *TenantHandler) SetSupportAccess(c *gin.Context) {
+	var req dto.SupportAccessRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	t, err := h.uc.SetSupportAccess(c.Request.Context(), c.Param("id"), req.SupportAccess)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, t)
 }

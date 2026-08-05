@@ -73,6 +73,7 @@ message Agent {
   string os_minor_version = 12;
   string aliases = 13;
   string addresses = 14;
+  string tenant_id = 15;
 }
 
 message BidirectionalStream {

@@ -11,7 +11,6 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-
 type Cipher struct {
 	key []byte
 	iv  []byte
@@ -19,8 +18,8 @@ type Cipher struct {
 
 const (
 	IterationCount = 65536
-	SaltLength = 16
-	KeyLength = 16
+	SaltLength     = 16
+	KeyLength      = 16
 )
 
 // NewCipher derives the AES key and IV from the input. Any non-empty
@@ -29,7 +28,7 @@ func NewCipher(key string) (*Cipher, error) {
 	if key == "" {
 		return nil, errors.New("empty encryption key")
 	}
-	return &Cipher{key: []byte(key) }, nil
+	return &Cipher{key: []byte(key)}, nil
 }
 
 func (self *Cipher) setKey() (cipher.Block, []byte, error) {
@@ -50,7 +49,7 @@ func (self *Cipher) Encrypt(src string) (string, error) {
 	}
 	blkEncrypt, ivEncrypt, err := self.setKey()
 	if err != nil {
-		return "",nil
+		return "", nil
 	}
 	ecb := cipher.NewCBCEncrypter(blkEncrypt, ivEncrypt)
 	content := []byte(src)
@@ -61,7 +60,7 @@ func (self *Cipher) Encrypt(src string) (string, error) {
 	return base64, nil
 }
 
-func (self *Cipher)Decrypt(crypt string) (string, error) {
+func (self *Cipher) Decrypt(crypt string) (string, error) {
 	encryptedData, _ := b64.StdEncoding.DecodeString(crypt)
 	if len(crypt) == 0 {
 		return "", nil
@@ -86,5 +85,3 @@ func PKCS5Trimming(encrypt []byte) []byte {
 	padding := encrypt[len(encrypt)-1]
 	return encrypt[:len(encrypt)-int(padding)]
 }
-
-

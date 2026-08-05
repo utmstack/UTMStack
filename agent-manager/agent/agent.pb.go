@@ -358,8 +358,9 @@ type Agent struct {
 	OsMinorVersion string                 `protobuf:"bytes,12,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
 	Aliases        string                 `protobuf:"bytes,13,opt,name=aliases,proto3" json:"aliases,omitempty"`
 	Addresses      string                 `protobuf:"bytes,14,opt,name=addresses,proto3" json:"addresses,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	TenantId      string `protobuf:"bytes,15,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Agent) Reset() {
@@ -486,6 +487,13 @@ func (x *Agent) GetAliases() string {
 func (x *Agent) GetAddresses() string {
 	if x != nil {
 		return x.Addresses
+	}
+	return ""
+}
+
+func (x *Agent) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
 	}
 	return ""
 }
@@ -941,7 +949,7 @@ const file_agent_proto_rawDesc = "" +
 	"\taddresses\x18\v \x01(\tR\taddresses\"L\n" +
 	"\x12ListAgentsResponse\x12 \n" +
 	"\x04rows\x18\x01 \x03(\v2\f.agent.AgentR\x04rows\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x88\x03\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xa5\x03\n" +
 	"\x05Agent\x12\x0e\n" +
 	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x1a\n" +
 	"\bhostname\x18\x02 \x01(\tR\bhostname\x12\x0e\n" +
@@ -957,7 +965,8 @@ const file_agent_proto_rawDesc = "" +
 	"\x10os_major_version\x18\v \x01(\tR\x0eosMajorVersion\x12(\n" +
 	"\x10os_minor_version\x18\f \x01(\tR\x0eosMinorVersion\x12\x18\n" +
 	"\aaliases\x18\r \x01(\tR\aaliases\x12\x1c\n" +
-	"\taddresses\x18\x0e \x01(\tR\taddresses\"\x86\x01\n" +
+	"\taddresses\x18\x0e \x01(\tR\taddresses\x12\x1b\n" +
+	"\ttenant_id\x18\x0f \x01(\tR\btenantId\"\x86\x01\n" +
 	"\x13BidirectionalStream\x12-\n" +
 	"\acommand\x18\x01 \x01(\v2\x11.agent.UtmCommandH\x00R\acommand\x12.\n" +
 	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06resultB\x10\n" +

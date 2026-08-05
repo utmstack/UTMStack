@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
 	"strings"
@@ -19,7 +20,7 @@ const (
 
 	keyPrefixAgent     = "auth:agent:"
 	keyPrefixCollector = "auth:collector:"
-	keyPrefixAPIKey    = "auth:apikey:"
+	keyPrefixAPIKey    = "auth:apikey:v2:"
 
 	refreshLockPrefix = "auth:refreshing:"
 	refreshLockTTL    = 10 * time.Second
@@ -59,45 +60,66 @@ func (s *Service) Ping(ctx context.Context) error {
 	return s.rdb.Ping(cCtx).Err()
 }
 
-func (s *Service) ConnectorValid(ctx context.Context, key string, id uint64, typ string) bool {
+// ConnectorTenant authenticates a connector and reports which tenant it enrolled
+// into. The tenant comes from the credential, never from what the pusher sends:
+// otherwise anyone holding one key could write into any tenant.
+func (s *Service) ConnectorTenant(ctx context.Context, key string, id uint64, typ string) (string, bool) {
 	if key == "" {
-		return false
+		return "", false
 	}
 
 	prefix, ok := connectorPrefix(typ)
 	if !ok {
-		return false
+		return "", false
 	}
 
 	if stored, found := s.get(ctx, prefix+fmt.Sprint(id)); found {
-		return stored == key
+		if tenant, match := matchConnector(stored, key); match {
+			return tenant, true
+		}
+		return "", false
 	}
 
 	// A miss is not a rejection: the key set may not be cached yet.
 	if !s.fillConnectors(ctx, typ) {
-		return false
+		return "", false
 	}
 
 	stored, found := s.get(ctx, prefix+fmt.Sprint(id))
-	return found && stored == key
+	if !found {
+		return "", false
+	}
+	return matchConnector(stored, key)
 }
 
-func (s *Service) APIKeyValid(ctx context.Context, apiKey, clientIP string) bool {
+func matchConnector(stored, key string) (string, bool) {
+	tenant, storedKey, ok := strings.Cut(stored, "\x00")
+	if !ok {
+		tenant, storedKey = "", stored
+	}
+	if subtle.ConstantTimeCompare([]byte(storedKey), []byte(key)) != 1 {
+		return "", false
+	}
+	return tenant, true
+}
+
+func (s *Service) APIKeyTenant(ctx context.Context, apiKey, clientIP string) (string, bool) {
 	if apiKey == "" {
-		return false
+		return "", false
 	}
 
 	cacheKey := keyPrefixAPIKey + hashed(apiKey+"\x00"+clientIP)
-	if _, found := s.get(ctx, cacheKey); found {
-		return true
+	if tenant, found := s.get(ctx, cacheKey); found {
+		return tenant, true
 	}
 
-	if !s.be.authenticate(ctx, apiKey, clientIP) {
-		return false
+	tenant, ok := s.be.authenticate(ctx, apiKey, clientIP)
+	if !ok {
+		return "", false
 	}
 
-	s.set(ctx, cacheKey, "1")
-	return true
+	s.set(ctx, cacheKey, tenant)
+	return tenant, true
 }
 
 func (s *Service) InternalKeyValid(key string) bool {
@@ -145,8 +167,8 @@ func (s *Service) fillConnectors(ctx context.Context, typ string) bool {
 	}
 
 	pipe := s.rdb.Pipeline()
-	for id, key := range keys {
-		pipe.Set(ctx, prefix+fmt.Sprint(id), key, s.cfg.AuthTTL)
+	for id, e := range keys {
+		pipe.Set(ctx, prefix+fmt.Sprint(id), e.TenantID+"\x00"+e.Key, s.cfg.AuthTTL)
 	}
 	pCtx, pCancel := context.WithTimeout(ctx, redisTimeout)
 	defer pCancel()

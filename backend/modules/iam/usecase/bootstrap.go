@@ -16,7 +16,7 @@ import (
 const (
 	BootstrapAdminLogin    = "admin"
 	BootstrapAdminEmail    = "admin@localhost"
-	bootstrapDefaultTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	bootstrapDefaultTenant = authz.DefaultTenantID
 )
 
 // ErrBootstrapPasswordRequired means the install has no users and no password
@@ -68,7 +68,8 @@ func (u *userUsecase) EnsureBootstrapAdmin(ctx context.Context, password string)
 	if err := u.userRepo.Create(ctx, admin); err != nil {
 		return false, fmt.Errorf("creating the bootstrap admin: %w", err)
 	}
-	roles := []string{AdminRoleName, authz.RolePlatformAdmin}
+
+	roles := []string{AdminRoleName}
 	if err := u.rbacRepo.ReplaceUserRoles(ctx, admin.ID, roles, "system"); err != nil {
 		return false, fmt.Errorf("granting %v: %w", roles, err)
 	}

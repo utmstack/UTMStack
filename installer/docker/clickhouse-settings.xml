@@ -1,0 +1,21 @@
+<!--
+  Server settings UTMStack depends on, pinned rather than inherited.
+
+  date_time_input_format decides whether a timestamp written as RFC3339 — with
+  the T separator and a Z, which is what the pipeline produces — is accepted.
+  Its default is not stable across ClickHouse releases: 25.3 ships "basic",
+  which rejects those outright, and later versions ship "best_effort", which
+  accepts them. Relying on the default means an insert that works on one
+  version fails on another, and the failure is per-row at write time.
+
+  The server version is pinned to 25.8 for a related reason: 25.3 cannot parse
+  a nested object into a JSON column through JSONEachRow at all, which is how
+  every log and alert is written.
+-->
+<clickhouse>
+    <profiles>
+        <default>
+            <date_time_input_format>best_effort</date_time_input_format>
+        </default>
+    </profiles>
+</clickhouse>

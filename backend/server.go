@@ -116,7 +116,14 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 			TenantID:    r.TenantID,
 		}, nil
 	}
-	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey)
+	supportOf := func(ctx context.Context, tenantID string) (string, error) {
+		t, err := m.tenant.GetTenantUsecase().GetByID(ctx, tenantID)
+		if err != nil {
+			return "", err
+		}
+		return string(t.SupportAccess), nil
+	}
+	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf)
 
 	enterprise := middleware.RequireEnterprise(func() bool {
 		return m.billing.License().Current().IsEnterprise()
@@ -124,19 +131,17 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	mssp := middleware.RequireMSSP(func() bool {
 		return m.billing.License().Current().IsMSSP()
 	})
-	platform := middleware.RequirePlatform(func() bool {
-		return m.billing.License().Current().IsMSSP()
-	})
+	platform := middleware.RequirePlatform()
 
 	api.Use(middleware.ResolveTenant(
 		func() bool { return m.billing.License().Current().IsMSSP() },
 		cfg.internalKey,
-		func(ctx context.Context, host string) (string, error) {
+		func(ctx context.Context, host string) (string, string, error) {
 			t, err := m.tenant.GetTenantUsecase().ResolveDomain(ctx, host)
 			if err != nil {
-				return "", err
+				return "", "", err
 			}
-			return t.ID, nil
+			return t.ID, string(t.SupportAccess), nil
 		},
 	))
 

@@ -262,3 +262,31 @@ func containsArg(vars []any, want string) bool {
 	}
 	return false
 }
+
+// A single-tenant install still has a tenant: the migration backfilled every
+// existing row to the default one, and users carry it on their token. A row
+// created with none would land outside it, and since uniqueness is per tenant,
+// it would insert a duplicate rather than update what is already there.
+func TestSingleTenantInstallFillsTheDefaultTenant(t *testing.T) {
+	db := newDB(t, single)
+
+	row := scopedModel{Name: "x"}
+	db.WithContext(context.Background()).Create(&row)
+
+	if row.TenantID != authz.DefaultTenantID {
+		t.Fatalf("TenantID = %q, want the default tenant %q", row.TenantID, authz.DefaultTenantID)
+	}
+}
+
+// What the caller set wins on a single-tenant install; the fill is for rows that
+// name no tenant at all.
+func TestSingleTenantInstallKeepsAnExplicitTenant(t *testing.T) {
+	db := newDB(t, single)
+
+	row := scopedModel{Name: "x", TenantID: "explicit"}
+	db.WithContext(context.Background()).Create(&row)
+
+	if row.TenantID != "explicit" {
+		t.Fatalf("TenantID = %q, want it untouched", row.TenantID)
+	}
+}

@@ -4,10 +4,15 @@ import (
 	"context"
 	"errors"
 	"slices"
+	"strings"
 )
 
 const RoleAdmin = "ROLE_ADMIN"
-const RolePlatformAdmin = "ROLE_PLATFORM_ADMIN"
+
+// DefaultTenantID holds the platform plane: on an MSSP instance the operator is
+// itself a tenant, and the one that governs the others. Authorisation depends
+// on it, so it cannot be terminated.
+const DefaultTenantID = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 type Actor struct {
 	UserID      uint64
@@ -18,6 +23,26 @@ type Actor struct {
 	SessionID   uint64
 	Internal    bool
 	TenantID    string
+
+	Support string
+}
+
+const (
+	SupportNone = "NONE"
+	SupportRead = "READ"
+	SupportFull = "FULL"
+)
+
+func IsSupportSession(a *Actor) bool { return a != nil && a.Support != "" }
+
+func ReadOnlyPermissions(perms []string) []string {
+	kept := make([]string, 0, len(perms))
+	for _, p := range perms {
+		if strings.HasSuffix(p, ".read") {
+			kept = append(kept, p)
+		}
+	}
+	return kept
 }
 
 var (
@@ -97,21 +122,24 @@ func RequireMSSP(a *Actor, isMSSP func() bool) error {
 	return ErrMSSPRequired
 }
 
-// RequirePlatform gates the platform plane. On a single-tenant install there is
-// no separate plane to protect, so the ordinary administrator is it; once the
-// instance serves several tenants the platform role becomes mandatory, because
-// a tenant admin holding ROLE_ADMIN must not reach the other tenants.
-func RequirePlatform(a *Actor, isMSSP func() bool) error {
+func IsPlatform(a *Actor) bool {
+	if a == nil {
+		return false
+	}
+	if a.Internal {
+		return true
+	}
+	return a.TenantID == DefaultTenantID && HasRole(a, RoleAdmin)
+}
+
+func RequirePlatform(a *Actor) error {
 	if a == nil {
 		return ErrUnauthenticated
 	}
-	if HasRole(a, RolePlatformAdmin) {
+	if IsPlatform(a) {
 		return nil
 	}
-	if isMSSP != nil && isMSSP() {
-		return ErrMissingRole
-	}
-	return RequireRole(a, RoleAdmin)
+	return ErrMissingRole
 }
 
 func RequireInternal(a *Actor) error {

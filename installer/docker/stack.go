@@ -20,6 +20,7 @@ type StackConfig struct {
 	Threads             int
 	ClickHouseData      string
 	ClickHouseSchema    string
+	ClickHouseConf      string
 	NATSData            string
 	RedisData           string
 	Cert                string
@@ -60,6 +61,7 @@ func GetStackConfig() *StackConfig {
 		// The server runs whatever is here on first boot, which is how the
 		// tables come to exist without anything else having to create them.
 		stackConfig.ClickHouseSchema = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "init")
+		stackConfig.ClickHouseConf = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "conf")
 		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
 		stackConfig.RedisData = utils.MakeDir(0777, cnf.DataDir, "redis")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")

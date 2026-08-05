@@ -57,7 +57,7 @@ type CollectorService struct {
 
 	CollectorStreamMap     map[uint]CollectorService_CollectorStreamServer
 	CollectorStreamMutex   sync.Mutex
-	CacheCollectorKey      map[uint]string
+	CacheCollectorKey      map[uint]utils.ConnectorAuth
 	CacheCollectorKeyMutex sync.RWMutex
 	CollectorSendMutex     sync.Map
 	PendingAcks            map[string]*pendingAck
@@ -130,7 +130,7 @@ func InitCollectorService() {
 	collectorServOnce.Do(func() {
 		CollectorServ = &CollectorService{
 			CollectorStreamMap: make(map[uint]CollectorService_CollectorStreamServer),
-			CacheCollectorKey:  make(map[uint]string),
+			CacheCollectorKey:  make(map[uint]utils.ConnectorAuth),
 			PendingAcks:        make(map[string]*pendingAck),
 			DBConnection:       database.GetDB(),
 		}
@@ -142,7 +142,7 @@ func InitCollectorService() {
 			os.Exit(1)
 		}
 		for _, c := range collectors {
-			CollectorServ.CacheCollectorKey[c.ID] = c.CollectorKey
+			CollectorServ.CacheCollectorKey[c.ID] = utils.ConnectorAuth{Key: c.CollectorKey, TenantID: tenantOrDefault(c.TenantID)}
 		}
 	})
 }
@@ -178,8 +178,9 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 	}
 
 	s.CacheCollectorKeyMutex.Lock()
-	s.CacheCollectorKey[collector.ID] = key
-	AuthCache.PublishCollector(collector.ID, key)
+	entry := utils.ConnectorAuth{Key: key, TenantID: tenantOrDefault(collector.TenantID)}
+	s.CacheCollectorKey[collector.ID] = entry
+	AuthCache.PublishCollector(collector.ID, entry)
 	s.CacheCollectorKeyMutex.Unlock()
 
 	LastSeenChannel <- models.LastSeen{
@@ -386,7 +387,7 @@ func (s *CollectorService) handleTLSCertsGroup(collectorID int, requestID string
 
 func (s *CollectorService) pushTLSCerts(collectorID int, requestID string, group *CollectorConfigGroup) (*ConfigKnowledge, error) {
 	s.CacheCollectorKeyMutex.RLock()
-	collectorKey, known := s.CacheCollectorKey[uint(collectorID)]
+	entry, known := s.CacheCollectorKey[uint(collectorID)]
 	s.CacheCollectorKeyMutex.RUnlock()
 	if !known {
 		return nil, status.Errorf(codes.NotFound, "collector %d has no cached collector key", collectorID)
@@ -402,7 +403,7 @@ func (s *CollectorService) pushTLSCerts(collectorID int, requestID string, group
 		return nil, status.Errorf(codes.Internal, "failed to marshal tls cert envelope: %v", merr)
 	}
 
-	key := utils.DeriveTLSCertKey(strconv.Itoa(collectorID), collectorKey)
+	key := utils.DeriveTLSCertKey(strconv.Itoa(collectorID), entry.Key)
 	ciphertextB64, nonceB64, serr := utils.SealTLSCertEnvelope(key, plaintext)
 	if serr != nil {
 		return nil, status.Errorf(codes.Internal, "failed to seal tls cert envelope: %v", serr)

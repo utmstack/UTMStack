@@ -22,14 +22,34 @@ type SystemScoped interface {
 
 type allTenantsKey struct{}
 
+type readAllKey struct{}
+
 func WithAllTenants(ctx context.Context) context.Context {
 	return context.WithValue(ctx, allTenantsKey{}, true)
+}
+
+func WithAllTenantsRead(ctx context.Context) context.Context {
+	return context.WithValue(ctx, readAllKey{}, true)
 }
 
 func spansAllTenants(ctx context.Context) bool {
 	v, _ := ctx.Value(allTenantsKey{}).(bool)
 	return v
 }
+
+func readsAllTenants(ctx context.Context) bool {
+	if spansAllTenants(ctx) {
+		return true
+	}
+	v, _ := ctx.Value(readAllKey{}).(bool)
+	return v
+}
+
+// SpansAllTenants reports whether ctx carries the marker WithAllTenants sets.
+func SpansAllTenants(ctx context.Context) bool { return spansAllTenants(ctx) }
+
+// ReadsAllTenants reports whether reads on ctx span every tenant.
+func ReadsAllTenants(ctx context.Context) bool { return readsAllTenants(ctx) }
 
 func Register(db *gorm.DB, enabled func() bool) error {
 	if enabled == nil {
@@ -58,13 +78,19 @@ func Register(db *gorm.DB, enabled func() bool) error {
 var multiTenant = func() bool { return false }
 
 func tenantField(db *gorm.DB) *schema.Field {
-	if !multiTenant() {
-		return nil
-	}
 	if db.Statement == nil || db.Statement.Schema == nil {
 		return nil
 	}
 	return db.Statement.Schema.LookUpField(tenantFieldName)
+}
+
+// scopedField is tenantField for the paths that only apply once an instance is
+// multi-tenant. Stamping is not one of them.
+func scopedField(db *gorm.DB) *schema.Field {
+	if !multiTenant() {
+		return nil
+	}
+	return tenantField(db)
 }
 
 func tenantFor(db *gorm.DB) (string, bool) {
@@ -80,6 +106,9 @@ func tenantFor(db *gorm.DB) (string, bool) {
 
 	tenant := authz.TenantIDFromContext(ctx)
 	if tenant == "" {
+		if !multiTenant() {
+			return authz.DefaultTenantID, true
+		}
 		db.AddError(ErrNoTenant)
 		return "", false
 	}
@@ -87,12 +116,17 @@ func tenantFor(db *gorm.DB) (string, bool) {
 	return tenant, true
 }
 
-func restrictRead(db *gorm.DB) { restrict(db, true) }
+func restrictRead(db *gorm.DB) {
+	if db.Statement != nil && db.Statement.Context != nil && readsAllTenants(db.Statement.Context) {
+		return
+	}
+	restrict(db, true)
+}
 
 func restrictWrite(db *gorm.DB) { restrict(db, false) }
 
 func restrict(db *gorm.DB, includeSystem bool) {
-	field := tenantField(db)
+	field := scopedField(db)
 	if field == nil {
 		return
 	}
@@ -143,14 +177,23 @@ func stamp(db *gorm.DB) {
 	switch value.Kind() {
 	case reflect.Slice, reflect.Array:
 		for i := range value.Len() {
-			if err := field.Set(db.Statement.Context, value.Index(i), tenant); err != nil {
+			if err := setTenant(db, field, value.Index(i), tenant); err != nil {
 				db.AddError(err)
 				return
 			}
 		}
 	case reflect.Struct:
-		if err := field.Set(db.Statement.Context, value, tenant); err != nil {
+		if err := setTenant(db, field, value, tenant); err != nil {
 			db.AddError(err)
 		}
 	}
+}
+
+func setTenant(db *gorm.DB, field *schema.Field, row reflect.Value, tenant string) error {
+	if !multiTenant() {
+		if cur, zero := field.ValueOf(db.Statement.Context, row); !zero && cur != "" {
+			return nil
+		}
+	}
+	return field.Set(db.Statement.Context, row, tenant)
 }

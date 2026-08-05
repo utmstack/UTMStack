@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
 const InternalKeyHeader = "X-Internal-Key"
@@ -20,12 +21,11 @@ const TenantHeader = "X-Tenant-Id"
 // New code should depend on pkg/authz directly.
 type Actor = authz.Actor
 
-func setActor(c *gin.Context, a Actor) bool {
-	if host, ok := c.Get(HostTenantKey); ok && !a.Internal {
-		if h, _ := host.(string); h != "" && a.TenantID != h {
-			AbortUnauthorized(c, "credential does not belong to this tenant")
-			return false
-		}
+type SupportOfFunc func(ctx context.Context, tenantID string) (string, error)
+
+func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc) bool {
+	if !a.Internal && !resolveTenancy(c, &a, supportOf) {
+		return false
 	}
 
 	c.Set("user_id", a.UserID)
@@ -36,8 +36,68 @@ func setActor(c *gin.Context, a Actor) bool {
 	c.Set("session_id", a.SessionID)
 	c.Set("tenant_id", a.TenantID)
 
-	c.Request = c.Request.WithContext(authz.WithTenantID(c.Request.Context(), a.TenantID))
+	c.Set("support_access", a.Support)
 
+	ctx := authz.WithTenantID(c.Request.Context(), a.TenantID)
+
+	if a.Internal && a.TenantID == "" {
+		ctx = tenancy.WithAllTenantsRead(ctx)
+	}
+
+	c.Request = c.Request.WithContext(ctx)
+
+	return true
+}
+
+func resolveTenancy(c *gin.Context, a *Actor, supportOf SupportOfFunc) bool {
+	if host, ok := c.Get(HostTenantKey); ok {
+		if h, _ := host.(string); h != "" && a.TenantID != h {
+			if !enterAsSupport(c, a, h, c.GetString(HostSupportKey)) {
+				AbortUnauthorized(c, "credential does not belong to this tenant")
+				return false
+			}
+			return true
+		}
+	}
+
+	target := c.GetHeader(TenantHeader)
+	if supportOf == nil || target == "" || target == a.TenantID {
+		return true
+	}
+
+	level, err := supportOf(c.Request.Context(), target)
+	if err != nil || !enterAsSupport(c, a, target, level) {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "this tenant has not granted the platform access",
+		})
+		return false
+	}
+	return true
+}
+
+func enterAsSupport(c *gin.Context, a *Actor, tenant, level string) bool {
+	if !authz.IsPlatform(a) {
+		return false
+	}
+
+	if a.SessionID == 0 {
+		return false
+	}
+
+	switch level {
+	case authz.SupportRead:
+		if c.Request.Method != http.MethodGet && c.Request.Method != http.MethodHead &&
+			c.Request.Method != http.MethodOptions {
+			return false
+		}
+		a.Permissions = authz.ReadOnlyPermissions(a.Permissions)
+	case authz.SupportFull:
+	default:
+		return false
+	}
+
+	a.TenantID = tenant
+	a.Support = level
 	return true
 }
 
@@ -74,16 +134,17 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 		SessionID:   sid,
 		Internal:    internal,
 		TenantID:    tenantID,
+		Support:     c.GetString("support_access"),
 	}
 }
 
 type APIKeyAuthFunc func(ctx context.Context, apiKey, clientIP string) (*Actor, error)
 
 func UserAuth(signer *jwtpkg.Signer) gin.HandlerFunc {
-	return Authenticate(signer, nil, "")
+	return Authenticate(signer, nil, "", nil)
 }
 
-func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string) gin.HandlerFunc {
+func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string, supportOf SupportOfFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token, ok := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer "); ok && token != "" {
 			claims, err := signer.Verify(token)
@@ -104,7 +165,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				Permissions: claims.Permissions,
 				SessionID:   claims.SessionID,
 				TenantID:    claims.TenantID,
-			}) {
+			}, supportOf) {
 				return
 			}
 			c.Next()
@@ -116,7 +177,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				Login:    "internal",
 				Internal: true,
 				TenantID: c.GetHeader(TenantHeader),
-			}) {
+			}, supportOf) {
 				return
 			}
 			c.Next()
@@ -129,7 +190,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 					AbortUnauthorized(c, "invalid api key")
 					return
 				}
-				if !setActor(c, *actor) {
+				if !setActor(c, *actor, supportOf) {
 					return
 				}
 				c.Next()
@@ -186,11 +247,26 @@ func RequireRole(role string) gin.HandlerFunc {
 	}
 }
 
-func RequirePlatform(isMSSP func() bool) gin.HandlerFunc {
+func RequirePlatform() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		actor := ActorFromGin(c)
-		if err := authz.RequirePlatform(actor, isMSSP); err != nil {
-			abortAuthzErr(c, err, "this operation requires the platform administrator role")
+		if err := authz.RequirePlatform(actor); err != nil {
+			abortAuthzErr(c, err, "this operation is limited to administrators of the default tenant")
+			return
+		}
+		c.Next()
+	}
+}
+
+func RequireOwnTenant(param string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		actor := ActorFromGin(c)
+		if actor == nil {
+			AbortUnauthorized(c, "missing authorization context")
+			return
+		}
+		if actor.TenantID != c.Param(param) || authz.IsSupportSession(actor) {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "this operation is limited to your own tenant"})
 			return
 		}
 		c.Next()

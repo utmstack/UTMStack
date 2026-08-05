@@ -11,6 +11,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
 type apiKeyUsecase struct {
@@ -187,13 +189,16 @@ func (u *apiKeyUsecase) Generate(ctx context.Context, userID, id uint64) (string
 }
 
 func (u *apiKeyUsecase) Authenticate(ctx context.Context, apiKey, clientIP string) (*connectors.APIKeyAuthResult, error) {
-	k, err := u.repo.FindByKey(ctx, apiKey)
+	k, err := u.repo.FindByKey(tenancy.WithAllTenants(ctx), apiKey)
 	if err != nil {
 		return nil, err
 	}
 	if k == nil || !ipAllowed(k.AllowedIP, clientIP) || k.Expired(time.Now().UTC()) {
 		return nil, domain.ErrAPIKeyInvalid
 	}
+
+	ctx = authz.WithTenantID(ctx, k.TenantID)
+
 	user, err := u.userRepo.FindByID(ctx, k.UserID)
 	if err != nil {
 		return nil, err

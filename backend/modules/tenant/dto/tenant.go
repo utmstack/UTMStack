@@ -13,6 +13,9 @@ type UpdateRequest struct {
 	Name   string              `json:"name,omitempty"`
 	Domain string              `json:"domain,omitempty"`
 	Status domain.TenantStatus `json:"status,omitempty"`
+
+	// A limit left out keeps its value; zero lifts it.
+	MaxAIRequests *int `json:"maxAIRequests,omitempty"`
 }
 
 type Filter struct {
@@ -21,4 +24,8 @@ type Filter struct {
 	Status domain.TenantStatus `form:"status"`
 	Page   int                 `form:"page"`
 	Size   int                 `form:"size"`
+}
+
+type SupportAccessRequest struct {
+	SupportAccess domain.SupportAccess `json:"supportAccess" binding:"required"`
 }

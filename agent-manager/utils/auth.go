@@ -4,13 +4,18 @@ import (
 	"crypto/subtle"
 )
 
-func IsKeyPairValid(key string, id uint, cache map[uint]string) (string, bool) {
-	agentKey, ok := cache[id]
+type ConnectorAuth struct {
+	Key      string
+	TenantID string
+}
+
+func IsKeyPairValid(key string, id uint, cache map[uint]ConnectorAuth) (ConnectorAuth, bool) {
+	entry, ok := cache[id]
 	if !ok {
-		return "", false
+		return ConnectorAuth{}, false
 	}
-	if subtle.ConstantTimeCompare([]byte(key), []byte(agentKey)) == 1 {
-		return agentKey, true
+	if subtle.ConstantTimeCompare([]byte(key), []byte(entry.Key)) == 1 {
+		return entry, true
 	}
-	return "", false
+	return ConnectorAuth{}, false
 }

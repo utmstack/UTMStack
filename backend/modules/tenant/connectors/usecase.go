@@ -16,6 +16,7 @@ type TenantUsecase interface {
 	Update(ctx context.Context, id string, req dto.UpdateRequest) (*domain.Tenant, error)
 	GetByID(ctx context.Context, id string) (*domain.Tenant, error)
 	List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error)
+	SetSupportAccess(ctx context.Context, id string, level domain.SupportAccess) (*domain.Tenant, error)
 	Terminate(ctx context.Context, id string) error
 	ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error)
 }

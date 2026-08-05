@@ -42,6 +42,7 @@ message Collector {
   string version = 6;
   CollectorModule module = 7;
   string last_seen = 8;
+  string tenant_id = 9;
 }
 
 message CollectorMessages {
