@@ -29,12 +29,12 @@ const (
 )
 
 type licenseInner struct {
-	InstanceID  string    `json:"instance_id"`
-	MSSP        bool      `json:"mssp"`
-	Type        string    `json:"type"`
-	Datasources int64     `json:"datasources"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	CreatedAt   time.Time `json:"created_at"`
+	InstanceID       string    `json:"instance_id"`
+	MSSP             bool      `json:"mssp"`
+	Type             string    `json:"type"`
+	IngestGBPerMonth int64     `json:"ingest_gb_per_month"`
+	ExpiresAt        time.Time `json:"expires_at"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 type LicenseService struct {
@@ -42,32 +42,19 @@ type LicenseService struct {
 	instanceFile string
 	publicKey    string
 	salt         string
-	communityCap int64 // datasource cap for community (no enterprise license)
 
 	mu      sync.RWMutex
 	current domain.License
 }
 
-func NewLicenseService(updatesDir, publicKey, salt string, communityCap int64) *LicenseService {
+func NewLicenseService(updatesDir, publicKey, salt string) *LicenseService {
 	return &LicenseService{
 		licenseFile:  filepath.Join(updatesDir, licenseFileName),
 		instanceFile: filepath.Join(updatesDir, instanceFileName),
 		publicKey:    publicKey,
 		salt:         salt,
-		communityCap: communityCap,
 		current:      domain.Community(),
 	}
-}
-
-func (s *LicenseService) DatasourceCap() (limit int64, unlimited bool) {
-	lic := s.Current()
-	if !lic.IsEnterprise() {
-		return s.communityCap, false
-	}
-	if lic.Datasources == 0 {
-		return 0, true
-	}
-	return lic.Datasources, false
 }
 
 func (s *LicenseService) Current() domain.License {
@@ -141,11 +128,11 @@ func (s *LicenseService) validateAndParse(envelope []byte) (domain.License, erro
 	}
 
 	return domain.License{
-		Edition:     domain.EditionEnterprise,
-		MSSP:        inner.MSSP,
-		Datasources: inner.Datasources,
-		Type:        inner.Type,
-		ExpiresAt:   inner.ExpiresAt,
+		Edition:          domain.EditionEnterprise,
+		MSSP:             inner.MSSP,
+		IngestGBPerMonth: inner.IngestGBPerMonth,
+		Type:             inner.Type,
+		ExpiresAt:        inner.ExpiresAt,
 	}, nil
 }
 
@@ -161,11 +148,26 @@ func (s *LicenseService) Replace(envelope []byte) (domain.License, error) {
 
 func (s *LicenseService) writeLicenseFile(envelope []byte) error {
 	data := []byte(strings.TrimSpace(string(envelope)) + "\n")
-	tmp := s.licenseFile + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+
+	tmp, err := os.CreateTemp(filepath.Dir(s.licenseFile), licenseFileName+".*.tmp")
+	if err != nil {
 		return err
 	}
-	return os.Rename(tmp, s.licenseFile)
+	defer func() { _ = os.Remove(tmp.Name()) }()
+
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+
+	return os.Rename(tmp.Name(), s.licenseFile)
 }
 
 func (s *LicenseService) instanceID() string {

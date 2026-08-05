@@ -89,7 +89,7 @@ func (s *brandingService) save(ctx context.Context, actor string, resp *dto.Bran
 	row.ConfParamValue = string(data)
 	row.ModificationTime = &now
 	row.ModificationUser = actor
-	return s.repo.Update(ctx, row)
+	return s.repo.Save(ctx, row)
 }
 
 // Get returns the full branding (admin view), falling back to defaults.

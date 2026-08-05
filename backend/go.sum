@@ -366,8 +366,6 @@ github.com/swaggo/gin-swagger v1.6.1 h1:Ri06G4gc9N4t4k8hekMigJ9zKTFSlqj/9paAQCQs
 github.com/swaggo/gin-swagger v1.6.1/go.mod h1:LQ+hJStHakCWRiK/YNYtJOu4mR2FP+pxLnILT/qNiTw=
 github.com/swaggo/swag v1.16.6 h1:qBNcx53ZaX+M5dxVyTrgQ0PJ/ACK+NzhwcbieTt+9yI=
 github.com/swaggo/swag v1.16.6/go.mod h1:ngP2etMK5a0P3QBizic5MEwpRmluJZPHjXcMoj4Xesg=
-github.com/threatwinds/go-sdk v1.1.27-0.20260720113429-40bb2ebf16c2 h1:izXQugQTQa6teZFGOS1s9TQ/XPSx5LPOIY72u9+HeEE=
-github.com/threatwinds/go-sdk v1.1.27-0.20260720113429-40bb2ebf16c2/go.mod h1:aN6Oe3zJop9ngS83oZcKFXDLKWzrny2XhkYm7uoyDbQ=
 github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482 h1:O3yBAFhczbvPkcXvFJuuTLW96ssYQGB1Ns/lP4haduY=
 github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482/go.mod h1:bJiMG3QDZdRQC6va7bg3hLTVKs9Dedzup0kHu70Cf78=
 github.com/tidwall/gjson v1.19.0 h1:xwxm7n691Uf3u5OFjzngavjGTh55KX5q/9w9xHW88JU=

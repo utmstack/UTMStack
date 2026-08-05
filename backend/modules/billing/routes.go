@@ -13,5 +13,5 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g := api.Group("/billing", userAuth)
 	g.GET("/version", vh.Get)
 	g.GET("/license", lh.Get)
-	g.POST("/license", middleware.RequireAdmin(), lh.Upload) // upload/replace the LICENSE
+	g.POST("/license", middleware.RequirePlatform(), lh.Upload)
 }

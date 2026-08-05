@@ -10,6 +10,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	"github.com/utmstack/utmstack/backend/modules/notifications/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 const evtNotificationMutation audit_domain.ApplicationEventType = "NOTIFICATION_MUTATION"
@@ -34,6 +35,7 @@ func (u *notificationUsecase) Notify(ctx context.Context, source domain.Notifica
 
 func (u *notificationUsecase) create(ctx context.Context, source domain.NotificationSource, ntype domain.NotificationType, message string) (*domain.UtmNotification, error) {
 	n := &domain.UtmNotification{
+		TenantID:  authz.TenantIDFromContext(ctx),
 		Source:    source,
 		Type:      ntype,
 		Message:   message,

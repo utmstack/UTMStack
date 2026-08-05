@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
@@ -63,7 +62,7 @@ func (r *pgNotificationRepository) FindAll(ctx context.Context, q dto.Notificati
 		return nil, 0, err
 	}
 
-	orderBy := "created_at DESC"
+	orderBy := defaultOrder
 	if q.Sort != "" {
 		orderBy = parseSortParam(q.Sort)
 	}
@@ -111,8 +110,7 @@ func (r *pgNotificationRepository) UpdateStatus(ctx context.Context, id int64, s
 }
 
 func (r *pgNotificationRepository) MarkAllRead(ctx context.Context) (int64, error) {
-	res := r.db.WithContext(ctx).
-		Model(&domain.UtmNotification{}).
+	res := r.db.WithContext(ctx).Model(&domain.UtmNotification{}).
 		Where("read = ?", false).
 		Update("read", true)
 	return res.RowsAffected, res.Error
@@ -120,8 +118,7 @@ func (r *pgNotificationRepository) MarkAllRead(ctx context.Context) (int64, erro
 
 func (r *pgNotificationRepository) CountUnread(ctx context.Context) (int64, error) {
 	var n int64
-	err := r.db.WithContext(ctx).
-		Model(&domain.UtmNotification{}).
+	err := r.db.WithContext(ctx).Model(&domain.UtmNotification{}).
 		Where("read = ? AND status = ?", false, domain.StatusActive).
 		Count(&n).Error
 	return n, err
@@ -138,15 +135,24 @@ func (r *pgNotificationRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
+var sortable = map[string]bool{
+	"id": true, "created_at": true, "updated_at": true,
+	"source": true, "type": true, "status": true, "read": true,
+}
+
+const defaultOrder = "created_at DESC"
+
 func parseSortParam(sort string) string {
-	parts := strings.SplitN(sort, ",", 2)
-	if len(parts) == 2 {
-		field := strings.TrimSpace(parts[0])
-		dir := strings.ToUpper(strings.TrimSpace(parts[1]))
-		if dir != "ASC" && dir != "DESC" {
-			dir = "ASC"
-		}
-		return fmt.Sprintf("%s %s", field, dir)
+	field, dirPart, _ := strings.Cut(sort, ",")
+
+	field = strings.TrimSpace(field)
+	if !sortable[field] {
+		return defaultOrder
 	}
-	return sort
+
+	dir := "ASC"
+	if strings.EqualFold(strings.TrimSpace(dirPart), "desc") {
+		dir = "DESC"
+	}
+	return field + " " + dir
 }

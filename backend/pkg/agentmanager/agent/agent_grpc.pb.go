@@ -314,10 +314,6 @@ const (
 // PanelServiceClient is the client API for PanelService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// PanelService is internal (internal-key auth), consumed by the backend.
-// The connection-key RPCs let the backend proxy read/rotate of the
-// agent-installation connection key for the frontend.
 type PanelServiceClient interface {
 	ProcessCommand(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[UtmCommand, CommandResult], error)
 	GetConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error)
@@ -368,10 +364,6 @@ func (c *panelServiceClient) RotateConnectionKey(ctx context.Context, in *Connec
 // PanelServiceServer is the server API for PanelService service.
 // All implementations must embed UnimplementedPanelServiceServer
 // for forward compatibility.
-//
-// PanelService is internal (internal-key auth), consumed by the backend.
-// The connection-key RPCs let the backend proxy read/rotate of the
-// agent-installation connection key for the frontend.
 type PanelServiceServer interface {
 	ProcessCommand(grpc.BidiStreamingServer[UtmCommand, CommandResult]) error
 	GetConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error)

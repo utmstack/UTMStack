@@ -7,7 +7,8 @@ import (
 
 type Config struct {
 	ID                   int64  `gorm:"primaryKey"`
-	ConfParamShort       string `gorm:"size:100;not null"`
+	TenantID             string `gorm:"column:tenant_id;size:36;not null;default:'';uniqueIndex:idx_config_tenant_key,priority:1"`
+	ConfParamShort       string `gorm:"size:100;not null;uniqueIndex:idx_config_tenant_key,priority:2"`
 	ConfParamLarge       string
 	ConfParamDescription string
 	ConfParamValue       string

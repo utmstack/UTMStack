@@ -7,6 +7,8 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+
 	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager/agent"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -58,6 +60,7 @@ func (c *AgentManagerClient) Close() error {
 // searchQuery format: "hostname.Is=X&platform.Is=Y" (exact Java parity).
 func (c *AgentManagerClient) ListAgents(ctx context.Context, searchQuery string) ([]*agent.Agent, int32, error) {
 	resp, err := c.agentService.ListAgents(ctx, &agent.ListRequest{
+		TenantId:    authz.TenantIDFromContext(ctx),
 		SearchQuery: searchQuery,
 		PageNumber:  1,
 		PageSize:    1000000, // matches Java AgentGrpcService.setPageSize(1000000)
@@ -71,6 +74,7 @@ func (c *AgentManagerClient) ListAgents(ctx context.Context, searchQuery string)
 // ListAgentsPaged returns agents with explicit pagination parameters.
 func (c *AgentManagerClient) ListAgentsPaged(ctx context.Context, searchQuery string, pageNumber, pageSize int32, sortBy string) ([]*agent.Agent, int32, error) {
 	resp, err := c.agentService.ListAgents(ctx, &agent.ListRequest{
+		TenantId:    authz.TenantIDFromContext(ctx),
 		SearchQuery: searchQuery,
 		PageNumber:  pageNumber,
 		PageSize:    pageSize,
@@ -86,6 +90,7 @@ func (c *AgentManagerClient) ListAgentsPaged(ctx context.Context, searchQuery st
 // searchQuery format: "module.Is=X&hostname.Is=Y" (exact Java parity).
 func (c *AgentManagerClient) ListCollectors(ctx context.Context, searchQuery string, pageNumber, pageSize int32, sortBy string) (*agent.ListCollectorResponse, error) {
 	resp, err := c.collectorService.ListCollector(ctx, &agent.ListRequest{
+		TenantId:    authz.TenantIDFromContext(ctx),
 		SearchQuery: searchQuery,
 		PageNumber:  pageNumber,
 		PageSize:    pageSize,
@@ -100,6 +105,7 @@ func (c *AgentManagerClient) ListCollectors(ctx context.Context, searchQuery str
 // ListAgentCommands calls gRPC ListAgentCommands with pagination.
 func (c *AgentManagerClient) ListAgentCommands(ctx context.Context, searchQuery string, pageNumber, pageSize int32, sortBy string) (*agent.ListAgentsCommandsResponse, error) {
 	resp, err := c.agentService.ListAgentCommands(ctx, &agent.ListRequest{
+		TenantId:    authz.TenantIDFromContext(ctx),
 		SearchQuery: searchQuery,
 		PageNumber:  pageNumber,
 		PageSize:    pageSize,
@@ -143,7 +149,9 @@ func (c *AgentManagerClient) DeleteAgent(ctx context.Context, agentID uint32, ag
 }
 
 func (c *AgentManagerClient) GetConnectionKey(ctx context.Context) (string, error) {
-	resp, err := c.panelService.GetConnectionKey(ctx, &agent.ConnectionKeyRequest{})
+	resp, err := c.panelService.GetConnectionKey(ctx, &agent.ConnectionKeyRequest{
+		TenantId: authz.TenantIDFromContext(ctx),
+	})
 	if err != nil {
 		return "", fmt.Errorf("agentmanager: GetConnectionKey: %w", err)
 	}
@@ -151,7 +159,9 @@ func (c *AgentManagerClient) GetConnectionKey(ctx context.Context) (string, erro
 }
 
 func (c *AgentManagerClient) RotateConnectionKey(ctx context.Context) (string, error) {
-	resp, err := c.panelService.RotateConnectionKey(ctx, &agent.ConnectionKeyRequest{})
+	resp, err := c.panelService.RotateConnectionKey(ctx, &agent.ConnectionKeyRequest{
+		TenantId: authz.TenantIDFromContext(ctx),
+	})
 	if err != nil {
 		return "", fmt.Errorf("agentmanager: RotateConnectionKey: %w", err)
 	}

@@ -37,6 +37,7 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
@@ -193,9 +194,23 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
 
 	tenantMod := tenant.NewModule(db, userUsecase)
+
+	aiUsage := socai_repository.NewUsageRepo(db)
+	aiQuota := &socai.AIQuota{
+		LimitOf: func(ctx context.Context, tenantID string) (int, error) {
+			t, err := tenantMod.GetTenantUsecase().GetByID(ctx, tenantID)
+			if err != nil {
+				return 0, err
+			}
+			return t.Limits.MaxAIRequests, nil
+		},
+		Consume: aiUsage.Consume,
+		Used:    aiUsage.UsedToday,
+	}
+
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
-		env.String("UPDATES_DIR", "/updates", false))
+		env.String("UPDATES_DIR", "/updates", false), aiQuota)
 	incidentsMod := incidents.NewModule(
 		db,
 		incidents_connectors.NewNoopMailer(),

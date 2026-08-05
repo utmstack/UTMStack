@@ -18,6 +18,7 @@ import (
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
 	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
+	socai_domain "github.com/utmstack/utmstack/backend/modules/socai/domain"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	"gorm.io/gorm"
 
@@ -41,6 +42,7 @@ func Models() []any {
 		iam_domain.IdentityProviderConfig{},
 		iam_domain.TfaSetupState{},
 		audit_domain.AuditLog{},
+		socai_domain.AIUsage{},
 		appconfig_domain.Config{},
 		alerts_domain.UtmAlertTag{},
 		alerts_domain.UtmAlertTagRule{},

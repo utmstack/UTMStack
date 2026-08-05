@@ -35,7 +35,7 @@ func (s *service) List(ctx context.Context) ([]dto.ConfigResponse, error) {
 	}
 	out := make([]dto.ConfigResponse, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, s.toResponse(r, false))
+		out = append(out, s.toResponse(r))
 	}
 	return out, nil
 }
@@ -48,7 +48,7 @@ func (s *service) Get(ctx context.Context, key string) (*dto.ConfigResponse, err
 	if row == nil {
 		return nil, nil
 	}
-	resp := s.toResponse(*row, true)
+	resp := s.toResponse(*row)
 	return &resp, nil
 }
 
@@ -91,10 +91,10 @@ func (s *service) Update(ctx context.Context, actor, key string, input dto.Upser
 		row.ConfParamValue = input.Value
 	}
 
-	if err := s.repo.Update(ctx, &row); err != nil {
+	if err := s.repo.Save(ctx, &row); err != nil {
 		return nil, err
 	}
-	resp := s.toResponse(row, true)
+	resp := s.toResponse(row)
 	return &resp, nil
 }
 
@@ -150,7 +150,7 @@ func (s *service) SetString(ctx context.Context, key, value string, opts connect
 	now := time.Now().UTC()
 	row.ModificationTime = &now
 	row.ModificationUser = "system"
-	return s.repo.Update(ctx, &row)
+	return s.repo.Save(ctx, &row)
 }
 
 // CheckMail attempts to send a verification email through each supplied
@@ -214,7 +214,7 @@ func toEmailConfig(c domain.MailConfig) mail_domain.EmailConfig {
 	}
 }
 
-func (s *service) toResponse(c domain.Config, revealSecret bool) dto.ConfigResponse {
+func (s *service) toResponse(c domain.Config) dto.ConfigResponse {
 	r := dto.ConfigResponse{
 		Key:         c.ConfParamShort,
 		IsSecret:    c.IsSecret(),
@@ -231,12 +231,6 @@ func (s *service) toResponse(c domain.Config, revealSecret bool) dto.ConfigRespo
 	}
 	if !c.IsSecret() {
 		r.Value = c.ConfParamValue
-		return r
-	}
-	if revealSecret {
-		if plain, err := s.cipher.Decrypt(c.ConfParamValue); err == nil {
-			r.Value = plain
-		}
 	}
 	return r
 }
