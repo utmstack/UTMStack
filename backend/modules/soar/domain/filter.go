@@ -3,14 +3,14 @@ package domain
 type OperatorType string
 
 const (
-	OperatorIS           OperatorType = "IS"
-	OperatorISNot        OperatorType = "IS_NOT"
+	OperatorIS    OperatorType = "IS"
+	OperatorISNot OperatorType = "IS_NOT"
 
-	OperatorContains     OperatorType = "CONTAINS"
-	OperatorNotContains  OperatorType = "NOT_CONTAINS"
+	OperatorContains    OperatorType = "CONTAINS"
+	OperatorNotContains OperatorType = "NOT_CONTAINS"
 
-	OperatorExists       OperatorType = "EXISTS"
-	OperatorNotExists    OperatorType = "NOT_EXISTS"
+	OperatorExists    OperatorType = "EXISTS"
+	OperatorNotExists OperatorType = "NOT_EXISTS"
 
 	OperatorStartWith    OperatorType = "START_WITH"
 	OperatorNotStartWith OperatorType = "NOT_START_WITH"
@@ -18,8 +18,8 @@ const (
 	OperatorEndsWith    OperatorType = "ENDS_WITH"
 	OperatorNotEndsWith OperatorType = "NOT_ENDS_WITH"
 
-	OperatorIsOneOf      OperatorType = "IS_ONE_OF"
-	OperatorIsNotOneOf   OperatorType = "IS_NOT_ONE_OF"
+	OperatorIsOneOf    OperatorType = "IS_ONE_OF"
+	OperatorIsNotOneOf OperatorType = "IS_NOT_ONE_OF"
 )
 
 type FilterType struct {

@@ -5,6 +5,7 @@ import "time"
 // UtmIncidentAction is a predefined incident-response action (e.g. SHUTDOWN_SERVER,
 // RUN_CMD) that operators can run against an agent during incident handling.
 type UtmIncidentAction struct {
+	TenantID          string     `gorm:"column:tenant_id;size:36;not null;default:'';index" json:"-"`
 	ID                int64      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	ActionCommand     *string    `gorm:"column:action_command"              json:"actionCommand"`
 	ActionDescription *string    `gorm:"column:action_description"          json:"actionDescription"`

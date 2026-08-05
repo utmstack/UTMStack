@@ -18,8 +18,18 @@ func writeFlowFile(path string, flow Flow) error {
 		return err
 	}
 
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	tf, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path)+".*.tmp")
+	if err != nil {
+		return err
+	}
+	tmp := tf.Name()
+	defer func() { _ = os.Remove(tmp) }()
+
+	if _, err := tf.Write(data); err != nil {
+		_ = tf.Close()
+		return err
+	}
+	if err := tf.Close(); err != nil {
 		return err
 	}
 	if err := os.Rename(tmp, path); err != nil {

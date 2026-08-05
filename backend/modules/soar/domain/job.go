@@ -31,6 +31,7 @@ func (s JobStatus) String() string {
 // into it); it is kept as a string here so an in-place AutoMigrate over the
 // legacy table does not attempt an illegal varchar->bigint column cast.
 type UtmIncidentJob struct {
+	TenantID     string     `gorm:"column:tenant_id;size:36;not null;default:'';index" json:"-"`
 	ID           int64      `gorm:"column:id;primaryKey;autoIncrement"   json:"id"`
 	ActionID     *int64     `gorm:"column:action_id"                     json:"actionId"`
 	Params       *string    `gorm:"column:params"                        json:"params"`

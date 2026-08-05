@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"gorm.io/gorm"
 )
@@ -26,8 +28,9 @@ func (r *pgAgentRepository) ListNamesByPlatform(ctx context.Context, platform st
 		WHERE source_kind = 'agent'
 		  AND asset_name IS NOT NULL
 		  AND metadata->>'osPlatform' = ?
+		  AND tenant_id = ?
 		ORDER BY asset_name
-	`, platform).Scan(&names).Error
+	`, platform, authz.TenantIDFromContext(ctx)).Scan(&names).Error
 	if names == nil {
 		names = []string{}
 	}

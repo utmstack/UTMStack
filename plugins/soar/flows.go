@@ -32,6 +32,7 @@ type condition struct {
 type flow struct {
 	RelPath    string
 	Conditions []condition
+	tenant     string
 }
 
 var (
@@ -39,18 +40,24 @@ var (
 	flows   []flow
 )
 
-func activeFlows() []flow {
+func activeFlowsFor(tenant string) []flow {
 	flowsMu.RLock()
 	defer flowsMu.RUnlock()
-	return slices.Clone(flows)
+
+	out := make([]flow, 0, len(flows))
+	for _, f := range flows {
+		if f.tenant == "" || f.tenant == tenant {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 func loadFlows(root string) {
 	enabled := map[string]flow{}
 	disabled := map[string]bool{}
-
-	for _, overlay := range []string{"system", "user"} {
-		dir := filepath.Join(root, overlay)
+	{
+		dir := filepath.Join(root, "user")
 		_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {
 				return nil
@@ -67,24 +74,32 @@ func loadFlows(root string) {
 				return nil
 			}
 			relPath := filepath.ToSlash(rel)
+			i := strings.Index(relPath, "/")
+			if i <= 0 {
+				return nil // a file naming no tenant belongs to nobody
+			}
+			tenant := relPath[:i]
+			relPath = strings.TrimPrefix(relPath[i+1:], "system/")
+
+			key := tenant + "\x00" + relPath
 			if off {
-				disabled[relPath] = true
-				delete(enabled, relPath)
+				disabled[key] = true
+				delete(enabled, key)
 				return nil
 			}
 			conds, err := parseConditions(path)
 			if err != nil {
 				return nil
 			}
-			delete(disabled, relPath)
-			enabled[relPath] = flow{RelPath: relPath, Conditions: conds}
+			delete(disabled, key)
+			enabled[key] = flow{RelPath: relPath, Conditions: conds, tenant: tenant}
 			return nil
 		})
 	}
 
 	out := make([]flow, 0, len(enabled))
-	for relPath, f := range enabled {
-		if !disabled[relPath] {
+	for key, f := range enabled {
+		if !disabled[key] {
 			out = append(out, f)
 		}
 	}

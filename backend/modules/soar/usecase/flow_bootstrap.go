@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"gorm.io/gorm"
@@ -24,52 +26,43 @@ func NewFlowBootstrap(srcDir string, store *FlowStore, db *gorm.DB) *FlowBootstr
 }
 
 func (b *FlowBootstrap) Run(ctx context.Context) error {
-
-	if err := b.purgeLooseFlows(); err != nil {
-		_ = catcher.Error("soar: purging loose flows failed", err, nil)
-	}
-
 	if err := b.seedSystemOverlay(); err != nil {
 		_ = catcher.Error("soar: seeding system flows failed", err, nil)
 	}
-
-	if err := b.store.Load(); err != nil {
-		return err
-	}
-
-	if b.db != nil {
-		if err := b.migrateLegacyFlows(ctx); err != nil {
-			_ = catcher.Error("soar: legacy flow migration failed", err, nil)
-		}
-		if err := b.store.Load(); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return b.store.Load()
 }
 
-func (b *FlowBootstrap) purgeLooseFlows() error {
-	root := filepath.Dir(b.store.systemDir)
-	entries, err := os.ReadDir(root)
-	if os.IsNotExist(err) {
-		return nil
-	}
+// seedSystemOverlay refreshes every tenant's copy of the flows the image ships.
+// Each tenant holding its own copy is what makes a release a plain overwrite:
+// the content is replaced in whichever file exists, so a flow a tenant switched
+// off stays off and still gets the update.
+func (b *FlowBootstrap) seedSystemOverlay() error {
+	tenants, err := b.tenants()
 	if err != nil {
 		return err
 	}
-	for _, e := range entries {
-		if e.Name() == SystemSubdir || e.Name() == UserSubdir {
-			continue
-		}
-		if err := os.RemoveAll(filepath.Join(root, e.Name())); err != nil {
-			_ = catcher.Error("soar: removing loose flow entry failed", err, map[string]any{"entry": e.Name()})
+	for _, t := range tenants {
+		if err := b.seedSystemOverlayFor(t); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func (b *FlowBootstrap) seedSystemOverlay() error {
+func (b *FlowBootstrap) tenants() ([]string, error) {
+	var ids []string
+	err := b.db.Table("tenants").
+		Where("status <> ?", "TERMINATED").
+		Pluck("id", &ids).Error
+	if err != nil || len(ids) == 0 {
+		// No tenants table yet, or none live: the install has the one tenant it
+		// was born with.
+		return []string{authz.DefaultTenantID}, nil
+	}
+	return ids, nil
+}
+
+func (b *FlowBootstrap) seedSystemOverlayFor(tenant string) error {
 	if _, err := os.Stat(b.srcDir); os.IsNotExist(err) {
 		return nil
 	}
@@ -92,7 +85,7 @@ func (b *FlowBootstrap) seedSystemOverlay() error {
 			return nil
 		}
 		expected[rel] = true
-		target := filepath.Join(b.store.systemDir, rel)
+		target := filepath.Join(b.store.userDir, tenant, SystemSubdir, rel)
 
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -115,7 +108,7 @@ func (b *FlowBootstrap) seedSystemOverlay() error {
 		return err
 	}
 
-	return b.pruneSystemOverlay(expected)
+	return b.pruneSystemOverlay(tenant, expected)
 }
 
 func fileExists(path string) bool {
@@ -123,15 +116,16 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-func (b *FlowBootstrap) pruneSystemOverlay(expected map[string]bool) error {
-	if _, err := os.Stat(b.store.systemDir); os.IsNotExist(err) {
+func (b *FlowBootstrap) pruneSystemOverlay(tenant string, expected map[string]bool) error {
+	dir := filepath.Join(b.store.userDir, tenant, SystemSubdir)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return nil
 	}
-	return filepath.WalkDir(b.store.systemDir, func(path string, d fs.DirEntry, err error) error {
+	return filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
-		rel, relErr := filepath.Rel(b.store.systemDir, path)
+		rel, relErr := filepath.Rel(dir, path)
 		if relErr != nil {
 			return nil
 		}
@@ -144,68 +138,6 @@ func (b *FlowBootstrap) pruneSystemOverlay(expected map[string]bool) error {
 		}
 		return nil
 	})
-}
-
-func (b *FlowBootstrap) migrateLegacyFlows(ctx context.Context) error {
-	if !b.db.Migrator().HasTable(&domain.AlertResponseRule{}) {
-		return nil
-	}
-
-	var legacy []domain.AlertResponseRule
-	if err := b.db.WithContext(ctx).Preload("Templates").Find(&legacy).Error; err != nil {
-		return err
-	}
-	if len(legacy) == 0 {
-		return nil
-	}
-
-	systemByName := make(map[string]string)
-	b.store.mu.RLock()
-	for _, sf := range b.store.flows {
-		if sf.system {
-			systemByName[sf.Name] = sf.RelPath
-		}
-	}
-	b.store.mu.RUnlock()
-
-	failed := 0
-	for i := range legacy {
-		row := &legacy[i]
-
-		if row.SystemOwner {
-			if !row.RuleActive {
-				if relPath, ok := systemByName[row.RuleName]; ok {
-					if err := b.store.SetEnabled(relPath, false); err != nil {
-						_ = catcher.Error("soar: reconciling disabled system flow failed", err, map[string]any{"flow": row.RuleName})
-						failed++
-					}
-				}
-			}
-			continue
-		}
-
-		created, err := b.store.Create(legacyToFlow(row))
-		if err != nil {
-			if os.IsExist(err) {
-				continue // already migrated
-			}
-			_ = catcher.Error("soar: migrating legacy user flow failed", err, map[string]any{"flow": row.RuleName})
-			failed++
-			continue
-		}
-		if !row.RuleActive {
-			if err := b.store.SetEnabled(created.RelPath, false); err != nil {
-				_ = catcher.Error("soar: disabling migrated user flow failed", err, map[string]any{"flow": row.RuleName})
-				failed++
-			}
-		}
-	}
-
-	if failed > 0 {
-		catcher.Warn("soar: legacy flow migration had failures — keeping utm_alert_response_rule for retry on next boot", nil)
-		return nil
-	}
-	return b.dropLegacyFlowTables()
 }
 
 func (b *FlowBootstrap) dropLegacyFlowTables() error {

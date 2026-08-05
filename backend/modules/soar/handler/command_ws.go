@@ -13,6 +13,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager/agent"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 )
@@ -54,8 +55,20 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
 			return false
 		}
-		c.Set("user_login", claims.Login)
-		return true
+		userID, err := claims.UserID()
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token subject"})
+			return false
+		}
+		return middleware.EstablishActor(c, middleware.Actor{
+			UserID:      userID,
+			Login:       claims.Login,
+			Email:       claims.Email,
+			Roles:       claims.Roles,
+			Permissions: claims.Permissions,
+			SessionID:   claims.SessionID,
+			TenantID:    claims.TenantID,
+		})
 	}
 
 	if h.apiKeyAuth != nil {
@@ -65,8 +78,7 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
 				return false
 			}
-			c.Set("user_login", actor.Login)
-			return true
+			return middleware.EstablishActor(c, *actor)
 		}
 	}
 
@@ -107,6 +119,17 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 		return
 	}
 
+	actor := middleware.ActorFromGin(c)
+	if err := authz.RequirePermission(actor, "soar.write"); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "missing required permission: soar.write"})
+		return
+	}
+
+	if !h.ownsAgent(c, agentID) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found"})
+		return
+	}
+
 	conn, err := websocket.Accept(c.Writer, c.Request, &websocket.AcceptOptions{
 		InsecureSkipVerify: true, // allow cross-origin in development
 	})
@@ -130,10 +153,6 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 		_ = conn.Close(websocket.StatusInternalError, "no agent client")
 		return
 	}
-	// No pre-lookup: the agentId comes from the datasource the user opened, and the
-	// agent-manager validates it on ProcessCommandStream (offline/unknown → stream error,
-	// surfaced over the WS). Liveness for the UI comes from datasources, not from here.
-
 	command := req.Command
 	if h.variableUC != nil {
 		if interpolated, vErr := h.variableUC.InterpolateCommand(command); vErr != nil {
@@ -192,4 +211,17 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 			return
 		}
 	}
+}
+
+// ownsAgent reports whether the agent belongs to the tenant making the request.
+func (h *CommandWSHandler) ownsAgent(c *gin.Context, agentID string) bool {
+	if h.agentClient == nil {
+		return false
+	}
+	rows, _, err := h.agentClient.ListAgents(c.Request.Context(), "id.Is="+agentID)
+	if err != nil {
+		_ = catcher.Error("CommandStream: cannot verify the agent's tenant", err, map[string]any{"agent": agentID})
+		return false
+	}
+	return len(rows) > 0
 }

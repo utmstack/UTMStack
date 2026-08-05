@@ -23,6 +23,8 @@ type Actor = authz.Actor
 
 type SupportOfFunc func(ctx context.Context, tenantID string) (string, error)
 
+func EstablishActor(c *gin.Context, a Actor) bool { return setActor(c, a, nil) }
+
 func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc) bool {
 	if !a.Internal && !resolveTenancy(c, &a, supportOf) {
 		return false

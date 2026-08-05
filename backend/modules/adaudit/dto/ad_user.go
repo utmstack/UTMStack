@@ -28,18 +28,12 @@ type IngestRequest struct {
 }
 
 type ADUserFilter struct {
-	Search   string `form:"search"`   // substring on samAccountName/sid
-	TenantID string `form:"tenantId"` // exact
-	Source   string `form:"source"`   // "windows"|"linux"|"" (all)
-	Active   *bool  `form:"active"`
-	Status   string `form:"status"` // active|disabled|deleted|stale|service — overrides Active when set
-	Sort     string `form:"sort"`   // recent (last_seen desc) | name (default, samAccountName asc)
+	Search string `form:"search"` // substring on samAccountName/sid
+	Source string `form:"source"` // "windows"|"linux"|"" (all)
+	Active *bool  `form:"active"`
+	Status string `form:"status"` // active|disabled|deleted|stale|service — overrides Active when set
+	Sort   string `form:"sort"`   // recent (last_seen desc) | name (default, samAccountName asc)
 	database.Params
-}
-
-// ADUserStatsQuery scopes the inventory aggregation to a single tenant (optional).
-type ADUserStatsQuery struct {
-	TenantID string `form:"tenantId"`
 }
 
 type DomainCount struct {
@@ -53,9 +47,6 @@ type SourceCount struct {
 	Linux   int64 `json:"linux"`
 }
 
-// ADUserStats is the inventory roll-up the UI overview renders. Counts honor the
-// optional tenant scope; Tenants is always the global distinct list so the
-// tenant picker stays stable regardless of the active scope.
 type ADUserStats struct {
 	Total    int64         `json:"total"`
 	Active   int64         `json:"active"`
@@ -66,14 +57,8 @@ type ADUserStats struct {
 	Seen24h  int64         `json:"seen_24h"`
 	BySource SourceCount   `json:"by_source"`
 	ByDomain []DomainCount `json:"by_domain"`
-	Tenants  []string      `json:"tenants"`
 }
 
-// ResolveLinuxIdentityRequest is the payload the ad-audit plugin sends when it
-// learns the machine-id for a host that already has provisional Linux user rows.
-// The backend updates all matching provisional rows to set machine_id: if a
-// resolved row already exists for (tenant_id, machine_id, uid_number),
-// the provisional row is left untouched.
 type ResolveLinuxIdentityRequest struct {
 	TenantID  string `json:"tenant_id" binding:"required"`
 	Hostname  string `json:"hostname"  binding:"required"`

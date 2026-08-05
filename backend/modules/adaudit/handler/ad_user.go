@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/threatwinds/go-sdk/catcher"
@@ -53,7 +56,6 @@ func (h *ADUserHandler) Ingest(c *gin.Context) {
 //	@Produce		json
 //	@Param			search		query		string	false	"Substring on samAccountName/sid/username"
 //	@Param			source		query		string	false	"Filter by source: windows | linux (omit for all)"
-//	@Param			tenantId	query		string	false	"Filter by tenant"
 //	@Param			active		query		bool	false	"Filter by active"
 //	@Param			status		query		string	false	"Lifecycle bucket: active|disabled|deleted|stale|service (overrides active)"
 //	@Param			sort		query		string	false	"Sort: recent (last seen) or name (default)"
@@ -87,21 +89,15 @@ func (h *ADUserHandler) List(c *gin.Context) {
 // Stats godoc
 //
 //	@Summary		AD user inventory stats
-//	@Description	Roll-up for the User Auditor overview: lifecycle counts, by-domain breakdown and the distinct tenant list.
+//	@Description	Roll-up for the User Auditor overview: lifecycle counts and by-domain breakdown, scoped to the caller's tenant.
 //	@Tags			AD Audit
 //	@Security		BearerAuth
 //	@Produce		json
-//	@Param			tenantId	query		string	false	"Scope the counts to a tenant"
 //	@Success		200			{object}	dto.ADUserStats
 //	@Failure		500			{object}	map[string]string
 //	@Router			/ad-audit/stats [get]
 func (h *ADUserHandler) Stats(c *gin.Context) {
-	var q dto.ADUserStatsQuery
-	if err := c.ShouldBindQuery(&q); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	res, err := h.uc.Stats(c.Request.Context(), q.TenantID)
+	res, err := h.uc.Stats(c.Request.Context())
 	if err != nil {
 		_ = catcher.Error("adaudit: stats failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load stats"})
@@ -128,13 +124,16 @@ func (h *ADUserHandler) Sync(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', or omitted"})
 		return
 	}
-	users, err := h.uc.All(c.Request.Context(), source)
+	c.Header("Content-Type", "application/x-ndjson")
+	c.Status(http.StatusOK)
+
+	enc := json.NewEncoder(c.Writer)
+	err := h.uc.Each(c.Request.Context(), source, func(u domain.ADUser) error {
+		return enc.Encode(u)
+	})
 	if err != nil {
-		_ = catcher.Error("adaudit: sync failed", err, nil)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not export users"})
-		return
+		_ = catcher.Error("adaudit: sync failed part-way", err, nil)
 	}
-	c.JSON(http.StatusOK, users)
 }
 
 // Resolve godoc

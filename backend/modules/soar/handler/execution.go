@@ -69,4 +69,3 @@ func (h *ExecutionHandler) Match(c *gin.Context) {
 	}
 	c.Status(http.StatusAccepted)
 }
-

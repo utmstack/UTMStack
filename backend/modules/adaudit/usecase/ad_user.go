@@ -4,10 +4,13 @@ import (
 	"context"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
+
 	"github.com/utmstack/utmstack/backend/modules/adaudit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
 	"github.com/utmstack/utmstack/backend/pkg/database"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
 type adUserUsecase struct {
@@ -19,8 +22,16 @@ func NewADUserUsecase(repo connectors.ADUserRepository) connectors.ADUserUsecase
 }
 
 func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int, error) {
+	ctx = tenancy.WithAllTenants(ctx)
+
 	users := make([]domain.ADUser, 0, len(req.Users))
+	skipped := 0
 	for _, in := range req.Users {
+		if strings.TrimSpace(in.TenantID) == "" {
+			skipped++
+			continue
+		}
+
 		source := in.Source
 		if source == "" {
 			source = "windows"
@@ -70,6 +81,11 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 
 		users = append(users, ad)
 	}
+
+	if skipped > 0 {
+		_ = catcher.Error("adaudit: dropped users that named no tenant", nil, map[string]any{"dropped": skipped})
+	}
+
 	if err := u.repo.Upsert(ctx, users); err != nil {
 		return 0, err
 	}
@@ -84,14 +100,14 @@ func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database
 	return &database.List[domain.ADUser]{Items: items, Total: total}, nil
 }
 
-func (u *adUserUsecase) All(ctx context.Context, source string) ([]domain.ADUser, error) {
-	return u.repo.All(ctx, source)
+func (u *adUserUsecase) Each(ctx context.Context, source string, fn func(domain.ADUser) error) error {
+	return u.repo.Each(tenancy.WithAllTenants(ctx), source, fn)
 }
 
-func (u *adUserUsecase) Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error) {
-	return u.repo.Stats(ctx, tenantID)
+func (u *adUserUsecase) Stats(ctx context.Context) (*dto.ADUserStats, error) {
+	return u.repo.Stats(ctx)
 }
 
 func (u *adUserUsecase) ResolveLinuxIdentity(ctx context.Context, req dto.ResolveLinuxIdentityRequest) (int64, error) {
-	return u.repo.ResolveLinuxIdentity(ctx, req.TenantID, req.Hostname, req.MachineID)
+	return u.repo.ResolveLinuxIdentity(tenancy.WithAllTenants(ctx), req.TenantID, req.Hostname, req.MachineID)
 }

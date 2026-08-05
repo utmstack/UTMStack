@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -169,7 +170,7 @@ func handleLinuxAuditd(event *plugins.Event, action string) error {
 	ts := parseTime(event.GetTimestamp())
 
 	sequence := logNumStr(event, "sequence")
-	if dedupCheckAndMark(hostname, sequence) {
+	if dedupCheckAndMark(tenantID, hostname, sequence) {
 		return io.EOF
 	}
 
@@ -237,11 +238,11 @@ func handleLinuxAuditd(event *plugins.Event, action string) error {
 	return io.EOF
 }
 
-func dedupCheckAndMark(hostname, sequence string) bool {
+func dedupCheckAndMark(tenantID, hostname, sequence string) bool {
 	if hostname == "" || sequence == "" {
 		return false
 	}
-	key := hostname + ":" + sequence
+	key := tenantID + ":" + hostname + ":" + sequence
 
 	dedupMu.Lock()
 	defer dedupMu.Unlock()
@@ -709,9 +710,9 @@ func seedWindows() {
 		_ = catcher.Error("ad-audit: seed windows returned non-200", fmt.Errorf("status %d", resp.StatusCode), nil)
 		return
 	}
-	var users []ingestUser
-	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
-		_ = catcher.Error("ad-audit: decoding windows seed failed", err, nil)
+
+	users, err := decodeSeed(resp.Body, "windows")
+	if err != nil {
 		return
 	}
 	cacheMu.Lock()
@@ -746,9 +747,8 @@ func seedLinux() {
 		_ = catcher.Error("ad-audit: seed linux returned non-200", fmt.Errorf("status %d", resp.StatusCode), nil)
 		return
 	}
-	var users []ingestUser
-	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
-		_ = catcher.Error("ad-audit: decoding linux seed failed", err, nil)
+	users, err := decodeSeed(resp.Body, "linux")
+	if err != nil {
 		return
 	}
 	cacheMu.Lock()
@@ -931,4 +931,22 @@ func resolveLinuxIdentityDefault(tenantID, hostname, machineID string) error {
 		return fmt.Errorf("resolve returned status %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func decodeSeed(r io.Reader, source string) ([]ingestUser, error) {
+	var users []ingestUser
+
+	dec := json.NewDecoder(r)
+	for {
+		var u ingestUser
+		err := dec.Decode(&u)
+		if errors.Is(err, io.EOF) {
+			return users, nil
+		}
+		if err != nil {
+			_ = catcher.Error("ad-audit: decoding the seed stream failed", err, map[string]any{"source": source})
+			return nil, err
+		}
+		users = append(users, u)
+	}
 }

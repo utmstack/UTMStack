@@ -4,13 +4,13 @@ import "time"
 
 type ADUser struct {
 	ID               uint64     `gorm:"primaryKey;autoIncrement" json:"id"`
-	TenantID         string     `gorm:"column:tenant_id;size:64;not null" json:"tenantId"`
-	Source           string     `gorm:"column:source;size:16;not null;default:'windows'" json:"source"`
-	SID              *string    `gorm:"column:sid;size:128" json:"sid,omitempty"`
+	TenantID         string     `gorm:"column:tenant_id;size:64;not null;index:idx_ad_user_tenant_source,priority:1;uniqueIndex:idx_aduser_windows,priority:1;uniqueIndex:idx_aduser_linux,priority:1" json:"tenantId"`
+	Source           string     `gorm:"column:source;size:16;not null;default:'windows';index:idx_ad_user_tenant_source,priority:2" json:"source"`
+	SID              *string    `gorm:"column:sid;size:128;uniqueIndex:idx_aduser_windows,priority:2,where:source = 'windows'" json:"sid,omitempty"`
 	SamAccountName   string     `gorm:"column:sam_account_name;size:255" json:"samAccountName,omitempty"`
 	Domain           string     `gorm:"column:domain;size:255" json:"domain,omitempty"`
-	MachineID        *string    `gorm:"column:machine_id;size:64" json:"machineId,omitempty"`
-	UIDNumber        *string    `gorm:"column:uid_number;size:32" json:"uidNumber,omitempty"`
+	MachineID        *string    `gorm:"column:machine_id;size:64;uniqueIndex:idx_aduser_linux,priority:2,where:source = 'linux'" json:"machineId,omitempty"`
+	UIDNumber        *string    `gorm:"column:uid_number;size:32;uniqueIndex:idx_aduser_linux,priority:3" json:"uidNumber,omitempty"`
 	Hostname         *string    `gorm:"column:hostname;size:255" json:"hostname,omitempty"`
 	Username         *string    `gorm:"column:username;size:255" json:"username,omitempty"`
 	Active           bool       `gorm:"column:active;not null;default:true" json:"active"`

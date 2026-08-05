@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 )
+
+const flowReloadInterval = 2 * time.Second
 
 type FlowListFilter struct {
 	Page int // 0-based
@@ -24,46 +27,44 @@ type FlowListFilter struct {
 	AgentPlatform string // exact match
 }
 
+type flowKey struct {
+	tenant  string
+	relPath string
+}
+
 type FlowStore struct {
 	systemDir string
 	userDir   string
 
 	mu    sync.RWMutex
 	flows []*StoredFlow
-	index map[string]*StoredFlow // relPath -> flow
+	index map[flowKey]*StoredFlow
 }
 
 func NewFlowStore(systemDir, userDir string) *FlowStore {
 	return &FlowStore{
 		systemDir: systemDir,
 		userDir:   userDir,
-		index:     make(map[string]*StoredFlow),
+		index:     make(map[flowKey]*StoredFlow),
 	}
 }
 
 func (s *FlowStore) Load() error {
 	flows := make([]*StoredFlow, 0, 64)
-	index := make(map[string]*StoredFlow, 64)
+	index := make(map[flowKey]*StoredFlow, 64)
 
-	for _, ov := range []struct {
-		dir    string
-		system bool
-	}{
-		{s.systemDir, true},
-		{s.userDir, false},
-	} {
-		loaded, err := loadFlowOverlay(ov.dir, ov.system)
-		if err != nil {
-			return err
+	loaded, err := loadFlowOverlay(s.userDir)
+	if err != nil {
+		return err
+	}
+	for _, sf := range loaded {
+		k := flowKey{sf.tenant, sf.RelPath}
+		if prev, ok := index[k]; ok {
+			*prev = *sf
+			continue
 		}
-		for _, sf := range loaded {
-			if prev, ok := index[sf.RelPath]; ok {
-				*prev = *sf // user overlay overrides a system flow with the same relPath
-				continue
-			}
-			index[sf.RelPath] = sf
-			flows = append(flows, sf)
-		}
+		index[k] = sf
+		flows = append(flows, sf)
 	}
 
 	s.mu.Lock()
@@ -73,7 +74,22 @@ func (s *FlowStore) Load() error {
 	return nil
 }
 
-func loadFlowOverlay(dir string, system bool) ([]*StoredFlow, error) {
+func (s *FlowStore) Watch(ctx context.Context) {
+	ticker := time.NewTicker(flowReloadInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := s.Load(); err != nil {
+				_ = catcher.Error("soar: periodic flow reload failed", err, nil)
+			}
+		}
+	}
+}
+
+func loadFlowOverlay(dir string) ([]*StoredFlow, error) {
 	var out []*StoredFlow
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -114,33 +130,66 @@ func loadFlowOverlay(dir string, system bool) ([]*StoredFlow, error) {
 			mod = info.ModTime()
 		}
 
+		relSlash := filepath.ToSlash(rel)
+		i := strings.Index(relSlash, "/")
+		if i <= 0 {
+			return nil // a file naming no tenant belongs to nobody
+		}
+		tenant := relSlash[:i]
+		relSlash = relSlash[i+1:]
+
+		system := false
+		if after, ok := strings.CutPrefix(relSlash, SystemSubdir+"/"); ok {
+			system, relSlash = true, after
+		}
+
 		out = append(out, &StoredFlow{
 			Flow:     flow,
-			RelPath:  filepath.ToSlash(rel),
+			RelPath:  relSlash,
 			Modified: mod,
 			system:   system,
 			enabled:  enabled,
+			tenant:   tenant,
 		})
 		return nil
 	})
 	return out, err
 }
 
-func (s *FlowStore) Get(relPath string) *StoredFlow {
+func (s *FlowStore) Get(tenant, relPath string) *StoredFlow {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if sf, ok := s.index[relPath]; ok {
+	return s.lookup(tenant, relPath)
+}
+
+func (s *FlowStore) lookup(tenant, relPath string) *StoredFlow {
+	if sf, ok := s.index[flowKey{tenant, relPath}]; ok {
+		cp := *sf
+		return &cp
+	}
+	if sf, ok := s.index[flowKey{"", relPath}]; ok {
 		cp := *sf
 		return &cp
 	}
 	return nil
 }
 
-func (s *FlowStore) List(f FlowListFilter) ([]*StoredFlow, int) {
+func (s *FlowStore) List(tenant string, f FlowListFilter) ([]*StoredFlow, int) {
 	s.mu.RLock()
+	seen := make(map[string]bool, len(s.flows))
 	matched := make([]*StoredFlow, 0, len(s.flows))
 	for _, sf := range s.flows {
+		if sf.tenant != "" && sf.tenant != tenant {
+			continue
+		}
+		if sf.tenant == "" && s.index[flowKey{tenant, sf.RelPath}] != nil {
+			continue // the tenant overrode this system flow
+		}
+		if seen[sf.RelPath] {
+			continue
+		}
 		if flowMatches(sf, f) {
+			seen[sf.RelPath] = true
 			cp := *sf
 			matched = append(matched, &cp)
 		}
@@ -185,18 +234,23 @@ func flowMatches(sf *StoredFlow, f FlowListFilter) bool {
 	return true
 }
 
-func (s *FlowStore) Create(flow Flow) (*StoredFlow, error) {
+func (s *FlowStore) Create(tenant string, flow Flow) (*StoredFlow, error) {
 	relPath := flowSlug(flow.Name) + FlowFileExt
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if _, exists := s.index[relPath]; exists {
+	if _, exists := s.index[flowKey{tenant, relPath}]; exists {
 		return nil, os.ErrExist
 	}
 
-	abs := filepath.Join(s.userDir, relPath)
-	if err := writeFlowFile(abs, flow); err != nil {
+	abs := filepath.Join(s.userDir, tenant, relPath)
+	if err := s.withFlowLock(func() error {
+		if s.flowExistsOnDisk(tenant, relPath) {
+			return os.ErrExist
+		}
+		return writeFlowFile(abs, flow)
+	}); err != nil {
 		return nil, err
 	}
 
@@ -206,19 +260,20 @@ func (s *FlowStore) Create(flow Flow) (*StoredFlow, error) {
 		Modified: flowModTime(abs),
 		system:   false,
 		enabled:  true,
+		tenant:   tenant,
 	}
-	s.index[relPath] = sf
+	s.index[flowKey{tenant, relPath}] = sf
 	s.flows = append(s.flows, sf)
 
 	cp := *sf
 	return &cp, nil
 }
 
-func (s *FlowStore) Update(relPath string, flow Flow) (*StoredFlow, error) {
+func (s *FlowStore) Update(tenant, relPath string, flow Flow) (*StoredFlow, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	sf, ok := s.index[relPath]
+	sf, ok := s.index[flowKey{tenant, relPath}]
 	if !ok {
 		return nil, ErrFlowNotFound
 	}
@@ -238,11 +293,11 @@ func (s *FlowStore) Update(relPath string, flow Flow) (*StoredFlow, error) {
 	return &cp, nil
 }
 
-func (s *FlowStore) Delete(relPath string) error {
+func (s *FlowStore) Delete(tenant, relPath string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	sf, ok := s.index[relPath]
+	sf, ok := s.index[flowKey{tenant, relPath}]
 	if !ok {
 		return ErrFlowNotFound
 	}
@@ -254,7 +309,7 @@ func (s *FlowStore) Delete(relPath string) error {
 		return err
 	}
 
-	delete(s.index, relPath)
+	delete(s.index, flowKey{tenant, relPath})
 	for i, f := range s.flows {
 		if f == sf {
 			s.flows = append(s.flows[:i], s.flows[i+1:]...)
@@ -264,11 +319,11 @@ func (s *FlowStore) Delete(relPath string) error {
 	return nil
 }
 
-func (s *FlowStore) SetEnabled(relPath string, enabled bool) error {
+func (s *FlowStore) SetEnabled(tenant, relPath string, enabled bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	sf, ok := s.index[relPath]
+	sf, ok := s.index[flowKey{tenant, relPath}]
 	if !ok {
 		return ErrFlowNotFound
 	}
@@ -279,7 +334,7 @@ func (s *FlowStore) SetEnabled(relPath string, enabled bool) error {
 	from := s.absPath(sf)
 	sf.enabled = enabled
 	to := s.absPath(sf)
-	if err := renameFlowFile(from, to); err != nil {
+	if err := s.withFlowLock(func() error { return renameFlowFile(from, to) }); err != nil {
 		sf.enabled = !enabled
 		return err
 	}
@@ -287,9 +342,9 @@ func (s *FlowStore) SetEnabled(relPath string, enabled bool) error {
 }
 
 func (s *FlowStore) absPath(sf *StoredFlow) string {
-	dir := s.userDir
+	dir := filepath.Join(s.userDir, sf.tenant)
 	if sf.system {
-		dir = s.systemDir
+		dir = filepath.Join(dir, SystemSubdir)
 	}
 	p := filepath.Join(dir, filepath.FromSlash(sf.RelPath))
 	if !sf.enabled {

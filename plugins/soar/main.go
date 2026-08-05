@@ -64,12 +64,12 @@ func correlate(ctx context.Context, alert *plugins.Alert) (*emptypb.Empty, error
 		return &emptypb.Empty{}, nil
 	}
 
-	for _, f := range activeFlows() {
+	for _, f := range activeFlowsFor(alert.GetTenantId()) {
 		if !matches(string(alertJSON), f.Conditions) {
 			continue
 		}
 		rctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		if err := reportMatch(rctx, f.RelPath, alertJSON); err != nil {
+		if err := reportMatch(rctx, alert.GetTenantId(), f.RelPath, alertJSON); err != nil {
 			_ = catcher.Error("failed to report flow match", err, map[string]any{"rule": f.RelPath})
 		}
 		cancel()
@@ -77,7 +77,7 @@ func correlate(ctx context.Context, alert *plugins.Alert) (*emptypb.Empty, error
 	return &emptypb.Empty{}, nil
 }
 
-func reportMatch(ctx context.Context, rulePath string, alert []byte) error {
+func reportMatch(ctx context.Context, tenantID, rulePath string, alert []byte) error {
 	payload, err := json.Marshal(struct {
 		RulePath string          `json:"rulePath"`
 		Alert    json.RawMessage `json:"alert"`
@@ -90,6 +90,7 @@ func reportMatch(ctx context.Context, rulePath string, alert []byte) error {
 		return err
 	}
 	req.Header.Set("X-Internal-Key", internalKey)
+	req.Header.Set("X-Tenant-Id", tenantID)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := httpClient.Do(req)

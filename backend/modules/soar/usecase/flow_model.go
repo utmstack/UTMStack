@@ -58,12 +58,11 @@ type Flow struct {
 
 type StoredFlow struct {
 	Flow
-
 	RelPath  string
 	Modified time.Time
-
-	system  bool
-	enabled bool
+	system   bool
+	enabled  bool
+	tenant   string
 }
 
 func (sf StoredFlow) Active() bool { return sf.enabled }

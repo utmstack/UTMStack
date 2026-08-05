@@ -22,6 +22,7 @@ const (
 // to a SQL table — flows are file-backed (see usecase/flow_store.go). Legacy rows
 // pre-migration carry empty RulePath and have no resolvable rule.
 type AlertResponseRuleExecution struct {
+	TenantID          string             `gorm:"column:tenant_id;size:36;not null;default:'';index" json:"-"`
 	ID                int64              `gorm:"column:id;primaryKey;autoIncrement"         json:"id"`
 	RulePath          string             `gorm:"column:rule_path;size:512;not null"         json:"rulePath"`
 	AlertID           string             `gorm:"column:alert_id;size:150;not null"           json:"alertId"`
@@ -32,6 +33,7 @@ type AlertResponseRuleExecution struct {
 	ExecutionStatus   ExecutionStatus    `gorm:"column:execution_status;size:100;not null"  json:"executionStatus"`
 	NonExecutionCause *NonExecutionCause `gorm:"column:non_execution_cause;size:100"       json:"nonExecutionCause,omitempty"`
 	ExecutionRetries  int                `gorm:"column:execution_retries;default:0"         json:"executionRetries"`
+	ClaimedAt         *time.Time         `gorm:"column:claimed_at" json:"-"`
 }
 
 func (AlertResponseRuleExecution) TableName() string { return "utm_alert_response_rule_execution" }

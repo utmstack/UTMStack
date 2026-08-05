@@ -19,5 +19,5 @@ func NewModule(db *gorm.DB) *Module {
 	return &Module{handler: handler.NewADUserHandler(uc), uc: uc}
 }
 
-func (m *Module) Handler() *handler.ADUserHandler         { return m.handler }
-func (m *Module) GetUsecase() connectors.ADUserUsecase    { return m.uc }
+func (m *Module) Handler() *handler.ADUserHandler      { return m.handler }
+func (m *Module) GetUsecase() connectors.ADUserUsecase { return m.uc }

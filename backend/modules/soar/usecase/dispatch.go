@@ -8,6 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
+
 	"github.com/threatwinds/go-sdk/catcher"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -75,7 +78,7 @@ func (d *Dispatcher) drain(ctx context.Context) {
 		}
 	}()
 
-	listCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	listCtx, cancel := context.WithTimeout(tenancy.WithAllTenants(ctx), 20*time.Second)
 	pending, _, err := d.repo.List(listCtx, connectors.ExecutionFilters{
 		ExecutionStatus: domain.ExecutionStatusPending,
 		Params:          database.Params{Size: dispatchBatch},
@@ -116,10 +119,19 @@ func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRu
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(parent, dispatchTimeout)
+	ctx, cancel := context.WithTimeout(authz.WithTenantID(parent, exec.TenantID), dispatchTimeout)
 	defer cancel()
 
-	flow := d.flows.Get(exec.RulePath)
+	claimed, err := d.repo.ClaimPending(ctx, exec.ID, dispatchTimeout)
+	if err != nil {
+		_ = catcher.Error("soar dispatch: claim failed", err, map[string]any{"execution": exec.ID})
+		return
+	}
+	if !claimed {
+		return
+	}
+
+	flow := d.flows.Get(exec.TenantID, exec.RulePath)
 	if flow == nil {
 		d.fail(ctx, exec.ID, domain.NonExecutionCauseUnknown)
 		return

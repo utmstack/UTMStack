@@ -5,6 +5,8 @@ import (
 	"errors"
 	"os"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
@@ -24,31 +26,31 @@ func NewRuleUsecase(store *FlowStore, resolve connectors.ResolveFilterRepository
 }
 
 func (u *ruleUsecase) Create(ctx context.Context, req dto.CreateRuleRequest, createdBy string) (*dto.RuleResponse, error) {
-	sf, err := u.store.Create(requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
+	sf, err := u.store.Create(tenantOf(ctx), requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
 	if err != nil {
 		return nil, mapStoreErr(err)
 	}
 	if req.Active != nil && !*req.Active {
-		_ = u.store.SetEnabled(sf.RelPath, false)
-		sf = u.store.Get(sf.RelPath)
+		_ = u.store.SetEnabled(tenantOf(ctx), sf.RelPath, false)
+		sf = u.store.Get(tenantOf(ctx), sf.RelPath)
 	}
 	return storedFlowToResponse(sf), nil
 }
 
 func (u *ruleUsecase) Update(ctx context.Context, relPath string, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error) {
-	sf, err := u.store.Update(relPath, requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
+	sf, err := u.store.Update(tenantOf(ctx), relPath, requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
 	if err != nil {
 		return nil, mapStoreErr(err)
 	}
 	if req.Active != nil {
-		_ = u.store.SetEnabled(relPath, *req.Active)
-		sf = u.store.Get(relPath)
+		_ = u.store.SetEnabled(tenantOf(ctx), relPath, *req.Active)
+		sf = u.store.Get(tenantOf(ctx), relPath)
 	}
 	return storedFlowToResponse(sf), nil
 }
 
 func (u *ruleUsecase) Get(ctx context.Context, relPath string) (*dto.RuleResponse, error) {
-	sf := u.store.Get(relPath)
+	sf := u.store.Get(tenantOf(ctx), relPath)
 	if sf == nil {
 		return nil, domain.ErrRuleNotFound
 	}
@@ -56,15 +58,15 @@ func (u *ruleUsecase) Get(ctx context.Context, relPath string) (*dto.RuleRespons
 }
 
 func (u *ruleUsecase) Delete(ctx context.Context, relPath string) error {
-	return mapStoreErr(u.store.Delete(relPath))
+	return mapStoreErr(u.store.Delete(tenantOf(ctx), relPath))
 }
 
 func (u *ruleUsecase) SetEnabled(ctx context.Context, relPath string, enabled bool) error {
-	return mapStoreErr(u.store.SetEnabled(relPath, enabled))
+	return mapStoreErr(u.store.SetEnabled(tenantOf(ctx), relPath, enabled))
 }
 
 func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error) {
-	flows, total := u.store.List(FlowListFilter{
+	flows, total := u.store.List(tenantOf(ctx), FlowListFilter{
 		Page:          f.Page,
 		Size:          f.Size,
 		Name:          f.RuleName,
@@ -171,4 +173,11 @@ func storedFlowToResponse(sf *StoredFlow) *dto.RuleResponse {
 		resp.LastModifiedDate = &m
 	}
 	return resp
+}
+
+func tenantOf(ctx context.Context) string {
+	if t := authz.TenantIDFromContext(ctx); t != "" {
+		return t
+	}
+	return authz.DefaultTenantID
 }

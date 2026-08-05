@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"regexp"
 	"strings"
 
@@ -28,7 +29,7 @@ func NewExecutionUsecase(repo connectors.ExecutionRepository, flows *FlowStore, 
 var commandPlaceholderRE = regexp.MustCompile(`\$\((.*?)\)`)
 
 func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest) error {
-	sf := u.flows.Get(req.RulePath)
+	sf := u.flows.Get(authz.TenantIDFromContext(ctx), req.RulePath)
 	if sf == nil || !sf.Active() {
 		return nil // flow disabled/deleted since the plugin last loaded it — ignore
 	}

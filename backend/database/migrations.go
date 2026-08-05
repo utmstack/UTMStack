@@ -76,12 +76,6 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
 
-	if migrationsURL != "" {
-		if err := runSQLMigrations(db, migrationsURL+"/pre", "schema_migrations_pre", "pre-AutoMigrate"); err != nil {
-			return err
-		}
-	}
-
 	models := Models()
 	if len(models) > 0 {
 		catcher.Info("running GORM AutoMigrate...", nil)

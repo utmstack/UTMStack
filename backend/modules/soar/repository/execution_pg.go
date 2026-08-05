@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
@@ -105,4 +106,17 @@ func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id int64, u co
 		return domain.ErrIncidentRecordNotFound
 	}
 	return nil
+}
+
+func (r *pgExecutionRepository) ClaimPending(ctx context.Context, id int64, leaseDuration time.Duration) (bool, error) {
+	staleBefore := time.Now().UTC().Add(-leaseDuration)
+	res := r.db.WithContext(ctx).
+		Model(&domain.AlertResponseRuleExecution{}).
+		Where("id = ? AND execution_status = ? AND (claimed_at IS NULL OR claimed_at < ?)",
+			id, domain.ExecutionStatusPending, staleBefore).
+		Update("claimed_at", time.Now().UTC())
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0, nil
 }

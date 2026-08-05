@@ -16,6 +16,9 @@ type sourceRow struct {
 	Count  int64
 }
 
+// syncBatchSize bounds what a full sync holds in memory at once.
+const syncBatchSize = 1000
+
 type pgADUserRepository struct{ db *gorm.DB }
 
 func NewADUserRepository(db *gorm.DB) connectors.ADUserRepository {
@@ -150,9 +153,6 @@ func applyStatus(q *gorm.DB, status string) *gorm.DB {
 
 func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error) {
 	q := r.db.WithContext(ctx).Model(&domain.ADUser{})
-	if f.TenantID != "" {
-		q = q.Where("tenant_id = ?", f.TenantID)
-	}
 	if f.Source != "" {
 		q = q.Where("source = ?", f.Source)
 	}
@@ -184,17 +184,12 @@ func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]do
 	return items, total, nil
 }
 
-func (r *pgADUserRepository) Stats(ctx context.Context, tenantID string) (*dto.ADUserStats, error) {
-	// Each count is its own scoped query so the tenant filter applies uniformly.
+func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error) {
 	base := func() *gorm.DB {
-		q := r.db.WithContext(ctx).Model(&domain.ADUser{})
-		if tenantID != "" {
-			q = q.Where("tenant_id = ?", tenantID)
-		}
-		return q
+		return r.db.WithContext(ctx).Model(&domain.ADUser{})
 	}
 
-	s := dto.ADUserStats{ByDomain: []dto.DomainCount{}, Tenants: []string{}}
+	s := dto.ADUserStats{ByDomain: []dto.DomainCount{}}
 	if err := base().Count(&s.Total).Error; err != nil {
 		return nil, err
 	}
@@ -233,21 +228,23 @@ func (r *pgADUserRepository) Stats(ctx context.Context, tenantID string) (*dto.A
 	if err := base().Select("domain, COUNT(*) AS count").Group("domain").Order("count DESC").Limit(8).Scan(&s.ByDomain).Error; err != nil {
 		return nil, err
 	}
-	// Tenants is intentionally global (no tenant scope) so the picker is stable.
-	if err := r.db.WithContext(ctx).Model(&domain.ADUser{}).Distinct().Order("tenant_id ASC").Pluck("tenant_id", &s.Tenants).Error; err != nil {
-		return nil, err
-	}
+
 	return &s, nil
 }
 
-func (r *pgADUserRepository) All(ctx context.Context, source string) ([]domain.ADUser, error) {
-	var items []domain.ADUser
-	q := r.db.WithContext(ctx)
+func (r *pgADUserRepository) Each(ctx context.Context, source string, fn func(domain.ADUser) error) error {
+	q := r.db.WithContext(ctx).Model(&domain.ADUser{})
 	if source != "" {
 		q = q.Where("source = ?", source)
 	}
-	if err := q.Find(&items).Error; err != nil {
-		return nil, err
-	}
-	return items, nil
+
+	var batch []domain.ADUser
+	return q.Order("id").FindInBatches(&batch, syncBatchSize, func(*gorm.DB, int) error {
+		for i := range batch {
+			if err := fn(batch[i]); err != nil {
+				return err
+			}
+		}
+		return nil
+	}).Error
 }

@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
@@ -44,6 +45,7 @@ type ExecutionRepository interface {
 	Create(ctx context.Context, e *domain.AlertResponseRuleExecution) (*domain.AlertResponseRuleExecution, error)
 	List(ctx context.Context, f ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error)
 	UpdateStatus(ctx context.Context, id int64, u ExecutionStatusUpdate) error
+	ClaimPending(ctx context.Context, id int64, leaseDuration time.Duration) (bool, error)
 }
 
 type ResolveFilterRepository interface {

@@ -40,6 +40,7 @@ type Module struct {
 	jobHandler           *handler.JobHandler
 	commandWSHandler     *handler.CommandWSHandler
 
+	flowStore     *usecase.FlowStore
 	flowBootstrap *usecase.FlowBootstrap
 	dispatcher    *usecase.Dispatcher
 }
@@ -97,6 +98,7 @@ func NewModule(
 		jobHandler:           handler.NewJobHandler(jobUC),
 		commandWSHandler:     handler.NewCommandWSHandler(agentClient, signer, variableUC),
 
+		flowStore:     flowStore,
 		flowBootstrap: flowBootstrap,
 		dispatcher:    dispatcher,
 	}
@@ -106,6 +108,7 @@ func (m *Module) Start(ctx context.Context) error {
 	if err := m.flowBootstrap.Run(ctx); err != nil {
 		return err
 	}
+	go m.flowStore.Watch(ctx)
 	go m.dispatcher.Start(ctx)
 	return nil
 }
