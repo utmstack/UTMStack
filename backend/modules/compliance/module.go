@@ -19,6 +19,13 @@ import (
 	"gorm.io/gorm"
 )
 
+// Leases is the slice of pkg/joblease used to keep peer replicas from
+// re-evaluating the same (tenant, framework) — each pair is claimed by one
+// replica per interval. Kept as a local interface so tests can stub it.
+type Leases interface {
+	Acquire(ctx context.Context, name string, ttl time.Duration) (bool, error)
+}
+
 // TenantLister returns the active tenants the background eval loop should
 // iterate over. It is passed as a func so modules.go can supply a closure that
 // resolves the tenant module late — compliance is constructed before tenant.
@@ -40,6 +47,7 @@ type Module struct {
 	frameworkStore    *usecase.FrameworkStore
 	entitlement       *usecase.Entitlement
 	tenantLister      TenantLister // nil → skip the tenant iteration (on-prem)
+	leases            Leases       // nil → no replica coordination (single-instance)
 	evalInterval      time.Duration
 }
 
@@ -47,7 +55,7 @@ func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.fr
 func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase { return m.evaluatorUC }
 func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.scheduleUC }
 
-func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, tenants TenantLister, isEnterprise func() bool) *Module {
+func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, tenants TenantLister, leases Leases, isEnterprise func() bool) *Module {
 	scheduleRepo := repository.NewScheduleRepository(db)
 	overrideRepo := repository.NewControlStatusOverrideRepository(db)
 	noteRepo := repository.NewControlNoteRepository(db)
@@ -104,6 +112,7 @@ func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.Ma
 		frameworkStore:   frameworkStore,
 		entitlement:      entitlement,
 		tenantLister:     tenants,
+		leases:           leases,
 		evalInterval:     time.Duration(evalHours) * time.Hour,
 	}
 }
@@ -177,6 +186,7 @@ func (m *Module) evaluateForCurrentContext(ctx context.Context) {
 			}
 		}
 	}
+	tid := authz.TenantIDFromContext(ctx)
 	for _, key := range keys {
 		if ctx.Err() != nil {
 			return
@@ -185,11 +195,56 @@ func (m *Module) evaluateForCurrentContext(ctx context.Context) {
 		if !ok || !fw.Enabled || m.entitlement.FrameworkLocked(fw) {
 			continue
 		}
+		if !m.claimEval(ctx, tid, key) {
+			continue
+		}
 		if _, err := m.evaluatorUC.GenerateReport(ctx, key); err != nil {
-			_ = catcher.Error("compliance: scheduled evaluation failed", err, map[string]any{"framework": key, "tenant": authz.TenantIDFromContext(ctx)})
+			_ = catcher.Error("compliance: scheduled evaluation failed", err, map[string]any{"framework": key, "tenant": tid})
 		}
 	}
 }
+
+// claimEval tries to take the per-(tenant, framework) lease. A false return
+// means a peer replica is doing this evaluation for this cycle — skip it. Any
+// acquire error is treated as "not mine" (log + skip) so a joblease outage
+// stops the sweep entirely rather than falling back to N-replica writes.
+//
+// TTL is deliberately much larger than one eval takes and much smaller than
+// the tick interval, so a crash mid-run lets the next tick reclaim.
+func (m *Module) claimEval(ctx context.Context, tenantID, frameworkKey string) bool {
+	if m.leases == nil {
+		return true
+	}
+	name := evalLeaseName(tenantID, frameworkKey)
+	mine, err := m.leases.Acquire(ctx, name, evalLeaseTTL)
+	if err != nil {
+		_ = catcher.Error("compliance: acquire eval lease failed", err, map[string]any{"lease": name})
+		return false
+	}
+	return mine
+}
+
+// evalLeaseName packs (tenant, framework) into a job_leases.name that fits
+// the column's 64-char cap. Tenant is a UUID (36 chars with dashes); we drop
+// dashes to save 4 chars, giving `c:e:<32>:<key>` = 5 + 32 + up-to-20 = up to
+// 57 chars. Empty tenant (on-prem) becomes literal `-` so the prefix stays
+// distinguishable from a real UUID.
+func evalLeaseName(tenantID, frameworkKey string) string {
+	tid := tenantID
+	if tid == "" {
+		tid = "-"
+	}
+	// strip dashes without allocating a scanner
+	compact := make([]byte, 0, len(tid))
+	for i := 0; i < len(tid); i++ {
+		if tid[i] != '-' {
+			compact = append(compact, tid[i])
+		}
+	}
+	return "c:e:" + string(compact) + ":" + frameworkKey
+}
+
+const evalLeaseTTL = 15 * time.Minute
 
 // reloadCoverage periodically rebuilds the rule coverage index so newly tagged
 // or toggled correlation rules are reflected without a restart.
