@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { Code2, Download, FlaskConical, LayoutList, Loader2, Lock, Pencil, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -43,28 +43,22 @@ export function RuleDrawer({
   const [busy, setBusy] = useState(false)
   const [showTestModal, setShowTestModal] = useState(false)
 
-  // Visual ↔ Code. The structured form stays canonical; Code shows/edits the
-  // whole rule as YAML and syncs back into the form on toggle / save.
+  // Visual ↔ Code sync live: form is canonical while visual is active, YAML is
+  // canonical while code is active. Whichever pane is not being edited derives
+  // from the other on every keystroke, so switching is just `setMode`.
   const [mode, setMode] = useState<'visual' | 'code'>('visual')
-  const [yaml, setYaml] = useState('')
+  const [yaml, setYaml] = useState(() => ruleFormToYaml(form))
 
-  const toCode = () => {
-    setYaml(ruleFormToYaml(form))
-    setMode('code')
-  }
-  const toVisual = () => {
-    // Only sync YAML → form when actually editing; in view mode (incl. system
-    // rules) the YAML is read-only, so there's nothing to apply back.
-    if (showForm) {
-      const r = yamlToRuleForm(yaml)
-      if (!r.ok) {
-        toast.error(t('alertingRules.editor.yamlError', { error: r.error }))
-        return
-      }
-      // active isn't part of the YAML — keep the current value.
-      setForm({ ...r.form, ruleActive: form.ruleActive })
-    }
-    setMode('visual')
+  useEffect(() => {
+    if (mode === 'visual') setYaml(ruleFormToYaml(form))
+  }, [form, mode])
+
+  const onYamlChange = (next: string) => {
+    setYaml(next)
+    if (!showForm) return // read-only path
+    const r = yamlToRuleForm(next)
+    if (r.ok) setForm({ ...r.form, ruleActive: form.ruleActive })
+    // Invalid YAML → keep the last-valid form; save-time will re-toast.
   }
 
   const cancelEdit = () => {
@@ -127,7 +121,7 @@ export function RuleDrawer({
               <div className="inline-flex rounded-md border border-border p-0.5">
                 <button
                   type="button"
-                  onClick={() => mode !== 'visual' && toVisual()}
+                  onClick={() => setMode('visual')}
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors',
                     mode === 'visual' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
@@ -137,7 +131,7 @@ export function RuleDrawer({
                 </button>
                 <button
                   type="button"
-                  onClick={() => mode !== 'code' && toCode()}
+                  onClick={() => setMode('code')}
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors',
                     mode === 'code' ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
@@ -152,7 +146,7 @@ export function RuleDrawer({
             // Editable only while editing/creating; system rules (and plain view)
             // are read-only.
             <div className="flex min-h-0 flex-1 flex-col p-6">
-              <YamlCodeEditor value={yaml} onChange={setYaml} readOnly={!showForm} />
+              <YamlCodeEditor value={yaml} onChange={onYamlChange} readOnly={!showForm} />
             </div>
           ) : (
             <div className="min-h-0 flex-1 overflow-y-auto p-6">
@@ -181,6 +175,7 @@ export function RuleDrawer({
       {showTestModal && (
         <TestPlaygroundModal
           mode="rule"
+          titleKey="playground.titleRule"
           dataTypeOptions={form.dataTypes}
           draftContent={ruleFormToYaml(form)}
           onClose={() => setShowTestModal(false)}

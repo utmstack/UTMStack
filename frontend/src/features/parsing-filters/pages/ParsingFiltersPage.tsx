@@ -292,7 +292,7 @@ export function ParsingFiltersPage() {
       )}
 
       {showTestModal && (
-        <TestPlaygroundModal mode="filter" dataTypeOptions={dataTypeOptions} onClose={() => setShowTestModal(false)} />
+        <TestPlaygroundModal mode="filter" titleKey="playground.titleFilter" dataTypeOptions={dataTypeOptions} onClose={() => setShowTestModal(false)} />
       )}
     </div>
   )

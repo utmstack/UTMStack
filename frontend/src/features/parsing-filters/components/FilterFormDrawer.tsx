@@ -279,6 +279,7 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
       {showTestModal && (
         <TestPlaygroundModal
           mode="filter"
+          titleKey="playground.titleFilter"
           dataTypeOptions={model.dataTypes}
           draftContent={content}
           onClose={() => setShowTestModal(false)}

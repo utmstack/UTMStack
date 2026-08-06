@@ -85,14 +85,18 @@
     "personal": {
       "title": "Persönliche Informationen",
       "description": "Aktualisieren Sie Ihren Namen und Ihre Kontaktdaten.",
-      "name": "Name",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
       "email": "E-Mail",
       "language": "Sprache",
       "languageHint": "Wird für die Panel-Oberfläche verwendet.",
       "systemDefault": "Systemstandard",
+      "username": "Benutzername",
+      "usernameHint": "Der Benutzername kann nicht geändert werden.",
       "reset": "Zurücksetzen",
       "save": "Änderungen speichern",
-      "saving": "Speichern…"
+      "saving": "Speichern…",
+      "name": "Name"
     },
     "password": {
       "title": "Passwort",
@@ -251,9 +255,11 @@
       "details": "Details",
       "services": {
         "backend": "Backend-API",
+        "opensearch": "OpenSearch-Cluster",
         "socai": "SOC-AI-Engine"
       },
       "detail": {
+        "noClusterInfo": "keine Cluster-Informationen",
         "disabled": "deaktiviert",
         "tools": "{{n}} Tools",
         "unreachable": "nicht erreichbar",
@@ -288,6 +294,7 @@
     "team": "Team",
     "settings": "Einstellungen",
     "back": "Zurück",
+    "regexPatterns": "Reguläre Ausdrücke",
     "taggingRules": "Tagging-Regeln",
     "parsingFilters": "Pipelines",
     "overview": "Übersicht",
@@ -636,6 +643,7 @@
     "notifications": "Benachrichtigungen",
     "connectionKey": "Verbindungsschlüssel",
     "dataRetention": "Datenaufbewahrung",
+    "indices": "Indizes",
     "theme": "Design",
     "branding": "Branding",
     "apiKeys": "API-Schlüssel",
@@ -694,6 +702,7 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "{{edition}}-Edition",
+    "datasourceLimit": "Datenquellen-Limit",
     "unlimited": "Unbegrenzt",
     "mssp": "MSSP / mandantenfähig",
     "enabled": "Aktiviert",
@@ -804,6 +813,7 @@
       "userDeactivated": "Benutzer deaktiviert",
       "tfaReset": "Zwei-Faktor-Authentifizierung zurückgesetzt",
       "invitationSent": "Einladung gesendet",
+      "loginOrEmailInUse": "Dieser Login oder diese E-Mail wird bereits verwendet",
       "invalidRequest": "Ungültige Anfrage",
       "noPermission": "Du hast keine Berechtigung dafür",
       "userNotFound": "Benutzer nicht gefunden",
@@ -837,19 +847,24 @@
     },
     "status": {
       "inactive": "Inaktiv",
+      "pendingPassword": "Passwort ausstehend",
       "active": "Aktiv",
       "pending": "Einladung ausstehend",
       "suspended": "Gesperrt"
     },
     "drawer": {
+      "createdBy": "erstellt von {{actor}}",
       "loading": "Wird geladen…",
       "profileTitle": "Profil",
       "profileSubtitle": "Nur der Benutzer kann diese Angaben in seinem eigenen Profil bearbeiten.",
       "name": "Name",
+      "username": "Benutzername",
       "email": "E-Mail",
       "language": "Sprache",
       "accountTitle": "Konto",
       "status": "Status",
+      "statusActive": "Aktiv",
+      "statusInactive": "Inaktiv",
       "tfa": "2FA",
       "tfaEnabled": "Aktiviert",
       "tfaNotConfigured": "Nicht konfiguriert",
@@ -858,6 +873,7 @@
       "resetTfaConfirmTitle": "Zwei-Faktor-Authentifizierung zurücksetzen?",
       "resetTfaConfirmBody": "Damit wird die 2FA für {{name}} deaktiviert. Die Anmeldung erfolgt nur mit dem Passwort und kann im Profil neu eingerichtet werden.",
       "resetTfaConfirm": "2FA zurücksetzen",
+      "pendingPasswordNote": "Verwendet noch das temporäre Passwort (Einladung nicht abgeschlossen).",
       "lastModified": "Geändert {{time}}",
       "rolesTitle": "Rollen",
       "rolesSubtitle": "Rollen gewähren Modulberechtigungen. Ein Benutzer kann mehrere haben.",
@@ -875,7 +891,11 @@
     "invite": {
       "title": "Benutzer einladen",
       "description": "Das Konto wird inaktiv angelegt. Die Person erhält eine E-Mail, um ein Passwort zu setzen und es zu aktivieren.",
+      "username": "Benutzername",
+      "usernameHint": "Mindestens 3 Zeichen.",
       "email": "E-Mail",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
       "roles": "Rollen",
       "cancel": "Abbrechen",
       "sending": "Wird gesendet…",
@@ -889,6 +909,7 @@
     "roles": {
       "loading": "Rollen werden geladen…",
       "loadFailed": "Rollenberechtigungen konnten nicht geladen werden.",
+      "readonlyNote": "Rollen und ihre Berechtigungen werden vom System definiert und sind schreibgeschützt. Weise sie Benutzern im Tab Mitglieder zu.",
       "permissionsCount_one": "{{count}} Berechtigung",
       "permissionsCount_other": "{{count}} Berechtigungen",
       "modulesCount_one": "{{count}} Modul",
@@ -1178,6 +1199,8 @@
     },
     "views": {
       "all": "Alle Konten",
+      "windows": "Windows",
+      "linux": "Linux",
       "active": "Aktiv",
       "disabled": "Deaktiviert",
       "deleted": "Gelöscht",
@@ -1187,6 +1210,12 @@
     "searchPlaceholder": "Nach Kontoname oder SID suchen…",
     "allTenants": "Alle Mandanten",
     "filters": "Filter",
+    "filterFields": {
+      "status": "Lebenszyklus-Status"
+    },
+    "ops": {
+      "is": "ist"
+    },
     "refresh": "Aktualisieren",
     "layout": {
       "list": "Liste",
@@ -1194,6 +1223,7 @@
     },
     "list": {
       "account": "Konto",
+      "identity": "Kennung",
       "sid": "SID",
       "status": "Status",
       "lastLogon": "Letzte Anmeldung",
@@ -1222,11 +1252,15 @@
       "stale": "inaktiv 30T+",
       "viewInLogs": "Ereignisse im Log Explorer ansehen",
       "copySid": "SID kopieren",
+      "copyUid": "Kennung kopieren",
       "copied": "Kopiert",
       "identity": "Identität",
       "accountName": "Kontoname",
       "domain": "Domäne",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "Maschinen-ID",
       "tenant": "Mandant",
       "adStatus": "AD-Status",
       "enabled": "Aktiviert",
@@ -1324,6 +1358,93 @@
       "saveFailed": "Aufbewahrungsrichtlinie konnte nicht gespeichert werden"
     }
   },
+  "indices": {
+    "title": "Indizes & Index patterns",
+    "subtitle": "Index patterns gruppieren Indizes für die Suche; Indizes sind der zugrunde liegende OpenSearch-Speicher.",
+    "retry": "Erneut versuchen",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Indizes"
+    },
+    "dataViews": {
+      "search": "Index patterns suchen…",
+      "add": "Index pattern hinzufügen",
+      "colPattern": "Muster",
+      "colModule": "Integration",
+      "colActive": "Aktiv",
+      "colActions": "Aktionen",
+      "loading": "Index patterns werden geladen…",
+      "loadFailed": "Index patterns konnten nicht geladen werden.",
+      "noSearchMatch": "Keine Index patterns entsprechen Ihrer Suche.",
+      "none": "Noch keine Index patterns.",
+      "system": "System",
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "deleteTitle": "Index pattern löschen",
+      "deleteBody": "{{pattern}} löschen? Dies entfernt die Index pattern-Definition. Die zugrunde liegenden Indizes werden nicht gelöscht.",
+      "deleteConfirm": "Löschen",
+      "form": {
+        "addTitle": "Index pattern hinzufügen",
+        "editTitle": "Index pattern bearbeiten",
+        "pattern": "Index-Muster",
+        "patternHint": "Verwenden Sie * als Platzhalter, z. B. logs-windows-*",
+        "module": "Integration",
+        "moduleHint": "Optional — die Integration, zu der dieses Pattern gehört (z. B. windows, aws). Für benutzerdefinierte Patterns leer lassen.",
+        "activeLabel": "Aktiv",
+        "systemLabel": "System-Index pattern",
+        "saving": "Wird gespeichert…",
+        "save": "Änderungen speichern",
+        "create": "Erstellen",
+        "matchChecking": "Übereinstimmende Indizes werden geprüft…",
+        "matchNone": "Stimmt mit keinem Index überein — das Pattern muss mindestens einen treffen.",
+        "duplicate": "Ein Index pattern mit diesem Glob existiert bereits.",
+        "matchCount_one": "Stimmt mit {{count}} Index überein",
+        "matchCount_other": "Stimmt mit {{count}} Indizes überein"
+      },
+      "toast": {
+        "enabled": "Index pattern aktiviert",
+        "disabled": "Index pattern deaktiviert",
+        "created": "Index pattern erstellt",
+        "updated": "Index pattern aktualisiert",
+        "deleted": "Index pattern gelöscht"
+      },
+      "systemLocked": "System-Pattern — automatisch verwaltet, nicht bearbeitbar"
+    },
+    "index": {
+      "filter": "Nach Indexnamen filtern…",
+      "systemIndices": "System-Indizes",
+      "refresh": "Aktualisieren",
+      "colIndex": "Index",
+      "colHealth": "Zustand",
+      "colStatus": "Status",
+      "colDocs": "Docs",
+      "colSize": "Größe",
+      "colActions": "Aktionen",
+      "loading": "Indizes werden geladen…",
+      "loadFailed": "Indizes konnten nicht geladen werden (OpenSearch ist möglicherweise nicht verfügbar).",
+      "noFilterMatch": "Keine Indizes entsprechen Ihrem Filter.",
+      "none": "Keine Indizes gefunden.",
+      "page": "Seite {{page}}",
+      "deleteTitle": "Index löschen",
+      "deleteBody": "Den Index {{name}} endgültig löschen? Alle {{docs}} darin enthaltenen Dokumente gehen verloren. Dies kann nicht rückgängig gemacht werden.",
+      "deleteConfirm": "Index löschen",
+      "toast": {
+        "deleted": "Index gelöscht"
+      }
+    },
+    "confirm": {
+      "cancel": "Abbrechen",
+      "working": "Wird ausgeführt…"
+    },
+    "error": {
+      "noPermission": "Sie haben keine Berechtigung dafür",
+      "notFound": "Nicht gefunden",
+      "invalidRequest": "Ungültige Anfrage",
+      "failed": "Vorgang fehlgeschlagen"
+    }
+  },
   "languageSettings": {
     "title": "Plattformsprache",
     "subtitle": "Standard-UI-Sprache für Pre-Login-Bildschirme, System-E-Mails und neue Benutzer. Jeder Benutzer kann seine eigene im Profil wählen.",
@@ -1338,6 +1459,8 @@
   "branding": {
     "title": "Branding",
     "subtitle": "Versehen Sie UTMStack mit der Identität Ihrer Organisation — überall angewendet: Login-Bildschirm, Seitenleiste, E-Mails und Berichte.",
+    "enterpriseRequired": "White-Labeling ist eine Enterprise-Funktion.",
+    "manageLicense": "Lizenz verwalten",
     "enable": {
       "title": "White-Label",
       "description": "Ersetzen Sie die UTMStack-Marke plattformweit durch Ihre eigene.",
@@ -1465,6 +1588,8 @@
     "license": {
       "title": "Lizenz",
       "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Community-Limit",
       "unlimited": "Unbegrenzt",
       "expires": "Läuft ab",
       "managedNote": "Edition, Datasource-Limits und Lizenz-Upload werden auf der Lizenzseite verwaltet.",
@@ -1477,7 +1602,13 @@
       "backend": {
         "name": "Backend-API",
         "desc": "REST-Gateway, Authentifizierung und Modul-Orchestrierung."
-      }
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Speicher für Logs und Ereignisse.",
+        "detail": "{{nodes}} Knoten · {{shards}} Shards"
+      },
+      "unreachable": "Nicht erreichbar"
     },
     "status": {
       "up": "Gesund",
@@ -1495,6 +1626,9 @@
     "usage": {
       "title": "Datenquellen",
       "subtitle": "In dieser Installation konfigurierte Datenquellen.",
+      "ofUnlimited": "von unbegrenzt",
+      "ofLimit": "von {{limit}}",
+      "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet.",
       "configured": "konfiguriert"
     },
     "support": {
@@ -3470,6 +3604,12 @@
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Datenquellen-Limit überschritten.",
+      "message": "Sie haben {{count}} Datenquellen, aber Ihre Lizenz deckt {{limit}} ab. Logs von Datenquellen über dem Limit werden verworfen.",
+      "cta": "Lizenz verwalten",
+      "dismiss": "Ausblenden"
+    },
     "title": "Datenquellen",
     "total": "{{count}} insgesamt",
     "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
@@ -3487,6 +3627,9 @@
     },
     "usage": {
       "title": "Datenquellen",
+      "ofUnlimited": "von unbegrenzt",
+      "ofLimit": "von {{limit}}",
+      "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet.",
       "configured": "konfiguriert"
     },
     "tabs": {
@@ -4118,7 +4261,9 @@
       "noUsers": "Keine Benutzer",
       "assigned": "Zugewiesen an {{user}}",
       "unassigned": "Zuweisung aufgehoben",
-      "error": "Zuweisung konnte nicht geändert werden"
+      "error": "Zuweisung konnte nicht geändert werden",
+      "custom": "Benutzerdefiniert zuweisen",
+      "customPlaceholder": "Login eingeben…"
     }
   },
   "alertingRules": {
@@ -4284,6 +4429,53 @@
       "approved": "Genehmigt",
       "rejected": "Abgelehnt",
       "done": "Fertig"
+    }
+  },
+  "regexPatterns": {
+    "title": "Reguläre Ausdrücke",
+    "subtitle": "Wiederverwendbare reguläre Ausdrücke, die von Parsing-Filtern referenziert werden.",
+    "new": "Neues Muster",
+    "search": "Muster suchen…",
+    "refresh": "Aktualisieren",
+    "view": "Ansehen",
+    "system": "System",
+    "user": "Benutzerdefiniert",
+    "loading": "Muster werden geladen…",
+    "loadError": "Muster konnten nicht geladen werden.",
+    "retry": "Wiederholen",
+    "empty": "Keine Muster entsprechen dieser Ansicht.",
+    "tabs": {
+      "all": "Alle",
+      "system": "System",
+      "user": "Benutzerdefiniert"
+    },
+    "cols": {
+      "pattern": "Muster",
+      "definition": "Definition",
+      "type": "Typ"
+    },
+    "editor": {
+      "titleNew": "Neues Muster",
+      "patternId": "Muster-ID",
+      "patternIdHint": "Eindeutiger Name, der von Filtern referenziert wird.",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Was dieses Muster erkennt (optional)",
+      "definition": "Definition (Regex)",
+      "definitionHint": "Ein regulärer Ausdruck. Kann andere Muster referenzieren.",
+      "readOnly": "Systemmuster — schreibgeschützt.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "delete": "Löschen",
+      "confirmDelete": "Löschen bestätigen",
+      "cancel": "Abbrechen"
+    },
+    "toast": {
+      "saved": "Muster gespeichert",
+      "saveError": "Muster konnte nicht gespeichert werden",
+      "deleted": "Muster gelöscht",
+      "deleteError": "Muster konnte nicht gelöscht werden",
+      "patternIdRequired": "Muster-ID ist erforderlich",
+      "definitionRequired": "Definition ist erforderlich"
     }
   },
   "parsingFilters": {
@@ -5127,6 +5319,57 @@
       "level1": "Stufe 1",
       "level2": "Stufe 2",
       "level3": "Stufe 3"
+    }
+  },
+  "playground": {
+    "titleFilter": "Pipeline testen",
+    "titleRule": "Regel testen",
+    "noDataTypes": "Dieser Pipeline sind noch keine Datentypen zugewiesen — füge einen hinzu, um sie zu testen.",
+    "dataTypeLabel": "Datentyp",
+    "dataTypePlaceholder": "Keine Datentypen verfügbar",
+    "dataTypeSingleHint": "Diese Pipeline hat nur einen Datentyp — füge weitere hinzu, um zwischen ihnen zu wählen.",
+    "rawLogLabel": "Rohprotokoll",
+    "rawLogPlaceholder": "Füge eine Beispielprotokollzeile ein…",
+    "rawLogCounter": "{{chars}} Zeichen · {{kb}} KB",
+    "rawLogTooLarge": "Dieses Protokoll überschreitet das 1-MB-Limit — kürze es vor dem Test.",
+    "run": {
+      "label": "Ausführen",
+      "running": "Wird getestet…",
+      "waitHint": "Dies kann bis zu 15 Sekunden dauern, während die Pipeline das Protokoll verarbeitet."
+    },
+    "errors": {
+      "busy": "Der Playground führt bereits einen anderen Test aus — bitte versuche es gleich erneut.",
+      "timeout": "Der Test hat das Zeitlimit überschritten — meist passt der gewählte Datentyp nicht zum Protokollformat.",
+      "validation": "Die Anfrage war ungültig — prüfe das Rohprotokoll und den Pipeline-Inhalt.",
+      "server": "Der Playground konnte den Test nicht abschließen — bitte erneut versuchen."
+    },
+    "notices": {
+      "geo": "Das Geolocation-Plugin ist in dieser Lite-Version des Filter- und Regeltests nicht verfügbar.",
+      "correlation": "Regeln, die über afterEvent- oder correlation-Klauseln auf frühere Ereignisse verweisen, setzen voraus, dass entsprechende Ereignisse bereits im System vorhanden sind, damit die getestete Warnung ausgelöst wird."
+    },
+    "result": {
+      "label": "Verarbeitetes Ergebnis",
+      "empty": "Führe einen Test aus, um das verarbeitete Ereignis hier zu sehen.",
+      "loading": "Warte auf das verarbeitete Ereignis…",
+      "tabs": {
+        "fields": "Felder",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} Feld",
+      "fieldsCount_other": "{{count}} Felder",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "elapsed": "Verarbeitet in {{time}}",
+      "elapsedHint": "Zeit von „Ausführen“ bis zum verarbeiteten Ergebnis",
+      "searchPlaceholder": "Felder suchen…",
+      "noMatch": "Keine Felder entsprechen deiner Suche."
+    },
+    "alerts": {
+      "label": "Alarme",
+      "empty": "Führe einen Test aus, um hier ausgelöste Alarme zu sehen.",
+      "none": "Es wurden keine Alarme ausgelöst.",
+      "count_one": "{{count}} Alarm",
+      "count_other": "{{count}} Alarme"
     }
   },
   "tenants": {

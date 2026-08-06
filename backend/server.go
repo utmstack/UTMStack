@@ -163,7 +163,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	iam.RegisterRoutes(api, m.iam, userAuth, enterprise, enterpriseLicense)
 	tenant.RegisterRoutes(api, m.tenant, userAuth, mssp, platform)
 	audit.RegisterRoutes(api, m.audit, userAuth)
-	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)
+	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
 	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth)

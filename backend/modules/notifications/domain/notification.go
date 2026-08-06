@@ -17,3 +17,12 @@ type UtmNotification struct {
 }
 
 func (UtmNotification) TableName() string { return "notification" }
+
+type NotificationGroup struct {
+	Source      NotificationSource `json:"source"`
+	Type        NotificationType   `json:"type"`
+	Message     string             `json:"message"`
+	Count       int64              `json:"count"`
+	LastCreated time.Time          `json:"lastCreated"`
+	UnreadCount int64              `json:"unreadCount"`
+}

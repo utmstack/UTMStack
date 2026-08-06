@@ -85,14 +85,18 @@
     "personal": {
       "title": "Informações pessoais",
       "description": "Atualize seu nome e dados de contato.",
-      "name": "Nome",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
       "email": "E-mail",
       "language": "Idioma",
       "languageHint": "Usado na interface do painel.",
       "systemDefault": "Padrão do sistema",
+      "username": "Usuário",
+      "usernameHint": "O usuário não pode ser alterado.",
       "reset": "Redefinir",
       "save": "Salvar alterações",
-      "saving": "Salvando…"
+      "saving": "Salvando…",
+      "name": "Nome"
     },
     "password": {
       "title": "Senha",
@@ -251,9 +255,11 @@
       "details": "Detalhes",
       "services": {
         "backend": "API do backend",
+        "opensearch": "Cluster do OpenSearch",
         "socai": "Motor SOC-AI"
       },
       "detail": {
+        "noClusterInfo": "sem informações do cluster",
         "disabled": "desabilitado",
         "tools": "{{n}} ferramentas",
         "unreachable": "inacessível",
@@ -289,6 +295,7 @@
     "settings": "Configurações",
     "back": "Voltar",
     "parsingFilters": "Pipelines",
+    "regexPatterns": "Expressões regulares",
     "taggingRules": "Regras de Marcação",
     "overview": "Visão geral",
     "tenants": "Tenants"
@@ -636,6 +643,7 @@
     "notifications": "Notificações",
     "connectionKey": "Chave de conexão",
     "dataRetention": "Retenção de dados",
+    "indices": "Índices",
     "theme": "Tema",
     "branding": "Marca",
     "apiKeys": "Chaves de API",
@@ -694,6 +702,7 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "Edição {{edition}}",
+    "datasourceLimit": "Limite de fontes de dados",
     "unlimited": "Ilimitado",
     "mssp": "MSSP / multi-tenant",
     "enabled": "Ativado",
@@ -804,6 +813,7 @@
       "userDeactivated": "Usuário desativado",
       "tfaReset": "Autenticação em duas etapas redefinida",
       "invitationSent": "Convite enviado",
+      "loginOrEmailInUse": "Esse login ou e-mail já está em uso",
       "invalidRequest": "Solicitação inválida",
       "noPermission": "Você não tem permissão para fazer isso",
       "userNotFound": "Usuário não encontrado",
@@ -837,19 +847,24 @@
     },
     "status": {
       "inactive": "Inativo",
+      "pendingPassword": "Senha pendente",
       "active": "Ativo",
       "pending": "Convite pendente",
       "suspended": "Suspenso"
     },
     "drawer": {
+      "createdBy": "criado por {{actor}}",
       "loading": "Carregando…",
       "profileTitle": "Perfil",
       "profileSubtitle": "Apenas o usuário pode editar isto, no seu próprio perfil.",
       "name": "Nome",
+      "username": "Usuário",
       "email": "E-mail",
       "language": "Idioma",
       "accountTitle": "Conta",
       "status": "Status",
+      "statusActive": "Ativo",
+      "statusInactive": "Inativo",
       "tfa": "2FA",
       "tfaEnabled": "Ativada",
       "tfaNotConfigured": "Não configurado",
@@ -858,6 +873,7 @@
       "resetTfaConfirmTitle": "Redefinir a autenticação em duas etapas?",
       "resetTfaConfirmBody": "Isso desativa o 2FA de {{name}}. Ela entrará apenas com a senha e poderá configurá-lo novamente no perfil.",
       "resetTfaConfirm": "Redefinir 2FA",
+      "pendingPasswordNote": "Ainda usa a senha temporária (convite não concluído).",
       "lastModified": "Modificado {{time}}",
       "rolesTitle": "Funções",
       "rolesSubtitle": "As funções concedem permissões de módulo. Um usuário pode ter mais de uma.",
@@ -875,7 +891,11 @@
     "invite": {
       "title": "Convidar usuário",
       "description": "A conta é criada inativa. O usuário recebe um e-mail para definir sua senha e ativá-la.",
+      "username": "Usuário",
+      "usernameHint": "Pelo menos 3 caracteres.",
       "email": "E-mail",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
       "roles": "Funções",
       "cancel": "Cancelar",
       "sending": "Enviando…",
@@ -889,6 +909,7 @@
     "roles": {
       "loading": "Carregando funções…",
       "loadFailed": "Não foi possível carregar as permissões das funções.",
+      "readonlyNote": "As funções e suas permissões são definidas pelo sistema e são somente leitura. Atribua-as aos usuários na aba Membros.",
       "permissionsCount_one": "{{count}} permissão",
       "permissionsCount_other": "{{count}} permissões",
       "modulesCount_one": "{{count}} módulo",
@@ -1178,6 +1199,8 @@
     },
     "views": {
       "all": "Todas as contas",
+      "windows": "Windows",
+      "linux": "Linux",
       "active": "Ativas",
       "disabled": "Desativadas",
       "deleted": "Excluídas",
@@ -1187,6 +1210,12 @@
     "searchPlaceholder": "Pesquisar por nome de conta ou SID…",
     "allTenants": "Todos os tenants",
     "filters": "Filtros",
+    "filterFields": {
+      "status": "Status do ciclo de vida"
+    },
+    "ops": {
+      "is": "é"
+    },
     "refresh": "Atualizar",
     "layout": {
       "list": "Lista",
@@ -1194,6 +1223,7 @@
     },
     "list": {
       "account": "Conta",
+      "identity": "Identidade",
       "sid": "SID",
       "status": "Status",
       "lastLogon": "Último logon",
@@ -1222,11 +1252,15 @@
       "stale": "inativa 30d+",
       "viewInLogs": "Ver eventos no Log Explorer",
       "copySid": "Copiar SID",
+      "copyUid": "Copiar identidade",
       "copied": "Copiado",
       "identity": "Identidade",
       "accountName": "Nome da conta",
       "domain": "Domínio",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID da máquina",
       "tenant": "Tenant",
       "adStatus": "Status no AD",
       "enabled": "Habilitada",
@@ -1324,6 +1358,93 @@
       "saveFailed": "Não foi possível salvar a política de retenção"
     }
   },
+  "indices": {
+    "title": "Índices e index patterns",
+    "subtitle": "Os index patterns agrupam índices para busca; os índices são o armazenamento subjacente do OpenSearch.",
+    "retry": "Tentar novamente",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Índices"
+    },
+    "dataViews": {
+      "search": "Buscar index patterns…",
+      "add": "Adicionar index pattern",
+      "colPattern": "Padrão",
+      "colModule": "Integração",
+      "colActive": "Ativa",
+      "colActions": "Ações",
+      "loading": "Carregando index patterns…",
+      "loadFailed": "Não foi possível carregar as index patterns.",
+      "noSearchMatch": "Nenhuma index pattern corresponde à sua busca.",
+      "none": "Ainda não há index patterns.",
+      "system": "sistema",
+      "active": "Ativa",
+      "disabled": "Desativada",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir index pattern",
+      "deleteBody": "Excluir {{pattern}}? Isso remove a definição da index pattern. Os índices subjacentes não são excluídos.",
+      "deleteConfirm": "Excluir",
+      "form": {
+        "addTitle": "Adicionar index pattern",
+        "editTitle": "Editar index pattern",
+        "pattern": "Padrão de índice",
+        "patternHint": "Use * como curinga, ex. logs-windows-*",
+        "module": "Integração",
+        "moduleHint": "Opcional — a integração à qual este pattern pertence (ex.: windows, aws). Deixe vazio para patterns personalizados.",
+        "activeLabel": "Ativa",
+        "systemLabel": "Index pattern do sistema",
+        "saving": "Salvando…",
+        "save": "Salvar alterações",
+        "create": "Criar",
+        "matchChecking": "Verificando índices correspondentes…",
+        "matchNone": "Não corresponde a nenhum índice — o pattern deve corresponder a pelo menos um.",
+        "duplicate": "Já existe um index pattern com este glob.",
+        "matchCount_one": "Corresponde a {{count}} índice",
+        "matchCount_other": "Corresponde a {{count}} índices"
+      },
+      "toast": {
+        "enabled": "Index pattern ativada",
+        "disabled": "Index pattern desativada",
+        "created": "Index pattern criada",
+        "updated": "Index pattern atualizada",
+        "deleted": "Index pattern excluída"
+      },
+      "systemLocked": "Pattern do sistema — gerenciado automaticamente, não editável"
+    },
+    "index": {
+      "filter": "Filtrar por nome do índice…",
+      "systemIndices": "Índices do sistema",
+      "refresh": "Atualizar",
+      "colIndex": "Índice",
+      "colHealth": "Saúde",
+      "colStatus": "Status",
+      "colDocs": "Docs",
+      "colSize": "Tamanho",
+      "colActions": "Ações",
+      "loading": "Carregando índices…",
+      "loadFailed": "Não foi possível carregar os índices (o OpenSearch pode estar indisponível).",
+      "noFilterMatch": "Nenhum índice corresponde ao seu filtro.",
+      "none": "Nenhum índice encontrado.",
+      "page": "Página {{page}}",
+      "deleteTitle": "Excluir índice",
+      "deleteBody": "Excluir permanentemente o índice {{name}}? Todos os {{docs}} documentos que ele contém serão perdidos. Isso não pode ser desfeito.",
+      "deleteConfirm": "Excluir índice",
+      "toast": {
+        "deleted": "Índice excluído"
+      }
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "working": "Processando…"
+    },
+    "error": {
+      "noPermission": "Você não tem permissão para fazer isso",
+      "notFound": "Não encontrado",
+      "invalidRequest": "Solicitação inválida",
+      "failed": "A operação falhou"
+    }
+  },
   "languageSettings": {
     "title": "Idioma da plataforma",
     "subtitle": "Idioma padrão para as telas de pré-login, e-mails do sistema e novos usuários. Cada usuário ainda pode escolher o seu no perfil.",
@@ -1338,6 +1459,8 @@
   "branding": {
     "title": "Marca",
     "subtitle": "Personalize o UTMStack com a identidade da sua organização — aplicado em tudo: tela de login, menu lateral, e-mails e relatórios.",
+    "enterpriseRequired": "O white-label é um recurso Enterprise.",
+    "manageLicense": "Gerenciar licença",
     "enable": {
       "title": "White-label",
       "description": "Substitua a marca UTMStack pela sua em toda a plataforma.",
@@ -1465,6 +1588,8 @@
     "license": {
       "title": "Licença",
       "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Limite Community",
       "unlimited": "Ilimitado",
       "expires": "Expira",
       "managedNote": "Edição, limites de datasources e upload de licença são gerenciados na página de Licença.",
@@ -1477,7 +1602,13 @@
       "backend": {
         "name": "Backend API",
         "desc": "Gateway REST, autenticação e orquestração de módulos."
-      }
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Armazenamento de logs e eventos.",
+        "detail": "{{nodes}} nós · {{shards}} shards"
+      },
+      "unreachable": "Inacessível"
     },
     "status": {
       "up": "Saudável",
@@ -1495,6 +1626,9 @@
     "usage": {
       "title": "Fontes de dados",
       "subtitle": "Fontes de dados configuradas nesta instalação.",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Acima do limite licenciado — os dados além do limite estão em risco.",
       "configured": "configuradas"
     },
     "support": {
@@ -3432,6 +3566,12 @@
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Limite de datasources excedido.",
+      "message": "Você tem {{count}} datasources, mas sua licença cobre {{limit}}. Os logs dos datasources além do limite estão sendo descartados.",
+      "cta": "Gerenciar licença",
+      "dismiss": "Dispensar"
+    },
     "title": "Fontes de dados",
     "total": "{{count}} no total",
     "subtitle": "Agentes, integrações e fontes diretas que enviam eventos. O status é derivado da última vez que cada fonte foi vista.",
@@ -3449,6 +3589,9 @@
     },
     "usage": {
       "title": "Fontes de dados",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Acima do limite licenciado — os dados além do limite estão em risco.",
       "configured": "configuradas"
     },
     "tabs": {
@@ -4240,7 +4383,9 @@
       "noUsers": "Sem usuários",
       "assigned": "Atribuído a {{user}}",
       "unassigned": "Incidente sem atribuição",
-      "error": "Não foi possível alterar o responsável"
+      "error": "Não foi possível alterar o responsável",
+      "custom": "Atribuir personalizado",
+      "customPlaceholder": "Digite um login…"
     }
   },
   "parsingFilters": {
@@ -4498,6 +4643,53 @@
       "approved": "Aprovadas",
       "rejected": "Rejeitadas",
       "done": "Concluído"
+    }
+  },
+  "regexPatterns": {
+    "title": "Expressões regulares",
+    "subtitle": "Expressões regulares reutilizáveis referenciadas pelos filtros de parsing.",
+    "new": "Novo padrão",
+    "search": "Buscar padrões…",
+    "refresh": "Atualizar",
+    "view": "Ver",
+    "system": "Sistema",
+    "user": "Personalizado",
+    "loading": "Carregando padrões…",
+    "loadError": "Não foi possível carregar os padrões.",
+    "retry": "Tentar novamente",
+    "empty": "Nenhum padrão corresponde a esta visão.",
+    "tabs": {
+      "all": "Todos",
+      "system": "Sistema",
+      "user": "Personalizados"
+    },
+    "cols": {
+      "pattern": "Padrão",
+      "definition": "Definição",
+      "type": "Tipo"
+    },
+    "editor": {
+      "titleNew": "Novo padrão",
+      "patternId": "ID do padrão",
+      "patternIdHint": "Nome único referenciado pelos filtros.",
+      "description": "Descrição",
+      "descriptionPlaceholder": "O que este padrão reconhece (opcional)",
+      "definition": "Definição (regex)",
+      "definitionHint": "Uma expressão regular. Pode referenciar outros padrões.",
+      "readOnly": "Padrão do sistema — somente leitura.",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "delete": "Excluir",
+      "confirmDelete": "Confirmar exclusão",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "saved": "Padrão salvo",
+      "saveError": "Falha ao salvar o padrão",
+      "deleted": "Padrão excluído",
+      "deleteError": "Falha ao excluir o padrão",
+      "patternIdRequired": "O ID do padrão é obrigatório",
+      "definitionRequired": "A definição é obrigatória"
     }
   },
   "soar": {
@@ -5089,6 +5281,57 @@
       "level1": "Nível 1",
       "level2": "Nível 2",
       "level3": "Nível 3"
+    }
+  },
+  "playground": {
+    "titleFilter": "Testar pipeline",
+    "titleRule": "Testar regra",
+    "noDataTypes": "Este pipeline ainda não tem tipos de dados atribuídos — adicione um para testá-lo.",
+    "dataTypeLabel": "Tipo de dado",
+    "dataTypePlaceholder": "Nenhum tipo de dado disponível",
+    "dataTypeSingleHint": "Este pipeline só tem um tipo de dado — adicione mais para poder escolher.",
+    "rawLogLabel": "Log bruto",
+    "rawLogPlaceholder": "Cole uma linha de log de exemplo…",
+    "rawLogCounter": "{{chars}} caracteres · {{kb}} KB",
+    "rawLogTooLarge": "Este log excede o limite de 1 MB — reduza-o antes de executar o teste.",
+    "run": {
+      "label": "Executar",
+      "running": "Testando…",
+      "waitHint": "Isso pode levar até 15 segundos enquanto o pipeline processa o log."
+    },
+    "errors": {
+      "busy": "O playground está ocupado com outro teste — tente novamente em instantes.",
+      "timeout": "O teste expirou — normalmente significa que o tipo de dado selecionado não corresponde ao formato do log.",
+      "validation": "A requisição foi inválida — verifique o log bruto e o conteúdo do pipeline.",
+      "server": "O playground não conseguiu concluir o teste — tente novamente."
+    },
+    "notices": {
+      "geo": "O plugin de geolocalização não está disponível nesta versão lite do teste de filtros e regras.",
+      "correlation": "As regras que referenciam eventos anteriores por meio das cláusulas afterEvent ou correlation exigem que eventos correspondentes já existam no sistema para que o alerta em teste seja disparado."
+    },
+    "result": {
+      "label": "Resultado processado",
+      "empty": "Execute um teste para ver aqui o evento processado.",
+      "loading": "Aguardando o evento processado…",
+      "tabs": {
+        "fields": "Campos",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "elapsed": "Processado em {{time}}",
+      "elapsedHint": "Tempo entre Executar e o resultado processado",
+      "searchPlaceholder": "Buscar campos…",
+      "noMatch": "Nenhum campo corresponde à sua busca."
+    },
+    "alerts": {
+      "label": "Alertas",
+      "empty": "Execute um teste para ver aqui os alertas gerados.",
+      "none": "Nenhum alerta foi disparado.",
+      "count_one": "{{count}} alerta",
+      "count_other": "{{count}} alertas"
     }
   },
   "tenants": {

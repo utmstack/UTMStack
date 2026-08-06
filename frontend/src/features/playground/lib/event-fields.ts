@@ -22,7 +22,7 @@ export function flatten(obj: unknown, prefix = '', out: Record<string, unknown> 
 // Fields that duplicate what's already visible in the "Raw log" input on the
 // left — showing the full raw string again inside the field grid wrecks its
 // rhythm (one giant multi-line cell among dozens of short ones) for zero gain.
-export const HIDDEN_FIELDS = new Set(['raw'])
+export const HIDDEN_FIELDS = new Set(['raw', 'error'])
 
 // Same severity/level palette already used across the product (see
 // alerts/lib/alert-meta.ts SEV_META and log-explorer's LEVEL_TONE) — kept

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Loader2, UserCircle2, X } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Plus, UserCircle2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useIncidentAssignment } from '../hooks/use-incident-assignment'
 import type { Incident } from '../types/incident.types'
@@ -30,12 +30,21 @@ export function IncidentAssigneePicker({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
+  const [custom, setCustom] = useState('')
   const ref = useRef<HTMLDivElement>(null)
   const current = incident.incidentAssignedTo
   const { users, busy, assign } = useIncidentAssignment(incident.id, open, () => {
     setOpen(false)
     onChanged()
   })
+
+  const customTrimmed = custom.trim()
+  const canAssignCustom = customTrimmed.length > 0 && customTrimmed !== current
+  const assignCustom = () => {
+    if (!canAssignCustom) return
+    void assign(customTrimmed)
+    setCustom('')
+  }
 
   useEffect(() => {
     if (!open) return
@@ -94,6 +103,28 @@ export function IncidentAssigneePicker({
                 {u === current && <Check size={14} className="shrink-0 text-primary" />}
               </button>
             ))}
+          </div>
+          <div className="mt-1 border-t border-border px-3 pb-2 pt-2">
+            <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              {t('incidents.assign.custom')}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                value={custom}
+                onChange={(e) => setCustom(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && assignCustom()}
+                placeholder={t('incidents.assign.customPlaceholder')}
+                className="h-7 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-xs focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+              <button
+                onClick={assignCustom}
+                disabled={!canAssignCustom || busy}
+                title={t('incidents.assign.custom')}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-40"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
           </div>
         </div>
       )}

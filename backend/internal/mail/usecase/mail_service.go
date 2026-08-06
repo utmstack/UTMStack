@@ -23,26 +23,28 @@ func New(repo connectors.MailConfigurationRepository) connectors.MailService {
 	return &mailService{repo: repo}
 }
 
-func (s *mailService) SendMail(ctx context.Context, address []string, subject, body string, attatchments []domain.Attatchment) error {
+func (s *mailService) SendMail(ctx context.Context, to []string, cc []string, subject, body string, attatchments []domain.Attatchment) error {
 	cfg, err := s.repo.GetMailConfiguration(ctx)
 	if err != nil {
 		return fmt.Errorf("load mail config: %w", err)
 	}
-	return s.SendMailWithConfig(ctx, cfg, address, subject, body, attatchments)
+	return s.SendMailWithConfig(ctx, cfg, to, cc, subject, body, attatchments)
 }
 
-func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, address []string, subject, body string, attatchments []domain.Attatchment) error {
+func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, to []string, cc []string, subject, body string, attatchments []domain.Attatchment) error {
 	if cfg == nil {
 		return fmt.Errorf("mail configuration is nil")
 	}
 	if cfg.Host == "" || cfg.Port == "" {
 		return fmt.Errorf("mail configuration is incomplete")
 	}
-	if len(address) == 0 {
+	to = trimAddresses(to)
+	cc = trimAddresses(cc)
+	if len(to) == 0 {
 		return fmt.Errorf("no recipients")
 	}
 
-	msg, err := buildMessage(cfg, address, subject, body, attatchments)
+	msg, err := buildMessage(cfg, to, cc, subject, body, attatchments)
 	if err != nil {
 		return err
 	}
@@ -50,10 +52,13 @@ func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailC
 	addr := cfg.Host + ":" + cfg.Port
 	auth := smtpAuth(cfg)
 	from := senderAddress(cfg)
-	return smtp.SendMail(addr, auth, from, address, msg)
+	// net/smtp needs every recipient in the RCPT TO list — headers alone don't
+	// deliver mail. Merge to+cc for the envelope; the Cc header stays for display.
+	rcpt := append(append([]string(nil), to...), cc...)
+	return smtp.SendMail(addr, auth, from, rcpt, msg)
 }
 
-func (s *mailService) SendTemplateMail(ctx context.Context, address []string, subject, tmpl string, vars map[string]string, locale string) error {
+func (s *mailService) SendTemplateMail(ctx context.Context, to []string, subject, tmpl string, vars map[string]string, locale string) error {
 	tpl, err := template.New("mail").Parse(tmpl)
 	if err != nil {
 		return fmt.Errorf("parse template: %w", err)
@@ -66,7 +71,7 @@ func (s *mailService) SendTemplateMail(ctx context.Context, address []string, su
 	if err := tpl.Execute(&buf, data); err != nil {
 		return fmt.Errorf("render template: %w", err)
 	}
-	return s.SendMail(ctx, address, subject, buf.String(), nil)
+	return s.SendMail(ctx, to, nil, subject, buf.String(), nil)
 }
 
 func smtpAuth(cfg *domain.EmailConfig) smtp.Auth {
@@ -83,16 +88,34 @@ func senderAddress(cfg *domain.EmailConfig) string {
 	return cfg.Username
 }
 
-func buildMessage(cfg *domain.EmailConfig, to []string, subject, body string, attatchments []domain.Attatchment) ([]byte, error) {
+// trimAddresses drops empty strings from a recipient list without touching order.
+func trimAddresses(in []string) []string {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(in))
+	for _, a := range in {
+		a = strings.TrimSpace(a)
+		if a != "" {
+			out = append(out, a)
+		}
+	}
+	return out
+}
+
+func buildMessage(cfg *domain.EmailConfig, to []string, cc []string, subject, body string, attatchments []domain.Attatchment) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
 	headers := textproto.MIMEHeader{}
 	headers.Set("From", senderAddress(cfg))
 	headers.Set("To", strings.Join(to, ", "))
-	// Without this every message arrives blank-subject, which reads as spam to
-	// both the recipient and their filter.
-	headers.Set("Subject", subject)
+	if len(cc) > 0 {
+		headers.Set("Cc", strings.Join(cc, ", "))
+	}
+	if subject != "" {
+		headers.Set("Subject", subject)
+	}
 	headers.Set("MIME-Version", "1.0")
 	headers.Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
 	if cfg.Orgname != "" {

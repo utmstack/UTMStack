@@ -1,26 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
+import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
+import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
 import { QueryBar } from './QueryBar'
-import { AddFilterButton } from './AddFilterButton'
-import { FilterChips } from './FilterChips'
 import { FieldSidebar } from './FieldSidebar'
 import { RowMessage } from './RowMessage'
 import { ViewToggle } from './ViewToggle'
 import { SavedSearches, type SavedSearchState } from './SavedSearches'
 import { HistogramStrip } from './HistogramStrip'
 import { ChartPanel } from './ChartPanel'
-import { TS } from './log-explorer.constants'
+import { OP_KEY, TS } from './log-explorer.constants'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
 } from '../services/log-explorer-http.service'
 import type {
+  FilterOperator,
   FilterType,
   IndexField,
   LogDocument,
@@ -78,6 +79,22 @@ interface RelatedLogsSeed {
   timeTo: string
   alertName?: string
   truncated?: boolean
+}
+
+const BUILDER_OPS: FilterOpDef[] = [
+  { id: 'IS', label: 'is', needsValue: true },
+  { id: 'IS_NOT', label: 'is not', needsValue: true },
+  { id: 'CONTAIN', label: 'contains', needsValue: true },
+  { id: 'EXIST', label: 'exists', needsValue: false },
+]
+
+function toCustom(f: FilterType): CustomFilter {
+  return { field: f.field, label: f.field, operator: f.operator, value: typeof f.value === 'string' ? f.value : '' }
+}
+
+function toFilter(cf: CustomFilter): FilterType {
+  const op = BUILDER_OPS.find((o) => o.id === cf.operator)
+  return { field: cf.field, operator: cf.operator as FilterOperator, value: op?.needsValue ? cf.value : undefined }
 }
 
 interface LogExplorerViewProps {
@@ -400,10 +417,79 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const removeFilter = useCallback((i: number) => {
     setFilters((cur) => cur.filter((_, idx) => idx !== i))
   }, [])
-  const clearFilters = useCallback(() => setFilters([]), [])
   const toggleExpanded = useCallback((i: number) => {
     setExpanded((prev) => (prev === i ? null : i))
   }, [])
+
+  // Adapters: CustomFilterBar works with CustomFilter; FilterType is the internal type.
+  // IS_ONE_OF_TERMS (array value) is excluded — rendered separately as terms chips.
+  const simpleFilters = useMemo(() => filters.filter((f) => f.operator !== 'IS_ONE_OF_TERMS'), [filters])
+  const termsFilters = useMemo(() => filters.filter((f) => f.operator === 'IS_ONE_OF_TERMS'), [filters])
+
+  const customFilters = useMemo(() => simpleFilters.map(toCustom), [simpleFilters])
+
+  const barFields = useMemo(
+    () =>
+      fields
+        .filter((f) => !f.name.endsWith('.keyword'))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((f) => ({ field: f.name, label: f.name })),
+    [fields]
+  )
+
+  const barOperators = useMemo(
+    () => BUILDER_OPS.map((o) => ({ ...o, label: t(`logExplorer.ops.${OP_KEY[o.id] ?? o.id}`) })),
+    [t]
+  )
+
+  const fetchValues = useCallback(
+    (field: string) => {
+      if (!pattern) return Promise.resolve([])
+      const fieldDef = fields.find((f) => f.name === field)
+      const aggField = fieldDef?.type === 'text' && !field.endsWith('.keyword') ? `${field}.keyword` : field
+      return svc.topValues(pattern, aggField, activeFilterList, 100).then((r) => r.top ?? [])
+    },
+    [fields, pattern, activeFilterList]
+  )
+
+  const barLabels = useMemo(
+    () => ({
+      add: t('logExplorer.builder.add'),
+      clearAll: t('logExplorer.filters.clearAll'),
+      filterValues: t('logExplorer.builder.filterValues'),
+      loadingValues: t('logExplorer.builder.loadingValues'),
+      noValues: t('logExplorer.builder.noValues'),
+      pickValue: t('logExplorer.builder.pickValue'),
+      empty: t('logExplorer.fields.empty'),
+      cancel: t('logExplorer.builder.cancel'),
+      addBtn: t('logExplorer.builder.confirm'),
+    }),
+    [t]
+  )
+
+  const onBarAdd = useCallback(
+    (cf: CustomFilter) => addFilter(toFilter(cf)),
+    [addFilter]
+  )
+
+  const onBarUpdate = useCallback(
+    (i: number, cf: CustomFilter) => {
+      // i is the index within simpleFilters; map back to the full filters array
+      const target = simpleFilters[i]
+      setFilters((cur) => cur.map((f) => (f === target ? toFilter(cf) : f)))
+    },
+    [simpleFilters]
+  )
+
+  const onBarRemove = useCallback(
+    (i: number) => {
+      const target = simpleFilters[i]
+      setFilters((cur) => cur.filter((f) => f !== target))
+    },
+    [simpleFilters]
+  )
+
+  const onBarClear = useCallback(() => setFilters([]), [])
 
   return (
     <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-3">
@@ -447,10 +533,37 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           {!sqlMode && pattern && (
-            <AddFilterButton pattern={pattern} fields={fields} filters={activeFilterList} onAdd={addFilter} />
+            <CustomFilterBar
+              filters={customFilters}
+              onAdd={onBarAdd}
+              onUpdate={onBarUpdate}
+              onRemove={onBarRemove}
+              onClear={onBarClear}
+              fields={barFields}
+              operators={barOperators}
+              fetchValues={fetchValues}
+              labels={barLabels}
+            />
           )}
+          {termsFilters.map((f, idx) => (
+            <span
+              key={idx}
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/5 py-1 pl-3 pr-1.5 text-xs"
+            >
+              <span className="font-mono text-muted-foreground">{f.field}</span>
+              <span className="text-[11px] text-muted-foreground/70">{t('logExplorer.ops.isOneOf')}</span>
+              <span className="font-mono font-medium">
+                {Array.isArray(f.value) ? t('logExplorer.related.nLogs', { count: f.value.length }) : String(f.value)}
+              </span>
+              <button
+                onClick={() => removeFilter(filters.indexOf(f))}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
           {!sqlMode && <SavedSearches snapshot={currentSnapshot} onLoad={loadSnapshot} />}
-          {filters.length > 0 && <FilterChips filters={filters} onRemove={removeFilter} onClear={clearFilters} />}
         </div>
         <div className="flex items-center gap-3">
           <span className="whitespace-nowrap text-xs text-muted-foreground">

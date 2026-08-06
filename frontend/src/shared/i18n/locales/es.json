@@ -85,14 +85,18 @@
     "personal": {
       "title": "Información personal",
       "description": "Actualiza tu nombre y datos de contacto.",
-      "name": "Nombre",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
       "email": "Correo",
       "language": "Idioma",
       "languageHint": "Usado para la interfaz del panel.",
       "systemDefault": "Predeterminado del sistema",
+      "username": "Usuario",
+      "usernameHint": "El usuario no se puede cambiar.",
       "reset": "Restablecer",
       "save": "Guardar cambios",
-      "saving": "Guardando…"
+      "saving": "Guardando…",
+      "name": "Nombre"
     },
     "password": {
       "title": "Contraseña",
@@ -251,9 +255,11 @@
       "details": "Detalles",
       "services": {
         "backend": "API del backend",
+        "opensearch": "Clúster de OpenSearch",
         "socai": "Motor SOC-AI"
       },
       "detail": {
+        "noClusterInfo": "sin información del clúster",
         "disabled": "deshabilitado",
         "tools": "{{n}} herramientas",
         "unreachable": "inaccesible",
@@ -289,6 +295,7 @@
     "settings": "Configuración",
     "back": "Atrás",
     "parsingFilters": "Pipelines",
+    "regexPatterns": "Expresiones regulares",
     "taggingRules": "Reglas de etiquetado",
     "overview": "Resumen",
     "tenants": "Tenants"
@@ -636,6 +643,7 @@
     "notifications": "Notificaciones",
     "connectionKey": "Clave de conexión",
     "dataRetention": "Retención de datos",
+    "indices": "Índices",
     "theme": "Tema",
     "branding": "Marca",
     "apiKeys": "Claves API",
@@ -694,6 +702,7 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "Edición {{edition}}",
+    "datasourceLimit": "Límite de datasources",
     "unlimited": "Ilimitado",
     "mssp": "MSSP / multi-tenant",
     "enabled": "Activado",
@@ -804,6 +813,7 @@
       "userDeactivated": "Usuario desactivado",
       "tfaReset": "Autenticación en dos pasos restablecida",
       "invitationSent": "Invitación enviada",
+      "loginOrEmailInUse": "Ese usuario o correo ya está en uso",
       "invalidRequest": "Solicitud inválida",
       "noPermission": "No tienes permiso para hacer eso",
       "userNotFound": "Usuario no encontrado",
@@ -837,19 +847,24 @@
     },
     "status": {
       "inactive": "Inactivo",
+      "pendingPassword": "Contraseña pendiente",
       "active": "Activo",
       "pending": "Invitación pendiente",
       "suspended": "Suspendido"
     },
     "drawer": {
+      "createdBy": "creado por {{actor}}",
       "loading": "Cargando…",
       "profileTitle": "Perfil",
       "profileSubtitle": "Solo el usuario puede editar esto, desde su propio perfil.",
       "name": "Nombre",
+      "username": "Usuario",
       "email": "Correo",
       "language": "Idioma",
       "accountTitle": "Cuenta",
       "status": "Estado",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
       "tfa": "2FA",
       "tfaEnabled": "Activada",
       "tfaNotConfigured": "No configurado",
@@ -858,6 +873,7 @@
       "resetTfaConfirmTitle": "¿Restablecer la autenticación en dos pasos?",
       "resetTfaConfirmBody": "Esto desactiva el 2FA de {{name}}. Iniciará sesión solo con su contraseña y podrá configurarlo de nuevo desde su perfil.",
       "resetTfaConfirm": "Restablecer 2FA",
+      "pendingPasswordNote": "Aún usa la contraseña temporal (invitación no completada).",
       "lastModified": "Modificado {{time}}",
       "rolesTitle": "Roles",
       "rolesSubtitle": "Los roles otorgan permisos de módulo. Un usuario puede tener más de uno.",
@@ -875,7 +891,11 @@
     "invite": {
       "title": "Invitar usuario",
       "description": "La cuenta se crea inactiva. El usuario recibe un correo para establecer su contraseña y activarla.",
+      "username": "Usuario",
+      "usernameHint": "Al menos 3 caracteres.",
       "email": "Correo",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
       "roles": "Roles",
       "cancel": "Cancelar",
       "sending": "Enviando…",
@@ -889,6 +909,7 @@
     "roles": {
       "loading": "Cargando roles…",
       "loadFailed": "No se pudieron cargar los permisos de los roles.",
+      "readonlyNote": "Los roles y sus permisos los define el sistema y son de solo lectura. Asígnalos a los usuarios desde la pestaña Miembros.",
       "permissionsCount_one": "{{count}} permiso",
       "permissionsCount_other": "{{count}} permisos",
       "modulesCount_one": "{{count}} módulo",
@@ -1178,6 +1199,8 @@
     },
     "views": {
       "all": "Todas las cuentas",
+      "windows": "Windows",
+      "linux": "Linux",
       "active": "Activas",
       "disabled": "Deshabilitadas",
       "deleted": "Borradas",
@@ -1187,6 +1210,12 @@
     "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
     "allTenants": "Todos los tenants",
     "filters": "Filtros",
+    "filterFields": {
+      "status": "Estado de ciclo de vida"
+    },
+    "ops": {
+      "is": "es"
+    },
     "refresh": "Actualizar",
     "layout": {
       "list": "Lista",
@@ -1194,6 +1223,7 @@
     },
     "list": {
       "account": "Cuenta",
+      "identity": "Identidad",
       "sid": "SID",
       "status": "Estado",
       "lastLogon": "Último inicio",
@@ -1222,11 +1252,15 @@
       "stale": "inactiva 30d+",
       "viewInLogs": "Ver eventos en el Log Explorer",
       "copySid": "Copiar SID",
+      "copyUid": "Copiar identidad",
       "copied": "Copiado",
       "identity": "Identidad",
       "accountName": "Nombre de cuenta",
       "domain": "Dominio",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID de máquina",
       "tenant": "Tenant",
       "adStatus": "Estado en AD",
       "enabled": "Habilitada",
@@ -1324,6 +1358,93 @@
       "saveFailed": "No se pudo guardar la política de retención"
     }
   },
+  "indices": {
+    "title": "Índices e index patterns",
+    "subtitle": "Los index patterns agrupan índices para la búsqueda; los índices son el almacenamiento subyacente de OpenSearch.",
+    "retry": "Reintentar",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Índices"
+    },
+    "dataViews": {
+      "search": "Buscar index patterns…",
+      "add": "Agregar index pattern",
+      "colPattern": "Patrón",
+      "colModule": "Integración",
+      "colActive": "Activa",
+      "colActions": "Acciones",
+      "loading": "Cargando index patterns…",
+      "loadFailed": "No se pudieron cargar las index patterns.",
+      "noSearchMatch": "Ninguna index pattern coincide con tu búsqueda.",
+      "none": "Aún no hay index patterns.",
+      "system": "sistema",
+      "active": "Activa",
+      "disabled": "Desactivada",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteTitle": "Eliminar index pattern",
+      "deleteBody": "¿Eliminar {{pattern}}? Esto elimina la definición de la index pattern. Los índices subyacentes no se eliminan.",
+      "deleteConfirm": "Eliminar",
+      "form": {
+        "addTitle": "Agregar index pattern",
+        "editTitle": "Editar index pattern",
+        "pattern": "Patrón de índice",
+        "patternHint": "Usa * como comodín, p. ej. logs-windows-*",
+        "module": "Integración",
+        "moduleHint": "Opcional — la integración a la que pertenece este pattern (p. ej. windows, aws). Déjalo vacío para patterns personalizados.",
+        "activeLabel": "Activa",
+        "systemLabel": "Index pattern del sistema",
+        "saving": "Guardando…",
+        "save": "Guardar cambios",
+        "create": "Crear",
+        "matchChecking": "Comprobando índices que coinciden…",
+        "matchNone": "No coincide con ningún índice — el pattern debe coincidir con al menos uno.",
+        "duplicate": "Ya existe un index pattern con este glob.",
+        "matchCount_one": "Coincide con {{count}} índice",
+        "matchCount_other": "Coincide con {{count}} índices"
+      },
+      "toast": {
+        "enabled": "Index pattern activada",
+        "disabled": "Index pattern desactivada",
+        "created": "Index pattern creada",
+        "updated": "Index pattern actualizada",
+        "deleted": "Index pattern eliminada"
+      },
+      "systemLocked": "Pattern del sistema — gestionado automáticamente, no editable"
+    },
+    "index": {
+      "filter": "Filtrar por nombre de índice…",
+      "systemIndices": "Índices del sistema",
+      "refresh": "Actualizar",
+      "colIndex": "Índice",
+      "colHealth": "Salud",
+      "colStatus": "Estado",
+      "colDocs": "Docs",
+      "colSize": "Tamaño",
+      "colActions": "Acciones",
+      "loading": "Cargando índices…",
+      "loadFailed": "No se pudieron cargar los índices (OpenSearch puede no estar disponible).",
+      "noFilterMatch": "Ningún índice coincide con tu filtro.",
+      "none": "No se encontraron índices.",
+      "page": "Página {{page}}",
+      "deleteTitle": "Eliminar índice",
+      "deleteBody": "¿Eliminar permanentemente el índice {{name}}? Se perderán los {{docs}} documentos que contiene. No se puede deshacer.",
+      "deleteConfirm": "Eliminar índice",
+      "toast": {
+        "deleted": "Índice eliminado"
+      }
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "working": "Procesando…"
+    },
+    "error": {
+      "noPermission": "No tienes permiso para hacer eso",
+      "notFound": "No encontrado",
+      "invalidRequest": "Solicitud inválida",
+      "failed": "La operación falló"
+    }
+  },
   "languageSettings": {
     "title": "Idioma de la plataforma",
     "subtitle": "Idioma por defecto para las pantallas pre-login, los correos del sistema y los usuarios nuevos. Cada usuario puede elegir el suyo en su perfil.",
@@ -1338,6 +1459,8 @@
   "branding": {
     "title": "Marca",
     "subtitle": "Personaliza UTMStack con la identidad de tu organización — se aplica en todo: la pantalla de login, el menú lateral, los correos y los informes.",
+    "enterpriseRequired": "El white-label es una función Enterprise.",
+    "manageLicense": "Gestionar licencia",
     "enable": {
       "title": "White-label",
       "description": "Reemplaza la marca UTMStack por la tuya en toda la plataforma.",
@@ -1465,6 +1588,8 @@
     "license": {
       "title": "Licencia",
       "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Límite Community",
       "unlimited": "Ilimitado",
       "expires": "Expira",
       "managedNote": "La edición, los límites de datasources y la carga de licencia se gestionan en la página de Licencia.",
@@ -1477,7 +1602,13 @@
       "backend": {
         "name": "Backend API",
         "desc": "Gateway REST, autenticación y orquestación de módulos."
-      }
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Almacenamiento de logs y eventos.",
+        "detail": "{{nodes}} nodos · {{shards}} shards"
+      },
+      "unreachable": "Inaccesible"
     },
     "status": {
       "up": "Saludable",
@@ -1495,6 +1626,9 @@
     "usage": {
       "title": "Fuentes de datos",
       "subtitle": "Fuentes de datos configuradas en esta instalación.",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Por encima del límite licenciado — los datos que excedan el tope están en riesgo.",
       "configured": "configuradas"
     },
     "support": {
@@ -3432,6 +3566,12 @@
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Límite de datasources superado.",
+      "message": "Tienes {{count}} datasources pero tu licencia cubre {{limit}}. Los logs de los datasources que exceden el límite se están descartando.",
+      "cta": "Gestionar licencia",
+      "dismiss": "Descartar"
+    },
     "title": "Fuentes de datos",
     "total": "{{count}} en total",
     "subtitle": "Agentes, integraciones y fuentes directas que envían eventos. El estado se deriva de la última vez que se vio cada fuente.",
@@ -3449,6 +3589,9 @@
     },
     "usage": {
       "title": "Fuentes de datos",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Por encima del límite licenciado — los datos que excedan el tope están en riesgo.",
       "configured": "configuradas"
     },
     "tabs": {
@@ -4240,7 +4383,9 @@
       "noUsers": "Sin usuarios",
       "assigned": "Asignado a {{user}}",
       "unassigned": "Incidente sin asignar",
-      "error": "No se pudo cambiar el asignado"
+      "error": "No se pudo cambiar el asignado",
+      "custom": "Asignar personalizado",
+      "customPlaceholder": "Escribe un usuario…"
     }
   },
   "parsingFilters": {
@@ -4498,6 +4643,53 @@
       "approved": "Aprobadas",
       "rejected": "Rechazadas",
       "done": "Listo"
+    }
+  },
+  "regexPatterns": {
+    "title": "Expresiones regulares",
+    "subtitle": "Expresiones regulares reutilizables referenciadas por los filtros de parseo.",
+    "new": "Nuevo patrón",
+    "search": "Buscar patrones…",
+    "refresh": "Actualizar",
+    "view": "Ver",
+    "system": "Sistema",
+    "user": "Personalizado",
+    "loading": "Cargando patrones…",
+    "loadError": "No se pudieron cargar los patrones.",
+    "retry": "Reintentar",
+    "empty": "Ningún patrón coincide con esta vista.",
+    "tabs": {
+      "all": "Todos",
+      "system": "Sistema",
+      "user": "Personalizados"
+    },
+    "cols": {
+      "pattern": "Patrón",
+      "definition": "Definición",
+      "type": "Tipo"
+    },
+    "editor": {
+      "titleNew": "Nuevo patrón",
+      "patternId": "ID del patrón",
+      "patternIdHint": "Nombre único referenciado desde los filtros.",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Qué reconoce este patrón (opcional)",
+      "definition": "Definición (regex)",
+      "definitionHint": "Una expresión regular. Puede referenciar otros patrones.",
+      "readOnly": "Patrón de sistema — solo lectura.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "saved": "Patrón guardado",
+      "saveError": "No se pudo guardar el patrón",
+      "deleted": "Patrón eliminado",
+      "deleteError": "No se pudo eliminar el patrón",
+      "patternIdRequired": "El ID del patrón es obligatorio",
+      "definitionRequired": "La definición es obligatoria"
     }
   },
   "soar": {
@@ -5089,6 +5281,57 @@
       "level1": "Nivel 1",
       "level2": "Nivel 2",
       "level3": "Nivel 3"
+    }
+  },
+  "playground": {
+    "titleFilter": "Probar pipeline",
+    "titleRule": "Probar regla",
+    "noDataTypes": "Este pipeline aún no tiene tipos de datos asignados — añade uno para probarlo.",
+    "dataTypeLabel": "Tipo de dato",
+    "dataTypePlaceholder": "No hay tipos de datos disponibles",
+    "dataTypeSingleHint": "Este pipeline solo tiene un tipo de dato — añade más para poder elegir.",
+    "rawLogLabel": "Log en crudo",
+    "rawLogPlaceholder": "Pega una línea de log de ejemplo…",
+    "rawLogCounter": "{{chars}} caracteres · {{kb}} KB",
+    "rawLogTooLarge": "Este log supera el límite de 1 MB — recórtalo antes de ejecutar la prueba.",
+    "run": {
+      "label": "Ejecutar",
+      "running": "Probando…",
+      "waitHint": "Esto puede tardar hasta 15 segundos mientras el pipeline procesa el log."
+    },
+    "errors": {
+      "busy": "El playground está ocupado con otra prueba — inténtalo de nuevo en un momento.",
+      "timeout": "La prueba agotó el tiempo — normalmente significa que el tipo de dato seleccionado no coincide con el formato del log.",
+      "validation": "La solicitud no era válida — revisa el log en crudo y el contenido del pipeline.",
+      "server": "El playground no pudo completar la prueba — inténtalo de nuevo."
+    },
+    "notices": {
+      "geo": "El plugin de geolocation no está disponible para esta versión lite del test de filtros y reglas.",
+      "correlation": "Las reglas que consultan eventos previos mediante las cláusulas afterEvent o correlation requieren que ya existan eventos coincidentes en el sistema para que la alerta bajo prueba se dispare."
+    },
+    "result": {
+      "label": "Resultado procesado",
+      "empty": "Ejecuta una prueba para ver aquí el evento procesado.",
+      "loading": "Esperando el evento procesado…",
+      "tabs": {
+        "fields": "Campos",
+        "json": "JSON"
+      },
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "elapsed": "Procesado en {{time}}",
+      "elapsedHint": "Tiempo desde Ejecutar hasta el resultado procesado",
+      "searchPlaceholder": "Buscar campos…",
+      "noMatch": "Ningún campo coincide con tu búsqueda."
+    },
+    "alerts": {
+      "label": "Alertas",
+      "empty": "Ejecuta una prueba para ver aquí las alertas resultantes.",
+      "none": "No se activó ninguna alerta.",
+      "count_one": "{{count}} alerta",
+      "count_other": "{{count}} alertas"
     }
   },
   "tenants": {

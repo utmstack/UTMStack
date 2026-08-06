@@ -16,6 +16,8 @@ const MAX_BYTES = 1024 * 1024
 
 interface Props {
   mode: PlaygroundMode
+  /** i18n key for the modal header, e.g. `playground.titleFilter` or `playground.titleRule`. */
+  titleKey: string
   /** Entry A: active dataTypes from the catalog. Entry B: `model.dataTypes` of the draft. */
   dataTypeOptions: string[]
   /** Present only for Entry B (unsaved draft content); omitted tests the live pipeline. */
@@ -23,7 +25,7 @@ interface Props {
   onClose: () => void
 }
 
-export function TestPlaygroundModal({ mode, dataTypeOptions, draftContent, onClose }: Props) {
+export function TestPlaygroundModal({ mode, titleKey, dataTypeOptions, draftContent, onClose }: Props) {
   const { t } = useTranslation()
   const [selectedDataType, setSelectedDataType] = useState(dataTypeOptions[0] ?? '')
   const [rawLog, setRawLog] = useState('')
@@ -87,7 +89,7 @@ export function TestPlaygroundModal({ mode, dataTypeOptions, draftContent, onClo
       >
         <header className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <PlayCircle size={16} className="text-primary" /> {t('playground.title')}
+            <PlayCircle size={16} className="text-primary" /> {t(titleKey)}
           </h2>
           <button
             type="button"
@@ -160,6 +162,17 @@ export function TestPlaygroundModal({ mode, dataTypeOptions, draftContent, onClo
               <div className="flex items-start gap-2 rounded-md bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-300">
                 <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {t(`playground.errors.${errorKind}`)}
               </div>
+            )}
+
+            {mode === 'rule' && (
+              <>
+                <div className="flex items-start gap-2 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
+                  <Info size={13} className="mt-0.5 shrink-0" /> {t('playground.notices.geo')}
+                </div>
+                <div className="flex items-start gap-2 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
+                  <Info size={13} className="mt-0.5 shrink-0" /> {t('playground.notices.correlation')}
+                </div>
+              </>
             )}
           </div>
 

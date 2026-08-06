@@ -248,6 +248,7 @@ export function AlertsPage() {
     })
 
   const addFilter = (cf: CustomFilter) => { setCustomFilters((c) => [...c, cf]); setPage(0) }
+  const updateFilter = (i: number, cf: CustomFilter) => { setCustomFilters((c) => c.map((f, idx) => (idx === i ? cf : f))); setPage(0) }
   const removeFilter = (i: number) => { setCustomFilters((c) => c.filter((_, idx) => idx !== i)); setPage(0) }
 
   // Register a new tag in the catalog, then apply it to the given alerts.
@@ -286,6 +287,7 @@ export function AlertsPage() {
         <AlertsFilterBar
           filters={customFilters}
           onAdd={addFilter}
+          onUpdate={updateFilter}
           onRemove={removeFilter}
           onClear={() => { setCustomFilters([]); setPage(0) }}
         />

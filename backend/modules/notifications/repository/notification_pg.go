@@ -47,6 +47,9 @@ func (r *pgNotificationRepository) FindAll(ctx context.Context, q dto.Notificati
 	if q.Status != nil {
 		db = db.Where("status = ?", *q.Status)
 	}
+	if q.Message != nil {
+		db = db.Where("message = ?", *q.Message)
+	}
 	if q.Read != nil {
 		db = db.Where("read = ?", *q.Read)
 	}
@@ -73,6 +76,56 @@ func (r *pgNotificationRepository) FindAll(ctx context.Context, q dto.Notificati
 		Offset(q.Offset()).
 		Limit(q.Limit()).
 		Find(&rows).Error; err != nil {
+		return nil, 0, err
+	}
+	return rows, total, nil
+}
+
+func (r *pgNotificationRepository) FindAllGrouped(ctx context.Context, q dto.NotificationListQuery) ([]domain.NotificationGroup, int64, error) {
+	base := r.db.WithContext(ctx).Model(&domain.UtmNotification{})
+
+	if q.Source != nil {
+		base = base.Where("source = ?", *q.Source)
+	}
+	if q.Type != nil {
+		base = base.Where("type = ?", *q.Type)
+	}
+	if q.Status != nil {
+		base = base.Where("status = ?", *q.Status)
+	}
+	if q.Read != nil {
+		base = base.Where("read = ?", *q.Read)
+	}
+	if q.From != nil && q.To != nil {
+		base = base.Where("created_at BETWEEN ? AND ?", *q.From, *q.To)
+	} else if q.From != nil {
+		base = base.Where("created_at >= ?", *q.From)
+	} else if q.To != nil {
+		base = base.Where("created_at <= ?", *q.To)
+	}
+
+	countQ := base.Session(&gorm.Session{}).
+		Select("source, type, message").
+		Group("source, type, message")
+
+	var total int64
+	if err := r.db.WithContext(ctx).
+		Table("(?) as g", countQ).
+		Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var rows []domain.NotificationGroup
+	if err := base.Session(&gorm.Session{}).
+		Select(`source, type, message,
+			COUNT(*) AS count,
+			MAX(created_at) AS last_created,
+			SUM(CASE WHEN read = false THEN 1 ELSE 0 END) AS unread_count`).
+		Group("source, type, message").
+		Order("last_created DESC").
+		Offset(q.Offset()).
+		Limit(q.Limit()).
+		Scan(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 	return rows, total, nil

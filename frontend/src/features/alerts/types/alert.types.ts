@@ -128,9 +128,4 @@ export const STATUS_TABS = ['all', 'open', 'in_review', 'completed', 'auto'] as 
 export type StatusTab = (typeof STATUS_TABS)[number]
 
 /** A user-defined filter row in the page filter bar. */
-export interface CustomFilter {
-  field: string
-  label: string
-  operator: string
-  value: string
-}
+export type { CustomFilter } from '@/shared/components/filters/custom-filter.types'

@@ -88,7 +88,7 @@ function AlertRow({ alert }: { alert: unknown }) {
   const rows = useMemo(
     () =>
       Object.entries(flat)
-        .filter(([k]) => !HIDDEN_FIELDS.has(k))
+        .filter(([k]) => !HIDDEN_FIELDS.has(k) && k !== 'events' && !k.startsWith('events.'))
         .map(([k, v]) => ({ key: k, value: v }))
         .sort((a, b) => a.key.localeCompare(b.key)),
     [flat],

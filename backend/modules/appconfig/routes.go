@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, mssp gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, enterprise gin.HandlerFunc) {
 	// Public, read-only display preference (timezone + date format). Non-sensitive,
 	// consumed app-wide (incl. pre-login) to render timestamps consistently.
 	api.GET("/date-format", m.Handler().DateFormat)
@@ -18,8 +18,8 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, m
 
 	b := api.Group("/branding")
 	b.GET("", userAuth, middleware.RequirePermission("config.read"), m.BrandingHandler().Get)
-	b.PUT("", userAuth, mssp, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
-	b.POST("/assets/:slot", userAuth, mssp, middleware.RequirePermission("config.write"), m.BrandingHandler().UploadAsset)
+	b.PUT("", userAuth, enterprise, middleware.RequirePermission("config.write"), m.BrandingHandler().Update)
+	b.POST("/assets/:slot", userAuth, enterprise, middleware.RequirePermission("config.write"), m.BrandingHandler().UploadAsset)
 	b.GET("/public", m.BrandingHandler().Public)
 	b.POST("/seed", userAuth, middleware.RequireInternal(), m.BrandingHandler().Seed)
 }

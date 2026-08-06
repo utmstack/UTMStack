@@ -85,14 +85,18 @@
     "personal": {
       "title": "Personal information",
       "description": "Update your name and contact info.",
-      "name": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
       "email": "Email",
       "language": "Language",
       "languageHint": "Used for the panel interface.",
       "systemDefault": "System default",
+      "username": "Username",
+      "usernameHint": "Username cannot be changed.",
       "reset": "Reset",
       "save": "Save changes",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "name": "Name"
     },
     "password": {
       "title": "Password",
@@ -251,9 +255,11 @@
       "details": "Details",
       "services": {
         "backend": "Backend API",
+        "opensearch": "OpenSearch cluster",
         "socai": "SOC-AI engine"
       },
       "detail": {
+        "noClusterInfo": "no cluster info",
         "disabled": "disabled",
         "tools": "{{n}} tools",
         "unreachable": "unreachable",
@@ -290,6 +296,7 @@
     "settings": "Settings",
     "back": "Back",
     "parsingFilters": "Pipelines",
+    "regexPatterns": "Regex Patterns",
     "overview": "Overview",
     "tenants": "Tenants"
   },
@@ -662,6 +669,7 @@
     "notifications": "Notifications",
     "connectionKey": "Connection Key",
     "dataRetention": "Data Retention",
+    "indices": "Indices",
     "theme": "Theme",
     "branding": "Branding",
     "apiKeys": "API Keys",
@@ -846,6 +854,7 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "{{edition}} edition",
+    "datasourceLimit": "Datasource limit",
     "unlimited": "Unlimited",
     "mssp": "MSSP / multi-tenant",
     "enabled": "Enabled",
@@ -956,6 +965,7 @@
       "userDeactivated": "User deactivated",
       "tfaReset": "Two-factor authentication reset",
       "invitationSent": "Invitation sent",
+      "loginOrEmailInUse": "That login or email is already in use",
       "invalidRequest": "Invalid request",
       "noPermission": "You do not have permission to do that",
       "userNotFound": "User not found",
@@ -989,19 +999,24 @@
     },
     "status": {
       "inactive": "Inactive",
+      "pendingPassword": "Pending password",
       "active": "Active",
       "pending": "Pending invite",
       "suspended": "Suspended"
     },
     "drawer": {
+      "createdBy": "created by {{actor}}",
       "loading": "Loading…",
       "profileTitle": "Profile",
       "profileSubtitle": "Only the user can edit these — from their own profile.",
       "name": "Name",
+      "username": "Username",
       "email": "Email",
       "language": "Language",
       "accountTitle": "Account",
       "status": "Status",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
       "tfa": "2FA",
       "tfaEnabled": "Enabled",
       "tfaNotConfigured": "Not configured",
@@ -1010,6 +1025,7 @@
       "resetTfaConfirmTitle": "Reset two-factor authentication?",
       "resetTfaConfirmBody": "This disables 2FA for {{name}}. They'll sign in with just their password and can set it up again from their profile.",
       "resetTfaConfirm": "Reset 2FA",
+      "pendingPasswordNote": "Still using the temporary password (invite not completed).",
       "lastModified": "Last modified {{time}}",
       "rolesTitle": "Roles",
       "rolesSubtitle": "Roles grant module permissions. A user can hold more than one.",
@@ -1027,7 +1043,11 @@
     "invite": {
       "title": "Invite user",
       "description": "The account is created inactive. The user receives an email to set their password and activate it.",
+      "username": "Username",
+      "usernameHint": "At least 3 characters.",
       "email": "Email",
+      "firstName": "First name",
+      "lastName": "Last name",
       "roles": "Roles",
       "cancel": "Cancel",
       "sending": "Sending…",
@@ -1041,6 +1061,7 @@
     "roles": {
       "loading": "Loading roles…",
       "loadFailed": "Could not load role permissions.",
+      "readonlyNote": "Roles and their permissions are defined by the system and are read-only. Assign them to users from the Members tab.",
       "permissionsCount_one": "{{count}} permission",
       "permissionsCount_other": "{{count}} permissions",
       "modulesCount_one": "{{count}} module",
@@ -1330,6 +1351,8 @@
     },
     "views": {
       "all": "All accounts",
+      "windows": "Windows",
+      "linux": "Linux",
       "active": "Active",
       "disabled": "Disabled",
       "deleted": "Deleted",
@@ -1339,6 +1362,12 @@
     "searchPlaceholder": "Search by account name or SID…",
     "allTenants": "All tenants",
     "filters": "Filters",
+    "filterFields": {
+      "status": "Lifecycle status"
+    },
+    "ops": {
+      "is": "is"
+    },
     "refresh": "Refresh",
     "layout": {
       "list": "List",
@@ -1346,6 +1375,7 @@
     },
     "list": {
       "account": "Account",
+      "identity": "Identity",
       "sid": "SID",
       "status": "Status",
       "lastLogon": "Last logon",
@@ -1374,11 +1404,15 @@
       "stale": "stale 30d+",
       "viewInLogs": "View events in Log Explorer",
       "copySid": "Copy SID",
+      "copyUid": "Copy identity",
       "copied": "Copied",
       "identity": "Identity",
       "accountName": "Account name",
       "domain": "Domain",
+      "hostname": "Hostname",
       "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "Machine ID",
       "tenant": "Tenant",
       "adStatus": "AD status",
       "enabled": "Enabled",
@@ -1476,6 +1510,93 @@
       "saveFailed": "Could not save retention policy"
     }
   },
+  "indices": {
+    "title": "Indices & index patterns",
+    "subtitle": "Index patterns group indices for search; indices are the underlying OpenSearch storage.",
+    "retry": "Retry",
+    "tabs": {
+      "dataViews": "Index patterns",
+      "indices": "Indices"
+    },
+    "dataViews": {
+      "search": "Search index patterns…",
+      "add": "Add index pattern",
+      "colPattern": "Pattern",
+      "colModule": "Integration",
+      "colActive": "Active",
+      "colActions": "Actions",
+      "loading": "Loading index patterns…",
+      "loadFailed": "Could not load index patterns.",
+      "noSearchMatch": "No index patterns match your search.",
+      "none": "No index patterns yet.",
+      "system": "system",
+      "active": "Active",
+      "disabled": "Disabled",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete index pattern",
+      "deleteBody": "Delete {{pattern}}? This removes the index pattern definition. The underlying indices are not deleted.",
+      "deleteConfirm": "Delete",
+      "form": {
+        "addTitle": "Add index pattern",
+        "editTitle": "Edit index pattern",
+        "pattern": "Index pattern",
+        "patternHint": "Use * as a wildcard, e.g. logs-windows-*",
+        "module": "Integration",
+        "moduleHint": "Optional — the integration this pattern belongs to (e.g. windows, aws). Leave empty for custom patterns.",
+        "activeLabel": "Active",
+        "systemLabel": "System index pattern",
+        "saving": "Saving…",
+        "save": "Save changes",
+        "create": "Create",
+        "matchChecking": "Checking matching indices…",
+        "matchNone": "Matches no indices — the pattern must match at least one.",
+        "duplicate": "An index pattern with this glob already exists.",
+        "matchCount_one": "Matches {{count}} index",
+        "matchCount_other": "Matches {{count}} indices"
+      },
+      "toast": {
+        "enabled": "Index pattern enabled",
+        "disabled": "Index pattern disabled",
+        "created": "Index pattern created",
+        "updated": "Index pattern updated",
+        "deleted": "Index pattern deleted"
+      },
+      "systemLocked": "System pattern — managed automatically, not editable"
+    },
+    "index": {
+      "filter": "Filter by index name…",
+      "systemIndices": "System indices",
+      "refresh": "Refresh",
+      "colIndex": "Index",
+      "colHealth": "Health",
+      "colStatus": "Status",
+      "colDocs": "Docs",
+      "colSize": "Size",
+      "colActions": "Actions",
+      "loading": "Loading indices…",
+      "loadFailed": "Could not load indices (OpenSearch may be unavailable).",
+      "noFilterMatch": "No indices match your filter.",
+      "none": "No indices found.",
+      "page": "Page {{page}}",
+      "deleteTitle": "Delete index",
+      "deleteBody": "Permanently delete the index {{name}}? All {{docs}} documents it holds are lost. This cannot be undone.",
+      "deleteConfirm": "Delete index",
+      "toast": {
+        "deleted": "Index deleted"
+      }
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "working": "Working…"
+    },
+    "error": {
+      "noPermission": "You do not have permission to do that",
+      "notFound": "Not found",
+      "invalidRequest": "Invalid request",
+      "failed": "Operation failed"
+    }
+  },
   "languageSettings": {
     "title": "Platform language",
     "subtitle": "Default UI language for pre-login screens, system emails and new users. Each user can still pick their own in their profile.",
@@ -1490,6 +1611,8 @@
   "branding": {
     "title": "Branding",
     "subtitle": "White-label UTMStack with your organization’s identity — applied everywhere: the login screen, sidebar, emails and reports.",
+    "enterpriseRequired": "White-labeling is an Enterprise feature.",
+    "manageLicense": "Manage license",
     "enable": {
       "title": "White-label",
       "description": "Replace the UTMStack brand with your own across the platform.",
@@ -1617,6 +1740,8 @@
     "license": {
       "title": "License",
       "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Community limit",
       "unlimited": "Unlimited",
       "expires": "Expires",
       "managedNote": "Edition, datasource limits and license upload are managed on the License page.",
@@ -1629,7 +1754,13 @@
       "backend": {
         "name": "Backend API",
         "desc": "REST gateway, auth and module orchestration."
-      }
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Log and event storage backend.",
+        "detail": "{{nodes}} nodes · {{shards}} shards"
+      },
+      "unreachable": "Unreachable"
     },
     "status": {
       "up": "Healthy",
@@ -1647,6 +1778,9 @@
     "usage": {
       "title": "Data sources",
       "subtitle": "Data sources configured in this deployment.",
+      "ofUnlimited": "of unlimited",
+      "ofLimit": "of {{limit}}",
+      "overLimit": "Over the licensed limit — data beyond the cap is at risk.",
       "configured": "configured"
     },
     "support": {
@@ -1768,6 +1902,7 @@
       "filterValues": "Filter values…",
       "loadingValues": "Loading values…",
       "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
       "cancel": "Cancel",
       "confirm": "Add"
     },
@@ -3611,6 +3746,12 @@
     }
   },
   "datasources": {
+    "limitBanner": {
+      "title": "Datasource limit exceeded.",
+      "message": "You have {{count}} datasources but your license covers {{limit}}. Logs from datasources beyond the limit are being dropped.",
+      "cta": "Manage license",
+      "dismiss": "Dismiss"
+    },
     "title": "Data sources",
     "total": "{{count}} total",
     "subtitle": "Agents, integrations and direct sources feeding events. Status is derived from the last time each source was seen.",
@@ -3628,6 +3769,9 @@
     },
     "usage": {
       "title": "Data sources",
+      "ofUnlimited": "of unlimited",
+      "ofLimit": "of {{limit}}",
+      "overLimit": "Over the licensed limit — data beyond the cap is at risk.",
       "configured": "configured"
     },
     "tabs": {
@@ -4488,7 +4632,9 @@
       "noUsers": "No users",
       "assigned": "Assigned to {{user}}",
       "unassigned": "Incident unassigned",
-      "error": "Could not change the assignee"
+      "error": "Could not change the assignee",
+      "custom": "Assign custom",
+      "customPlaceholder": "Type a login…"
     }
   },
   "parsingFilters": {
@@ -4586,7 +4732,8 @@
     "testPipeline": "Test pipeline"
   },
   "playground": {
-    "title": "Test pipeline",
+    "titleFilter": "Test pipeline",
+    "titleRule": "Test rule",
     "noDataTypes": "This pipeline has no data types assigned yet — add one to test it.",
     "dataTypeLabel": "Data type",
     "dataTypePlaceholder": "No data types available",
@@ -4605,6 +4752,10 @@
       "timeout": "The test timed out — this usually means the selected data type doesn't match the log format.",
       "validation": "The request was invalid — check the raw log and pipeline content.",
       "server": "The playground couldn't complete the test — please try again."
+    },
+    "notices": {
+      "geo": "The geolocation plugin isn't available in this lite version of the filter and rule test.",
+      "correlation": "Rules that reference prior events through afterEvent or correlation clauses require matching historical events to already exist in the system for the tested alert to trigger."
     },
     "result": {
       "label": "Parsed result",
@@ -4629,7 +4780,8 @@
       "none": "No alerts were triggered.",
       "count_one": "{{count}} alert",
       "count_other": "{{count}} alerts"
-    }
+    },
+    "title": "Test pipeline"
   },
   "alertingRules": {
     "title": "Alerting Rules",
@@ -4796,6 +4948,53 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "done": "Done"
+    }
+  },
+  "regexPatterns": {
+    "title": "Regex Patterns",
+    "subtitle": "Reusable regular expressions referenced by parsing filters.",
+    "new": "New pattern",
+    "search": "Search patterns…",
+    "refresh": "Refresh",
+    "view": "View",
+    "system": "System",
+    "user": "Custom",
+    "loading": "Loading patterns…",
+    "loadError": "Could not load patterns.",
+    "retry": "Retry",
+    "empty": "No patterns match this view.",
+    "tabs": {
+      "all": "All",
+      "system": "System",
+      "user": "Custom"
+    },
+    "cols": {
+      "pattern": "Pattern",
+      "definition": "Definition",
+      "type": "Type"
+    },
+    "editor": {
+      "titleNew": "New pattern",
+      "patternId": "Pattern ID",
+      "patternIdHint": "Unique name referenced from filters.",
+      "description": "Description",
+      "descriptionPlaceholder": "What this pattern matches (optional)",
+      "definition": "Definition (regex)",
+      "definitionHint": "A regular expression. Can reference other patterns.",
+      "readOnly": "System pattern — read-only.",
+      "save": "Save",
+      "saving": "Saving…",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "saved": "Pattern saved",
+      "saveError": "Failed to save pattern",
+      "deleted": "Pattern deleted",
+      "deleteError": "Failed to delete pattern",
+      "patternIdRequired": "Pattern ID is required",
+      "definitionRequired": "Definition is required"
     }
   },
   "soar": {

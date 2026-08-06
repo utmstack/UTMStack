@@ -128,13 +128,11 @@ func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, control
 		return domain.ErrInvalidStatus
 	}
 
-	note := domain.UtmComplianceControlNote{
-		ControlID: controlID,
-		Note:      reason,
-	}
-
-	err := e.notes.Upsert(ctx, &note)
-	if err != nil {
+	if err := e.notes.Upsert(ctx, &domain.UtmComplianceControlNote{
+		FrameworkKey: frameworkKey,
+		ControlID:    controlID,
+		Note:         reason,
+	}); err != nil {
 		return err
 	}
 

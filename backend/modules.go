@@ -36,7 +36,6 @@ import (
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
 	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
-	incidents_connectors "github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
@@ -136,9 +135,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
-	// White-labeling renders only under an MSSP license (resolved from billing).
+	// White-labeling renders only under an Enterprise license (resolved from billing).
 	configMod.SetWhiteLabelEntitlement(func() bool {
-		return billingMod.License().Current().IsMSSP()
+		return billingMod.License().Current().IsEnterprise()
 	})
 	brand := configMod.Branding()
 	complianceMod := compliance.NewModule(db, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
@@ -249,7 +248,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	incidentsMod := incidents.NewModule(
 		db,
-		incidents_connectors.NewNoopMailer(),
+		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store(), userRepo),
 		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
 		incidents.NewIAMGatewayFromRepo(userRepo),
 		auditMod.Logger(),

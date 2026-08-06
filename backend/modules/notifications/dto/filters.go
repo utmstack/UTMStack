@@ -8,12 +8,13 @@ import (
 )
 
 type NotificationListQuery struct {
-	Source *domain.NotificationSource
-	Type   *domain.NotificationType
-	Status *domain.NotificationStatus
-	From   *time.Time
-	To     *time.Time
-	Read   *bool
+	Source  *domain.NotificationSource
+	Type    *domain.NotificationType
+	Status  *domain.NotificationStatus
+	Message *string
+	From    *time.Time
+	To      *time.Time
+	Read    *bool
 	database.Params
 	Sort string
 }
