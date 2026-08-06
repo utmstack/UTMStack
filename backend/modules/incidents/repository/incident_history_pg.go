@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
@@ -19,6 +20,9 @@ func NewIncidentHistoryRepository(db *gorm.DB) connectors.IncidentHistoryReposit
 }
 
 func (r *pgIncidentHistoryRepository) Save(ctx context.Context, h *domain.UtmIncidentHistory) error {
+	if h.TenantID == uuid.Nil {
+		h.TenantID = tenantFromCtx(ctx)
+	}
 	return r.db.WithContext(ctx).Create(h).Error
 }
 
