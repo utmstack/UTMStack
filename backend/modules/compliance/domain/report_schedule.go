@@ -16,4 +16,4 @@ type UtmComplianceReportSchedule struct {
 	LastExecutionDate time.Time `gorm:"column:last_execution_date;not null"`
 }
 
-func (UtmComplianceReportSchedule) TableName() string { return "utm_compliance_report_schedule" }
+func (UtmComplianceReportSchedule) TableName() string { return "compliance_report_schedule" }

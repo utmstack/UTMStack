@@ -13,9 +13,18 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/compliance/handler"
 	"github.com/utmstack/utmstack/backend/modules/compliance/repository"
 	"github.com/utmstack/utmstack/backend/modules/compliance/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/env"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"gorm.io/gorm"
 )
+
+// TenantLister returns the active tenants the background eval loop should
+// iterate over. It is passed as a func so modules.go can supply a closure that
+// resolves the tenant module late — compliance is constructed before tenant.
+// nil is legal — on-prem / no tenancy plane → the loop falls back to the
+// legacy behaviour (one pass under the module's own ctx).
+type TenantLister func(ctx context.Context) ([]string, error)
 
 type Module struct {
 	frameworkH *handler.FrameworkHandler
@@ -24,20 +33,25 @@ type Module struct {
 	scheduler  *usecase.ReportScheduler
 	coverage   *usecase.CoverageIndex
 
-	frameworkUC  connectors.FrameworkUsecase
-	evaluatorUC  connectors.EvaluatorUsecase
-	scheduleUC   connectors.ScheduleUsecase
-	evalInterval time.Duration
+	frameworkUC       connectors.FrameworkUsecase
+	evaluatorUC       connectors.EvaluatorUsecase
+	scheduleUC        connectors.ScheduleUsecase
+	tenantFrameworks  connectors.TenantFrameworkRepository
+	frameworkStore    *usecase.FrameworkStore
+	entitlement       *usecase.Entitlement
+	tenantLister      TenantLister // nil → skip the tenant iteration (on-prem)
+	evalInterval      time.Duration
 }
 
 func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.frameworkUC }
 func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase { return m.evaluatorUC }
 func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.scheduleUC }
 
-func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, isEnterprise func() bool) *Module {
+func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, tenants TenantLister, isEnterprise func() bool) *Module {
 	scheduleRepo := repository.NewScheduleRepository(db)
 	overrideRepo := repository.NewControlStatusOverrideRepository(db)
 	noteRepo := repository.NewControlNoteRepository(db)
+	tenantFrameworkRepo := repository.NewTenantFrameworkRepository(db)
 
 	root := env.String("COMPLIANCE_DIR", "/workdir/compliance", false)
 	src := env.String("COMPLIANCE_SRC_DIR", "/utmstack/compliance", false)
@@ -63,8 +77,8 @@ func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connector
 	}
 
 	entitlement := usecase.NewEntitlement(isEnterprise)
-	frameworkUC := usecase.NewFrameworkUsecase(controlStore, frameworkStore, entitlement)
-	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewOpenSearchAlerts(), repository.NewReportStore(), overrideRepo, noteRepo, brand, entitlement)
+	frameworkUC := usecase.NewFrameworkUsecase(controlStore, frameworkStore, tenantFrameworkRepo, entitlement)
+	evaluatorUC := usecase.NewEvaluator(controlStore, frameworkStore, repository.NewOpenSearchSQL(), coverageIdx, repository.NewCHAlerts(events), repository.NewReportStore(db), overrideRepo, noteRepo, tenantFrameworkRepo, brand, entitlement)
 	scheduleUC := usecase.NewScheduleUsecase(scheduleRepo, frameworkStore, entitlement)
 
 	mailSender := &mailSender{svc: mailSvc}
@@ -78,15 +92,19 @@ func NewModule(db *gorm.DB, mailSvc mail_connectors.MailService, brand connector
 	}
 
 	return &Module{
-		frameworkH:   handler.NewFrameworkHandler(frameworkUC),
-		reportH:      handler.NewReportHandler(evaluatorUC),
-		scheduleH:    handler.NewScheduleHandler(scheduleUC),
-		scheduler:    scheduler,
-		coverage:     coverageIdx,
-		frameworkUC:  frameworkUC,
-		evaluatorUC:  evaluatorUC,
-		scheduleUC:   scheduleUC,
-		evalInterval: time.Duration(evalHours) * time.Hour,
+		frameworkH:       handler.NewFrameworkHandler(frameworkUC),
+		reportH:          handler.NewReportHandler(evaluatorUC),
+		scheduleH:        handler.NewScheduleHandler(scheduleUC),
+		scheduler:        scheduler,
+		coverage:         coverageIdx,
+		frameworkUC:      frameworkUC,
+		evaluatorUC:      evaluatorUC,
+		scheduleUC:       scheduleUC,
+		tenantFrameworks: tenantFrameworkRepo,
+		frameworkStore:   frameworkStore,
+		entitlement:      entitlement,
+		tenantLister:     tenants,
+		evalInterval:     time.Duration(evalHours) * time.Hour,
 	}
 }
 
@@ -115,19 +133,60 @@ func (m *Module) evaluateLoop(ctx context.Context) {
 	}
 }
 
-// evaluateAll generates (evaluates + snapshots) a report for every enabled
-// framework. Per-framework failures are logged and skipped.
+// evaluateAll generates (evaluates + snapshots) a report for every framework a
+// tenant possesses, across every active tenant on the instance. A framework's
+// file being globally `.disabled` at the platform level, or being enterprise-
+// locked without the licence, skips it for every tenant. Per-item failures
+// are logged and skipped so one bad tenant / framework doesn't stall the sweep.
+//
+// On-prem (no tenantLister) falls back to the legacy behaviour: one pass over
+// every file-enabled framework under the module's own ctx.
 func (m *Module) evaluateAll(ctx context.Context) {
-	frameworks := m.frameworkUC.ListFrameworks(ctx)
-	for _, fw := range frameworks {
+	if m.tenantLister == nil {
+		m.evaluateForCurrentContext(ctx)
+		return
+	}
+	tenants, err := m.tenantLister(tenancy.WithAllTenants(ctx))
+	if err != nil {
+		_ = catcher.Error("compliance: listing tenants for scheduled evaluation failed", err, nil)
+		return
+	}
+	for _, tid := range tenants {
 		if ctx.Err() != nil {
 			return
 		}
-		if !fw.Enabled || fw.Locked {
+		tenantCtx := authz.WithTenantID(ctx, tid)
+		m.evaluateForCurrentContext(tenantCtx)
+	}
+}
+
+// evaluateForCurrentContext runs one tenant's sweep — every framework in its
+// possession that's not locked and whose file is still available.
+func (m *Module) evaluateForCurrentContext(ctx context.Context) {
+	keys, err := m.tenantFrameworks.List(ctx)
+	if err != nil {
+		_ = catcher.Error("compliance: listing possessed frameworks failed", err, map[string]any{"tenant": authz.TenantIDFromContext(ctx)})
+		return
+	}
+	// Empty tenant on-prem — no possession rows. Fall back to the file-level
+	// enabled state, matching the legacy loop.
+	if len(keys) == 0 && authz.TenantIDFromContext(ctx) == "" {
+		for _, fw := range m.frameworkStore.All() {
+			if fw.Enabled && !m.entitlement.FrameworkLocked(&fw) {
+				keys = append(keys, fw.Key)
+			}
+		}
+	}
+	for _, key := range keys {
+		if ctx.Err() != nil {
+			return
+		}
+		fw, ok := m.frameworkStore.Get(key)
+		if !ok || !fw.Enabled || m.entitlement.FrameworkLocked(fw) {
 			continue
 		}
-		if _, err := m.evaluatorUC.GenerateReport(ctx, fw.Key); err != nil {
-			_ = catcher.Error("compliance: scheduled evaluation failed", err, map[string]any{"framework": fw.Key})
+		if _, err := m.evaluatorUC.GenerateReport(ctx, key); err != nil {
+			_ = catcher.Error("compliance: scheduled evaluation failed", err, map[string]any{"framework": key, "tenant": authz.TenantIDFromContext(ctx)})
 		}
 	}
 }

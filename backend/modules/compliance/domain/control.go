@@ -18,15 +18,19 @@ const (
 )
 
 type Check struct {
-	Key          string `yaml:"key" json:"key"`
-	Name         string `yaml:"name" json:"name"`
-	IndexPattern string `yaml:"indexPattern,omitempty" json:"indexPattern,omitempty"`
-	SQL          string `yaml:"sql,omitempty" json:"sql,omitempty"`
-	Rule         string `yaml:"rule,omitempty" json:"rule,omitempty"`
-	RuleValue    *int   `yaml:"ruleValue,omitempty" json:"ruleValue,omitempty"`
-	Field        string `yaml:"field,omitempty" json:"field,omitempty"`       // MATCH_FIELD_VALUE
-	Expected     string `yaml:"expected,omitempty" json:"expected,omitempty"` // MATCH_FIELD_VALUE
-	Todo         bool   `yaml:"todo,omitempty" json:"todo,omitempty"`         // placeholder — not yet evaluated (Pending)
+	Key  string `yaml:"key" json:"key"`
+	Name string `yaml:"name" json:"name"`
+	// DataType names the CH dataType this check reads (e.g. "wineventlog",
+	// "o365"). Empty means the check spans every type in its dataset. Replaces
+	// the OpenSearch indexPattern the v11 checks carried — CH has no notion of
+	// an index pattern, only (dataset, dataType) scopes.
+	DataType  string `yaml:"dataType,omitempty" json:"dataType,omitempty"`
+	SQL       string `yaml:"sql,omitempty" json:"sql,omitempty"`
+	Rule      string `yaml:"rule,omitempty" json:"rule,omitempty"`
+	RuleValue *int   `yaml:"ruleValue,omitempty" json:"ruleValue,omitempty"`
+	Field     string `yaml:"field,omitempty" json:"field,omitempty"`       // MATCH_FIELD_VALUE
+	Expected  string `yaml:"expected,omitempty" json:"expected,omitempty"` // MATCH_FIELD_VALUE
+	Todo      bool   `yaml:"todo,omitempty" json:"todo,omitempty"`         // placeholder — not yet evaluated (Pending)
 }
 
 type Control struct {

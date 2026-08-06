@@ -36,6 +36,7 @@ type ReportSection struct {
 
 type ReportSnapshot struct {
 	ID            string `json:"id"`
+	TenantID      string `json:"-"`
 	FrameworkKey  string `json:"frameworkKey"`
 	FrameworkName string `json:"frameworkName"`
 	Timestamp     string `json:"@timestamp"`

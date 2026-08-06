@@ -14,5 +14,5 @@ type UtmComplianceControlNote struct {
 }
 
 func (UtmComplianceControlNote) TableName() string {
-	return "utm_compliance_control_note"
+	return "compliance_control_note"
 }

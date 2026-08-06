@@ -10,6 +10,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 type evaluator struct {
@@ -21,12 +22,13 @@ type evaluator struct {
 	store      connectors.ReportStore
 	overrides  connectors.ControlStatusOverrideRepository // optional; nil → no manual overrides
 	notes      connectors.ControlNoteRepository           // optional; nil → no user notes on rows
+	possessed  connectors.TenantFrameworkRepository       // optional; nil → skip possession check (on-prem)
 	brand      connectors.BrandingProvider                // optional; nil → default UTMStack branding
 	ent        *Entitlement
 }
 
-func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, overrides connectors.ControlStatusOverrideRepository, notes connectors.ControlNoteRepository, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
-	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, overrides: overrides, notes: notes, brand: brand, ent: ent}
+func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, overrides connectors.ControlStatusOverrideRepository, notes connectors.ControlNoteRepository, possessed connectors.TenantFrameworkRepository, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
+	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, overrides: overrides, notes: notes, possessed: possessed, brand: brand, ent: ent}
 }
 
 func (e *evaluator) reportBrand(ctx context.Context) connectors.ReportBrand {
@@ -198,6 +200,20 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 	if e.ent.FrameworkLocked(fw) {
 		return nil, domain.ErrFrameworkLocked
 	}
+	// The acting tenant must possess the framework — an empty ctx tenant
+	// (on-prem/global) is allowed to evaluate anything, matching the rest of
+	// this module.
+	if e.possessed != nil {
+		if tid := authz.TenantIDFromContext(ctx); tid != "" {
+			has, err := e.possessed.Has(ctx, key)
+			if err != nil {
+				return nil, err
+			}
+			if !has {
+				return nil, domain.ErrFrameworkNotPossessed
+			}
+		}
+	}
 
 	now := time.Now().UTC()
 	report := domain.Report{
@@ -227,6 +243,12 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 		}
 	}
 
+	// stale collects overrides whose target matches the freshly-computed status
+	// — the override is no longer changing anything, so it gets cleared after
+	// the report is assembled (never mid-loop: an eval error would leave a
+	// half-cleaned overrides table). Delete-in-a-defer isn't quite right
+	// either — we only clear on successful eval.
+	var stale []string
 	for _, sec := range fw.Sections {
 		rs := domain.ReportSection{Name: sec.Name}
 		seen := map[string]bool{}
@@ -239,10 +261,19 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 				row, cached := cache[cid]
 				if !cached {
 					row = e.evalControl(ctx, cid, since)
-					if s, ok := overrides[cid]; ok && domain.ValidStatus(s) && s != row.Status {
-						row.Evidence = fmt.Sprintf("manual override (was %s)", row.Status)
-						row.Status = s
-						row.Overridden = true
+					if s, ok := overrides[cid]; ok && domain.ValidStatus(s) {
+						switch {
+						case s != row.Status:
+							row.Evidence = fmt.Sprintf("manual override (was %s)", row.Status)
+							row.Status = s
+							row.Overridden = true
+						default:
+							// Override target caught up to what the evaluator now
+							// produces — the human's forced status is the same
+							// as the computed one, so the override is dead
+							// weight. Queue it for deletion.
+							stale = append(stale, cid)
+						}
 					}
 					if n, ok := notes[cid]; ok {
 						row.Note = n
@@ -257,6 +288,17 @@ func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.
 	}
 
 	finalizeSummary(&report.Summary)
+
+	// Clean up any overrides that are now redundant. Errors are logged but
+	// not returned — the report itself is correct either way.
+	if e.overrides != nil {
+		for _, cid := range stale {
+			if err := e.overrides.Delete(ctx, fw.Key, cid); err != nil {
+				_ = catcher.Error("compliance: clearing stale status override failed", err, map[string]any{"framework": fw.Key, "control": cid})
+			}
+		}
+	}
+
 	return &report, nil
 }
 

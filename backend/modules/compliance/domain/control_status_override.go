@@ -15,7 +15,7 @@ type UtmComplianceControlStatusOverride struct {
 }
 
 func (UtmComplianceControlStatusOverride) TableName() string {
-	return "utm_compliance_control_status_override"
+	return "compliance_control_status_override"
 }
 
 func ValidStatus(s string) bool {
