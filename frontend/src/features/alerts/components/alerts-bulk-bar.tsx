@@ -1,6 +1,6 @@
 import { ChevronDown, Flame, Tag as TagIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { STATUS_INT, type AlertTag, type StatusKey } from '../types/alert.types'
+import { STATUS_CODE, type AlertTag, type StatusKey } from '../types/alert.types'
 import { Menu } from './menu'
 
 export function AlertsBulkBar({
@@ -27,7 +27,7 @@ export function AlertsBulkBar({
         {(['open', 'in_review', 'completed'] as StatusKey[]).map((k) => (
           <button
             key={k}
-            onClick={() => onStatus(STATUS_INT[k])}
+            onClick={() => onStatus(STATUS_CODE[k])}
             className="block w-full px-3 py-1.5 text-left text-sm hover:bg-muted"
           >
             {t(`alerts.status.${k}`)}

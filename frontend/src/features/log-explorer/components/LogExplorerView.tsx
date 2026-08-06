@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
-import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
+import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
@@ -295,7 +295,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   /* The filter array sent to the backend: time + free-text + chips. */
   const buildFilters = useCallback((): FilterType[] => {
     const out: FilterType[] = []
-    if (range.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [range.from, range.to] })
+    const abs = resolveRange(range)
+    if (abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
     if (appliedQuery.trim() && pattern) {
       out.push({ field: textPrefix(pattern), operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }

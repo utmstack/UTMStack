@@ -21,7 +21,7 @@ export function TaggingRulesPage() {
   const [debounced, setDebounced] = useState('')
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
-  const [tagFilter, setTagFilter] = useState<number | 'all'>('all')
+  const [tagFilter, setTagFilter] = useState<string | 'all'>('all')
 
   const [open, setOpen] = useState<TaggingRule | null>(null)
   const [creating, setCreating] = useState(false)
@@ -52,7 +52,7 @@ export function TaggingRulesPage() {
   const { tagCatalog, createTag } = useAlertTagCatalog()
   const { createRule, updateRule, deleteRule } = useTaggingRuleMutations(refresh)
 
-  const submit = async (input: { name: string; description: string; conditions: any[]; tags: any[] }, id?: number) => {
+  const submit = async (input: { name: string; description: string; conditions: any[]; tags: any[] }, id?: string) => {
     const ok = id != null
       ? await updateRule({ id, ...input })
       : await createRule(input)
@@ -108,9 +108,9 @@ export function TaggingRulesPage() {
           />
         </div>
         <select
-          value={String(tagFilter)}
+          value={tagFilter}
           onChange={(e) => {
-            setTagFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
+            setTagFilter(e.target.value)
             setPage(0)
           }}
           className="h-9 rounded-md border border-border bg-background px-2 text-sm"

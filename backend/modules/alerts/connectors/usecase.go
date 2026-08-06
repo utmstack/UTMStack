@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
@@ -30,19 +31,19 @@ type AlertUsecase interface {
 }
 
 type AlertTagUsecase interface {
-	Create(ctx context.Context, req dto.CreateAlertTagRequest) (*domain.UtmAlertTag, error)
-	Update(ctx context.Context, req dto.UpdateAlertTagRequest) (*domain.UtmAlertTag, error)
-	List(ctx context.Context, filters dto.AlertTagFilters) ([]domain.UtmAlertTag, int64, error)
-	GetByID(ctx context.Context, id uint64) (*domain.UtmAlertTag, error)
-	Delete(ctx context.Context, id uint64) error
+	Create(ctx context.Context, req dto.CreateAlertTagRequest) (*domain.AlertTag, error)
+	Update(ctx context.Context, req dto.UpdateAlertTagRequest) (*domain.AlertTag, error)
+	List(ctx context.Context, filters dto.AlertTagFilters) ([]domain.AlertTag, int64, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.AlertTag, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type AlertTagRuleUsecase interface {
 	Create(ctx context.Context, req dto.CreateAlertTagRuleRequest) (*dto.AlertTagRuleResponse, error)
 	Update(ctx context.Context, req dto.UpdateAlertTagRuleRequest) (*dto.AlertTagRuleResponse, error)
 	List(ctx context.Context, filters dto.AlertTagRuleFilters) ([]dto.AlertTagRuleResponse, int64, error)
-	GetByID(ctx context.Context, id uint64) (*dto.AlertTagRuleResponse, error)
-	GetByIDs(ctx context.Context, ids []int64) ([]dto.AlertTagRuleResponse, error)
-	Delete(ctx context.Context, id uint64) error
+	GetByID(ctx context.Context, id uuid.UUID) (*dto.AlertTagRuleResponse, error)
+	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]dto.AlertTagRuleResponse, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 	ListActiveResolved(ctx context.Context) ([]dto.ActiveAlertTagRule, error)
 }

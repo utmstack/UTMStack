@@ -47,52 +47,19 @@ type IncidentDetail struct {
 }
 
 type AlertFields struct {
-	Timestamp         string            `json:"@timestamp"`
-	Status            int               `json:"status"`
-	StatusLabel       string            `json:"statusLabel"`
-	StatusObservation string            `json:"statusObservation"`
-	IsIncident        bool              `json:"isIncident"`
-	IncidentDetail    IncidentDetail    `json:"incidentDetail"`
-	Severity          int               `json:"severity"`
-	SeverityLabel     string            `json:"severityLabel"`
-	Solution          string            `json:"solution"`
-	Reference         []string          `json:"reference"`
-	LastEvent         *plugins.Event    `json:"lastEvent"`
-	Tags              []string          `json:"tags"`
-	Notes             string            `json:"notes"`
-	TagRulesApplied   []int             `json:"tagRulesApplied"`
-	DeduplicatedBy    []string          `json:"deduplicatedBy"`
-	GroupedBy         []string          `json:"groupedBy"`
-	SourceGroup       *AlertSourceGroup `json:"sourceGroup,omitempty"` // datasource asset group (enrichment)
-	SourceLabels      []string          `json:"sourceLabels,omitempty"`
+	Timestamp         string         `json:"@timestamp"`
+	Status            string         `json:"status"`
+	StatusObservation string         `json:"statusObservation"`
+	IsIncident        bool           `json:"isIncident"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail"`
+	Solution          string         `json:"solution"`
+	Tags              []string       `json:"tags,omitempty"`
+	Notes             string         `json:"notes"`
+	TagRulesApplied   []string       `json:"tagRulesApplied,omitempty"`
 	plugins.Alert
 }
 
-type AlertSourceGroup struct {
-	ID   uint64 `json:"id"`
-	Name string `json:"name"`
-}
-
-// rules holds the active tag-rule snapshot the plugin evaluates against each
-// freshly indexed alert. It is refreshed in the background; a missing or empty
-// snapshot just means no rules fire — release-to-Open still runs.
 var rules *ruleCache
-
-var dsCache *datasourceCache
-
-func enrichFromDatasource(a *AlertFields) {
-	if dsCache == nil || a.DataSource == "" {
-		return
-	}
-	e, ok := dsCache.Lookup(a.TenantId, a.DataSource)
-	if !ok {
-		return
-	}
-	if e.GroupID != nil {
-		a.SourceGroup = &AlertSourceGroup{ID: *e.GroupID, Name: e.GroupName}
-	}
-	a.SourceLabels = e.Labels
-}
 
 func main() {
 	cfg := plugins.PluginCfg("clickhouse")
@@ -130,14 +97,6 @@ func main() {
 	initialCancel()
 	go rules.Run(context.Background())
 
-	dsCache = newDatasourceCache()
-	dsCtx, dsCancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
-	if err := dsCache.Refresh(dsCtx); err != nil {
-		_ = catcher.Error("initial datasource cache refresh failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
-	}
-	dsCancel()
-	go dsCache.Run(context.Background())
-
 	err = plugins.InitCorrelationPlugin("com.utmstack.alerts", correlate)
 	if err != nil {
 		_ = catcher.Error("com.utmstack.alerts", err, map[string]any{
@@ -169,18 +128,29 @@ func correlate(ctx context.Context,
 		return nil, nil
 	}
 
-	if isDuplicate(alert) {
+	if alert.LastEvent == nil && len(alert.Events) > 0 {
+		alert.LastEvent = alert.Events[len(alert.Events)-1]
+	}
+
+	raw, err := utils.ProtoMessageToString(alert)
+	if err != nil {
+		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": processName})
+		return nil, nil
+	}
+	alertJSON := *raw
+
+	if isDuplicate(alert, alertJSON) {
 		return nil, nil
 	}
 
-	parentId := getPreviousAlertId(alert)
+	parentId := getPreviousAlertId(alert, alertJSON)
 
 	var snapshot []RuleSnapshot
 	if rules != nil {
 		snapshot = rules.Snapshot(alert.TenantId)
 	}
 
-	if err := newAlert(alert, parentId, snapshot); err != nil {
+	if err := newAlert(alert, alertJSON, parentId, snapshot); err != nil {
 		return nil, err
 	}
 
@@ -188,6 +158,15 @@ func correlate(ctx context.Context,
 }
 
 var reArrayIndex = regexp.MustCompile(`\.[0-9]+(\.|$)`)
+
+func normalizeSeverity(s string) string {
+	switch s {
+	case "low", "medium", "high":
+		return s
+	default:
+		return "low"
+	}
+}
 
 func matchFilters(fields []string, alertString *string) []store.Filter {
 	out := make([]store.Filter, 0, len(fields))
@@ -218,17 +197,12 @@ func matchFilters(fields []string, alertString *string) []store.Filter {
 	return out
 }
 
-func deduplicationToken(alert *plugins.Alert) string {
+func deduplicationToken(alert *plugins.Alert, alertJSON string) string {
 	if len(alert.DeduplicateBy) == 0 {
 		return ""
 	}
 
-	alertString, err := utils.ProtoMessageToString(alert)
-	if err != nil {
-		return ""
-	}
-
-	filters := matchFilters(alert.DeduplicateBy, alertString)
+	filters := matchFilters(alert.DeduplicateBy, &alertJSON)
 	if len(filters) == 0 {
 		return ""
 	}
@@ -243,7 +217,7 @@ func deduplicationToken(alert *plugins.Alert) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func isDuplicate(alert *plugins.Alert) bool {
+func isDuplicate(alert *plugins.Alert, alertJSON string) bool {
 	// Recover from panics to ensure the function doesn't terminate
 	defer func() {
 		if r := recover(); r != nil {
@@ -259,13 +233,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 		return false
 	}
 
-	alertString, err := utils.ProtoMessageToString(alert)
-	if err != nil {
-		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": processName})
-		return false
-	}
-
-	filters := matchFilters(alert.DeduplicateBy, alertString)
+	filters := matchFilters(alert.DeduplicateBy, &alertJSON)
 	if len(filters) == 0 {
 		return false
 	}
@@ -296,7 +264,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 	return n > 0
 }
 
-func getPreviousAlertId(alert *plugins.Alert) *string {
+func getPreviousAlertId(alert *plugins.Alert, alertJSON string) *string {
 	// Recover from panics to ensure the function doesn't terminate
 	defer func() {
 		if r := recover(); r != nil {
@@ -312,13 +280,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 		return nil
 	}
 
-	alertString, err := utils.ProtoMessageToString(alert)
-	if err != nil {
-		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": processName})
-		return nil
-	}
-
-	filters := matchFilters(alert.GroupBy, alertString)
+	filters := matchFilters(alert.GroupBy, &alertJSON)
 	if len(filters) == 0 {
 		return nil
 	}
@@ -346,7 +308,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 				return nil
 			}
 
-			if gjson.GetBytes(docs[0], "status").Int() == statusCompleted {
+			if gjson.GetBytes(docs[0], "status").String() == statusCompleted {
 				go updateParentAlertToOpen(alert.TenantId, id)
 			}
 
@@ -396,60 +358,27 @@ func applyTagRules(a *AlertFields, rules []RuleSnapshot) {
 	a.TagRulesApplied = d.RuleIDs
 	if d.FalsePositive {
 		a.Status = statusCompleted
-		a.StatusLabel = "Completed"
 		a.StatusObservation = tagRuleCompletedObservation
 	}
 }
 
-func newAlert(alert *plugins.Alert, parentId *string, ruleSnapshot []RuleSnapshot) error {
-	// Recover from panics to ensure the function doesn't terminate
-	defer func() {
-		if r := recover(); r != nil {
-			_ = catcher.Error("recovered from panic in newAlert", nil, map[string]any{
-				"panic":   r,
-				"alert":   alert.Name,
-				"process": "plugin_com.utmstack.alerts",
-			})
-		}
-	}()
-
-	var severityN int
-	var severityLabel string
-	switch alert.Severity {
-	case "low":
-		severityN = 1
-		severityLabel = "Low"
-	case "medium":
-		severityN = 2
-		severityLabel = "Medium"
-	case "high":
-		severityN = 3
-		severityLabel = "High"
-	default:
-		severityN = 1
-		severityLabel = "Low"
-	}
-
-	a := AlertFields{
-		Timestamp:     alert.Timestamp,
-		Status:        statusOpen,
-		StatusLabel:   "Open",
-		Severity:      severityN,
-		SeverityLabel: severityLabel,
-		Reference:     alert.References,
-		LastEvent: func() *plugins.Event {
-			l := len(alert.Events)
-			if l == 0 {
-				return nil
+func buildAlert(alert *plugins.Alert, parentId *string) *AlertFields {
+	a := &AlertFields{
+		Status: statusOpen,
+		Timestamp: func() string {
+			if alert.Timestamp != "" {
+				return alert.Timestamp
 			}
-			return alert.Events[l-1]
+			return time.Now().UTC().Format(time.RFC3339Nano)
 		}(),
-		DeduplicatedBy: alert.DeduplicateBy,
-		GroupedBy:      alert.GroupBy,
 	}
 
 	a.Id = alert.Id
 	a.TenantId = alert.TenantId
+	a.TenantName = alert.TenantName
+	// The table replaces by this: a row written without it collapses to 1970 and
+	// loses to every later version of the same alert.
+	a.LastUpdate = a.Timestamp
 	a.ParentId = func() string {
 		if parentId != nil {
 			return *parentId
@@ -462,22 +391,40 @@ func newAlert(alert *plugins.Alert, parentId *string, ruleSnapshot []RuleSnapsho
 	a.Technique = alert.Technique
 	a.DataSource = alert.DataSource
 	a.DataType = alert.DataType
+	a.Severity = normalizeSeverity(alert.Severity)
 	a.Adversary = alert.Adversary
 	a.Target = alert.Target
 	a.Events = alert.Events
+	a.LastEvent = alert.LastEvent
 	a.Impact = alert.Impact
 	a.ImpactScore = alert.ImpactScore
+	a.References = alert.References
+	a.DeduplicateBy = alert.DeduplicateBy
+	a.GroupBy = alert.GroupBy
 	a.Errors = alert.Errors
 
-	// Enrich with the dataSource's asset group/labels, then evaluate tag rules in
-	// memory — so the alert is indexed once with its final context, tags and status
-	// (and rules can match on the enriched sourceGroup/sourceLabels).
-	enrichFromDatasource(&a)
-	applyTagRules(&a, ruleSnapshot)
+	return a
+}
+
+func newAlert(alert *plugins.Alert, alertJSON string, parentId *string, ruleSnapshot []RuleSnapshot) error {
+	// Recover from panics to ensure the function doesn't terminate
+	defer func() {
+		if r := recover(); r != nil {
+			_ = catcher.Error("recovered from panic in newAlert", nil, map[string]any{
+				"panic":   r,
+				"alert":   alert.Name,
+				"process": "plugin_com.utmstack.alerts",
+			})
+		}
+	}()
+
+	a := buildAlert(alert, parentId)
+
+	applyTagRules(a, ruleSnapshot)
 
 	scope := store.Scope{Tenant: alert.TenantId, Dataset: datasetAlerts}
 	retryDelay := initialRetryDelay
-	token := deduplicationToken(alert)
+	token := deduplicationToken(alert, alertJSON)
 
 	for retry := 0; retry < maxRetries; retry++ {
 		ctx, cancel := context.WithTimeout(context.Background(), writeTimeout)
@@ -485,7 +432,7 @@ func newAlert(alert *plugins.Alert, parentId *string, ruleSnapshot []RuleSnapsho
 			ctx = ch.WithDeduplicationToken(ctx, token)
 		}
 
-		err := alertStore.Insert(ctx, scope, alert.Id, &a)
+		err := alertStore.Insert(ctx, scope, alert.Id, a)
 		cancel()
 
 		if err == nil {
@@ -529,10 +476,7 @@ func updateParentAlertToOpen(tenantID, parentID string) {
 
 	scope := store.Scope{Tenant: tenantID, Dataset: datasetAlerts}
 	filters := []store.Filter{{Field: "id", Op: store.OpEq, Value: parentID}}
-	patch := map[string]any{
-		"status":      statusOpen,
-		"statusLabel": "Open",
-	}
+	patch := map[string]any{"status": statusOpen}
 
 	retryDelay := initialRetryDelay
 

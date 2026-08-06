@@ -37,8 +37,8 @@ export function AlertsToolbar({
   tagFilter: string[]
   onTagFilter: (tags: string[]) => void
   onCreateTag: (tagName: string, tagColor: string) => void
-  onUpdateTag: (id: number, tagName: string, tagColor: string) => void
-  onDeleteTag: (id: number, tagName: string) => void
+  onUpdateTag: (id: string, tagName: string, tagColor: string) => void
+  onDeleteTag: (id: string, tagName: string) => void
   onCreateRule: (tg: AlertTag) => void
   onRefresh: () => void
   onExport: () => void

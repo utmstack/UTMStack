@@ -1,18 +1,14 @@
 import { Tag as TagIcon } from 'lucide-react'
 import type { TFunction } from 'i18next'
-import type { useDateFormat } from '@/shared/lib/datetime'
 import { operatorById } from '../lib/tagging-rule-meta'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import { TaggingRuleSection } from './tagging-rule-section'
-import { TaggingRuleRow } from './tagging-rule-row'
 
 export function TaggingRuleView({
   rule,
-  df,
   t,
 }: {
   rule: TaggingRule
-  df: ReturnType<typeof useDateFormat>
   t: TFunction
 }) {
   return (
@@ -66,18 +62,6 @@ export function TaggingRuleView({
         )}
       </TaggingRuleSection>
 
-      <TaggingRuleSection title={t('taggingRules.view.audit')}>
-        <dl className="grid grid-cols-[150px_1fr] gap-y-2 text-xs">
-          <TaggingRuleRow k={t('taggingRules.view.createdBy')}>{rule.createdBy || '—'}</TaggingRuleRow>
-          <TaggingRuleRow k={t('taggingRules.view.createdDate')}>
-            {rule.createdDate ? df.formatDateTime(rule.createdDate) : '—'}
-          </TaggingRuleRow>
-          {rule.lastModifiedBy && <TaggingRuleRow k={t('taggingRules.view.modifiedBy')}>{rule.lastModifiedBy}</TaggingRuleRow>}
-          {rule.lastModifiedDate && (
-            <TaggingRuleRow k={t('taggingRules.view.modifiedDate')}>{df.formatDateTime(rule.lastModifiedDate)}</TaggingRuleRow>
-          )}
-        </dl>
-      </TaggingRuleSection>
     </div>
   )
 }

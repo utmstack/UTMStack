@@ -2,7 +2,7 @@ import { ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '../lib/alert-meta'
-import { SEVERITY_INT, STATUS_INT, type SeverityKey, type StatusKey } from '../types/alert.types'
+import { SEVERITY_VALUE, STATUS_VALUE, type SeverityKey, type StatusKey } from '../types/alert.types'
 
 export function AlertsBreakdownCard({
   sevCounts,
@@ -16,12 +16,12 @@ export function AlertsBreakdownCard({
     k,
     label: t(`alerts.severity.${k}`),
     bar: SEV_META[k].bar,
-    count: sevCounts[String(SEVERITY_INT[k])] ?? 0,
+    count: sevCounts[SEVERITY_VALUE[k]] ?? 0,
   }))
   const stRows = (['open', 'in_review', 'completed', 'auto'] as StatusKey[]).map((k) => ({
     k,
     label: t(`alerts.status.${k}`),
-    count: statusCounts[String(STATUS_INT[k])] ?? 0,
+    count: statusCounts[STATUS_VALUE[k]] ?? 0,
   }))
   const sevMax = Math.max(1, ...sevRows.map((r) => r.count))
   return (

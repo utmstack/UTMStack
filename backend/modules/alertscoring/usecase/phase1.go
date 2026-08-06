@@ -12,7 +12,7 @@ func phase1Intrinsic(a *alertdomain.UtmAlert) domain.PhaseResult {
 	techID := mitre.ExtractTechniqueID(a.Technique, a.Name, a.Description, a.Category)
 	techPts := mitre.TechniqueScore(techID)
 
-	mult, ok := mitre.SeverityMultiplier[a.Severity]
+	mult, ok := mitre.SeverityMultiplier[string(a.Severity)]
 	if !ok {
 		mult = mitre.DefaultSeverityMultiplier
 	}
@@ -38,19 +38,16 @@ func phase1Intrinsic(a *alertdomain.UtmAlert) domain.PhaseResult {
 }
 
 func impactComponent(a *alertdomain.UtmAlert) (points int, raw int) {
+	// Impact itself is the CIA triad the rule declared, on a nought-to-three
+	// scale; it is not a second opinion on this one and cannot stand in for it.
 	raw = a.ImpactScore
-	if raw == 0 && a.Impact != nil {
-		raw = a.Impact.Score
-	}
 	if raw <= 0 {
 		switch a.Severity {
-		case 4:
-			return 36, 0
-		case 3:
+		case alertdomain.SeverityHigh:
 			return 28, 0
-		case 2:
+		case alertdomain.SeverityMedium:
 			return 16, 0
-		case 1:
+		case alertdomain.SeverityLow:
 			return 8, 0
 		default:
 			return 12, 0

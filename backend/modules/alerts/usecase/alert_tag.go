@@ -2,11 +2,20 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
+
+// ---------------------------------------------------------------------------
+// Tag catalog
+// ---------------------------------------------------------------------------
 
 type alertTagUsecase struct {
 	repo connectors.AlertTagRepository
@@ -16,8 +25,8 @@ func NewAlertTagUsecase(repo connectors.AlertTagRepository) connectors.AlertTagU
 	return &alertTagUsecase{repo: repo}
 }
 
-func (u *alertTagUsecase) Create(ctx context.Context, req dto.CreateAlertTagRequest) (*domain.UtmAlertTag, error) {
-	tag := domain.UtmAlertTag{
+func (u *alertTagUsecase) Create(ctx context.Context, req dto.CreateAlertTagRequest) (*domain.AlertTag, error) {
+	tag := domain.AlertTag{
 		TagName:     req.TagName,
 		TagColor:    req.TagColor,
 		SystemOwner: false,
@@ -25,7 +34,7 @@ func (u *alertTagUsecase) Create(ctx context.Context, req dto.CreateAlertTagRequ
 	return u.repo.Create(ctx, tag)
 }
 
-func (u *alertTagUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRequest) (*domain.UtmAlertTag, error) {
+func (u *alertTagUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRequest) (*domain.AlertTag, error) {
 	existing, err := u.repo.GetByID(ctx, req.ID)
 	if err != nil {
 		return nil, err
@@ -43,7 +52,7 @@ func (u *alertTagUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRequ
 	return u.repo.Update(ctx, *existing)
 }
 
-func (u *alertTagUsecase) List(ctx context.Context, filters dto.AlertTagFilters) ([]domain.UtmAlertTag, int64, error) {
+func (u *alertTagUsecase) List(ctx context.Context, filters dto.AlertTagFilters) ([]domain.AlertTag, int64, error) {
 	if filters.Page < 1 {
 		filters.Page = 1
 	}
@@ -59,7 +68,7 @@ func (u *alertTagUsecase) List(ctx context.Context, filters dto.AlertTagFilters)
 	return rows, total, nil
 }
 
-func (u *alertTagUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmAlertTag, error) {
+func (u *alertTagUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.AlertTag, error) {
 	row, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -70,7 +79,7 @@ func (u *alertTagUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmAl
 	return row, nil
 }
 
-func (u *alertTagUsecase) Delete(ctx context.Context, id uint64) error {
+func (u *alertTagUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	existing, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return err
@@ -82,4 +91,255 @@ func (u *alertTagUsecase) Delete(ctx context.Context, id uint64) error {
 		return domain.ErrAlertTagSystemOwned
 	}
 	return u.repo.Delete(ctx, id)
+}
+
+// ---------------------------------------------------------------------------
+// Tagging rules
+// ---------------------------------------------------------------------------
+
+type alertTagRuleUsecase struct {
+	ruleRepo connectors.AlertTagRuleRepository
+	tagRepo  connectors.AlertTagRepository
+}
+
+func NewAlertTagRuleUsecase(
+	ruleRepo connectors.AlertTagRuleRepository,
+	tagRepo connectors.AlertTagRepository,
+) connectors.AlertTagRuleUsecase {
+	return &alertTagRuleUsecase{ruleRepo: ruleRepo, tagRepo: tagRepo}
+}
+
+func (u *alertTagRuleUsecase) Create(ctx context.Context, req dto.CreateAlertTagRuleRequest) (*dto.AlertTagRuleResponse, error) {
+	condJSON, err := json.Marshal(req.Conditions)
+	if err != nil {
+		return nil, fmt.Errorf("marshal conditions: %w", err)
+	}
+
+	appliedTags := tagsToCSV(req.Tags)
+
+	rule := domain.AlertTagRule{
+		RuleName:        req.Name,
+		RuleDescription: req.Description,
+		RuleConditions:  string(condJSON),
+		RuleAppliedTags: appliedTags,
+		RuleActive:      true,
+		RuleDeleted:     false,
+	}
+
+	created, err := u.ruleRepo.Create(ctx, rule)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.toResponse(ctx, created)
+}
+
+func (u *alertTagRuleUsecase) Update(ctx context.Context, req dto.UpdateAlertTagRuleRequest) (*dto.AlertTagRuleResponse, error) {
+	existing, err := u.ruleRepo.GetByID(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, domain.ErrAlertTagRuleNotFound
+	}
+
+	condJSON, err := json.Marshal(req.Conditions)
+	if err != nil {
+		return nil, fmt.Errorf("marshal conditions: %w", err)
+	}
+
+	existing.RuleName = req.Name
+	existing.RuleDescription = req.Description
+	existing.RuleConditions = string(condJSON)
+	existing.RuleAppliedTags = tagsToCSV(req.Tags)
+
+	updated, err := u.ruleRepo.Update(ctx, *existing)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.toResponse(ctx, updated)
+}
+
+func (u *alertTagRuleUsecase) List(ctx context.Context, filters dto.AlertTagRuleFilters) ([]dto.AlertTagRuleResponse, int64, error) {
+	if filters.Page < 1 {
+		filters.Page = 1
+	}
+	if filters.Size < 1 || filters.Size > 200 {
+		filters.Size = 20
+	}
+
+	rows, total, err := u.ruleRepo.List(ctx, filters)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	result := make([]dto.AlertTagRuleResponse, 0, len(rows))
+	for i := range rows {
+		resp, err := u.toResponse(ctx, &rows[i])
+		if err != nil {
+			return nil, 0, err
+		}
+		result = append(result, *resp)
+	}
+
+	return result, total, nil
+}
+
+func (u *alertTagRuleUsecase) GetByID(ctx context.Context, id uuid.UUID) (*dto.AlertTagRuleResponse, error) {
+	row, err := u.ruleRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, domain.ErrAlertTagRuleNotFound
+	}
+	return u.toResponse(ctx, row)
+}
+
+func (u *alertTagRuleUsecase) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]dto.AlertTagRuleResponse, error) {
+	rows, err := u.ruleRepo.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]dto.AlertTagRuleResponse, 0, len(rows))
+	for i := range rows {
+		resp, err := u.toResponse(ctx, &rows[i])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *resp)
+	}
+	return result, nil
+}
+
+func (u *alertTagRuleUsecase) Delete(ctx context.Context, id uuid.UUID) error {
+	existing, err := u.ruleRepo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return domain.ErrAlertTagRuleNotFound
+	}
+	return u.ruleRepo.Delete(ctx, id)
+}
+
+// ListActiveResolved returns active, non-deleted rules with applied-tag CSV
+// already resolved to tag names. Used by the alerts plugin's rule cache.
+func (u *alertTagRuleUsecase) ListActiveResolved(ctx context.Context) ([]dto.ActiveAlertTagRule, error) {
+	rules, err := u.ruleRepo.FindAllActive(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]dto.ActiveAlertTagRule, 0, len(rules))
+	for _, rule := range rules {
+		names, err := u.resolveTagNames(ctx, rule.RuleAppliedTags)
+		if err != nil {
+			return nil, err
+		}
+		var conditions json.RawMessage
+		if rule.RuleConditions != "" {
+			conditions = json.RawMessage(rule.RuleConditions)
+		}
+		out = append(out, dto.ActiveAlertTagRule{
+			TenantID:        rule.TenantID,
+			ID:              rule.ID,
+			Name:            rule.RuleName,
+			Conditions:      conditions,
+			AppliedTagNames: names,
+		})
+	}
+	return out, nil
+}
+
+func (u *alertTagRuleUsecase) resolveTagNames(ctx context.Context, csv string) ([]string, error) {
+	ids := csvToIDs(csv)
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	tags, err := u.tagRepo.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, 0, len(tags))
+	for _, t := range tags {
+		if strings.TrimSpace(t.TagName) != "" {
+			names = append(names, t.TagName)
+		}
+	}
+	return names, nil
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+func (u *alertTagRuleUsecase) toResponse(ctx context.Context, rule *domain.AlertTagRule) (*dto.AlertTagRuleResponse, error) {
+	var conditions []common_models.FilterType
+	if rule.RuleConditions != "" {
+		if err := json.Unmarshal([]byte(rule.RuleConditions), &conditions); err != nil {
+			conditions = nil
+		}
+	}
+
+	tagRefs, err := u.resolveTagRefs(ctx, rule.RuleAppliedTags)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.AlertTagRuleResponse{
+		ID:          rule.ID,
+		Name:        rule.RuleName,
+		Description: rule.RuleDescription,
+		Conditions:  conditions,
+		Tags:        tagRefs,
+		Active:      rule.RuleActive,
+		Deleted:     rule.RuleDeleted,
+	}, nil
+}
+
+func (u *alertTagRuleUsecase) resolveTagRefs(ctx context.Context, csv string) ([]dto.AlertTagRuleTagRef, error) {
+	ids := csvToIDs(csv)
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	tags, err := u.tagRepo.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	refs := make([]dto.AlertTagRuleTagRef, 0, len(tags))
+	for _, t := range tags {
+		refs = append(refs, dto.AlertTagRuleTagRef{
+			ID:          t.ID,
+			TagName:     t.TagName,
+			TagColor:    t.TagColor,
+			SystemOwner: t.SystemOwner,
+		})
+	}
+	return refs, nil
+}
+
+func tagsToCSV(tags []dto.AlertTagRuleTagRef) string {
+	parts := make([]string, 0, len(tags))
+	for _, t := range tags {
+		parts = append(parts, t.ID.String())
+	}
+	return strings.Join(parts, ",")
+}
+
+func csvToIDs(csv string) []uuid.UUID {
+	if csv == "" {
+		return nil
+	}
+	ids := make([]uuid.UUID, 0, strings.Count(csv, ",")+1)
+	for _, p := range strings.Split(csv, ",") {
+		if id, err := uuid.Parse(strings.TrimSpace(p)); err == nil {
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }

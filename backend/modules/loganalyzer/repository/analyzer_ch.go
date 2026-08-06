@@ -56,6 +56,7 @@ func (r *chAnalyzerRepository) TopValues(ctx context.Context, dataset, dataType,
 	if err != nil {
 		return nil, err
 	}
+	scope, filters = common_models.SplitTimeBounds(scope, filters)
 	f, err := common_models.ToStoreFilters(filters)
 	if err != nil {
 		return nil, err
@@ -89,7 +90,8 @@ func (r *chAnalyzerRepository) ChartView(ctx context.Context, req dto.ChartViewR
 	if err != nil {
 		return nil, err
 	}
-	f, err := common_models.ToStoreFilters(req.Filters)
+	scope, reqFilters := common_models.SplitTimeBounds(scope, req.Filters)
+	f, err := common_models.ToStoreFilters(reqFilters)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +196,8 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 		scope.To = *req.To
 	}
 
-	f, err := common_models.ToStoreFilters(req.Filters)
+	scope, reqFilters := common_models.SplitTimeBounds(scope, req.Filters)
+	f, err := common_models.ToStoreFilters(reqFilters)
 	if err != nil {
 		return nil, err
 	}

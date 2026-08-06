@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
@@ -157,10 +158,10 @@ type alertTagsCreateInput struct {
 	TagColor string `json:"tag_color,omitempty" jsonschema:"Optional CSS color (e.g. #ff0000)"`
 }
 type alertTagsUpdateInput struct {
-	ID          uint64 `json:"id"`
-	TagName     string `json:"tag_name"`
-	TagColor    string `json:"tag_color,omitempty"`
-	SystemOwner bool   `json:"system_owner,omitempty"`
+	ID          uuid.UUID `json:"id"`
+	TagName     string    `json:"tag_name"`
+	TagColor    string    `json:"tag_color,omitempty"`
+	SystemOwner bool      `json:"system_owner,omitempty"`
 }
 type alertTagsListInput struct {
 	TagName     *string `json:"tag_name,omitempty" jsonschema:"Filter by partial tag name"`
@@ -169,7 +170,7 @@ type alertTagsListInput struct {
 	Size        int     `json:"size,omitempty"`
 }
 type alertTagsByIDInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerAlertTags(m *Module) {
@@ -240,10 +241,10 @@ func registerAlertTags(m *Module) {
 // ------------------------------------------------------------------
 
 type tagRuleRef struct {
-	ID          uint64 `json:"id"`
-	TagName     string `json:"tag_name,omitempty"`
-	TagColor    string `json:"tag_color,omitempty"`
-	SystemOwner bool   `json:"system_owner,omitempty"`
+	ID          uuid.UUID `json:"id"`
+	TagName     string    `json:"tag_name,omitempty"`
+	TagColor    string    `json:"tag_color,omitempty"`
+	SystemOwner bool      `json:"system_owner,omitempty"`
 }
 type alertTagRulesCreateInput struct {
 	Name        string                     `json:"name"`
@@ -252,23 +253,23 @@ type alertTagRulesCreateInput struct {
 	Tags        []tagRuleRef               `json:"tags"`
 }
 type alertTagRulesUpdateInput struct {
-	ID          uint64                     `json:"id"`
+	ID          uuid.UUID                  `json:"id"`
 	Name        string                     `json:"name"`
 	Description string                     `json:"description"`
 	Conditions  []common_models.FilterType `json:"conditions"`
 	Tags        []tagRuleRef               `json:"tags"`
 }
 type alertTagRulesListInput struct {
-	Name           *string `json:"name,omitempty"`
-	ConditionField *string `json:"condition_field,omitempty"`
-	ConditionValue *string `json:"condition_value,omitempty"`
-	RuleActive     *bool   `json:"active,omitempty"`
-	TagIDs         []int64 `json:"tag_ids,omitempty"`
-	Page           int     `json:"page,omitempty"`
-	Size           int     `json:"size,omitempty"`
+	Name           *string     `json:"name,omitempty"`
+	ConditionField *string     `json:"condition_field,omitempty"`
+	ConditionValue *string     `json:"condition_value,omitempty"`
+	RuleActive     *bool       `json:"active,omitempty"`
+	TagIDs         []uuid.UUID `json:"tag_ids,omitempty"`
+	Page           int         `json:"page,omitempty"`
+	Size           int         `json:"size,omitempty"`
 }
 type alertTagRulesByIDInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerAlertTagRules(m *Module) {

@@ -121,25 +121,21 @@ ON CONFLICT DO NOTHING;
 -- Idempotent: every statement is ON CONFLICT DO NOTHING or a delete.
 
 
--- The legacy backend seeded this row in data.sql (id=1, system_owner=true). It
--- is the canonical tag the rules engine applies to auto-complete alerts: the
--- OpenSearch Painless scripts and the Go usecase reference it by NAME
--- ("False positive"), so the managed tag must exist for the UI tag picker and
--- for parity with legacy installs.
+-- "False positive" is the tag the rules engine applies to auto-complete an
+-- alert. Both the engine and this service reference it by NAME, never by id,
+-- so what matters is that a row with this name exists before either runs.
 --
--- On an in-place upgrade the legacy row already exists (utm_alert_tag is not
--- dropped), so this is a no-op via ON CONFLICT. On a fresh install GORM creates
--- an empty table and this seeds it.
+-- It is system-owned, which is how it belongs to every tenant and to none: the
+-- tenancy callbacks read a scoped table as "tenant_id = mine OR system_owner",
+-- so the tenant on this row is never matched against. It still has to hold a
+-- value — the column is NOT NULL — and the nil UUID is the one that says "no
+-- tenant" without naming one.
 --
--- We intentionally omit an explicit id and let the GORM-created sequence assign
--- it: forcing id=1 would not advance the sequence and the next auto-insert would
--- collide. The Go code keys off tag_name, not the id, so the value is irrelevant.
--- The conflict target is (tenant_id, tag_name) because that is the unique
--- index: a tag name is unique inside a tenant, not across the table. This tag
--- belongs to none — it is system-owned, which every tenant reads and none may
--- change — so its tenant is empty.
-INSERT INTO utm_alert_tag (tenant_id, tag_name, tag_color, system_owner)
-VALUES ('', 'False positive', '#f44336', true)
+-- The id is left to the column's own gen_random_uuid(). The conflict target is
+-- (tenant_id, tag_name) because that is the unique index: a tag name is unique
+-- inside a tenant, not across the table.
+INSERT INTO alert_tag (tenant_id, tag_name, tag_color, system_owner)
+VALUES ('00000000-0000-0000-0000-000000000000', 'False positive', '#f44336', true)
 ON CONFLICT (tenant_id, tag_name) DO NOTHING;
 
 -- Seed default mail configuration rows in app_config so the

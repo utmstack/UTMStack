@@ -8,8 +8,8 @@ export interface UseAlertTagCatalogResult {
   tagCatalog: AlertTag[]
   refresh: () => Promise<void>
   createTag: (tagName: string, tagColor: string) => Promise<AlertTag | null>
-  updateTag: (id: number, tagName: string, tagColor: string) => Promise<void>
-  deleteTag: (id: number, tagName: string) => Promise<void>
+  updateTag: (id: string, tagName: string, tagColor: string) => Promise<void>
+  deleteTag: (id: string, tagName: string) => Promise<void>
 }
 
 /**
@@ -50,7 +50,7 @@ export function useAlertTagCatalog(onTagDeleted?: (tagName: string) => void): Us
   )
 
   const updateTag = useCallback(
-    async (id: number, tagName: string, tagColor: string) => {
+    async (id: string, tagName: string, tagColor: string) => {
       try {
         await svc.updateTag(id, tagName, tagColor)
         await refresh()
@@ -63,7 +63,7 @@ export function useAlertTagCatalog(onTagDeleted?: (tagName: string) => void): Us
   )
 
   const deleteTag = useCallback(
-    async (id: number, tagName: string) => {
+    async (id: string, tagName: string) => {
       try {
         await svc.deleteTag(id)
         await refresh()

@@ -77,6 +77,8 @@ func Register(db *gorm.DB, enabled func() bool) error {
 
 var multiTenant = func() bool { return false }
 
+func Enabled() bool { return multiTenant() }
+
 func tenantField(db *gorm.DB) *schema.Field {
 	if db.Statement == nil || db.Statement.Schema == nil {
 		return nil

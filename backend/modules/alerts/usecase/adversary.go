@@ -3,19 +3,13 @@ package usecase
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-
-	"github.com/threatwinds/go-sdk/catcher"
+	"sort"
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
-
-// adversaryBucketAggs is the set of sub-aggregations run under each adversary
-// bucket (by host or by IP) — shared so both grouping strategies fetch the
-// same shape of data.
 
 type adversaryUsecase struct {
 	repo connectors.AdversaryRepository
@@ -29,142 +23,73 @@ func (u *adversaryUsecase) FetchAdversaryAlerts(
 	ctx context.Context,
 	filters []common_models.FilterType,
 ) ([]dto.AdversaryResponse, error) {
-	rawAggs, err := u.repo.AdversaryAggs(ctx, filters)
+	groups, err := u.repo.AdversaryGroups(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
-	if rawAggs == nil {
-		return []dto.AdversaryResponse{}, nil
+
+	out := make([]dto.AdversaryResponse, 0, len(groups))
+	for _, g := range groups {
+		if resp, ok := buildAdversaryGroup(g); ok {
+			out = append(out, resp)
+		}
 	}
-	return parseAdversaryAggs(rawAggs)
+	return out, nil
 }
 
-// ---------------------------------------------------------------------------
-// Aggregation response structs
-// ---------------------------------------------------------------------------
-
-type adversarySearchResponse struct {
-	Aggregations struct {
-		ByHost adversaryFilterAgg `json:"by_host"`
-		ByIP   adversaryFilterAgg `json:"by_ip"`
-	} `json:"aggregations"`
-}
-
-// adversaryFilterAgg wraps the filter agg's own "grouped" terms sub-agg.
-type adversaryFilterAgg struct {
-	Grouped struct {
-		Buckets []adversaryBucket `json:"buckets"`
-	} `json:"grouped"`
-}
-
-type adversaryBucket struct {
-	Key          string `json:"key"`
-	AdversaryObj struct {
-		Hits struct {
-			Hits []adversaryHitSource `json:"hits"`
-		} `json:"hits"`
-	} `json:"adversary_obj"`
-	Alerts struct {
-		AlertsHits struct {
-			Hits struct {
-				Hits []adversaryHitSource `json:"hits"`
-			} `json:"hits"`
-		} `json:"alerts_hits"`
-	} `json:"alerts"`
-	ChildAlerts struct {
-		Buckets []adversaryChildBucket `json:"buckets"`
-	} `json:"child_alerts"`
-}
-
-type adversaryChildBucket struct {
-	Key       string `json:"key"`
-	ChildHits struct {
-		Hits struct {
-			Hits []adversaryHitSource `json:"hits"`
-		} `json:"hits"`
-	} `json:"child_hits"`
-}
-
-type adversaryHitSource struct {
-	Source json.RawMessage `json:"_source"`
-}
-
-// ---------------------------------------------------------------------------
-
-func parseAdversaryAggs(rawResp []byte) ([]dto.AdversaryResponse, error) {
-	var sr adversarySearchResponse
-	if err := json.Unmarshal(rawResp, &sr); err != nil {
-		return nil, fmt.Errorf("alerts adversary: decode aggregation response: %w", err)
-	}
-
-	buckets := make([]adversaryBucket, 0, len(sr.Aggregations.ByHost.Grouped.Buckets)+len(sr.Aggregations.ByIP.Grouped.Buckets))
-	buckets = append(buckets, sr.Aggregations.ByHost.Grouped.Buckets...)
-	buckets = append(buckets, sr.Aggregations.ByIP.Grouped.Buckets...)
-
-	groups := make([]dto.AdversaryResponse, 0, len(buckets))
-
-	for _, bucket := range buckets {
-		// Extract the adversary Side from the top_hits result.
-		if len(bucket.AdversaryObj.Hits.Hits) == 0 || bucket.AdversaryObj.Hits.Hits[0].Source == nil {
+// buildAdversaryGroup turns one attacker's sample of alerts into the parent and
+// echo shape the drawer renders. A group whose alerts are all echoes has no
+// parent to hang them from and is dropped, not shown headless.
+func buildAdversaryGroup(g connectors.AdversaryGroup) (dto.AdversaryResponse, bool) {
+	alerts := make([]domain.UtmAlert, 0, len(g.Alerts))
+	for _, raw := range g.Alerts {
+		var a domain.UtmAlert
+		if err := json.Unmarshal(raw, &a); err != nil {
 			continue
 		}
-		var wrapper dto.AdversaryWrapper
-		if err := json.Unmarshal(bucket.AdversaryObj.Hits.Hits[0].Source, &wrapper); err != nil {
-			_ = catcher.Error("alerts adversary: decode adversary wrapper", err, nil)
-			continue
-		}
-
-		// Collect parent alerts.
-		parentHits := bucket.Alerts.AlertsHits.Hits.Hits
-		parents := make([]domain.UtmAlert, 0, len(parentHits))
-		for _, h := range parentHits {
-			if h.Source == nil {
-				continue
-			}
-			var alert domain.UtmAlert
-			if err := json.Unmarshal(h.Source, &alert); err != nil {
-				_ = catcher.Error("alerts adversary: decode parent alert", err, nil)
-				continue
-			}
-			if alert.ParentID == "" {
-				parents = append(parents, alert)
-			}
-		}
-
-		childMap := make(map[string][]domain.UtmAlert)
-		for _, cb := range bucket.ChildAlerts.Buckets {
-			children := make([]domain.UtmAlert, 0, len(cb.ChildHits.Hits.Hits))
-			for _, h := range cb.ChildHits.Hits.Hits {
-				if h.Source == nil {
-					continue
-				}
-				var child domain.UtmAlert
-				if err := json.Unmarshal(h.Source, &child); err != nil {
-					_ = catcher.Error("alerts adversary: decode child alert", err, nil)
-					continue
-				}
-				children = append(children, child)
-			}
-			childMap[cb.Key] = children
-		}
-
-		alertsWithChildren := make([]dto.AlertWithChildren, 0, len(parents))
-		for _, parent := range parents {
-			kids := childMap[parent.ID]
-			if kids == nil {
-				kids = []domain.UtmAlert{}
-			}
-			alertsWithChildren = append(alertsWithChildren, dto.AlertWithChildren{
-				Alert:    parent,
-				Children: kids,
-			})
-		}
-
-		groups = append(groups, dto.AdversaryResponse{
-			Adversary: wrapper.Adversary,
-			Alerts:    alertsWithChildren,
-		})
+		alerts = append(alerts, a)
+	}
+	if len(alerts) == 0 {
+		return dto.AdversaryResponse{}, false
 	}
 
-	return groups, nil
+	// The store returns a group's sample in no particular order, so newest-first
+	// is restored here: it decides which adversary description is shown and the
+	// order the alerts are listed in.
+	sort.SliceStable(alerts, func(i, j int) bool {
+		return alerts[i].Timestamp > alerts[j].Timestamp
+	})
+
+	children := make(map[string][]domain.UtmAlert)
+	var parents []domain.UtmAlert
+	for _, a := range alerts {
+		if a.ParentID == "" {
+			parents = append(parents, a)
+			continue
+		}
+		children[a.ParentID] = append(children[a.ParentID], a)
+	}
+	if len(parents) == 0 {
+		return dto.AdversaryResponse{}, false
+	}
+
+	withChildren := make([]dto.AlertWithChildren, 0, len(parents))
+	for _, p := range parents {
+		kids := children[p.ID]
+		if kids == nil {
+			kids = []domain.UtmAlert{}
+		}
+		withChildren = append(withChildren, dto.AlertWithChildren{Alert: p, Children: kids})
+	}
+
+	// The adversary is described by whichever alert saw it most recently.
+	var side *domain.Side
+	for _, a := range alerts {
+		if a.Adversary != nil {
+			side = a.Adversary
+			break
+		}
+	}
+
+	return dto.AdversaryResponse{Adversary: side, Alerts: withChildren}, true
 }

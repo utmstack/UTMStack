@@ -23,8 +23,8 @@ export function AlertTagEditor({
   catalog: AlertTag[]
   onTags: (tags: string[]) => void
   onCreateTag: (tagName: string, tagColor: string) => void
-  onUpdateTag: (id: number, tagName: string, tagColor: string) => void
-  onDeleteTag: (id: number, tagName: string) => void
+  onUpdateTag: (id: string, tagName: string, tagColor: string) => void
+  onDeleteTag: (id: string, tagName: string) => void
   onCreateRule: (tg: AlertTag) => void
 }) {
   const { t } = useTranslation()
@@ -32,7 +32,7 @@ export function AlertTagEditor({
   const [name, setName] = useState('')
   const [color, setColor] = useState(TAG_COLORS[5])
   // Inline edit of an existing catalog tag.
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editColor, setEditColor] = useState(TAG_COLORS[5])
   const ref = useRef<HTMLDivElement>(null)

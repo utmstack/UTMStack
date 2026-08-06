@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { alertsHttpService as svc, AlertsHttpError } from '../services/alerts-http.service'
 import { incidentsHttpService } from '@/features/incidents/services/incidents-http.service'
 import type { AlertLinkItem, Incident } from '@/features/incidents/types/incident.types'
+import { SEVERITY_RANK, STATUS_BY_VALUE, STATUS_CODE } from '../types/alert.types'
 import type { Alert } from '../types/alert.types'
 
 export type IncidentMode = 'new' | 'existing'
@@ -39,8 +40,9 @@ export function useIncidentLink({ alerts, mode, onDone }: UseIncidentLinkArgs): 
       alerts.map((a) => ({
         alertId: a.id,
         alertName: a.name || a.id,
-        alertSeverity: a.severity ?? 1,
-        alertStatus: a.status,
+        // The incidents module still ranks severity numerically.
+        alertSeverity: SEVERITY_RANK[a.severity ?? 'low'] ?? 1,
+        alertStatus: STATUS_CODE[STATUS_BY_VALUE[a.status ?? ''] ?? 'open'],
       })),
     [alerts]
   )

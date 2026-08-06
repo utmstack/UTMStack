@@ -11,11 +11,26 @@
   The server version is pinned to 25.8 for a related reason: 25.3 cannot parse
   a nested object into a JSON column through JSONEachRow at all, which is how
   every log and alert is written.
+
+  final makes a read of the alerts table return one row per alert rather than
+  one per version of it. Alerts are stored in a ReplacingMergeTree because they
+  are edited after they are written, and a ReplacingMergeTree only collapses
+  versions when its parts happen to merge — until then a plain SELECT returns
+  every version. Setting it here rather than per query is what keeps that true
+  for every reader: the backend, the plugins, SOC-AI and anyone at a console.
+  It applies only to engines that support FINAL, so logs and statistics, which
+  are plain MergeTree, are unaffected.
+
+  It is not free: collapsing happens per query, and what it costs grows with how
+  many parts hold unmerged versions of the same alert. That number is bounded by
+  how fast background merges keep up, so merge lag on utmstack.alerts is the
+  thing to watch when alert queries slow down — not the query itself.
 -->
 <clickhouse>
     <profiles>
         <default>
             <date_time_input_format>best_effort</date_time_input_format>
+            <final>1</final>
         </default>
     </profiles>
 </clickhouse>

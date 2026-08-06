@@ -2,8 +2,6 @@ package dto
 
 import "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 
-// AdversaryResponse groups the alerts attributed to a single adversary host,
-// each parent alert carrying its child alerts.
 type AdversaryResponse struct {
 	Adversary *domain.Side        `json:"adversary"`
 	Alerts    []AlertWithChildren `json:"alerts"`

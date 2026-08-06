@@ -48,9 +48,41 @@ export function presetRange(id: string): TimeRange {
   return { from: p.token, to: 'now', interval: p.interval }
 }
 
+const REL_RE = /^now-(\d+)([mhdwM])$/
+
 export const ALL_TIME: TimeRange = { from: null, to: 'now', interval: 'day' }
 
-const REL_RE = /^now-(\d+)([mhdwM])$/
+/**
+ * Turns a range into the absolute instants a query needs.
+ *
+ * The picker keeps relative tokens — "now-7d" — because that is what the label
+ * and the saved view are about: a window that follows the clock. The event
+ * store takes datetimes, not expressions, so the token is resolved here, once,
+ * rather than being sent and rejected.
+ */
+export function resolveRange(r: TimeRange): { from: string | null; to: string } {
+  return { from: resolveInstant(r.from), to: resolveInstant(r.to) ?? new Date().toISOString() }
+}
+
+function resolveInstant(v: string | null): string | null {
+  if (!v) return null
+  if (v === 'now') return new Date().toISOString()
+
+  const m = v.match(REL_RE)
+  if (!m) return v // already absolute
+
+  const n = Number(m[1])
+  const d = new Date()
+  switch (m[2]) {
+    case 'm': d.setMinutes(d.getMinutes() - n); break
+    case 'h': d.setHours(d.getHours() - n); break
+    case 'd': d.setDate(d.getDate() - n); break
+    case 'w': d.setDate(d.getDate() - n * 7); break
+    case 'M': d.setMonth(d.getMonth() - n); break
+  }
+  return d.toISOString()
+}
+
 const TOKEN_UNIT: Record<string, Unit> = { m: 'minutes', h: 'hours', d: 'days', w: 'weeks', M: 'months' }
 
 function isoToLocalInput(iso: string): string {

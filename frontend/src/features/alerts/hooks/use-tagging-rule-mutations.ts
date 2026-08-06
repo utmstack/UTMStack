@@ -14,7 +14,7 @@ import type {
 export interface UseTaggingRuleMutationsResult {
   createRule: (input: CreateTaggingRuleInput) => Promise<TaggingRule | null>
   updateRule: (input: UpdateTaggingRuleInput) => Promise<TaggingRule | null>
-  deleteRule: (id: number, name: string) => Promise<boolean>
+  deleteRule: (id: string, name: string) => Promise<boolean>
 }
 
 export function useTaggingRuleMutations(refresh: () => void): UseTaggingRuleMutationsResult {
@@ -51,7 +51,7 @@ export function useTaggingRuleMutations(refresh: () => void): UseTaggingRuleMuta
   )
 
   const deleteRule = useCallback(
-    async (id: number, name: string) => {
+    async (id: string, name: string) => {
       try {
         await svc.delete(id)
         toast.success(t('taggingRules.toast.deleted', { name }))

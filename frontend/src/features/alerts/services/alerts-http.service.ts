@@ -5,8 +5,10 @@ const api = createApiClient()
 
 export { ApiError as AlertsHttpError }
 
-const ALERT_INDEX = 'v11-alert-*'
-const MAX = 10_000
+// The alerts dataset of the event store. It used to be an OpenSearch index
+// pattern; the store has named datasets and knows its own columns.
+const ALERT_DATASET = 'alerts'
+const CSV_MAX = 10_000
 
 interface TopValues {
   total: number
@@ -24,24 +26,23 @@ export interface AlertListParams {
 }
 
 export const alertsHttpService = {
-  // Flat, paginated alert list straight from OpenSearch (v11-alert-*), newest first.
-  list: ({ page, size, filters }: AlertListParams) => {
-    const q = new URLSearchParams({
-      indexPattern: ALERT_INDEX,
-      page: String(page),
-      size: String(size),
-      top: String(MAX),
+  // Flat, paginated alert list, newest first.
+  list: async ({ page, size, filters }: AlertListParams) => {
+    const r = await api.post<{ data: Alert[]; total: number }>('/log-analyzer/search', {
+      dataset: ALERT_DATASET,
+      filters,
+      page,
+      size,
       sortBy: '@timestamp',
-      sortOrder: 'desc',
-      includeChildren:'true'
+      order: 'desc',
     })
-    return api.postPaged<Alert[]>(`/opensearch/search?${q.toString()}`, filters)
+    return { data: r.data ?? [], total: r.total ?? 0 }
   },
 
   // Counts by a field (severity / status) honouring the current filters.
   counts: (field: 'severity' | 'status', filters: FilterType[]) =>
     api.post<TopValues>(
-      `/log-analyzer/top-x-values/${encodeURIComponent(ALERT_INDEX)}/${field}/10?sort=${encodeURIComponent('@timestamp,desc')}`,
+      `/log-analyzer/top-x-values/${ALERT_DATASET}/${encodeURIComponent(field)}/10`,
       filters
     ),
 
@@ -49,9 +50,12 @@ export const alertsHttpService = {
   // value picker (so the user selects real values, not free text). Text fields
   // need their .keyword sub-field for the terms aggregation; we fall back to it.
   fieldValues: async (field: string, top = 100): Promise<{ value: string; count: number }[]> => {
-    const body: FilterType[] = [{ field: 'parentId', operator: 'DOES_NOT_EXIST' }]
+    // An alert with no parent has parentId '', not a missing parentId: the column
+    // is a plain String, so "has no parent" is an equality test and an existence
+    // test matches nothing.
+    const body: FilterType[] = [{ field: 'parentId', operator: 'IS', value: '' }]
     const url = (f: string) =>
-      `/log-analyzer/top-x-values/${encodeURIComponent(ALERT_INDEX)}/${encodeURIComponent(f)}/${top}?sort=${encodeURIComponent('@timestamp,desc')}`
+      `/log-analyzer/top-x-values/${ALERT_DATASET}/${encodeURIComponent(f)}/${top}`
     const tryFetch = async (f: string) => {
       const r = await api.post<TopValues>(url(f), body)
       return r.top ?? []
@@ -73,7 +77,7 @@ export const alertsHttpService = {
   // Alerts-over-time histogram.
   timeline: (filters: FilterType[], interval: string) =>
     api.post<ChartView>('/log-analyzer/chart-view', {
-      indexPattern: ALERT_INDEX,
+      dataset: ALERT_DATASET,
       field: '@timestamp',
       fieldDataType: 'date',
       filters,
@@ -83,11 +87,13 @@ export const alertsHttpService = {
 
   // Re-fetch a single alert (e.g. to refresh its history after an action).
   getById: async (id: string): Promise<Alert | null> => {
-    const q = new URLSearchParams({ indexPattern: ALERT_INDEX, page: '1', size: '1', top: '1' })
-    const { data } = await api.postPaged<Alert[]>(`/opensearch/search?${q.toString()}`, [
-      { field: 'id', operator: 'IS', value: id },
-    ])
-    return data?.[0] ?? null
+    const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
+      dataset: ALERT_DATASET,
+      filters: [{ field: 'id', operator: 'IS', value: id }],
+      page: 1,
+      size: 1,
+    })
+    return r.data?.[0] ?? null
   },
 
   countOpen: () => api.get<number>('/utm-alerts/count-open-alerts'),
@@ -113,33 +119,50 @@ export const alertsHttpService = {
 
   // Rename / recolor an existing catalog tag. The backend rejects system-owned
   // tags (e.g. "False positive") with 403.
-  updateTag: (id: number, tagName: string, tagColor: string) =>
+  updateTag: (id: string, tagName: string, tagColor: string) =>
     api.put<AlertTag>('/utm-alert-tags', { id, tagName, tagColor }),
 
   // Remove a catalog tag. Backend rejects system-owned tags with 403.
-  deleteTag: (id: number) => api.delete<void>(`/utm-alert-tags/${id}`),
+  deleteTag: (id: string) => api.delete<void>(`/utm-alert-tags/${id}`),
 
   // CSV export of the current alert list (honours the active scope filters).
   // Mirrors the Log Explorer downloader: hits /opensearch/search/csv and triggers
   // a browser download.
+  // CSV of the current alert list. Built here rather than server-side: the
+  // event store has no CSV endpoint, and the export is the page's own view of
+  // the data — the same rows, the same columns, in the order shown.
   exportCsv: async (filters: FilterType[]) => {
-    const columns = [
-      { label: 'Timestamp', field: '@timestamp', type: 'date', visible: true },
-      { label: 'Name', field: 'name', type: 'text', visible: true },
-      { label: 'Severity', field: 'severity', type: 'number', visible: true },
-      { label: 'Status', field: 'status', type: 'number', visible: true },
-      { label: 'Category', field: 'category', type: 'text', visible: true },
-      { label: 'Technique', field: 'technique', type: 'text', visible: true },
-      { label: 'Source', field: 'dataSource', type: 'text', visible: true },
-      { label: 'Tags', field: 'tags', type: 'text', visible: true },
-      { label: 'Notes', field: 'notes', type: 'text', visible: true },
+    const columns: { label: string; field: keyof Alert | 'tags' }[] = [
+      { label: 'Timestamp', field: '@timestamp' },
+      { label: 'Name', field: 'name' },
+      { label: 'Severity', field: 'severity' },
+      { label: 'Status', field: 'status' },
+      { label: 'Category', field: 'category' },
+      { label: 'Technique', field: 'technique' },
+      { label: 'Source', field: 'dataSource' },
+      { label: 'Tags', field: 'tags' },
+      { label: 'Notes', field: 'notes' },
     ]
-    const blob = await api.post<Blob>(
-      '/opensearch/search/csv',
-      { indexPattern: ALERT_INDEX, filters, top: MAX, columns },
-      { responseType: 'blob' }
-    )
-    const url = URL.createObjectURL(blob)
+
+    const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
+      dataset: ALERT_DATASET,
+      filters,
+      page: 1,
+      size: CSV_MAX,
+      sortBy: '@timestamp',
+      order: 'desc',
+    })
+
+    const cell = (v: unknown) => {
+      const t = Array.isArray(v) ? v.join(', ') : v == null ? '' : String(v)
+      return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t
+    }
+    const csv = [
+      columns.map((c) => c.label).join(','),
+      ...(r.data ?? []).map((a) => columns.map((c) => cell(a[c.field as keyof Alert])).join(',')),
+    ].join('\n')
+
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
     const a = document.createElement('a')
     a.href = url
     a.download = `alerts-${new Date().toISOString().slice(0, 19)}.csv`

@@ -176,7 +176,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("opensearch SDK connect failed", err, nil)
 	}
 
-	alertsMod := alerts.NewModule(db)
+	alertsMod := alerts.NewModule(db, events)
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {

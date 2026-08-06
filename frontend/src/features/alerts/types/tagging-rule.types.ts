@@ -8,17 +8,13 @@ export type { FilterType, AlertTag }
 
 /** GET /alert-tag-rules item / POST·PUT response. */
 export interface TaggingRule {
-  id: number
+  id: string
   name: string
   description: string
   conditions: FilterType[]
   tags: AlertTag[]
   active: boolean
   deleted: boolean
-  createdBy: string
-  createdDate: string
-  lastModifiedBy?: string
-  lastModifiedDate?: string
 }
 
 /** POST /alert-tag-rules body. */
@@ -31,7 +27,7 @@ export interface CreateTaggingRuleInput {
 
 /** PUT /alert-tag-rules body. */
 export interface UpdateTaggingRuleInput extends CreateTaggingRuleInput {
-  id: number
+  id: string
 }
 
 /** Query params for GET /alert-tag-rules. */
@@ -43,5 +39,5 @@ export interface TaggingRuleListParams {
   conditionValue?: string
   ruleActive?: boolean
   ruleDeleted?: boolean
-  tagIds?: number[]
+  tagIds?: string[]
 }

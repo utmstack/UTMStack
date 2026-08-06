@@ -9,8 +9,9 @@ import (
 const (
 	falsePositiveTag = "False positive"
 
-	statusOpen      = 2
-	statusCompleted = 5
+	statusOpen      = "Open"
+	statusInReview  = "In review"
+	statusCompleted = "Completed"
 
 	tagRuleOpenObservation      = "This alert has been evaluated by the tag rules engine"
 	tagRuleCompletedObservation = "Status changed to completed because alert was tagged as False positive"
@@ -18,7 +19,7 @@ const (
 
 type tagDecision struct {
 	Tags          []string
-	RuleIDs       []int
+	RuleIDs       []string
 	FalsePositive bool
 }
 
@@ -30,7 +31,7 @@ func evaluateTagRules(doc map[string]any, rules []RuleSnapshot) tagDecision {
 		if !ruleMatches(rule, doc) {
 			continue
 		}
-		d.RuleIDs = append(d.RuleIDs, int(rule.ID))
+		d.RuleIDs = append(d.RuleIDs, rule.ID)
 		for _, t := range rule.TagNames {
 			if !seen[t] {
 				seen[t] = true

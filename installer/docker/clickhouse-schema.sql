@@ -86,14 +86,15 @@ CREATE TABLE IF NOT EXISTS utmstack.alerts
     `description`       String DEFAULT '',
     `solution`          String DEFAULT '',
 
-    -- Numeric, not the protobuf's "low"/"medium"/"high". AlertFields declares
-    -- its own Severity int, which shadows the embedded string one, so the
-    -- stored document carries 1/2/3.
-    `severity`          UInt8 DEFAULT 0,
-    `severityLabel`     LowCardinality(String) DEFAULT '',
+    -- The protobuf's own "low"/"medium"/"high", not a parallel numeric code.
+    -- An enum rather than a String so that ordering by severity is by rank and
+    -- not alphabetical, which would read high < low < medium. The plugin
+    -- normalises before writing: a value outside the enum fails the insert.
+    `severity`          Enum8('low' = 1, 'medium' = 2, 'high' = 3) DEFAULT 'low',
 
-    `status`            Int8 DEFAULT 0,
-    `statusLabel`       LowCardinality(String) DEFAULT '',
+    -- The label is the value. Status has no rank to preserve, so it stays a
+    -- string; the backend writes its own states here as the alert is worked.
+    `status`            LowCardinality(String) DEFAULT '',
     `statusObservation` String DEFAULT '',
 
     -- Empty rather than null: the column is String, so "has no parent" is
@@ -103,53 +104,70 @@ CREATE TABLE IF NOT EXISTS utmstack.alerts
     `impactScore`       Int32 DEFAULT 0,
     `errors`            Array(String) DEFAULT [],
 
-    -- Three pairs of near-duplicates, all present in the document. AlertFields
-    -- redeclares fields the embedded protobuf already has under a slightly
-    -- different name, so both end up written. The backend reads `reference`
-    -- and `deduplicatedBy`; the others are read by nothing. Kept because a
-    -- migration that quietly drops a field is the failure this whole exercise
-    -- keeps running into — removing them belongs in a separate change to the
-    -- plugin, not here.
-    `reference`         Array(String) DEFAULT [],
+    -- One name each, the protobuf's. These used to be three pairs of
+    -- near-duplicates, written twice because the plugin's struct redeclared
+    -- fields the embedded protobuf already had.
     `references`        Array(String) DEFAULT [],
-    `deduplicatedBy`    Array(String) DEFAULT [],
     `deduplicateBy`     Array(String) DEFAULT [],
-    `groupedBy`         Array(String) DEFAULT [],
     `groupBy`           Array(String) DEFAULT [],
 
     `adversary`         JSON(max_dynamic_paths = 64),
     `target`            JSON(max_dynamic_paths = 64),
     `impact`            JSON(max_dynamic_paths = 16),
     `incidentDetail`    JSON(max_dynamic_paths = 16),
-    `sourceGroup`       JSON(max_dynamic_paths = 8),
-    `lastEvent`         JSON(max_dynamic_paths = 64),
 
-    -- Arrays of objects. A JSON column rejects a top-level array outright
-    -- ("JSON object should start with '{'"), so these are Array(JSON).
+    -- Around 240 rules group or deduplicate by lastEvent.* paths, so lastEvent
+    -- is queried by arbitrary parsed log fields and has to carry the whole
+    -- event.
+    --
+    -- events carries whole events too, for a different reason: the alert drawer
+    -- renders them as the log documents they are, so an analyst sees what raised
+    -- the alert without leaving the page. It is the widest thing an alert holds
+    -- — each entry has the log's raw text and its parsed fields — and that is
+    -- the cost of the sample being readable rather than a list of ids.
+    `lastEvent`         JSON(max_dynamic_paths = 64),
     `events`            Array(JSON),
+
+    -- A JSON column rejects a top-level array outright ("JSON object should
+    -- start with '{'"), so this is Array(JSON) too.
     `history`           Array(JSON),
 
     `tags`              Array(String) DEFAULT [],
-    `sourceLabels`      Array(String) DEFAULT [],
-    `tagRulesApplied`   Array(Int64) DEFAULT [],
+
+    -- Tag-rule ids are UUIDs, like every tenant-scoped key in Postgres. Held as
+    -- String rather than UUID: the column records which rules fired, it is never
+    -- joined or compared against, and a rule deleted afterwards still has to
+    -- read back as whatever the alert recorded.
+    `tagRulesApplied`   Array(String) DEFAULT [],
     `logs`              Array(String) DEFAULT [],
 
     `isIncident`        Bool DEFAULT false,
     `notes`             String DEFAULT '' CODEC(ZSTD(3)),
     `assignee`          String DEFAULT '',
-    `assetGroupName`    String DEFAULT '',
-    `assetGroupId`      Int64 DEFAULT 0,
 
     INDEX idx_id     id       TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_parent parentId TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_status status   TYPE set(16) GRANULARITY 4
 )
-ENGINE = MergeTree
+-- Replacing, not plain MergeTree: an alert is the one record here that changes
+-- after it is written. Analysts set its status, notes, assignee and tags, and
+-- append to its history, all day. ALTER ... UPDATE would answer that with a
+-- mutation per action — asynchronous, rewriting whole parts — so instead the
+-- row is rewritten whole and the newest wins, keyed by lastUpdate.
+--
+-- That makes lastUpdate load-bearing: a row written without it collapses to
+-- 1970 and loses to every other version of itself.
+ENGINE = ReplacingMergeTree(`lastUpdate`)
 PARTITION BY toYYYYMM(`@timestamp`)
--- name before @timestamp because getPreviousAlertId looks up by tenant and
--- name with no time bound at all; putting the timestamp first would make it
--- scan the tenant's whole history.
-ORDER BY (tenantId, name, `@timestamp`)
+-- The sorting key is also the deduplication key, so it has to identify an alert
+-- exactly — hence id at the end. Everything before it is the read order worth
+-- keeping: name second because getPreviousAlertId looks up by tenant and name
+-- with no time bound at all, and putting the timestamp first would make it scan
+-- the tenant's whole history.
+--
+-- Every column here is fixed at creation and never rewritten, which is what
+-- lets an update land on top of the row it is updating instead of beside it.
+ORDER BY (tenantId, name, `@timestamp`, id)
 TTL toDateTime(`@timestamp`) + INTERVAL 730 DAY DELETE
 -- non_replicated_deduplication_window is what lets the alerts plugin hand an
 -- insert a deduplication token. Two replicas that independently raise the same

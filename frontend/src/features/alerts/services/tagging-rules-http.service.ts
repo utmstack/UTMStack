@@ -29,11 +29,11 @@ export const taggingRulesHttpService = {
   list: (params: TaggingRuleListParams) =>
     api.getPaged<TaggingRule[]>(`/alert-tag-rules?${buildListQuery(params)}`),
 
-  getById: (id: number) => api.get<TaggingRule | null>(`/alert-tag-rules/${id}`),
+  getById: (id: string) => api.get<TaggingRule | null>(`/alert-tag-rules/${id}`),
 
   create: (input: CreateTaggingRuleInput) => api.post<TaggingRule>('/alert-tag-rules', input),
 
   update: (input: UpdateTaggingRuleInput) => api.put<TaggingRule>('/alert-tag-rules', input),
 
-  delete: (id: number) => api.delete<void>(`/alert-tag-rules/${id}`),
+  delete: (id: string) => api.delete<void>(`/alert-tag-rules/${id}`),
 }
