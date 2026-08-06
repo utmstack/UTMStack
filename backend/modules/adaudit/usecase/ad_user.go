@@ -2,7 +2,11 @@ package usecase
 
 import (
 	"context"
+	"strconv"
+
 	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/threatwinds/go-sdk/catcher"
 
@@ -44,7 +48,7 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 			}
 		case "linux":
 			hasResolved := in.MachineID != nil && strings.TrimSpace(*in.MachineID) != "" &&
-				in.UIDNumber != nil && strings.TrimSpace(*in.UIDNumber) != ""
+				parseUID(in.UIDNumber) != nil
 			hasProvisional := in.Hostname != nil && strings.TrimSpace(*in.Hostname) != "" &&
 				in.Username != nil && strings.TrimSpace(*in.Username) != ""
 			if !hasResolved && !hasProvisional {
@@ -59,13 +63,18 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 			active = *in.Active
 		}
 
+		tenantID, err := uuid.Parse(strings.TrimSpace(in.TenantID))
+		if err != nil {
+			continue
+		}
+
 		ad := domain.ADUser{
-			TenantID:         in.TenantID,
+			TenantID:         tenantID,
 			Source:           source,
-			SamAccountName:   in.SamAccountName,
-			Domain:           in.Domain,
+			SamAccountName:   textOrNil(in.SamAccountName),
+			Domain:           textOrNil(in.Domain),
 			MachineID:        in.MachineID,
-			UIDNumber:        in.UIDNumber,
+			UIDNumber:        parseUID(in.UIDNumber),
 			Hostname:         in.Hostname,
 			Username:         in.Username,
 			Active:           active,
@@ -110,4 +119,24 @@ func (u *adUserUsecase) Stats(ctx context.Context) (*dto.ADUserStats, error) {
 
 func (u *adUserUsecase) ResolveLinuxIdentity(ctx context.Context, req dto.ResolveLinuxIdentityRequest) (int64, error) {
 	return u.repo.ResolveLinuxIdentity(tenancy.WithAllTenants(ctx), req.TenantID, req.Hostname, req.MachineID)
+}
+
+func textOrNil(s string) *string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	return &s
+}
+
+func parseUID(raw *string) *uint32 {
+	if raw == nil {
+		return nil
+	}
+	n, err := strconv.ParseUint(strings.TrimSpace(*raw), 10, 32)
+	if err != nil {
+		return nil
+	}
+	uid := uint32(n)
+	return &uid
 }
