@@ -45,11 +45,10 @@ export function AdminSetupGate() {
     setSaving(true)
     setError(null)
     try {
-      // Send the existing names/lang too so a partial update never wipes them.
+      // Send the existing name/lang too so a partial update never wipes them.
       await updateMe({
         email: email.trim(),
-        first_name: user.first_name,
-        last_name: user.last_name,
+        name: user.name,
         lang_key: user.lang_key,
       })
       toast.success(t('onboarding.adminEmail.success'))

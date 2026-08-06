@@ -9,7 +9,6 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	// _ "github.com/utmstack/utmstack/backend/docs"
-	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 )
 
@@ -39,16 +38,17 @@ func main() {
 
 	modules := initModules(db, cfg)
 
-	created, err := modules.iam.GetUserUsecase().EnsureBootstrapAdmin(
-		appCtx, env.String("UTMSTACK_ADMIN_PASSWORD", "", false))
+	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin@localhost", false)
+	created, err := modules.tenant.GetBootstrapUsecase().EnsureDefaultTenant(
+		appCtx, adminEmail, env.String("UTMSTACK_ADMIN_PASSWORD", "", false))
 	if err != nil {
-		_ = catcher.Error("failed to create the initial administrator", err, nil)
+		_ = catcher.Error("failed to create the default tenant", err, nil)
 		panic(err)
 	}
 	if created {
 		// Never the password: the installer already showed it once, and these
 		// logs are kept.
-		catcher.Info(fmt.Sprintf("created the initial administrator %q", iam_usecase.BootstrapAdminLogin), nil)
+		catcher.Info(fmt.Sprintf("created the default tenant and its administrator %q", adminEmail), nil)
 	}
 
 	// TODO(scaling): these Start calls launch periodic jobs, and every replica
@@ -74,6 +74,8 @@ func main() {
 	}
 
 	modules.audit.Start(appCtx)
+	modules.notifications.Start(appCtx)
+	modules.iam.Start(appCtx)
 
 	modules.billing.Start(appCtx)
 	modules.eventProcessing.Start(appCtx)

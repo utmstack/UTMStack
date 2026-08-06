@@ -45,7 +45,7 @@ import type {
   ListResponse,
   SourceKind,
   TimelinePoint,
-  Usage,
+  DatasourceCount,
 } from '../types/datasource.types'
 
 /* ─── Kind meta ───────────────────────────────────────────────────────── */
@@ -132,7 +132,7 @@ export function DataSourcesPage() {
   const [error, setError] = useState(false)
 
   const [groups, setGroups] = useState<AssetGroup[]>([])
-  const [usage, setUsage] = useState<Usage | null>(null)
+  const [usage, setUsage] = useState<DatasourceCount | null>(null)
   const [stats, setStats] = useState<Record<string, IngestionBucket>>({})
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
   const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
@@ -185,7 +185,7 @@ export function DataSourcesPage() {
     setLoading(true)
     const [g, u, totals, tl] = await Promise.allSettled([
       svc.groups(),
-      svc.usage(),
+      svc.count(),
       svc.ingestionTotals(),
       svc.ingestionTimeline(range),
     ])
@@ -260,7 +260,7 @@ export function DataSourcesPage() {
           <IngestionCard timeline={timeline} range={range} onRange={setRange} />
         </div>
         <div className="col-span-12 lg:col-span-4">
-          <UsageCard usage={usage} />
+          <UsageCard count={usage} />
         </div>
       </div>
 
@@ -431,34 +431,19 @@ function IngestionCard({
   )
 }
 
-function UsageCard({ usage }: { usage: Usage | null }) {
+function UsageCard({ count }: { count: DatasourceCount | null }) {
   const { t } = useTranslation()
-  const pct = usage && !usage.unlimited && usage.limit > 0 ? Math.min(100, Math.round((usage.count / usage.limit) * 100)) : 0
   return (
     <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-2">
         <Layers size={14} className="text-muted-foreground" />
         <h3 className="text-sm font-semibold">{t('datasources.usage.title')}</h3>
       </div>
-      {usage ? (
-        <>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold tabular-nums">{usage.count.toLocaleString()}</span>
-            <span className="text-sm text-muted-foreground">
-              {usage.unlimited || usage.limit === 0
-                ? t('datasources.usage.ofUnlimited')
-                : t('datasources.usage.ofLimit', { limit: usage.limit.toLocaleString() })}
-            </span>
-          </div>
-          {!usage.unlimited && usage.limit > 0 && (
-            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div className={cn('h-full rounded-full', usage.overLimit ? 'bg-red-500' : 'bg-primary')} style={{ width: `${Math.max(4, pct)}%` }} />
-            </div>
-          )}
-          {usage.overLimit && (
-            <p className="mt-2 text-xs text-red-500">{t('datasources.usage.overLimit')}</p>
-          )}
-        </>
+      {count ? (
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-2xl font-semibold tabular-nums">{count.count.toLocaleString()}</span>
+          <span className="text-sm text-muted-foreground">{t('datasources.usage.configured')}</span>
+        </div>
       ) : (
         <div className="mt-3 text-xs text-muted-foreground">—</div>
       )}

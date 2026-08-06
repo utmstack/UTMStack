@@ -9,30 +9,22 @@ export interface VersionInfo {
   instanceId?: string
 }
 
-/** GET /billing/license — license edition, limits, expiry. */
+/**
+ * GET /billing/license — edition and, for the default tenant only, the terms.
+ * The backend withholds the commercial fields from every other tenant, so they
+ * arrive absent rather than zero.
+ */
 export interface LicenseInfo {
   edition: string // community | enterprise
   mssp: boolean
-  datasources: number // cap; 0 = unlimited
-  type: string // online | offline ("" when community)
+  ingestGbPerMonth?: number // contracted GB/month; 0 = unlimited
+  type?: string // online | offline ("" when community)
   expiresAt?: string // RFC3339, omitted when no expiry
 }
 
-/** GET /datasources/usage — datasource count vs cap. */
+/** GET /datasources/count — number of configured datasources. */
 export interface DatasourceUsage {
   count: number
-  limit: number // effective cap; 0 when unlimited
-  unlimited: boolean
-  overLimit: boolean
-}
-
-/** GET /opensearch/cluster/status — OpenSearch cluster health (null on 204). */
-export interface ClusterHealth {
-  cluster_name: string
-  status: string // green | yellow | red
-  number_of_nodes: number
-  number_of_data_nodes: number
-  active_shards: number
 }
 
 /** GET /mcp/health — SOC AI / MCP server status. */

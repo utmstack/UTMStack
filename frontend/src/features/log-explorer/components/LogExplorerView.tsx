@@ -23,7 +23,6 @@ import {
 import type {
   FilterType,
   IndexField,
-  IndexPattern,
   LogDocument,
   LogExplorerTabConfig,
 } from '../types/log-explorer.types'
@@ -91,8 +90,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const location = useLocation()
   const navigate = useNavigate()
   const seededRef = useRef(false)
-  const [patterns, setPatterns] = useState<IndexPattern[]>([])
-  const [pattern, setPattern] = useState<IndexPattern | null>(null)
+  const [patterns, setPatterns] = useState<string[]>([])
+  const [pattern, setPattern] = useState<string | null>(null)
 
   const [range, setRange] = useState<TimeRange>(initial.range)
 
@@ -131,7 +130,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   // Capture the current query as a reusable saved search.
   const currentSnapshot = useCallback(
     (): SavedSearchState => ({
-      patternStr: pattern?.pattern ?? null,
+      patternStr: pattern ?? null,
       range,
       filters,
       searchInput,
@@ -143,7 +142,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const loadSnapshot = useCallback(
     (s: SavedSearchState) => {
       if (s.patternStr) {
-        const p = patterns.find((x) => x.pattern === s.patternStr)
+        const p = patterns.find((x) => x === s.patternStr)
         if (p) setPattern(p)
       }
       setRange(s.range)
@@ -181,7 +180,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   useEffect(() => {
     let cancelled = false
     svc
-      .patterns()
+      .dataTypes()
       .then((ps) => {
         if (cancelled) return
         setPatterns(ps)
@@ -193,7 +192,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         const seed = state?.relatedLogs
         if (seed?.ids?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p.pattern === seed.indexPattern) ?? ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
+          setPattern(ps.find((p) => p === seed.indexPattern) ?? ps.find((p) => p === 'logs') ?? ps[0] ?? null)
           setFilters([{ field: '_id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
           setRange({ from: seed.timeFrom, to: seed.timeTo, interval: 'hour' })
           if (seed.truncated) {
@@ -207,7 +206,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         // SOC-AI chat navigation: apply the agent's filters + time window.
         if (state?.socaiFilters?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p.pattern === 'v11-log-*') ?? ps[0] ?? null)
+          setPattern(ps.find((p) => p === 'logs') ?? ps[0] ?? null)
           setFilters(state.socaiFilters)
           if (state.socaiTime) setRange(presetRange(state.socaiTime))
           navigate(location.pathname, { replace: true })
@@ -217,8 +216,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         // Default: resolve the tab's saved patternStr to a live IndexPattern.
         const target = initial.patternStr
         setPattern(
-          (target ? ps.find((p) => p.pattern === target) : null) ??
-            ps.find((p) => p.pattern === 'v11-log-*') ??
+          (target ? ps.find((p) => p === target) : null) ??
+            ps.find((p) => p === 'logs') ??
             ps[0] ??
             null
         )
@@ -238,7 +237,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     if (!pattern) return
     let cancelled = false
     svc
-      .fields(pattern.pattern)
+      .fields()
       .then((f) => !cancelled && setFields(f ?? []))
       .catch(() => !cancelled && setFields([]))
     return () => {
@@ -250,7 +249,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   useEffect(() => {
     if (!readyToPersist) return
     onConfigChange({
-      patternStr: pattern?.pattern ?? null,
+      patternStr: pattern ?? null,
       range,
       filters,
       columns,
@@ -281,7 +280,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     const out: FilterType[] = []
     if (range.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [range.from, range.to] })
     if (appliedQuery.trim() && pattern) {
-      out.push({ field: textPrefix(pattern.pattern), operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
+      out.push({ field: textPrefix(pattern), operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
     out.push(...filters)
     return out
@@ -330,9 +329,10 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           totalCount = r.total
         } else {
           const r = await svc.search({
-            indexPattern: pattern.pattern,
+            dataType: pattern,
             filters: buildFilters(),
-            page: pageNum,
+            // The view counts pages from 1; the endpoint from 0.
+            page: pageNum - 1,
             size: PAGE_SIZE_DEFAULT,
           })
           data = r.data ?? []
@@ -432,7 +432,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             pattern &&
             svc
               .exportCsv({
-                indexPattern: pattern.pattern,
+                indexPattern: pattern,
                 filters: buildFilters(),
                 columns: [
                   { label: 'Timestamp', field: TS, type: 'date', visible: true },
@@ -459,7 +459,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             ) : (
               <>
                 <span className="font-medium text-foreground">{total.toLocaleString()}</span> {t('logExplorer.eventsIn')}{' '}
-                <span className="font-mono">{pattern?.pattern ?? '—'}</span>
+                <span className="font-mono">{pattern ?? '—'}</span>
               </>
             )}
           </span>

@@ -23,7 +23,6 @@ type RuleDataTypeResponse struct {
 	SystemOwner         bool       `json:"systemOwner"`
 }
 
-
 type CreateCorrelationRuleRequest struct {
 	// JSON tags match Java UtmCorrelationRulesDTO field names for wire compatibility.
 	RuleName      string `json:"name"`
@@ -42,13 +41,11 @@ type CreateCorrelationRuleRequest struct {
 	RuleGroupByDef    json.RawMessage `json:"groupBy"`
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
-	RuleActive bool `json:"ruleActive"`
-	CorrelationDef    json.RawMessage `json:"correlation"`
+	RuleActive     bool            `json:"ruleActive"`
+	CorrelationDef json.RawMessage `json:"correlation"`
 
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
-
-
 
 type UpdateCorrelationRuleRequest struct {
 	// RelPath identifies the rule to update (the YAML-direct identity).
@@ -70,12 +67,11 @@ type UpdateCorrelationRuleRequest struct {
 	RuleGroupByDef    json.RawMessage `json:"groupBy"`
 	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
 
-	RuleActive bool `json:"ruleActive"`
-	CorrelationDef    json.RawMessage `json:"correlation"`
+	RuleActive     bool            `json:"ruleActive"`
+	CorrelationDef json.RawMessage `json:"correlation"`
 
 	DataTypes []DataTypeRef `json:"dataTypes"`
 }
-
 
 type CorrelationRuleResponse struct {
 	// RelPath is the rule identity (replaces the legacy numeric id).

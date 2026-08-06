@@ -73,16 +73,27 @@ func TestQuotaRefusesPastTheLimit(t *testing.T) {
 	}
 }
 
-// Zero is how a limit is lifted, and it must not cost a count either.
+// A negative limit is how the cap is lifted, and it must not cost a count.
 func TestNoLimitDoesNotEvenCount(t *testing.T) {
 	var used int64
-	q := quota(0, &used)
+	q := quota(-1, &used)
 
 	if code, reached := run(t, q, quotaTenant); !reached || code != http.StatusOK {
 		t.Fatalf("status %d, reached %v; want it served", code, reached)
 	}
 	if used != 0 {
 		t.Errorf("consumed %d, want nothing counted when there is no limit", used)
+	}
+}
+
+// Zero is an allowance of none. The operator handing out none of the instance's
+// quota must deny, not read as handing out all of it.
+func TestZeroAllowanceDenies(t *testing.T) {
+	var used int64
+	q := quota(0, &used)
+
+	if code, reached := run(t, q, quotaTenant); reached || code != http.StatusTooManyRequests {
+		t.Fatalf("status %d, reached %v; want it refused", code, reached)
 	}
 }
 

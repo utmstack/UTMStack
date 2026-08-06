@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"strings"
 
@@ -31,7 +32,7 @@ func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc) bool {
 	}
 
 	c.Set("user_id", a.UserID)
-	c.Set("user_login", a.Login)
+	c.Set("user_email", a.Email)
 	c.Set("user_email", a.Email)
 	c.Set("user_permissions", a.Permissions)
 	c.Set("user_roles", a.Roles)
@@ -82,7 +83,7 @@ func enterAsSupport(c *gin.Context, a *Actor, tenant, level string) bool {
 		return false
 	}
 
-	if a.SessionID == 0 {
+	if a.SessionID == uuid.Nil {
 		return false
 	}
 
@@ -110,18 +111,14 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 		return nil
 	}
 	uidRaw, hasUID := c.Get("user_id")
-	loginRaw, hasLogin := c.Get("user_login")
 	internal := c.GetBool("internal")
-	if !hasUID && !hasLogin && !internal {
+	email := c.GetString("user_email")
+	if !hasUID && email == "" && !internal {
 		return nil
 	}
-	var uid uint64
-	if v, ok := uidRaw.(uint64); ok {
-		uid = v
-	}
-	login, _ := loginRaw.(string)
-	email := c.GetString("user_email")
-	sid := c.GetUint64("session_id")
+	uid, _ := uidRaw.(uuid.UUID)
+	sidRaw, _ := c.Get("session_id")
+	sid, _ := sidRaw.(uuid.UUID)
 	permsRaw, _ := c.Get("user_permissions")
 	rolesRaw, _ := c.Get("user_roles")
 	perms, _ := permsRaw.([]string)
@@ -129,7 +126,6 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 	tenantID := c.GetString("tenant_id")
 	return &authz.Actor{
 		UserID:      uid,
-		Login:       login,
 		Email:       email,
 		Roles:       roles,
 		Permissions: perms,
@@ -161,7 +157,6 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 			}
 			if !setActor(c, Actor{
 				UserID:      userID,
-				Login:       claims.Login,
 				Email:       claims.Email,
 				Roles:       claims.Roles,
 				Permissions: claims.Permissions,
@@ -176,7 +171,6 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 		if HasInternalKey(c, internalKey) {
 			c.Set("internal", true)
 			if !setActor(c, Actor{
-				Login:    "internal",
 				Internal: true,
 				TenantID: c.GetHeader(TenantHeader),
 			}, supportOf) {
@@ -219,6 +213,19 @@ func RequireEnterprise(isEnterprise func() bool) gin.HandlerFunc {
 		actor := ActorFromGin(c)
 		if err := authz.RequireEnterprise(actor, isEnterprise); err != nil {
 			abortAuthzErr(c, err, "This feature requires an Enterprise license")
+			return
+		}
+		c.Next()
+	}
+}
+
+// RequireEnterpriseLicense gates on the licence alone. It exists for the routes
+// that run before anyone has signed in — the SSO entry points — where asking for
+// an actor could only ever answer 401.
+func RequireEnterpriseLicense(isEnterprise func() bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if isEnterprise == nil || !isEnterprise() {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This feature requires an Enterprise license"})
 			return
 		}
 		c.Next()

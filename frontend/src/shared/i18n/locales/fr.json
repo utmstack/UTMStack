@@ -38,12 +38,16 @@
   "auth": {
     "login": {
       "title": "Bon retour",
-      "subtitle": "Connectez-vous pour continuer sur UTMStack",
-      "loginLabel": "Identifiant ou e-mail",
+      "subtitle": "Connectez-vous pour continuer sur {{brand}}",
+      "loginLabel": "E-mail",
       "passwordLabel": "Mot de passe",
       "forgot": "Oublié ?",
       "submit": "Se connecter",
-      "terms": "En vous connectant, vous acceptez les conditions d'utilisation d'UTMStack."
+      "terms": "En vous connectant, vous acceptez les conditions de service de {{brand}}.",
+      "orContinueWith": "ou continuer avec",
+      "continueWith": "Continuer avec {{name}}",
+      "signingInTo": "Connexion à {{name}}",
+      "useAnother": "En utiliser un autre"
     },
     "tfa": {
       "title": "Vérification en deux étapes",
@@ -68,7 +72,8 @@
       "loginFailed": "Échec de la connexion. Veuillez réessayer.",
       "invalidCode": "Code invalide ou expiré.",
       "verifyFailed": "Échec de la vérification. Veuillez réessayer.",
-      "resetFailed": "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez réessayer."
+      "resetFailed": "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez réessayer.",
+      "ssoFailed": "L'authentification unique n'a pas abouti. Réessayez ou utilisez votre mot de passe."
     }
   },
   "profile": {
@@ -80,14 +85,11 @@
     "personal": {
       "title": "Informations personnelles",
       "description": "Mettez à jour votre nom et vos coordonnées.",
-      "firstName": "Prénom",
-      "lastName": "Nom",
+      "name": "Nom",
       "email": "E-mail",
       "language": "Langue",
       "languageHint": "Utilisée pour l'interface du panneau.",
       "systemDefault": "Par défaut du système",
-      "username": "Nom d'utilisateur",
-      "usernameHint": "Le nom d'utilisateur ne peut pas être modifié.",
       "reset": "Réinitialiser",
       "save": "Enregistrer",
       "saving": "Enregistrement…"
@@ -187,7 +189,8 @@
       "tfaAlreadyEnabled": "Le 2FA est déjà activé",
       "tfaTooManyRequests": "Trop de requêtes ; réessayez bientôt",
       "tfaVerifyFailed": "Impossible de vérifier le code",
-      "genericError": "Une erreur s'est produite"
+      "genericError": "Une erreur s'est produite",
+      "tfaMailUnavailable": "Le second facteur par e-mail nécessite un serveur de messagerie. Configurez-le dans Paramètres → Configuration de l'e-mail."
     }
   },
   "home": {
@@ -248,11 +251,9 @@
       "details": "Détails",
       "services": {
         "backend": "API backend",
-        "opensearch": "Cluster OpenSearch",
         "socai": "Moteur SOC-AI"
       },
       "detail": {
-        "noClusterInfo": "aucune information sur le cluster",
         "disabled": "désactivé",
         "tools": "{{n}} outils",
         "unreachable": "injoignable",
@@ -289,7 +290,8 @@
     "back": "Retour",
     "taggingRules": "Règles d'étiquetage",
     "parsingFilters": "Pipelines",
-    "overview": "Vue d'ensemble"
+    "overview": "Vue d'ensemble",
+    "tenants": "Locataires"
   },
   "dashboards": {
     "title": "Tableaux de bord",
@@ -634,7 +636,6 @@
     "notifications": "Notifications",
     "connectionKey": "Clé de connexion",
     "dataRetention": "Rétention des données",
-    "indices": "Index",
     "theme": "Thème",
     "branding": "Marque",
     "apiKeys": "Clés API",
@@ -644,7 +645,8 @@
     "language": "Langue",
     "auditLogs": "Journaux d'audit",
     "about": "À propos",
-    "socAi": "SOC-AI"
+    "socAi": "SOC-AI",
+    "supportAccess": "Accès support"
   },
   "topbar": {
     "theme": {
@@ -692,7 +694,6 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "Édition {{edition}}",
-    "datasourceLimit": "Limite de sources de données",
     "unlimited": "Illimité",
     "mssp": "MSSP / multi-locataire",
     "enabled": "Activé",
@@ -718,7 +719,10 @@
       "adminRequired": "Des privilèges d'administrateur sont requis pour télécharger une licence.",
       "invalid": "Fichier de licence invalide ou expiré.",
       "installFailed": "Impossible d'installer la licence."
-    }
+    },
+    "ingestLimit": "Volume d'ingestion",
+    "notMetered": "Non mesuré",
+    "gbPerMonth": "{{gb}} Go/mois"
   },
   "audit": {
     "title": "Journal d'audit",
@@ -800,14 +804,20 @@
       "userDeactivated": "Utilisateur désactivé",
       "tfaReset": "Authentification à deux facteurs réinitialisée",
       "invitationSent": "Invitation envoyée",
-      "loginOrEmailInUse": "Cet identifiant ou cet e-mail est déjà utilisé",
       "invalidRequest": "Requête invalide",
       "noPermission": "Vous n'avez pas la permission de faire cela",
       "userNotFound": "Utilisateur introuvable",
-      "operationFailed": "L'opération a échoué"
+      "operationFailed": "L'opération a échoué",
+      "emailInUse": "Cet e-mail est déjà utilisé",
+      "roleCreated": "Rôle créé",
+      "roleUpdated": "Rôle mis à jour",
+      "roleDeleted": "Rôle supprimé",
+      "roleNameInUse": "Un rôle avec cet identifiant existe déjà",
+      "roleImmutable": "Les rôles système ne peuvent pas être modifiés",
+      "permissionsLoadFailed": "Impossible de charger les permissions"
     },
     "members": {
-      "searchPlaceholder": "Rechercher par nom, identifiant ou e-mail…",
+      "searchPlaceholder": "Rechercher par nom ou e-mail…",
       "invite": "Inviter un utilisateur",
       "colUser": "Utilisateur",
       "colRoles": "Rôles",
@@ -822,35 +832,32 @@
       "on": "Oui",
       "off": "Non",
       "countLabel_one": "{{count}} utilisateur · page {{page}} sur {{pages}}",
-      "countLabel_other": "{{count}} utilisateurs · page {{page}} sur {{pages}}"
+      "countLabel_other": "{{count}} utilisateurs · page {{page}} sur {{pages}}",
+      "federated": "SSO"
     },
     "status": {
       "inactive": "Inactif",
-      "pendingPassword": "Mot de passe en attente",
-      "active": "Actif"
+      "active": "Actif",
+      "pending": "Invitation en attente",
+      "suspended": "Suspendu"
     },
     "drawer": {
-      "createdBy": "créé par {{actor}}",
       "loading": "Chargement…",
       "profileTitle": "Profil",
       "profileSubtitle": "Seul l'utilisateur peut modifier ces informations, depuis son propre profil.",
       "name": "Nom",
-      "username": "Identifiant",
       "email": "E-mail",
       "language": "Langue",
       "accountTitle": "Compte",
       "status": "Statut",
-      "statusActive": "Actif",
-      "statusInactive": "Inactif",
       "tfa": "2FA",
-      "tfaEnabled": "Activé ({{method}})",
+      "tfaEnabled": "Activée",
       "tfaNotConfigured": "Non configuré",
       "resetTfa": "Réinitialiser",
       "resetTfaHint": "Désactive la 2FA de cet utilisateur pour qu'il la reconfigure à la prochaine connexion",
       "resetTfaConfirmTitle": "Réinitialiser l'authentification à deux facteurs ?",
       "resetTfaConfirmBody": "Cela désactive la 2FA de {{name}}. Il se connectera uniquement avec son mot de passe et pourra la reconfigurer depuis son profil.",
       "resetTfaConfirm": "Réinitialiser la 2FA",
-      "pendingPasswordNote": "Utilise encore le mot de passe temporaire (invitation non terminée).",
       "lastModified": "Modifié {{time}}",
       "rolesTitle": "Rôles",
       "rolesSubtitle": "Les rôles accordent des permissions de module. Un utilisateur peut en avoir plusieurs.",
@@ -860,20 +867,21 @@
       "waitingInvite": "En attente de l'acceptation de l'invitation par l'utilisateur.",
       "cancel": "Annuler",
       "saving": "Enregistrement…",
-      "saveRoles": "Enregistrer les rôles"
+      "saveRoles": "Enregistrer les rôles",
+      "created": "créé {{time}}",
+      "pendingNote": "L'invitation n'a pas encore été acceptée.",
+      "federatedNote": "Se connecte via un fournisseur d'identité."
     },
     "invite": {
       "title": "Inviter un utilisateur",
-      "description": "Le compte est créé inactif. L'utilisateur reçoit un e-mail pour définir son mot de passe et l'activer.",
-      "username": "Identifiant",
-      "usernameHint": "Au moins 3 caractères.",
+      "description": "Le compte est créé inactif. La personne reçoit un e-mail pour définir son mot de passe et l'activer.",
       "email": "E-mail",
-      "firstName": "Prénom",
-      "lastName": "Nom",
       "roles": "Rôles",
       "cancel": "Annuler",
       "sending": "Envoi…",
-      "send": "Envoyer l'invitation"
+      "send": "Envoyer l'invitation",
+      "name": "Nom",
+      "emailHint": "C'est l'adresse utilisée pour se connecter."
     },
     "rolePicker": {
       "none": "Aucun rôle disponible."
@@ -881,14 +889,32 @@
     "roles": {
       "loading": "Chargement des rôles…",
       "loadFailed": "Impossible de charger les permissions des rôles.",
-      "readonlyNote": "Les rôles et leurs permissions sont définis par le système et en lecture seule. Attribuez-les aux utilisateurs depuis l'onglet Membres.",
       "permissionsCount_one": "{{count}} permission",
       "permissionsCount_other": "{{count}} permissions",
       "modulesCount_one": "{{count}} module",
       "modulesCount_other": "{{count}} modules",
       "matrixTitle": "Matrice des permissions",
       "matrixSubtitle": "Ce que chaque rôle peut faire, par module.",
-      "permission": "Permission"
+      "permission": "Permission",
+      "systemNote": "Les rôles système sont fournis avec la plateforme et ne sont pas modifiables. Ceux que vous créez appartiennent à ce locataire.",
+      "newRole": "Nouveau rôle",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "systemBadge": "Système",
+      "createTitle": "Nouveau rôle",
+      "editTitle": "Modifier le rôle",
+      "editorSubtitle": "Choisissez ce que ce rôle peut faire. Une personne peut en cumuler plusieurs.",
+      "nameLabel": "Identifiant",
+      "nameHint": "Utilisé dans le code et l'API. Par exemple ROLE_AUDITOR.",
+      "displayNameLabel": "Nom affiché",
+      "descriptionLabel": "Description",
+      "permissionsLabel": "Permissions",
+      "selectedCount": "{{count}} sélectionnées",
+      "toggleAll": "toutes",
+      "loadingPermissions": "Chargement des permissions…",
+      "save": "Enregistrer le rôle",
+      "deleteConfirmTitle": "Supprimer ce rôle ?",
+      "deleteConfirmBody": "{{name}} sera supprimé. Les personnes qui n'ont que ce rôle perdront l'accès aux modules."
     },
     "langDefault": "Par défaut du système",
     "relative": {
@@ -926,7 +952,11 @@
       "opensearch": "OpenSearch",
       "roles": "Rôles",
       "soar": "SOAR",
-      "users": "Utilisateurs"
+      "users": "Utilisateurs",
+      "notifications": "Notifications",
+      "socai": "SOC AI",
+      "tenant": "Locataires",
+      "threatintel": "Renseignement sur les menaces"
     }
   },
   "apiKeys": {
@@ -1041,7 +1071,11 @@
       "loginUrl": "URL de connexion",
       "copy": "Copier",
       "edit": "Modifier",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "jit": "Provisioning",
+      "jitOn": "creates accounts on first sign-in",
+      "sync": "Roles",
+      "syncOn": "re-applied on every sign-in"
     },
     "form": {
       "addTitle": "Ajouter un fournisseur d'identité",
@@ -1062,7 +1096,46 @@
       "cancel": "Annuler",
       "saving": "Enregistrement…",
       "save": "Enregistrer les modifications",
-      "create": "Créer le fournisseur"
+      "create": "Créer le fournisseur",
+      "issuer": "Issuer URL",
+      "issuerHint": "Discovery runs against this; the provider must serve /.well-known/openid-configuration under it.",
+      "clientId": "Client ID",
+      "redirectUrl": "Redirect URL",
+      "redirectUrlHint": "Register this exact URL with the provider.",
+      "host": "Host",
+      "port": "Port",
+      "startTls": "TLS",
+      "startTlsOn": "Use StartTLS",
+      "bindDn": "Bind DN",
+      "bindDnHint": "A service account that may search the directory.",
+      "baseDn": "Base DN",
+      "userFilter": "User filter",
+      "userFilterHint": "Must contain %s, where the address typed at login is placed.",
+      "emailAttribute": "Email attribute",
+      "nameAttribute": "Name attribute",
+      "groupAttribute": "Group attribute",
+      "provisioning": "Accounts and roles",
+      "provisioningHint": "What happens when someone the directory vouches for signs in.",
+      "jit": "Create the account on first sign-in",
+      "defaultRole": "Default role",
+      "defaultRoleHint": "Given when no group matches. Without one, an unmatched sign-in is refused.",
+      "noDefaultRole": "None",
+      "groupsAttribute": "Groups attribute",
+      "groupsAttributeHint": "Where the provider puts group membership.",
+      "syncRoles": "Re-apply roles on every sign-in",
+      "syncRolesHint": "Roles not in the mapping are removed, so a change in the directory reaches here. Without this, a demotion never arrives.",
+      "mappings": "Group to role",
+      "mappingsHint": "A directory group on the left, the role it grants on the right.",
+      "addMapping": "Add",
+      "noMappings": "No mappings. Everyone gets the default role.",
+      "groupPlaceholder": "SOC Analysts",
+      "pickRole": "Pick a role",
+      "secret.saml": "SP private key",
+      "secret.oidc": "Client secret",
+      "secret.ldap": "Bind password",
+      "secretHintCreate": "Stored encrypted and never shown again.",
+      "secretHintEdit": "Leave blank to keep the stored one.",
+      "secretUnchanged": "unchanged"
     },
     "delete": {
       "title": "Supprimer le fournisseur d'identité",
@@ -1082,6 +1155,12 @@
       "notFound": "Fournisseur d'identité introuvable",
       "invalid": "Configuration invalide",
       "failed": "L'opération a échoué"
+    },
+    "providerType": {
+      "saml": "SAML 2.0",
+      "oidc": "OpenID Connect",
+      "ldap": "LDAP / Active Directory",
+      "comingSoon": "pas encore disponible"
     }
   },
   "userAuditor": {
@@ -1245,93 +1324,6 @@
       "saveFailed": "Impossible d'enregistrer la politique de rétention"
     }
   },
-  "indices": {
-    "title": "Index et index patterns",
-    "subtitle": "Les index patterns regroupent les index pour la recherche ; les index sont le stockage OpenSearch sous-jacent.",
-    "retry": "Réessayer",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Index"
-    },
-    "dataViews": {
-      "search": "Rechercher des index patterns…",
-      "add": "Ajouter une index pattern",
-      "colPattern": "Modèle",
-      "colModule": "Intégration",
-      "colActive": "Active",
-      "colActions": "Actions",
-      "loading": "Chargement des index patterns…",
-      "loadFailed": "Impossible de charger les index patterns.",
-      "noSearchMatch": "Aucune index pattern ne correspond à votre recherche.",
-      "none": "Aucune index pattern pour le moment.",
-      "system": "système",
-      "active": "Active",
-      "disabled": "Désactivée",
-      "edit": "Modifier",
-      "delete": "Supprimer",
-      "deleteTitle": "Supprimer la index pattern",
-      "deleteBody": "Supprimer {{pattern}} ? Cela supprime la définition de la index pattern. Les index sous-jacents ne sont pas supprimés.",
-      "deleteConfirm": "Supprimer",
-      "form": {
-        "addTitle": "Ajouter une index pattern",
-        "editTitle": "Modifier la index pattern",
-        "pattern": "Modèle d'index",
-        "patternHint": "Utilisez * comme caractère générique, p. ex. logs-windows-*",
-        "module": "Intégration",
-        "moduleHint": "Facultatif — l'intégration à laquelle appartient ce pattern (p. ex. windows, aws). Laissez vide pour les patterns personnalisés.",
-        "activeLabel": "Active",
-        "systemLabel": "Index pattern système",
-        "saving": "Enregistrement…",
-        "save": "Enregistrer les modifications",
-        "create": "Créer",
-        "matchChecking": "Vérification des index correspondants…",
-        "matchNone": "Ne correspond à aucun index — le pattern doit correspondre à au moins un.",
-        "duplicate": "Un index pattern avec ce glob existe déjà.",
-        "matchCount_one": "Correspond à {{count}} index",
-        "matchCount_other": "Correspond à {{count}} index"
-      },
-      "toast": {
-        "enabled": "Index pattern activée",
-        "disabled": "Index pattern désactivée",
-        "created": "Index pattern créée",
-        "updated": "Index pattern mise à jour",
-        "deleted": "Index pattern supprimée"
-      },
-      "systemLocked": "Pattern système — géré automatiquement, non modifiable"
-    },
-    "index": {
-      "filter": "Filtrer par nom d'index…",
-      "systemIndices": "Index système",
-      "refresh": "Actualiser",
-      "colIndex": "Index",
-      "colHealth": "Santé",
-      "colStatus": "Statut",
-      "colDocs": "Docs",
-      "colSize": "Taille",
-      "colActions": "Actions",
-      "loading": "Chargement des index…",
-      "loadFailed": "Impossible de charger les index (OpenSearch est peut-être indisponible).",
-      "noFilterMatch": "Aucun index ne correspond à votre filtre.",
-      "none": "Aucun index trouvé.",
-      "page": "Page {{page}}",
-      "deleteTitle": "Supprimer l'index",
-      "deleteBody": "Supprimer définitivement l'index {{name}} ? Tous les {{docs}} documents qu'il contient seront perdus. Cette action est irréversible.",
-      "deleteConfirm": "Supprimer l'index",
-      "toast": {
-        "deleted": "Index supprimé"
-      }
-    },
-    "confirm": {
-      "cancel": "Annuler",
-      "working": "Traitement…"
-    },
-    "error": {
-      "noPermission": "Vous n'avez pas la permission de faire cela",
-      "notFound": "Introuvable",
-      "invalidRequest": "Requête invalide",
-      "failed": "L'opération a échoué"
-    }
-  },
   "languageSettings": {
     "title": "Langue de la plateforme",
     "subtitle": "Langue d'interface par défaut pour les écrans de pré-connexion, les e-mails système et les nouveaux utilisateurs. Chaque utilisateur peut choisir la sienne dans son profil.",
@@ -1346,8 +1338,6 @@
   "branding": {
     "title": "Marque",
     "subtitle": "Personnalisez UTMStack avec l’identité de votre organisation — appliquée partout : écran de connexion, barre latérale, e-mails et rapports.",
-    "msspRequired": "Le white-label est une fonctionnalité MSSP.",
-    "manageLicense": "Gérer la licence",
     "enable": {
       "title": "White-label",
       "description": "Remplacez la marque UTMStack par la vôtre sur toute la plateforme.",
@@ -1384,7 +1374,14 @@
     "saveError": "Impossible d’enregistrer la marque",
     "uploaded": "Image téléversée",
     "uploadError": "Impossible de téléverser l’image",
-    "loadError": "Impossible de charger la marque"
+    "loadError": "Impossible de charger la marque",
+    "enterprise": {
+      "title": "La marque blanche est une fonctionnalité Enterprise",
+      "body": "Remplacez le nom du produit, le logo et la couverture des rapports par les vôtres, afin que la console et tout ce qu'elle génère portent votre marque plutôt que celle d'UTMStack.",
+      "upgrade": "Passer à Enterprise"
+    },
+    "restore": "Rétablir les valeurs UTMStack",
+    "restored": "Marque rétablie aux valeurs UTMStack"
   },
   "emailConfig": {
     "title": "Configuration e-mail",
@@ -1468,24 +1465,19 @@
     "license": {
       "title": "Licence",
       "enterpriseMssp": "Enterprise · MSSP",
-      "datasources": "Datasources",
-      "communityLimited": "Limite Community",
       "unlimited": "Illimité",
       "expires": "Expire",
       "managedNote": "L'édition, les limites de datasources et l'upload de licence sont gérés sur la page Licence.",
-      "view": "Voir la licence"
+      "view": "Voir la licence",
+      "ingest": "Volume d'ingestion",
+      "notMetered": "Non mesuré",
+      "gbPerMonth": "{{gb}} Go/mois"
     },
     "services": {
       "backend": {
         "name": "Backend API",
         "desc": "Passerelle REST, authentification et orchestration des modules."
-      },
-      "opensearch": {
-        "name": "OpenSearch",
-        "desc": "Stockage des logs et événements.",
-        "detail": "{{nodes}} nœuds · {{shards}} shards"
-      },
-      "unreachable": "Inaccessible"
+      }
     },
     "status": {
       "up": "Sain",
@@ -1501,11 +1493,9 @@
       "refresh": "Actualiser"
     },
     "usage": {
-      "title": "Utilisation des datasources",
-      "subtitle": "Datasources actifs par rapport au plafond de votre licence.",
-      "ofUnlimited": "sur illimité",
-      "ofLimit": "sur {{limit}}",
-      "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque."
+      "title": "Sources de données",
+      "subtitle": "Sources de données configurées dans ce déploiement.",
+      "configured": "configurées"
     },
     "support": {
       "title": "Support",
@@ -1641,7 +1631,12 @@
       "save": "Enregistrer",
       "namePlaceholder": "Nom de la recherche",
       "delete": "Supprimer",
-      "saved": "« {{name}} » enregistrée"
+      "saved": "« {{name}} » enregistrée",
+      "loading": "Chargement…",
+      "loadFailed": "Impossible de charger les recherches enregistrées",
+      "saveFailed": "Impossible d'enregistrer la recherche",
+      "deleteFailed": "Impossible de supprimer la recherche",
+      "unreadable": "Cette recherche enregistrée est illisible"
     }
   },
   "integrations": {
@@ -3475,12 +3470,6 @@
     }
   },
   "datasources": {
-    "limitBanner": {
-      "title": "Limite de sources de données dépassée.",
-      "message": "Vous avez {{count}} sources de données mais votre licence en couvre {{limit}}. Les journaux des sources au-delà de la limite sont rejetés.",
-      "cta": "Gérer la licence",
-      "dismiss": "Ignorer"
-    },
     "title": "Sources de données",
     "total": "{{count}} au total",
     "subtitle": "Agents, intégrations et sources directes qui envoient des événements. Le statut est dérivé de la dernière fois que chaque source a été vue.",
@@ -3497,10 +3486,8 @@
       "now": "maintenant"
     },
     "usage": {
-      "title": "Utilisation de la licence",
-      "ofUnlimited": "sur illimité",
-      "ofLimit": "sur {{limit}}",
-      "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque."
+      "title": "Sources de données",
+      "configured": "configurées"
     },
     "tabs": {
       "all": "Toutes",
@@ -4932,6 +4919,19 @@
       "copied": "Copié",
       "errorGeneric": "Une erreur s'est produite.",
       "errorUnreachable": "Impossible de joindre l'assistant."
+    },
+    "inheritance": {
+      "inherited": "Suit la valeur par défaut de l'instance. Enregistrer donne à ce locataire sa propre configuration.",
+      "own": "Ce locataire a sa propre configuration.",
+      "revert": "Suivre la valeur par défaut de l'instance",
+      "reverting": "Rétablissement…",
+      "reverted": "Suit désormais la valeur par défaut de l'instance"
+    },
+    "allowance": {
+      "title": "Consommation d'IA aujourd'hui",
+      "ofLimit": "sur {{limit}} requêtes",
+      "denied": "requêtes — l'IA n'est pas disponible pour ce locataire",
+      "hint": "Défini par l'exploitant de l'instance. Réinitialisé à minuit UTC."
     }
   },
   "taggingRules": {
@@ -5128,5 +5128,125 @@
       "level2": "Niveau 2",
       "level3": "Niveau 3"
     }
+  },
+  "tenants": {
+    "title": "Locataires",
+    "new": "Nouveau locataire",
+    "subtitle": "Chaque client de cette instance, ce qu'il détient et ce qu'il vous laisse voir.",
+    "searchPlaceholder": "Rechercher par nom ou domaine…",
+    "loading": "Chargement des locataires…",
+    "loadFailed": "Impossible de charger les locataires.",
+    "retry": "Réessayer",
+    "none": "Aucun locataire pour le moment.",
+    "noSearchMatch": "Aucun locataire ne correspond à la recherche.",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "chips": {
+      "total": "locataires",
+      "active": "actifs",
+      "readable": "accessibles"
+    },
+    "status": {
+      "ACTIVE": "Actif",
+      "SUSPENDED": "Suspendu",
+      "TERMINATED": "Résilié"
+    },
+    "support": {
+      "NONE": "Aucun accès",
+      "READ": "Accès en lecture",
+      "FULL": "Accès complet",
+      "hint": "Accordé par le locataire, pas par vous. Seul son administrateur peut le changer."
+    },
+    "card": {
+      "edit": "Modifier",
+      "terminate": "Résilier",
+      "noAccess": "Ce locataire ne vous a pas donné accès.",
+      "loadingStats": "Lecture…",
+      "enter": "Entrer"
+    },
+    "stats": {
+      "users": "Utilisateurs",
+      "datasources": "Sources",
+      "openAlerts": "Alertes ouvertes",
+      "ai": "IA aujourd'hui",
+      "noLimit": "sans plafond"
+    },
+    "fields": {
+      "name": "Nom",
+      "domain": "Domaine",
+      "domainHint": "Par où ce locataire est joint. Toute requête sur cet hôte entre dans ses données.",
+      "adminEmail": "E-mail de l'administrateur",
+      "adminEmailHint": "Il reçoit une invitation pour définir son propre mot de passe.",
+      "status": "Statut",
+      "suspendedWarning": "Un locataire suspendu ne peut pas se connecter. Ses données sont conservées.",
+      "aiLimit": "Plafond de requêtes IA",
+      "aiLimitHint": "Un plafond opérationnel, par jour. Sans plafond, la consommation compte sur la licence de l'instance.",
+      "aiLimitToggle": "Plafonner ce locataire"
+    },
+    "create": {
+      "title": "Nouveau locataire",
+      "subtitle": "Crée le locataire et invite son premier administrateur.",
+      "submit": "Créer le locataire"
+    },
+    "edit": {
+      "title": "Modifier le locataire",
+      "subtitle": "L'accès support n'est pas ici : seul le locataire peut l'accorder.",
+      "submit": "Enregistrer"
+    },
+    "terminate": {
+      "title": "Résilier ce locataire ?",
+      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, un opérateur peut donc revenir en arrière, mais le client est hors ligne dès maintenant.",
+      "confirmLabel": "Saisissez {{name}} pour confirmer",
+      "submit": "Résilier"
+    },
+    "toast": {
+      "created": "Locataire créé",
+      "updated": "Locataire mis à jour",
+      "terminated": "Locataire résilié",
+      "domainInUse": "Ce domaine est déjà pris",
+      "noPermission": "Vous n'avez pas la permission de faire cela",
+      "notFound": "Locataire introuvable",
+      "invalidRequest": "Requête invalide",
+      "operationFailed": "L'opération a échoué"
+    }
+  },
+  "supportAccess": {
+    "title": "Accès support",
+    "intro": "Celui qui exploite cette instance ne peut pas regarder dans vos données sans votre accord. Rien n'est accordé par défaut, et vous pouvez le retirer à tout moment.",
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de lire le réglage actuel.",
+    "retry": "Réessayer",
+    "currentBadge": "actuel",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "levels": {
+      "NONE": {
+        "name": "Aucun accès",
+        "desc": "L'exploitant voit que votre locataire existe, rien de plus. Toute requête vers vos données est refusée."
+      },
+      "READ": {
+        "name": "Lecture seule",
+        "desc": "L'exploitant peut consulter vos alertes, vos logs et votre configuration pour vous aider. Il ne peut rien modifier : toute écriture est refusée, quel que soit son propre rôle."
+      },
+      "FULL": {
+        "name": "Accès complet",
+        "desc": "L'exploitant peut agir dans votre locataire en tant qu'administrateur : configuration, utilisateurs et flux de réponse."
+      }
+    },
+    "fullWarning": "L'accès complet lui permet de modifier des choses en votre nom. Accordez-le le temps d'une intervention, puis revenez en arrière.",
+    "revokeNote": "Tout ce que l'exploitant fait ici est consigné dans votre journal d'audit.",
+    "toast": {
+      "granted": "Accès support mis à jour",
+      "revoked": "Accès support retiré",
+      "forbidden": "Seul un administrateur de ce locataire peut changer cela",
+      "invalid": "Requête invalide",
+      "failed": "Impossible d'enregistrer la modification"
+    }
+  },
+  "supportSession": {
+    "inside": "Vous travaillez à l’intérieur de {{name}}",
+    "readOnly": "lecture seule — les écritures sont refusées",
+    "full": "accès complet — les changements ici sont réels",
+    "leave": "Quitter"
   }
 }

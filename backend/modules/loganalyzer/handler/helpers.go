@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 func writeError(c *gin.Context, err error) {
@@ -15,7 +16,8 @@ func writeError(c *gin.Context, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired),
 		errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrFieldRequired),
-		errors.Is(err, domain.ErrIndexRequired):
+		errors.Is(err, domain.ErrDatasetRequired), errors.Is(err, domain.ErrUnknownDataset),
+		errors.Is(err, common_models.ErrOperatorUnsupported):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -39,4 +41,4 @@ func writeList[T any](c *gin.Context, items []T, total int64) {
 	c.JSON(http.StatusOK, items)
 }
 
-func currentUser(c *gin.Context) string { return c.GetString("user_login") }
+func currentUser(c *gin.Context) string { return c.GetString("user_email") }

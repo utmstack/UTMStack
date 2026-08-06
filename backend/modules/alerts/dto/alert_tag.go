@@ -82,6 +82,9 @@ type AlertTagRuleResponse struct {
 }
 
 type ActiveAlertTagRule struct {
+	// TenantID keeps a tenant's rules from being applied to another's alerts:
+	// the plugin caches every tenant's rules in one process.
+	TenantID        string          `json:"tenantId"`
 	ID              uint64          `json:"id"`
 	Name            string          `json:"name"`
 	Conditions      json.RawMessage `json:"conditions"`

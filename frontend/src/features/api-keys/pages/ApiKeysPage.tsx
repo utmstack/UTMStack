@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
-  Crown,
   KeyRound,
   Loader2,
   Plus,
@@ -15,6 +13,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useBilling } from '@/features/billing'
+import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
 import { apiKeysHttpService } from '../services/api-keys-http.service'
 import type { ApiKey, ApiKeyPageInfo } from '../types/api-key.types'
 import { COLS, KeyRow } from '../components/KeyRow'
@@ -73,8 +72,24 @@ export function ApiKeysPage() {
   // API keys creation/rotation is an Enterprise capability. When gated, the
   // page still renders but shows an upgrade note instead of the manager.
   const isEnterprise = license?.edition === 'enterprise'
-  const ENFORCE_ENTERPRISE_GATE = true
-  const showManager = !ENFORCE_ENTERPRISE_GATE || isEnterprise
+
+  if (!isEnterprise) {
+    return (
+      <EnterpriseGate
+        header={
+          <header>
+            <h1 className="flex items-center gap-2 text-base font-semibold">
+              <KeyRound size={16} strokeWidth={1.75} />
+              {t('settings.apiKeys')}
+            </h1>
+          </header>
+        }
+        title={t('apiKeys.enterprise.title')}
+        body={t('apiKeys.enterprise.body')}
+        cta={t('apiKeys.enterprise.upgrade')}
+      />
+    )
+  }
 
   return (
     <div className="w-full px-6 pb-6 pt-3">
@@ -91,106 +106,88 @@ export function ApiKeysPage() {
             </span>
           </p>
         </div>
-        {showManager && (
-          <Button size="sm" onClick={() => setDialog({ mode: 'create' })}>
-            <Plus size={14} className="mr-1.5" />
-            {t('apiKeys.new')}
-          </Button>
-        )}
+        <Button size="sm" onClick={() => setDialog({ mode: 'create' })}>
+          <Plus size={14} className="mr-1.5" />
+          {t('apiKeys.new')}
+        </Button>
       </header>
 
       <section className="mt-6 rounded-xl border border-border bg-card px-6 pb-6 pt-4">
-        {!showManager ? (
-          <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-            <Crown size={24} strokeWidth={1.75} className="text-amber-500" />
-            <div className="text-sm font-medium">{t('apiKeys.enterprise.title')}</div>
-            <p className="max-w-md text-xs text-muted-foreground">{t('apiKeys.enterprise.body')}</p>
-            <Button asChild size="sm" className="mt-1">
-              <Link to="/settings/license">
-                <Crown size={14} className="mr-1.5" />
-                {t('apiKeys.enterprise.upgrade')}
-              </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[260px] flex-1">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t('apiKeys.searchPlaceholder')}
+                className="h-9 pl-9"
+              />
+            </div>
+            <Button variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
+              <RefreshCw size={14} className={cn('mr-1.5', loading && 'animate-spin')} />
+              {t('apiKeys.refresh')}
             </Button>
           </div>
-        ) : (
-          <>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative min-w-[260px] flex-1">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={t('apiKeys.searchPlaceholder')}
-                  className="h-9 pl-9"
-                />
-              </div>
-              <Button variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
-                <RefreshCw size={14} className={cn('mr-1.5', loading && 'animate-spin')} />
-                {t('apiKeys.refresh')}
-              </Button>
+
+          <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
+            <div
+              className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
+              style={{ gridTemplateColumns: COLS }}
+            >
+              <div>{t('apiKeys.col.name')}</div>
+              <div>{t('apiKeys.col.allowedIps')}</div>
+              <div>{t('apiKeys.col.created')}</div>
+              <div>{t('apiKeys.col.lastRotated')}</div>
+              <div>{t('apiKeys.col.expires')}</div>
+              <div>{t('apiKeys.col.status')}</div>
+              <div className="text-right">{t('apiKeys.col.actions')}</div>
             </div>
 
-            <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
-              <div
-                className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-                style={{ gridTemplateColumns: COLS }}
-              >
-                <div>{t('apiKeys.col.name')}</div>
-                <div>{t('apiKeys.col.allowedIps')}</div>
-                <div>{t('apiKeys.col.created')}</div>
-                <div>{t('apiKeys.col.lastRotated')}</div>
-                <div>{t('apiKeys.col.expires')}</div>
-                <div>{t('apiKeys.col.status')}</div>
-                <div className="text-right">{t('apiKeys.col.actions')}</div>
+            {loading && (!keys || keys.length === 0) && (
+              <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('apiKeys.loading')}
               </div>
-
-              {loading && (!keys || keys.length === 0) && (
-                <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('apiKeys.loading')}
-                </div>
-              )}
-
-              {!loading && error && (
-                <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
-                  <span className="inline-flex items-center gap-2 text-muted-foreground">
-                    <AlertTriangle size={16} className="text-amber-500" />
-                    {t('apiKeys.loadFailed')}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={() => void load()}>
-                    {t('apiKeys.retry')}
-                  </Button>
-                </div>
-              )}
-
-              {!loading && !error && filtered.length === 0 && (
-                <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-                  {search ? t('apiKeys.noSearchMatch') : t('apiKeys.empty')}
-                </div>
-              )}
-
-              {filtered.length > 0 &&
-                filtered.map((k) => (
-                  <KeyRow
-                    key={k.id}
-                    apiKey={k}
-                    onEdit={() => setDialog({ mode: 'edit', key: k })}
-                    onRotate={() => setConfirm({ kind: 'rotate', key: k })}
-                    onDelete={() => setConfirm({ kind: 'delete', key: k })}
-                  />
-                ))}
-            </div>
-
-            {!error && keys && keys.length > 0 && (
-              <InfiniteScrollSentinel
-                onReach={() => setPage((p) => p + 1)}
-                hasMore={keys.length < (pageInfo?.total_items ?? 0)}
-                loading={loading}
-                endLabel={t('common.allLoaded', { count: pageInfo?.total_items ?? 0 })}
-              />
             )}
-          </>
-        )}
+
+            {!loading && error && (
+              <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
+                <span className="inline-flex items-center gap-2 text-muted-foreground">
+                  <AlertTriangle size={16} className="text-amber-500" />
+                  {t('apiKeys.loadFailed')}
+                </span>
+                <Button variant="outline" size="sm" onClick={() => void load()}>
+                  {t('apiKeys.retry')}
+                </Button>
+              </div>
+            )}
+
+            {!loading && !error && filtered.length === 0 && (
+              <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+                {search ? t('apiKeys.noSearchMatch') : t('apiKeys.empty')}
+              </div>
+            )}
+
+            {filtered.length > 0 &&
+              filtered.map((k) => (
+                <KeyRow
+                  key={k.id}
+                  apiKey={k}
+                  onEdit={() => setDialog({ mode: 'edit', key: k })}
+                  onRotate={() => setConfirm({ kind: 'rotate', key: k })}
+                  onDelete={() => setConfirm({ kind: 'delete', key: k })}
+                />
+              ))}
+          </div>
+
+          {!error && keys && keys.length > 0 && (
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={keys.length < (pageInfo?.total_items ?? 0)}
+              loading={loading}
+              endLabel={t('common.allLoaded', { count: pageInfo?.total_items ?? 0 })}
+            />
+          )}
       </section>
 
       {dialog && (

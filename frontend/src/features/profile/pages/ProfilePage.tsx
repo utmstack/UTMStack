@@ -21,12 +21,12 @@ const AVATAR_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
 const sessionsService = IS_FEDERATION
   ? {
       list: () => federationAuthService.listSessions(),
-      revoke: (id: number) => federationAuthService.revokeSession(id),
+      revoke: (id: string) => federationAuthService.revokeSession(Number(id)),
       revokeOthers: () => federationAuthService.revokeOtherSessions(),
     }
   : {
       list: () => authHttpService.listSessions(),
-      revoke: (id: number) => authHttpService.revokeSession(id),
+      revoke: (id: string) => authHttpService.revokeSession(id),
       revokeOthers: () => authHttpService.revokeOtherSessions(),
     }
 
@@ -36,8 +36,7 @@ export function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
-  const [firstName, setFirstName] = useState(user?.first_name ?? '')
-  const [lastName, setLastName] = useState(user?.last_name ?? '')
+  const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
   const [langKey, setLangKey] = useState(user?.lang_key ?? '')
   const [savingProfile, setSavingProfile] = useState(false)
@@ -49,22 +48,21 @@ export function ProfilePage() {
 
   const [sessions, setSessions] = useState<Session[] | null>(null)
   const [sessionsLoading, setSessionsLoading] = useState(true)
-  const [revokingId, setRevokingId] = useState<number | null>(null)
+  const [revokingId, setRevokingId] = useState<string | null>(null)
   const [revokingAll, setRevokingAll] = useState(false)
 
   // Sync form fields when the user object hydrates after mount.
   useEffect(() => {
-    setFirstName(user?.first_name ?? '')
-    setLastName(user?.last_name ?? '')
+    setName(user?.name ?? '')
     setEmail(user?.email ?? '')
     setLangKey(user?.lang_key ?? '')
-  }, [user?.first_name, user?.last_name, user?.email, user?.lang_key])
+  }, [user?.name, user?.email, user?.lang_key])
 
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true)
     try {
       const list = await sessionsService.list()
-      setSessions(list)
+      setSessions(list as Session[])
     } catch {
       toast.error(t('profile.toast.sessionsLoadFailed'))
       setSessions([])
@@ -77,11 +75,10 @@ export function ProfilePage() {
     loadSessions()
   }, [loadSessions])
 
-  const fullName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.login || 'User'
+  const fullName = user?.name || user?.email || 'User'
   const initials = fullName
     .split(' ')
-    .map((p) => p[0])
+    .map((p: string) => p[0])
     .filter(Boolean)
     .slice(0, 2)
     .join('')
@@ -89,12 +86,11 @@ export function ProfilePage() {
 
   const profileDirty = useMemo(() => {
     return (
-      firstName !== (user?.first_name ?? '') ||
-      lastName !== (user?.last_name ?? '') ||
+      name !== (user?.name ?? '') ||
       email !== (user?.email ?? '') ||
       langKey !== (user?.lang_key ?? '')
     )
-  }, [firstName, lastName, email, langKey, user])
+  }, [name, email, langKey, user])
 
   const handleSavePersonal = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,8 +98,7 @@ export function ProfilePage() {
     setSavingProfile(true)
     try {
       await updateMe({
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
+        name: name.trim(),
         email: email.trim(),
         lang_key: langKey || undefined,
       })
@@ -148,7 +143,7 @@ export function ProfilePage() {
     }
   }
 
-  const handleRevokeSession = async (id: number) => {
+  const handleRevokeSession = async (id: string) => {
     setRevokingId(id)
     try {
       await sessionsService.revoke(id)
@@ -256,7 +251,7 @@ export function ProfilePage() {
             <span className="rounded-md bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-inset ring-primary/20">
               {t('profile.hero.administrator')}
             </span>
-            <span className="font-mono text-xs text-muted-foreground">@{user?.login}</span>
+            <span className="font-mono text-xs text-muted-foreground">{user?.email}</span>
           </div>
         </div>
       </header>
@@ -264,14 +259,9 @@ export function ProfilePage() {
       {/* Personal info */}
       <Section title={t('profile.personal.title')} description={t('profile.personal.description')}>
         <form onSubmit={handleSavePersonal} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label={t('profile.personal.firstName')}>
-              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-            </Field>
-            <Field label={t('profile.personal.lastName')}>
-              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
-            </Field>
-          </div>
+          <Field label={t('profile.personal.name')}>
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </Field>
           <Field label={t('profile.personal.email')}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
@@ -290,9 +280,6 @@ export function ProfilePage() {
                 ))}
               </select>
             </Field>
-            <Field label={t('profile.personal.username')} hint={t('profile.personal.usernameHint')}>
-              <Input value={user?.login ?? ''} disabled className="font-mono" />
-            </Field>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button
@@ -300,8 +287,7 @@ export function ProfilePage() {
               variant="outline"
               disabled={!profileDirty || savingProfile}
               onClick={() => {
-                setFirstName(user?.first_name ?? '')
-                setLastName(user?.last_name ?? '')
+                setName(user?.name ?? '')
                 setEmail(user?.email ?? '')
                 setLangKey(user?.lang_key ?? '')
               }}

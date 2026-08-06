@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
-import type { ChartView, FilterType, IndexPattern } from '../types/log-explorer.types'
+import type { ChartView, FilterType } from '../types/log-explorer.types'
 import { TS, chartTimeLabel } from './log-explorer.constants'
 
 // Pick a date-histogram interval that yields a readable number of buckets for
@@ -30,7 +30,7 @@ function HistogramStripImpl({
   filters,
   range,
 }: {
-  pattern: IndexPattern
+  pattern: string
   filters: FilterType[]
   range: TimeRange
 }) {
@@ -41,7 +41,7 @@ function HistogramStripImpl({
     let cancelled = false
     svc
       .chartView({
-        indexPattern: pattern.pattern,
+        indexPattern: pattern,
         field: TS,
         fieldDataType: 'date',
         filters,
@@ -58,7 +58,7 @@ function HistogramStripImpl({
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pattern.pattern, filters, interval])
+  }, [pattern, filters, interval])
 
   if (!data || data.values.length === 0) return null
   const max = Math.max(1, ...data.values)

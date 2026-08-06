@@ -95,7 +95,7 @@ func queryBoolPtr(c *gin.Context, name string) *bool {
 }
 
 func loginFromCtx(c *gin.Context) string {
-	if v, ok := c.Get("user_login"); ok {
+	if v, ok := c.Get("user_email"); ok {
 		if s, ok := v.(string); ok {
 			return s
 		}

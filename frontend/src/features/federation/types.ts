@@ -1,6 +1,6 @@
 /** Mirrors the Federation Service DTOs (camelCase JSON). */
 
-import type { TfaMethod } from '@/features/auth/types/auth.types'
+import type { TfaFactorType } from '@/features/auth/types/auth.types'
 
 export interface FederationUser {
   id: number
@@ -11,7 +11,7 @@ export interface FederationUser {
   imageUrl?: string
   langKey?: string
   tfaEnabled?: boolean
-  tfaMethod?: TfaMethod
+  tfaMethod?: TfaFactorType
 }
 
 export interface FederationTokenPair {
@@ -26,7 +26,7 @@ export interface FederationLoginResponse extends Partial<FederationTokenPair> {
   user: FederationUser
   // Present instead of the token pair when the account has 2FA enabled.
   tfaRequired?: boolean
-  tfaMethod?: TfaMethod
+  tfaMethod?: TfaFactorType
   preAuthToken?: string
 }
 

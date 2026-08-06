@@ -18,6 +18,10 @@ import (
 	"google.golang.org/api/option"
 )
 
+// defaultTenant is the fallback used only when a connector instance's config
+// has no tenantId (every on-prem/single-tenant install today) — matches the
+// UUID hardcoded everywhere else in this codebase for that same case. A SaaS
+// tenant's own connector config always carries a real tenantId instead.
 const (
 	defaultTenant     string        = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	CHECKCON          string        = "https://pubsub.googleapis.com"
@@ -27,6 +31,7 @@ const (
 
 type GroupModule struct {
 	GroupName      string
+	TenantId       string
 	JsonKey        string
 	ProjectID      string
 	SubscriptionID string
@@ -97,9 +102,13 @@ func (g *GroupModule) PullLogs() {
 
 	for {
 		err := sub.Receive(g.CTX, func(ctx context.Context, msg *pubsub.Message) {
+			tenantId := g.TenantId
+			if tenantId == "" {
+				tenantId = defaultTenant
+			}
 			plugins.EnqueueLog(&plugins.Log{
 				Id:         uuid.NewString(),
-				TenantId:   defaultTenant,
+				TenantId:   tenantId,
 				DataType:   "google",
 				DataSource: g.GroupName,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
@@ -120,6 +129,7 @@ func (g *GroupModule) PullLogs() {
 func getModuleConfig(newConf *ModuleGroup) GroupModule {
 	gcpModule := GroupModule{}
 	gcpModule.GroupName = newConf.GroupName
+	gcpModule.TenantId = newConf.TenantId
 	gcpModule.CTX, gcpModule.Cancel = context.WithCancel(context.Background())
 	for _, cnf := range newConf.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
@@ -214,7 +224,8 @@ func (m *GroupModuleManager) handleConfigUpdate(moduleConfig *ConfigurationSecti
 func configChanged(old, new GroupModule) bool {
 	return old.JsonKey != new.JsonKey ||
 		old.ProjectID != new.ProjectID ||
-		old.SubscriptionID != new.SubscriptionID
+		old.SubscriptionID != new.SubscriptionID ||
+		old.TenantId != new.TenantId
 }
 
 func ConnectionChecker(url string) error {

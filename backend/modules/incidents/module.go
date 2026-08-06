@@ -67,9 +67,13 @@ func (m *Module) GetIncidentAlertHandler() *handler.IncidentAlertHandler {
 func (m *Module) GetIncidentNoteHandler() *handler.IncidentNoteHandler       { return m.incidentNoteHandler }
 func (m *Module) GetIncidentHistoryHandler() *handler.IncidentHistoryHandler { return m.historyHandler }
 
-func (m *Module) GetIncidentUsecase() connectors.IncidentUsecase           { return m.incidentUsecase }
-func (m *Module) GetIncidentAlertUsecase() connectors.IncidentAlertUsecase { return m.incidentAlertUsecase }
-func (m *Module) GetIncidentNoteUsecase() connectors.IncidentNoteUsecase   { return m.incidentNoteUsecase }
+func (m *Module) GetIncidentUsecase() connectors.IncidentUsecase { return m.incidentUsecase }
+func (m *Module) GetIncidentAlertUsecase() connectors.IncidentAlertUsecase {
+	return m.incidentAlertUsecase
+}
+func (m *Module) GetIncidentNoteUsecase() connectors.IncidentNoteUsecase {
+	return m.incidentNoteUsecase
+}
 func (m *Module) GetIncidentHistoryUsecase() connectors.IncidentHistoryUsecase {
 	return m.historyUsecase
 }

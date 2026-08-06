@@ -38,12 +38,16 @@
   "auth": {
     "login": {
       "title": "Willkommen zurück",
-      "subtitle": "Melden Sie sich an, um bei UTMStack fortzufahren",
-      "loginLabel": "Login oder E-Mail",
+      "subtitle": "Melden Sie sich an, um mit {{brand}} fortzufahren",
+      "loginLabel": "E-Mail",
       "passwordLabel": "Passwort",
       "forgot": "Vergessen?",
       "submit": "Anmelden",
-      "terms": "Mit der Anmeldung akzeptieren Sie die Nutzungsbedingungen von UTMStack."
+      "terms": "Mit der Anmeldung stimmen Sie den Nutzungsbedingungen von {{brand}} zu.",
+      "orContinueWith": "oder weiter mit",
+      "continueWith": "Weiter mit {{name}}",
+      "signingInTo": "Anmeldung bei {{name}}",
+      "useAnother": "Anderen verwenden"
     },
     "tfa": {
       "title": "Zwei-Faktor-Verifizierung",
@@ -68,7 +72,8 @@
       "loginFailed": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "invalidCode": "Ungültiger oder abgelaufener Code.",
       "verifyFailed": "Bestätigung fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "resetFailed": "E-Mail zum Zurücksetzen konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+      "resetFailed": "E-Mail zum Zurücksetzen konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "ssoFailed": "Die Anmeldung über SSO wurde nicht abgeschlossen. Versuchen Sie es erneut oder nutzen Sie Ihr Passwort."
     }
   },
   "profile": {
@@ -80,14 +85,11 @@
     "personal": {
       "title": "Persönliche Informationen",
       "description": "Aktualisieren Sie Ihren Namen und Ihre Kontaktdaten.",
-      "firstName": "Vorname",
-      "lastName": "Nachname",
+      "name": "Name",
       "email": "E-Mail",
       "language": "Sprache",
       "languageHint": "Wird für die Panel-Oberfläche verwendet.",
       "systemDefault": "Systemstandard",
-      "username": "Benutzername",
-      "usernameHint": "Der Benutzername kann nicht geändert werden.",
       "reset": "Zurücksetzen",
       "save": "Änderungen speichern",
       "saving": "Speichern…"
@@ -187,7 +189,8 @@
       "tfaAlreadyEnabled": "2FA ist bereits aktiviert",
       "tfaTooManyRequests": "Zu viele Anfragen; versuchen Sie es bald erneut",
       "tfaVerifyFailed": "Code konnte nicht bestätigt werden",
-      "genericError": "Etwas ist schiefgelaufen"
+      "genericError": "Etwas ist schiefgelaufen",
+      "tfaMailUnavailable": "Der zweite Faktor per E-Mail braucht einen Mailserver. Richten Sie ihn unter Einstellungen → E-Mail-Konfiguration ein."
     }
   },
   "home": {
@@ -248,11 +251,9 @@
       "details": "Details",
       "services": {
         "backend": "Backend-API",
-        "opensearch": "OpenSearch-Cluster",
         "socai": "SOC-AI-Engine"
       },
       "detail": {
-        "noClusterInfo": "keine Cluster-Informationen",
         "disabled": "deaktiviert",
         "tools": "{{n}} Tools",
         "unreachable": "nicht erreichbar",
@@ -289,7 +290,8 @@
     "back": "Zurück",
     "taggingRules": "Tagging-Regeln",
     "parsingFilters": "Pipelines",
-    "overview": "Übersicht"
+    "overview": "Übersicht",
+    "tenants": "Mandanten"
   },
   "dashboards": {
     "title": "Dashboards",
@@ -634,7 +636,6 @@
     "notifications": "Benachrichtigungen",
     "connectionKey": "Verbindungsschlüssel",
     "dataRetention": "Datenaufbewahrung",
-    "indices": "Indizes",
     "theme": "Design",
     "branding": "Branding",
     "apiKeys": "API-Schlüssel",
@@ -644,7 +645,8 @@
     "language": "Sprache",
     "auditLogs": "App-Audit-Protokolle",
     "about": "Über",
-    "socAi": "SOC-AI"
+    "socAi": "SOC-AI",
+    "supportAccess": "Support-Zugriff"
   },
   "topbar": {
     "theme": {
@@ -692,7 +694,6 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "{{edition}}-Edition",
-    "datasourceLimit": "Datenquellen-Limit",
     "unlimited": "Unbegrenzt",
     "mssp": "MSSP / mandantenfähig",
     "enabled": "Aktiviert",
@@ -718,7 +719,10 @@
       "adminRequired": "Zum Hochladen einer Lizenz sind Administratorrechte erforderlich.",
       "invalid": "Ungültige oder abgelaufene Lizenzdatei.",
       "installFailed": "Lizenz konnte nicht installiert werden."
-    }
+    },
+    "ingestLimit": "Aufnahmevolumen",
+    "notMetered": "Nicht gemessen",
+    "gbPerMonth": "{{gb}} GB/Monat"
   },
   "audit": {
     "title": "Audit-Protokoll",
@@ -800,14 +804,20 @@
       "userDeactivated": "Benutzer deaktiviert",
       "tfaReset": "Zwei-Faktor-Authentifizierung zurückgesetzt",
       "invitationSent": "Einladung gesendet",
-      "loginOrEmailInUse": "Dieser Login oder diese E-Mail wird bereits verwendet",
       "invalidRequest": "Ungültige Anfrage",
       "noPermission": "Du hast keine Berechtigung dafür",
       "userNotFound": "Benutzer nicht gefunden",
-      "operationFailed": "Der Vorgang ist fehlgeschlagen"
+      "operationFailed": "Der Vorgang ist fehlgeschlagen",
+      "emailInUse": "Diese E-Mail-Adresse wird bereits verwendet",
+      "roleCreated": "Rolle erstellt",
+      "roleUpdated": "Rolle aktualisiert",
+      "roleDeleted": "Rolle gelöscht",
+      "roleNameInUse": "Eine Rolle mit dieser Kennung existiert bereits",
+      "roleImmutable": "Systemrollen können nicht geändert werden",
+      "permissionsLoadFailed": "Berechtigungen konnten nicht geladen werden"
     },
     "members": {
-      "searchPlaceholder": "Nach Name, Benutzername oder E-Mail suchen…",
+      "searchPlaceholder": "Nach Name oder E-Mail suchen…",
       "invite": "Benutzer einladen",
       "colUser": "Benutzer",
       "colRoles": "Rollen",
@@ -822,35 +832,32 @@
       "on": "Ein",
       "off": "Aus",
       "countLabel_one": "{{count}} Benutzer · Seite {{page}} von {{pages}}",
-      "countLabel_other": "{{count}} Benutzer · Seite {{page}} von {{pages}}"
+      "countLabel_other": "{{count}} Benutzer · Seite {{page}} von {{pages}}",
+      "federated": "SSO"
     },
     "status": {
       "inactive": "Inaktiv",
-      "pendingPassword": "Passwort ausstehend",
-      "active": "Aktiv"
+      "active": "Aktiv",
+      "pending": "Einladung ausstehend",
+      "suspended": "Gesperrt"
     },
     "drawer": {
-      "createdBy": "erstellt von {{actor}}",
       "loading": "Wird geladen…",
       "profileTitle": "Profil",
       "profileSubtitle": "Nur der Benutzer kann diese Angaben in seinem eigenen Profil bearbeiten.",
       "name": "Name",
-      "username": "Benutzername",
       "email": "E-Mail",
       "language": "Sprache",
       "accountTitle": "Konto",
       "status": "Status",
-      "statusActive": "Aktiv",
-      "statusInactive": "Inaktiv",
       "tfa": "2FA",
-      "tfaEnabled": "Aktiviert ({{method}})",
+      "tfaEnabled": "Aktiviert",
       "tfaNotConfigured": "Nicht konfiguriert",
       "resetTfa": "Zurücksetzen",
       "resetTfaHint": "Deaktiviert die 2FA dieses Benutzers, damit er sich bei der nächsten Anmeldung neu registrieren kann",
       "resetTfaConfirmTitle": "Zwei-Faktor-Authentifizierung zurücksetzen?",
       "resetTfaConfirmBody": "Damit wird die 2FA für {{name}} deaktiviert. Die Anmeldung erfolgt nur mit dem Passwort und kann im Profil neu eingerichtet werden.",
       "resetTfaConfirm": "2FA zurücksetzen",
-      "pendingPasswordNote": "Verwendet noch das temporäre Passwort (Einladung nicht abgeschlossen).",
       "lastModified": "Geändert {{time}}",
       "rolesTitle": "Rollen",
       "rolesSubtitle": "Rollen gewähren Modulberechtigungen. Ein Benutzer kann mehrere haben.",
@@ -860,20 +867,21 @@
       "waitingInvite": "Warten, bis der Benutzer die Einladung annimmt.",
       "cancel": "Abbrechen",
       "saving": "Wird gespeichert…",
-      "saveRoles": "Rollen speichern"
+      "saveRoles": "Rollen speichern",
+      "created": "erstellt {{time}}",
+      "pendingNote": "Die Einladung wurde noch nicht angenommen.",
+      "federatedNote": "Meldet sich über einen Identitätsanbieter an."
     },
     "invite": {
       "title": "Benutzer einladen",
-      "description": "Das Konto wird inaktiv erstellt. Der Benutzer erhält eine E-Mail, um sein Passwort festzulegen und es zu aktivieren.",
-      "username": "Benutzername",
-      "usernameHint": "Mindestens 3 Zeichen.",
+      "description": "Das Konto wird inaktiv angelegt. Die Person erhält eine E-Mail, um ein Passwort zu setzen und es zu aktivieren.",
       "email": "E-Mail",
-      "firstName": "Vorname",
-      "lastName": "Nachname",
       "roles": "Rollen",
       "cancel": "Abbrechen",
       "sending": "Wird gesendet…",
-      "send": "Einladung senden"
+      "send": "Einladung senden",
+      "name": "Name",
+      "emailHint": "Mit dieser Adresse meldet sich die Person an."
     },
     "rolePicker": {
       "none": "Keine Rollen verfügbar."
@@ -881,14 +889,32 @@
     "roles": {
       "loading": "Rollen werden geladen…",
       "loadFailed": "Rollenberechtigungen konnten nicht geladen werden.",
-      "readonlyNote": "Rollen und ihre Berechtigungen werden vom System definiert und sind schreibgeschützt. Weise sie Benutzern im Tab Mitglieder zu.",
       "permissionsCount_one": "{{count}} Berechtigung",
       "permissionsCount_other": "{{count}} Berechtigungen",
       "modulesCount_one": "{{count}} Modul",
       "modulesCount_other": "{{count}} Module",
       "matrixTitle": "Berechtigungsmatrix",
       "matrixSubtitle": "Was jede Rolle tun kann, nach Modul.",
-      "permission": "Berechtigung"
+      "permission": "Berechtigung",
+      "systemNote": "Systemrollen gehören zur Plattform und lassen sich nicht bearbeiten. Selbst angelegte Rollen gehören zu diesem Mandanten.",
+      "newRole": "Neue Rolle",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "systemBadge": "System",
+      "createTitle": "Neue Rolle",
+      "editTitle": "Rolle bearbeiten",
+      "editorSubtitle": "Legen Sie fest, was diese Rolle darf. Eine Person kann mehrere Rollen haben.",
+      "nameLabel": "Kennung",
+      "nameHint": "Wird im Code und in der API verwendet, z. B. ROLE_AUDITOR.",
+      "displayNameLabel": "Anzeigename",
+      "descriptionLabel": "Beschreibung",
+      "permissionsLabel": "Berechtigungen",
+      "selectedCount": "{{count}} ausgewählt",
+      "toggleAll": "alle",
+      "loadingPermissions": "Berechtigungen werden geladen…",
+      "save": "Rolle speichern",
+      "deleteConfirmTitle": "Diese Rolle löschen?",
+      "deleteConfirmBody": "{{name}} wird entfernt. Wer nur diese Rolle hat, verliert den Zugriff auf alle Module."
     },
     "langDefault": "Systemstandard",
     "relative": {
@@ -926,7 +952,11 @@
       "opensearch": "OpenSearch",
       "roles": "Rollen",
       "soar": "SOAR",
-      "users": "Benutzer"
+      "users": "Benutzer",
+      "notifications": "Benachrichtigungen",
+      "socai": "SOC AI",
+      "tenant": "Mandanten",
+      "threatintel": "Threat Intelligence"
     }
   },
   "apiKeys": {
@@ -1041,7 +1071,11 @@
       "loginUrl": "Anmelde-URL",
       "copy": "Kopieren",
       "edit": "Bearbeiten",
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "jit": "Provisioning",
+      "jitOn": "creates accounts on first sign-in",
+      "sync": "Roles",
+      "syncOn": "re-applied on every sign-in"
     },
     "form": {
       "addTitle": "Identitätsanbieter hinzufügen",
@@ -1062,7 +1096,46 @@
       "cancel": "Abbrechen",
       "saving": "Wird gespeichert…",
       "save": "Änderungen speichern",
-      "create": "Anbieter erstellen"
+      "create": "Anbieter erstellen",
+      "issuer": "Issuer URL",
+      "issuerHint": "Discovery runs against this; the provider must serve /.well-known/openid-configuration under it.",
+      "clientId": "Client ID",
+      "redirectUrl": "Redirect URL",
+      "redirectUrlHint": "Register this exact URL with the provider.",
+      "host": "Host",
+      "port": "Port",
+      "startTls": "TLS",
+      "startTlsOn": "Use StartTLS",
+      "bindDn": "Bind DN",
+      "bindDnHint": "A service account that may search the directory.",
+      "baseDn": "Base DN",
+      "userFilter": "User filter",
+      "userFilterHint": "Must contain %s, where the address typed at login is placed.",
+      "emailAttribute": "Email attribute",
+      "nameAttribute": "Name attribute",
+      "groupAttribute": "Group attribute",
+      "provisioning": "Accounts and roles",
+      "provisioningHint": "What happens when someone the directory vouches for signs in.",
+      "jit": "Create the account on first sign-in",
+      "defaultRole": "Default role",
+      "defaultRoleHint": "Given when no group matches. Without one, an unmatched sign-in is refused.",
+      "noDefaultRole": "None",
+      "groupsAttribute": "Groups attribute",
+      "groupsAttributeHint": "Where the provider puts group membership.",
+      "syncRoles": "Re-apply roles on every sign-in",
+      "syncRolesHint": "Roles not in the mapping are removed, so a change in the directory reaches here. Without this, a demotion never arrives.",
+      "mappings": "Group to role",
+      "mappingsHint": "A directory group on the left, the role it grants on the right.",
+      "addMapping": "Add",
+      "noMappings": "No mappings. Everyone gets the default role.",
+      "groupPlaceholder": "SOC Analysts",
+      "pickRole": "Pick a role",
+      "secret.saml": "SP private key",
+      "secret.oidc": "Client secret",
+      "secret.ldap": "Bind password",
+      "secretHintCreate": "Stored encrypted and never shown again.",
+      "secretHintEdit": "Leave blank to keep the stored one.",
+      "secretUnchanged": "unchanged"
     },
     "delete": {
       "title": "Identitätsanbieter löschen",
@@ -1082,6 +1155,12 @@
       "notFound": "Identitätsanbieter nicht gefunden",
       "invalid": "Ungültige Konfiguration",
       "failed": "Vorgang fehlgeschlagen"
+    },
+    "providerType": {
+      "saml": "SAML 2.0",
+      "oidc": "OpenID Connect",
+      "ldap": "LDAP / Active Directory",
+      "comingSoon": "noch nicht verfügbar"
     }
   },
   "userAuditor": {
@@ -1245,93 +1324,6 @@
       "saveFailed": "Aufbewahrungsrichtlinie konnte nicht gespeichert werden"
     }
   },
-  "indices": {
-    "title": "Indizes & Index patterns",
-    "subtitle": "Index patterns gruppieren Indizes für die Suche; Indizes sind der zugrunde liegende OpenSearch-Speicher.",
-    "retry": "Erneut versuchen",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Indizes"
-    },
-    "dataViews": {
-      "search": "Index patterns suchen…",
-      "add": "Index pattern hinzufügen",
-      "colPattern": "Muster",
-      "colModule": "Integration",
-      "colActive": "Aktiv",
-      "colActions": "Aktionen",
-      "loading": "Index patterns werden geladen…",
-      "loadFailed": "Index patterns konnten nicht geladen werden.",
-      "noSearchMatch": "Keine Index patterns entsprechen Ihrer Suche.",
-      "none": "Noch keine Index patterns.",
-      "system": "System",
-      "active": "Aktiv",
-      "disabled": "Deaktiviert",
-      "edit": "Bearbeiten",
-      "delete": "Löschen",
-      "deleteTitle": "Index pattern löschen",
-      "deleteBody": "{{pattern}} löschen? Dies entfernt die Index pattern-Definition. Die zugrunde liegenden Indizes werden nicht gelöscht.",
-      "deleteConfirm": "Löschen",
-      "form": {
-        "addTitle": "Index pattern hinzufügen",
-        "editTitle": "Index pattern bearbeiten",
-        "pattern": "Index-Muster",
-        "patternHint": "Verwenden Sie * als Platzhalter, z. B. logs-windows-*",
-        "module": "Integration",
-        "moduleHint": "Optional — die Integration, zu der dieses Pattern gehört (z. B. windows, aws). Für benutzerdefinierte Patterns leer lassen.",
-        "activeLabel": "Aktiv",
-        "systemLabel": "System-Index pattern",
-        "saving": "Wird gespeichert…",
-        "save": "Änderungen speichern",
-        "create": "Erstellen",
-        "matchChecking": "Übereinstimmende Indizes werden geprüft…",
-        "matchNone": "Stimmt mit keinem Index überein — das Pattern muss mindestens einen treffen.",
-        "duplicate": "Ein Index pattern mit diesem Glob existiert bereits.",
-        "matchCount_one": "Stimmt mit {{count}} Index überein",
-        "matchCount_other": "Stimmt mit {{count}} Indizes überein"
-      },
-      "toast": {
-        "enabled": "Index pattern aktiviert",
-        "disabled": "Index pattern deaktiviert",
-        "created": "Index pattern erstellt",
-        "updated": "Index pattern aktualisiert",
-        "deleted": "Index pattern gelöscht"
-      },
-      "systemLocked": "System-Pattern — automatisch verwaltet, nicht bearbeitbar"
-    },
-    "index": {
-      "filter": "Nach Indexnamen filtern…",
-      "systemIndices": "System-Indizes",
-      "refresh": "Aktualisieren",
-      "colIndex": "Index",
-      "colHealth": "Zustand",
-      "colStatus": "Status",
-      "colDocs": "Docs",
-      "colSize": "Größe",
-      "colActions": "Aktionen",
-      "loading": "Indizes werden geladen…",
-      "loadFailed": "Indizes konnten nicht geladen werden (OpenSearch ist möglicherweise nicht verfügbar).",
-      "noFilterMatch": "Keine Indizes entsprechen Ihrem Filter.",
-      "none": "Keine Indizes gefunden.",
-      "page": "Seite {{page}}",
-      "deleteTitle": "Index löschen",
-      "deleteBody": "Den Index {{name}} endgültig löschen? Alle {{docs}} darin enthaltenen Dokumente gehen verloren. Dies kann nicht rückgängig gemacht werden.",
-      "deleteConfirm": "Index löschen",
-      "toast": {
-        "deleted": "Index gelöscht"
-      }
-    },
-    "confirm": {
-      "cancel": "Abbrechen",
-      "working": "Wird ausgeführt…"
-    },
-    "error": {
-      "noPermission": "Sie haben keine Berechtigung dafür",
-      "notFound": "Nicht gefunden",
-      "invalidRequest": "Ungültige Anfrage",
-      "failed": "Vorgang fehlgeschlagen"
-    }
-  },
   "languageSettings": {
     "title": "Plattformsprache",
     "subtitle": "Standard-UI-Sprache für Pre-Login-Bildschirme, System-E-Mails und neue Benutzer. Jeder Benutzer kann seine eigene im Profil wählen.",
@@ -1346,8 +1338,6 @@
   "branding": {
     "title": "Branding",
     "subtitle": "Versehen Sie UTMStack mit der Identität Ihrer Organisation — überall angewendet: Login-Bildschirm, Seitenleiste, E-Mails und Berichte.",
-    "msspRequired": "White-Labeling ist eine MSSP-Funktion.",
-    "manageLicense": "Lizenz verwalten",
     "enable": {
       "title": "White-Label",
       "description": "Ersetzen Sie die UTMStack-Marke plattformweit durch Ihre eigene.",
@@ -1384,7 +1374,14 @@
     "saveError": "Branding konnte nicht gespeichert werden",
     "uploaded": "Bild hochgeladen",
     "uploadError": "Bild konnte nicht hochgeladen werden",
-    "loadError": "Branding konnte nicht geladen werden"
+    "loadError": "Branding konnte nicht geladen werden",
+    "enterprise": {
+      "title": "White-Labeling ist eine Enterprise-Funktion",
+      "body": "Ersetzen Sie Produktname, Logo und Berichtsdeckblatt durch Ihre eigenen, damit die Konsole und alles, was sie erzeugt, Ihre Marke trägt statt der von UTMStack.",
+      "upgrade": "Auf Enterprise upgraden"
+    },
+    "restore": "UTMStack-Standard wiederherstellen",
+    "restored": "Branding auf die UTMStack-Standardwerte zurückgesetzt"
   },
   "emailConfig": {
     "title": "E-Mail-Konfiguration",
@@ -1468,24 +1465,19 @@
     "license": {
       "title": "Lizenz",
       "enterpriseMssp": "Enterprise · MSSP",
-      "datasources": "Datasources",
-      "communityLimited": "Community-Limit",
       "unlimited": "Unbegrenzt",
       "expires": "Läuft ab",
       "managedNote": "Edition, Datasource-Limits und Lizenz-Upload werden auf der Lizenzseite verwaltet.",
-      "view": "Lizenz anzeigen"
+      "view": "Lizenz anzeigen",
+      "ingest": "Aufnahmevolumen",
+      "notMetered": "Nicht gemessen",
+      "gbPerMonth": "{{gb}} GB/Monat"
     },
     "services": {
       "backend": {
         "name": "Backend-API",
         "desc": "REST-Gateway, Authentifizierung und Modul-Orchestrierung."
-      },
-      "opensearch": {
-        "name": "OpenSearch",
-        "desc": "Speicher für Logs und Ereignisse.",
-        "detail": "{{nodes}} Knoten · {{shards}} Shards"
-      },
-      "unreachable": "Nicht erreichbar"
+      }
     },
     "status": {
       "up": "Gesund",
@@ -1501,11 +1493,9 @@
       "refresh": "Aktualisieren"
     },
     "usage": {
-      "title": "Datasource-Nutzung",
-      "subtitle": "Aktive Datasources gegenüber Ihrem Lizenzlimit.",
-      "ofUnlimited": "von unbegrenzt",
-      "ofLimit": "von {{limit}}",
-      "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet."
+      "title": "Datenquellen",
+      "subtitle": "In dieser Installation konfigurierte Datenquellen.",
+      "configured": "konfiguriert"
     },
     "support": {
       "title": "Support",
@@ -1641,7 +1631,12 @@
       "save": "Speichern",
       "namePlaceholder": "Name der Suche",
       "delete": "Löschen",
-      "saved": "„{{name}}“ gespeichert"
+      "saved": "„{{name}}“ gespeichert",
+      "loading": "Wird geladen…",
+      "loadFailed": "Gespeicherte Suchen konnten nicht geladen werden",
+      "saveFailed": "Die Suche konnte nicht gespeichert werden",
+      "deleteFailed": "Die Suche konnte nicht gelöscht werden",
+      "unreadable": "Diese gespeicherte Suche konnte nicht gelesen werden"
     }
   },
   "integrations": {
@@ -3475,12 +3470,6 @@
     }
   },
   "datasources": {
-    "limitBanner": {
-      "title": "Datenquellen-Limit überschritten.",
-      "message": "Sie haben {{count}} Datenquellen, aber Ihre Lizenz deckt {{limit}} ab. Logs von Datenquellen über dem Limit werden verworfen.",
-      "cta": "Lizenz verwalten",
-      "dismiss": "Ausblenden"
-    },
     "title": "Datenquellen",
     "total": "{{count}} insgesamt",
     "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
@@ -3497,10 +3486,8 @@
       "now": "jetzt"
     },
     "usage": {
-      "title": "Lizenznutzung",
-      "ofUnlimited": "von unbegrenzt",
-      "ofLimit": "von {{limit}}",
-      "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet."
+      "title": "Datenquellen",
+      "configured": "konfiguriert"
     },
     "tabs": {
       "all": "Alle",
@@ -4932,6 +4919,19 @@
       "copied": "Kopiert",
       "errorGeneric": "Etwas ist schiefgelaufen.",
       "errorUnreachable": "Der Assistent konnte nicht erreicht werden."
+    },
+    "inheritance": {
+      "inherited": "Folgt der Instanzvorgabe. Speichern gibt diesem Mandanten eine eigene Konfiguration.",
+      "own": "Dieser Mandant hat eine eigene Konfiguration.",
+      "revert": "Der Instanzvorgabe folgen",
+      "reverting": "Wird zurückgesetzt…",
+      "reverted": "Folgt jetzt der Instanzvorgabe"
+    },
+    "allowance": {
+      "title": "KI-Kontingent heute",
+      "ofLimit": "von {{limit}} Anfragen",
+      "denied": "Anfragen — die KI steht diesem Mandanten nicht zur Verfügung",
+      "hint": "Vom Betreiber der Instanz festgelegt. Zurücksetzung um Mitternacht UTC."
     }
   },
   "taggingRules": {
@@ -5128,5 +5128,125 @@
       "level2": "Stufe 2",
       "level3": "Stufe 3"
     }
+  },
+  "tenants": {
+    "title": "Mandanten",
+    "new": "Neuer Mandant",
+    "subtitle": "Jeder Kunde auf dieser Instanz, was er hat und was er Sie sehen lässt.",
+    "searchPlaceholder": "Nach Name oder Domain suchen…",
+    "loading": "Mandanten werden geladen…",
+    "loadFailed": "Mandanten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "none": "Noch keine Mandanten.",
+    "noSearchMatch": "Kein Mandant passt zur Suche.",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "chips": {
+      "total": "Mandanten",
+      "active": "aktiv",
+      "readable": "mit Zugriff"
+    },
+    "status": {
+      "ACTIVE": "Aktiv",
+      "SUSPENDED": "Gesperrt",
+      "TERMINATED": "Beendet"
+    },
+    "support": {
+      "NONE": "Kein Zugriff",
+      "READ": "Lesezugriff",
+      "FULL": "Voller Zugriff",
+      "hint": "Wird vom Mandanten gewährt, nicht von Ihnen. Nur dessen Administrator kann das ändern."
+    },
+    "card": {
+      "edit": "Bearbeiten",
+      "terminate": "Beenden",
+      "noAccess": "Dieser Mandant hat Ihnen keinen Zugriff gewährt.",
+      "loadingStats": "Wird gelesen…",
+      "enter": "Betreten"
+    },
+    "stats": {
+      "users": "Benutzer",
+      "datasources": "Quellen",
+      "openAlerts": "Offene Alarme",
+      "ai": "KI heute",
+      "noLimit": "kein Limit"
+    },
+    "fields": {
+      "name": "Name",
+      "domain": "Domain",
+      "domainHint": "Worüber dieser Mandant erreicht wird. Jede Anfrage an diesen Host landet in seinen Daten.",
+      "adminEmail": "E-Mail des Administrators",
+      "adminEmailHint": "Er erhält eine Einladung, um ein eigenes Passwort zu setzen.",
+      "status": "Status",
+      "suspendedWarning": "Gesperrte Mandanten können sich nicht anmelden. Ihre Daten bleiben erhalten.",
+      "aiLimit": "Limit für KI-Anfragen",
+      "aiLimitHint": "Ein operatives Limit pro Tag. Ohne Limit zählt die Nutzung gegen die Instanzlizenz.",
+      "aiLimitToggle": "Diesen Mandanten begrenzen"
+    },
+    "create": {
+      "title": "Neuer Mandant",
+      "subtitle": "Legt den Mandanten an und lädt seinen ersten Administrator ein.",
+      "submit": "Mandant anlegen"
+    },
+    "edit": {
+      "title": "Mandant bearbeiten",
+      "subtitle": "Der Support-Zugriff steht nicht hier: nur der Mandant kann ihn gewähren.",
+      "submit": "Änderungen speichern"
+    },
+    "terminate": {
+      "title": "Diesen Mandanten beenden?",
+      "body": "Niemand aus {{name}} kann sich mehr anmelden. Die Daten bleiben erhalten, ein Betreiber kann es also zurücknehmen — aber der Kunde ist ab sofort offline.",
+      "confirmLabel": "Zum Bestätigen {{name}} eingeben",
+      "submit": "Beenden"
+    },
+    "toast": {
+      "created": "Mandant angelegt",
+      "updated": "Mandant aktualisiert",
+      "terminated": "Mandant beendet",
+      "domainInUse": "Diese Domain ist bereits vergeben",
+      "noPermission": "Dazu fehlt Ihnen die Berechtigung",
+      "notFound": "Mandant nicht gefunden",
+      "invalidRequest": "Ungültige Anfrage",
+      "operationFailed": "Vorgang fehlgeschlagen"
+    }
+  },
+  "supportAccess": {
+    "title": "Support-Zugriff",
+    "intro": "Wer diese Instanz betreibt, kann nicht in Ihre Daten sehen, solange Sie es nicht erlauben. Hier ist nichts voreingestellt, und Sie können es jederzeit zurücknehmen.",
+    "loading": "Wird geladen…",
+    "loadFailed": "Die aktuelle Einstellung konnte nicht gelesen werden.",
+    "retry": "Erneut versuchen",
+    "currentBadge": "aktuell",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "levels": {
+      "NONE": {
+        "name": "Kein Zugriff",
+        "desc": "Der Betreiber sieht, dass Ihr Mandant existiert — mehr nicht. Zugriffe auf Ihre Daten werden abgelehnt."
+      },
+      "READ": {
+        "name": "Nur lesen",
+        "desc": "Der Betreiber kann Ihre Alarme, Logs und Konfiguration ansehen, um zu helfen. Ändern kann er nichts: jeder Schreibzugriff wird abgelehnt, unabhängig von seiner eigenen Rolle."
+      },
+      "FULL": {
+        "name": "Voller Zugriff",
+        "desc": "Der Betreiber kann in Ihrem Mandanten als Administrator handeln: Konfiguration, Benutzer und Response-Abläufe ändern."
+      }
+    },
+    "fullWarning": "Voller Zugriff erlaubt Änderungen in Ihrem Namen. Gewähren Sie ihn, solange Sie direkte Hilfe brauchen, und nehmen Sie ihn danach zurück.",
+    "revokeNote": "Alles, was der Betreiber hier tut, steht in Ihrem Audit-Log.",
+    "toast": {
+      "granted": "Support-Zugriff aktualisiert",
+      "revoked": "Support-Zugriff entzogen",
+      "forbidden": "Das kann nur ein Administrator dieses Mandanten ändern",
+      "invalid": "Ungültige Anfrage",
+      "failed": "Die Änderung konnte nicht gespeichert werden"
+    }
+  },
+  "supportSession": {
+    "inside": "Sie arbeiten innerhalb von {{name}}",
+    "readOnly": "nur lesen — Schreibzugriffe werden abgelehnt",
+    "full": "voller Zugriff — Änderungen hier sind echt",
+    "leave": "Verlassen"
   }
 }

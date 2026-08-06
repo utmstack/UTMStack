@@ -35,7 +35,7 @@ func (h *AlertHandler) UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_login"), req)
+	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "alert.status"}, audit_domain.ALERT_UPDATE_ATTEMPT, audit_domain.ALERT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeAlertError(c, err)
@@ -69,7 +69,7 @@ func (h *AlertHandler) UpdateNotes(c *gin.Context) {
 	}
 	notes := string(bodyBytes)
 
-	err = h.usecase.UpdateNotes(c.Request.Context(), c.GetString("user_login"), alertID, notes)
+	err = h.usecase.UpdateNotes(c.Request.Context(), c.GetString("user_email"), alertID, notes)
 	audit.Record(c, audit_connectors.Event{Action: "alert.notes"}, audit_domain.ALERT_NOTE_UPDATE_ATTEMPT, audit_domain.ALERT_NOTE_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeAlertError(c, err)
@@ -84,7 +84,7 @@ func (h *AlertHandler) UpdateAssignee(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.usecase.UpdateAssignee(c.Request.Context(), c.GetString("user_login"), req.AlertID, req.Assignee)
+	err := h.usecase.UpdateAssignee(c.Request.Context(), c.GetString("user_email"), req.AlertID, req.Assignee)
 	audit.Record(c, audit_connectors.Event{Action: "alert.assignee"}, audit_domain.ALERT_UPDATE_ATTEMPT, audit_domain.ALERT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeAlertError(c, err)
@@ -135,7 +135,7 @@ func (h *AlertHandler) UpdateTags(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.usecase.UpdateTags(c.Request.Context(), c.GetString("user_login"), req)
+	err := h.usecase.UpdateTags(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "alert.tags"}, audit_domain.ALERT_TAG_UPDATE_ATTEMPT, audit_domain.ALERT_TAG_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeAlertError(c, err)
@@ -160,7 +160,7 @@ func (h *AlertHandler) ConvertToIncident(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.usecase.ConvertToIncident(c.Request.Context(), c.GetString("user_login"), req)
+	err := h.usecase.ConvertToIncident(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "alert.convert_to_incident"}, audit_domain.ALERT_CONVERT_TO_INCIDENT_ATTEMPT, audit_domain.ALERT_CONVERT_TO_INCIDENT_SUCCESS, err)
 	if err != nil {
 		writeAlertError(c, err)

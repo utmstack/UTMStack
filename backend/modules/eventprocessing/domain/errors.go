@@ -4,7 +4,6 @@ import "errors"
 
 var (
 	ErrRegexPatternNotFound          = errors.New("regex pattern not found")
-	ErrRegexPatternSystemOwner       = errors.New("system regex pattern cannot be modified or deleted")
 	ErrTenantConfigNotFound          = errors.New("tenant config not found")
 	ErrCorrelationRuleNotFound       = errors.New("correlation rule not found")
 	ErrCorrelationRuleSystemOwner    = errors.New("system's rules can't be updated")

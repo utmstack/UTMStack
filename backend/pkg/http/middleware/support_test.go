@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -49,9 +50,8 @@ func crossByHeader(t *testing.T, method, target, support string, a Actor) (*auth
 
 func platformAdmin() Actor {
 	return Actor{
-		UserID:      1,
-		Login:       "admin",
-		SessionID:   99,
+		UserID:      uuid.New(),
+		SessionID:   uuid.New(),
 		Roles:       []string{authz.RoleAdmin},
 		Permissions: []string{"alerts.read", "alerts.write", "users.read", "users.delete"},
 		TenantID:    authz.DefaultTenantID,
@@ -207,7 +207,7 @@ func TestSupportByHeaderKeepsTheMethodGuard(t *testing.T) {
 // data, and a key outlives the reason it was issued for.
 func TestSupportRefusesCredentialsWithoutASession(t *testing.T) {
 	a := platformAdmin()
-	a.SessionID = 0
+	a.SessionID = uuid.Nil
 
 	if _, ok := crossByHeader(t, http.MethodGet, otherTenant, authz.SupportFull, a); ok {
 		t.Error("an API key crossed into a tenant by naming it")

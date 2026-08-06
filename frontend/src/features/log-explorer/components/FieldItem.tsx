@@ -3,7 +3,7 @@ import { Check, ChevronRight, Columns3, Loader2, Minus, Plus } from 'lucide-reac
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
-import type { FilterType, IndexField, IndexPattern, TopValues } from '../types/log-explorer.types'
+import type { FilterType, IndexField, TopValues } from '../types/log-explorer.types'
 import { TypeBadge } from './TypeBadge'
 
 // Memoized so parent-render-storms (e.g. SQL keystrokes cascading down) don't
@@ -20,7 +20,7 @@ function FieldItemImpl({
   onToggleColumn,
 }: {
   field: IndexField
-  pattern: IndexPattern | null
+  pattern: string | null
   filters: FilterType[]
   isColumn: boolean
   open: boolean
@@ -40,7 +40,7 @@ function FieldItemImpl({
     if (!open || !pattern || top) return
     setLoading(true)
     svc
-      .topValues(pattern.pattern, aggField, filters, 5)
+      .topValues(pattern, aggField, filters, 5)
       .then(setTop)
       .catch(() => setTop({ total: 0, top: [] }))
       .finally(() => setLoading(false))

@@ -14,36 +14,29 @@ import (
 )
 
 type DatasourceHandler struct {
-	uc      connectors.DatasourceUsecase
-	license connectors.LicenseCapProvider
+	uc connectors.DatasourceUsecase
 }
 
-func NewDatasourceHandler(uc connectors.DatasourceUsecase, license connectors.LicenseCapProvider) *DatasourceHandler {
-	return &DatasourceHandler{uc: uc, license: license}
+func NewDatasourceHandler(uc connectors.DatasourceUsecase) *DatasourceHandler {
+	return &DatasourceHandler{uc: uc}
 }
 
-// Usage godoc
+// Count godoc
 //
-//	@Summary     Datasource usage vs license limit (for the usage banner)
+//	@Summary     Number of configured datasources
 //	@Tags        Datasources
 //	@Security    BearerAuth
 //	@Produce     json
-//	@Success     200 {object} dto.UsageResponse
+//	@Success     200 {object} dto.CountResponse
 //	@Failure     500 {object} map[string]string
-//	@Router      /datasources/usage [get]
-func (h *DatasourceHandler) Usage(c *gin.Context) {
+//	@Router      /datasources/count [get]
+func (h *DatasourceHandler) Count(c *gin.Context) {
 	count, err := h.uc.Count(c.Request.Context())
 	if err != nil {
 		writeError(c, "count datasources", err)
 		return
 	}
-	limit, unlimited := h.license.DatasourceCap()
-	c.JSON(http.StatusOK, dto.UsageResponse{
-		Count:     count,
-		Limit:     limit,
-		Unlimited: unlimited,
-		OverLimit: !unlimited && count > limit,
-	})
+	c.JSON(http.StatusOK, dto.CountResponse{Count: count})
 }
 
 func (h *DatasourceHandler) List(c *gin.Context) {

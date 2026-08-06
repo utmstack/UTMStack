@@ -235,11 +235,16 @@ func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) {
 		return
 	}
 
+	utmTenantId := agent.UtmTenantId
+	if utmTenantId == "" {
+		utmTenantId = DefaultTenant
+	}
+
 	logs := agent.GetLogs(startTime, endTime)
 	for _, log := range logs {
 		plugins.EnqueueLog(&plugins.Log{
 			Id:         uuid.New().String(),
-			TenantId:   agent.TenantId,
+			TenantId:   utmTenantId,
 			DataType:   "o365",
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
@@ -249,8 +254,12 @@ func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) {
 }
 
 type OfficeProcessor struct {
-	Credentials      MicrosoftLoginResponse
+	Credentials MicrosoftLoginResponse
+	// TenantId is the customer's own Microsoft Azure AD / Microsoft 365 tenant
+	// ID (config key "office365_tenant_id") — used to build Microsoft Graph
+	// API URLs. It is NOT UTMStack's platform tenant; see UtmTenantId.
 	TenantId         string
+	UtmTenantId      string
 	ClientId         string
 	ClientSecret     string
 	Subscriptions    []string
@@ -288,6 +297,7 @@ type ContentDetailsResponse []map[string]any
 func GetOfficeProcessor(group *ModuleGroup) OfficeProcessor {
 	offProc := OfficeProcessor{
 		CloudEnvironment: CloudCommercial,
+		UtmTenantId:      group.UtmTenantId,
 	}
 
 	for _, cnf := range group.ModuleGroupConfigurations {

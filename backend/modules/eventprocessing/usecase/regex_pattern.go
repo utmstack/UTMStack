@@ -5,86 +5,91 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
+// regexPatternUsecase serves the shared regex vocabulary read-only. patterns.yaml
+// is the engine's source of truth — it is what loadCfg merges into Config.Patterns
+// and what RegexpCache expands {{.name}} references from — so this type reads that
+// file and never writes it.
 type regexPatternUsecase struct {
-	writer *pipelineWriter
-	store  *patternStore // in-memory patterns (system + user)
+	writer *pipelineWriter // read-only use: ReadPatterns
 }
 
 func NewRegexPatternUsecase(writer *pipelineWriter) connectors.RegexPatternUsecase {
-	uc := &regexPatternUsecase{
-		writer: writer,
-		store:  newPatternStore(),
-	}
-	// Seed the built-in system patterns at construction time.
-	for k, v := range systemPatterns {
-		uc.store.setSystem(k, v)
-	}
-	return uc
+	return &regexPatternUsecase{writer: writer}
 }
 
-func (u *regexPatternUsecase) Create(_ context.Context, req dto.CreateRegexPatternRequest) (*dto.RegexPatternResponse, error) {
-	if _, exists := u.store.get(req.PatternID); exists {
-		return nil, domain.ErrIDMustBeAbsent // pattern already exists
+// definitions returns the patterns the engine will actually resolve: the built-in
+// vocabulary overlaid with whatever patterns.yaml holds on disk.
+//
+// Read per call rather than cached at construction, for two reasons. The pipeline
+// bootstrap writes patterns.yaml during Module.Start, which runs after this type
+// is built — a constructor-time read would see a fresh install's missing file and
+// serve the built-ins forever. And an operator replacing the file underneath a
+// running process should be reflected here rather than silently ignored. The file
+// holds a few dozen entries and these endpoints are admin-frequency, so the read
+// costs nothing worth caching.
+//
+// A read failure degrades to the built-ins instead of failing the request: those
+// are always present in the engine too, so a partial answer beats none.
+func (u *regexPatternUsecase) definitions() map[string]string {
+	defs := make(map[string]string, len(systemPatterns))
+	for id, def := range systemPatterns {
+		defs[id] = def
 	}
-	u.store.setUser(req.PatternID, req.PatternDescription, req.PatternDefinition)
-	_ = u.writer.WritePatterns(u.store.allDefinitions())
-	return &dto.RegexPatternResponse{
-		PatternID:          req.PatternID,
-		PatternDescription: req.PatternDescription,
-		PatternDefinition:  req.PatternDefinition,
-		SystemOwner:        false,
-	}, nil
+
+	onDisk, err := u.writer.ReadPatterns()
+	if err != nil {
+		_ = catcher.Error("failed to read patterns.yaml, serving built-in patterns only", err, nil)
+		return defs
+	}
+	for id, def := range onDisk {
+		defs[id] = def
+	}
+	return defs
 }
 
-func (u *regexPatternUsecase) Update(_ context.Context, req dto.UpdateRegexPatternRequest) (*dto.RegexPatternResponse, error) {
-	entry, exists := u.store.get(req.PatternID)
-	if !exists {
-		return nil, domain.ErrRegexPatternNotFound
+// response builds the API shape for one pattern. PatternDescription is always
+// empty: patterns.yaml carries only name → definition, since that is all the
+// engine needs, and there is no longer a write path that could supply more.
+func response(patternID, definition string) dto.RegexPatternResponse {
+	_, system := systemPatterns[patternID]
+	return dto.RegexPatternResponse{
+		PatternID:         patternID,
+		PatternDefinition: definition,
+		SystemOwner:       system,
 	}
-	if entry.system {
-		return nil, domain.ErrRegexPatternSystemOwner
-	}
-	u.store.setUser(req.PatternID, req.PatternDescription, req.PatternDefinition)
-	_ = u.writer.WritePatterns(u.store.allDefinitions())
-	return &dto.RegexPatternResponse{
-		PatternID:          req.PatternID,
-		PatternDescription: req.PatternDescription,
-		PatternDefinition:  req.PatternDefinition,
-		SystemOwner:        false,
-	}, nil
 }
 
 func (u *regexPatternUsecase) GetByID(_ context.Context, patternID string) (*dto.RegexPatternResponse, error) {
-	entry, exists := u.store.get(patternID)
+	definition, exists := u.definitions()[patternID]
 	if !exists {
 		return nil, domain.ErrRegexPatternNotFound
 	}
-	return &dto.RegexPatternResponse{
-		PatternID:          patternID,
-		PatternDescription: entry.description,
-		PatternDefinition:  entry.definition,
-		SystemOwner:        entry.system,
-	}, nil
+	out := response(patternID, definition)
+	return &out, nil
 }
 
 func (u *regexPatternUsecase) List(_ context.Context, f dto.RegexPatternFilters) (*connectors.ListResult[dto.RegexPatternResponse], error) {
-	all := u.store.list()
+	defs := u.definitions()
 	search := strings.ToLower(f.Search)
-	out := make([]dto.RegexPatternResponse, 0, len(all))
-	for _, e := range all {
-		if search != "" && !strings.Contains(strings.ToLower(e.PatternID), search) {
+
+	out := make([]dto.RegexPatternResponse, 0, len(defs))
+	for id, def := range defs {
+		if search != "" && !strings.Contains(strings.ToLower(id), search) {
 			continue
 		}
+		e := response(id, def)
 		if f.System != nil && e.SystemOwner != *f.System {
 			continue
 		}
 		out = append(out, e)
 	}
+
 	// Stable order: system first, then alphabetical by patternId.
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].SystemOwner != out[j].SystemOwner {
@@ -92,6 +97,7 @@ func (u *regexPatternUsecase) List(_ context.Context, f dto.RegexPatternFilters)
 		}
 		return out[i].PatternID < out[j].PatternID
 	})
+
 	total := int64(len(out))
 	page, size := normPage(f.Page, f.Size)
 	start := page * size
@@ -103,72 +109,6 @@ func (u *regexPatternUsecase) List(_ context.Context, f dto.RegexPatternFilters)
 		end = len(out)
 	}
 	return &connectors.ListResult[dto.RegexPatternResponse]{Items: out[start:end], Total: total}, nil
-}
-
-func (u *regexPatternUsecase) Delete(_ context.Context, patternID string) error {
-	entry, exists := u.store.get(patternID)
-	if !exists {
-		return domain.ErrRegexPatternNotFound
-	}
-	if entry.system {
-		return domain.ErrRegexPatternSystemOwner
-	}
-	u.store.remove(patternID)
-	_ = u.writer.WritePatterns(u.store.allDefinitions())
-	return nil
-}
-
-// AddUserPattern is called by PipelineBootstrap to seed user patterns after
-// the DB migration (once the DB is gone, the store is the only source of truth).
-func (u *regexPatternUsecase) AddUserPattern(patternID, description, definition string) {
-	u.store.setUser(patternID, description, definition)
-}
-
-// --- simple in-memory store ---
-
-type patternEntry struct {
-	description string
-	definition  string
-	system      bool
-}
-
-type patternStore struct {
-	entries map[string]patternEntry
-}
-
-func newPatternStore() *patternStore { return &patternStore{entries: make(map[string]patternEntry)} }
-
-func (s *patternStore) get(id string) (patternEntry, bool) {
-	e, ok := s.entries[id]
-	return e, ok
-}
-func (s *patternStore) setSystem(id, definition string) {
-	s.entries[id] = patternEntry{definition: definition, system: true}
-}
-func (s *patternStore) setUser(id, description, definition string) {
-	s.entries[id] = patternEntry{description: description, definition: definition, system: false}
-}
-func (s *patternStore) remove(id string) { delete(s.entries, id) }
-
-func (s *patternStore) allDefinitions() map[string]string {
-	out := make(map[string]string, len(s.entries))
-	for id, e := range s.entries {
-		out[id] = e.definition
-	}
-	return out
-}
-
-func (s *patternStore) list() []dto.RegexPatternResponse {
-	out := make([]dto.RegexPatternResponse, 0, len(s.entries))
-	for id, e := range s.entries {
-		out = append(out, dto.RegexPatternResponse{
-			PatternID:          id,
-			PatternDescription: e.description,
-			PatternDefinition:  e.definition,
-			SystemOwner:        e.system,
-		})
-	}
-	return out
 }
 
 func normPage(page, size int) (int, int) {

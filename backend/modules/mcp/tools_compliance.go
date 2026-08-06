@@ -270,7 +270,7 @@ func registerComplianceSchedules(m *Module) {
 		Name: "compliance.schedule.create", Title: "Schedule recurring report",
 	}, Gate{Permission: "compliance.write"},
 		func(ctx context.Context, actor *authz.Actor, in complianceScheduleCreateInput) (any, error) {
-			return uc.Create(ctx, int64(actor.UserID), dto.CreateScheduleRequest{
+			return uc.Create(ctx, actor.UserID, dto.CreateScheduleRequest{
 				FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString, Recipients: in.Recipients,
 			})
 		})
@@ -279,7 +279,7 @@ func registerComplianceSchedules(m *Module) {
 		Name: "compliance.schedule.update", Title: "Update report schedule",
 	}, Gate{Permission: "compliance.write"},
 		func(ctx context.Context, actor *authz.Actor, in complianceScheduleUpdateInput) (any, error) {
-			return uc.Update(ctx, int64(actor.UserID), dto.UpdateScheduleRequest{
+			return uc.Update(ctx, actor.UserID, dto.UpdateScheduleRequest{
 				ID: in.ID, FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString, Recipients: in.Recipients,
 			})
 		})
@@ -289,7 +289,7 @@ func registerComplianceSchedules(m *Module) {
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "compliance.read"},
 		func(ctx context.Context, actor *authz.Actor, in complianceScheduleListInput) (any, error) {
-			items, total, err := uc.ListByUser(ctx, int64(actor.UserID), dto.ScheduleFilters{
+			items, total, err := uc.ListByUser(ctx, actor.UserID, dto.ScheduleFilters{
 				FrameworkKey: in.FrameworkKey, Page: in.Page, Size: clampPageSize(in.Size),
 			})
 			if err != nil {

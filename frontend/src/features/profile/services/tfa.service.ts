@@ -2,41 +2,44 @@ import { IS_FEDERATION } from '@/shared/config/mode'
 import { authHttpService } from '@/features/auth/services/auth-http.service'
 import { federationAuthService } from '@/features/federation/services/federation-auth.service'
 import type {
-  TfaCompleteRequest,
   TfaDisableRequest,
-  TfaInitRequest,
-  TfaInitResponse,
-  TfaMethod,
-  TfaRefreshResponse,
-  TfaVerifyRequest,
+  TfaEnrollmentRequest,
+  TfaEnrollmentResponse,
 } from '@/features/auth/types/auth.types'
 
 /**
  * 2FA enrollment/teardown, routed to whichever backend owns the account: the FS
- * (federation mode, TOTP only) or the instance. Both expose the same surface so
- * TwoFactorBody drives the flow identically. EMAIL is FS-unsupported.
+ * (federation mode, TOTP only) or the instance. The instance takes the three
+ * stages on one endpoint; the FS still has one call per stage, so this adapts
+ * them onto the same surface and TwoFactorBody drives both identically.
  */
 export interface TfaService {
-  tfaInit(input: TfaInitRequest): Promise<TfaInitResponse>
-  tfaVerify(input: TfaVerifyRequest): Promise<void>
-  tfaComplete(input: TfaCompleteRequest): Promise<void>
+  enroll(input: TfaEnrollmentRequest): Promise<TfaEnrollmentResponse>
   tfaDisable(input: TfaDisableRequest): Promise<void>
-  tfaRefreshChallenge(method: TfaMethod): Promise<TfaRefreshResponse>
+}
+
+async function federationEnroll(input: TfaEnrollmentRequest): Promise<TfaEnrollmentResponse> {
+  if (input.type !== 'totp') {
+    throw new Error('only an authenticator app is supported in federation mode')
+  }
+  switch (input.stage) {
+    case 'INIT':
+      return { stage: input.stage, init: await federationAuthService.tfaInit() }
+    case 'VERIFY':
+      await federationAuthService.tfaVerify(input.code ?? '')
+      return { stage: input.stage, verified: true }
+    case 'COMPLETE':
+      await federationAuthService.tfaComplete()
+      return { stage: input.stage, enabled: true }
+  }
 }
 
 export const tfaService: TfaService = IS_FEDERATION
   ? {
-      tfaInit: () => federationAuthService.tfaInit(),
-      tfaVerify: ({ code }) => federationAuthService.tfaVerify(code),
-      tfaComplete: () => federationAuthService.tfaComplete(),
+      enroll: federationEnroll,
       tfaDisable: ({ password }) => federationAuthService.tfaDisable(password),
-      tfaRefreshChallenge: () =>
-        Promise.reject(new Error('email 2FA is not supported in federation mode')),
     }
   : {
-      tfaInit: authHttpService.tfaInit,
-      tfaVerify: authHttpService.tfaVerify,
-      tfaComplete: authHttpService.tfaComplete,
+      enroll: authHttpService.tfaEnrollment,
       tfaDisable: authHttpService.tfaDisable,
-      tfaRefreshChallenge: authHttpService.tfaRefreshChallenge,
     }

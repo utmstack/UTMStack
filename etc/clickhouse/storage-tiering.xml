@@ -1,0 +1,72 @@
+<!--
+  Tiered storage for ClickHouse: recent data on the local disk, older data on
+  object storage, both queryable.
+
+  Drop this into /etc/clickhouse-server/config.d/ and restart. It is only needed
+  by installs that want data moved off local disk; an install without it works
+  fine with plain time-based retention and no object storage.
+
+  ============================================================================
+  THE HOT VOLUME MUST BE NAMED "default". NOT "hot".
+  ============================================================================
+
+  A table created without a storage policy belongs to the policy named
+  "default", whose single volume is also named "default".
+
+  When such a table is later moved onto this policy — which is what happens when
+  a customer running without object storage decides they want it — ClickHouse
+  checks that the new policy contains every VOLUME NAME the old one had, so that
+  no data has to be relocated to satisfy the change. A policy whose hot volume
+  is called "hot" has no volume named "default", and the change is refused:
+
+      DB::Exception: New storage policy `hot_cold` shall contain volumes
+      of the old storage policy `default`. (BAD_ARGUMENTS)
+
+  There is no way around it after the fact. The table has to be rebuilt, which
+  with years of data is not an operation anyone wants to run. Naming the volume
+  "default" costs nothing today and keeps the upgrade path open.
+
+  The cold volume's name is unconstrained; it is referenced only by the TTL
+  clause, which is written at the same time.
+-->
+<clickhouse>
+    <storage_configuration>
+        <disks>
+            <cold_disk>
+                <type>s3</type>
+                <endpoint>https://s3.example.com/utmstack-cold/</endpoint>
+                <access_key_id>REPLACE_ME</access_key_id>
+                <secret_access_key>REPLACE_ME</secret_access_key>
+
+                <!-- Reads of cold data land here first, so a repeated query
+                     over the same period does not pay for the object store
+                     twice. -->
+                <metadata_path>/var/lib/clickhouse/disks/cold_disk/</metadata_path>
+                <cache_enabled>true</cache_enabled>
+                <data_cache_max_size>10737418240</data_cache_max_size>
+            </cold_disk>
+        </disks>
+
+        <policies>
+            <hot_cold>
+                <volumes>
+                    <!-- Named "default" deliberately. See the note above. -->
+                    <default>
+                        <disk>default</disk>
+
+                        <!-- The safety net beside the TTL: when the local disk
+                             drops below this fraction free, parts start moving
+                             to the cold volume without waiting for their age.
+                             A burst of ingest cannot fill the disk while data
+                             sits waiting for day 90. -->
+                        <move_factor>0.15</move_factor>
+                    </default>
+
+                    <cold>
+                        <disk>cold_disk</disk>
+                    </cold>
+                </volumes>
+            </hot_cold>
+        </policies>
+    </storage_configuration>
+</clickhouse>

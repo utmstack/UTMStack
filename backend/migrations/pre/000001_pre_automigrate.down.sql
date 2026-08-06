@@ -1,2 +1,0 @@
--- Roll-forward only: no down migration. The added columns and backfilled values
--- stay (a fix would ship as a new forward migration).

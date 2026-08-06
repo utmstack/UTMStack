@@ -4,7 +4,8 @@ import "time"
 
 type UtmIncident struct {
 	ID                  int64     `gorm:"primaryKey;autoIncrement"                           json:"id"`
-	IncidentName        string    `gorm:"column:incident_name;size:255;not null;uniqueIndex"  json:"incidentName"`
+	TenantID            string    `gorm:"column:tenant_id;size:36;index;uniqueIndex:idx_incident_tenant_name" json:"-"`
+	IncidentName        string    `gorm:"column:incident_name;size:255;not null;uniqueIndex:idx_incident_tenant_name" json:"incidentName"`
 	IncidentDescription *string   `gorm:"column:incident_description;type:text"              json:"incidentDescription,omitempty"`
 	IncidentStatus      string    `gorm:"column:incident_status;size:255;not null"           json:"incidentStatus"`
 	IncidentSeverity    *int      `gorm:"column:incident_severity"                           json:"incidentSeverity,omitempty"`

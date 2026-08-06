@@ -1,14 +1,20 @@
+export type UserStatus = 'pending' | 'active' | 'inactive' | 'suspended'
+
+/** The kinds of second factor an account can hold. `recovery` is a spent-once
+ * backup code, so it is never enrolled directly from the profile page. */
+export type TfaFactorType = 'email' | 'totp' | 'recovery'
+
 export interface User {
-  id: number
-  login: string
-  email?: string
-  first_name?: string
-  last_name?: string
-  activated: boolean
+  id: string
+  email: string
+  name?: string
+  status: UserStatus
   lang_key?: string
   image_url?: string
-  tfa_enabled?: boolean
-  tfa_method?: TfaMethod
+  /** True when the account signs in through an identity provider, in which case
+   * it has no local password to change. */
+  federated: boolean
+  tfa_enabled: boolean
 }
 
 export interface TokenPair {
@@ -18,8 +24,6 @@ export interface TokenPair {
   expires_at: string
   refresh_expires_at: string
 }
-
-export type TfaMethod = 'EMAIL' | 'TOTP'
 
 /**
  * Raw response of POST /auth/login and POST /auth/tfa/verify-code. It is either a
@@ -34,13 +38,17 @@ export interface LoginResponse {
   refresh_expires_at?: string
   user?: User
   tfa_required?: boolean
-  tfa_method?: TfaMethod
+  /** Which factor to ask for, so the screen names the right one. */
+  tfa_type?: TfaFactorType
   pre_auth_token?: string
 }
 
 export interface LoginRequest {
   login: string
   password: string
+  /** Which directory to bind against, when the user picked one. Omitted, the
+   * backend tries every directory the tenant has. */
+  provider_id?: string
 }
 
 export interface TfaVerifyCodeRequest {
@@ -63,14 +71,13 @@ export interface ResetPasswordFinishRequest {
 }
 
 export interface UpdateMeRequest {
-  first_name?: string
-  last_name?: string
   email?: string
+  name?: string
   lang_key?: string
 }
 
 export interface Session {
-  id: number
+  id: string
   ip?: string
   user_agent?: string
   created_at: string
@@ -80,40 +87,23 @@ export interface Session {
 
 /* ---- TFA enrollment (enabling 2FA on the current account) ---- */
 
-export interface TfaInitRequest {
-  method: TfaMethod
-}
-
 export interface TfaInitResponse {
-  method: TfaMethod
+  type: TfaFactorType
+  factor_id: string
   qr_data_url?: string
   otp_auth_url?: string
   email_sent?: boolean
   expires_at: string
 }
 
-export interface TfaVerifyRequest {
-  method: TfaMethod
-  code: string
-}
-
-export interface TfaCompleteRequest {
-  method: TfaMethod
-}
-
 export interface TfaDisableRequest {
   password: string
 }
 
-export interface TfaRefreshResponse {
-  email_sent: boolean
-  expires_at: string
-  cooldown_until?: string
-}
-
+/** The three stages go to one endpoint, POST /tfa/enroll. */
 export interface TfaEnrollmentRequest {
   stage: 'INIT' | 'VERIFY' | 'COMPLETE'
-  method: TfaMethod
+  type: TfaFactorType
   code?: string
 }
 

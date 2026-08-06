@@ -22,6 +22,8 @@ import (
 
 type AzureCloud string
 
+// defaultTenant is the fallback used only when a connector instance's config
+// has no tenantId (every on-prem/single-tenant install today).
 const (
 	defaultTenant string = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	wait                 = 1 * time.Second
@@ -215,7 +217,8 @@ func configChanged(old, new AzureConfig) bool {
 	return old.EventHubConnection != new.EventHubConnection ||
 		old.ConsumerGroup != new.ConsumerGroup ||
 		old.StorageContainer != new.StorageContainer ||
-		old.StorageConnection != new.StorageConnection
+		old.StorageConnection != new.StorageConnection ||
+		old.TenantId != new.TenantId
 }
 
 func detectCloudsInUse(moduleConfig *ConfigurationSection) map[string]string {
@@ -362,7 +365,7 @@ func runProcessor(ctx context.Context, agent AzureConfig) {
 			}
 
 			partitionsWg.Add(1)
-			go processPartition(ctx, pc, agent.GroupName, &partitionsWg)
+			go processPartition(ctx, pc, agent.GroupName, agent.TenantId, &partitionsWg)
 		}
 	}()
 
@@ -385,7 +388,7 @@ func runProcessor(ctx context.Context, agent AzureConfig) {
 	partitionsWg.Wait()
 }
 
-func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionClient, groupName string, wg *sync.WaitGroup) {
+func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionClient, groupName, tenantId string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		if err := pc.Close(context.Background()); err != nil {
@@ -422,7 +425,7 @@ func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionCli
 		}
 
 		for _, event := range events {
-			processEvent(event.Body, groupName)
+			processEvent(event.Body, groupName, tenantId)
 		}
 
 		if err := pc.UpdateCheckpoint(context.Background(), events[len(events)-1], nil); err != nil {
@@ -437,6 +440,7 @@ func processPartition(ctx context.Context, pc *azeventhubs.ProcessorPartitionCli
 
 type AzureConfig struct {
 	GroupName          string
+	TenantId           string
 	EventHubConnection string
 	ConsumerGroup      string
 	StorageContainer   string
@@ -446,6 +450,7 @@ type AzureConfig struct {
 func getAzureProcessor(group *ModuleGroup) AzureConfig {
 	azurePro := AzureConfig{}
 	azurePro.GroupName = group.GroupName
+	azurePro.TenantId = group.TenantId
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
 		case "eventHubConnection":
@@ -461,7 +466,7 @@ func getAzureProcessor(group *ModuleGroup) AzureConfig {
 	return azurePro
 }
 
-func processEvent(eventBody []byte, groupName string) {
+func processEvent(eventBody []byte, groupName, tenantId string) {
 	var firstByte byte
 	for _, b := range eventBody {
 		if b != ' ' && b != '\t' && b != '\n' && b != '\r' {
@@ -472,9 +477,9 @@ func processEvent(eventBody []byte, groupName string) {
 
 	switch firstByte {
 	case '[':
-		processArrayEvent(eventBody, groupName)
+		processArrayEvent(eventBody, groupName, tenantId)
 	case '{':
-		processObjectEvent(eventBody, groupName)
+		processObjectEvent(eventBody, groupName, tenantId)
 	default:
 		_ = catcher.Error("invalid JSON format: expected array or object", nil, map[string]any{
 			"group":   groupName,
@@ -483,7 +488,7 @@ func processEvent(eventBody []byte, groupName string) {
 	}
 }
 
-func processArrayEvent(eventBody []byte, groupName string) {
+func processArrayEvent(eventBody []byte, groupName, tenantId string) {
 	var records []map[string]any
 	if err := json.Unmarshal(eventBody, &records); err != nil {
 		_ = catcher.Error("cannot parse event body as array", err, map[string]any{
@@ -494,11 +499,11 @@ func processArrayEvent(eventBody []byte, groupName string) {
 	}
 
 	for _, record := range records {
-		enqueueRecord(record, groupName)
+		enqueueRecord(record, groupName, tenantId)
 	}
 }
 
-func processObjectEvent(eventBody []byte, groupName string) {
+func processObjectEvent(eventBody []byte, groupName, tenantId string) {
 	var logData map[string]any
 	if err := json.Unmarshal(eventBody, &logData); err != nil {
 		_ = catcher.Error("cannot parse event body as object", err, map[string]any{
@@ -518,14 +523,14 @@ func processObjectEvent(eventBody []byte, groupName string) {
 				})
 				continue
 			}
-			enqueueRecord(recordMap, groupName)
+			enqueueRecord(recordMap, groupName, tenantId)
 		}
 	} else {
-		enqueueRecord(logData, groupName)
+		enqueueRecord(logData, groupName, tenantId)
 	}
 }
 
-func enqueueRecord(record map[string]any, groupName string) {
+func enqueueRecord(record map[string]any, groupName, tenantId string) {
 	jsonLog, err := json.Marshal(record)
 	if err != nil {
 		_ = catcher.Error("cannot encode record to JSON", err, map[string]any{
@@ -535,9 +540,12 @@ func enqueueRecord(record map[string]any, groupName string) {
 		return
 	}
 
+	if tenantId == "" {
+		tenantId = defaultTenant
+	}
 	_ = plugins.EnqueueLog(&plugins.Log{
 		Id:         uuid.New().String(),
-		TenantId:   defaultTenant,
+		TenantId:   tenantId,
 		DataType:   "azure",
 		DataSource: groupName,
 		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),

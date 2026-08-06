@@ -35,7 +35,7 @@ func (h *IncidentNoteHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	note, err := h.usecase.Create(c.Request.Context(), c.GetString("user_login"), req)
+	note, err := h.usecase.Create(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.note.create", ResourceType: "incident_note"},
 		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {

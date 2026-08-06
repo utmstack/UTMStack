@@ -36,7 +36,7 @@ func (h *IncidentHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.Create(c.Request.Context(), c.GetString("user_login"), req)
+	incident, err := h.usecase.Create(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.create", ResourceType: "incident"},
 		audit_domain.INCIDENT_CREATION_ATTEMPT, audit_domain.INCIDENT_CREATION_SUCCESS, err)
 	if err != nil {
@@ -65,7 +65,7 @@ func (h *IncidentHandler) AddAlerts(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.AddAlerts(c.Request.Context(), c.GetString("user_login"), req)
+	incident, err := h.usecase.AddAlerts(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.add_alerts", ResourceType: "incident"},
 		audit_domain.INCIDENT_ALERT_ADD_ATTEMPT, audit_domain.INCIDENT_ALERT_ADD_SUCCESS, err)
 	if err != nil {
@@ -93,7 +93,7 @@ func (h *IncidentHandler) ChangeStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.ChangeStatus(c.Request.Context(), c.GetString("user_login"), req)
+	incident, err := h.usecase.ChangeStatus(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.change_status", ResourceType: "incident"},
 		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {
@@ -120,7 +120,7 @@ func (h *IncidentHandler) Assign(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	incident, err := h.usecase.Assign(c.Request.Context(), c.GetString("user_login"), req)
+	incident, err := h.usecase.Assign(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.assign", ResourceType: "incident"},
 		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {

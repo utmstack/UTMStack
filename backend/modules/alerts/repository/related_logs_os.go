@@ -7,14 +7,16 @@ import (
 
 	osdk "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 const relatedProcess = "alerts_related_logs"
 
 func (r *osAlertRepo) GetRawByID(ctx context.Context, alertID string) (json.RawMessage, error) {
+	query := map[string]any{"ids": map[string]any{"values": []string{alertID}}}
 	body := map[string]any{
 		"size":  1,
-		"query": map[string]any{"ids": map[string]any{"values": []string{alertID}}},
+		"query": scopeTenantQuery(ctx, query),
 	}
 	res, err := osdk.RawSearch(ctx, []string{alertIndex}, body)
 	if err != nil {
@@ -57,6 +59,14 @@ func (r *osAlertRepo) runRelatedStep(ctx context.Context, step *domain.Correlati
 	}
 
 	builder := osdk.NewQueryBuilder(ctx, []string{idx}, relatedProcess)
+
+	// A SaaS-scoped actor must only ever pull related logs from their own
+	// tenant's data — otherwise the drill-down could surface another
+	// tenant's raw events. Empty ctx tenant (on-prem/global) is
+	// unrestricted, matching legacy behavior.
+	if tid := authz.TenantIDFromContext(ctx); tid != "" {
+		builder.Term("tenantId", tid)
+	}
 
 	if step.Within != "" {
 		if d, err := time.ParseDuration(step.Within); err == nil {

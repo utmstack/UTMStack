@@ -14,6 +14,7 @@ import {
   storeTokens,
 } from '@/shared/lib/api-client'
 import { decodeAccessToken } from '@/shared/lib/jwt'
+import { setSupportTenant } from '@/shared/lib/current-tenant'
 import i18n from '@/shared/i18n'
 
 const ROLE_ADMIN = 'ROLE_ADMIN'
@@ -23,7 +24,7 @@ import type {
   LoginRequest,
   LoginResponse,
   ResetPasswordFinishRequest,
-  TfaMethod,
+  TfaFactorType,
   UpdateMeRequest,
   User,
 } from '../types/auth.types'
@@ -34,7 +35,7 @@ import type {
  */
 export type LoginOutcome =
   | { status: 'authenticated' }
-  | { status: 'tfa_required'; method: TfaMethod; preAuthToken: string }
+  | { status: 'tfa_required'; method: TfaFactorType; preAuthToken: string }
 
 export interface AuthContextValue {
   user: User | null
@@ -45,6 +46,9 @@ export interface AuthContextValue {
   roles: string[]
   permissions: string[]
   isAdmin: boolean
+  isPlatformAdmin: boolean
+  /** Which tenant this session is signed into. */
+  tenantId: string | undefined
   hasPermission: (perm: string) => boolean
   login: (input: LoginRequest) => Promise<LoginOutcome>
   verifyTfaCode: (preAuthToken: string, code: string) => Promise<void>
@@ -55,6 +59,7 @@ export interface AuthContextValue {
   updateMe: (input: UpdateMeRequest) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
   removeAvatar: () => Promise<void>
+  adoptSession: (accessToken: string) => Promise<void>
   refreshUser: () => Promise<void>
 }
 
@@ -69,6 +74,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const reset = useCallback(() => {
     clearTokens()
+    // A support session must not outlive the session that opened it: whoever
+    // signs in next would otherwise start inside somebody else's tenant.
+    setSupportTenant(null)
     setUser(null)
   }, [])
 
@@ -84,13 +92,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (result.user) setUser(result.user)
   }, [])
 
+  // adoptSession takes the access token an SSO round trip handed back on the
+  // URL. There is no refresh token in that hand-off, so the session lasts as
+  // long as the access token and the next sign-in goes through the provider
+  // again — which is what an SSO install wants anyway.
+  const adoptSession = useCallback(
+    async (accessToken: string) => {
+      storeTokens({ access_token: accessToken, refresh_token: '' })
+      const me = await authHttpService.me()
+      setUser(me)
+    },
+    [],
+  )
+
   const login = useCallback(
     async (input: LoginRequest): Promise<LoginOutcome> => {
       const result = await authHttpService.login(input)
       if (result.tfa_required && result.pre_auth_token) {
         return {
           status: 'tfa_required',
-          method: result.tfa_method ?? 'EMAIL',
+          method: result.tfa_type ?? 'email',
           preAuthToken: result.pre_auth_token,
         }
       }
@@ -202,11 +223,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Roles/permissions live in the access-token claims (set at login). Re-derive
   // whenever the user changes (login / hydrate / logout).
   const authz = useMemo(() => {
-    if (!user) return { roles: [] as string[], permissions: [] as string[] }
+    if (!user)
+      return {
+        roles: [] as string[],
+        permissions: [] as string[],
+        platform: false,
+        tenantId: undefined as string | undefined,
+      }
     const claims = decodeAccessToken(getStoredTokens()?.access_token)
-    return { roles: claims.roles ?? [], permissions: claims.permissions ?? [] }
+    return {
+      roles: claims.roles ?? [],
+      permissions: claims.permissions ?? [],
+      platform: claims.platform ?? false,
+      tenantId: claims.tenantId,
+    }
   }, [user])
   const isAdmin = authz.roles.includes(ROLE_ADMIN)
+  // Not the same as isAdmin: a customer's administrator holds ROLE_ADMIN too.
+  const isPlatformAdmin = authz.platform
   const hasPermission = useCallback(
     (perm: string) => authz.permissions.includes(perm),
     [authz.permissions],
@@ -220,6 +254,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       roles: authz.roles,
       permissions: authz.permissions,
       isAdmin,
+      isPlatformAdmin,
+      tenantId: authz.tenantId,
       hasPermission,
       login,
       verifyTfaCode,
@@ -230,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateMe,
       uploadAvatar,
       removeAvatar,
+      adoptSession,
       refreshUser,
     }),
     [
@@ -238,6 +275,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authz.roles,
       authz.permissions,
       isAdmin,
+      isPlatformAdmin,
+      authz.tenantId,
       hasPermission,
       login,
       verifyTfaCode,
@@ -248,6 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateMe,
       uploadAvatar,
       removeAvatar,
+      adoptSession,
       refreshUser,
     ]
   )

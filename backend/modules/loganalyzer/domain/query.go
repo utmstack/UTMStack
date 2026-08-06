@@ -2,17 +2,17 @@ package domain
 
 import "time"
 
-type UtmLogAnalyzerQuery struct {
-	ID               uint64    `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name             string    `gorm:"column:la_name;size:100;not null" json:"name"`
-	Description      string    `gorm:"column:la_description" json:"description"`
-	Owner            string    `gorm:"column:la_owner" json:"owner"`
-	CreationDate     time.Time `gorm:"column:la_creation_date" json:"creationDate"`
-	ModificationDate time.Time `gorm:"column:la_modification_date" json:"modificationDate"`
-	Columns          string    `gorm:"column:la_columns" json:"columns"`
-	Filters          string    `gorm:"column:la_filters" json:"filters"`
-	DataOrigin       string    `gorm:"column:la_data_origin" json:"dataOrigin"`
-	IDPattern        *uint64   `gorm:"column:id_pattern" json:"idPattern,omitempty"`
+type SavedQuery struct {
+	ID          uint64    `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	TenantID    string    `gorm:"column:tenant_id;size:36;index" json:"-"`
+	Name        string    `gorm:"column:name;size:100;not null" json:"name"`
+	Description string    `gorm:"column:description" json:"description"`
+	Owner       string    `gorm:"column:owner" json:"owner"`
+	CreatedAt   time.Time `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt   time.Time `gorm:"column:updated_at" json:"updatedAt"`
+	Columns     string    `gorm:"column:columns" json:"columns"`
+	Filters     string    `gorm:"column:filters" json:"filters"`
+	Dataset     string    `gorm:"column:dataset" json:"dataset"`
 }
 
-func (UtmLogAnalyzerQuery) TableName() string { return "utm_log_analyzer_query" }
+func (SavedQuery) TableName() string { return "saved_query" }

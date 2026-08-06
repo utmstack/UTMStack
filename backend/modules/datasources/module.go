@@ -2,6 +2,7 @@ package datasources
 
 import (
 	"context"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
@@ -17,18 +18,16 @@ type Module struct {
 	reconciler           *usecase.StatsReconciler
 	datasourceUC         connectors.DatasourceUsecase
 	assetGroupUC         connectors.AssetGroupUsecase
-	license              connectors.LicenseCapProvider
 }
 
-func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupUsecase, reconciler *usecase.StatsReconciler, license connectors.LicenseCapProvider, agentClient *agentmanager.AgentManagerClient) *Module {
+func NewModule(dsUC connectors.DatasourceUsecase, groupUC connectors.AssetGroupUsecase, reconciler *usecase.StatsReconciler, agentClient *agentmanager.AgentManagerClient) *Module {
 	return &Module{
-		datasourceHandler:    handler.NewDatasourceHandler(dsUC, license),
+		datasourceHandler:    handler.NewDatasourceHandler(dsUC),
 		assetGroupHandler:    handler.NewAssetGroupHandler(groupUC),
 		connectionKeyHandler: handler.NewConnectionKeyHandler(agentClient),
 		reconciler:           reconciler,
 		datasourceUC:         dsUC,
 		assetGroupUC:         groupUC,
-		license:              license,
 	}
 }
 
@@ -37,7 +36,8 @@ func (m *Module) Start(ctx context.Context) {
 		go m.reconciler.Start(ctx)
 	}
 
-	if err := m.datasourceUC.ProjectAssets(ctx); err != nil {
+	// The projection writes one file per tenant, so it reads across all of them.
+	if err := m.datasourceUC.ProjectAssets(tenancy.WithAllTenants(ctx)); err != nil {
 		_ = catcher.Error("datasources: initial asset projection failed", err, nil)
 	}
 }
@@ -50,4 +50,3 @@ func (m *Module) GetConnectionKeyHandler() *handler.ConnectionKeyHandler {
 
 func (m *Module) GetDatasourceUsecase() connectors.DatasourceUsecase { return m.datasourceUC }
 func (m *Module) GetAssetGroupUsecase() connectors.AssetGroupUsecase { return m.assetGroupUC }
-func (m *Module) LicenseCap() connectors.LicenseCapProvider          { return m.license }

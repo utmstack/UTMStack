@@ -18,10 +18,10 @@ type Module struct {
 	svc     *usecase.Service
 }
 
-func NewModule(db *gorm.DB, retainDays int) *Module {
+func NewModule(db *gorm.DB, leases usecase.Leases, retainDays int) *Module {
 	catcher.Configure(false, true, true)
 	repo := repository.NewRepository(db)
-	svc := usecase.New(repo, retainDays)
+	svc := usecase.New(repo, leases, retainDays)
 	initRecorder(svc)
 	return &Module{
 		logger:  svc,

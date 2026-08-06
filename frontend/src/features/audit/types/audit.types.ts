@@ -2,7 +2,7 @@ export interface AuditLog {
   id: number
   timestamp: string
   user_id?: number
-  user_login?: string
+  user_email?: string
   ip?: string
   user_agent?: string
   session_id?: number
@@ -29,7 +29,7 @@ export interface AuditListResponse {
  */
 export interface AuditListQuery {
   user_id?: number
-  user_login?: string
+  user_email?: string
   action?: string
   status?: 'success' | 'failure' | ''
   resource_type?: string

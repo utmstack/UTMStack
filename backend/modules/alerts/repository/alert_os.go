@@ -217,4 +217,3 @@ func (r *osAlertRepo) ListEchoes(ctx context.Context, parentID string, from, siz
 	}
 	return alerts, total, nil
 }
-

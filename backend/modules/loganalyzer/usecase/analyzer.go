@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 
+	"github.com/utmstack/utmstack/backend/modules/loganalyzer/repository"
+
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/dto"
@@ -15,22 +17,36 @@ func NewAnalyzerUsecase(repo connectors.AnalyzerRepository) connectors.AnalyzerU
 	return &analyzerUsecase{repo: repo}
 }
 
-func (u *analyzerUsecase) TopValues(ctx context.Context, index, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error) {
-	if index == "" {
-		return nil, domain.ErrIndexRequired
+func (u *analyzerUsecase) TopValues(ctx context.Context, dataset, dataType, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error) {
+	if dataset == "" {
+		return nil, domain.ErrDatasetRequired
 	}
 	if field == "" {
 		return nil, domain.ErrFieldRequired
 	}
-	return u.repo.TopValues(ctx, index, field, filters, top)
+	return u.repo.TopValues(ctx, dataset, dataType, field, filters, top)
 }
 
 func (u *analyzerUsecase) ChartView(ctx context.Context, req dto.ChartViewRequest) (*dto.ChartViewResponse, error) {
-	if req.IndexPattern == "" {
-		return nil, domain.ErrIndexRequired
+	if req.Dataset == "" {
+		return nil, domain.ErrDatasetRequired
 	}
 	if req.Field == "" {
 		return nil, domain.ErrFieldRequired
 	}
 	return u.repo.ChartView(ctx, req)
+}
+
+func (u *analyzerUsecase) Datasets() []string { return repository.Datasets() }
+
+func (u *analyzerUsecase) Fields(ctx context.Context, dataset string) ([]dto.Field, error) {
+	return u.repo.Fields(ctx, dataset)
+}
+
+func (u *analyzerUsecase) Search(ctx context.Context, req dto.SearchRequest) (*dto.SearchResponse, error) {
+	return u.repo.Search(ctx, req)
+}
+
+func (u *analyzerUsecase) DataTypes(ctx context.Context, dataset string) ([]string, error) {
+	return u.repo.DataTypes(ctx, dataset)
 }

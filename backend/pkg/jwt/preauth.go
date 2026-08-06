@@ -2,26 +2,27 @@ package jwt
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 const PreAuthAudience = "utmstack-tfa-preauth"
 
 type PreAuthClaims struct {
-	Method string `json:"tfa_method"`
+	FactorID uuid.UUID `json:"fid,omitempty"`
+	Type     string    `json:"tfa_type"`
 	jwt.RegisteredClaims
 }
 
-func (c *PreAuthClaims) UserID() (uint64, error) {
+func (c *PreAuthClaims) UserID() (uuid.UUID, error) {
 	if c.Subject == "" {
-		return 0, errors.New("missing subject claim")
+		return uuid.Nil, errors.New("missing subject claim")
 	}
-	id, err := strconv.ParseUint(c.Subject, 10, 64)
+	id, err := uuid.Parse(c.Subject)
 	if err != nil {
-		return 0, errors.New("invalid subject claim")
+		return uuid.Nil, errors.New("invalid subject claim")
 	}
 	return id, nil
 }
@@ -35,13 +36,14 @@ func NewPreAuthSigner(secret string, ttl time.Duration) *PreAuthSigner {
 	return &PreAuthSigner{secret: []byte(secret), ttl: ttl}
 }
 
-func (s *PreAuthSigner) Sign(userID uint64, method string) (string, time.Time, error) {
+func (s *PreAuthSigner) Sign(userID uuid.UUID, factorID uuid.UUID, factorType string) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(s.ttl)
 	claims := PreAuthClaims{
-		Method: method,
+		FactorID: factorID,
+		Type:     factorType,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.FormatUint(userID, 10),
+			Subject:   userID.String(),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			Issuer:    Issuer,

@@ -163,7 +163,7 @@ func (m *mailSender) SendComplianceReport(ctx context.Context, toEmail, subject 
 		ContentType: "application/pdf",
 		Bytes:       pdfData,
 	}
-	return m.svc.SendMail(ctx, []string{toEmail}, subject, []mail_domain.Attatchment{attachment})
+	return m.svc.SendMail(ctx, []string{toEmail}, subject, subject, []mail_domain.Attatchment{attachment})
 }
 
 // interface assertions

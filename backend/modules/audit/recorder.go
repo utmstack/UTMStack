@@ -2,8 +2,10 @@ package audit
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 var auditLogger connectors.Logger
@@ -28,12 +30,20 @@ func Record(c *gin.Context, ev connectors.Event, attemptType, successType domain
 	}
 	ev.IP = c.ClientIP()
 	ev.UserAgent = c.Request.UserAgent()
-	ev.UserLogin = c.GetString("user_login")
-	if uid := c.GetUint64("user_id"); uid != 0 {
-		ev.UserID = &uid
+	// Only when the caller did not name someone themselves: on the login route
+	// there is no actor yet, and the address typed is the only identity there is.
+	if ev.UserEmail == "" {
+		ev.UserEmail = c.GetString("user_email")
 	}
-	if sid := c.GetUint64("session_id"); sid != 0 {
-		ev.SessionID = &sid
+	if a := middleware.ActorFromGin(c); a != nil {
+		if a.UserID != uuid.Nil {
+			id := a.UserID
+			ev.UserID = &id
+		}
+		if a.SessionID != uuid.Nil {
+			sid := a.SessionID
+			ev.SessionID = &sid
+		}
 	}
 	ev.SupportAccess = c.GetString("support_access")
 	auditLogger.Log(c.Request.Context(), ev)

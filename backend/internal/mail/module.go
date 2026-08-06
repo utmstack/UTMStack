@@ -1,10 +1,10 @@
 package mail
 
 import (
-	app_cfg_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/internal/mail/connectors"
 	"github.com/utmstack/utmstack/backend/internal/mail/repository"
 	"github.com/utmstack/utmstack/backend/internal/mail/usecase"
+	app_cfg_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 )
 
 type Module struct {
@@ -20,5 +20,5 @@ func NewModule(store app_cfg_connectors.Store) *Module {
 	}
 }
 
-func (m *Module) Service() connectors.MailService                       { return m.service }
-func (m *Module) ConfigRepo() connectors.MailConfigurationRepository    { return m.configRepo }
+func (m *Module) Service() connectors.MailService                    { return m.service }
+func (m *Module) ConfigRepo() connectors.MailConfigurationRepository { return m.configRepo }

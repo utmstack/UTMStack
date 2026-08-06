@@ -38,12 +38,16 @@
   "auth": {
     "login": {
       "title": "С возвращением",
-      "subtitle": "Войдите, чтобы продолжить в UTMStack",
-      "loginLabel": "Логин или эл. почта",
+      "subtitle": "Войдите, чтобы продолжить в {{brand}}",
+      "loginLabel": "Электронная почта",
       "passwordLabel": "Пароль",
       "forgot": "Забыли?",
       "submit": "Войти",
-      "terms": "Входя в систему, вы соглашаетесь с условиями использования UTMStack."
+      "terms": "Выполняя вход, вы принимаете условия использования {{brand}}.",
+      "orContinueWith": "или продолжить через",
+      "continueWith": "Продолжить через {{name}}",
+      "signingInTo": "Вход через {{name}}",
+      "useAnother": "Выбрать другой"
     },
     "tfa": {
       "title": "Двухфакторная проверка",
@@ -68,7 +72,8 @@
       "loginFailed": "Не удалось войти. Попробуйте ещё раз.",
       "invalidCode": "Неверный или просроченный код.",
       "verifyFailed": "Не удалось подтвердить. Попробуйте ещё раз.",
-      "resetFailed": "Не удалось отправить письмо для сброса. Попробуйте ещё раз."
+      "resetFailed": "Не удалось отправить письмо для сброса. Попробуйте ещё раз.",
+      "ssoFailed": "Единый вход не завершён. Попробуйте снова или используйте пароль."
     }
   },
   "profile": {
@@ -80,14 +85,11 @@
     "personal": {
       "title": "Личная информация",
       "description": "Обновите имя и контактные данные.",
-      "firstName": "Имя",
-      "lastName": "Фамилия",
+      "name": "Имя",
       "email": "Эл. почта",
       "language": "Язык",
       "languageHint": "Используется для интерфейса панели.",
       "systemDefault": "Системный по умолчанию",
-      "username": "Имя пользователя",
-      "usernameHint": "Имя пользователя изменить нельзя.",
       "reset": "Сбросить",
       "save": "Сохранить изменения",
       "saving": "Сохранение…"
@@ -187,7 +189,8 @@
       "tfaAlreadyEnabled": "2FA уже включена",
       "tfaTooManyRequests": "Слишком много запросов; повторите чуть позже",
       "tfaVerifyFailed": "Не удалось проверить код",
-      "genericError": "Что-то пошло не так"
+      "genericError": "Что-то пошло не так",
+      "tfaMailUnavailable": "Второй фактор по почте требует почтового сервера. Настройте его в Настройки → Конфигурация почты."
     }
   },
   "home": {
@@ -250,11 +253,9 @@
       "details": "Подробности",
       "services": {
         "backend": "Backend API",
-        "opensearch": "Кластер OpenSearch",
         "socai": "Движок SOC-AI"
       },
       "detail": {
-        "noClusterInfo": "нет данных о кластере",
         "disabled": "отключено",
         "tools": "инструментов: {{n}}",
         "unreachable": "недоступен",
@@ -291,7 +292,8 @@
     "back": "Назад",
     "taggingRules": "Правила тегирования",
     "parsingFilters": "Пайплайны",
-    "overview": "Обзор"
+    "overview": "Обзор",
+    "tenants": "Арендаторы"
   },
   "dashboards": {
     "title": "Панели",
@@ -636,7 +638,6 @@
     "notifications": "Уведомления",
     "connectionKey": "Ключ подключения",
     "dataRetention": "Хранение данных",
-    "indices": "Индексы",
     "theme": "Тема",
     "apiKeys": "API-ключи",
     "identityProviders": "Поставщики удостоверений",
@@ -646,7 +647,8 @@
     "about": "О системе",
     "branding": "Брендинг",
     "language": "Язык",
-    "socAi": "SOC-AI"
+    "socAi": "SOC-AI",
+    "supportAccess": "Доступ поддержки"
   },
   "topbar": {
     "theme": {
@@ -694,7 +696,6 @@
     "enterprise": "Enterprise",
     "community": "Community",
     "editionLine": "Редакция {{edition}}",
-    "datasourceLimit": "Лимит источников данных",
     "unlimited": "Без ограничений",
     "mssp": "MSSP / мультиарендность",
     "enabled": "Включено",
@@ -720,7 +721,10 @@
       "adminRequired": "Для загрузки лицензии нужны права администратора.",
       "invalid": "Недействительный или просроченный файл лицензии.",
       "installFailed": "Не удалось установить лицензию."
-    }
+    },
+    "ingestLimit": "Объём приёма",
+    "notMetered": "Без учёта",
+    "gbPerMonth": "{{gb}} ГБ/месяц"
   },
   "audit": {
     "title": "Журнал аудита",
@@ -804,14 +808,20 @@
       "userDeactivated": "Пользователь деактивирован",
       "tfaReset": "Двухфакторная аутентификация сброшена",
       "invitationSent": "Приглашение отправлено",
-      "loginOrEmailInUse": "Этот логин или эл. почта уже используются",
       "invalidRequest": "Неверный запрос",
       "noPermission": "У вас нет прав для этого действия",
       "userNotFound": "Пользователь не найден",
-      "operationFailed": "Операция не выполнена"
+      "operationFailed": "Операция не выполнена",
+      "emailInUse": "Эта почта уже используется",
+      "roleCreated": "Роль создана",
+      "roleUpdated": "Роль обновлена",
+      "roleDeleted": "Роль удалена",
+      "roleNameInUse": "Роль с таким идентификатором уже существует",
+      "roleImmutable": "Системные роли нельзя изменять",
+      "permissionsLoadFailed": "Не удалось загрузить разрешения"
     },
     "members": {
-      "searchPlaceholder": "Поиск по имени, логину или эл. почте…",
+      "searchPlaceholder": "Поиск по имени или почте…",
       "invite": "Пригласить пользователя",
       "colUser": "Пользователь",
       "colRoles": "Роли",
@@ -828,35 +838,32 @@
       "countLabel_one": "{{count}} пользователь · страница {{page}} из {{pages}}",
       "countLabel_few": "{{count}} пользователя · страница {{page}} из {{pages}}",
       "countLabel_many": "{{count}} пользователей · страница {{page}} из {{pages}}",
-      "countLabel_other": "{{count}} пользователей · страница {{page}} из {{pages}}"
+      "countLabel_other": "{{count}} пользователей · страница {{page}} из {{pages}}",
+      "federated": "SSO"
     },
     "status": {
       "inactive": "Неактивен",
-      "pendingPassword": "Ожидает пароль",
-      "active": "Активен"
+      "active": "Активен",
+      "pending": "Приглашение отправлено",
+      "suspended": "Заблокирован"
     },
     "drawer": {
-      "createdBy": "создан {{actor}}",
       "loading": "Загрузка…",
       "profileTitle": "Профиль",
       "profileSubtitle": "Эти данные может изменить только сам пользователь — в своём профиле.",
       "name": "Имя",
-      "username": "Имя пользователя",
       "email": "Эл. почта",
       "language": "Язык",
       "accountTitle": "Учётная запись",
       "status": "Статус",
-      "statusActive": "Активен",
-      "statusInactive": "Неактивен",
       "tfa": "2FA",
-      "tfaEnabled": "Включено ({{method}})",
+      "tfaEnabled": "Включена",
       "tfaNotConfigured": "Не настроено",
       "resetTfa": "Сбросить",
       "resetTfaHint": "Отключить 2FA этого пользователя, чтобы он заново настроил её при следующем входе",
       "resetTfaConfirmTitle": "Сбросить двухфакторную аутентификацию?",
       "resetTfaConfirmBody": "Это отключит 2FA для {{name}}. Пользователь войдёт только по паролю и сможет снова настроить её в своём профиле.",
       "resetTfaConfirm": "Сбросить 2FA",
-      "pendingPasswordNote": "Всё ещё использует временный пароль (приглашение не завершено).",
       "lastModified": "Изменён {{time}}",
       "rolesTitle": "Роли",
       "rolesSubtitle": "Роли дают разрешения на модули. Пользователь может иметь несколько ролей.",
@@ -866,20 +873,21 @@
       "waitingInvite": "Ожидание принятия приглашения пользователем.",
       "cancel": "Отмена",
       "saving": "Сохранение…",
-      "saveRoles": "Сохранить роли"
+      "saveRoles": "Сохранить роли",
+      "created": "создан {{time}}",
+      "pendingNote": "Приглашение ещё не принято.",
+      "federatedNote": "Вход через поставщика удостоверений."
     },
     "invite": {
       "title": "Пригласить пользователя",
-      "description": "Учётная запись создаётся неактивной. Пользователь получит письмо для установки пароля и активации.",
-      "username": "Имя пользователя",
-      "usernameHint": "Не менее 3 символов.",
+      "description": "Учётная запись создаётся неактивной. Пользователь получит письмо, чтобы задать пароль и активировать её.",
       "email": "Эл. почта",
-      "firstName": "Имя",
-      "lastName": "Фамилия",
       "roles": "Роли",
       "cancel": "Отмена",
       "sending": "Отправка…",
-      "send": "Отправить приглашение"
+      "send": "Отправить приглашение",
+      "name": "Имя",
+      "emailHint": "С этого адреса пользователь будет входить."
     },
     "rolePicker": {
       "none": "Нет доступных ролей."
@@ -887,7 +895,6 @@
     "roles": {
       "loading": "Загрузка ролей…",
       "loadFailed": "Не удалось загрузить разрешения ролей.",
-      "readonlyNote": "Роли и их разрешения определяются системой и доступны только для чтения. Назначайте их пользователям на вкладке «Участники».",
       "permissionsCount_one": "{{count}} разрешение",
       "permissionsCount_few": "{{count}} разрешения",
       "permissionsCount_many": "{{count}} разрешений",
@@ -898,7 +905,26 @@
       "modulesCount_other": "{{count}} модулей",
       "matrixTitle": "Матрица разрешений",
       "matrixSubtitle": "Что может делать каждая роль, по модулям.",
-      "permission": "Разрешение"
+      "permission": "Разрешение",
+      "systemNote": "Системные роли поставляются с платформой и не редактируются. Созданные вами роли принадлежат этому арендатору.",
+      "newRole": "Новая роль",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "systemBadge": "Системная",
+      "createTitle": "Новая роль",
+      "editTitle": "Изменение роли",
+      "editorSubtitle": "Выберите, что разрешено этой роли. У пользователя может быть несколько ролей.",
+      "nameLabel": "Идентификатор",
+      "nameHint": "Используется в коде и API. Например, ROLE_AUDITOR.",
+      "displayNameLabel": "Отображаемое имя",
+      "descriptionLabel": "Описание",
+      "permissionsLabel": "Разрешения",
+      "selectedCount": "выбрано: {{count}}",
+      "toggleAll": "все",
+      "loadingPermissions": "Загрузка разрешений…",
+      "save": "Сохранить роль",
+      "deleteConfirmTitle": "Удалить эту роль?",
+      "deleteConfirmBody": "{{name}} будет удалена. Те, у кого есть только эта роль, потеряют доступ к модулям."
     },
     "langDefault": "Системный по умолчанию",
     "relative": {
@@ -936,7 +962,11 @@
       "opensearch": "OpenSearch",
       "roles": "Роли",
       "soar": "SOAR",
-      "users": "Пользователи"
+      "users": "Пользователи",
+      "notifications": "Уведомления",
+      "socai": "SOC AI",
+      "tenant": "Арендаторы",
+      "threatintel": "Threat Intelligence"
     }
   },
   "apiKeys": {
@@ -1053,7 +1083,11 @@
       "loginUrl": "URL входа",
       "copy": "Копировать",
       "edit": "Изменить",
-      "delete": "Удалить"
+      "delete": "Удалить",
+      "jit": "Provisioning",
+      "jitOn": "creates accounts on first sign-in",
+      "sync": "Roles",
+      "syncOn": "re-applied on every sign-in"
     },
     "form": {
       "addTitle": "Добавить поставщика удостоверений",
@@ -1074,7 +1108,46 @@
       "cancel": "Отмена",
       "saving": "Сохранение…",
       "save": "Сохранить изменения",
-      "create": "Создать поставщика"
+      "create": "Создать поставщика",
+      "issuer": "Issuer URL",
+      "issuerHint": "Discovery runs against this; the provider must serve /.well-known/openid-configuration under it.",
+      "clientId": "Client ID",
+      "redirectUrl": "Redirect URL",
+      "redirectUrlHint": "Register this exact URL with the provider.",
+      "host": "Host",
+      "port": "Port",
+      "startTls": "TLS",
+      "startTlsOn": "Use StartTLS",
+      "bindDn": "Bind DN",
+      "bindDnHint": "A service account that may search the directory.",
+      "baseDn": "Base DN",
+      "userFilter": "User filter",
+      "userFilterHint": "Must contain %s, where the address typed at login is placed.",
+      "emailAttribute": "Email attribute",
+      "nameAttribute": "Name attribute",
+      "groupAttribute": "Group attribute",
+      "provisioning": "Accounts and roles",
+      "provisioningHint": "What happens when someone the directory vouches for signs in.",
+      "jit": "Create the account on first sign-in",
+      "defaultRole": "Default role",
+      "defaultRoleHint": "Given when no group matches. Without one, an unmatched sign-in is refused.",
+      "noDefaultRole": "None",
+      "groupsAttribute": "Groups attribute",
+      "groupsAttributeHint": "Where the provider puts group membership.",
+      "syncRoles": "Re-apply roles on every sign-in",
+      "syncRolesHint": "Roles not in the mapping are removed, so a change in the directory reaches here. Without this, a demotion never arrives.",
+      "mappings": "Group to role",
+      "mappingsHint": "A directory group on the left, the role it grants on the right.",
+      "addMapping": "Add",
+      "noMappings": "No mappings. Everyone gets the default role.",
+      "groupPlaceholder": "SOC Analysts",
+      "pickRole": "Pick a role",
+      "secret.saml": "SP private key",
+      "secret.oidc": "Client secret",
+      "secret.ldap": "Bind password",
+      "secretHintCreate": "Stored encrypted and never shown again.",
+      "secretHintEdit": "Leave blank to keep the stored one.",
+      "secretUnchanged": "unchanged"
     },
     "delete": {
       "title": "Удалить поставщика удостоверений",
@@ -1094,6 +1167,12 @@
       "notFound": "Поставщик удостоверений не найден",
       "invalid": "Неверная конфигурация",
       "failed": "Операция не выполнена"
+    },
+    "providerType": {
+      "saml": "SAML 2.0",
+      "oidc": "OpenID Connect",
+      "ldap": "LDAP / Active Directory",
+      "comingSoon": "пока недоступно"
     }
   },
   "userAuditor": {
@@ -1257,95 +1336,6 @@
       "saveFailed": "Не удалось сохранить политику хранения"
     }
   },
-  "indices": {
-    "title": "Индексы и index patterns",
-    "subtitle": "Index patterns группируют индексы для поиска; индексы — это базовое хранилище OpenSearch.",
-    "retry": "Повторить",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Индексы"
-    },
-    "dataViews": {
-      "search": "Поиск представлений…",
-      "add": "Добавить index pattern",
-      "colPattern": "Шаблон",
-      "colModule": "Интеграция",
-      "colActive": "Активно",
-      "colActions": "Действия",
-      "loading": "Загрузка представлений…",
-      "loadFailed": "Не удалось загрузить index patterns.",
-      "noSearchMatch": "Нет представлений по вашему запросу.",
-      "none": "Представлений пока нет.",
-      "system": "система",
-      "active": "Активно",
-      "disabled": "Отключено",
-      "edit": "Изменить",
-      "delete": "Удалить",
-      "deleteTitle": "Удалить index pattern данных",
-      "deleteBody": "Удалить {{pattern}}? Это удалит определение index patterns. Базовые индексы не удаляются.",
-      "deleteConfirm": "Удалить",
-      "form": {
-        "addTitle": "Добавить index pattern данных",
-        "editTitle": "Изменить index pattern данных",
-        "pattern": "Шаблон индекса",
-        "patternHint": "Используйте * как подстановочный знак, напр. logs-windows-*",
-        "module": "Интеграция",
-        "moduleHint": "Необязательно — интеграция, которой принадлежит этот pattern (напр. windows, aws). Оставьте пустым для пользовательских patterns.",
-        "activeLabel": "Активно",
-        "systemLabel": "Системное index pattern данных",
-        "saving": "Сохранение…",
-        "save": "Сохранить изменения",
-        "create": "Создать",
-        "matchChecking": "Проверка совпадающих индексов…",
-        "matchNone": "Не совпадает ни с одним индексом — pattern должен совпасть хотя бы с одним.",
-        "duplicate": "Index pattern с таким glob уже существует.",
-        "matchCount_one": "Совпадает с {{count}} индексом",
-        "matchCount_few": "Совпадает с {{count}} индексами",
-        "matchCount_many": "Совпадает с {{count}} индексами",
-        "matchCount_other": "Совпадает с {{count}} индексами"
-      },
-      "toast": {
-        "enabled": "Index pattern включено",
-        "disabled": "Index pattern отключено",
-        "created": "Index pattern создано",
-        "updated": "Index pattern обновлено",
-        "deleted": "Index pattern удалено"
-      },
-      "systemLocked": "Системный pattern — управляется автоматически, не редактируется"
-    },
-    "index": {
-      "filter": "Фильтр по имени индекса…",
-      "systemIndices": "Системные индексы",
-      "refresh": "Обновить",
-      "colIndex": "Индекс",
-      "colHealth": "Состояние",
-      "colStatus": "Статус",
-      "colDocs": "Документы",
-      "colSize": "Размер",
-      "colActions": "Действия",
-      "loading": "Загрузка индексов…",
-      "loadFailed": "Не удалось загрузить индексы (OpenSearch может быть недоступен).",
-      "noFilterMatch": "Нет индексов по вашему фильтру.",
-      "none": "Индексы не найдены.",
-      "page": "Страница {{page}}",
-      "deleteTitle": "Удалить индекс",
-      "deleteBody": "Удалить индекс {{name}} навсегда? Все {{docs}} документов в нём будут потеряны. Отменить нельзя.",
-      "deleteConfirm": "Удалить индекс",
-      "toast": {
-        "deleted": "Индекс удалён"
-      }
-    },
-    "confirm": {
-      "cancel": "Отмена",
-      "working": "Выполнение…"
-    },
-    "error": {
-      "noPermission": "У вас нет прав на это действие",
-      "notFound": "Не найдено",
-      "invalidRequest": "Неверный запрос",
-      "failed": "Операция не выполнена"
-    }
-  },
   "about": {
     "title": "Об этом экземпляре",
     "subtitle": "Версия, лицензия и состояние системы этого развёртывания UTMStack.",
@@ -1362,24 +1352,19 @@
     "license": {
       "title": "Лицензия",
       "enterpriseMssp": "Enterprise · MSSP",
-      "datasources": "Datasources",
-      "communityLimited": "Лимит Community",
       "unlimited": "Без ограничений",
       "expires": "Истекает",
       "managedNote": "Редакция, лимиты datasources и загрузка лицензии управляются на странице «Лицензия».",
-      "view": "Открыть лицензию"
+      "view": "Открыть лицензию",
+      "ingest": "Объём приёма",
+      "notMetered": "Без учёта",
+      "gbPerMonth": "{{gb}} ГБ/месяц"
     },
     "services": {
       "backend": {
         "name": "Backend API",
         "desc": "REST-шлюз, аутентификация и оркестрация модулей."
-      },
-      "opensearch": {
-        "name": "OpenSearch",
-        "desc": "Хранилище логов и событий.",
-        "detail": "{{nodes}} узлов · {{shards}} шардов"
-      },
-      "unreachable": "Недоступно"
+      }
     },
     "status": {
       "up": "В норме",
@@ -1397,11 +1382,9 @@
       "refresh": "Обновить"
     },
     "usage": {
-      "title": "Использование datasources",
-      "subtitle": "Активные datasources относительно лимита лицензии.",
-      "ofUnlimited": "из неограниченного",
-      "ofLimit": "из {{limit}}",
-      "overLimit": "Превышен лицензионный лимит — данные сверх лимита под угрозой."
+      "title": "Источники данных",
+      "subtitle": "Источники данных, настроенные в этой установке.",
+      "configured": "настроено"
     },
     "support": {
       "title": "Поддержка",
@@ -1541,7 +1524,12 @@
       "save": "Сохранить",
       "namePlaceholder": "Название запроса",
       "delete": "Удалить",
-      "saved": "Сохранено «{{name}}»"
+      "saved": "Сохранено «{{name}}»",
+      "loading": "Загрузка…",
+      "loadFailed": "Не удалось загрузить сохранённые запросы",
+      "saveFailed": "Не удалось сохранить запрос",
+      "deleteFailed": "Не удалось удалить запрос",
+      "unreadable": "Не удалось прочитать этот сохранённый запрос"
     }
   },
   "integrations": {
@@ -3276,10 +3264,8 @@
       "now": "сейчас"
     },
     "usage": {
-      "title": "Использование лицензии",
-      "ofUnlimited": "из неограниченного",
-      "ofLimit": "из {{limit}}",
-      "overLimit": "Превышен лицензионный лимит — данные сверх лимита под угрозой."
+      "title": "Источники данных",
+      "configured": "настроено"
     },
     "tabs": {
       "all": "Все",
@@ -3381,12 +3367,6 @@
         "2": "Средняя",
         "3": "Высокая"
       }
-    },
-    "limitBanner": {
-      "title": "Превышен лимит источников данных.",
-      "message": "У вас {{count}} источников данных, но ваша лицензия покрывает {{limit}}. Журналы из источников сверх лимита отбрасываются.",
-      "cta": "Управление лицензией",
-      "dismiss": "Закрыть"
     },
     "console": {
       "section": "Консоль",
@@ -4611,8 +4591,6 @@
   "branding": {
     "title": "Брендинг",
     "subtitle": "Оформите UTMStack под фирменный стиль вашей организации — он применяется везде: на экране входа, в боковой панели, письмах и отчётах.",
-    "msspRequired": "Брендинг под вашим именем — функция MSSP.",
-    "manageLicense": "Управление лицензией",
     "enable": {
       "title": "Брендинг под вашим именем",
       "description": "Замените бренд UTMStack своим во всей платформе.",
@@ -4649,7 +4627,14 @@
     "saveError": "Не удалось сохранить брендинг",
     "uploaded": "Изображение загружено",
     "uploadError": "Не удалось загрузить изображение",
-    "loadError": "Не удалось загрузить брендинг"
+    "loadError": "Не удалось загрузить брендинг",
+    "enterprise": {
+      "title": "Белая метка — функция Enterprise",
+      "body": "Замените название продукта, логотип и обложку отчётов на свои, чтобы панель и всё, что она создаёт, несли ваш бренд, а не UTMStack.",
+      "upgrade": "Перейти на Enterprise"
+    },
+    "restore": "Восстановить значения UTMStack",
+    "restored": "Оформление восстановлено к значениям UTMStack"
   },
   "emailConfig": {
     "title": "Настройка электронной почты",
@@ -4958,6 +4943,19 @@
       "copied": "Скопировано",
       "errorGeneric": "Что-то пошло не так.",
       "errorUnreachable": "Не удалось связаться с ассистентом."
+    },
+    "inheritance": {
+      "inherited": "Используются настройки экземпляра по умолчанию. Сохранение создаст собственные настройки этого арендатора.",
+      "own": "У этого арендатора собственные настройки.",
+      "revert": "Вернуться к настройкам экземпляра",
+      "reverting": "Возврат…",
+      "reverted": "Теперь используются настройки экземпляра"
+    },
+    "allowance": {
+      "title": "Расход ИИ сегодня",
+      "ofLimit": "из {{limit}} запросов",
+      "denied": "запросов — ИИ недоступен этому арендатору",
+      "hint": "Задаётся оператором экземпляра. Сбрасывается в полночь UTC."
     }
   },
   "taggingRules": {
@@ -5154,5 +5152,125 @@
       "level2": "Уровень 2",
       "level3": "Уровень 3"
     }
+  },
+  "tenants": {
+    "title": "Арендаторы",
+    "new": "Новый арендатор",
+    "subtitle": "Каждый клиент на этом экземпляре: что у него есть и что он разрешает вам видеть.",
+    "searchPlaceholder": "Поиск по имени или домену…",
+    "loading": "Загрузка арендаторов…",
+    "loadFailed": "Не удалось загрузить арендаторов.",
+    "retry": "Повторить",
+    "none": "Арендаторов пока нет.",
+    "noSearchMatch": "Совпадений не найдено.",
+    "cancel": "Отмена",
+    "saving": "Сохранение…",
+    "chips": {
+      "total": "арендаторов",
+      "active": "активных",
+      "readable": "с доступом"
+    },
+    "status": {
+      "ACTIVE": "Активен",
+      "SUSPENDED": "Приостановлен",
+      "TERMINATED": "Закрыт"
+    },
+    "support": {
+      "NONE": "Нет доступа",
+      "READ": "Доступ на чтение",
+      "FULL": "Полный доступ",
+      "hint": "Выдаётся арендатором, а не вами. Изменить это может только его администратор."
+    },
+    "card": {
+      "edit": "Изменить",
+      "terminate": "Закрыть",
+      "noAccess": "Этот арендатор не предоставил вам доступ.",
+      "loadingStats": "Чтение…",
+      "enter": "Войти"
+    },
+    "stats": {
+      "users": "Пользователи",
+      "datasources": "Источники",
+      "openAlerts": "Открытые оповещения",
+      "ai": "ИИ сегодня",
+      "noLimit": "без лимита"
+    },
+    "fields": {
+      "name": "Название",
+      "domain": "Домен",
+      "domainHint": "По какому адресу доступен арендатор. Любой запрос на этот хост попадает в его данные.",
+      "adminEmail": "Почта администратора",
+      "adminEmailHint": "Он получит приглашение, чтобы задать собственный пароль.",
+      "status": "Статус",
+      "suspendedWarning": "Приостановленный арендатор не сможет войти. Его данные сохраняются.",
+      "aiLimit": "Лимит запросов к ИИ",
+      "aiLimitHint": "Операционный лимит в сутки. Без лимита расход идёт по лицензии экземпляра.",
+      "aiLimitToggle": "Ограничить этого арендатора"
+    },
+    "create": {
+      "title": "Новый арендатор",
+      "subtitle": "Создаёт арендатора и приглашает его первого администратора.",
+      "submit": "Создать арендатора"
+    },
+    "edit": {
+      "title": "Изменение арендатора",
+      "subtitle": "Доступа поддержки здесь нет: его выдаёт только сам арендатор.",
+      "submit": "Сохранить"
+    },
+    "terminate": {
+      "title": "Закрыть этого арендатора?",
+      "body": "Никто из {{name}} не сможет войти. Данные сохраняются, так что оператор может вернуть всё назад, но клиент отключается сейчас.",
+      "confirmLabel": "Введите {{name}} для подтверждения",
+      "submit": "Закрыть"
+    },
+    "toast": {
+      "created": "Арендатор создан",
+      "updated": "Арендатор обновлён",
+      "terminated": "Арендатор закрыт",
+      "domainInUse": "Этот домен уже занят",
+      "noPermission": "У вас нет прав на это действие",
+      "notFound": "Арендатор не найден",
+      "invalidRequest": "Некорректный запрос",
+      "operationFailed": "Операция не выполнена"
+    }
+  },
+  "supportAccess": {
+    "title": "Доступ поддержки",
+    "intro": "Тот, кто обслуживает этот экземпляр, не может заглянуть в ваши данные без вашего разрешения. По умолчанию здесь не выдано ничего, и вы можете отозвать доступ в любой момент.",
+    "loading": "Загрузка…",
+    "loadFailed": "Не удалось прочитать текущую настройку.",
+    "retry": "Повторить",
+    "currentBadge": "сейчас",
+    "save": "Сохранить",
+    "saving": "Сохранение…",
+    "levels": {
+      "NONE": {
+        "name": "Нет доступа",
+        "desc": "Оператор видит только то, что ваш арендатор существует. Любые запросы к вашим данным отклоняются."
+      },
+      "READ": {
+        "name": "Только чтение",
+        "desc": "Оператор может смотреть ваши оповещения, журналы и настройки, чтобы помочь. Изменить он ничего не может: любая запись отклоняется, какая бы роль у него ни была."
+      },
+      "FULL": {
+        "name": "Полный доступ",
+        "desc": "Оператор может действовать в вашем арендаторе как администратор: менять настройки, пользователей и сценарии реагирования."
+      }
+    },
+    "fullWarning": "Полный доступ позволяет менять всё от вашего имени. Выдавайте его на время работ и возвращайте обратно после.",
+    "revokeNote": "Все действия оператора здесь попадают в ваш журнал аудита.",
+    "toast": {
+      "granted": "Доступ поддержки обновлён",
+      "revoked": "Доступ поддержки отозван",
+      "forbidden": "Менять это может только администратор этого арендатора",
+      "invalid": "Некорректный запрос",
+      "failed": "Не удалось сохранить изменение"
+    }
+  },
+  "supportSession": {
+    "inside": "Вы работаете внутри {{name}}",
+    "readOnly": "только чтение — запись отклоняется",
+    "full": "полный доступ — изменения здесь настоящие",
+    "leave": "Выйти"
   }
 }

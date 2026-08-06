@@ -12,7 +12,7 @@ import (
 )
 
 var auditFilterFields = []string{
-	"user_id", "user_login", "action", "status",
+	"user_id", "user_email", "action", "status",
 	"resource_type", "resource_id", "event_type", "ip", "timestamp",
 }
 

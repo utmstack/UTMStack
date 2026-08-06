@@ -8,7 +8,9 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	"github.com/utmstack/utmstack/backend/modules/datasources/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
 type datasourceUsecase struct {
@@ -46,6 +48,9 @@ func (u *datasourceUsecase) Count(ctx context.Context) (int64, error) {
 	return u.repo.Count(ctx)
 }
 
+// Ping is a batch that spans tenants: one agent-manager serves every tenant's
+// agents. The tenant therefore travels per entry, and the write runs unscoped so
+// the callback does not collapse the batch onto one of them.
 func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error {
 	now := time.Now().UTC()
 	items := make([]domain.Datasource, 0, len(req.Datasources))
@@ -55,6 +60,7 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 			ts = e.LastPingAt.UTC()
 		}
 		items = append(items, domain.Datasource{
+			TenantID:     tenantOf(ctx, e.TenantID),
 			SourceRef:    e.SourceRef,
 			Name:         e.Name,
 			DataType:     e.DataType,
@@ -66,7 +72,20 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 			DiscoveredAt: &ts, // only applied on insert; preserved on update
 		})
 	}
-	return u.repo.UpsertBatch(ctx, items)
+	return u.repo.UpsertBatch(tenancy.WithAllTenants(ctx), items)
+}
+
+// tenantOf resolves the tenant a batch entry belongs to: what the caller said,
+// then the caller's own, then the default. A caller that has not been taught to
+// send one keeps working on the single-tenant install it was written for.
+func tenantOf(ctx context.Context, entry string) string {
+	if entry != "" {
+		return entry
+	}
+	if t := authz.TenantIDFromContext(ctx); t != "" {
+		return t
+	}
+	return authz.DefaultTenantID
 }
 
 func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterRequest) error {
@@ -93,6 +112,7 @@ func (u *datasourceUsecase) Enrichment(ctx context.Context) ([]dto.DatasourceEnr
 	for i := range rows {
 		d := &rows[i]
 		e := dto.DatasourceEnrichment{
+			TenantID: d.TenantID,
 			Name:     d.Name,
 			DataType: d.DataType,
 			GroupID:  d.GroupID,

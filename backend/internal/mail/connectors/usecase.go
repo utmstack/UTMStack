@@ -6,12 +6,8 @@ import (
 	"github.com/utmstack/utmstack/backend/internal/mail/domain"
 )
 
-
 type MailService interface {
-	SendMail(ctx context.Context, address []string, body string, attatchments []domain.Attatchment) error
-	SendTemplateMail(ctx context.Context, address []string, template string, vars map[string]string, locale string) error
-	// SendMailWithConfig sends a message using the supplied EmailConfig instead
-	// of loading one from storage. Used by orchestration flows such as
-	// "test current mail settings" where the config under test is not persisted.
-	SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, address []string, body string, attatchments []domain.Attatchment) error
+	SendMail(ctx context.Context, address []string, subject, body string, attatchments []domain.Attatchment) error
+	SendTemplateMail(ctx context.Context, address []string, subject, template string, vars map[string]string, locale string) error
+	SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, address []string, subject, body string, attatchments []domain.Attatchment) error
 }

@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
@@ -23,7 +24,6 @@ type FrameworkUsecase interface {
 	UpdateFramework(ctx context.Context, f domain.Framework) (*domain.Framework, error)
 	DeleteFramework(ctx context.Context, key string) error
 	SetFrameworkEnabled(ctx context.Context, key string, enabled bool) error
-	ApplyEntitlement(ctx context.Context, enterprise bool, frameworks, controls []string) error
 }
 
 type ReportBrand struct {
@@ -58,9 +58,9 @@ type EvaluatorUsecase interface {
 }
 
 type ScheduleUsecase interface {
-	Create(ctx context.Context, userID int64, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error)
-	Update(ctx context.Context, userID int64, req dto.UpdateScheduleRequest) (*dto.ScheduleResponse, error)
+	Create(ctx context.Context, userID uuid.UUID, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error)
+	Update(ctx context.Context, userID uuid.UUID, req dto.UpdateScheduleRequest) (*dto.ScheduleResponse, error)
 	GetByID(ctx context.Context, id int64) (*dto.ScheduleResponse, error)
-	ListByUser(ctx context.Context, userID int64, f dto.ScheduleFilters) ([]dto.ScheduleResponse, int64, error)
+	ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]dto.ScheduleResponse, int64, error)
 	Delete(ctx context.Context, id int64) error
 }

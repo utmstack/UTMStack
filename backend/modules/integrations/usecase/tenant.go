@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 type TenantUsecase struct {
@@ -46,12 +47,14 @@ func NewTenantUsecase(
 // credentials against the provider (fail fast, nothing written) → encrypt the
 // sensitive fields → upsert the tenant → register its datasource.
 func (u *TenantUsecase) Save(ctx context.Context, module string, req dto.TenantRequest) error {
+	tenantId := authz.TenantIDFromContext(ctx)
+
 	schema, err := u.schema.Schema(module)
 	if err != nil {
 		return err
 	}
 
-	plain, err := u.resolveMasked(module, req.Name, schema, req.Config)
+	plain, err := u.resolveMasked(module, req.Name, tenantId, schema, req.Config)
 	if err != nil {
 		return err
 	}
@@ -64,7 +67,7 @@ func (u *TenantUsecase) Save(ctx context.Context, module string, req dto.TenantR
 	if err != nil {
 		return err
 	}
-	if err := u.repo.Upsert(module, domain.Tenant{Name: req.Name, Config: enc}); err != nil {
+	if err := u.repo.Upsert(module, domain.Tenant{Name: req.Name, TenantId: tenantId, Config: enc}); err != nil {
 		return err
 	}
 
@@ -75,8 +78,8 @@ func (u *TenantUsecase) Save(ctx context.Context, module string, req dto.TenantR
 	return nil
 }
 
-func (u *TenantUsecase) Delete(_ context.Context, module, name string) error {
-	return u.repo.Delete(module, name)
+func (u *TenantUsecase) Delete(ctx context.Context, module, name string) error {
+	return u.repo.Delete(module, name, authz.TenantIDFromContext(ctx))
 }
 
 func (u *TenantUsecase) SyncDatasources(ctx context.Context) error {
@@ -121,11 +124,11 @@ func (u *TenantUsecase) registerDatasource(ctx context.Context, module, name str
 
 func datasourceRef(dataType, name string) string { return dataType + ":" + name }
 
-func (u *TenantUsecase) List(module string) ([]dto.TenantResponse, error) {
-	return u.transform(module)
+func (u *TenantUsecase) List(ctx context.Context, module string) ([]dto.TenantResponse, error) {
+	return u.transform(module, authz.TenantIDFromContext(ctx))
 }
 
-func (u *TenantUsecase) transform(module string) ([]dto.TenantResponse, error) {
+func (u *TenantUsecase) transform(module, tenantId string) ([]dto.TenantResponse, error) {
 	tenants, err := u.repo.Load(module)
 	if err != nil {
 		return nil, err
@@ -140,6 +143,12 @@ func (u *TenantUsecase) transform(module string) ([]dto.TenantResponse, error) {
 	}
 	out := make([]dto.TenantResponse, 0, len(tenants))
 	for i := range tenants {
+		// A SaaS-scoped actor only ever sees their own tenant's connector
+		// instances. On-prem/global actors (tenantId == "") see everything,
+		// matching legacy behavior.
+		if tenantId != "" && tenants[i].TenantId != tenantId {
+			continue
+		}
 		cfg := make(map[string]string, len(tenants[i].Config))
 		for k, v := range tenants[i].Config {
 			cfg[k] = v
@@ -170,7 +179,7 @@ func (u *TenantUsecase) encryptSensitive(schema, config map[string]string) (map[
 
 // resolveMasked replaces any sensitive field submitted as MaskedValue with the
 // currently-stored (decrypted) value — the user left that secret unchanged.
-func (u *TenantUsecase) resolveMasked(module, name string, schema, config map[string]string) (map[string]string, error) {
+func (u *TenantUsecase) resolveMasked(module, name, tenantId string, schema, config map[string]string) (map[string]string, error) {
 	out := make(map[string]string, len(config))
 	var existing map[string]string
 	for k, v := range config {
@@ -179,7 +188,7 @@ func (u *TenantUsecase) resolveMasked(module, name string, schema, config map[st
 			continue
 		}
 		if existing == nil {
-			ex, err := u.existingConfig(module, name)
+			ex, err := u.existingConfig(module, name, tenantId)
 			if err != nil {
 				return nil, err
 			}
@@ -198,13 +207,13 @@ func (u *TenantUsecase) resolveMasked(module, name string, schema, config map[st
 	return out, nil
 }
 
-func (u *TenantUsecase) existingConfig(module, name string) (map[string]string, error) {
+func (u *TenantUsecase) existingConfig(module, name, tenantId string) (map[string]string, error) {
 	tenants, err := u.repo.Load(module)
 	if err != nil {
 		return nil, err
 	}
 	for _, t := range tenants {
-		if t.Name == name {
+		if t.Name == name && t.TenantId == tenantId {
 			return t.Config, nil
 		}
 	}

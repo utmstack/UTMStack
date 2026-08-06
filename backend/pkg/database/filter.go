@@ -201,7 +201,7 @@ func ParseFilters(query string, allowed []string) []Filter {
 }
 
 // ParseSort parses the sort_by DSL — "field.dir" terms joined by "&"
-// (e.g. "timestamp.desc&user_login.asc") — into a safe ORDER BY. Only allowlisted
+// (e.g. "timestamp.desc&user_email.asc") — into a safe ORDER BY. Only allowlisted
 // fields are kept; direction defaults to ASC.
 func ParseSort(sort string, allowed []string) string {
 	if sort == "" {

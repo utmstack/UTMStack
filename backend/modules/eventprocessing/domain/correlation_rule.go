@@ -31,7 +31,7 @@ type UtmCorrelationRules struct {
 
 	// Nullable JSON TEXT columns for advanced rule configuration.
 	//[deprecated] only kept for compatibility
-	AfterEventsDef   string `gorm:"column:rule_after_events_def"`
+	AfterEventsDef string `gorm:"column:rule_after_events_def"`
 	//
 
 	RuleGroupByDef   string `gorm:"column:rule_group_by_def"`
@@ -42,6 +42,5 @@ type UtmCorrelationRules struct {
 	// written; the join table is dropped once migration completes.
 	DataTypes []UtmDataTypes `gorm:"many2many:utm_group_rules_data_type;joinForeignKey:rule_id;joinReferences:data_type_id"`
 }
-
 
 func (UtmCorrelationRules) TableName() string { return "utm_correlation_rules" }

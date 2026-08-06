@@ -1,23 +1,31 @@
 package dto
 
-import "github.com/utmstack/utmstack/backend/pkg/database"
+import (
+	"encoding/json"
 
-// IdentityProviderRequest is the create/update body for a SAML IdP config.
-// SpPrivateKeyPem is plaintext on input (encrypted by the usecase); on update it
-// may be empty to keep the stored key.
-type IdentityProviderRequest struct {
-	ID               uint64 `json:"id"`
-	Name             string `json:"name"`
-	ProviderType     string `json:"providerType"`
-	MetadataURL      string `json:"metadataUrl"`
-	SpEntityID       string `json:"spEntityId"`
-	SpAcsURL         string `json:"spAcsUrl"`
-	SpPrivateKeyPem  string `json:"spPrivateKeyPem"`
-	SpCertificatePem string `json:"spCertificatePem"`
-	Active           bool   `json:"active"`
+	"github.com/google/uuid"
+	"github.com/utmstack/utmstack/backend/pkg/database"
+)
+
+// GroupMapping is one line of "this directory group grants this role here".
+type GroupMapping struct {
+	Group  string    `json:"group"`
+	RoleID uuid.UUID `json:"roleId"`
 }
 
-// IdentityProviderFilter is the list filter for IdP configs.
+type IdentityProviderRequest struct {
+	ID               uuid.UUID       `json:"id"`
+	Name             string          `json:"name"`
+	ProviderType     string          `json:"providerType"`
+	Active           bool            `json:"active"`
+	Settings         json.RawMessage `json:"settings"`
+	JITProvisioning  bool            `json:"jitProvisioning"`
+	DefaultRoleID    *uuid.UUID      `json:"defaultRoleId,omitempty"`
+	GroupsAttribute  string          `json:"groupsAttribute,omitempty"`
+	SyncRolesOnLogin bool            `json:"syncRolesOnLogin"`
+	GroupMappings    []GroupMapping  `json:"groupMappings,omitempty"`
+}
+
 type IdentityProviderFilter struct {
 	Name         string `form:"name"`
 	ProviderType string `form:"providerType"`
@@ -25,11 +33,9 @@ type IdentityProviderFilter struct {
 	database.Params
 }
 
-// IdentityProviderPublic is the unauthenticated login-page view of an active
-// IdP: just enough to render a "Login with …" button.
 type IdentityProviderPublic struct {
-	ID           uint64 `json:"id"`
-	Name         string `json:"name"`
-	ProviderType string `json:"providerType"`
-	LoginURL     string `json:"loginUrl"`
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	ProviderType string    `json:"providerType"`
+	LoginURL     string    `json:"loginUrl"`
 }

@@ -131,9 +131,13 @@ func resolveStatus(status string) (string, string, error) {
 
 // resolveWindow defaults to the last 24h when from/to are absent (RFC3339).
 func resolveWindow(from, to string) (string, string) {
- 	if to == "" { to = "now" }
-	if from == "" { from = "now-" + defaultStatsWindow }
-	 return from, to
+	if to == "" {
+		to = "now"
+	}
+	if from == "" {
+		from = "now-" + defaultStatsWindow
+	}
+	return from, to
 }
 
 // resolveInterval picks a date_histogram interval. An explicit value wins;

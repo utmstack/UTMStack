@@ -3,12 +3,18 @@ package dto
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 )
 
 type LoginRequest struct {
-	Login    string `json:"login" binding:"required" example:"admin"`
-	Password string `json:"password" binding:"required" example:"changeme"`
+	// ProviderID names the directory to bind against when the user picked one.
+	// Absent, every active directory of the tenant is tried, which is what a
+	// single-directory install wants.
+	ProviderID *uuid.UUID `json:"provider_id,omitempty"`
+	Login      string     `json:"login" binding:"required" example:"admin"`
+	Password   string     `json:"password" binding:"required" example:"changeme"`
 }
 
 type ChangePasswordRequest struct {
@@ -24,24 +30,14 @@ type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-type ResetPasswordInitRequest struct {
-	Email string `json:"email" binding:"required,email"`
-}
-
-type ResetPasswordFinishRequest struct {
-	Key         string `json:"key" binding:"required"`
-	NewPassword string `json:"new_password" binding:"required,min=8"`
-}
-
 type UpdateMeRequest struct {
-	Email     string `json:"email,omitempty" binding:"omitempty,email"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	LangKey   string `json:"lang_key,omitempty"`
+	Email   string `json:"email,omitempty" binding:"omitempty,email"`
+	Name    string `json:"name,omitempty"`
+	LangKey string `json:"lang_key,omitempty"`
 }
 
 type SessionResponse struct {
-	ID        uint64    `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	IP        string    `json:"ip,omitempty"`
 	UserAgent string    `json:"user_agent,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
@@ -50,16 +46,14 @@ type SessionResponse struct {
 }
 
 type UserResponse struct {
-	ID         uint64 `json:"id"`
-	Login      string `json:"login"`
-	Email      string `json:"email,omitempty"`
-	FirstName  string `json:"first_name,omitempty"`
-	LastName   string `json:"last_name,omitempty"`
-	Activated  bool   `json:"activated"`
-	LangKey    string `json:"lang_key,omitempty"`
-	ImageURL   string `json:"image_url,omitempty"`
-	TfaEnabled bool   `json:"tfa_enabled"`
-	TfaMethod  string `json:"tfa_method,omitempty"`
+	ID         uuid.UUID         `json:"id"`
+	Email      string            `json:"email"`
+	Name       string            `json:"name,omitempty"`
+	Status     domain.UserStatus `json:"status"`
+	LangKey    string            `json:"lang_key,omitempty"`
+	ImageURL   string            `json:"image_url,omitempty"`
+	Federated  bool              `json:"federated"`
+	TfaEnabled bool              `json:"tfa_enabled"`
 }
 
 type TokenPair struct {
@@ -72,23 +66,23 @@ type TokenPair struct {
 
 type LoginResponse struct {
 	TokenPair
-	User         UserResponse `json:"user"`
-	TfaRequired  bool         `json:"tfa_required,omitempty"`
-	TfaMethod    string       `json:"tfa_method,omitempty"`
-	PreAuthToken string       `json:"pre_auth_token,omitempty"`
+	User        UserResponse `json:"user"`
+	TfaRequired bool         `json:"tfa_required,omitempty"`
+	// Which factor the user must produce, so the screen can say "check your
+	// mail" or "open your authenticator" instead of guessing.
+	TfaType      domain.TfaFactorType `json:"tfa_type,omitempty"`
+	PreAuthToken string               `json:"pre_auth_token,omitempty"`
 }
 
-func ToUserResponse(u domain.User) UserResponse {
+func ToUserResponse(u domain.User, tfaEnabled bool) UserResponse {
 	return UserResponse{
 		ID:         u.ID,
-		Login:      u.Login,
 		Email:      u.Email,
-		FirstName:  u.FirstName,
-		LastName:   u.LastName,
-		Activated:  u.Activated,
+		Name:       u.Name,
+		Status:     u.Status,
 		LangKey:    u.LangKey,
 		ImageURL:   u.ImageURL,
-		TfaEnabled: u.TFAMethod != "",
-		TfaMethod:  u.TFAMethod,
+		Federated:  u.IdentityProviderID != nil,
+		TfaEnabled: tfaEnabled,
 	}
 }

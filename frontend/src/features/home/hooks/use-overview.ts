@@ -31,8 +31,6 @@ const lastWindow = (fromToken: string): FilterType[] => [
 
 export interface DatasourcesOverview {
   total: number
-  limit: number
-  unlimited: boolean
   activeSources: number
   events: number
   from?: string
@@ -42,9 +40,9 @@ export interface DatasourcesOverview {
 }
 
 export function useDatasourcesOverview(): DatasourcesOverview {
-  const usage = useQuery({
-    queryKey: ['overview', 'ds', 'usage'],
-    queryFn: () => datasourcesHttpService.usage(),
+  const count = useQuery({
+    queryKey: ['overview', 'ds', 'count'],
+    queryFn: () => datasourcesHttpService.count(),
     staleTime: STALE,
   })
   const totals = useQuery({
@@ -60,18 +58,16 @@ export function useDatasourcesOverview(): DatasourcesOverview {
 
   return useMemo<DatasourcesOverview>(
     () => ({
-      total: usage.data?.count ?? 0,
-      limit: usage.data?.limit ?? 0,
-      unlimited: usage.data?.unlimited ?? true,
+      total: count.data?.count ?? 0,
       // Sources that actually shipped events in the stats window (one bucket each).
       activeSources: totals.data?.buckets?.length ?? 0,
       events: totals.data?.total ?? 0,
       from: totals.data?.from ?? timeline.data?.from,
       to: totals.data?.to ?? timeline.data?.to,
       points: (timeline.data?.points ?? []).map((p) => ({ t: p.timestamp, count: p.count })),
-      isLoading: usage.isLoading || totals.isLoading || timeline.isLoading,
+      isLoading: count.isLoading || totals.isLoading || timeline.isLoading,
     }),
-    [usage.data, usage.isLoading, totals.data, totals.isLoading, timeline.data, timeline.isLoading],
+    [count.data, count.isLoading, totals.data, totals.isLoading, timeline.data, timeline.isLoading],
   )
 }
 
@@ -218,12 +214,6 @@ export function useSystemHealth(): { services: HealthService[]; isLoading: boole
     staleTime: STALE,
     retry: false,
   })
-  const cluster = useQuery({
-    queryKey: ['overview', 'health', 'cluster'],
-    queryFn: () => aboutHttpService.clusterHealth(),
-    staleTime: STALE,
-    retry: false,
-  })
   const mcp = useQuery({
     queryKey: ['overview', 'health', 'mcp'],
     queryFn: () => aboutHttpService.mcpHealth(),
@@ -234,43 +224,16 @@ export function useSystemHealth(): { services: HealthService[]; isLoading: boole
   const services = useMemo<HealthService[]>(() => {
     // Backend is reachable if any authenticated call resolved (same signal the
     // About page uses); only "everything failed" is a real Down.
-    const anyOk = version.isSuccess || cluster.isSuccess || mcp.isSuccess
-    const allError = version.isError && cluster.isError && mcp.isError
+    const anyOk = version.isSuccess || mcp.isSuccess
+    const allError = version.isError && mcp.isError
     const backend: HealthService = {
       name: t('home.health.services.backend'),
       status: anyOk ? 'up' : allError ? 'down' : 'unknown',
       detail: version.data?.version
-        ? `v${version.data.version}`
+        ? version.data.version
         : allError
           ? t('home.health.detail.unreachable')
           : t('home.health.detail.pending'),
-    }
-
-    // OpenSearch: red is always Down. Yellow means unassigned replicas — on a
-    // single-node cluster that's the expected normal state (no second node to
-    // host a replica), so it reads healthy; only a yellow on a multi-node
-    // cluster is a real degradation. No cluster info (204 or a failed call)
-    // reads as Unknown, never a false warning.
-    const c = cluster.data
-    let opensearch: HealthService
-    if (!c) {
-      opensearch = {
-        name: t('home.health.services.opensearch'),
-        status: 'unknown',
-        detail: t('home.health.detail.noClusterInfo'),
-      }
-    } else {
-      const s = c.status?.toLowerCase()
-      const status: HealthStatus =
-        s === 'red' ? 'down' : s === 'yellow' && c.number_of_nodes > 1 ? 'degraded' : 'up'
-      opensearch = {
-        name: t('home.health.services.opensearch'),
-        status,
-        detail: t('about.services.opensearch.detail', {
-          nodes: c.number_of_nodes,
-          shards: c.active_shards,
-        }),
-      }
     }
 
     // SOC-AI is optional infra, not core uptime: enabled = Up, while disabled or
@@ -285,22 +248,11 @@ export function useSystemHealth(): { services: HealthService[]; isLoading: boole
           : t('home.health.detail.disabled'),
     }
 
-    return [backend, opensearch, socai]
-  }, [
-    t,
-    version.data,
-    version.isSuccess,
-    version.isError,
-    cluster.data,
-    cluster.isSuccess,
-    cluster.isError,
-    mcp.data,
-    mcp.isSuccess,
-    mcp.isError,
-  ])
+    return [backend, socai]
+  }, [t, version.data, version.isSuccess, version.isError, mcp.data, mcp.isSuccess, mcp.isError])
 
   return {
     services,
-    isLoading: version.isLoading || cluster.isLoading || mcp.isLoading,
+    isLoading: version.isLoading || mcp.isLoading,
   }
 }

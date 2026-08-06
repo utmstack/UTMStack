@@ -36,7 +36,6 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	fw.DELETE("/frameworks/:key/controls/:id/status", write, m.reportH.ClearStatusOverride)
 	fw.PUT("/frameworks/:key/controls/:id/note", write, m.reportH.SetControlNote)
 	fw.DELETE("/frameworks/:key/controls/:id/note", write, m.reportH.ClearControlNote)
-	fw.POST("/entitlement", middleware.RequireInternal(), m.frameworkH.ApplyEntitlement)
 
 	sched := api.Group("/compliance-report-schedules", userAuth)
 	sched.POST("", write, m.scheduleH.Create)

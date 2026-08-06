@@ -9,13 +9,16 @@ import (
 )
 
 type QueryRepository interface {
-	Save(ctx context.Context, q *domain.UtmLogAnalyzerQuery) error
-	FindByID(ctx context.Context, id uint64) (*domain.UtmLogAnalyzerQuery, error)
-	List(ctx context.Context, f dto.QueryFilter) ([]domain.UtmLogAnalyzerQuery, int64, error)
+	Save(ctx context.Context, q *domain.SavedQuery) error
+	FindByID(ctx context.Context, id uint64) (*domain.SavedQuery, error)
+	List(ctx context.Context, f dto.QueryFilter) ([]domain.SavedQuery, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
 type AnalyzerRepository interface {
-	TopValues(ctx context.Context, index, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error)
+	TopValues(ctx context.Context, dataset, dataType, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error)
 	ChartView(ctx context.Context, req dto.ChartViewRequest) (*dto.ChartViewResponse, error)
+	Fields(ctx context.Context, dataset string) ([]dto.Field, error)
+	Search(ctx context.Context, req dto.SearchRequest) (*dto.SearchResponse, error)
+	DataTypes(ctx context.Context, dataset string) ([]string, error)
 }

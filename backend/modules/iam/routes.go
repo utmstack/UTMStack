@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc, enterprise gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc, enterprise, enterpriseLicense gin.HandlerFunc) {
 	auth := module.GetAuthHandler()
 	users := module.GetUserHandler()
 	roles := module.GetRoleHandler()
@@ -42,16 +42,15 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 
 	roleGroup := api.Group("/roles", userAuth)
 	roleGroup.GET("", middleware.RequirePermission("roles.read"), roles.List)
-	roleGroup.GET("/:name", middleware.RequirePermission("roles.read"), roles.Get)
+	roleGroup.GET("/permissions", middleware.RequirePermission("roles.read"), roles.ListPermissions)
+	roleGroup.GET("/:id", middleware.RequirePermission("roles.read"), roles.Get)
+	roleGroup.POST("", middleware.RequirePermission("roles.write"), roles.Create)
+	roleGroup.PUT("/:id", middleware.RequirePermission("roles.write"), roles.Update)
+	roleGroup.DELETE("/:id", middleware.RequirePermission("roles.write"), roles.Delete)
 
 	tfaGroup := api.Group("/tfa", userAuth)
-	tfaGroup.POST("/init", tfa.InitEnrollment)
-	tfaGroup.POST("/verify", tfa.VerifyEnrollment)
-	tfaGroup.POST("/complete", tfa.CompleteEnrollment)
+	tfaGroup.POST("/enroll", tfa.Enroll)
 	tfaGroup.POST("/disable", tfa.Disable)
-	tfaGroup.GET("/refresh", tfa.RefreshChallenge)
-
-	api.POST("/enrollment/tfa", userAuth, tfa.UnifiedEnrollment)
 
 	keyGroup := api.Group("/api-keys", userAuth)
 	keyGroup.POST("", enterprise, apiKeys.Create)
@@ -60,7 +59,6 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	keyGroup.PUT("/:id", apiKeys.Update)
 	keyGroup.DELETE("/:id", apiKeys.Delete)
 	keyGroup.POST("/:id/generate", enterprise, apiKeys.Generate)
-	// Internal: the inputs gateway validates a pusher's API key here.
 	keyGroup.POST("/authenticate", middleware.RequireInternal(), apiKeys.Authenticate)
 
 	idp := module.GetIDPHandler()
@@ -70,10 +68,12 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	idpGroup.GET("", middleware.RequirePermission("idp.read"), idp.List)
 	idpGroup.GET("/:id", middleware.RequirePermission("idp.read"), idp.GetByID)
 	idpGroup.DELETE("/:id", middleware.RequirePermission("idp.write"), idp.Delete)
+	idpGroup.GET("/:id/group-mappings", middleware.RequirePermission("idp.read"), idp.ListMappings)
 
-	api.GET("/idp-providers", enterprise, idp.PublicList)
-	saml := module.GetSAMLHandler()
-	ssoGroup := api.Group("/sso/saml/:name", enterprise)
-	ssoGroup.GET("/login", saml.Initiate)
-	ssoGroup.POST("/acs", saml.ACS)
+	api.GET("/idp-providers", idp.PublicList)
+	sso := module.GetFederationHandler()
+	ssoGroup := api.Group("/sso/:name", enterpriseLicense)
+	ssoGroup.GET("/login", sso.Start)
+	ssoGroup.POST("/acs", sso.ACS)
+	ssoGroup.GET("/callback", sso.Callback)
 }

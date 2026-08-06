@@ -147,8 +147,12 @@ func (s *TenantStore) Upsert(module string, t domain.Tenant) error {
 		if err != nil {
 			return err
 		}
+		// Match on (Name, TenantId), not Name alone — two different platform
+		// tenants may legitimately pick the same connector-instance name, and
+		// matching on Name alone would let one silently overwrite the other's
+		// config.
 		for i := range tenants {
-			if tenants[i].Name == t.Name {
+			if tenants[i].Name == t.Name && tenants[i].TenantId == t.TenantId {
 				tenants[i] = t
 				return s.saveLocked(module, tenants)
 			}
@@ -157,7 +161,7 @@ func (s *TenantStore) Upsert(module string, t domain.Tenant) error {
 	})
 }
 
-func (s *TenantStore) Delete(module, name string) error {
+func (s *TenantStore) Delete(module, name, tenantId string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -169,7 +173,7 @@ func (s *TenantStore) Delete(module, name string) error {
 		out := make([]domain.Tenant, 0, len(tenants))
 		found := false
 		for _, t := range tenants {
-			if t.Name == name {
+			if t.Name == name && t.TenantId == tenantId {
 				found = true
 				continue
 			}

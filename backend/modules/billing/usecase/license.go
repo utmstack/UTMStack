@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -43,6 +44,11 @@ type LicenseService struct {
 	publicKey    string
 	salt         string
 
+	// devLicense short-circuits verification. It exists so a developer can reach
+	// the enterprise and MSSP surfaces on a machine that has no signed licence,
+	// and it is only ever set when DEV_MODE is on.
+	devLicense *domain.License
+
 	mu      sync.RWMutex
 	current domain.License
 }
@@ -55,6 +61,44 @@ func NewLicenseService(updatesDir, publicKey, salt string) *LicenseService {
 		salt:         salt,
 		current:      domain.Community(),
 	}
+}
+
+// UseDevLicense makes the instance report an edition nobody paid for. The caller
+// is responsible for only reaching it in development; it announces itself in the
+// log every refresh so a machine running on one can never look like a licensed
+// install by accident.
+func (s *LicenseService) UseDevLicense(spec string) {
+	lic, ok := parseDevLicense(spec)
+	if !ok {
+		return
+	}
+	s.mu.Lock()
+	s.devLicense = &lic
+	s.mu.Unlock()
+	s.Refresh()
+}
+
+func parseDevLicense(spec string) (domain.License, bool) {
+	spec = strings.TrimSpace(strings.ToLower(spec))
+	if spec == "" {
+		return domain.License{}, false
+	}
+	lic := domain.License{Type: "dev", ExpiresAt: time.Now().Add(24 * time.Hour)}
+	for _, part := range strings.Split(spec, ",") {
+		switch strings.TrimSpace(part) {
+		case "enterprise":
+			lic.Edition = domain.EditionEnterprise
+		case "mssp":
+			lic.Edition = domain.EditionEnterprise
+			lic.MSSP = true
+		case "community":
+			lic.Edition = domain.EditionCommunity
+		}
+	}
+	if lic.Edition == "" {
+		return domain.License{}, false
+	}
+	return lic, true
 }
 
 func (s *LicenseService) Current() domain.License {
@@ -88,6 +132,16 @@ func (s *LicenseService) Refresh() domain.License {
 }
 
 func (s *LicenseService) evaluate() domain.License {
+	s.mu.RLock()
+	dev := s.devLicense
+	s.mu.RUnlock()
+	if dev != nil {
+		catcher.Info("billing: RUNNING ON A DEVELOPMENT LICENCE — edition "+
+			string(dev.Edition)+", mssp="+strconv.FormatBool(dev.MSSP)+
+			". Nothing was verified. This must never be a production instance.", nil)
+		return *dev
+	}
+
 	envelope, err := os.ReadFile(s.licenseFile)
 	if err != nil {
 		return domain.Community() // no license installed → community

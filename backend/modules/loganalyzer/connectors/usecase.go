@@ -9,14 +9,18 @@ import (
 )
 
 type QueryUsecase interface {
-	Create(ctx context.Context, q *domain.UtmLogAnalyzerQuery, owner string) (*domain.UtmLogAnalyzerQuery, error)
-	Update(ctx context.Context, q *domain.UtmLogAnalyzerQuery, owner string) (*domain.UtmLogAnalyzerQuery, error)
-	GetByID(ctx context.Context, id uint64) (*domain.UtmLogAnalyzerQuery, error)
-	List(ctx context.Context, f dto.QueryFilter) ([]domain.UtmLogAnalyzerQuery, int64, error)
+	Create(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error)
+	Update(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error)
+	GetByID(ctx context.Context, id uint64) (*domain.SavedQuery, error)
+	List(ctx context.Context, f dto.QueryFilter) ([]domain.SavedQuery, int64, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
 type AnalyzerUsecase interface {
-	TopValues(ctx context.Context, index, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error)
+	TopValues(ctx context.Context, dataset, dataType, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error)
 	ChartView(ctx context.Context, req dto.ChartViewRequest) (*dto.ChartViewResponse, error)
+	Fields(ctx context.Context, dataset string) ([]dto.Field, error)
+	Datasets() []string
+	Search(ctx context.Context, req dto.SearchRequest) (*dto.SearchResponse, error)
+	DataTypes(ctx context.Context, dataset string) ([]string, error)
 }

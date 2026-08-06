@@ -68,19 +68,45 @@ definitions:
         type: boolean
       domain:
         type: string
+      hostname:
+        type: string
       id:
         type: integer
       lastLogon:
         type: string
       lastSeen:
         type: string
+      machineId:
+        type: string
       samAccountName:
         type: string
       sid:
         type: string
+      source:
+        type: string
       tenantId:
         type: string
+      uidNumber:
+        type: string
+      username:
+        type: string
     type: object
+  domain.Agg:
+    enum:
+    - count
+    - count_distinct
+    - sum
+    - avg
+    - min
+    - max
+    type: string
+    x-enum-varnames:
+    - AggCount
+    - AggCountDistinct
+    - AggSum
+    - AggAvg
+    - AggMin
+    - AggMax
   domain.AlertEvent:
     properties:
       id:
@@ -103,6 +129,18 @@ definitions:
       user:
         type: string
     type: object
+  domain.Chart:
+    enum:
+    - metric
+    - category
+    - time
+    - table
+    type: string
+    x-enum-varnames:
+    - ChartMetric
+    - ChartCategory
+    - ChartTime
+    - ChartTable
   domain.Check:
     properties:
       expected:
@@ -229,6 +267,14 @@ definitions:
       reason:
         type: string
     type: object
+  domain.Filter:
+    properties:
+      field:
+        type: string
+      op:
+        type: string
+      value: {}
+    type: object
   domain.Framework:
     properties:
       description:
@@ -324,20 +370,10 @@ definitions:
       source:
         type: string
     type: object
-  domain.License:
+  domain.Limits:
     properties:
-      datasources:
-        description: cap; 0 = unlimited
+      maxAIRequests:
         type: integer
-      edition:
-        $ref: '#/definitions/domain.Edition'
-      expiresAt:
-        type: string
-      mssp:
-        type: boolean
-      type:
-        description: online | offline ("" when community)
-        type: string
     type: object
   domain.MailConfig:
     properties:
@@ -353,6 +389,13 @@ definitions:
         description: SMTP submission ports (587/465/25) exceed uint8
         type: integer
       username:
+        type: string
+    type: object
+  domain.Metric:
+    properties:
+      agg:
+        $ref: '#/definitions/domain.Agg'
+      field:
         type: string
     type: object
   domain.NonExecutionCause:
@@ -728,6 +771,68 @@ definitions:
       windowsServiceName:
         type: string
     type: object
+  domain.Spec:
+    properties:
+      chart:
+        allOf:
+        - $ref: '#/definitions/domain.Chart'
+        description: decides which aggregation answers it
+      columns:
+        description: table charts only
+        items:
+          type: string
+        type: array
+      dataType:
+        description: |-
+          DataType narrows to one kind of record inside it — o365, wineventlog,
+          syslog. It is the other half of what an index pattern was: v11-log-o365-*
+          named a table and a data type at once. Empty means every kind, and
+          anything broader than one exact type is a filter.
+        type: string
+      dataset:
+        description: logs | alerts
+        type: string
+      dimension:
+        description: what it is broken down by
+        type: string
+      filters:
+        items:
+          $ref: '#/definitions/domain.Filter'
+        type: array
+      from:
+        type: string
+      interval:
+        description: 'time charts: 1m, 5m, 1h, 1d…'
+        type: string
+      limit:
+        type: integer
+      metric:
+        allOf:
+        - $ref: '#/definitions/domain.Metric'
+        description: what is counted or summed
+      to:
+        type: string
+    type: object
+  domain.SupportAccess:
+    enum:
+    - NONE
+    - READ
+    - FULL
+    type: string
+    x-enum-varnames:
+    - SupportNone
+    - SupportRead
+    - SupportFull
+  domain.TenantStatus:
+    enum:
+    - ACTIVE
+    - SUSPENDED
+    - TERMINATED
+    type: string
+    x-enum-varnames:
+    - StatusActive
+    - StatusSuspended
+    - StatusTerminated
   domain.UpdateManagedIndexPolicyResponse:
     properties:
       failed_indices:
@@ -953,15 +1058,16 @@ definitions:
         type: string
       creationDate:
         type: string
-      dataOrigin:
+      dataset:
+        description: |-
+          Dataset is what the query reads: logs or alerts. It replaced a foreign
+          key into the index-pattern registry, which the event store has no need of.
         type: string
       description:
         type: string
       filters:
         type: string
       id:
-        type: integer
-      idPattern:
         type: integer
       modificationDate:
         type: string
@@ -984,7 +1090,7 @@ definitions:
         type: string
       modifiedDate:
         type: string
-      sqlQuery:
+      spec:
         type: string
       systemOwner:
         type: boolean
@@ -997,6 +1103,8 @@ definitions:
         items:
           $ref: '#/definitions/dto.DomainCount'
         type: array
+      by_source:
+        $ref: '#/definitions/dto.SourceCount'
       deleted:
         type: integer
       disabled:
@@ -1007,10 +1115,6 @@ definitions:
         type: integer
       stale:
         type: integer
-      tenants:
-        items:
-          type: string
-        type: array
       total:
         type: integer
     type: object
@@ -1066,6 +1170,11 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+      tenantId:
+        description: |-
+          TenantID keeps a tenant's rules from being applied to another's alerts:
+          the plugin caches every tenant's rules in one process.
         type: string
     type: object
   dto.AddAlertsRequest:
@@ -1279,6 +1388,10 @@ definitions:
     type: object
   dto.ChartViewRequest:
     properties:
+      dataType:
+        type: string
+      dataset:
+        type: string
       field:
         type: string
       fieldDataType:
@@ -1287,8 +1400,6 @@ definitions:
         items:
           $ref: '#/definitions/common_models.FilterType'
         type: array
-      indexPattern:
-        type: string
       interval:
         type: string
       top:
@@ -1329,6 +1440,36 @@ definitions:
     properties:
       health:
         $ref: '#/definitions/dto.ClusterHealth'
+    type: object
+  dto.CollectorResponse:
+    properties:
+      hostname:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      lastSeen:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  dto.ConfigKnowledgeResponse:
+    properties:
+      accepted:
+        type: boolean
+      errorMessage:
+        type: string
+      generatedSecret:
+        description: |-
+          GeneratedSecret is only populated when a brand-new bearer/hmac token was
+          generated for the first time; never re-exposed on subsequent enables of
+          the same integration.
+        type: string
+      requestId:
+        type: string
     type: object
   dto.ConfigRequest:
     properties:
@@ -1432,6 +1573,11 @@ definitions:
         type: boolean
       technique:
         type: string
+    type: object
+  dto.CountResponse:
+    properties:
+      count:
+        type: integer
     type: object
   dto.CreateActionCommandRequest:
     properties:
@@ -1639,6 +1785,7 @@ definitions:
         - GOOGLE
         - EMAIL_SETTING
         - ALERTS
+        - SYSTEM
       type:
         allOf:
         - $ref: '#/definitions/domain.NotificationType'
@@ -1651,17 +1798,20 @@ definitions:
     - source
     - type
     type: object
-  dto.CreateRegexPatternRequest:
+  dto.CreateRequest:
     properties:
-      patternDefinition:
+      adminEmail:
         type: string
-      patternDescription:
+      adminLogin:
         type: string
-      patternId:
+      domain:
+        type: string
+      name:
         type: string
     required:
-    - patternDefinition
-    - patternId
+    - adminEmail
+    - domain
+    - name
     type: object
   dto.CreateRuleRequest:
     properties:
@@ -1867,6 +2017,24 @@ definitions:
       rulePath:
         type: string
     type: object
+  dto.ExportCorrelationRulesRequest:
+    properties:
+      relPaths:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.Field:
+    properties:
+      filterable:
+        type: boolean
+      name:
+        type: string
+      searchable:
+        type: boolean
+      type:
+        type: string
+    type: object
   dto.FilterResponse:
     properties:
       active:
@@ -1916,6 +2084,29 @@ definitions:
         type: string
       top:
         type: integer
+    type: object
+  dto.GetDataTypeConfigResponse:
+    properties:
+      auth:
+        type: string
+      configStatus:
+        type: string
+      configured:
+        type: boolean
+      enabled:
+        type: boolean
+      lastError:
+        type: string
+      path:
+        type: string
+      port:
+        type: string
+      proto:
+        type: string
+      signatureHeader:
+        type: string
+      tls:
+        type: boolean
     type: object
   dto.IdentityProviderPublic:
     properties:
@@ -2080,18 +2271,28 @@ definitions:
         type: boolean
       domain:
         type: string
+      hostname:
+        type: string
       lastLogon:
         type: string
       lastSeen:
         type: string
+      machineId:
+        type: string
       samAccountName:
         type: string
       sid:
+        description: required when source=windows; enforced in usecase
+        type: string
+      source:
+        description: '"windows"|"linux"; defaults to "windows" if absent'
         type: string
       tenantId:
         type: string
-    required:
-    - sid
+      uidNumber:
+        type: string
+      username:
+        type: string
     type: object
   dto.IngestionStatsBucket:
     properties:
@@ -2406,6 +2607,19 @@ definitions:
           type: string
         type: array
     type: object
+  dto.ResolveLinuxIdentityRequest:
+    properties:
+      hostname:
+        type: string
+      machine_id:
+        type: string
+      tenant_id:
+        type: string
+    required:
+    - hostname
+    - machine_id
+    - tenant_id
+    type: object
   dto.RoleDetailResponse:
     properties:
       description:
@@ -2515,12 +2729,73 @@ definitions:
       user_agent:
         type: string
     type: object
+  dto.SetDataTypeConfigRequest:
+    properties:
+      auth:
+        type: string
+      enabled:
+        type: boolean
+      path:
+        type: string
+      port:
+        type: string
+      proto:
+        type: string
+      signatureHeader:
+        type: string
+      tls:
+        type: boolean
+    required:
+    - enabled
+    - proto
+    type: object
+  dto.SetForwarderCertificatesRequest:
+    properties:
+      caPem:
+        type: string
+      certPem:
+        type: string
+      keyPem:
+        type: string
+    required:
+    - certPem
+    - keyPem
+    type: object
+  dto.SourceCount:
+    properties:
+      linux:
+        type: integer
+      windows:
+        type: integer
+    type: object
   dto.SqlSearchDto:
     properties:
       fetchSize:
         type: integer
       query:
         type: string
+    type: object
+  dto.SupportAccessRequest:
+    properties:
+      supportAccess:
+        $ref: '#/definitions/domain.SupportAccess'
+    required:
+    - supportAccess
+    type: object
+  dto.TLSStatusResponse:
+    properties:
+      available:
+        type: boolean
+      caExists:
+        type: boolean
+      certExists:
+        type: boolean
+      error:
+        type: string
+      keyExists:
+        type: boolean
+      valid:
+        type: boolean
     type: object
   dto.TemplateResponse:
     properties:
@@ -2937,17 +3212,17 @@ definitions:
       prettyName:
         type: string
     type: object
-  dto.UpdateRegexPatternRequest:
+  dto.UpdateRequest:
     properties:
-      patternDefinition:
+      domain:
         type: string
-      patternDescription:
+      maxAIRequests:
+        description: A limit left out keeps its value; zero lifts it.
+        type: integer
+      name:
         type: string
-      patternId:
-        type: string
-    required:
-    - patternDefinition
-    - patternId
+      status:
+        $ref: '#/definitions/domain.TenantStatus'
     type: object
   dto.UpdateRuleRequest:
     properties:
@@ -3065,20 +3340,6 @@ definitions:
         type: string
       value:
         type: string
-    type: object
-  dto.UsageResponse:
-    properties:
-      count:
-        type: integer
-      limit:
-        description: effective cap; 0 when unlimited
-        type: integer
-      overLimit:
-        description: count exceeds the cap (data beyond it is at risk)
-        type: boolean
-      unlimited:
-        description: true for an unlimited enterprise license
-        type: boolean
     type: object
   dto.UserAssignedDTO:
     properties:
@@ -3288,6 +3549,12 @@ definitions:
         additionalProperties:
           type: string
         type: object
+      inherited:
+        description: |-
+          Inherited reports that this is the instance default rather than the
+          tenant's own, so the UI can say so and offer to stop inheriting — or, if
+          it already has its own, offer to go back.
+        type: boolean
       maxTokens:
         type: integer
       maxToolIterations:
@@ -3298,6 +3565,23 @@ definitions:
         type: string
       url:
         type: string
+    type: object
+  github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant:
+    properties:
+      createdAt:
+        type: string
+      domain:
+        type: string
+      id:
+        type: string
+      limits:
+        $ref: '#/definitions/domain.Limits'
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/domain.TenantStatus'
+      supportAccess:
+        $ref: '#/definitions/domain.SupportAccess'
     type: object
   handler.chatRequest:
     properties:
@@ -3315,6 +3599,78 @@ definitions:
       connectionKey:
         type: string
     type: object
+  handler.licenseView:
+    properties:
+      edition:
+        $ref: '#/definitions/domain.Edition'
+      expiresAt:
+        type: string
+      ingestGbPerMonth:
+        type: integer
+      mssp:
+        type: boolean
+      type:
+        type: string
+    type: object
+  handler.usageResponse:
+    properties:
+      limit:
+        description: 0 means no limit
+        type: integer
+      remaining:
+        description: absent when there is no limit
+        type: integer
+      resetsAt:
+        type: string
+      used:
+        type: integer
+    type: object
+  store.Bucket:
+    properties:
+      count:
+        type: integer
+      key:
+        type: string
+    type: object
+  store.Point:
+    properties:
+      at:
+        type: string
+      count:
+        type: integer
+    type: object
+  store.Series:
+    properties:
+      key:
+        type: string
+      points:
+        items:
+          $ref: '#/definitions/store.Point'
+        type: array
+    type: object
+  usecase.Result:
+    properties:
+      buckets:
+        items:
+          $ref: '#/definitions/store.Bucket'
+        type: array
+      points:
+        items:
+          $ref: '#/definitions/store.Point'
+        type: array
+      rows:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+      series:
+        items:
+          $ref: '#/definitions/store.Series'
+        type: array
+      total:
+        type: integer
+    type: object
 info:
   contact: {}
   description: UTMStack backend API — manages IAM, modules, flows, incidents, compliance
@@ -3324,13 +3680,8 @@ info:
 paths:
   /ad-audit/stats:
     get:
-      description: 'Roll-up for the User Auditor overview: lifecycle counts, by-domain
-        breakdown and the distinct tenant list.'
-      parameters:
-      - description: Scope the counts to a tenant
-        in: query
-        name: tenantId
-        type: string
+      description: 'Roll-up for the User Auditor overview: lifecycle counts and by-domain
+        breakdown, scoped to the caller''s tenant.'
       produces:
       - application/json
       responses:
@@ -3352,13 +3703,13 @@ paths:
   /ad-audit/users:
     get:
       parameters:
-      - description: Substring on samAccountName/sid
+      - description: Substring on samAccountName/sid/username
         in: query
         name: search
         type: string
-      - description: Filter by tenant
+      - description: 'Filter by source: windows | linux (omit for all)'
         in: query
-        name: tenantId
+        name: source
         type: string
       - description: Filter by active
         in: query
@@ -3394,6 +3745,12 @@ paths:
             items:
               $ref: '#/definitions/domain.ADUser'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -3441,10 +3798,55 @@ paths:
       summary: Ingest AD users (internal)
       tags:
       - AD Audit
+  /ad-audit/users/resolve:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Internal endpoint the ad-audit plugin calls once it learns the
+        machine-id for a host that already has provisional Linux user rows
+        (machine_id IS NULL).
+      parameters:
+      - description: Resolution payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResolveLinuxIdentityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resolve provisional Linux user rows (internal)
+      tags:
+      - AD Audit
   /ad-audit/users/sync:
     get:
-      description: Internal endpoint the ad-audit plugin calls at startup to seed
-        its in-memory cache.
+      description: |-
+        Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache.
+        Accepts an optional `source` filter so the plugin can seed its Windows and Linux
+      parameters:
+      - description: 'Filter by source: windows | linux (omit for all)'
+        in: query
+        name: source
+        type: string
       produces:
       - application/json
       responses:
@@ -3454,6 +3856,12 @@ paths:
             items:
               $ref: '#/definitions/domain.ADUser'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -4481,7 +4889,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.License'
+            $ref: '#/definitions/handler.licenseView'
       security:
       - BearerAuth: []
       summary: Get the evaluated license / edition
@@ -4506,7 +4914,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.License'
+            $ref: '#/definitions/handler.licenseView'
         "400":
           description: Bad Request
           schema:
@@ -5787,8 +6195,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No content
+        "200":
+          description: 'changed: true if this call actually flipped the rule''s state'
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5804,6 +6216,49 @@ paths:
       security:
       - BearerAuth: []
       summary: Activate or deactivate a correlation rule
+      tags:
+      - Correlation Rules
+  /correlation-rule/export:
+    post:
+      consumes:
+      - application/json
+      description: Bundles the requested rules (by relPath) into a single zip of their
+        YAML files.
+      parameters:
+      - description: Rule identifiers to export
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ExportCorrelationRulesRequest'
+      produces:
+      - application/zip
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Export correlation rules as a zip
       tags:
       - Correlation Rules
   /correlation-rule/import:
@@ -6195,7 +6650,7 @@ paths:
       summary: Rotate the agent-installation connection key
       tags:
       - Datasources
-  /datasources/usage:
+  /datasources/count:
     get:
       produces:
       - application/json
@@ -6203,7 +6658,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UsageResponse'
+            $ref: '#/definitions/dto.CountResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6212,7 +6667,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Datasource usage vs license limit (for the usage banner)
+      summary: Number of configured datasources
       tags:
       - Datasources
   /date-format:
@@ -6700,112 +7155,7 @@ paths:
       summary: List regex patterns
       tags:
       - Event Processing
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: patternId + definition
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateRegexPatternRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.RegexPatternResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create regex pattern
-      tags:
-      - Event Processing
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: patternId + new definition
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateRegexPatternRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.RegexPatternResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update regex pattern
-      tags:
-      - Event Processing
   /eventprocessing/regex-pattern/{id}:
-    delete:
-      parameters:
-      - description: Pattern ID (system patterns cannot be deleted)
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete regex pattern
-      tags:
-      - Event Processing
     get:
       parameters:
       - description: Pattern ID (e.g. ipv4)
@@ -8129,6 +8479,253 @@ paths:
       summary: List integration module categories
       tags:
       - Integrations
+  /integrations/collectors:
+    get:
+      description: |-
+        Lists every registered forwarder-module collector (the picker
+        feed), each tagged with status "online" or "offline". Only
+        online ones can currently receive a config push.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CollectorResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List forwarder collectors
+      tags:
+      - Integrations
+  /integrations/collectors/{id}/certificates:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Forwards a base64-encoded PEM cert/key/(optional CA) triple
+        to agent-manager's reserved __tls_certs__ SetCollectorConfig
+        channel (action:"apply") and blocks until the forwarder
+        acknowledges. The backend never encrypts this payload —
+        agent-manager seals it before relaying to the forwarder.
+      parameters:
+      - description: Collector ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Base64-encoded PEM cert/key/(optional) CA
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SetForwarderCertificatesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConfigKnowledgeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "504":
+          description: Gateway Timeout
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Push cert/key/(optional CA) certificates to a forwarder
+      tags:
+      - Integrations
+  /integrations/collectors/{id}/data-types/{dataType}:
+    get:
+      description: |-
+        Reads back the collector_integration_config row agent-manager
+        already persisted for this (collector, data_type) pair — a
+        pure read, no CollectorStream push involved. configured=false
+        means the integration was never remotely enabled/disabled for
+        this collector.
+      parameters:
+      - description: Collector ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data type / integration name
+        in: path
+        name: dataType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetDataTypeConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get the persisted desired-state config of a data-type integration
+      tags:
+      - Integrations
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Pushes a remote config to the forwarder collector via
+        agent-manager's SetCollectorConfig RPC and blocks until the
+        collector acknowledges (or the request times out).
+      parameters:
+      - description: Collector ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data type / integration name
+        in: path
+        name: dataType
+        required: true
+        type: string
+      - description: Desired config
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SetDataTypeConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConfigKnowledgeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "504":
+          description: Gateway Timeout
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Enable or disable a data-type integration on a forwarder
+      tags:
+      - Integrations
+  /integrations/collectors/{id}/tls-status:
+    get:
+      description: |-
+        Queries the forwarder's on-disk TLS certificate state via
+        the same reserved __tls_certs__ channel (action:"status").
+        No secret material travels in the response.
+      parameters:
+      - description: Collector ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TLSStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "504":
+          description: Gateway Timeout
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a forwarder collector's current TLS certificate status
+      tags:
+      - Integrations
   /integrations/data-types:
     get:
       description: |-
@@ -8345,6 +8942,52 @@ paths:
       summary: Chart/timeline aggregation
       tags:
       - Log Analyzer
+  /log-analyzer/datasets:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: What can be explored
+      tags:
+      - Log Analyzer
+  /log-analyzer/datasets/{dataset}/fields:
+    get:
+      description: The columns it has, from the store itself rather than a registry
+        — so a field that exists is offered and one that does not is not.
+      parameters:
+      - description: logs | alerts
+        in: path
+        name: dataset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.Field'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: What can be asked of a dataset
+      tags:
+      - Log Analyzer
   /log-analyzer/queries:
     get:
       parameters:
@@ -8517,7 +9160,7 @@ paths:
       summary: Get a saved log-analyzer query by id
       tags:
       - Log Analyzer
-  /log-analyzer/top-x-values/{indexPattern}/{field}/{top}:
+  /log-analyzer/top-x-values/{dataset}/{field}/{top}:
     post:
       consumes:
       - application/json
@@ -8526,7 +9169,7 @@ paths:
       parameters:
       - description: Index pattern
         in: path
-        name: indexPattern
+        name: dataset
         required: true
         type: string
       - description: Field to aggregate
@@ -10898,6 +11541,34 @@ paths:
       tags:
       - SOC AI
   /soc-ai/config:
+    delete:
+      description: Drops this tenant's own configuration so it goes back to inheriting
+        the instance default. Refused for a caller acting for no tenant, since the
+        default is not an override.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Stop overriding the SOC AI configuration
+      tags:
+      - SOC AI
     get:
       description: Returns the current soc-ai plugin configuration with secrets masked.
       produces:
@@ -10955,6 +11626,28 @@ paths:
       summary: Update SOC AI configuration
       tags:
       - SOC AI
+  /soc-ai/usage:
+    get:
+      description: The window is the calendar day in UTC. A limit of 0 means no limit,
+        and remaining is then absent.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.usageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: What this tenant has spent on AI today
+      tags:
+      - SOC AI
   /sso/saml/{name}/acs:
     post:
       consumes:
@@ -10994,6 +11687,195 @@ paths:
       summary: Start SAML SSO login
       tags:
       - SSO
+  /tenants:
+    get:
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by domain
+        in: query
+        name: domain
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List tenants
+      tags:
+      - Tenants
+    post:
+      consumes:
+      - application/json
+      description: Provisions a tenant. Limited to administrators of the default tenant,
+        which is the platform plane.
+      parameters:
+      - description: Tenant to provision
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Provision a tenant
+      tags:
+      - Tenants
+  /tenants/{id}:
+    delete:
+      description: 'Marks the tenant for deletion. The row and its data are kept:
+        an operator has to be able to see what was terminated.'
+      parameters:
+      - description: Tenant id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Terminate a tenant
+      tags:
+      - Tenants
+    get:
+      parameters:
+      - description: Tenant id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a tenant
+      tags:
+      - Tenants
+    put:
+      consumes:
+      - application/json
+      description: Renames a tenant, corrects its domain, changes its status or sets
+        what its plan allows.
+      parameters:
+      - description: Tenant id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to change
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a tenant
+      tags:
+      - Tenants
+  /tenants/{id}/support-access:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Access level
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SupportAccessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Grant or revoke platform support access to this tenant
+      tags:
+      - Tenants
   /tfa/complete:
     post:
       consumes:
@@ -11842,6 +12724,38 @@ paths:
       summary: Get a visualization by id
       tags:
       - Visualizations
+  /visualizations/query:
+    post:
+      consumes:
+      - application/json
+      description: Takes the question a widget asks — dataset, aggregation, breakdown,
+        filters — and answers it against the event store. The tenant comes from the
+        session and cannot be named in the request.
+      parameters:
+      - description: What to ask
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Spec'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecase.Result'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Answer a visualization
+      tags:
+      - Dashboards
 schemes:
 - https
 - http

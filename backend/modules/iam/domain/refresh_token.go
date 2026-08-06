@@ -1,11 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type RefreshToken struct {
-	ID        uint64    `gorm:"primaryKey;autoIncrement"`
-	UserID    uint64    `gorm:"index;not null"`
-	TenantID  string    `gorm:"column:tenant_id;size:36;not null;default:'';index"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+	UserID    uuid.UUID `gorm:"type:uuid;index;not null"`
+	TenantID  uuid.UUID `gorm:"column:tenant_id;type:uuid;not null;index"`
 	TokenHash string    `gorm:"size:64;uniqueIndex;not null"`
 	ExpiresAt time.Time `gorm:"not null;index"`
 	RevokedAt *time.Time
@@ -15,10 +19,3 @@ type RefreshToken struct {
 }
 
 func (RefreshToken) TableName() string { return "refresh_tokens" }
-
-func (t *RefreshToken) IsValid(now time.Time) bool {
-	if t.RevokedAt != nil {
-		return false
-	}
-	return now.Before(t.ExpiresAt)
-}

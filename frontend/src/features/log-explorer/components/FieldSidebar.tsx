@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
-import type { FilterType, IndexField, IndexPattern } from '../types/log-explorer.types'
+import type { FilterType, IndexField } from '../types/log-explorer.types'
 import { FieldItem } from './FieldItem'
 import { SidebarSectionLabel } from './SidebarSectionLabel'
 
@@ -17,7 +17,7 @@ function FieldSidebarImpl({
   onToggleColumn,
 }: {
   fields: IndexField[]
-  pattern: IndexPattern | null
+  pattern: string | null
   filters: FilterType[]
   columns: string[]
   onAdd: (f: FilterType) => void

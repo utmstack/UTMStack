@@ -143,6 +143,11 @@ type notifyRequest struct {
 	Message string `json:"message"`
 }
 
+// platformTenant receives the flood notifications. A rule that floods is
+// deactivated for the whole instance and the rules are not a tenant's to
+// re-enable, so the operator is the one who has to know.
+const platformTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+
 func (c *backendClient) Notify(ctx context.Context, message string) error {
 	payload, err := json.Marshal(notifyRequest{Source: "SYSTEM", Type: "WARNING", Message: message})
 	if err != nil {
@@ -154,6 +159,7 @@ func (c *backendClient) Notify(ctx context.Context, message string) error {
 		return err
 	}
 	req.Header.Set("X-Internal-Key", c.internalKey)
+	req.Header.Set("X-Tenant-Id", platformTenant)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)

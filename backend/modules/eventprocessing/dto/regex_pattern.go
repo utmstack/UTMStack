@@ -1,19 +1,8 @@
 package dto
 
 // Identity for regex patterns is patternId (the {{.name}} reference used in
-// filter YAMLs). System patterns cannot be modified or deleted.
-
-type CreateRegexPatternRequest struct {
-	PatternID          string `json:"patternId"          binding:"required"`
-	PatternDescription string `json:"patternDescription"`
-	PatternDefinition  string `json:"patternDefinition"  binding:"required"`
-}
-
-type UpdateRegexPatternRequest struct {
-	PatternID          string `json:"patternId"          binding:"required"`
-	PatternDescription string `json:"patternDescription"`
-	PatternDefinition  string `json:"patternDefinition"  binding:"required"`
-}
+// filter YAMLs). Patterns are read-only — a shared vocabulary seeded by the
+// pipeline bootstrap — so there are no create or update request types.
 
 type RegexPatternResponse struct {
 	PatternID          string `json:"patternId"`

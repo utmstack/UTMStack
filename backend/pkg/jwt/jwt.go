@@ -2,31 +2,33 @@ package jwt
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 const Issuer = "utmstack-backend"
 
 type Claims struct {
-	Login       string   `json:"login"`
-	Email       string   `json:"email,omitempty"`
-	Permissions []string `json:"permissions,omitempty"`
-	Roles       []string `json:"roles,omitempty"`
-	SessionID   uint64   `json:"sid,omitempty"`
-	TenantID    string   `json:"tid,omitempty"`
+	Email       string    `json:"email,omitempty"`
+	Permissions []string  `json:"permissions,omitempty"`
+	Roles       []string  `json:"roles,omitempty"`
+	SessionID   uuid.UUID `json:"sid,omitempty"`
+	TenantID    string    `json:"tid,omitempty"`
+	// Platform marks the instance operator, so a browser can hide what only
+	// they may reach. The server still decides; this is for the UI.
+	Platform bool `json:"platform,omitempty"`
 	jwt.RegisteredClaims
 }
 
-func (c *Claims) UserID() (uint64, error) {
+func (c *Claims) UserID() (uuid.UUID, error) {
 	if c.Subject == "" {
-		return 0, errors.New("missing subject claim")
+		return uuid.Nil, errors.New("missing subject claim")
 	}
-	id, err := strconv.ParseUint(c.Subject, 10, 64)
+	id, err := uuid.Parse(c.Subject)
 	if err != nil {
-		return 0, errors.New("invalid subject claim")
+		return uuid.Nil, errors.New("invalid subject claim")
 	}
 	return id, nil
 }
@@ -40,18 +42,18 @@ func NewSigner(secret string, ttl time.Duration) *Signer {
 	return &Signer{secret: []byte(secret), ttl: ttl}
 }
 
-func (s *Signer) Sign(userID uint64, login, email string, permissions, roles []string, sessionID uint64, tenantID string) (string, time.Time, error) {
+func (s *Signer) Sign(userID uuid.UUID, email string, permissions, roles []string, sessionID uuid.UUID, tenantID string, platform bool) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(s.ttl)
 	claims := Claims{
-		Login:       login,
 		Email:       email,
 		Permissions: permissions,
 		Roles:       roles,
 		SessionID:   sessionID,
 		TenantID:    tenantID,
+		Platform:    platform,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.FormatUint(userID, 10),
+			Subject:   userID.String(),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			Issuer:    Issuer,

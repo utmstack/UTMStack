@@ -19,7 +19,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Roll-up for the User Auditor overview: lifecycle counts, by-domain breakdown and the distinct tenant list.",
+                "description": "Roll-up for the User Auditor overview: lifecycle counts and by-domain breakdown, scoped to the caller's tenant.",
                 "produces": [
                     "application/json"
                 ],
@@ -27,14 +27,6 @@
                     "AD Audit"
                 ],
                 "summary": "AD user inventory stats",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Scope the counts to a tenant",
-                        "name": "tenantId",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -71,14 +63,14 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Substring on samAccountName/sid",
+                        "description": "Substring on samAccountName/sid/username",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Filter by tenant",
-                        "name": "tenantId",
+                        "description": "Filter by source: windows | linux (omit for all)",
+                        "name": "source",
                         "in": "query"
                     },
                     {
@@ -125,6 +117,15 @@
                             "X-Total-Count": {
                                 "type": "string",
                                 "description": "Total records"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -193,9 +194,64 @@
                 }
             }
         },
+        "/ad-audit/users/resolve": {
+            "post": {
+                "description": "Internal endpoint the ad-audit plugin calls once it learns the\nmachine-id for a host that already has provisional Linux user rows\n(machine_id IS NULL).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AD Audit"
+                ],
+                "summary": "Resolve provisional Linux user rows (internal)",
+                "parameters": [
+                    {
+                        "description": "Resolution payload",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResolveLinuxIdentityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ad-audit/users/sync": {
             "get": {
-                "description": "Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache.",
+                "description": "Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache.\nAccepts an optional `source` filter so the plugin can seed its Windows and Linux",
                 "produces": [
                     "application/json"
                 ],
@@ -203,6 +259,14 @@
                     "AD Audit"
                 ],
                 "summary": "Export all AD users (internal)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by source: windows | linux (omit for all)",
+                        "name": "source",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -210,6 +274,15 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/domain.ADUser"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -1828,7 +1901,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.License"
+                            "$ref": "#/definitions/handler.licenseView"
                         }
                     }
                 }
@@ -1863,7 +1936,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.License"
+                            "$ref": "#/definitions/handler.licenseView"
                         }
                     },
                     "400": {
@@ -3745,11 +3818,83 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No content"
+                    "200": {
+                        "description": "changed: true if this call actually flipped the rule's state",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/correlation-rule/export": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Bundles the requested rules (by relPath) into a single zip of their YAML files.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/zip"
+                ],
+                "tags": [
+                    "Correlation Rules"
+                ],
+                "summary": "Export correlation rules as a zip",
+                "parameters": [
+                    {
+                        "description": "Rule identifiers to export",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ExportCorrelationRulesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -4466,7 +4611,7 @@
                 }
             }
         },
-        "/datasources/usage": {
+        "/datasources/count": {
             "get": {
                 "security": [
                     {
@@ -4479,12 +4624,12 @@
                 "tags": [
                     "Datasources"
                 ],
-                "summary": "Datasource usage vs license limit (for the usage banner)",
+                "summary": "Number of configured datasources",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UsageResponse"
+                            "$ref": "#/definitions/dto.CountResponse"
                         }
                     },
                     "500": {
@@ -5248,114 +5393,6 @@
                         }
                     }
                 }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Update regex pattern",
-                "parameters": [
-                    {
-                        "description": "patternId + new definition",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateRegexPatternRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.RegexPatternResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Create regex pattern",
-                "parameters": [
-                    {
-                        "description": "patternId + definition",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateRegexPatternRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.RegexPatternResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
             }
         },
         "/eventprocessing/regex-pattern/{id}": {
@@ -5386,64 +5423,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.RegexPatternResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Delete regex pattern",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Pattern ID (system patterns cannot be deleted)",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
                         }
                     },
                     "404": {
@@ -7339,6 +7318,359 @@
                 }
             }
         },
+        "/integrations/collectors": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists every registered forwarder-module collector (the picker\nfeed), each tagged with status \"online\" or \"offline\". Only\nonline ones can currently receive a config push.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "List forwarder collectors",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.CollectorResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/integrations/collectors/{id}/certificates": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Forwards a base64-encoded PEM cert/key/(optional CA) triple\nto agent-manager's reserved __tls_certs__ SetCollectorConfig\nchannel (action:\"apply\") and blocks until the forwarder\nacknowledges. The backend never encrypts this payload —\nagent-manager seals it before relaying to the forwarder.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Push cert/key/(optional CA) certificates to a forwarder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collector ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Base64-encoded PEM cert/key/(optional) CA",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SetForwarderCertificatesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ConfigKnowledgeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/integrations/collectors/{id}/data-types/{dataType}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reads back the collector_integration_config row agent-manager\nalready persisted for this (collector, data_type) pair — a\npure read, no CollectorStream push involved. configured=false\nmeans the integration was never remotely enabled/disabled for\nthis collector.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Get the persisted desired-state config of a data-type integration",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collector ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Data type / integration name",
+                        "name": "dataType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetDataTypeConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Pushes a remote config to the forwarder collector via\nagent-manager's SetCollectorConfig RPC and blocks until the\ncollector acknowledges (or the request times out).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Enable or disable a data-type integration on a forwarder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collector ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Data type / integration name",
+                        "name": "dataType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Desired config",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SetDataTypeConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ConfigKnowledgeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/integrations/collectors/{id}/tls-status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Queries the forwarder's on-disk TLS certificate state via\nthe same reserved __tls_certs__ channel (action:\"status\").\nNo secret material travels in the response.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Get a forwarder collector's current TLS certificate status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collector ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TLSStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/integrations/data-types": {
             "get": {
                 "security": [
@@ -7851,6 +8183,79 @@
                 }
             }
         },
+        "/log-analyzer/datasets": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log Analyzer"
+                ],
+                "summary": "What can be explored",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/log-analyzer/datasets/{dataset}/fields": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The columns it has, from the store itself rather than a registry — so a field that exists is offered and one that does not is not.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log Analyzer"
+                ],
+                "summary": "What can be asked of a dataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "logs | alerts",
+                        "name": "dataset",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.Field"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/log-analyzer/queries": {
             "get": {
                 "security": [
@@ -8122,7 +8527,7 @@
                 }
             }
         },
-        "/log-analyzer/top-x-values/{indexPattern}/{field}/{top}": {
+        "/log-analyzer/top-x-values/{dataset}/{field}/{top}": {
             "post": {
                 "security": [
                     {
@@ -8144,7 +8549,7 @@
                     {
                         "type": "string",
                         "description": "Index pattern",
-                        "name": "indexPattern",
+                        "name": "dataset",
                         "in": "path",
                         "required": true
                     },
@@ -11904,6 +12309,81 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Drops this tenant's own configuration so it goes back to inheriting the instance default. Refused for a caller acting for no tenant, since the default is not an override.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SOC AI"
+                ],
+                "summary": "Stop overriding the SOC AI configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_socai_dto.ConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/soc-ai/usage": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "The window is the calendar day in UTC. A limit of 0 means no limit, and remaining is then absent.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SOC AI"
+                ],
+                "summary": "What this tenant has spent on AI today",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.usageResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/sso/saml/{name}/acs": {
@@ -11958,6 +12438,299 @@
                 "responses": {
                     "302": {
                         "description": "Redirect to the app with ?error=saml2"
+                    }
+                }
+            }
+        },
+        "/tenants": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "List tenants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by domain",
+                        "name": "domain",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Provisions a tenant. Limited to administrators of the default tenant, which is the platform plane.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Provision a tenant",
+                "parameters": [
+                    {
+                        "description": "Tenant to provision",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Get a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Renames a tenant, corrects its domain, changes its status or sets what its plan allows.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Update a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to change",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Marks the tenant for deletion. The row and its data are kept: an operator has to be able to see what was terminated.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Terminate a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{id}/support-access": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Grant or revoke platform support access to this tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Access level",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SupportAccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
@@ -13214,6 +13987,54 @@
                 }
             }
         },
+        "/visualizations/query": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Takes the question a widget asks — dataset, aggregation, breakdown, filters — and answers it against the event store. The tenant comes from the session and cannot be named in the request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Answer a visualization",
+                "parameters": [
+                    {
+                        "description": "What to ask",
+                        "name": "spec",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Spec"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.Result"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/visualizations/{id}": {
             "get": {
                 "security": [
@@ -13381,6 +14202,9 @@
                 "domain": {
                     "type": "string"
                 },
+                "hostname": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -13390,16 +14214,47 @@
                 "lastSeen": {
                     "type": "string"
                 },
+                "machineId": {
+                    "type": "string"
+                },
                 "samAccountName": {
                     "type": "string"
                 },
                 "sid": {
                     "type": "string"
                 },
+                "source": {
+                    "type": "string"
+                },
                 "tenantId": {
+                    "type": "string"
+                },
+                "uidNumber": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
+        },
+        "domain.Agg": {
+            "type": "string",
+            "enum": [
+                "count",
+                "count_distinct",
+                "sum",
+                "avg",
+                "min",
+                "max"
+            ],
+            "x-enum-varnames": [
+                "AggCount",
+                "AggCountDistinct",
+                "AggSum",
+                "AggAvg",
+                "AggMin",
+                "AggMax"
+            ]
         },
         "domain.AlertEvent": {
             "type": "object",
@@ -13433,6 +14288,21 @@
                     "type": "string"
                 }
             }
+        },
+        "domain.Chart": {
+            "type": "string",
+            "enum": [
+                "metric",
+                "category",
+                "time",
+                "table"
+            ],
+            "x-enum-varnames": [
+                "ChartMetric",
+                "ChartCategory",
+                "ChartTime",
+                "ChartTable"
+            ]
         },
         "domain.Check": {
             "type": "object",
@@ -13617,6 +14487,18 @@
                 }
             }
         },
+        "domain.Filter": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "op": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
         "domain.Framework": {
             "type": "object",
             "properties": {
@@ -13762,25 +14644,11 @@
                 }
             }
         },
-        "domain.License": {
+        "domain.Limits": {
             "type": "object",
             "properties": {
-                "datasources": {
-                    "description": "cap; 0 = unlimited",
+                "maxAIRequests": {
                     "type": "integer"
-                },
-                "edition": {
-                    "$ref": "#/definitions/domain.Edition"
-                },
-                "expiresAt": {
-                    "type": "string"
-                },
-                "mssp": {
-                    "type": "boolean"
-                },
-                "type": {
-                    "description": "online | offline (\"\" when community)",
-                    "type": "string"
                 }
             }
         },
@@ -13804,6 +14672,17 @@
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Metric": {
+            "type": "object",
+            "properties": {
+                "agg": {
+                    "$ref": "#/definitions/domain.Agg"
+                },
+                "field": {
                     "type": "string"
                 }
             }
@@ -14335,6 +15214,91 @@
                 }
             }
         },
+        "domain.Spec": {
+            "type": "object",
+            "properties": {
+                "chart": {
+                    "description": "decides which aggregation answers it",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Chart"
+                        }
+                    ]
+                },
+                "columns": {
+                    "description": "table charts only",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dataType": {
+                    "description": "DataType narrows to one kind of record inside it — o365, wineventlog,\nsyslog. It is the other half of what an index pattern was: v11-log-o365-*\nnamed a table and a data type at once. Empty means every kind, and\nanything broader than one exact type is a filter.",
+                    "type": "string"
+                },
+                "dataset": {
+                    "description": "logs | alerts",
+                    "type": "string"
+                },
+                "dimension": {
+                    "description": "what it is broken down by",
+                    "type": "string"
+                },
+                "filters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Filter"
+                    }
+                },
+                "from": {
+                    "type": "string"
+                },
+                "interval": {
+                    "description": "time charts: 1m, 5m, 1h, 1d…",
+                    "type": "string"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "metric": {
+                    "description": "what is counted or summed",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Metric"
+                        }
+                    ]
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SupportAccess": {
+            "type": "string",
+            "enum": [
+                "NONE",
+                "READ",
+                "FULL"
+            ],
+            "x-enum-varnames": [
+                "SupportNone",
+                "SupportRead",
+                "SupportFull"
+            ]
+        },
+        "domain.TenantStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "SUSPENDED",
+                "TERMINATED"
+            ],
+            "x-enum-varnames": [
+                "StatusActive",
+                "StatusSuspended",
+                "StatusTerminated"
+            ]
+        },
         "domain.UpdateManagedIndexPolicyResponse": {
             "type": "object",
             "properties": {
@@ -14677,7 +15641,8 @@
                 "creationDate": {
                     "type": "string"
                 },
-                "dataOrigin": {
+                "dataset": {
+                    "description": "Dataset is what the query reads: logs or alerts. It replaced a foreign\nkey into the index-pattern registry, which the event store has no need of.",
                     "type": "string"
                 },
                 "description": {
@@ -14687,9 +15652,6 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
-                },
-                "idPattern": {
                     "type": "integer"
                 },
                 "modificationDate": {
@@ -14724,7 +15686,7 @@
                 "modifiedDate": {
                     "type": "string"
                 },
-                "sqlQuery": {
+                "spec": {
                     "type": "string"
                 },
                 "systemOwner": {
@@ -14744,6 +15706,9 @@
                         "$ref": "#/definitions/dto.DomainCount"
                     }
                 },
+                "by_source": {
+                    "$ref": "#/definitions/dto.SourceCount"
+                },
                 "deleted": {
                     "type": "integer"
                 },
@@ -14758,12 +15723,6 @@
                 },
                 "stale": {
                     "type": "integer"
-                },
-                "tenants": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "total": {
                     "type": "integer"
@@ -14849,6 +15808,10 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "description": "TenantID keeps a tenant's rules from being applied to another's alerts:\nthe plugin caches every tenant's rules in one process.",
                     "type": "string"
                 }
             }
@@ -15170,6 +16133,12 @@
         "dto.ChartViewRequest": {
             "type": "object",
             "properties": {
+                "dataType": {
+                    "type": "string"
+                },
+                "dataset": {
+                    "type": "string"
+                },
                 "field": {
                     "type": "string"
                 },
@@ -15181,9 +16150,6 @@
                     "items": {
                         "$ref": "#/definitions/common_models.FilterType"
                     }
-                },
-                "indexPattern": {
-                    "type": "string"
                 },
                 "interval": {
                     "type": "string"
@@ -15246,6 +16212,47 @@
             "properties": {
                 "health": {
                     "$ref": "#/definitions/dto.ClusterHealth"
+                }
+            }
+        },
+        "dto.CollectorResponse": {
+            "type": "object",
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "lastSeen": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ConfigKnowledgeResponse": {
+            "type": "object",
+            "properties": {
+                "accepted": {
+                    "type": "boolean"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "generatedSecret": {
+                    "description": "GeneratedSecret is only populated when a brand-new bearer/hmac token was\ngenerated for the first time; never re-exposed on subsequent enables of\nthe same integration.",
+                    "type": "string"
+                },
+                "requestId": {
+                    "type": "string"
                 }
             }
         },
@@ -15398,6 +16405,14 @@
                 },
                 "technique": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.CountResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
                 }
             }
         },
@@ -15704,7 +16719,8 @@
                         "SOPHOS",
                         "GOOGLE",
                         "EMAIL_SETTING",
-                        "ALERTS"
+                        "ALERTS",
+                        "SYSTEM"
                     ],
                     "allOf": [
                         {
@@ -15726,20 +16742,24 @@
                 }
             }
         },
-        "dto.CreateRegexPatternRequest": {
+        "dto.CreateRequest": {
             "type": "object",
             "required": [
-                "patternDefinition",
-                "patternId"
+                "adminEmail",
+                "domain",
+                "name"
             ],
             "properties": {
-                "patternDefinition": {
+                "adminEmail": {
                     "type": "string"
                 },
-                "patternDescription": {
+                "adminLogin": {
                     "type": "string"
                 },
-                "patternId": {
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -16049,6 +17069,34 @@
                 }
             }
         },
+        "dto.ExportCorrelationRulesRequest": {
+            "type": "object",
+            "properties": {
+                "relPaths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.Field": {
+            "type": "object",
+            "properties": {
+                "filterable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "searchable": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.FilterResponse": {
             "type": "object",
             "properties": {
@@ -16124,6 +17172,41 @@
                 },
                 "top": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.GetDataTypeConfigResponse": {
+            "type": "object",
+            "properties": {
+                "auth": {
+                    "type": "string"
+                },
+                "configStatus": {
+                    "type": "string"
+                },
+                "configured": {
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "lastError": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "proto": {
+                    "type": "string"
+                },
+                "signatureHeader": {
+                    "type": "string"
+                },
+                "tls": {
+                    "type": "boolean"
                 }
             }
         },
@@ -16361,9 +17444,6 @@
         },
         "dto.IngestUser": {
             "type": "object",
-            "required": [
-                "sid"
-            ],
             "properties": {
                 "accountCreatedAt": {
                     "type": "string"
@@ -16377,19 +17457,36 @@
                 "domain": {
                     "type": "string"
                 },
+                "hostname": {
+                    "type": "string"
+                },
                 "lastLogon": {
                     "type": "string"
                 },
                 "lastSeen": {
                     "type": "string"
                 },
+                "machineId": {
+                    "type": "string"
+                },
                 "samAccountName": {
                     "type": "string"
                 },
                 "sid": {
+                    "description": "required when source=windows; enforced in usecase",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "\"windows\"|\"linux\"; defaults to \"windows\" if absent",
                     "type": "string"
                 },
                 "tenantId": {
+                    "type": "string"
+                },
+                "uidNumber": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -16869,6 +17966,25 @@
                 }
             }
         },
+        "dto.ResolveLinuxIdentityRequest": {
+            "type": "object",
+            "required": [
+                "hostname",
+                "machine_id",
+                "tenant_id"
+            ],
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "tenant_id": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.RoleDetailResponse": {
             "type": "object",
             "properties": {
@@ -17036,6 +18152,65 @@
                 }
             }
         },
+        "dto.SetDataTypeConfigRequest": {
+            "type": "object",
+            "required": [
+                "enabled",
+                "proto"
+            ],
+            "properties": {
+                "auth": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "proto": {
+                    "type": "string"
+                },
+                "signatureHeader": {
+                    "type": "string"
+                },
+                "tls": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.SetForwarderCertificatesRequest": {
+            "type": "object",
+            "required": [
+                "certPem",
+                "keyPem"
+            ],
+            "properties": {
+                "caPem": {
+                    "type": "string"
+                },
+                "certPem": {
+                    "type": "string"
+                },
+                "keyPem": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SourceCount": {
+            "type": "object",
+            "properties": {
+                "linux": {
+                    "type": "integer"
+                },
+                "windows": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.SqlSearchDto": {
             "type": "object",
             "properties": {
@@ -17044,6 +18219,40 @@
                 },
                 "query": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.SupportAccessRequest": {
+            "type": "object",
+            "required": [
+                "supportAccess"
+            ],
+            "properties": {
+                "supportAccess": {
+                    "$ref": "#/definitions/domain.SupportAccess"
+                }
+            }
+        },
+        "dto.TLSStatusResponse": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "caExists": {
+                    "type": "boolean"
+                },
+                "certExists": {
+                    "type": "boolean"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "keyExists": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
                 }
             }
         },
@@ -17674,21 +18883,21 @@
                 }
             }
         },
-        "dto.UpdateRegexPatternRequest": {
+        "dto.UpdateRequest": {
             "type": "object",
-            "required": [
-                "patternDefinition",
-                "patternId"
-            ],
             "properties": {
-                "patternDefinition": {
+                "domain": {
                     "type": "string"
                 },
-                "patternDescription": {
+                "maxAIRequests": {
+                    "description": "A limit left out keeps its value; zero lifts it.",
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 },
-                "patternId": {
-                    "type": "string"
+                "status": {
+                    "$ref": "#/definitions/domain.TenantStatus"
                 }
             }
         },
@@ -17861,26 +19070,6 @@
                 },
                 "value": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.UsageResponse": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "limit": {
-                    "description": "effective cap; 0 when unlimited",
-                    "type": "integer"
-                },
-                "overLimit": {
-                    "description": "count exceeds the cap (data beyond it is at risk)",
-                    "type": "boolean"
-                },
-                "unlimited": {
-                    "description": "true for an unlimited enterprise license",
-                    "type": "boolean"
                 }
             }
         },
@@ -18199,6 +19388,10 @@
                         "type": "string"
                     }
                 },
+                "inherited": {
+                    "description": "Inherited reports that this is the instance default rather than the\ntenant's own, so the UI can say so and offer to stop inheriting — or, if\nit already has its own, offer to go back.",
+                    "type": "boolean"
+                },
                 "maxTokens": {
                     "type": "integer"
                 },
@@ -18213,6 +19406,32 @@
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "limits": {
+                    "$ref": "#/definitions/domain.Limits"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.TenantStatus"
+                },
+                "supportAccess": {
+                    "$ref": "#/definitions/domain.SupportAccess"
                 }
             }
         },
@@ -18238,6 +19457,116 @@
             "properties": {
                 "connectionKey": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.licenseView": {
+            "type": "object",
+            "properties": {
+                "edition": {
+                    "$ref": "#/definitions/domain.Edition"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "ingestGbPerMonth": {
+                    "type": "integer"
+                },
+                "mssp": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.usageResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "description": "0 means no limit",
+                    "type": "integer"
+                },
+                "remaining": {
+                    "description": "absent when there is no limit",
+                    "type": "integer"
+                },
+                "resetsAt": {
+                    "type": "string"
+                },
+                "used": {
+                    "type": "integer"
+                }
+            }
+        },
+        "store.Bucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                }
+            }
+        },
+        "store.Point": {
+            "type": "object",
+            "properties": {
+                "at": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "store.Series": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.Point"
+                    }
+                }
+            }
+        },
+        "usecase.Result": {
+            "type": "object",
+            "properties": {
+                "buckets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.Bucket"
+                    }
+                },
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.Point"
+                    }
+                },
+                "rows": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "series": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.Series"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }

@@ -12,6 +12,8 @@ import (
 	runner_pkg "github.com/utmstack/UTMStack/plugins/playground/internal/runner"
 )
 
+const playgroundModeEnv = "MODE=playground"
+
 func main() {
 	mode := plugins.GetCfg("plugin_com.utmstack.playground").Env.Mode
 	if mode != "manager" {
@@ -45,7 +47,7 @@ func runPlaygroundInit() error {
 		"-init",
 		"-production-workdir", config.ProductionWorkDir,
 	)
-	cmd.Env = append(os.Environ(), "WORK_DIR="+config.WorkDir)
+	cmd.Env = append(os.Environ(), "WORK_DIR="+config.WorkDir, playgroundModeEnv)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -54,7 +56,7 @@ func runPlaygroundInit() error {
 func supervisePlaygroundWatch() {
 	for {
 		cmd := exec.Command(config.PlaygroundBinary, "-watch")
-		cmd.Env = append(os.Environ(), "WORK_DIR="+config.WorkDir)
+		cmd.Env = append(os.Environ(), "WORK_DIR="+config.WorkDir, playgroundModeEnv)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 

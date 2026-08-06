@@ -1,14 +1,49 @@
 package runner
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 )
 
+func WriteFileAtomic(stageDir, path string, data []byte, perm os.FileMode) error {
+	if err := os.MkdirAll(stageDir, 0755); err != nil {
+		return err
+	}
+
+	// The leading dot and the absence of a .yaml/.yml suffix keep this file out
+	// of the extension-filtered listings the EventProcessor builds.
+	tmp, err := os.CreateTemp(stageDir, ".tmp-*")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+	if err := os.Chmod(tmpName, perm); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+	if err := os.Rename(tmpName, path); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+	return nil
+}
+
 func CopyDir(src, dst string) error {
 	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
 			return err
 		}
 
@@ -23,43 +58,50 @@ func CopyDir(src, dst string) error {
 			return os.MkdirAll(targetPath, info.Mode())
 		}
 
-		srcFile, err := os.Open(path)
+		data, err := os.ReadFile(path)
 		if err != nil {
-			return err
-		}
-		defer srcFile.Close()
-
-		dstFile, err := os.Create(targetPath)
-		if err != nil {
-			return err
-		}
-		defer dstFile.Close()
-
-		if _, err := io.Copy(dstFile, srcFile); err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
 			return err
 		}
 
-		return os.Chmod(targetPath, info.Mode())
+		return WriteFileAtomic(filepath.Dir(targetPath), targetPath, data, info.Mode())
 	})
 }
 
 func DeleteFilesInDir(dir string) error {
 	return filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
 			return err
 		}
 		if d.IsDir() {
 			return nil
 		}
-		return os.Remove(path)
+		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		return nil
 	})
 }
 
 func ClearDir(dir string) error {
-	if err := os.RemoveAll(dir); err != nil {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return os.MkdirAll(dir, 0755)
+		}
 		return err
 	}
-	return os.MkdirAll(dir, 0755)
+	for _, e := range entries {
+		if err := os.RemoveAll(filepath.Join(dir, e.Name())); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+	return nil
 }
 
 func TruncateFile(path string) error {

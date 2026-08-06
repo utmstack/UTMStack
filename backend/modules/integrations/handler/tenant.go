@@ -29,7 +29,7 @@ func NewTenantHandler(t *usecase.TenantUsecase) *TenantHandler {
 // @Failure     500 {object} map[string]string
 // @Router      /integrations/tenants/{module} [get]
 func (h *TenantHandler) List(c *gin.Context) {
-	tenants, err := h.tenants.List(c.Param("module"))
+	tenants, err := h.tenants.List(c.Request.Context(), c.Param("module"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

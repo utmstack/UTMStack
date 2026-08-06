@@ -19,11 +19,11 @@ func registerIncidents(m *Module) {
 // ---- incidents.* -----------------------------------------------------------
 
 type incidentsCreateInput struct {
-	Name        string               `json:"name" jsonschema:"Incident display name"`
-	Description string               `json:"description,omitempty"`
-	AssignedTo  string               `json:"assigned_to,omitempty"`
-	Observation string               `json:"observation,omitempty"`
-	AlertList   []dto.AlertLinkItem  `json:"alert_list" jsonschema:"At least one alert link"`
+	Name        string              `json:"name" jsonschema:"Incident display name"`
+	Description string              `json:"description,omitempty"`
+	AssignedTo  string              `json:"assigned_to,omitempty"`
+	Observation string              `json:"observation,omitempty"`
+	AlertList   []dto.AlertLinkItem `json:"alert_list" jsonschema:"At least one alert link"`
 }
 
 type incidentsAddAlertsInput struct {
@@ -80,7 +80,7 @@ func registerIncidentMain(m *Module) {
 			if in.Observation != "" {
 				req.IncidentObservation = &in.Observation
 			}
-			return uc.Create(ctx, actor.Login, req)
+			return uc.Create(ctx, actor.Email, req)
 		})
 
 	Add(m, &mcp.Tool{
@@ -89,7 +89,7 @@ func registerIncidentMain(m *Module) {
 		Description: "Append additional alerts to an existing incident.",
 	}, Gate{Permission: "incidents.write"},
 		func(ctx context.Context, actor *authz.Actor, in incidentsAddAlertsInput) (any, error) {
-			return uc.AddAlerts(ctx, actor.Login, dto.AddAlertsRequest{
+			return uc.AddAlerts(ctx, actor.Email, dto.AddAlertsRequest{
 				IncidentID: in.IncidentID,
 				AlertList:  in.AlertList,
 			})
@@ -113,7 +113,7 @@ func registerIncidentMain(m *Module) {
 			if in.Solution != "" {
 				req.IncidentSolution = &in.Solution
 			}
-			return uc.ChangeStatus(ctx, actor.Login, req)
+			return uc.ChangeStatus(ctx, actor.Email, req)
 		})
 
 	Add(m, &mcp.Tool{
@@ -212,7 +212,7 @@ func registerIncidentAlerts(m *Module) {
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "incidents.write"},
 		func(ctx context.Context, actor *authz.Actor, in incidentAlertsUpdateStatusInput) (any, error) {
-			err := uc.UpdateStatus(ctx, actor.Login, dto.UpdateAlertStatusRequest{
+			err := uc.UpdateStatus(ctx, actor.Email, dto.UpdateAlertStatusRequest{
 				IncidentID: in.IncidentID, AlertIds: in.AlertIDs, AlertStatus: in.AlertStatus,
 			})
 			if err != nil {
@@ -279,7 +279,7 @@ func registerIncidentNotes(m *Module) {
 		Name: "incident_notes.create", Title: "Add note to incident",
 	}, Gate{Permission: "incidents.write"},
 		func(ctx context.Context, actor *authz.Actor, in incidentNotesCreateInput) (any, error) {
-			return uc.Create(ctx, actor.Login, dto.CreateNoteRequest{
+			return uc.Create(ctx, actor.Email, dto.CreateNoteRequest{
 				IncidentID: in.IncidentID, NoteText: in.NoteText,
 			})
 		})

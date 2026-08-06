@@ -20,7 +20,7 @@ type Config struct {
 	ModificationUser     string
 }
 
-func (Config) TableName() string { return "utm_configuration_parameter" }
+func (Config) TableName() string { return "app_config" }
 
 func (c Config) IsSecret() bool { return strings.EqualFold(c.ConfParamDatatype, "password") }
 func (c *Config) SetIsSecret()  { c.ConfParamDatatype = "password" }

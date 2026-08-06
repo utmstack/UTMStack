@@ -19,7 +19,7 @@ func NewControlNoteRepository(db *gorm.DB) connectors.ControlNoteRepository {
 func (r *pgNoteRepo) Upsert(ctx context.Context, n *domain.UtmComplianceControlNote) error {
 	n.UpdatedAt = time.Now().UTC()
 	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "framework_key"}, {Name: "control_id"}},
+		Columns:   []clause.Column{{Name: "tenant_id"}, {Name: "framework_key"}, {Name: "control_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"note", "updated_at"}),
 	}).Create(n).Error
 }

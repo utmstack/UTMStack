@@ -38,6 +38,7 @@ type ConfigurationSection struct {
 type ModuleGroup struct {
 	Id                        int32
 	GroupName                 string
+	TenantId                  string
 	ModuleGroupConfigurations []*Configuration
 }
 
@@ -153,8 +154,9 @@ func push(sec *ConfigurationSection) {
 }
 
 type tenantYAML struct {
-	Name   string            `yaml:"name"`
-	Config map[string]string `yaml:",inline"`
+	Name     string            `yaml:"name"`
+	TenantId string            `yaml:"tenantId,omitempty"`
+	Config   map[string]string `yaml:",inline"`
 }
 
 type pluginsFile struct {
@@ -195,6 +197,7 @@ func readConfig(path, encKey string) *ConfigurationSection {
 		grp := &ModuleGroup{
 			Id:        int32(i + 1),
 			GroupName: t.Name,
+			TenantId:  t.TenantId,
 		}
 		for k, v := range t.Config {
 			conf := &Configuration{ConfKey: k, ConfValue: v}

@@ -19,10 +19,11 @@ func registerLogAnalyzer(m *Module) {
 // ---- loganalyzer.* (analyzer) ----------------------------------------------
 
 type laTopValuesInput struct {
-	IndexPattern string                     `json:"index_pattern"`
-	Field        string                     `json:"field"`
-	Filters      []common_models.FilterType `json:"filters,omitempty"`
-	Top          int                        `json:"top"`
+	Dataset  string                     `json:"dataset"`
+	DataType string                     `json:"data_type,omitempty"`
+	Field    string                     `json:"field"`
+	Filters  []common_models.FilterType `json:"filters,omitempty"`
+	Top      int                        `json:"top"`
 }
 
 func registerLogAnalyzerAnalyzer(m *Module) {
@@ -37,7 +38,7 @@ func registerLogAnalyzerAnalyzer(m *Module) {
 			if top <= 0 {
 				top = 10
 			}
-			return uc.TopValues(ctx, in.IndexPattern, in.Field, in.Filters, top)
+			return uc.TopValues(ctx, in.Dataset, in.DataType, in.Field, in.Filters, top)
 		})
 
 	Add(m, &mcp.Tool{
@@ -52,13 +53,12 @@ func registerLogAnalyzerAnalyzer(m *Module) {
 // ---- loganalyzer.query.* ---------------------------------------------------
 
 type laQueryUpsertInput struct {
-	ID          uint64  `json:"id,omitempty"`
-	Name        string  `json:"name"`
-	Description string  `json:"description,omitempty"`
-	Columns     string  `json:"columns,omitempty"`
-	Filters     string  `json:"filters,omitempty"`
-	DataOrigin  string  `json:"data_origin,omitempty"`
-	IDPattern   *uint64 `json:"id_pattern,omitempty"`
+	ID          uint64 `json:"id,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Columns     string `json:"columns,omitempty"`
+	Filters     string `json:"filters,omitempty"`
+	Dataset     string `json:"dataset,omitempty"`
 }
 
 type laQueryListInput struct {
@@ -79,22 +79,22 @@ func registerLogAnalyzerQueries(m *Module) {
 		Name: "loganalyzer.query.create", Title: "Save analyzer query",
 	}, Gate{Permission: "loganalyzer.write"},
 		func(ctx context.Context, actor *authz.Actor, in laQueryUpsertInput) (any, error) {
-			q := &ladomain.UtmLogAnalyzerQuery{
+			q := &ladomain.SavedQuery{
 				Name: in.Name, Description: in.Description, Columns: in.Columns,
-				Filters: in.Filters, DataOrigin: in.DataOrigin, IDPattern: in.IDPattern,
+				Filters: in.Filters, Dataset: in.Dataset,
 			}
-			return uc.Create(ctx, q, actor.Login)
+			return uc.Create(ctx, q, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "loganalyzer.query.update", Title: "Update analyzer query",
 	}, Gate{Permission: "loganalyzer.write"},
 		func(ctx context.Context, actor *authz.Actor, in laQueryUpsertInput) (any, error) {
-			q := &ladomain.UtmLogAnalyzerQuery{
+			q := &ladomain.SavedQuery{
 				ID: in.ID, Name: in.Name, Description: in.Description, Columns: in.Columns,
-				Filters: in.Filters, DataOrigin: in.DataOrigin, IDPattern: in.IDPattern,
+				Filters: in.Filters, Dataset: in.Dataset,
 			}
-			return uc.Update(ctx, q, actor.Login)
+			return uc.Update(ctx, q, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{

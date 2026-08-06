@@ -24,29 +24,29 @@ func registerSOAR(m *Module) {
 // ---- soar.rule.* -----------------------------------------------------------
 
 type soarRuleCreateInput struct {
-	Name           string         `json:"name"`
-	Description    string         `json:"description,omitempty"`
-	Conditions     []dto.FilterVM `json:"conditions"`
+	Name           string              `json:"name"`
+	Description    string              `json:"description,omitempty"`
+	Conditions     []dto.FilterVM      `json:"conditions"`
 	Commands       []dto.FlowCommandVM `json:"commands"`
-	Active         bool           `json:"active"`
-	AgentPlatform  string         `json:"agent_platform"`
-	DefaultAgent   string         `json:"default_agent,omitempty"`
-	Shell          string         `json:"shell,omitempty"`
-	ExcludedAgents []string       `json:"excluded_agents,omitempty"`
+	Active         bool                `json:"active"`
+	AgentPlatform  string              `json:"agent_platform"`
+	DefaultAgent   string              `json:"default_agent,omitempty"`
+	Shell          string              `json:"shell,omitempty"`
+	ExcludedAgents []string            `json:"excluded_agents,omitempty"`
 }
 
 type soarRuleUpdateInput struct {
-	RelPath        string         `json:"rel_path"`
-	ID             *int64         `json:"id,omitempty"`
-	Name           string         `json:"name"`
-	Description    string         `json:"description,omitempty"`
-	Conditions     []dto.FilterVM `json:"conditions"`
+	RelPath        string              `json:"rel_path"`
+	ID             *int64              `json:"id,omitempty"`
+	Name           string              `json:"name"`
+	Description    string              `json:"description,omitempty"`
+	Conditions     []dto.FilterVM      `json:"conditions"`
 	Commands       []dto.FlowCommandVM `json:"commands"`
-	Active         bool           `json:"active"`
-	AgentPlatform  string         `json:"agent_platform"`
-	DefaultAgent   string         `json:"default_agent,omitempty"`
-	Shell          string         `json:"shell,omitempty"`
-	ExcludedAgents []string       `json:"excluded_agents,omitempty"`
+	Active         bool                `json:"active"`
+	AgentPlatform  string              `json:"agent_platform"`
+	DefaultAgent   string              `json:"default_agent,omitempty"`
+	Shell          string              `json:"shell,omitempty"`
+	ExcludedAgents []string            `json:"excluded_agents,omitempty"`
 }
 
 type soarRuleRelPathInput struct {
@@ -84,7 +84,7 @@ func registerSOARRules(m *Module) {
 				Conditions: in.Conditions, Commands: in.Commands, Active: &active,
 				AgentPlatform: in.AgentPlatform, DefaultAgent: in.DefaultAgent,
 				Shell: in.Shell, ExcludedAgents: in.ExcludedAgents,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -97,7 +97,7 @@ func registerSOARRules(m *Module) {
 				Conditions: in.Conditions, Commands: in.Commands, Active: &active,
 				AgentPlatform: in.AgentPlatform, DefaultAgent: in.DefaultAgent,
 				Shell: in.Shell, ExcludedAgents: in.ExcludedAgents,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -179,14 +179,14 @@ func registerSOARTemplates(m *Module) {
 // ---- soar.execution.* ------------------------------------------------------
 
 type soarExecutionListInput struct {
-	RulePath   string `json:"rule_path,omitempty"`
-	AlertID    string `json:"alert_id,omitempty"`
-	Agent      string `json:"agent,omitempty"`
-	Status     string `json:"execution_status,omitempty"`
-	DateGTE    string `json:"date_gte,omitempty"`
-	DateLTE    string `json:"date_lte,omitempty"`
-	Page       int    `json:"page,omitempty"`
-	Size       int    `json:"size,omitempty"`
+	RulePath string `json:"rule_path,omitempty"`
+	AlertID  string `json:"alert_id,omitempty"`
+	Agent    string `json:"agent,omitempty"`
+	Status   string `json:"execution_status,omitempty"`
+	DateGTE  string `json:"date_gte,omitempty"`
+	DateLTE  string `json:"date_lte,omitempty"`
+	Page     int    `json:"page,omitempty"`
+	Size     int    `json:"size,omitempty"`
 }
 
 func registerSOARExecutions(m *Module) {
@@ -240,7 +240,7 @@ func registerSOARVariables(m *Module) {
 		func(_ context.Context, actor *authz.Actor, in soarVariableCreateInput) (any, error) {
 			return uc.Create(dto.CreateVariableRequest{
 				VariableName: in.Name, VariableDescription: in.Description, VariableValue: in.Value, IsSecret: in.IsSecret,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -249,7 +249,7 @@ func registerSOARVariables(m *Module) {
 		func(_ context.Context, actor *authz.Actor, in soarVariableUpdateInput) (any, error) {
 			return uc.Update(dto.UpdateVariableRequest{
 				ID: in.ID, VariableName: in.Name, VariableDescription: in.Description, VariableValue: in.Value, IsSecret: in.IsSecret,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -323,7 +323,7 @@ func registerSOARActions(m *Module) {
 			return uc.Create(dto.CreateActionRequest{
 				ActionCommand: in.ActionCommand, ActionDescription: in.ActionDescription,
 				ActionParams: in.ActionParams, ActionType: in.ActionType, ActionEditable: in.ActionEditable,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -333,7 +333,7 @@ func registerSOARActions(m *Module) {
 			return uc.Update(dto.UpdateActionRequest{
 				ID: in.ID, ActionCommand: in.ActionCommand, ActionDescription: in.ActionDescription,
 				ActionParams: in.ActionParams, ActionType: in.ActionType, ActionEditable: in.ActionEditable,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -478,7 +478,7 @@ func registerSOARJobs(m *Module) {
 			return uc.Create(dto.CreateJobRequest{
 				ActionID: in.ActionID, Params: in.Params, Agent: in.Agent, Status: in.Status,
 				OriginID: in.OriginID, OriginType: in.OriginType,
-			}, actor.Login)
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{

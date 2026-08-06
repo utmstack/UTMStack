@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { FS_API_URL, IS_FEDERATION } from '@/shared/config/mode'
 import { getCurrentInstanceId } from '@/shared/lib/current-instance'
+import { carriesSupportTenant, getSupportTenantId } from '@/shared/lib/current-tenant'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
@@ -114,6 +115,13 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
       if (instanceId != null) {
         config.headers['X-UTM-Instance'] = String(instanceId)
       }
+    }
+    // Support session: run this call inside the tenant the operator entered.
+    // Not on every path — see carriesSupportTenant for the two that must stay
+    // in the operator's own tenant.
+    const supportTenant = getSupportTenantId()
+    if (supportTenant && carriesSupportTenant(config.url ?? '')) {
+      config.headers['X-Tenant-Id'] = supportTenant
     }
     return config
   })

@@ -5,11 +5,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -71,14 +72,24 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 	resp, err := h.authUsecase.Login(c.Request.Context(), input, loginContext(c))
-	audit.Record(c, audit_connectors.Event{Action: "auth.login"}, audit_domain.AUTH_ATTEMPT, audit_domain.AUTH_SUCCESS, err)
+	// The address that was tried, whether or not it exists: a failed attempt on a
+	// name nobody has is exactly what an audit trail is read for.
+	audit.Record(c, audit_connectors.Event{Action: "auth.login", UserEmail: input.Login},
+		audit_domain.AUTH_ATTEMPT, audit_domain.AUTH_SUCCESS, err)
 	if err != nil {
 		switch {
+		case errors.Is(err, domain.ErrPasswordLoginUnavailable):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, domain.ErrTfaMailUnavailable):
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		case errors.Is(err, domain.ErrChallengeCooldown):
+			// A rate limit is the caller's answer, not a server fault.
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
 		case errors.Is(err, domain.ErrLoginBlocked):
 			c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many failed attempts; try again later"})
 		case errors.Is(err, domain.ErrInvalidCredentials):
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		case errors.Is(err, domain.ErrUserDeactivated):
+		case errors.Is(err, domain.ErrUserInactive):
 			c.JSON(http.StatusForbidden, gin.H{"error": "user is deactivated"})
 		case errors.Is(err, domain.ErrTfaNoEmail):
 			c.JSON(http.StatusForbidden, gin.H{"error": "tfa is required but no email is set for this user"})
@@ -179,7 +190,7 @@ func (h *AuthHandler) Authenticate(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	c.String(http.StatusOK, resp.Login)
+	c.String(http.StatusOK, resp.Email)
 }
 
 // @Summary     Update own profile
@@ -255,7 +266,7 @@ func (h *AuthHandler) RevokeSession(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	sid, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	sid, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid session id"})
 		return
@@ -361,7 +372,7 @@ func (h *AuthHandler) UploadAvatar(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate filename"})
 		return
 	}
-	filename := fmt.Sprintf("u%d-%s%s", uid, hex.EncodeToString(rnd), ext)
+	filename := fmt.Sprintf("u%s-%s%s", uid, hex.EncodeToString(rnd), ext)
 	dir := filepath.Join(h.uploadDir, avatarSubdir)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		_ = catcher.Error("avatar dir mkdir failed", err, nil)
@@ -394,7 +405,7 @@ func (h *AuthHandler) UploadAvatar(c *gin.Context) {
 	// Best-effort cleanup of any older avatar files for this user. The new file
 	// has a fresh random suffix, so we look for previous u{id}- prefixed files
 	// and delete them.
-	deleteOldAvatarsExcept(dir, fmt.Sprintf("u%d-", uid), filename)
+	deleteOldAvatarsExcept(dir, fmt.Sprintf("u%s-", uid), filename)
 
 	c.JSON(http.StatusOK, resp)
 }
@@ -418,7 +429,7 @@ func (h *AuthHandler) RemoveAvatar(c *gin.Context) {
 		return
 	}
 	dir := filepath.Join(h.uploadDir, avatarSubdir)
-	deleteOldAvatarsExcept(dir, fmt.Sprintf("u%d-", uid), "")
+	deleteOldAvatarsExcept(dir, fmt.Sprintf("u%s-", uid), "")
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -475,78 +486,34 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	}
 }
 
-// @Summary     Request a password reset email
-// @Description Always returns 204 to prevent account enumeration.
-// @Tags        Auth
-// @Accept      json
-// @Param       input body dto.ResetPasswordInitRequest true "Email of the account to reset"
-// @Success     204 "Reset email dispatched if the account exists"
-// @Failure     400 {object} map[string]string
-// @Router      /auth/reset-password/init [post]
-func (h *AuthHandler) RequestPasswordReset(c *gin.Context) {
-	var input dto.ResetPasswordInitRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	err := h.authUsecase.RequestPasswordReset(c.Request.Context(), input)
-	audit.Record(c, audit_connectors.Event{Action: "auth.reset_password.init"}, audit_domain.RESET_USER_PASSWORD_ATTEMPT, audit_domain.RESET_USER_PASSWORD_SUCCESS, err)
-	if err != nil {
-		_ = catcher.Error("password reset init failed", err, nil)
-	}
-	c.Status(http.StatusNoContent)
+func userIDFromCtx(c *gin.Context) (uuid.UUID, bool) {
+	id := actorID(c)
+	return id, id != uuid.Nil
 }
 
-// @Summary     Complete a password reset
-// @Tags        Auth
-// @Accept      json
-// @Param       input body dto.ResetPasswordFinishRequest true "Reset key + new password"
-// @Success     204 "Password updated"
-// @Failure     400 {object} map[string]string
-// @Failure     410 {object} map[string]string
-// @Router      /auth/reset-password/finish [post]
-func (h *AuthHandler) FinishPasswordReset(c *gin.Context) {
-	var input dto.ResetPasswordFinishRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+func sessionIDFromCtx(c *gin.Context) uuid.UUID {
+	if a := middleware.ActorFromGin(c); a != nil {
+		return a.SessionID
 	}
-	err := h.authUsecase.FinishPasswordReset(c.Request.Context(), input)
-	audit.Record(c, audit_connectors.Event{Action: "auth.reset_password.finish"}, audit_domain.RESET_USER_PASSWORD_ATTEMPT, audit_domain.RESET_USER_PASSWORD_SUCCESS, err)
-	switch {
-	case err == nil:
-		c.Status(http.StatusNoContent)
-	case errors.Is(err, domain.ErrInvalidResetKey):
-		c.JSON(http.StatusGone, gin.H{"error": "invalid or expired reset key"})
-	default:
-		_ = catcher.Error("password reset finish failed", err, nil)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not reset password"})
-	}
-}
-
-func userIDFromCtx(c *gin.Context) (uint64, bool) {
-	raw, ok := c.Get("user_id")
-	if !ok {
-		return 0, false
-	}
-	id, ok := raw.(uint64)
-	return id, ok
-}
-
-func sessionIDFromCtx(c *gin.Context) uint64 {
-	if v, ok := c.Get("session_id"); ok {
-		if id, ok := v.(uint64); ok {
-			return id
-		}
-	}
-	return 0
+	return uuid.Nil
 }
 
 func userLoginFromCtx(c *gin.Context) string {
-	if v, ok := c.Get("user_login"); ok {
+	if v, ok := c.Get("user_email"); ok {
 		if s, ok := v.(string); ok {
 			return s
 		}
 	}
 	return ""
+}
+
+// actorID reads the caller's id from the request, which the auth middleware
+// already parsed. A request that reached a handler behind userAuth always has
+// one; anything else is a wiring mistake and lands as uuid.Nil, which matches no
+// row rather than matching the first.
+func actorID(c *gin.Context) uuid.UUID {
+	if a := middleware.ActorFromGin(c); a != nil {
+		return a.UserID
+	}
+	return uuid.Nil
 }

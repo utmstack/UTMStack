@@ -36,12 +36,9 @@ export interface ListResponse<T> {
   total_pages: number
 }
 
-/** GET /datasources/usage */
-export interface Usage {
+/** GET /datasources/count */
+export interface DatasourceCount {
   count: number
-  limit: number // 0 when unlimited
-  unlimited: boolean
-  overLimit: boolean
 }
 
 /** GET /datasource-groups item */

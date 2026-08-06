@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"gopkg.in/yaml.v3"
 )
 
@@ -24,16 +25,14 @@ func NewCorrelationRuleUsecase(store *RuleStore) connectors.CorrelationRuleUseca
 	return &correlationRuleUsecase{store: store}
 }
 
-
-
-func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrelationRuleRequest) error {
+func (u *correlationRuleUsecase) Create(ctx context.Context, req dto.CreateCorrelationRuleRequest) error {
 	if len(req.DataTypes) == 0 {
 		return domain.ErrDataTypesRequired
 	}
 
-	correlate:= req.CorrelationDef
+	correlate := req.CorrelationDef
 
-	if err := validateRuleContent(req.RuleDefinitionDef,correlate ); err != nil {
+	if err := validateRuleContent(req.RuleDefinitionDef, correlate); err != nil {
 		return err
 	}
 	rule := buildRule(req.RuleName, req.RuleAdversary, req.RuleConfidentiality, req.RuleIntegrity,
@@ -41,7 +40,7 @@ func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrela
 		req.RuleReferencesDef, req.RuleDefinitionDef, correlate, req.RuleGroupByDef,
 		req.DeduplicateByDef, req.DataTypes)
 
-	created, err := u.store.Create(rule)
+	created, err := u.store.Create(rule, authz.TenantIDFromContext(ctx))
 	if err != nil {
 		return mapStoreErr(err)
 	}
@@ -51,7 +50,8 @@ func (u *correlationRuleUsecase) Create(_ context.Context, req dto.CreateCorrela
 	return nil
 }
 
-func (u *correlationRuleUsecase) ImportRules(_ context.Context, files []dto.ImportRuleFile) []dto.ImportRuleResult {
+func (u *correlationRuleUsecase) ImportRules(ctx context.Context, files []dto.ImportRuleFile) []dto.ImportRuleResult {
+	tenantID := authz.TenantIDFromContext(ctx)
 	results := make([]dto.ImportRuleResult, 0, len(files))
 	for _, f := range files {
 		res := dto.ImportRuleResult{Filename: f.Filename}
@@ -68,7 +68,7 @@ func (u *correlationRuleUsecase) ImportRules(_ context.Context, files []dto.Impo
 			results = append(results, res)
 			continue
 		}
-		created, err := u.store.Create(rule)
+		created, err := u.store.Create(rule, tenantID)
 		if err != nil {
 			res.Error = mapStoreErr(err).Error()
 			results = append(results, res)
@@ -138,7 +138,7 @@ func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrela
 		return domain.ErrDataTypesRequired
 	}
 
-	correlate:= req.CorrelationDef
+	correlate := req.CorrelationDef
 
 	if err := validateRuleContent(req.RuleDefinitionDef, correlate); err != nil {
 		return err

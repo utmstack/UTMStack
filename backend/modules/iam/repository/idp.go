@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
@@ -20,9 +22,9 @@ func (r *pgIdentityProviderRepository) Save(ctx context.Context, c *domain.Ident
 	return r.db.WithContext(ctx).Save(c).Error
 }
 
-func (r *pgIdentityProviderRepository) FindByID(ctx context.Context, id uint64) (*domain.IdentityProviderConfig, error) {
+func (r *pgIdentityProviderRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.IdentityProviderConfig, error) {
 	var c domain.IdentityProviderConfig
-	err := r.db.WithContext(ctx).First(&c, id).Error
+	err := r.db.WithContext(ctx).Where("id = ?", id).First(&c).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -74,6 +76,32 @@ func (r *pgIdentityProviderRepository) ListActive(ctx context.Context) ([]domain
 	return items, nil
 }
 
-func (r *pgIdentityProviderRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.IdentityProviderConfig{}, id).Error
+func (r *pgIdentityProviderRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&domain.IdentityProviderConfig{}).Error
+}
+
+func (r *pgIdentityProviderRepository) ListMappings(ctx context.Context, providerID uuid.UUID) ([]domain.IdentityProviderGroupMapping, error) {
+	var rows []domain.IdentityProviderGroupMapping
+	err := r.db.WithContext(ctx).
+		Where("identity_provider_id = ?", providerID).
+		Order("group_name").
+		Find(&rows).Error
+	return rows, err
+}
+
+// ReplaceMappings rewrites the whole set in one transaction. A mapping edited
+// row by row would leave a window where a login sees half of it.
+func (r *pgIdentityProviderRepository) ReplaceMappings(
+	ctx context.Context, providerID uuid.UUID, mappings []domain.IdentityProviderGroupMapping,
+) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("identity_provider_id = ?", providerID).
+			Delete(&domain.IdentityProviderGroupMapping{}).Error; err != nil {
+			return err
+		}
+		if len(mappings) == 0 {
+			return nil
+		}
+		return tx.Create(&mappings).Error
+	})
 }

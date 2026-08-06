@@ -5,16 +5,10 @@ import type {
   LoginResponse,
   ResetPasswordFinishRequest,
   Session,
-  TfaCompleteRequest,
   TfaDisableRequest,
   TfaEnrollmentRequest,
   TfaEnrollmentResponse,
-  TfaInitRequest,
-  TfaInitResponse,
-  TfaMethod,
-  TfaRefreshResponse,
   TfaVerifyCodeRequest,
-  TfaVerifyRequest,
   TokenPair,
   UpdateMeRequest,
   User,
@@ -57,18 +51,15 @@ export const authHttpService = {
 
   /* ---- active sessions ---- */
   listSessions: () => api.get<Session[]>('/auth/sessions'),
-  revokeSession: (id: number) => api.delete<void>(`/auth/sessions/${id}`),
+  revokeSession: (id: string) => api.delete<void>(`/auth/sessions/${id}`),
   revokeOtherSessions: () => api.delete<void>('/auth/sessions'),
 
   /* ---- TFA enrollment (authenticated; enabling 2FA on the account) ---- */
-  tfaInit: (input: TfaInitRequest) => api.post<TfaInitResponse>('/tfa/init', input),
-  tfaVerify: (input: TfaVerifyRequest) => api.post<void>('/tfa/verify', input),
-  tfaComplete: (input: TfaCompleteRequest) => api.post<void>('/tfa/complete', input),
   // Tear down 2FA — re-authenticates with the current password.
   tfaDisable: (input: TfaDisableRequest) => api.post<void>('/tfa/disable', input),
-  tfaRefreshChallenge: (method: TfaMethod) =>
-    api.get<TfaRefreshResponse>(`/tfa/refresh?method=${method}`),
   // Unified single-call enrollment (stage = INIT | VERIFY | COMPLETE).
+  // One endpoint for the three stages: the separate init/verify/complete routes
+  // did the same work by another name.
   tfaEnrollment: (input: TfaEnrollmentRequest) =>
-    api.post<TfaEnrollmentResponse>('/enrollment/tfa', input),
+    api.post<TfaEnrollmentResponse>('/tfa/enroll', input),
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 
@@ -77,7 +78,11 @@ func (h *TenantHandler) Update(c *gin.Context) {
 		return
 	}
 
-	t, err := h.uc.Update(c.Request.Context(), c.Param("id"), req)
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	t, err := h.uc.Update(c.Request.Context(), tid, req)
 	audit.Record(c, audit_connectors.Event{
 		Action:       "tenant.update",
 		ResourceType: "tenant",
@@ -103,7 +108,11 @@ func (h *TenantHandler) Update(c *gin.Context) {
 //	@Failure		404	{object}	map[string]string
 //	@Router			/tenants/{id} [get]
 func (h *TenantHandler) GetByID(c *gin.Context) {
-	t, err := h.uc.GetByID(c.Request.Context(), c.Param("id"))
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	t, err := h.uc.GetByID(c.Request.Context(), tid)
 	if err != nil {
 		writeError(c, err)
 		return
@@ -154,7 +163,11 @@ func (h *TenantHandler) List(c *gin.Context) {
 //	@Failure		404	{object}	map[string]string
 //	@Router			/tenants/{id} [delete]
 func (h *TenantHandler) Terminate(c *gin.Context) {
-	err := h.uc.Terminate(c.Request.Context(), c.Param("id"))
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	err := h.uc.Terminate(c.Request.Context(), tid)
 	audit.Record(c, audit_connectors.Event{
 		Action:       "tenant.terminate",
 		ResourceType: "tenant",
@@ -179,11 +192,35 @@ func writeError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrDomainRequired),
 		errors.Is(err, domain.ErrDomainInvalid), errors.Is(err, domain.ErrStatusInvalid),
 		errors.Is(err, domain.ErrAlreadyTerminated), errors.Is(err, domain.ErrSupportInvalid),
-		errors.Is(err, domain.ErrLimitNegative):
+		errors.Is(err, domain.ErrLimitNegative), errors.Is(err, domain.ErrLimitInvalid):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
+}
+
+// GetSupportAccess godoc
+//
+//	@Summary		Read the support access this tenant has granted
+//	@Description	Answers for the caller's own tenant only. The platform reads this from the tenant list instead.
+//	@Tags			Tenants
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Param			id	path		string	true	"Tenant id"
+//	@Success		200	{object}	dto.SupportAccessResponse
+//	@Failure		403	{object}	map[string]string
+//	@Router			/tenants/{id}/support-access [get]
+func (h *TenantHandler) GetSupportAccess(c *gin.Context) {
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	t, err := h.uc.GetByID(c.Request.Context(), tid)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.SupportAccessResponse{SupportAccess: t.SupportAccess})
 }
 
 // SetSupportAccess godoc
@@ -205,7 +242,11 @@ func (h *TenantHandler) SetSupportAccess(c *gin.Context) {
 		return
 	}
 
-	t, err := h.uc.SetSupportAccess(c.Request.Context(), c.Param("id"), req.SupportAccess)
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	t, err := h.uc.SetSupportAccess(c.Request.Context(), tid, req.SupportAccess)
 	audit.Record(c, audit_connectors.Event{
 		Action:       "tenant.support_access.set",
 		ResourceType: "tenant",
@@ -224,7 +265,18 @@ func tenantID(t *domain.Tenant) string {
 	if t == nil {
 		return ""
 	}
-	return t.ID
+	return t.ID.String()
+}
+
+// pathTenantID refuses anything that is not a uuid before it reaches a query, so
+// a malformed path is a bad request rather than a database error.
+func pathTenantID(c *gin.Context) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tenant id"})
+		return uuid.Nil, false
+	}
+	return id, true
 }
 
 // updateMetadata records what the request asked to change, not the whole tenant:
@@ -240,8 +292,14 @@ func updateMetadata(req dto.UpdateRequest) map[string]any {
 	if req.Status != "" {
 		m["status"] = string(req.Status)
 	}
-	if req.MaxAIRequests != nil {
-		m["maxAIRequests"] = *req.MaxAIRequests
+	// Recorded as sent: "removed" and "never mentioned" have to read
+	// differently in the audit trail.
+	if limit, present, err := req.AILimit(); err == nil && present {
+		if limit == nil {
+			m["maxAIRequests"] = "removed"
+		} else {
+			m["maxAIRequests"] = *limit
+		}
 	}
 	return m
 }

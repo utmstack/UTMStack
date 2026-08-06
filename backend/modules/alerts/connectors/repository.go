@@ -7,6 +7,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 type AlertRepository interface {
@@ -54,4 +55,8 @@ type AlertTagRuleRepository interface {
 	FindByIDs(ctx context.Context, ids []int64) ([]domain.UtmAlertTagRule, error)
 	Delete(ctx context.Context, id uint64) error
 	FindAllActive(ctx context.Context) ([]domain.UtmAlertTagRule, error)
+}
+
+type AdversaryRepository interface {
+	AdversaryAggs(ctx context.Context, filters []common_models.FilterType) (json.RawMessage, error)
 }

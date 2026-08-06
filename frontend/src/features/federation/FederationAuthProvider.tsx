@@ -24,7 +24,7 @@ function toUser(fu: FederationUser): User {
     lang_key: fu.langKey,
     activated: true,
     tfa_enabled: fu.tfaEnabled,
-    tfa_method: fu.tfaMethod,
+    tfa_type: fu.tfaMethod,
   }
 }
 
@@ -66,7 +66,7 @@ export function FederationAuthProvider({ children }: { children: ReactNode }) {
     if (res.tfaRequired && res.preAuthToken) {
       return {
         status: 'tfa_required',
-        method: res.tfaMethod ?? 'TOTP',
+        method: res.tfaMethod ?? 'totp',
         preAuthToken: res.preAuthToken,
       }
     }

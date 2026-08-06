@@ -63,7 +63,7 @@ func (h *BrandingHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.Update(c.Request.Context(), c.GetString("user_login"), req)
+	resp, err := h.usecase.Update(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "branding.updated", ResourceType: "branding", ResourceID: "branding"},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if errors.Is(err, usecase.ErrWhiteLabelNotEntitled) {

@@ -19,7 +19,7 @@ func NewControlStatusOverrideRepository(db *gorm.DB) connectors.ControlStatusOve
 func (r *pgOverrideRepo) Upsert(ctx context.Context, o *domain.UtmComplianceControlStatusOverride) error {
 	o.UpdatedAt = time.Now().UTC()
 	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "framework_key"}, {Name: "control_id"}},
+		Columns:   []clause.Column{{Name: "tenant_id"}, {Name: "framework_key"}, {Name: "control_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"status", "reason", "updated_at"}),
 	}).Create(o).Error
 }

@@ -35,7 +35,7 @@ func NewModule(db *gorm.DB) *Module {
 	alertTagRuleUC := usecase.NewAlertTagRuleUsecase(alertTagRuleRepo, alertTagRepo)
 	alertTagRuleH := handler.NewAlertTagRuleHandler(alertTagRuleUC)
 
-	adversaryUC := usecase.NewAdversaryUsecase()
+	adversaryUC := usecase.NewAdversaryUsecase(repository.NewAdversaryRepository())
 	adversaryH := handler.NewAdversaryHandler(adversaryUC)
 
 	return &Module{

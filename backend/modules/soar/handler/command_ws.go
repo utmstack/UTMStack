@@ -62,7 +62,6 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 		}
 		return middleware.EstablishActor(c, middleware.Actor{
 			UserID:      userID,
-			Login:       claims.Login,
 			Email:       claims.Email,
 			Roles:       claims.Roles,
 			Permissions: claims.Permissions,

@@ -16,12 +16,12 @@ func NewQueryRepository(db *gorm.DB) connectors.QueryRepository {
 	return &pgQueryRepository{db: db}
 }
 
-func (r *pgQueryRepository) Save(ctx context.Context, q *domain.UtmLogAnalyzerQuery) error {
+func (r *pgQueryRepository) Save(ctx context.Context, q *domain.SavedQuery) error {
 	return r.db.WithContext(ctx).Save(q).Error
 }
 
-func (r *pgQueryRepository) FindByID(ctx context.Context, id uint64) (*domain.UtmLogAnalyzerQuery, error) {
-	var q domain.UtmLogAnalyzerQuery
+func (r *pgQueryRepository) FindByID(ctx context.Context, id uint64) (*domain.SavedQuery, error) {
+	var q domain.SavedQuery
 	err := r.db.WithContext(ctx).First(&q, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -32,25 +32,25 @@ func (r *pgQueryRepository) FindByID(ctx context.Context, id uint64) (*domain.Ut
 	return &q, nil
 }
 
-func (r *pgQueryRepository) List(ctx context.Context, f dto.QueryFilter) ([]domain.UtmLogAnalyzerQuery, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.UtmLogAnalyzerQuery{})
+func (r *pgQueryRepository) List(ctx context.Context, f dto.QueryFilter) ([]domain.SavedQuery, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.SavedQuery{})
 	if f.Name != "" {
-		q = q.Where("la_name ILIKE ?", "%"+f.Name+"%")
+		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
 	}
 	if f.Owner != "" {
-		q = q.Where("la_owner = ?", f.Owner)
+		q = q.Where("owner = ?", f.Owner)
 	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var items []domain.UtmLogAnalyzerQuery
-	if err := q.Order("la_name ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
+	var items []domain.SavedQuery
+	if err := q.Order("name ASC").Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil
 }
 
 func (r *pgQueryRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.UtmLogAnalyzerQuery{}, id).Error
+	return r.db.WithContext(ctx).Delete(&domain.SavedQuery{}, id).Error
 }

@@ -1,11 +1,13 @@
 package threatintel
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/threatintel/handler"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
+	"github.com/utmstack/utmstack/backend/pkg/instanceconfig"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
@@ -43,9 +45,26 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	chatHandler := handler.NewReverseProxyHandler("/proxy/api/ai/v1/chat/completions")
 	g.POST("/ai/chat", chatHandler.Handle)
 
+	// GET /api/v1/threat-intel/status — can this instance reach ThreatWinds at
+	// all. Answers a boolean and nothing else, so the page can say "not set up"
+	// without the caller being told what the instance is spending. It replaces
+	// probing /usage for the same answer, which also made a proxy round trip to
+	// learn something already known locally.
+	g.GET("/status", func(c *gin.Context) {
+		cfg := instanceconfig.Get()
+		configured := cfg != nil && cfg.Server != "" && cfg.InstanceID != "" && cfg.InstanceKey != ""
+		c.JSON(http.StatusOK, gin.H{"configured": configured})
+	})
+
 	// GET /api/v1/threat-intel/usage → /proxy/usage (special endpoint, no /api prefix)
+	//
+	// Platform-only. Everything else here proxies public threat intelligence,
+	// which is the same for everyone, but this counter is the instance's own
+	// consumption against its ThreatWinds plan — summed over every tenant on it.
+	// Handing it to a tenant tells them how much the others are using. Their own
+	// allowance is a different number, and they read it from /soc-ai/usage.
 	usageHandler := handler.NewReverseProxyHandler("/proxy/usage")
-	g.GET("/usage", usageHandler.HandleUsageEndpoint)
+	g.GET("/usage", middleware.RequirePlatform(), usageHandler.HandleUsageEndpoint)
 }
 
 func sanitizeId(id string) string {

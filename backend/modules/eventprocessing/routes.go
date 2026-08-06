@@ -16,13 +16,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	g := api.Group("/eventprocessing", userAuth)
 
-	// Regex patterns
+	// Regex patterns are read-only. They are a shared vocabulary referenced from
+	// filter YAMLs as {{.name}}, seeded by the pipeline bootstrap and identical
+	// for every tenant — consumed here, never authored.
 	rg := g.Group("/regex-pattern")
-	rg.POST("", write, rph.Create)
-	rg.PUT("", write, rph.Update)
 	rg.GET("", read, rph.List)
 	rg.GET("/:id", read, rph.GetByID)
-	rg.DELETE("/:id", write, rph.Delete)
 
 	// Tenant config (assets) is retired: asset CIA now lives on datasources, which
 	// project it into tenants.yaml via the eventprocessing TenantConfig usecase.

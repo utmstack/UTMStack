@@ -109,6 +109,9 @@ func (m *Module) Start(ctx context.Context) {
 	if err := m.pipelineBootstrap.Run(ctx); err != nil {
 		_ = catcher.Error("pipeline bootstrap (tenant/patterns) failed", err, nil)
 	}
+
+	go m.ruleStore.Watch(ctx)
+	go m.filterStore.Watch(ctx)
 }
 
 func (m *Module) GetRegexPatternHandler() *handler.RegexPatternHandler { return m.regexPatternHandler }

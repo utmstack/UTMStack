@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -51,12 +52,15 @@ func (b *FlowBootstrap) seedSystemOverlay() error {
 
 func (b *FlowBootstrap) tenants() ([]string, error) {
 	var ids []string
-	err := b.db.Table("tenants").
+	err := b.db.Model(&tenant_domain.Tenant{}).
 		Where("status <> ?", "TERMINATED").
 		Pluck("id", &ids).Error
-	if err != nil || len(ids) == 0 {
-		// No tenants table yet, or none live: the install has the one tenant it
-		// was born with.
+	if err != nil {
+		return nil, err
+	}
+	if len(ids) == 0 {
+		// Before the first tenant row exists: the install has the one it was
+		// born with.
 		return []string{authz.DefaultTenantID}, nil
 	}
 	return ids, nil

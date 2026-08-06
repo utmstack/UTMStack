@@ -41,6 +41,7 @@ type Rule struct {
 	Correlation   any      `yaml:"correlation,omitempty"`
 	GroupBy       []string `yaml:"groupBy,omitempty"`
 	DeduplicateBy []string `yaml:"deduplicateBy,omitempty"`
+	TenantId      string   `yaml:"tenantId,omitempty"`
 }
 
 // StoredRule is a Rule plus the metadata the store derives from its backing

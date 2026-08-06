@@ -40,7 +40,6 @@ type dsUpdateLabelsInput struct {
 
 func registerDatasourceDatasources(m *Module) {
 	uc := m.deps.Datasources.GetDatasourceUsecase()
-	lic := m.deps.Datasources.LicenseCap()
 
 	Add(m, &mcp.Tool{
 		Name: "datasources.list", Title: "List datasources",
@@ -94,7 +93,7 @@ func registerDatasourceDatasources(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "datasources.usage", Title: "Datasource usage vs license cap",
+		Name: "datasources.count", Title: "Number of configured datasources",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "datasources.read"},
 		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
@@ -102,15 +101,7 @@ func registerDatasourceDatasources(m *Module) {
 			if err != nil {
 				return nil, err
 			}
-			var limit int64
-			unlimited := true
-			if lic != nil {
-				limit, unlimited = lic.DatasourceCap()
-			}
-			return dto.UsageResponse{
-				Count: count, Limit: limit, Unlimited: unlimited,
-				OverLimit: !unlimited && count > limit,
-			}, nil
+			return dto.CountResponse{Count: count}, nil
 		})
 }
 

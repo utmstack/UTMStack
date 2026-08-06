@@ -116,6 +116,7 @@ func (r *Runner) acquireRun(log *plugins.Log) func() {
 
 type workspace struct {
 	inputDir       string
+	stageDir       string
 	resultingLog   string
 	resultingAlert string
 }
@@ -123,6 +124,7 @@ type workspace struct {
 func (r *Runner) workspace() workspace {
 	return workspace{
 		inputDir:       filepath.Join(r.workDir, "input"),
+		stageDir:       r.workDir,
 		resultingLog:   filepath.Join(r.workDir, "output", "resulting_log.json"),
 		resultingAlert: filepath.Join(r.workDir, "output", "resulting_alert.json"),
 	}
@@ -150,7 +152,7 @@ func (ws workspace) submitLog(log *plugins.Log) error {
 		return fmt.Errorf("ensure input dir: %w", err)
 	}
 	dst := filepath.Join(ws.inputDir, log.Id+".json")
-	if err := os.WriteFile(dst, bytes, 0644); err != nil {
+	if err := WriteFileAtomic(ws.stageDir, dst, bytes, 0644); err != nil {
 		return fmt.Errorf("write input file: %w", err)
 	}
 	return nil

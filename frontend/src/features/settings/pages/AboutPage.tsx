@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   Activity,
   Building2,
-  Database,
   ExternalLink,
   FileText,
   Github,
@@ -20,12 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { aboutHttpService } from '../services/about-http.service'
-import type {
-  ClusterHealth,
-  DatasourceUsage,
-  LicenseInfo,
-  VersionInfo,
-} from '../types/about.types'
+import type { DatasourceUsage, LicenseInfo, VersionInfo } from '../types/about.types'
 
 /* ─── Data model ───────────────────────────────────────────────────────── */
 
@@ -33,10 +27,9 @@ interface AboutData {
   version: VersionInfo | null
   license: LicenseInfo | null
   usage: DatasourceUsage | null
-  cluster: ClusterHealth | null
 }
 
-const EMPTY: AboutData = { version: null, license: null, usage: null, cluster: null }
+const EMPTY: AboutData = { version: null, license: null, usage: null }
 
 function settled<T>(r: PromiseSettledResult<T>): T | null {
   return r.status === 'fulfilled' ? r.value : null
@@ -64,29 +57,28 @@ export function AboutPage() {
 
   const loadAll = useCallback(async () => {
     setLoading(true)
-    const [version, license, usage, cluster] = await Promise.allSettled([
+    const [version, license, usage] = await Promise.allSettled([
       aboutHttpService.version(),
       aboutHttpService.license(),
       aboutHttpService.datasourceUsage(),
-      aboutHttpService.clusterHealth(),
     ])
     // The backend is reachable if any authenticated call resolved.
-    setBackendUp([version, license, usage, cluster].some((r) => r.status === 'fulfilled'))
+    setBackendUp([version, license, usage].some((r) => r.status === 'fulfilled'))
     setData({
       version: settled(version),
       license: settled(license),
       usage: settled(usage),
-      cluster: settled(cluster),
     })
     setLoading(false)
   }, [])
 
-  // Re-check only the live bit (OpenSearch cluster) without a full reload.
+  // Re-check liveness without a full reload: one call the backend can only
+  // answer if it is up.
   const refreshHealth = useCallback(async () => {
     setRefreshing(true)
-    const [cluster] = await Promise.allSettled([aboutHttpService.clusterHealth()])
-    setBackendUp(true)
-    setData((d) => ({ ...d, cluster: settled(cluster) }))
+    const [version] = await Promise.allSettled([aboutHttpService.version()])
+    setBackendUp(version.status === 'fulfilled')
+    setData((d) => ({ ...d, version: settled(version) ?? d.version }))
     setRefreshing(false)
   }, [])
 
@@ -207,13 +199,19 @@ function InstanceCard({ data, isEnterprise }: { data: AboutData; isEnterprise: b
               )}
             </div>
             <dl className="mt-3 space-y-1.5 text-xs">
-              <LicRow k={t('about.license.datasources')}>
-                {license && !isEnterprise
-                  ? t('about.license.communityLimited')
-                  : !license || license.datasources === 0
-                    ? t('about.license.unlimited')
-                    : String(license.datasources)}
-              </LicRow>
+              {/* Absent, not zero, when the caller is a tenant: the contract is
+                  between us and whoever runs the instance. */}
+              {license?.ingestGbPerMonth != null && (
+                <LicRow k={t('about.license.ingest')}>
+                  {!isEnterprise
+                    ? t('about.license.notMetered')
+                    : license.ingestGbPerMonth === 0
+                      ? t('about.license.unlimited')
+                      : t('about.license.gbPerMonth', {
+                          gb: license.ingestGbPerMonth.toLocaleString(),
+                        })}
+                </LicRow>
+              )}
               {hasExpiry && expiry && (
                 <LicRow k={t('about.license.expires')}>
                   <span className="font-mono">{expiry.toLocaleDateString()}</span>
@@ -295,40 +293,6 @@ function buildServices(t: ReturnType<typeof useTranslation>['t'], data: AboutDat
     icon: Server,
   })
 
-  // OpenSearch — red is always Down. Yellow means replicas are unassigned: on a
-  // single-node cluster that's the expected normal state (no second node to host a
-  // replica), so it reads healthy; on a multi-node cluster a yellow is a real
-  // degradation. Green is always healthy.
-  if (data.cluster) {
-    const c = data.cluster
-    const status: Status =
-      c.status === 'red'
-        ? 'down'
-        : c.status === 'yellow' && c.number_of_nodes > 1
-          ? 'degraded'
-          : 'up'
-    items.push({
-      key: 'opensearch',
-      name: t('about.services.opensearch.name'),
-      description: t('about.services.opensearch.desc'),
-      status,
-      detail: t('about.services.opensearch.detail', {
-        nodes: c.number_of_nodes,
-        shards: c.active_shards,
-      }),
-      icon: Database,
-    })
-  } else {
-    items.push({
-      key: 'opensearch',
-      name: t('about.services.opensearch.name'),
-      description: t('about.services.opensearch.desc'),
-      status: 'unknown',
-      detail: t('about.services.unreachable'),
-      icon: Database,
-    })
-  }
-
   return items
 }
 
@@ -396,29 +360,13 @@ function ServiceRow({ service: s }: { service: ServiceItem }) {
 function DatasourceUsageSection({ usage }: { usage: DatasourceUsage | null }) {
   const { t } = useTranslation()
   if (!usage) return null
-  const pct = usage.unlimited || usage.limit === 0 ? 0 : Math.min(100, Math.round((usage.count / usage.limit) * 100))
 
   return (
     <Section title={t('about.usage.title')} subtitle={t('about.usage.subtitle')}>
       <div className="flex items-baseline gap-2">
         <span className="text-2xl font-semibold tabular-nums">{usage.count}</span>
-        <span className="text-sm text-muted-foreground">
-          {usage.unlimited || usage.limit === 0
-            ? t('about.usage.ofUnlimited')
-            : t('about.usage.ofLimit', { limit: usage.limit })}
-        </span>
+        <span className="text-sm text-muted-foreground">{t('about.usage.configured')}</span>
       </div>
-      {!usage.unlimited && usage.limit > 0 && (
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn('h-full rounded-full', usage.overLimit ? 'bg-red-500' : 'bg-primary')}
-            style={{ width: `${Math.max(4, pct)}%` }}
-          />
-        </div>
-      )}
-      {usage.overLimit && (
-        <p className="mt-2 text-xs text-red-500">{t('about.usage.overLimit')}</p>
-      )}
     </Section>
   )
 }

@@ -45,7 +45,8 @@ type config struct {
 	eventProcessorPort int
 
 	// SOC AI
-	socAIBaseURL string
+	socAIBaseURL   string
+	aiRequestLimit int
 
 	// Playground plugin
 	playgroundBaseURL string
@@ -97,7 +98,8 @@ func loadConfig() *config {
 		eventProcessorHost: env.String("EVENT_PROCESSOR_HOST", "event-processor-manager", false),
 		eventProcessorPort: env.Int("EVENT_PROCESSOR_PORT", 9002, false),
 
-		socAIBaseURL: env.String("SOC_AI_BASE_URL", "", false),
+		socAIBaseURL:   env.String("SOC_AI_BASE_URL", "", false),
+		aiRequestLimit: env.Int("APP_AI_REQUEST_LIMIT", -1, false),
 
 		playgroundBaseURL: env.String("PLAYGROUND_BASE_URL", "", false),
 

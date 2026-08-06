@@ -2,6 +2,8 @@ package connectors
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
@@ -11,9 +13,15 @@ type ScheduleRepository interface {
 	Create(ctx context.Context, s *domain.UtmComplianceReportSchedule) error
 	Update(ctx context.Context, s *domain.UtmComplianceReportSchedule) error
 	GetByID(ctx context.Context, id int64) (*domain.UtmComplianceReportSchedule, error)
-	ListByUser(ctx context.Context, userID int64, f dto.ScheduleFilters) ([]domain.UtmComplianceReportSchedule, int64, error)
+	ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]domain.UtmComplianceReportSchedule, int64, error)
 	ListAll(ctx context.Context) ([]domain.UtmComplianceReportSchedule, error)
 	Delete(ctx context.Context, id int64) error
+	// ClaimDue atomically advances LastExecutionDate from expectedLast to
+	// newLast, and reports whether THIS call won the claim. Guards against N
+	// horizontally-scaled replicas all polling the same due schedule and
+	// sending duplicate report emails: only the replica whose compare-and-swap
+	// succeeds proceeds to delivery.
+	ClaimDue(ctx context.Context, id int64, expectedLast, newLast time.Time) (bool, error)
 }
 
 type OpenSearchSQL interface {

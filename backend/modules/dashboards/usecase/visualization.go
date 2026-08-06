@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -9,7 +10,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/connectors"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
-	os_usecase "github.com/utmstack/utmstack/backend/modules/opensearch/usecase"
 )
 
 type visualizationUsecase struct {
@@ -27,7 +27,7 @@ func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualizati
 	if v.DashboardID == 0 {
 		return nil, domain.ErrDashboardIDRequired
 	}
-	if err := sanitizeVisualizationSQL(v); err != nil {
+	if err := sanitizeVisualization(v); err != nil {
 		return nil, err
 	}
 	now := time.Now().UTC()
@@ -50,7 +50,10 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualizati
 	if existing == nil {
 		return nil, domain.ErrNotFound
 	}
-	if err := sanitizeVisualizationSQL(v); err != nil {
+	if existing.SystemOwner {
+		return nil, domain.ErrSystemOwned
+	}
+	if err := sanitizeVisualization(v); err != nil {
 		return nil, err
 	}
 	v.CreatedDate = existing.CreatedDate
@@ -73,22 +76,30 @@ func (u *visualizationUsecase) List(ctx context.Context, f dto.VisualizationFilt
 }
 
 func (u *visualizationUsecase) Delete(ctx context.Context, id uint64) error {
+	existing, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return domain.ErrNotFound
+	}
+	if existing.SystemOwner {
+		return domain.ErrSystemOwned
+	}
 	return u.repo.Delete(ctx, id)
 }
 
-// sanitizeVisualizationSQL trims and validates a visualization's SQL query
-// through the same guard used at query-execution time (opensearch.ValidateSQL:
-// SELECT-only, no comments, no DML/DDL keywords, balanced quotes/parens, only
-// whitelisted aggregate functions). Placeholders like {{timeFilter}} and
-// {{dashboardFilters}} pass through unchanged. Enforcing here on save prevents
-// dangerous queries from ever reaching the database.
-func sanitizeVisualizationSQL(v *domain.Visualization) error {
-	v.SQLQuery = strings.TrimSpace(v.SQLQuery)
-	if v.SQLQuery == "" {
-		return domain.ErrSQLQueryRequired
+func sanitizeVisualization(v *domain.Visualization) error {
+	if strings.TrimSpace(v.Spec) == "" {
+		return domain.ErrSpecRequired
 	}
-	if err := os_usecase.ValidateSQL(v.SQLQuery); err != nil {
-		return fmt.Errorf("%w: %s", domain.ErrInvalidSQL, err.Error())
+
+	var spec domain.Spec
+	if err := json.Unmarshal([]byte(v.Spec), &spec); err != nil {
+		return fmt.Errorf("%w: %s", domain.ErrInvalidSpec, err.Error())
+	}
+	if err := spec.Validate(); err != nil {
+		return fmt.Errorf("%w: %s", domain.ErrInvalidSpec, err.Error())
 	}
 	return nil
 }

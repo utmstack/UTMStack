@@ -93,7 +93,7 @@ func (h *Handler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.Update(c.Request.Context(), c.GetString("user_login"), key, input)
+	resp, err := h.usecase.Update(c.Request.Context(), c.GetString("user_email"), key, input)
 	if resp == nil && err == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "config parameter not found"})
 		return

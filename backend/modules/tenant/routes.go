@@ -20,8 +20,8 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth, mssp, platform gi
 	g.PUT("/:id", write, h.Update)
 	g.DELETE("/:id", write, h.Terminate)
 
-	// Outside the platform gate: the one thing about a tenant the platform may
-	// not decide.
 	own := api.Group("/tenants", userAuth, mssp)
-	own.PUT("/:id/support-access", middleware.RequireAdmin(), middleware.RequireOwnTenant("id"), h.SetSupportAccess)
+	ownTenant := []gin.HandlerFunc{middleware.RequireAdmin(), middleware.RequireOwnTenant("id")}
+	own.GET("/:id/support-access", append(ownTenant, h.GetSupportAccess)...)
+	own.PUT("/:id/support-access", append(ownTenant, h.SetSupportAccess)...)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"gopkg.in/yaml.v3"
 )
 
@@ -190,7 +191,7 @@ func NewFilterUsecase(store *FilterStore) connectors.FilterUsecase {
 	return &filterUsecase{store: store}
 }
 
-func (u *filterUsecase) Create(_ context.Context, req dto.CreateFilterRequest) (*dto.FilterResponse, error) {
+func (u *filterUsecase) Create(ctx context.Context, req dto.CreateFilterRequest) (*dto.FilterResponse, error) {
 	if err := validateFilterContent(req.Content); err != nil {
 		return nil, err
 	}
@@ -198,7 +199,9 @@ func (u *filterUsecase) Create(_ context.Context, req dto.CreateFilterRequest) (
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
 	}
-	entry, err := u.store.Create(req.RelPath, []byte(content))
+	// Empty for every on-prem/single-tenant install — only the shared SaaS
+	// deployment's auth middleware ever populates this.
+	entry, err := u.store.Create(req.RelPath, []byte(content), authz.TenantIDFromContext(ctx))
 	if err != nil {
 		return nil, mapStoreFilterErr(err)
 	}

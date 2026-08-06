@@ -17,14 +17,12 @@ import (
 
 const defaultPageSize = 25
 
-const defaultAdminLogin = "admin"
-
 type tenantUsecase struct {
 	repo  connectors.TenantRepository
-	admin connectors.AdminProvisioner
+	admin connectors.UserProvisioner
 }
 
-func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.AdminProvisioner) connectors.TenantUsecase {
+func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner) connectors.TenantUsecase {
 	return &tenantUsecase{repo: repo, admin: admin}
 }
 
@@ -47,13 +45,8 @@ func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*dom
 		return nil, domain.ErrDomainTaken
 	}
 
-	login := strings.TrimSpace(req.AdminLogin)
-	if login == "" {
-		login = defaultAdminLogin
-	}
-
 	t := &domain.Tenant{
-		ID:     uuid.NewString(),
+		ID:     uuid.New(),
 		Name:   name,
 		Domain: host,
 		Status: domain.StatusActive,
@@ -63,8 +56,7 @@ func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*dom
 	}
 
 	if u.admin != nil {
-		adminCtx := authz.WithTenantID(ctx, t.ID)
-		if err := u.admin.CreateTenantAdmin(adminCtx, t.ID, login, req.AdminEmail); err != nil {
+		if err := provisionAdmin(ctx, u.admin, t.ID, req.AdminEmail, "", true); err != nil {
 			if delErr := u.repo.Delete(ctx, t.ID); delErr != nil {
 				return nil, fmt.Errorf("%w (and the tenant row could not be rolled back: %v)", err, delErr)
 			}
@@ -75,7 +67,7 @@ func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*dom
 	return t, nil
 }
 
-func (u *tenantUsecase) Update(ctx context.Context, id string, req dto.UpdateRequest) (*domain.Tenant, error) {
+func (u *tenantUsecase) Update(ctx context.Context, id uuid.UUID, req dto.UpdateRequest) (*domain.Tenant, error) {
 	t, err := u.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -112,8 +104,12 @@ func (u *tenantUsecase) Update(ctx context.Context, id string, req dto.UpdateReq
 		t.Status = req.Status
 	}
 
-	if req.MaxAIRequests != nil {
-		t.Limits.MaxAIRequests = *req.MaxAIRequests
+	limit, present, err := req.AILimit()
+	if err != nil {
+		return nil, err
+	}
+	if present {
+		t.Limits.MaxAIRequests = limit
 	}
 	if !t.Limits.Valid() {
 		return nil, domain.ErrLimitNegative
@@ -126,7 +122,7 @@ func (u *tenantUsecase) Update(ctx context.Context, id string, req dto.UpdateReq
 	return t, nil
 }
 
-func (u *tenantUsecase) GetByID(ctx context.Context, id string) (*domain.Tenant, error) {
+func (u *tenantUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Tenant, error) {
 	t, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -147,11 +143,11 @@ func (u *tenantUsecase) List(ctx context.Context, f dto.Filter) ([]domain.Tenant
 	return u.repo.List(ctx, f)
 }
 
-func (u *tenantUsecase) SetSupportAccess(ctx context.Context, id string, level domain.SupportAccess) (*domain.Tenant, error) {
-	if !level.Valid() {
+func (u *tenantUsecase) SetSupportAccess(ctx context.Context, id uuid.UUID, level domain.SupportAccess) (*domain.Tenant, error) {
+	if level != domain.SupportNone && level != domain.SupportRead && level != domain.SupportFull {
 		return nil, domain.ErrSupportInvalid
 	}
-	if id == authz.DefaultTenantID {
+	if id.String() == authz.DefaultTenantID {
 		return nil, domain.ErrDefaultTenant
 	}
 
@@ -170,9 +166,9 @@ func (u *tenantUsecase) SetSupportAccess(ctx context.Context, id string, level d
 	return t, nil
 }
 
-func (u *tenantUsecase) Terminate(ctx context.Context, id string) error {
+func (u *tenantUsecase) Terminate(ctx context.Context, id uuid.UUID) error {
 	// Authorisation reads from this tenant: terminating it leaves no way back.
-	if id == authz.DefaultTenantID {
+	if id.String() == authz.DefaultTenantID {
 		return domain.ErrDefaultTenant
 	}
 

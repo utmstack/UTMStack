@@ -6,162 +6,35 @@ import (
 	"fmt"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	osdk "github.com/threatwinds/go-sdk/os"
+
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-// adversaryIndexPattern is the OpenSearch index the adversary aggregation reads.
-const adversaryIndexPattern = "v11-alert-*"
-
-// alertSourceIncludes trims top_hits _source to only fields the frontend renders
-// plus `id` (needed by parseAdversaryAggs to correlate children to parents).
-// Cuts per-doc payload from full alerts (KBs) to ~4 scalar fields, keeping the
-// circuit-breaking parent breaker from tripping on wide time ranges.
-var alertSourceIncludes = []string{"id", "name", "target", "severity"}
-
 // adversaryBucketAggs is the set of sub-aggregations run under each adversary
 // bucket (by host or by IP) — shared so both grouping strategies fetch the
 // same shape of data.
-func adversaryBucketAggs() map[string]any {
-	return map[string]any{
-		// Grab the most-recent adversary Side object.
-		"adversary_obj": map[string]any{
-			"top_hits": map[string]any{
-				"size": 1,
-				"sort": []map[string]any{
-					{"@timestamp": map[string]any{"order": "desc"}},
-				},
-				"_source": map[string]any{
-					"includes": []string{"adversary"},
-				},
-			},
-		},
-		// Parent alerts: must_not exists parentId.
-		"alerts": map[string]any{
-			"filter": map[string]any{
-				"bool": map[string]any{
-					"must_not": []map[string]any{
-						{"exists": map[string]any{"field": "parentId"}},
-					},
-				},
-			},
-			"aggs": map[string]any{
-				"alerts_hits": map[string]any{
-					"top_hits": map[string]any{
-						"size": 100,
-						"sort": []map[string]any{
-							{"@timestamp": map[string]any{"order": "desc"}},
-						},
-						"_source": map[string]any{
-							"includes": alertSourceIncludes,
-						},
-					},
-				},
-			},
-		},
-		// Child alerts grouped by parentId.
-		"child_alerts": map[string]any{
-			"terms": map[string]any{
-				"field": "parentId.keyword",
-				"size":  50,
-			},
-			"aggs": map[string]any{
-				"child_hits": map[string]any{
-					"top_hits": map[string]any{
-						"size": 50,
-						"sort": []map[string]any{
-							{"@timestamp": map[string]any{"order": "desc"}},
-						},
-						"_source": map[string]any{
-							"includes": alertSourceIncludes,
-						},
-					},
-				},
-			},
-		},
-	}
+
+type adversaryUsecase struct {
+	repo connectors.AdversaryRepository
 }
 
-type adversaryUsecase struct{}
-
-func NewAdversaryUsecase() connectors.AdversaryUsecase {
-	return &adversaryUsecase{}
+func NewAdversaryUsecase(repo connectors.AdversaryRepository) connectors.AdversaryUsecase {
+	return &adversaryUsecase{repo: repo}
 }
 
 func (u *adversaryUsecase) FetchAdversaryAlerts(
 	ctx context.Context,
 	filters []common_models.FilterType,
 ) ([]dto.AdversaryResponse, error) {
-	exists, err := osdk.IndexExists(ctx, adversaryIndexPattern)
+	rawAggs, err := u.repo.AdversaryAggs(ctx, filters)
 	if err != nil {
-		_ = catcher.Error("alerts adversary: IndexExists failed", err, nil)
 		return nil, err
 	}
-	if !exists {
+	if rawAggs == nil {
 		return []dto.AdversaryResponse{}, nil
-	}
-
-	body := map[string]any{
-		"size":    0,
-		"timeout": "30s",
-		"query":   common_models.FiltersToQuery(filters),
-		"aggs": map[string]any{
-			// Group by adversary.host when present — internally-identified
-			// attackers (compromised hosts, agents) carry a hostname.
-			"by_host": map[string]any{
-				"filter": map[string]any{
-					"exists": map[string]any{"field": "adversary.host"},
-				},
-				"aggs": map[string]any{
-					"grouped": map[string]any{
-						"terms": map[string]any{
-							"field": "adversary.host.keyword",
-							"size":  100,
-						},
-						"aggs": adversaryBucketAggs(),
-					},
-				},
-			},
-			// Fall back to adversary.ip for docs with no host — the common
-			// case for Internet-facing threats (malicious IPs, external
-			// scanners), which are identified by IP, not hostname.
-			"by_ip": map[string]any{
-				"filter": map[string]any{
-					"bool": map[string]any{
-						"must_not": []map[string]any{
-							{"exists": map[string]any{"field": "adversary.host"}},
-						},
-						"must": []map[string]any{
-							{"exists": map[string]any{"field": "adversary.ip"}},
-						},
-					},
-				},
-				"aggs": map[string]any{
-					"grouped": map[string]any{
-						"terms": map[string]any{
-							"field": "adversary.ip.keyword",
-							"size":  100,
-						},
-						"aggs": adversaryBucketAggs(),
-					},
-				},
-			},
-		},
-	}
-
-	res, err := osdk.RawSearch(ctx, []string{adversaryIndexPattern}, body)
-	if err != nil {
-		_ = catcher.Error("alerts adversary: OpenSearch search failed", err, nil)
-		return nil, err
-	}
-
-	// parseAdversaryAggs decodes the full {"aggregations": {...}} envelope.
-	rawAggs, err := json.Marshal(map[string]any{"aggregations": res.Aggregations})
-	if err != nil {
-		return nil, err
 	}
 	return parseAdversaryAggs(rawAggs)
 }

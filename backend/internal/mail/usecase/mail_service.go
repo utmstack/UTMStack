@@ -23,15 +23,15 @@ func New(repo connectors.MailConfigurationRepository) connectors.MailService {
 	return &mailService{repo: repo}
 }
 
-func (s *mailService) SendMail(ctx context.Context, address []string, body string, attatchments []domain.Attatchment) error {
+func (s *mailService) SendMail(ctx context.Context, address []string, subject, body string, attatchments []domain.Attatchment) error {
 	cfg, err := s.repo.GetMailConfiguration(ctx)
 	if err != nil {
 		return fmt.Errorf("load mail config: %w", err)
 	}
-	return s.SendMailWithConfig(ctx, cfg, address, body, attatchments)
+	return s.SendMailWithConfig(ctx, cfg, address, subject, body, attatchments)
 }
 
-func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, address []string, body string, attatchments []domain.Attatchment) error {
+func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailConfig, address []string, subject, body string, attatchments []domain.Attatchment) error {
 	if cfg == nil {
 		return fmt.Errorf("mail configuration is nil")
 	}
@@ -42,7 +42,7 @@ func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailC
 		return fmt.Errorf("no recipients")
 	}
 
-	msg, err := buildMessage(cfg, address, body, attatchments)
+	msg, err := buildMessage(cfg, address, subject, body, attatchments)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *mailService) SendMailWithConfig(ctx context.Context, cfg *domain.EmailC
 	return smtp.SendMail(addr, auth, from, address, msg)
 }
 
-func (s *mailService) SendTemplateMail(ctx context.Context, address []string, tmpl string, vars map[string]string, locale string) error {
+func (s *mailService) SendTemplateMail(ctx context.Context, address []string, subject, tmpl string, vars map[string]string, locale string) error {
 	tpl, err := template.New("mail").Parse(tmpl)
 	if err != nil {
 		return fmt.Errorf("parse template: %w", err)
@@ -66,7 +66,7 @@ func (s *mailService) SendTemplateMail(ctx context.Context, address []string, tm
 	if err := tpl.Execute(&buf, data); err != nil {
 		return fmt.Errorf("render template: %w", err)
 	}
-	return s.SendMail(ctx, address, buf.String(), nil)
+	return s.SendMail(ctx, address, subject, buf.String(), nil)
 }
 
 func smtpAuth(cfg *domain.EmailConfig) smtp.Auth {
@@ -83,13 +83,16 @@ func senderAddress(cfg *domain.EmailConfig) string {
 	return cfg.Username
 }
 
-func buildMessage(cfg *domain.EmailConfig, to []string, body string, attatchments []domain.Attatchment) ([]byte, error) {
+func buildMessage(cfg *domain.EmailConfig, to []string, subject, body string, attatchments []domain.Attatchment) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
 	headers := textproto.MIMEHeader{}
 	headers.Set("From", senderAddress(cfg))
 	headers.Set("To", strings.Join(to, ", "))
+	// Without this every message arrives blank-subject, which reads as spam to
+	// both the recipient and their filter.
+	headers.Set("Subject", subject)
 	headers.Set("MIME-Version", "1.0")
 	headers.Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
 	if cfg.Orgname != "" {

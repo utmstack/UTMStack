@@ -1,6 +1,8 @@
 package dto
 
+import "github.com/google/uuid"
+
 type UserAssignedDTO struct {
-	ID    int64  `json:"id"`
-	Login string `json:"login"`
+	ID    uuid.UUID `json:"id"`
+	Login string    `json:"login"`
 }

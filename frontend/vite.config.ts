@@ -46,7 +46,11 @@ export default defineConfig(({ mode }) => ({
       // (which proxies on to the selected instance). Avoids CORS during dev.
       '/api': {
         target: API_TARGET,
-        changeOrigin: true,
+        // Keep the browser's Host. The backend resolves the tenant from it, so
+        // rewriting it here would send every dev request to whichever tenant
+        // owns the API_TARGET host — making the other tenants unreachable from
+        // the dev server. Reach one at http://<its-domain>:5199.
+        changeOrigin: false,
         secure: false, // API_TARGET may be an internal/self-signed HTTPS host
         configure: spoofOriginHeaders,
       },

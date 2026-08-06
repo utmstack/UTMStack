@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from '@/features/auth'
+import { ProtectedRoute, useAuth } from '@/features/auth'
+import { TenantsPage } from '@/features/tenants/pages/TenantsPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { FederationGate, InstancePickerPage } from '@/features/federation'
@@ -34,7 +35,6 @@ import { DataProcessingPage } from '@/features/data-processing/pages/DataProcess
 import { TeamPage } from '@/features/team/pages/TeamPage'
 import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
 import { DataRetentionPage } from '@/features/settings/pages/DataRetentionPage'
-import { IndicesPage } from '@/features/settings/pages/IndicesPage'
 import { BrandingPage } from '@/features/branding'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
@@ -42,7 +42,8 @@ import { SocAiSettingsPage } from '@/features/settings/pages/SocAiSettingsPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
 import { LanguagePage } from '@/features/settings/pages/LanguagePage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
-import { LicensePage } from '@/features/billing'
+import { SupportAccessPage } from '@/features/settings/pages/SupportAccessPage'
+import { LicensePage, useBilling } from '@/features/billing'
 import { NotificationsPage } from '@/features/notifications'
 import { ApiKeysPage } from '@/features/api-keys'
 import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
@@ -95,6 +96,17 @@ export function AppRoutes() {
       >
         <Route index element={<Navigate to="/home" replace />} />
         <Route path="home" element={<HomePage />} />
+        {/* Tenants belong to whoever runs the instance, not to a customer. The
+            route is gated as well as hidden: a URL typed by hand must not reach
+            it either. */}
+        <Route
+          path="tenants"
+          element={
+            <PlatformOnly requiresMSSP>
+              <TenantsPage />
+            </PlatformOnly>
+          }
+        />
         {/* Dashboards */}
         <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
         <Route path="dashboards/list" element={<DashboardPage />} />
@@ -140,17 +152,40 @@ export function AppRoutes() {
         {/* Federation serves its own flat team page from the admin chrome (top-level). */}
         {!IS_FEDERATION && <Route path="team" element={<TeamPage />} />}
         {/* Settings — drill-down sub-pages */}
-        <Route path="settings" element={<Navigate to="/settings/license" replace />} />
-        <Route path="settings/license" element={<LicensePage />} />
+        <Route path="settings" element={<SettingsIndex />} />
+        {/* The licence, the retention policy and the build are properties of the
+            instance, not of a customer on it. A tenant is shown neither. */}
+        <Route
+          path="settings/license"
+          element={
+            <PlatformOnly>
+              <LicensePage />
+            </PlatformOnly>
+          }
+        />
         <Route path="settings/notifications" element={<NotificationsPage />} />
         {/* Legacy redirect — the workspaces module was removed */}
-        <Route path="settings/workspaces" element={<Navigate to="/settings/license" replace />} />
+        <Route path="settings/workspaces" element={<Navigate to="/settings" replace />} />
         <Route path="settings/connection-key" element={<ConnectionKeyPage />} />
-        <Route path="settings/data-retention" element={<DataRetentionPage />} />
-        <Route path="settings/indices" element={<IndicesPage />} />
-        {/* Legacy redirects */}
-        <Route path="settings/index-management" element={<Navigate to="/settings/indices" replace />} />
-        <Route path="settings/index-patterns" element={<Navigate to="/settings/indices" replace />} />
+        <Route
+          path="settings/data-retention"
+          element={
+            <PlatformOnly>
+              <DataRetentionPage />
+            </PlatformOnly>
+          }
+        />
+        {/* The mirror image of /tenants: what a customer grants, not what the
+            operator takes. The platform's own tenant has nobody to grant it to,
+            and the backend refuses it there. */}
+        <Route
+          path="settings/support-access"
+          element={
+            <TenantOnly>
+              <SupportAccessPage />
+            </TenantOnly>
+          }
+        />
         <Route path="settings/branding" element={<BrandingPage />} />
         <Route path="settings/theme" element={<Navigate to="/settings/branding" replace />} />
         {/* API keys are per-user (a key authenticates AS its owner). Not available in federation. */}
@@ -162,7 +197,14 @@ export function AppRoutes() {
         <Route path="settings/date-format" element={<DateFormatPage />} />
         <Route path="settings/language" element={<LanguagePage />} />
         <Route path="settings/audit-logs" element={<AuditPage />} />
-        <Route path="settings/about" element={<AboutPage />} />
+        <Route
+          path="settings/about"
+          element={
+            <PlatformOnly>
+              <AboutPage />
+            </PlatformOnly>
+          }
+        />
         {/* Instance-user profile (normal mode). In federation the account lives at
             the top-level /profile (FederationProfilePage), reachable without an instance. */}
         {!IS_FEDERATION && <Route path="profile" element={<ProfilePage />} />}
@@ -175,4 +217,63 @@ export function AppRoutes() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
+}
+
+/**
+ * Renders its children only for the instance operator. Anyone else is sent
+ * home, which is also what a customer's administrator gets if they guess the
+ * URL — the backend refuses the calls behind it either way.
+ *
+ * `requiresMSSP` adds the multitenancy licence on top, for pages that are about
+ * having tenants at all. Without it there is only ever one tenant whose
+ * administrator *is* the platform identity, so the platform check alone would
+ * let them through to a page the API answers 403 to.
+ */
+function PlatformOnly({
+  children,
+  requiresMSSP,
+}: {
+  children: React.ReactNode
+  requiresMSSP?: boolean
+}) {
+  const { isPlatformAdmin, isLoading } = useAuth()
+  const mssp = useMSSP()
+  if (isLoading || (requiresMSSP && mssp === 'pending')) return null
+  if (!isPlatformAdmin || (requiresMSSP && !mssp)) return <Navigate to="/home" replace />
+  return <>{children}</>
+}
+
+/**
+ * The complement of PlatformOnly: pages that only mean something to a customer
+ * tenant. The instance operator is sent home — they have nobody to grant access
+ * to, and the backend answers 403 there anyway.
+ */
+function TenantOnly({ children }: { children: React.ReactNode }) {
+  const { isPlatformAdmin, isAdmin, isLoading } = useAuth()
+  const mssp = useMSSP()
+  if (isLoading || mssp === 'pending') return null
+  if (isPlatformAdmin || !isAdmin || !mssp) return <Navigate to="/home" replace />
+  return <>{children}</>
+}
+
+/**
+ * Whether this install is licensed for multitenancy, with an explicit "not yet
+ * known" so a guard holds instead of bouncing a page refresh that arrives
+ * before the licence does. An unreadable licence counts as no.
+ */
+function useMSSP(): boolean | 'pending' {
+  const { license, error } = useBilling()
+  if (license === null && !error) return 'pending'
+  return license?.mssp === true
+}
+
+/**
+ * Where /settings lands. The licence page is the operator's home for this area
+ * but is hidden from tenants, so sending everyone there would bounce a customer
+ * administrator straight back out.
+ */
+function SettingsIndex() {
+  const { isPlatformAdmin, isLoading } = useAuth()
+  if (isLoading) return null
+  return <Navigate to={isPlatformAdmin ? '/settings/license' : '/settings/notifications'} replace />
 }

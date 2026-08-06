@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bot, Eye, EyeOff, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Bot, Building2, Eye, EyeOff, Loader2, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { socaiHttpService } from '../services/socai-http.service'
+import { socaiHttpService, type SocAiUsage } from '../services/socai-http.service'
 import { useTiUsage } from '@/features/threat-intel/hooks/use-ti-usage'
+import { useAuth } from '@/features/auth'
 
 // The path key CM's usage endpoint reports for SOC-AI traffic (see
 // CustomersManager proxy/handlers/usage.go — keyed by rate-limited prefix).
@@ -198,6 +199,7 @@ function emptyForm(provider = 'threatwinds'): Form {
 
 export function SocAiSettingsPage() {
   const { t } = useTranslation()
+  const { isPlatformAdmin } = useAuth()
   const [form, setForm] = useState<Form>(() => emptyForm())
   const [initial, setInitial] = useState<Form>(() => emptyForm())
   const [modelCustom, setModelCustom] = useState(false)
@@ -206,6 +208,10 @@ export function SocAiSettingsPage() {
   const [showKey, setShowKey] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  // Whether what is on screen is the instance default or this tenant's own.
+  const [inherited, setInherited] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -213,6 +219,7 @@ export function SocAiSettingsPage() {
       .get()
       .then((cfg) => {
         if (cancelled) return
+        setInherited(cfg.inherited)
         const provider = cfg.provider && PROVIDERS[cfg.provider] ? cfg.provider : 'threatwinds'
         const def = PROVIDERS[provider]
         const v: Form = {
@@ -242,7 +249,21 @@ export function SocAiSettingsPage() {
     return () => {
       cancelled = true
     }
-  }, [t])
+  }, [t, reloadKey])
+
+  const stopOverriding = async () => {
+    if (resetting) return
+    setResetting(true)
+    try {
+      await socaiHttpService.resetToDefault()
+      toast.success(t('socAi.inheritance.reverted'))
+      setReloadKey((k) => k + 1)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('socAi.saveError'))
+    } finally {
+      setResetting(false)
+    }
+  }
 
   const def = PROVIDERS[form.provider]
   const patch = (p: Partial<Form>) => setForm((f) => ({ ...f, ...p }))
@@ -335,6 +356,13 @@ export function SocAiSettingsPage() {
         </div>
       ) : (
         <div className="mt-6 space-y-5">
+          {/* Whose configuration this is. Without it a tenant cannot tell an
+              inherited default from something they chose, and saving quietly
+              turns one into the other. */}
+          <InheritanceNotice inherited={inherited} busy={resetting} onRevert={stopOverriding} />
+
+          <AIAllowanceSection />
+
           {/* Provider & model */}
           <Section title={t('socAi.section.connection')}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -414,8 +442,10 @@ export function SocAiSettingsPage() {
             {def.note && <p className="mt-4 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">{t(def.note)}</p>}
           </Section>
 
-          {/* Usage — only for the ThreatWinds provider, backed by CM's proxy quota. */}
-          {form.provider === 'threatwinds' && <ThreatWindsUsageSection />}
+          {/* CM's proxy quota — the whole instance's, summed over every tenant,
+              so only the operator sees it. A tenant reads its own allowance
+              from the section at the top instead. */}
+          {form.provider === 'threatwinds' && isPlatformAdmin && <ThreatWindsUsageSection />}
 
           {/* Authentication — only for a fully custom gateway. */}
           {def.custom && (
@@ -541,6 +571,95 @@ export function SocAiSettingsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Says whose configuration is on screen. Inherited means the instance default:
+ * saving here stops following it, so the difference has to be visible before
+ * the user touches anything.
+ */
+function InheritanceNotice({
+  inherited,
+  busy,
+  onRevert,
+}: {
+  inherited: boolean
+  busy: boolean
+  onRevert: () => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border px-4 py-3 text-xs',
+        inherited ? 'border-sky-500/30 bg-sky-500/5' : 'border-border bg-muted/30'
+      )}
+    >
+      {inherited ? <Building2 size={14} className="text-sky-500" /> : <Bot size={14} className="text-muted-foreground" />}
+      <span className="text-muted-foreground">
+        {inherited ? t('socAi.inheritance.inherited') : t('socAi.inheritance.own')}
+      </span>
+      {!inherited && (
+        <Button variant="outline" size="sm" className="ml-auto" disabled={busy} onClick={onRevert}>
+          <RotateCcw size={13} className="mr-1.5" />
+          {busy ? t('socAi.inheritance.reverting') : t('socAi.inheritance.revert')}
+        </Button>
+      )}
+    </div>
+  )
+}
+
+/**
+ * What this tenant may spend on AI today. The cap is the operator's, set from
+ * the tenants page, so it is shown here rather than edited.
+ */
+function AIAllowanceSection() {
+  const { t } = useTranslation()
+  const [usage, setUsage] = useState<SocAiUsage | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    socaiHttpService
+      .usage()
+      .then((u) => {
+        if (!cancelled) setUsage(u)
+      })
+      .catch(() => {
+        /* the allowance is context, not the point of the page */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // A negative limit is the instance saying "no cap of mine either", which is
+  // not worth a section of its own.
+  if (!usage || usage.limit < 0) return null
+
+  const denied = usage.limit === 0
+  const pct = denied ? 100 : Math.min(100, Math.round((usage.used / usage.limit) * 100))
+
+  return (
+    <Section title={t('socAi.allowance.title')}>
+      <div className="flex flex-wrap items-baseline gap-2 text-sm">
+        <span className="text-2xl font-semibold tabular-nums">{usage.used}</span>
+        <span className="text-muted-foreground">
+          {denied
+            ? t('socAi.allowance.denied')
+            : t('socAi.allowance.ofLimit', { limit: usage.limit })}
+        </span>
+      </div>
+      {!denied && (
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className={cn('h-full rounded-full', pct >= 90 ? 'bg-red-500' : 'bg-primary')}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      )}
+      <p className="mt-2 text-[11px] text-muted-foreground">{t('socAi.allowance.hint')}</p>
+    </Section>
   )
 }
 

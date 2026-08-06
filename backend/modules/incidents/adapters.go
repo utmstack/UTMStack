@@ -2,6 +2,7 @@ package incidents
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	alerts_connectors "github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	alerts_dto "github.com/utmstack/utmstack/backend/modules/alerts/dto"
@@ -41,7 +42,7 @@ func NewIAMGatewayFromRepo(userRepo iam_connectors.UserRepository) connectors.IA
 	return &iamGatewayAdapter{userRepo: userRepo}
 }
 
-func (a *iamGatewayAdapter) FindUsersByIDs(ctx context.Context, ids []int64) ([]dto.UserAssignedDTO, error) {
+func (a *iamGatewayAdapter) FindUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]dto.UserAssignedDTO, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -55,8 +56,8 @@ func (a *iamGatewayAdapter) FindUsersByIDs(ctx context.Context, ids []int64) ([]
 	result := make([]dto.UserAssignedDTO, 0, len(users))
 	for _, u := range users {
 		result = append(result, dto.UserAssignedDTO{
-			ID:    int64(u.ID),
-			Login: u.Login,
+			ID:    u.ID,
+			Login: u.Email,
 		})
 	}
 	return result, nil

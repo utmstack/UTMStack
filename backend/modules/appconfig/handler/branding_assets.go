@@ -155,7 +155,7 @@ func (h *BrandingHandler) UploadAsset(c *gin.Context) {
 		c.JSON(http.StatusUnsupportedMediaType, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.SetAsset(c.Request.Context(), c.GetString("user_login"), slot, url)
+	resp, err := h.usecase.SetAsset(c.Request.Context(), c.GetString("user_email"), slot, url)
 	audit.Record(c, audit_connectors.Event{Action: "branding.asset.uploaded", ResourceType: "branding", ResourceID: slot},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if errors.Is(err, usecase.ErrUnknownAssetSlot) {

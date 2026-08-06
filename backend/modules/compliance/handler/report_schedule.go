@@ -37,7 +37,7 @@ func (h *ScheduleHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.uc.Create(c.Request.Context(), int64(actor), req)
+	resp, err := h.uc.Create(c.Request.Context(), actor, req)
 	ev := audit_connectors.Event{Action: "compliance.schedule.create", ResourceType: "compliance_report_schedule"}
 	if resp != nil {
 		ev.ResourceID = strconv.FormatInt(resp.ID, 10)
@@ -70,7 +70,7 @@ func (h *ScheduleHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.uc.Update(c.Request.Context(), int64(actor), req)
+	resp, err := h.uc.Update(c.Request.Context(), actor, req)
 	audit.Record(c, audit_connectors.Event{Action: "compliance.schedule.update", ResourceType: "compliance_report_schedule", ResourceID: strconv.FormatInt(req.ID, 10)},
 		audit_domain.COMPLIANCE_SCHEDULE_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_SCHEDULE_UPDATE_SUCCESS, err)
 	if err != nil {
@@ -98,7 +98,7 @@ func (h *ScheduleHandler) ListByUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	items, total, err := h.uc.ListByUser(c.Request.Context(), int64(actor), f)
+	items, total, err := h.uc.ListByUser(c.Request.Context(), actor, f)
 	if err != nil {
 		writeError(c, err)
 		return

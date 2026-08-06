@@ -35,17 +35,39 @@ func (r *pgRepo) inherited(ctx context.Context, tenant string) *gorm.DB {
 	return q.Where("tenant_id IN ?", []string{tenant, authz.DefaultTenantID})
 }
 
+func preferOwn(rows []domain.Config, tenant string) *domain.Config {
+	var inherited *domain.Config
+	for i := range rows {
+		if rows[i].TenantID == tenant {
+			return &rows[i]
+		}
+		inherited = &rows[i]
+	}
+	return inherited
+}
+
 func (r *pgRepo) List(ctx context.Context) ([]domain.Config, error) {
 	tenant := actingTenant(ctx)
 
-	var items []domain.Config
-	err := r.inherited(ctx, tenant).
-		Select("DISTINCT ON (conf_param_short) *").
-		Order("conf_param_short ASC").
-		Order(gorm.Expr("(tenant_id = ?) DESC", tenant)).
-		Find(&items).Error
-	if err != nil {
+	var rows []domain.Config
+	if err := r.inherited(ctx, tenant).Order("conf_param_short ASC").Find(&rows).Error; err != nil {
 		return nil, err
+	}
+
+	byKey := make(map[string][]domain.Config, len(rows))
+	keys := make([]string, 0, len(rows))
+	for _, row := range rows {
+		if _, seen := byKey[row.ConfParamShort]; !seen {
+			keys = append(keys, row.ConfParamShort)
+		}
+		byKey[row.ConfParamShort] = append(byKey[row.ConfParamShort], row)
+	}
+
+	items := make([]domain.Config, 0, len(keys))
+	for _, key := range keys {
+		if row := preferOwn(byKey[key], tenant); row != nil {
+			items = append(items, *row)
+		}
 	}
 	return items, nil
 }
@@ -53,18 +75,11 @@ func (r *pgRepo) List(ctx context.Context) ([]domain.Config, error) {
 func (r *pgRepo) GetByKey(ctx context.Context, key string) (*domain.Config, error) {
 	tenant := actingTenant(ctx)
 
-	var c domain.Config
-	err := r.inherited(ctx, tenant).
-		Where("conf_param_short = ?", key).
-		Order(gorm.Expr("(tenant_id = ?) DESC", tenant)).
-		Take(&c).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-	if err != nil {
+	var rows []domain.Config
+	if err := r.inherited(ctx, tenant).Where("conf_param_short = ?", key).Find(&rows).Error; err != nil {
 		return nil, err
 	}
-	return &c, nil
+	return preferOwn(rows, tenant), nil
 }
 
 func (r *pgRepo) GetOwn(ctx context.Context, key string) (*domain.Config, error) {

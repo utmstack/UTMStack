@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 
 	"gorm.io/gorm"
 
@@ -25,11 +26,11 @@ func (r *pgTenantRepository) Update(ctx context.Context, t *domain.Tenant) error
 	return r.db.WithContext(ctx).Save(t).Error
 }
 
-func (r *pgTenantRepository) Delete(ctx context.Context, id string) error {
+func (r *pgTenantRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&domain.Tenant{}).Error
 }
 
-func (r *pgTenantRepository) FindByID(ctx context.Context, id string) (*domain.Tenant, error) {
+func (r *pgTenantRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Tenant, error) {
 	return r.findOne(ctx, "id = ?", id)
 }
 

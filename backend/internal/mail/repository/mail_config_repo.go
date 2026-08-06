@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	app_cfg_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/internal/mail/connectors"
 	"github.com/utmstack/utmstack/backend/internal/mail/domain"
+	app_cfg_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/constants"
 )
 

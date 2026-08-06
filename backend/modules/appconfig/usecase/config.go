@@ -178,7 +178,7 @@ func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig) er
 			}
 		}
 		ec := toEmailConfig(cfg)
-		if err := s.mailer.SendMailWithConfig(ctx, &ec, []string{cfg.From}, body, nil); err != nil {
+		if err := s.mailer.SendMailWithConfig(ctx, &ec, []string{cfg.From}, "Test message", body, nil); err != nil {
 			return fmt.Errorf("config[%d] (%s:%d): %w", i, cfg.Host, cfg.Port, err)
 		}
 	}

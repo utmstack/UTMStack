@@ -80,7 +80,7 @@ export function AuditPage() {
           filters.status ||
           filters.resource_type ||
           filters.resource_id ||
-          filters.user_login ||
+          filters.user_email ||
           filters.from ||
           filters.to,
       ),
@@ -94,7 +94,7 @@ export function AuditPage() {
     const successRate = data.length === 0 ? 100 : Math.round((successes / data.length) * 1000) / 10
     const actors = new Set<string>()
     data.forEach((d) => {
-      if (d.user_login) actors.add(d.user_login)
+      if (d.user_email) actors.add(d.user_email)
       else actors.add('__system__')
     })
     const actionCounts = new Map<string, number>()
@@ -367,8 +367,8 @@ function FilterCard({
         <Field label={t('audit.filters.user')}>
           <Input
             placeholder={t('audit.filters.userPlaceholder')}
-            value={filters.user_login ?? ''}
-            onChange={(e) => onChange('user_login', e.target.value)}
+            value={filters.user_email ?? ''}
+            onChange={(e) => onChange('user_email', e.target.value)}
             className="h-9 text-xs"
           />
         </Field>
@@ -465,8 +465,8 @@ function TableCard({
               {formatDateTime(log.timestamp)}
             </div>
             <div className="truncate">
-              {log.user_login ? (
-                <span className="font-medium">{log.user_login}</span>
+              {log.user_email ? (
+                <span className="font-medium">{log.user_email}</span>
               ) : (
                 <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
               )}
@@ -621,8 +621,8 @@ function OverviewTab({ log }: { log: AuditLog }) {
       )}
 
       <DetailRow label={t('audit.drawer.actor')}>
-        {log.user_login ? (
-          <span className="font-medium">{log.user_login}</span>
+        {log.user_email ? (
+          <span className="font-medium">{log.user_email}</span>
         ) : (
           <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
         )}

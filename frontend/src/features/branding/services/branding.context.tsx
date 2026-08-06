@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { brandingHttpService } from './branding-http.service'
+import { getSupportTenantId } from '@/shared/lib/current-tenant'
 import type { BrandingPublic } from '../types/branding.types'
 
 interface BrandingContextValue {
@@ -45,7 +46,17 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const b = await brandingHttpService.public()
+      // Inside a support session the chrome has to be the tenant's, and only the
+      // authenticated route can tell us whose it is: /branding/public carries no
+      // credentials, so the support header is never looked at and it can only
+      // ever answer for the host it was reached on — the platform's. Everyone
+      // else keeps the public route, which works before anyone has signed in.
+      const raw = getSupportTenantId()
+        ? await brandingHttpService.get()
+        : await brandingHttpService.public()
+      // The admin shape has no language; it is only used pre-login, which a
+      // support session is not.
+      const b: BrandingPublic = { ...raw, language: 'language' in raw ? raw.language : '' }
       setBranding(b)
       applyBranding(b)
     } catch {

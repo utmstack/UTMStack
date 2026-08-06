@@ -38,6 +38,7 @@ type ConfigurationSection struct {
 type ModuleGroup struct {
 	Id                        int32
 	GroupName                 string
+	TenantId                  string
 	ModuleGroupConfigurations []*Configuration
 }
 
@@ -164,10 +165,16 @@ func push(sec *ConfigurationSection) {
 	}
 }
 
-// tenantYAML matches the flat YAML format the backend writes.
+// tenantYAML matches the flat YAML format the backend writes. TenantId is
+// UTMStack's own platform tenant this connector instance belongs to — empty
+// for every on-prem/single-tenant install (readConfig falls back to
+// defaultTenant), only ever set for a SaaS tenant's own connector config.
+// Name stays what it always was: a free-form label for this instance, not a
+// tenant identity.
 type tenantYAML struct {
-	Name   string            `yaml:"name"`
-	Config map[string]string `yaml:",inline"`
+	Name     string            `yaml:"name"`
+	TenantId string            `yaml:"tenantId,omitempty"`
+	Config   map[string]string `yaml:",inline"`
 }
 
 type pluginsFile struct {
@@ -204,6 +211,7 @@ func readConfig(path, encKey string) *ConfigurationSection {
 		grp := &ModuleGroup{
 			Id:        int32(i + 1),
 			GroupName: t.Name,
+			TenantId:  t.TenantId,
 		}
 		for k, v := range t.Config {
 			if sensitiveKeys[k] && encKey != "" {

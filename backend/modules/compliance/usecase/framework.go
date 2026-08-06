@@ -99,24 +99,6 @@ func (u *frameworkUsecase) SetFrameworkEnabled(ctx context.Context, key string, 
 	return u.frameworks.SetEnabled(key, enabled)
 }
 
-// ApplyEntitlement records the authoritative allowed set (pushed by the entitlements
-// plugin) and disables every currently-enabled system framework/control that is no
-// longer permitted, so a license downgrade actually turns them off.
-func (u *frameworkUsecase) ApplyEntitlement(_ context.Context, enterprise bool, frameworks, controls []string) error {
-	u.ent.Set(enterprise, frameworks, controls)
-	for _, fw := range u.frameworks.All() {
-		if fw.Enabled && u.ent.FrameworkLocked(&fw) {
-			_ = u.frameworks.SetEnabled(fw.Key, false)
-		}
-	}
-	for _, c := range u.controls.All() {
-		if c.Enabled && u.ent.ControlLocked(&c) {
-			_ = u.controls.SetEnabled(c.ID, false)
-		}
-	}
-	return nil
-}
-
 func (u *frameworkUsecase) assertReferencedControlsAllowed(f domain.Framework) error {
 	for si := range f.Sections {
 		for ri := range f.Sections[si].Requirements {

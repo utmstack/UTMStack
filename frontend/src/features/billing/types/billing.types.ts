@@ -1,15 +1,27 @@
 export type Edition = 'community' | 'enterprise'
 
-/** GET /billing/license — the evaluated license (mirrors backend domain.License). */
+/**
+ * GET /billing/license — the evaluated license.
+ *
+ * Only the edition and the MSSP flag are shown to everyone: they decide what
+ * the UI may offer. The commercial terms below are the contract between the
+ * instance operator and us, so the backend withholds them from every tenant but
+ * the default one — a customer administrator gets those fields absent, not zero.
+ */
 export interface License {
   edition: Edition
   mssp: boolean
-  /** Datasource cap; 0 = unlimited. */
-  datasources: number
+  /** Contracted ingest volume in GB per month; 0 = unlimited. */
+  ingestGbPerMonth?: number
   /** 'online' | 'offline' | '' (empty when community). */
-  type: string
+  type?: string
   /** ISO timestamp. Absent/zero when community or perpetual. */
   expiresAt?: string
+}
+
+/** Whether this session is allowed to see the commercial terms at all. */
+export function hasCommercialTerms(license: License): boolean {
+  return license.ingestGbPerMonth != null
 }
 
 /** GET /billing/version — deployment + instance info from version.json / instance-config.yml. */
@@ -20,9 +32,6 @@ export interface VersionInfo {
   server?: string
   instanceId?: string
 }
-
-/** Datasource cap for the community edition (backend: entitlements plugin communityCap). */
-export const COMMUNITY_DATASOURCE_CAP = 25
 
 export type LicenseStatus = 'community' | 'active' | 'expiring' | 'expired'
 

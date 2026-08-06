@@ -1,10 +1,16 @@
 package usecase
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
+	"gopkg.in/yaml.v3"
 )
 
 // FilterEntry is an in-memory record of a filter file.
@@ -13,6 +19,44 @@ type FilterEntry struct {
 	Content []byte // raw YAML content (pipeline: format)
 	System  bool   // true → lives in systemDir; false → userDir
 	Active  bool   // false when a .disabled sibling exists
+	// TenantId scopes this filter to one tenant — read from the content's own
+	// `pipeline[].tenantId` field, the same one the engine reads. Empty means
+	// global/system, same as before this field existed.
+	TenantId string
+}
+
+// genericPipelineFile is a loosely-typed mirror of the `pipeline:` YAML
+// format, used only to read/write the tenantId field without needing to
+// model the entire Step schema (grok, kv, csv, ...) in this package.
+type genericPipelineFile struct {
+	Pipeline []map[string]any `yaml:"pipeline"`
+}
+
+// filterTenantID reads the tenantId of a filter's first (and, in practice,
+// only) pipeline entry — mirrors filter.go's firstPipelineOrder.
+func filterTenantID(content []byte) string {
+	var cfg genericPipelineFile
+	if err := yaml.Unmarshal(content, &cfg); err != nil || len(cfg.Pipeline) == 0 {
+		return ""
+	}
+	v, _ := cfg.Pipeline[0]["tenantId"].(string)
+	return v
+}
+
+// withTenantID sets (or clears) tenantId on every pipeline entry in content.
+func withTenantID(content []byte, tenantId string) ([]byte, error) {
+	var cfg genericPipelineFile
+	if err := yaml.Unmarshal(content, &cfg); err != nil {
+		return nil, err
+	}
+	for i := range cfg.Pipeline {
+		if tenantId == "" {
+			delete(cfg.Pipeline[i], "tenantId")
+		} else {
+			cfg.Pipeline[i]["tenantId"] = tenantId
+		}
+	}
+	return yaml.Marshal(cfg)
 }
 
 // FilterStore manages two overlay directories for pipeline-format filter YAML
@@ -70,10 +114,11 @@ func (s *FilterStore) Load() error {
 				return nil
 			}
 			s.filters[rel] = &FilterEntry{
-				RelPath: rel,
-				Content: data,
-				System:  root.system,
-				Active:  active,
+				RelPath:  rel,
+				Content:  data,
+				System:   root.system,
+				Active:   active,
+				TenantId: filterTenantID(data),
 			}
 			return nil
 		})
@@ -82,6 +127,24 @@ func (s *FilterStore) Load() error {
 		}
 	}
 	return nil
+}
+
+// Watch periodically reloads the filter overlays so this replica picks up
+// filters/enable-state written by another backend replica sharing the same
+// directories. Intended to run as its own goroutine for the lifetime of ctx.
+func (s *FilterStore) Watch(ctx context.Context) {
+	ticker := time.NewTicker(reloadInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := s.Load(); err != nil {
+				_ = catcher.Error("eventprocessing: periodic filter reload failed", err, nil)
+			}
+		}
+	}
 }
 
 // List returns all filter entries (copy).
@@ -107,21 +170,40 @@ func (s *FilterStore) GetByRelPath(relPath string) *FilterEntry {
 	return &cp
 }
 
-// Create writes a new filter file to userDir. Returns os.ErrExist if already present.
-func (s *FilterStore) Create(relPath string, content []byte) (*FilterEntry, error) {
+// Create writes a new filter file to userDir. tenantId scopes the filter to
+// one tenant — empty means a global user filter, placed exactly as before
+// this field existed. A tenant-owned filter lives in its own subfolder
+// (userDir/<tenantId>/), and its filename is suffixed with the tenant id too:
+// identity (see pipelineIdentity in go-sdk) is basename-only, so without the
+// suffix two tenants picking the same filter name would collide on the exact
+// same identity the engine uses. Returns os.ErrExist if already present.
+func (s *FilterStore) Create(relPath string, content []byte, tenantId string) (*FilterEntry, error) {
+	if tenantId != "" {
+		injected, err := withTenantID(content, tenantId)
+		if err != nil {
+			return nil, fmt.Errorf("invalid filter content: %w", err)
+		}
+		content = injected
+
+		base := filepath.Base(relPath)
+		ext := filepath.Ext(base)
+		name := strings.TrimSuffix(base, ext)
+		relPath = filepath.ToSlash(filepath.Join(tenantId, name+"-"+tenantId+ext))
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, exists := s.filters[relPath]; exists {
 		return nil, os.ErrExist
 	}
-	target := filepath.Join(s.userDir, relPath)
+	target := filepath.Join(s.userDir, filepath.FromSlash(relPath))
 	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 		return nil, err
 	}
 	if err := atomicWrite(target, content); err != nil {
 		return nil, err
 	}
-	entry := &FilterEntry{RelPath: relPath, Content: content, System: false, Active: true}
+	entry := &FilterEntry{RelPath: relPath, Content: content, System: false, Active: true, TenantId: tenantId}
 	s.filters[relPath] = entry
 	cp := *entry
 	return &cp, nil

@@ -22,3 +22,9 @@ backend/backend
 
 # Local docker dev harness (compose + build.sh + .env)
 dev-backend/
+
+# Playwright MCP scratch output (screenshots, snapshots)
+.playwright-mcp/
+
+# Compiled plugin binaries
+plugins/*/rule-flood-guard

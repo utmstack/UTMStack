@@ -3,7 +3,7 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
-import type { ChartView, FilterType, IndexField, IndexPattern } from '../types/log-explorer.types'
+import type { ChartView, FilterType, IndexField } from '../types/log-explorer.types'
 import { SELECT_CLS, TS } from './log-explorer.constants'
 import { TermsChart } from './TermsChart'
 import { TimeChart } from './TimeChart'
@@ -24,7 +24,7 @@ export function ChartPanel({
   fields,
   filters,
 }: {
-  pattern: IndexPattern | null
+  pattern: string | null
   fields: IndexField[]
   filters: FilterType[]
 }) {
@@ -55,7 +55,7 @@ export function ChartPanel({
     setError(false)
     svc
       .chartView({
-        indexPattern: pattern.pattern,
+        indexPattern: pattern,
         field: aggField,
         fieldDataType: field.type,
         filters,

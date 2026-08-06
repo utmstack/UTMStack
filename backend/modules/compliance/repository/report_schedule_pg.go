@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
@@ -33,7 +35,7 @@ func (r *pgScheduleRepo) GetByID(ctx context.Context, id int64) (*domain.UtmComp
 	return &s, err
 }
 
-func (r *pgScheduleRepo) ListByUser(ctx context.Context, userID int64, f dto.ScheduleFilters) ([]domain.UtmComplianceReportSchedule, int64, error) {
+func (r *pgScheduleRepo) ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]domain.UtmComplianceReportSchedule, int64, error) {
 	q := r.db.WithContext(ctx).Model(&domain.UtmComplianceReportSchedule{}).Where("user_id = ?", userID)
 	if f.FrameworkKey != "" {
 		q = q.Where("framework_key = ?", f.FrameworkKey)
@@ -60,4 +62,15 @@ func (r *pgScheduleRepo) ListAll(ctx context.Context) ([]domain.UtmComplianceRep
 
 func (r *pgScheduleRepo) Delete(ctx context.Context, id int64) error {
 	return r.db.WithContext(ctx).Delete(&domain.UtmComplianceReportSchedule{}, id).Error
+}
+
+func (r *pgScheduleRepo) ClaimDue(ctx context.Context, id int64, expectedLast, newLast time.Time) (bool, error) {
+	res := r.db.WithContext(ctx).
+		Model(&domain.UtmComplianceReportSchedule{}).
+		Where("id = ? AND last_execution_date = ?", id, expectedLast).
+		Update("last_execution_date", newLast)
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0, nil
 }

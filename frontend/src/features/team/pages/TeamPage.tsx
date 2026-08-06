@@ -7,11 +7,14 @@ import {
   Crown,
   KeyRound,
   Loader2,
+  Lock,
   Pencil,
+  Plus,
   Search,
   Shield,
   ShieldCheck,
   ShieldOff,
+  Trash2,
   UserCheck,
   UserPlus,
   UserX,
@@ -27,11 +30,13 @@ import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { rolesHttpService, TeamHttpError, usersHttpService } from '../services/team-http.service'
 import type {
   PageInfo,
+  Permission,
   Role,
   RoleDetail,
   UserBase,
   UserDetail,
   UserListItem,
+  UserStatus,
 } from '../types/team.types'
 
 const PAGE_SIZE = 20
@@ -52,6 +57,15 @@ function actionLabel(t: TFunction, action: string): string {
   return t(`team.actions.${action}`, { defaultValue: action })
 }
 
+/* Permissions are flat "resource.action" strings; the two halves are what the
+ * matrix groups and labels by. */
+function permResource(name: string): string {
+  return name.split('.')[0] ?? name
+}
+function permAction(name: string): string {
+  return name.split('.')[1] ?? ''
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
  * Page
  * ───────────────────────────────────────────────────────────────────────── */
@@ -64,20 +78,17 @@ export function TeamPage() {
   const [roles, setRoles] = useState<Role[]>([])
 
   // Roles list is small and shared by the pickers + the roles tab.
-  useEffect(() => {
-    let cancelled = false
-    rolesHttpService
-      .list()
-      .then((r) => {
-        if (!cancelled) setRoles(r)
-      })
-      .catch(() => {
-        if (!cancelled) toast.error(t('team.toast.rolesLoadFailed'))
-      })
-    return () => {
-      cancelled = true
+  const loadRoles = useCallback(async () => {
+    try {
+      setRoles(await rolesHttpService.list())
+    } catch {
+      toast.error(t('team.toast.rolesLoadFailed'))
     }
   }, [t])
+
+  useEffect(() => {
+    void loadRoles()
+  }, [loadRoles])
 
   return (
     <div className="w-full px-6 pb-6 pt-3">
@@ -97,7 +108,11 @@ export function TeamPage() {
         </TabBtn>
       </div>
 
-      {view === 'members' ? <MembersView roles={roles} /> : <RolesView roles={roles} />}
+      {view === 'members' ? (
+        <MembersView roles={roles} />
+      ) : (
+        <RolesView roles={roles} onChanged={() => void loadRoles()} />
+      )}
     </div>
   )
 }
@@ -143,7 +158,7 @@ function MembersView({ roles }: { roles: Role[] }) {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
 
-  const [openId, setOpenId] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<string | null>(null)
   const [inviteOpen, setInviteOpen] = useState(false)
 
   // Debounce the search box, and reset to page 1 when the query changes.
@@ -274,7 +289,7 @@ function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void
       onClick={onOpen}
       className={cn(
         'grid cursor-pointer items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/40',
-        !u.activated && 'opacity-70'
+        u.status !== 'active' && 'opacity-70'
       )}
       style={{ gridTemplateColumns: MEMBER_COLS }}
     >
@@ -282,9 +297,14 @@ function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void
         <Avatar user={u} />
         <div className="min-w-0">
           <div className="truncate text-sm font-medium">{fullName(u)}</div>
-          <div className="truncate text-[11px] text-muted-foreground">
-            <span className="font-mono">@{u.login}</span>
-            {u.email ? ` · ${u.email}` : ''}
+          <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+            {u.name?.trim() && <span className="truncate">{u.email}</span>}
+            {u.federated && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded bg-muted px-1 py-px text-[10px]">
+                <KeyRound size={9} />
+                {t('team.members.federated')}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -298,7 +318,7 @@ function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void
       <div>
         {u.tfa_enabled ? (
           <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-            <ShieldCheck size={12} /> {u.tfa_method ?? t('team.members.on')}
+            <ShieldCheck size={12} /> {t('team.members.on')}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-muted-foreground">
@@ -307,7 +327,7 @@ function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void
         )}
       </div>
       <div>
-        <StatusBadge activated={u.activated} defaultPassword={u.default_password} />
+        <StatusBadge status={u.status} />
       </div>
       <div className="flex justify-end text-muted-foreground">
         <Pencil size={13} />
@@ -316,28 +336,35 @@ function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void
   )
 }
 
-function StatusBadge({ activated, defaultPassword }: { activated: boolean; defaultPassword: boolean }) {
+const STATUS_STYLE: Record<UserStatus, { badge: string; dot: string }> = {
+  active: {
+    badge:
+      'bg-emerald-500/15 text-emerald-600 ring-emerald-500/30 dark:text-emerald-300',
+    dot: 'bg-emerald-500',
+  },
+  pending: {
+    badge: 'bg-amber-500/15 text-amber-600 ring-amber-500/30 dark:text-amber-300',
+    dot: 'bg-amber-500',
+  },
+  suspended: {
+    badge: 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300',
+    dot: 'bg-red-500',
+  },
+  inactive: { badge: 'bg-muted text-muted-foreground ring-border', dot: 'bg-zinc-400' },
+}
+
+function StatusBadge({ status }: { status: UserStatus }) {
   const { t } = useTranslation()
-  if (!activated) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-border">
-        <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
-        {t('team.status.inactive')}
-      </span>
-    )
-  }
-  if (defaultPassword) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 ring-1 ring-inset ring-amber-500/30 dark:text-amber-300">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-        {t('team.status.pendingPassword')}
-      </span>
-    )
-  }
+  const style = STATUS_STYLE[status] ?? STATUS_STYLE.inactive
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 ring-1 ring-inset ring-emerald-500/30 dark:text-emerald-300">
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-      {t('team.status.active')}
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset',
+        style.badge
+      )}
+    >
+      <span className={cn('h-1.5 w-1.5 rounded-full', style.dot)} />
+      {t(`team.status.${status}`, { defaultValue: status })}
     </span>
   )
 }
@@ -391,7 +418,7 @@ function MemberDrawer({
   onClose,
   onChanged,
 }: {
-  userId: number
+  userId: string
   roles: Role[]
   onClose: () => void
   onChanged: () => void
@@ -427,9 +454,9 @@ function MemberDrawer({
     }
   }, [userId, onClose, t])
 
-  // Pending invite = created but never accepted (still on the temporary password,
-  // not yet activated). It can't be reactivated — the user must accept first.
-  const isPending = !!user && !user.activated && user.default_password
+  // Pending = invited but never accepted. It can't be reactivated from here —
+  // the user has to finish setting their password first.
+  const isPending = user?.status === 'pending'
 
   // Admins only manage roles + account status. Profile details (name, email,
   // language) are edited by the user themselves on their own Profile page.
@@ -470,12 +497,12 @@ function MemberDrawer({
     }
   }
 
-  const setActivated = async (activated: boolean) => {
+  const setActivated = async (activate: boolean) => {
     if (!user) return
     setBusy(true)
     try {
-      if (activated) {
-        await usersHttpService.update(user.id, { activated: true })
+      if (activate) {
+        await usersHttpService.update(user.id, { status: 'active' })
         toast.success(t('team.toast.userReactivated'))
       } else {
         await usersHttpService.deactivate(user.id)
@@ -509,9 +536,8 @@ function MemberDrawer({
                 <div className="min-w-0">
                   <h2 className="truncate text-lg font-semibold">{fullName(user)}</h2>
                   <div className="truncate text-xs text-muted-foreground">
-                    <span className="font-mono">@{user.login}</span>
-                    {user.created_by ? ` · ${t('team.drawer.createdBy', { actor: user.created_by })}` : ''}
-                    {user.created_date ? ` ${relativeTime(user.created_date, t)}` : ''}
+                    <span className="font-mono">{user.email}</span>
+                    {user.created_at ? ` · ${t('team.drawer.created', { time: relativeTime(user.created_at, t) })}` : ''}
                   </div>
                 </div>
               </div>
@@ -526,13 +552,10 @@ function MemberDrawer({
             <div className="flex-1 space-y-6 overflow-y-auto p-6">
               <DrawerSection title={t('team.drawer.profileTitle')} subtitle={t('team.drawer.profileSubtitle')}>
                 <dl className="grid grid-cols-[110px_1fr] gap-y-2.5 text-xs">
-                  <InfoRow k={t('team.drawer.name')}>
-                    {[user.first_name, user.last_name].filter(Boolean).join(' ') || '—'}
+                  <InfoRow k={t('team.drawer.name')}>{user.name?.trim() || '—'}</InfoRow>
+                  <InfoRow k={t('team.drawer.email')}>
+                    <span className="font-mono">{user.email}</span>
                   </InfoRow>
-                  <InfoRow k={t('team.drawer.username')}>
-                    <span className="font-mono">@{user.login}</span>
-                  </InfoRow>
-                  <InfoRow k={t('team.drawer.email')}>{user.email || '—'}</InfoRow>
                   <InfoRow k={t('team.drawer.language')}>
                     {user.lang_key ? langLabel(user.lang_key) : t('team.langDefault')}
                   </InfoRow>
@@ -541,22 +564,15 @@ function MemberDrawer({
 
               <DrawerSection title={t('team.drawer.accountTitle')}>
                 <ul className="space-y-1 text-[11px] text-muted-foreground">
-                  <li>
-                    {t('team.drawer.status')}:{' '}
-                    {user.activated ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        {t('team.drawer.statusActive')}
-                      </span>
-                    ) : (
-                      <span>{t('team.drawer.statusInactive')}</span>
-                    )}
+                  <li className="flex items-center gap-2">
+                    {t('team.drawer.status')}: <StatusBadge status={user.status} />
                   </li>
                   <li className="flex items-center gap-2">
                     <span>
                       {t('team.drawer.tfa')}:{' '}
                       {user.tfa_enabled ? (
                         <span className="text-emerald-600 dark:text-emerald-400">
-                          {t('team.drawer.tfaEnabled', { method: user.tfa_method })}
+                          {t('team.drawer.tfaEnabled')}
                         </span>
                       ) : (
                         t('team.drawer.tfaNotConfigured')
@@ -575,13 +591,14 @@ function MemberDrawer({
                       </button>
                     )}
                   </li>
-                  {user.default_password && (
+                  {isPending && (
                     <li className="text-amber-600 dark:text-amber-300">
-                      {t('team.drawer.pendingPasswordNote')}
+                      {t('team.drawer.pendingNote')}
                     </li>
                   )}
-                  {user.last_modified_date && (
-                    <li>{t('team.drawer.lastModified', { time: relativeTime(user.last_modified_date, t) })}</li>
+                  {user.federated && <li>{t('team.drawer.federatedNote')}</li>}
+                  {user.updated_at && (
+                    <li>{t('team.drawer.lastModified', { time: relativeTime(user.updated_at, t) })}</li>
                   )}
                 </ul>
               </DrawerSection>
@@ -597,7 +614,7 @@ function MemberDrawer({
             </div>
 
             <footer className="flex items-center justify-between gap-3 border-t border-border px-6 py-3">
-              {user.activated ? (
+              {user.status === 'active' ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -674,14 +691,12 @@ function InviteDialog({
   onCreated: () => void
 }) {
   const { t } = useTranslation()
-  const [login, setLogin] = useState('')
   const [email, setEmail] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [roleNames, setRoleNames] = useState<string[]>(['ROLE_USER'])
+  const [name, setName] = useState('')
+  const [roleNames, setRoleNames] = useState<string[]>(['ROLE_VIEWER'])
   const [busy, setBusy] = useState(false)
 
-  const valid = login.trim().length >= 3 && /.+@.+\..+/.test(email)
+  const valid = /.+@.+\..+/.test(email.trim())
 
   const toggleRole = (name: string) =>
     setRoleNames((rs) => (rs.includes(name) ? rs.filter((r) => r !== name) : [...rs, name]))
@@ -691,10 +706,8 @@ function InviteDialog({
     setBusy(true)
     try {
       await usersHttpService.create({
-        login: login.trim(),
         email: email.trim(),
-        first_name: firstName.trim() || undefined,
-        last_name: lastName.trim() || undefined,
+        name: name.trim() || undefined,
         // No lang_key: the user inherits the platform-default language until they
         // pick their own in their profile.
         role_names: roleNames,
@@ -732,19 +745,16 @@ function InviteDialog({
 
         <div className="space-y-4 px-6 py-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DrawerField label={t('team.invite.username')} hint={t('team.invite.usernameHint')}>
-              <Input value={login} onChange={(e) => setLogin(e.target.value)} className="font-mono" placeholder="jsmith" />
+            <DrawerField label={t('team.invite.email')} hint={t('team.invite.emailHint')}>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="jsmith@company.com"
+              />
             </DrawerField>
-            <DrawerField label={t('team.invite.email')}>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jsmith@company.com" />
-            </DrawerField>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DrawerField label={t('team.invite.firstName')}>
-              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-            </DrawerField>
-            <DrawerField label={t('team.invite.lastName')}>
-              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <DrawerField label={t('team.invite.name')}>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
             </DrawerField>
           </div>
           <div>
@@ -828,18 +838,20 @@ function RolePicker({
  * Roles view — read-only catalog + permission matrix (loaded from the backend)
  * ───────────────────────────────────────────────────────────────────────── */
 
-function RolesView({ roles }: { roles: Role[] }) {
+function RolesView({ roles, onChanged }: { roles: Role[]; onChanged: () => void }) {
   const { t } = useTranslation()
   const [details, setDetails] = useState<RoleDetail[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [editing, setEditing] = useState<RoleDetail | 'new' | null>(null)
+  const [deleting, setDeleting] = useState<RoleDetail | null>(null)
 
   useEffect(() => {
     if (roles.length === 0) return
     let cancelled = false
     setLoading(true)
     setError(false)
-    Promise.all(roles.map((r) => rolesHttpService.get(r.name)))
+    Promise.all(roles.map((r) => rolesHttpService.get(r.id)))
       .then((d) => {
         if (!cancelled) setDetails(d)
       })
@@ -856,17 +868,20 @@ function RolesView({ roles }: { roles: Role[] }) {
 
   // Union of all permissions across roles, grouped by resource (rows of the matrix).
   const byResource = useMemo(() => {
-    const map = new Map<string, Map<string, { name: string; description?: string }>>()
+    const map = new Map<string, Map<string, Permission>>()
     details?.forEach((d) =>
       d.permissions.forEach((p) => {
-        if (!map.has(p.resource)) map.set(p.resource, new Map())
-        map.get(p.resource)!.set(p.name, { name: p.name, description: p.description })
+        const resource = permResource(p.name)
+        if (!map.has(resource)) map.set(resource, new Map())
+        map.get(resource)!.set(p.name, p)
       })
     )
-    return [...map.entries()].map(([resource, perms]) => ({
-      resource,
-      perms: [...perms.values()].sort((a, b) => a.name.localeCompare(b.name)),
-    }))
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([resource, perms]) => ({
+        resource,
+        perms: [...perms.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      }))
   }, [details])
 
   const has = (roleName: string, permName: string) =>
@@ -890,23 +905,55 @@ function RolesView({ roles }: { roles: Role[] }) {
 
   return (
     <div className="mt-5 space-y-5">
-      <div className="rounded-md border border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
-        {t('team.roles.readonlyNote')}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+        <span className="text-xs text-muted-foreground">{t('team.roles.systemNote')}</span>
+        <Button size="sm" onClick={() => setEditing('new')}>
+          <Plus size={14} className="mr-1.5" />
+          {t('team.roles.newRole')}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {details.map((d) => (
           <div key={d.name} className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
               {d.name === 'ROLE_ADMIN' ? (
                 <Crown size={18} className="text-amber-500" />
               ) : (
                 <Shield size={18} className="text-sky-500" />
               )}
-              <div>
-                <div className="text-sm font-semibold">{roleLabel(t, d.name, d.display_name)}</div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  {roleLabel(t, d.name, d.display_name)}
+                  {d.system && (
+                    <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-border">
+                      <Lock size={9} />
+                      {t('team.roles.systemBadge')}
+                    </span>
+                  )}
+                </div>
                 <code className="font-mono text-[10px] text-muted-foreground">{d.name}</code>
               </div>
+              {!d.system && (
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(d)}
+                    title={t('team.roles.edit')}
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Pencil size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleting(d)}
+                    title={t('team.roles.delete')}
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              )}
             </div>
             {roleDesc(t, d.name, d.description) && (
               <p className="mt-2 text-xs text-muted-foreground">{roleDesc(t, d.name, d.description)}</p>
@@ -918,7 +965,9 @@ function RolesView({ roles }: { roles: Role[] }) {
               </span>
               <span>·</span>
               <span>
-                {t('team.roles.modulesCount', { count: new Set(d.permissions.map((p) => p.resource)).size })}
+                {t('team.roles.modulesCount', {
+                  count: new Set(d.permissions.map((p) => permResource(p.name))).size,
+                })}
               </span>
             </div>
           </div>
@@ -955,7 +1004,7 @@ function RolesView({ roles }: { roles: Role[] }) {
                 <div>
                   <code className="font-mono text-[11px]">{p.name}</code>
                   <div className="text-[11px] text-muted-foreground">
-                    {actionLabel(t, p.name.split('.')[1] ?? '')}
+                    {p.description || actionLabel(t, permAction(p.name))}
                   </div>
                 </div>
                 {details.map((d) => (
@@ -965,6 +1014,285 @@ function RolesView({ roles }: { roles: Role[] }) {
             ))}
           </div>
         ))}
+      </div>
+
+      {editing && (
+        <RoleEditor
+          role={editing === 'new' ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null)
+            onChanged()
+          }}
+        />
+      )}
+      {deleting && (
+        <DeleteRoleDialog
+          role={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={() => {
+            setDeleting(null)
+            onChanged()
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Role editor — create a tenant role, or edit one that isn't a system role
+ * ───────────────────────────────────────────────────────────────────────── */
+
+function RoleEditor({
+  role,
+  onClose,
+  onSaved,
+}: {
+  role: RoleDetail | null
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const { t } = useTranslation()
+  const [catalog, setCatalog] = useState<Permission[] | null>(null)
+  const [name, setName] = useState(role?.name ?? 'ROLE_')
+  const [displayName, setDisplayName] = useState(role?.display_name ?? '')
+  const [description, setDescription] = useState(role?.description ?? '')
+  const [selected, setSelected] = useState<string[]>((role?.permissions ?? []).map((p) => p.name))
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    rolesHttpService
+      .listPermissions()
+      .then((p) => {
+        if (!cancelled) setCatalog(p)
+      })
+      .catch(() => {
+        if (!cancelled) toast.error(t('team.toast.permissionsLoadFailed'))
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [t])
+
+  const byResource = useMemo(() => {
+    const map = new Map<string, Permission[]>()
+    catalog?.forEach((p) => {
+      const resource = permResource(p.name)
+      if (!map.has(resource)) map.set(resource, [])
+      map.get(resource)!.push(p)
+    })
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+  }, [catalog])
+
+  const valid = name.trim().length >= 2 && name.trim().length <= 50
+
+  const toggle = (perm: string) =>
+    setSelected((s) => (s.includes(perm) ? s.filter((p) => p !== perm) : [...s, perm]))
+
+  const toggleResource = (perms: Permission[]) => {
+    const names = perms.map((p) => p.name)
+    const allOn = names.every((n) => selected.includes(n))
+    setSelected((s) => (allOn ? s.filter((p) => !names.includes(p)) : [...new Set([...s, ...names])]))
+  }
+
+  const submit = async () => {
+    if (!valid || busy) return
+    setBusy(true)
+    try {
+      const body = {
+        name: name.trim(),
+        display_name: displayName.trim() || undefined,
+        description: description.trim() || undefined,
+        permissions: selected,
+      }
+      if (role) {
+        await rolesHttpService.update(role.id, body)
+        toast.success(t('team.toast.roleUpdated'))
+      } else {
+        await rolesHttpService.create(body)
+        toast.success(t('team.toast.roleCreated'))
+      }
+      onSaved()
+    } catch (err) {
+      toast.error(roleError(err, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <Shield size={18} className="text-sky-500" />
+              {role ? t('team.roles.editTitle') : t('team.roles.createTitle')}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">{t('team.roles.editorSubtitle')}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <X size={16} />
+          </button>
+        </header>
+
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <DrawerField label={t('team.roles.nameLabel')} hint={t('team.roles.nameHint')}>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="font-mono"
+                placeholder="ROLE_AUDITOR"
+              />
+            </DrawerField>
+            <DrawerField label={t('team.roles.displayNameLabel')}>
+              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Auditor" />
+            </DrawerField>
+          </div>
+          <DrawerField label={t('team.roles.descriptionLabel')}>
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+          </DrawerField>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="text-xs font-medium text-foreground/80">
+                {t('team.roles.permissionsLabel')}
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {t('team.roles.selectedCount', { count: selected.length })}
+              </span>
+            </div>
+            {catalog === null ? (
+              <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('team.roles.loadingPermissions')}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {byResource.map(([resource, perms]) => (
+                  <div key={resource} className="rounded-md border border-border">
+                    <button
+                      type="button"
+                      onClick={() => toggleResource(perms)}
+                      className="flex w-full items-center justify-between bg-muted/30 px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-muted/60"
+                    >
+                      {resourceLabel(t, resource)}
+                      <span className="text-[10px] normal-case tracking-normal">
+                        {t('team.roles.toggleAll')}
+                      </span>
+                    </button>
+                    <div className="grid grid-cols-1 gap-px sm:grid-cols-2">
+                      {perms.map((p) => {
+                        const on = selected.includes(p.name)
+                        return (
+                          <button
+                            key={p.name}
+                            type="button"
+                            onClick={() => toggle(p.name)}
+                            className={cn(
+                              'flex items-start gap-2 px-3 py-2 text-left text-xs transition-colors',
+                              on ? 'bg-primary/5' : 'hover:bg-muted/40'
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border',
+                                on ? 'border-primary bg-primary text-primary-foreground' : 'border-input'
+                              )}
+                            >
+                              {on && <Check size={11} strokeWidth={3} />}
+                            </span>
+                            <span className="min-w-0">
+                              <code className="font-mono text-[11px]">{p.name}</code>
+                              {p.description && (
+                                <span className="block text-[11px] text-muted-foreground">{p.description}</span>
+                              )}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
+            {t('team.drawer.cancel')}
+          </Button>
+          <Button size="sm" disabled={!valid || busy} onClick={() => void submit()}>
+            {busy ? t('team.drawer.saving') : t('team.roles.save')}
+          </Button>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+function DeleteRoleDialog({
+  role,
+  onClose,
+  onDeleted,
+}: {
+  role: RoleDetail
+  onClose: () => void
+  onDeleted: () => void
+}) {
+  const { t } = useTranslation()
+  const [busy, setBusy] = useState(false)
+
+  const remove = async () => {
+    setBusy(true)
+    try {
+      await rolesHttpService.remove(role.id)
+      toast.success(t('team.toast.roleDeleted'))
+      onDeleted()
+    } catch (err) {
+      toast.error(roleError(err, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      onClick={() => !busy && onClose()}
+    >
+      <div
+        className="flex w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center gap-2 border-b border-border px-6 py-4">
+          <Trash2 size={17} className="text-red-500" />
+          <h2 className="text-base font-semibold">{t('team.roles.deleteConfirmTitle')}</h2>
+        </header>
+        <div className="px-6 py-5 text-sm text-muted-foreground">
+          {t('team.roles.deleteConfirmBody', { name: roleLabel(t, role.name, role.display_name) })}
+        </div>
+        <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
+          <Button variant="outline" size="sm" disabled={busy} onClick={onClose}>
+            {t('team.drawer.cancel')}
+          </Button>
+          <Button variant="destructive" size="sm" disabled={busy} onClick={() => void remove()}>
+            {busy ? t('team.drawer.saving') : t('team.roles.delete')}
+          </Button>
+        </footer>
       </div>
     </div>
   )
@@ -1041,14 +1369,16 @@ function langLabel(code: string): string {
   return SUPPORTED_LANGUAGES.find((l) => l.code === code)?.label ?? code
 }
 
+// An account can exist before anyone has typed a display name into it — every
+// federated one starts that way — so the address is what is always there.
 function fullName(u: UserBase): string {
-  return [u.first_name, u.last_name].filter(Boolean).join(' ') || u.login
+  return u.name?.trim() || u.email
 }
 
 function initials(u: UserBase): string {
   return (
     fullName(u)
-      .split(' ')
+      .split(/[\s.@_-]+/)
       .map((p) => p[0])
       .filter(Boolean)
       .slice(0, 2)
@@ -1070,9 +1400,19 @@ function relativeTime(iso: string, t: TFunction): string {
   return new Date(iso).toLocaleDateString()
 }
 
+function roleError(err: unknown, t: TFunction): string {
+  if (err instanceof TeamHttpError) {
+    if (err.status === 409) return t('team.toast.roleNameInUse')
+    // The backend refuses to touch a seeded role whatever the request says.
+    if (err.status === 403) return t('team.toast.roleImmutable')
+    if (err.status === 400) return err.message || t('team.toast.invalidRequest')
+  }
+  return err instanceof Error ? err.message : t('team.toast.operationFailed')
+}
+
 function userError(err: unknown, t: TFunction): string {
   if (err instanceof TeamHttpError) {
-    if (err.status === 409) return t('team.toast.loginOrEmailInUse')
+    if (err.status === 409) return t('team.toast.emailInUse')
     if (err.status === 400) return err.message || t('team.toast.invalidRequest')
     if (err.status === 403) return t('team.toast.noPermission')
     if (err.status === 404) return t('team.toast.userNotFound')

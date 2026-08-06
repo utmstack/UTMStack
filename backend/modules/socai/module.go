@@ -14,10 +14,14 @@ type Module struct {
 	quota  *AIQuota
 }
 
-func NewModule(baseURL, internalKey string, cipher *secret.Cipher, pipelineDir, updatesDir string, quota *AIQuota) *Module {
+func NewModule(
+	baseURL, internalKey string, cipher *secret.Cipher, pipelineDir, updatesDir string,
+	quota *AIQuota, leases usecase.Leases,
+) *Module {
 	instanceconfig.Init(updatesDir)
 
-	config := usecase.NewConfigService(repository.NewConfigStore(pipelineDir), cipher, verifier.New())
+	config := usecase.NewConfigService(repository.NewConfigStore(pipelineDir), cipher, verifier.New()).
+		WithLeases(leases)
 	config.StartEnsureDefaultLoop()
 
 	return &Module{

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
+import { useBranding } from '@/features/branding'
+import { ssoHttpService, type PublicIdentityProvider } from '../services/sso-http.service'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Loader2, Lock, Mail, ShieldCheck, User as UserIcon } from 'lucide-react'
+import { ArrowLeft, Building2, KeyRound, Loader2, Lock, Mail, ShieldCheck, User as UserIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -9,24 +11,44 @@ import { PasswordInput } from '@/shared/components/ui/password-input'
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher'
 import { AuthHttpError } from '../services/auth-http.service'
 import { useAuth } from '../services/auth.context'
-import type { TfaMethod } from '../types/auth.types'
+import type { TfaFactorType } from '../types/auth.types'
 
 type Mode = 'credentials' | 'tfa' | 'forgot' | 'reset'
 
 interface TfaChallenge {
-  method: TfaMethod
+  method: TfaFactorType
   preAuthToken: string
 }
 
 export function LoginPage() {
+  const { branding } = useBranding()
+  const [providers, setProviders] = useState<PublicIdentityProvider[]>([])
+  // A chosen directory only narrows the bind; the form stays the same, which is
+  // the whole point of a directory not being a redirect.
+  const [directory, setDirectory] = useState<PublicIdentityProvider | null>(null)
+
+  // A provider list that cannot be read is not an error worth showing: the
+  // password form still works, and an install with no SSO is the common case.
+  useEffect(() => {
+    void ssoHttpService
+      .list()
+      .then(setProviders)
+      .catch(() => setProviders([]))
+  }, [])
+  const brandActive = !!branding?.enabled
+  const brandName = (brandActive && branding?.productName) || 'UTMStack'
+  const brandLogo = (brandActive && branding?.logoUrl) || '/logo.svg'
+
   const { t } = useTranslation()
-  const { login, verifyTfaCode, requestPasswordReset, finishPasswordReset } = useAuth()
+  const { login, verifyTfaCode, requestPasswordReset, finishPasswordReset, adoptSession } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/'
 
   const resetKey = searchParams.get('key')
+  const ssoToken = searchParams.get('token')
+  const ssoError = searchParams.get('error')
 
   const [mode, setMode] = useState<Mode>(resetKey ? 'reset' : 'credentials')
   const [loginValue, setLoginValue] = useState('')
@@ -38,6 +60,24 @@ export function LoginPage() {
   const [challenge, setChallenge] = useState<TfaChallenge | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // The provider sent the browser back here with a token on the URL. Adopt it
+  // and drop it from the address bar: a session token in the history, or in the
+  // referer of the next request, outlives the reason it was put there.
+  useEffect(() => {
+    if (!ssoToken) return
+    void adoptSession(ssoToken)
+      .then(() => {
+        window.history.replaceState({}, '', window.location.pathname)
+        goAuthenticated()
+      })
+      .catch(() => setError(t('auth.errors.ssoFailed')))
+  }, [ssoToken])
+
+  useEffect(() => {
+    if (ssoError) setError(t('auth.errors.ssoFailed'))
+  }, [ssoError])
+
 
   // An invitation / reset link lands here with ?key=… → show the set-password form.
   useEffect(() => {
@@ -70,7 +110,7 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      const result = await login({ login: loginValue, password })
+      const result = await login({ login: loginValue, password, provider_id: directory?.id })
       if (result.status === 'tfa_required') {
         setChallenge({ method: result.method, preAuthToken: result.preAuthToken })
         setMode('tfa')
@@ -180,18 +220,18 @@ export function LoginPage() {
       <div className="relative z-10 w-full max-w-sm">
         <div className="rounded-xl border border-border/80 bg-card/60 px-6 py-8 shadow-xl shadow-black/40 backdrop-blur-md">
           <div className="mb-9 flex flex-col items-center text-center">
-            <img src="/logo.svg" alt="UTMStack" className="mb-5 h-20 w-auto" draggable={false} />
+            <img src={brandLogo} alt={brandName} className="mb-5 h-20 w-auto" draggable={false} />
             {mode === 'credentials' && (
               <>
                 <h1 className="text-[22px] font-semibold tracking-tight">{t('auth.login.title')}</h1>
-                <p className="mt-1.5 text-sm text-muted-foreground">{t('auth.login.subtitle')}</p>
+                <p className="mt-1.5 text-sm text-muted-foreground">{t('auth.login.subtitle', { brand: brandName })}</p>
               </>
             )}
             {mode === 'tfa' && (
               <>
                 <h1 className="text-[22px] font-semibold tracking-tight">{t('auth.tfa.title')}</h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  {challenge?.method === 'TOTP'
+                  {challenge?.method === 'totp'
                     ? t('auth.tfa.subtitleTotp')
                     : t('auth.tfa.subtitleEmail')}
                 </p>
@@ -217,6 +257,22 @@ export function LoginPage() {
 
           {mode === 'credentials' && (
             <form onSubmit={handleCredentials}>
+              {directory && (
+                <button
+                  type="button"
+                  onClick={() => setDirectory(null)}
+                  className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <ArrowLeft size={13} />
+                  {t('auth.login.useAnother')}
+                </button>
+              )}
+              {directory && (
+                <p className="mb-4 flex items-center gap-1.5 text-sm font-medium">
+                  <Building2 size={14} className="text-muted-foreground" />
+                  {t('auth.login.signingInTo', { name: directory.name })}
+                </p>
+              )}
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label
@@ -233,7 +289,7 @@ export function LoginPage() {
                     <Input
                       id="login"
                       type="text"
-                      placeholder="admin"
+                      placeholder="you@company.com"
                       autoComplete="username"
                       required
                       autoFocus
@@ -292,6 +348,42 @@ export function LoginPage() {
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t('auth.login.submit')}
               </Button>
+
+              {providers.length > 0 && !directory && (
+                <>
+                  <div className="mt-6 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-border" />
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {t('auth.login.orContinueWith')}
+                    </span>
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {providers.map((p) =>
+                      p.loginUrl ? (
+                        <a
+                          key={p.id}
+                          href={p.loginUrl}
+                          className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-input bg-background/40 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        >
+                          <KeyRound size={14} />
+                          {t('auth.login.continueWith', { name: p.name })}
+                        </a>
+                      ) : (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setDirectory(p)}
+                          className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-input bg-background/40 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        >
+                          <Building2 size={14} />
+                          {t('auth.login.continueWith', { name: p.name })}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </>
+              )}
             </form>
           )}
 
@@ -476,7 +568,7 @@ export function LoginPage() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">{t('auth.login.terms')}</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">{t('auth.login.terms', { brand: brandName })}</p>
       </div>
     </div>
   )

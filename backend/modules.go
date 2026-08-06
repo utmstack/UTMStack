@@ -3,9 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/google/uuid"
+	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
+	la_repository "github.com/utmstack/utmstack/backend/modules/loganalyzer/repository"
+	"github.com/utmstack/utmstack/backend/pkg/joblease"
 	"path/filepath"
 	"strings"
 	"time"
+
+	dash_usecase "github.com/utmstack/utmstack/backend/modules/dashboards/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	sdkos "github.com/threatwinds/go-sdk/os"
@@ -105,8 +113,19 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	signer := jwtpkg.NewSigner(cfg.jwtSecret, accessTokenTTL)
 	preAuthSigner := jwtpkg.NewPreAuthSigner(cfg.jwtSecret, tfaPreAuthTTL)
 	limiter := ratelimit.NewLoginLimiter(loginMaxFailures, loginBlockTTL, loginWindowTTL)
-	auditMod := audit.NewModule(db, env.Int("AUDIT_RETENTION_DAYS", 365, false))
-	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false))
+	auditMod := audit.NewModule(db, joblease.New(db), env.Int("AUDIT_RETENTION_DAYS", 365, false))
+
+	events, err := eventstore.New()
+	if err != nil {
+		_ = catcher.Error("could not reach the event store; dashboards will not answer", err, nil)
+	}
+	// The dev licence is read only in dev mode, so a production build cannot be
+	// talked into one by setting an environment variable.
+	devLicense := ""
+	if cfg.devMode {
+		devLicense = env.String("DEV_LICENSE", "", false)
+	}
+	billingMod := billing.NewModule(env.String("UPDATES_DIR", "/updates", false), devLicense)
 
 	if err := tenancy.Register(db, func() bool {
 		return billingMod.License().Current().IsMSSP()
@@ -124,26 +143,33 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	brand := configMod.Branding()
 	complianceMod := compliance.NewModule(db, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
 		func() bool { return billingMod.License().Current().IsEnterprise() })
-	dashboardsMod := dashboards.NewModule(db)
-	loganalyzerMod := loganalyzer.NewModule(db)
+	var eventReader dash_usecase.Reader
+	if events != nil {
+		eventReader = events
+	}
+	dashboardsMod := dashboards.NewModule(db, eventReader)
+	var logReader la_repository.Reader
+	if events != nil {
+		logReader = events
+	}
+	loganalyzerMod := loganalyzer.NewModule(db, logReader)
 
-	userRepo := iam_repository.NewUserRepository(db, cipher)
+	userRepo := iam_repository.NewUserRepository(db)
 	rbacRepo := iam_repository.NewRBACRepository(db)
 	refreshRepo := iam_repository.NewRefreshTokenRepository(db)
-	resetMailer := iam_repository.NewPasswordResetMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
-	invitationMailer := iam_repository.NewUserInvitationMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
-	tfaStateRepo := iam_repository.NewTfaStateRepository(db, tfaChallengeTTL, cipher)
-	tfaMailer := iam_repository.NewTfaMailer(mailMod.Service(), mailMod.ConfigRepo())
+	challengeRepo := iam_repository.NewChallengeRepository(db)
+	factorRepo := iam_repository.NewTfaFactorRepository(db, cipher)
+	challengeMailer := iam_repository.NewChallengeMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
 
-	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, rbacRepo, tfaStateRepo, tfaMailer, signer, preAuthSigner, refreshTokenTTL, cfg.tfaEnabled, brand)
-	authUsecase := iam_usecase.NewAuthUsecase(userRepo, rbacRepo, refreshRepo, signer, limiter, refreshTokenTTL, resetMailer, tfaUsecase, preAuthSigner, cfg.tfaEnabled)
-	userUsecase := iam_usecase.NewUserUsecase(userRepo, rbacRepo, invitationMailer)
+	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, factorRepo, challengeRepo, challengeMailer, signer, preAuthSigner, refreshTokenTTL, brand)
+	idpRepo := iam_repository.NewIdentityProviderRepository(db)
+	federationUsecase := iam_usecase.NewFederationUsecase(idpRepo, userRepo, rbacRepo, refreshRepo, signer, cipher, refreshTokenTTL)
+	authUsecase := iam_usecase.NewAuthUsecase(userRepo, rbacRepo, refreshRepo, challengeRepo, signer, limiter, refreshTokenTTL, challengeMailer, tfaUsecase, federationUsecase, preAuthSigner, cfg.tfaEnabled)
+	userUsecase := iam_usecase.NewUserUsecase(userRepo, rbacRepo, challengeRepo, factorRepo, challengeMailer)
 	roleUsecase := iam_usecase.NewRoleUsecase(rbacRepo)
 	apiKeyRepo := iam_repository.NewAPIKeyRepository(db)
 	apiKeyUsecase := iam_usecase.NewAPIKeyUsecase(apiKeyRepo, userRepo)
-	idpRepo := iam_repository.NewIdentityProviderRepository(db)
-	idpUsecase := iam_usecase.NewIdentityProviderUsecase(idpRepo, cipher)
-	samlUsecase := iam_usecase.NewSAMLUsecase(idpRepo, userRepo, refreshRepo, signer, cipher, refreshTokenTTL)
+	idpUsecase := iam_usecase.NewIdentityProviderUsecase(idpRepo, rbacRepo, cipher)
 
 	// Configure the go-sdk OpenSearch global client used by all modules.
 	osURL := fmt.Sprintf("https://%s:%d", cfg.esHost, cfg.esPort)
@@ -168,14 +194,18 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetTenantConfigUsecase())
 	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
+	// Discovery from ingestion needs the event store, not OpenSearch: the
+	// statistics it reads moved there with the rest of the pipeline.
 	var dsReconciler *ns_usecase.StatsReconciler
-	if cfg.esHost != "" {
-		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, ns_repository.NewStatsReader())
+	if reader := ns_repository.NewStatsReader(eventConn(events)); reader != nil {
+		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, reader, joblease.New(db))
 	}
 	datasourcesMod := datasources.NewModule(dsUC, dsGroupUC, dsReconciler, agentClient)
 
 	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
-	notificationsMod := notifications.NewModule(db, auditMod.Logger())
+	notificationsMod := notifications.NewModule(db, auditMod.Logger(), joblease.New(db),
+		env.Int("NOTIFICATIONS_READ_RETENTION_DAYS", 30, false),
+		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
 
 	if cfg.esHost != "" && cfg.diskGuardEnabled {
 		opensearchMod.SetSpaceGuard(
@@ -191,18 +221,24 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		)
 	}
 
-	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, samlUsecase, cfg.uploadDir)
+	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
+	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir)
+	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))
 
 	tenantMod := tenant.NewModule(db, userUsecase)
 
 	aiUsage := socai_repository.NewUsageRepo(db)
 	aiQuota := &socai.AIQuota{
 		LimitOf: func(ctx context.Context, tenantID string) (int, error) {
-			t, err := tenantMod.GetTenantUsecase().GetByID(ctx, tenantID)
+			id, err := uuid.Parse(tenantID)
 			if err != nil {
 				return 0, err
 			}
-			return t.Limits.MaxAIRequests, nil
+			t, err := tenantMod.GetTenantUsecase().GetByID(ctx, id)
+			if err != nil {
+				return 0, err
+			}
+			return t.Limits.AllowanceOf(cfg.aiRequestLimit), nil
 		},
 		Consume: aiUsage.Consume,
 		Used:    aiUsage.UsedToday,
@@ -210,7 +246,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
 		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
-		env.String("UPDATES_DIR", "/updates", false), aiQuota)
+		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	incidentsMod := incidents.NewModule(
 		db,
 		incidents_connectors.NewNoopMailer(),
@@ -309,4 +345,14 @@ func uploadFilePath(dir, url string) string {
 	u := strings.TrimPrefix(url, "/")
 	u = strings.TrimPrefix(u, "uploads/")
 	return filepath.Join(dir, u)
+}
+
+// eventConn is the store's connection, or nil when there is no store. The
+// reconciler is then not built and datasources simply stop being discovered
+// from ingestion, which an install without ClickHouse cannot do anyway.
+func eventConn(s *eventstore.Store) driver.Conn {
+	if s == nil {
+		return nil
+	}
+	return s.Conn
 }

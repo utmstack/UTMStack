@@ -35,16 +35,43 @@ const ensureDefaultRetryInterval = 30 * time.Second
 // isn't enough; this keeps checking every 30s until the instance is
 // registered or a config already exists.
 func (s *ConfigService) StartEnsureDefaultLoop() {
-	if s.EnsureDefault() {
+	if s.ensureDefaultIfMine() {
 		return
 	}
 	go func() {
 		for range time.Tick(ensureDefaultRetryInterval) {
-			if s.EnsureDefault() {
+			if s.ensureDefaultIfMine() {
 				return
 			}
 		}
 	}()
+}
+
+const ensureDefaultLease = "socai-ensure-default"
+
+// ensureDefaultIfMine runs the check only on the replica that holds the lease.
+//
+// It answers false when the lease belongs to somebody else, so this replica
+// keeps ticking rather than deciding the work is done: the holder may die
+// before it finishes, and the next tick after the lease expires is how that
+// gets picked up.
+func (s *ConfigService) ensureDefaultIfMine() bool {
+	if s.leases == nil {
+		return s.EnsureDefault()
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), ensureDefaultRetryInterval)
+	defer cancel()
+
+	mine, err := s.leases.Acquire(ctx, ensureDefaultLease, ensureDefaultRetryInterval)
+	if err != nil {
+		catcher.Warn("socai: cannot take the default-provisioning lease", map[string]any{"error": err.Error()})
+		return false
+	}
+	if !mine {
+		return false
+	}
+	return s.EnsureDefault()
 }
 
 func (s *ConfigService) EnsureDefault() bool {
@@ -96,14 +123,29 @@ type connectionVerifier interface {
 	Verify(ctx context.Context, c verifier.Config) error
 }
 
+// Leases is how the replicas agree that one of them provisions the default.
+// Without it every replica runs the same check on the same tick and, on a fresh
+// install where there is nothing yet, they all write the default config at once.
+type Leases interface {
+	Acquire(ctx context.Context, name string, ttl time.Duration) (bool, error)
+}
+
 type ConfigService struct {
 	store    *repository.ConfigStore
 	cipher   *secret.Cipher
 	verifier connectionVerifier
+	leases   Leases
 }
 
 func NewConfigService(store *repository.ConfigStore, cipher *secret.Cipher, v connectionVerifier) *ConfigService {
 	return &ConfigService{store: store, cipher: cipher, verifier: v}
+}
+
+// WithLeases coordinates the default-provisioning loop across replicas. Left
+// unset the loop still runs, which is what a single-replica deployment wants.
+func (s *ConfigService) WithLeases(l Leases) *ConfigService {
+	s.leases = l
+	return s
 }
 
 // Get returns the masked config the acting tenant runs under, which is its own

@@ -3,26 +3,29 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
-	"github.com/utmstack/utmstack/backend/pkg/secret"
 	"gorm.io/gorm"
 )
 
 type pgUserRepository struct {
-	db     *gorm.DB
-	cipher *secret.Cipher
+	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB, cipher *secret.Cipher) connectors.UserRepository {
-	return &pgUserRepository{db: db, cipher: cipher}
+func NewUserRepository(db *gorm.DB) connectors.UserRepository {
+	return &pgUserRepository{db: db}
 }
 
-func (r *pgUserRepository) FindByID(ctx context.Context, id uint64) (*domain.User, error) {
+func normalizeEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}
+
+func (r *pgUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	var u domain.User
-	if err := r.db.WithContext(ctx).First(&u, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -31,23 +34,9 @@ func (r *pgUserRepository) FindByID(ctx context.Context, id uint64) (*domain.Use
 	return &u, nil
 }
 
-func (r *pgUserRepository) FindByLogin(ctx context.Context, login string) (*domain.User, error) {
+func (r *pgUserRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var u domain.User
-	err := r.db.WithContext(ctx).Where("login = ?", login).First(&u).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &u, nil
-}
-
-func (r *pgUserRepository) FindByLoginOrEmail(ctx context.Context, loginOrEmail string) (*domain.User, error) {
-	var u domain.User
-	err := r.db.WithContext(ctx).
-		Where("login = ? OR email = ?", loginOrEmail, loginOrEmail).
-		First(&u).Error
+	err := r.db.WithContext(ctx).Where("email = ?", normalizeEmail(email)).First(&u).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -71,10 +60,7 @@ func (r *pgUserRepository) List(ctx context.Context, f connectors.ListUsersFilte
 	}
 	if f.Search != "" {
 		like := "%" + f.Search + "%"
-		q = q.Where(
-			"login ILIKE ? OR email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?",
-			like, like, like, like,
-		)
+		q = q.Where("email ILIKE ? OR name ILIKE ?", like, like)
 	}
 
 	var total int64
@@ -84,7 +70,7 @@ func (r *pgUserRepository) List(ctx context.Context, f connectors.ListUsersFilte
 
 	var users []domain.User
 	if err := q.
-		Order("id ASC").
+		Order("created_at ASC, id ASC").
 		Offset((f.Page - 1) * f.PageSize).
 		Limit(f.PageSize).
 		Find(&users).Error; err != nil {
@@ -94,20 +80,25 @@ func (r *pgUserRepository) List(ctx context.Context, f connectors.ListUsersFilte
 }
 
 func (r *pgUserRepository) Create(ctx context.Context, u *domain.User) error {
+	u.Email = normalizeEmail(u.Email)
 	return r.db.WithContext(ctx).Create(u).Error
 }
 
 func (r *pgUserRepository) Update(ctx context.Context, u *domain.User) error {
+	u.Email = normalizeEmail(u.Email)
 	return r.db.WithContext(ctx).Save(u).Error
 }
 
-func (r *pgUserRepository) UpdatePassword(ctx context.Context, userID uint64, hash string, defaultPassword bool) error {
+func (r *pgUserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, hash string) error {
 	return r.db.WithContext(ctx).Model(&domain.User{}).
 		Where("id = ?", userID).
-		Updates(map[string]any{
-			"password_hash":    hash,
-			"default_password": defaultPassword,
-		}).Error
+		Update("password_hash", hash).Error
+}
+
+func (r *pgUserRepository) UpdateStatus(ctx context.Context, userID uuid.UUID, status domain.UserStatus) error {
+	return r.db.WithContext(ctx).Model(&domain.User{}).
+		Where("id = ?", userID).
+		Update("status", status).Error
 }
 
 func (r *pgUserRepository) Count(ctx context.Context) (int64, error) {
@@ -116,144 +107,60 @@ func (r *pgUserRepository) Count(ctx context.Context) (int64, error) {
 	return n, err
 }
 
-func (r *pgUserRepository) ExistsByLoginOrEmail(ctx context.Context, login, email string, excludeID uint64) (bool, error) {
+func (r *pgUserRepository) ExistsByEmail(ctx context.Context, email string, excludeID uuid.UUID) (bool, error) {
 	var n int64
 	q := r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("(login = ? OR email = ?)", login, email)
-	if excludeID > 0 {
+		Where("email = ?", normalizeEmail(email))
+	if excludeID != uuid.Nil {
 		q = q.Where("id <> ?", excludeID)
 	}
 	err := q.Count(&n).Error
 	return n > 0, err
 }
 
-func (r *pgUserRepository) FindByResetKey(ctx context.Context, key string) (*domain.User, error) {
-	var u domain.User
-	err := r.db.WithContext(ctx).Where("reset_key = ?", key).First(&u).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &u, nil
-}
-
-func (r *pgUserRepository) SetResetKey(ctx context.Context, userID uint64, key string, issuedAt time.Time) error {
-	return r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("id = ?", userID).
-		Updates(map[string]any{
-			"reset_key":  key,
-			"reset_date": issuedAt,
-		}).Error
-}
-
-// ClearResetKey is called when a password reset is completed. Finishing a reset
-// also activates the account, which is what turns an invited (created with
-// activated=false) user into an active one once they set their password. For an
-// already-active user resetting a forgotten password, activated=true is a no-op.
-func (r *pgUserRepository) ClearResetKey(ctx context.Context, userID uint64) error {
-	return r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("id = ?", userID).
-		Updates(map[string]any{
-			"reset_key":  "",
-			"reset_date": nil,
-			"activated":  true,
-		}).Error
-}
-
-// SetTfaConfig stores the TOTP secret encrypted. Anyone reading the database
-// would otherwise be able to generate valid codes for every account with 2FA on,
-// indefinitely and without the user noticing.
-func (r *pgUserRepository) SetTfaConfig(ctx context.Context, userID uint64, tfaSecret, method string) error {
-	stored, err := encryptTfaSecret(r.cipher, tfaSecret)
-	if err != nil {
-		return err
-	}
-	return r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("id = ?", userID).
-		Updates(map[string]any{
-			"tfa_secret": stored,
-			"tfa_method": method,
-		}).Error
-}
-
-// TfaSecret is the only way to read the secret back. domain.User.TFASecret holds
-// ciphertext, so reading that field directly would silently fail to validate.
-func (r *pgUserRepository) TfaSecret(ctx context.Context, userID uint64) (string, error) {
-	var stored string
-	err := r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("id = ?", userID).
-		Pluck("tfa_secret", &stored).Error
-	if err != nil {
-		return "", err
-	}
-	return decryptTfaSecret(r.cipher, stored)
-}
-
-func (r *pgUserRepository) ClearTfaConfig(ctx context.Context, userID uint64) error {
-	return r.db.WithContext(ctx).Model(&domain.User{}).
-		Where("id = ?", userID).
-		Updates(map[string]any{
-			"tfa_secret": "",
-			"tfa_method": "",
-		}).Error
-}
-
-func (r *pgUserRepository) FindPermissionsByUserID(ctx context.Context, userID uint64) ([]string, error) {
+func (r *pgUserRepository) FindPermissionsByUserID(ctx context.Context, userID uuid.UUID) ([]string, error) {
 	var names []string
-	err := r.db.WithContext(ctx).Raw(`
-		SELECT DISTINCT p.name
-		FROM permissions p
-		JOIN authority_permissions ap ON ap.permission_id = p.id
-		JOIN jhi_user_authority ua    ON ua.authority_name = ap.authority_name
-		WHERE ua.user_id = ?
-	`, userID).Scan(&names).Error
+	err := r.db.WithContext(ctx).Model(&domain.UserRole{}).
+		Select("DISTINCT rp.permission_name").
+		Joins("JOIN role_permission rp ON rp.role_id = user_role.role_id").
+		Where("user_role.user_id = ?", userID).
+		Scan(&names).Error
 	return names, err
 }
 
-func (r *pgUserRepository) FindRolesByUserID(ctx context.Context, userID uint64) ([]domain.Authority, error) {
-	var roles []domain.Authority
-	err := r.db.WithContext(ctx).Raw(`
-		SELECT a.*
-		FROM jhi_authority a
-		JOIN jhi_user_authority ua ON ua.authority_name = a.name
-		WHERE ua.user_id = ?
-		ORDER BY a.name
-	`, userID).Scan(&roles).Error
+func (r *pgUserRepository) FindRolesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Role, error) {
+	var roles []domain.Role
+	err := r.db.WithContext(ctx).Model(&domain.UserRole{}).
+		Select("r.*").
+		Joins("JOIN role r ON r.id = user_role.role_id").
+		Where("user_role.user_id = ?", userID).
+		Order("r.name").
+		Scan(&roles).Error
 	return roles, err
 }
 
-// FindRolesByUserIDs loads the roles for many users in a single query, grouped by
-// user id. Used to enrich the paginated user list without an N+1 per row.
-func (r *pgUserRepository) FindRolesByUserIDs(ctx context.Context, userIDs []uint64) (map[uint64][]domain.Authority, error) {
-	out := make(map[uint64][]domain.Authority, len(userIDs))
+func (r *pgUserRepository) FindRolesByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]domain.Role, error) {
+	out := make(map[uuid.UUID][]domain.Role, len(userIDs))
 	if len(userIDs) == 0 {
 		return out, nil
 	}
+
 	type row struct {
-		UserID      uint64
-		Name        string
-		NameShow    string
-		Description string
+		UserID uuid.UUID
+		domain.Role
 	}
 	var rows []row
-	err := r.db.WithContext(ctx).
-		Table("jhi_user_authority ua").
-		Select("ua.user_id AS user_id, a.name AS name, a.name_show AS name_show, a.description AS description").
-		Joins("JOIN jhi_authority a ON a.name = ua.authority_name").
-		Where("ua.user_id IN ?", userIDs).
-		Order("ua.user_id, a.name").
+	err := r.db.WithContext(ctx).Model(&domain.UserRole{}).
+		Select("user_role.user_id AS user_id, r.*").
+		Joins("JOIN role r ON r.id = user_role.role_id").
+		Where("user_role.user_id IN ?", userIDs).
+		Order("user_role.user_id, r.name").
 		Scan(&rows).Error
 	if err != nil {
 		return nil, err
 	}
 	for _, rw := range rows {
-		out[rw.UserID] = append(out[rw.UserID], domain.Authority{
-			Name:        rw.Name,
-			NameShow:    rw.NameShow,
-			Description: rw.Description,
-		})
+		out[rw.UserID] = append(out[rw.UserID], rw.Role)
 	}
 	return out, nil
 }

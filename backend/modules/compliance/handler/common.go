@@ -2,6 +2,8 @@ package handler
 
 import (
 	"errors"
+	"github.com/google/uuid"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 	"net/http"
 	"strconv"
 
@@ -38,13 +40,12 @@ func pathInt64(c *gin.Context, param string) (int64, bool) {
 	return v, true
 }
 
-func userIDFromCtx(c *gin.Context) (uint64, bool) {
-	raw, ok := c.Get("user_id")
-	if !ok {
-		return 0, false
+func userIDFromCtx(c *gin.Context) (uuid.UUID, bool) {
+	a := middleware.ActorFromGin(c)
+	if a == nil || a.UserID == uuid.Nil {
+		return uuid.Nil, false
 	}
-	id, ok := raw.(uint64)
-	return id, ok
+	return a.UserID, true
 }
 
 func writePagedArray[T any](c *gin.Context, items []T, total int64) {

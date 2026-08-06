@@ -19,6 +19,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useThemeContext } from '@/app/providers'
+import { useBranding } from '@/features/branding'
 import { useAuth } from '@/features/auth'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { useCurrentInstanceId } from '@/shared/lib/current-instance'
@@ -128,11 +129,15 @@ export function Topbar() {
     navigate('/auth/login', { replace: true })
   }
 
-  const userName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.login || 'User'
+  const { branding } = useBranding()
+  const brandActive = !!branding?.enabled
+  const brandName = (brandActive && branding?.productName) || 'UTMStack'
+  const brandLogo = (brandActive && branding?.logoUrl) || '/logo.svg'
+
+  const userName = user?.name || user?.email || 'User'
   const userInitials = userName
     .split(' ')
-    .map((p) => p[0])
+    .map((p: string) => p[0])
     .filter(Boolean)
     .slice(0, 2)
     .join('')
@@ -143,8 +148,8 @@ export function Topbar() {
       {/* Left cluster */}
       <div className="flex min-w-0 items-center gap-2">
         <Link to="/home" className="flex items-center gap-2 px-1">
-          <img src="/logo.svg" alt="UTMStack" className="h-7 w-7" />
-          <span className="text-lg font-normal tracking-tight">UTMStack</span>
+          <img src={brandLogo} alt={brandName} className="h-7 w-7" />
+          <span className="text-lg font-normal tracking-tight">{brandName}</span>
         </Link>
 
         {/* Version + edition badge. The Community badge links to the License page

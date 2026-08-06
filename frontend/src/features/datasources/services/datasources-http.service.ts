@@ -6,8 +6,8 @@ import type {
   IngestionTimeline,
   IngestionTotals,
   ListResponse,
+  DatasourceCount,
   SourceKind,
-  Usage,
 } from '../types/datasource.types'
 
 const api = createApiClient()
@@ -60,7 +60,8 @@ export const datasourcesHttpService = {
     id: number,
     cia: { assetConfidentiality: number; assetIntegrity: number; assetAvailability: number },
   ) => api.put<void>('/datasources/sensitivity', { id, ...cia }),
-  usage: () => api.get<Usage>('/datasources/usage'),
+
+  count: () => api.get<DatasourceCount>('/datasources/count'),
 
   groups: () =>
     api.get<ListResponse<AssetGroup>>('/datasource-groups?page_number=1&page_size=200&sort_by=group_name.asc'),

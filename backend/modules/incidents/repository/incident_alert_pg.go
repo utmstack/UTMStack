@@ -28,7 +28,7 @@ func (r *pgIncidentAlertRepository) Update(ctx context.Context, alert *domain.Ut
 
 func (r *pgIncidentAlertRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentAlert, error) {
 	var row domain.UtmIncidentAlert
-	if err := r.db.WithContext(ctx).First(&row, id).Error; err != nil {
+	if err := scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).First(&row, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -39,7 +39,7 @@ func (r *pgIncidentAlertRepository) FindByID(ctx context.Context, id int64) (*do
 
 func (r *pgIncidentAlertRepository) FindByIncidentID(ctx context.Context, incidentID int64) ([]domain.UtmIncidentAlert, error) {
 	var rows []domain.UtmIncidentAlert
-	if err := r.db.WithContext(ctx).Where("incident_id = ?", incidentID).Find(&rows).Error; err != nil {
+	if err := scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).Where("incident_id = ?", incidentID).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	return rows, nil
@@ -53,7 +53,7 @@ func (r *pgIncidentAlertRepository) FindAll(ctx context.Context, q dto.IncidentA
 		q.Size = 20
 	}
 
-	db := r.db.WithContext(ctx).Model(&domain.UtmIncidentAlert{})
+	db := scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncidentAlert{}))
 
 	if q.IncidentID != nil {
 		db = db.Where("incident_id = ?", *q.IncidentID)
@@ -81,7 +81,7 @@ func (r *pgIncidentAlertRepository) FindAll(ctx context.Context, q dto.IncidentA
 }
 
 func (r *pgIncidentAlertRepository) Delete(ctx context.Context, id int64) error {
-	return r.db.WithContext(ctx).Unscoped().Delete(&domain.UtmIncidentAlert{}, id).Error
+	return scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Unscoped()).Delete(&domain.UtmIncidentAlert{}, id).Error
 }
 
 func (r *pgIncidentAlertRepository) FindByAlertIDs(ctx context.Context, alertIDs []string) ([]domain.UtmIncidentAlert, error) {

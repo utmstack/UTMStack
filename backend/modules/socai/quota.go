@@ -36,7 +36,10 @@ func (q *AIQuota) Gate() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		if limit <= 0 {
+		// Negative is uncapped. Zero is an allowance of none, which denies: the
+		// operator handing out none of the instance's quota must not read as
+		// handing out all of it.
+		if limit < 0 {
 			c.Next()
 			return
 		}
@@ -48,7 +51,7 @@ func (q *AIQuota) Gate() gin.HandlerFunc {
 			return
 		}
 
-		if used > int64(limit) {
+		if limit == 0 || used > int64(limit) {
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 				"status":  "error",
 				"message": "this tenant has used the AI requests its plan allows for today",

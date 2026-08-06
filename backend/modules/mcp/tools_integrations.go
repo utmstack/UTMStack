@@ -195,8 +195,8 @@ func registerIntegrationsTenants(m *Module) {
 		Name: "integrations.tenants.list", Title: "List integration tenant configs",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "integrations.read"},
-		func(_ context.Context, _ *authz.Actor, in integrationsTenantListInput) (any, error) {
-			return uc.List(in.Module)
+		func(ctx context.Context, _ *authz.Actor, in integrationsTenantListInput) (any, error) {
+			return uc.List(ctx, in.Module)
 		})
 
 	Add(m, &mcp.Tool{

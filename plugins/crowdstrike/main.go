@@ -320,7 +320,7 @@ func processStreamEvents(stream *activeStream, falconStream *falcon.StreamingHan
 
 		case event := <-falconStream.Events:
 			if event.Metadata.EventCreationTime > stream.streamStartTime {
-				processEvent(event, stream.dataSource)
+				processEvent(event, stream.dataSource, stream.processor.TenantId)
 
 				stream.mu.Lock()
 				stream.offsets[streamID] = event.Metadata.Offset
@@ -330,7 +330,7 @@ func processStreamEvents(stream *activeStream, falconStream *falcon.StreamingHan
 	}
 }
 
-func processEvent(event *streaming_models.EventItem, dataSource string) {
+func processEvent(event *streaming_models.EventItem, dataSource string, tenantId string) {
 	var eventData string
 	if len(event.RawMessage) > 0 {
 		eventData = string(event.RawMessage)
@@ -345,9 +345,13 @@ func processEvent(event *streaming_models.EventItem, dataSource string) {
 		eventData = string(eventJSON)
 	}
 
+	if tenantId == "" {
+		tenantId = defaultTenant
+	}
+
 	_ = plugins.EnqueueLog(&plugins.Log{
 		Id:         uuid.NewString(),
-		TenantId:   defaultTenant,
+		TenantId:   tenantId,
 		DataType:   "crowdstrike",
 		DataSource: dataSource,
 		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
@@ -360,6 +364,7 @@ type CrowdStrikeProcessor struct {
 	ClientSecret string
 	Cloud        string
 	AppName      string
+	TenantId     string
 }
 
 func isGroupValid(group *ModuleGroup) bool {
@@ -376,7 +381,7 @@ func isGroupValid(group *ModuleGroup) bool {
 }
 
 func buildProcessor(group *ModuleGroup) *CrowdStrikeProcessor {
-	processor := &CrowdStrikeProcessor{}
+	processor := &CrowdStrikeProcessor{TenantId: group.TenantId}
 
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
@@ -400,7 +405,8 @@ func processorChanged(old, new *CrowdStrikeProcessor) bool {
 	return old.ClientID != new.ClientID ||
 		old.ClientSecret != new.ClientSecret ||
 		old.Cloud != new.Cloud ||
-		old.AppName != new.AppName
+		old.AppName != new.AppName ||
+		old.TenantId != new.TenantId
 }
 
 func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecification, error) {

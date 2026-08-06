@@ -62,7 +62,7 @@ func (h *IncidentAlertHandler) UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_login"), req)
+	err := h.usecase.UpdateStatus(c.Request.Context(), c.GetString("user_email"), req)
 	audit.Record(c, audit_connectors.Event{Action: "incident.alert.update_status", ResourceType: "incident_alert"},
 		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {

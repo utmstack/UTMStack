@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type CreateScheduleRequest struct {
 	FrameworkKey   string `json:"frameworkKey" binding:"required"`
@@ -17,7 +21,7 @@ type UpdateScheduleRequest struct {
 
 type ScheduleResponse struct {
 	ID                int64     `json:"id"`
-	UserID            int64     `json:"userId"`
+	UserID            uuid.UUID `json:"userId"`
 	FrameworkKey      string    `json:"frameworkKey"`
 	ScheduleString    string    `json:"scheduleString"`
 	Recipients        string    `json:"recipients"`

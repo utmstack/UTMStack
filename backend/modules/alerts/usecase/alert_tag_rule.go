@@ -159,6 +159,7 @@ func (u *alertTagRuleUsecase) ListActiveResolved(ctx context.Context) ([]dto.Act
 			conditions = json.RawMessage(rule.RuleConditions)
 		}
 		out = append(out, dto.ActiveAlertTagRule{
+			TenantID:        rule.TenantID,
 			ID:              rule.ID,
 			Name:            rule.RuleName,
 			Conditions:      conditions,

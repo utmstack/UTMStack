@@ -67,7 +67,7 @@ func registerAlertActions(m *Module) {
 			if len(in.AlertIDs) == 0 {
 				return nil, fmt.Errorf("alert_ids: must provide at least one alert id")
 			}
-			err := uc.UpdateStatus(ctx, actor.Login, dto.UpdateAlertStatusRequest{
+			err := uc.UpdateStatus(ctx, actor.Email, dto.UpdateAlertStatusRequest{
 				AlertIDs:            in.AlertIDs,
 				Status:              in.Status,
 				StatusObservation:   in.StatusObservation,
@@ -89,7 +89,7 @@ func registerAlertActions(m *Module) {
 			if in.AlertID == "" {
 				return nil, fmt.Errorf("alert_id is required")
 			}
-			if err := uc.UpdateNotes(ctx, actor.Login, in.AlertID, in.Notes); err != nil {
+			if err := uc.UpdateNotes(ctx, actor.Email, in.AlertID, in.Notes); err != nil {
 				return nil, err
 			}
 			return map[string]any{"alert_id": in.AlertID}, nil
@@ -104,7 +104,7 @@ func registerAlertActions(m *Module) {
 			if len(in.AlertIDs) == 0 {
 				return nil, fmt.Errorf("alert_ids: must provide at least one alert id")
 			}
-			err := uc.UpdateTags(ctx, actor.Login, dto.UpdateAlertTagsRequest{
+			err := uc.UpdateTags(ctx, actor.Email, dto.UpdateAlertTagsRequest{
 				AlertIDs:   in.AlertIDs,
 				Tags:       in.Tags,
 				CreateRule: in.CreateRule,
@@ -124,7 +124,7 @@ func registerAlertActions(m *Module) {
 			if len(in.AlertIDs) == 0 || in.IncidentName == "" {
 				return nil, fmt.Errorf("alert_ids and incident_name are required")
 			}
-			err := uc.ConvertToIncident(ctx, actor.Login, dto.ConvertToIncidentRequest{
+			err := uc.ConvertToIncident(ctx, actor.Email, dto.ConvertToIncidentRequest{
 				AlertIDs:       in.AlertIDs,
 				IncidentName:   in.IncidentName,
 				IncidentID:     in.IncidentID,

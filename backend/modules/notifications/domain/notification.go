@@ -16,4 +16,4 @@ type UtmNotification struct {
 	Status    NotificationStatus `gorm:"column:status;size:16;not null;default:ACTIVE;index:idx_notification_unread,priority:3" json:"status"`
 }
 
-func (UtmNotification) TableName() string { return "utm_notification" }
+func (UtmNotification) TableName() string { return "notification" }

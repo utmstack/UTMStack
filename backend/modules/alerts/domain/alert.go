@@ -61,31 +61,31 @@ type Side struct {
 	SSHFingerprint         string `json:"sshFingerprint,omitempty"`
 
 	// Web
-	Cookie    string `json:"cookie,omitempty"`
-	JabberID  string `json:"jabberId,omitempty"`
+	Cookie   string `json:"cookie,omitempty"`
+	JabberID string `json:"jabberId,omitempty"`
 
 	// Email
-	Email              string `json:"email,omitempty"`
-	DKIM               string `json:"dkim,omitempty"`
-	DKIMSignature      string `json:"dkimSignature,omitempty"`
-	EmailAddress       string `json:"emailAddress,omitempty"`
-	EmailBody          string `json:"emailBody,omitempty"`
-	EmailDisplayName   string `json:"emailDisplayName,omitempty"`
-	EmailSubject       string `json:"emailSubject,omitempty"`
-	EmailThreadIndex   string `json:"emailThreadIndex,omitempty"`
-	EmailXMailer       string `json:"emailXMailer,omitempty"`
+	Email            string `json:"email,omitempty"`
+	DKIM             string `json:"dkim,omitempty"`
+	DKIMSignature    string `json:"dkimSignature,omitempty"`
+	EmailAddress     string `json:"emailAddress,omitempty"`
+	EmailBody        string `json:"emailBody,omitempty"`
+	EmailDisplayName string `json:"emailDisplayName,omitempty"`
+	EmailSubject     string `json:"emailSubject,omitempty"`
+	EmailThreadIndex string `json:"emailThreadIndex,omitempty"`
+	EmailXMailer     string `json:"emailXMailer,omitempty"`
 
 	// WHOIS
 	WhoisRegistrant string `json:"whoisRegistrant,omitempty"`
 	WhoisRegistrar  string `json:"whoisRegistrar,omitempty"`
 
 	// Process
-	Process                  string `json:"process,omitempty"`
-	ProcessState             string `json:"processState,omitempty"`
-	Command                  string `json:"command,omitempty"`
-	WindowsScheduledTask     string `json:"windowsScheduledTask,omitempty"`
+	Process                   string `json:"process,omitempty"`
+	ProcessState              string `json:"processState,omitempty"`
+	Command                   string `json:"command,omitempty"`
+	WindowsScheduledTask      string `json:"windowsScheduledTask,omitempty"`
 	WindowsServiceDisplayName string `json:"windowsServiceDisplayName,omitempty"`
-	WindowsServiceName       string `json:"windowsServiceName,omitempty"`
+	WindowsServiceName        string `json:"windowsServiceName,omitempty"`
 
 	// File
 	File        string `json:"file,omitempty"`
@@ -95,23 +95,23 @@ type Side struct {
 	MimeType    string `json:"mimeType,omitempty"`
 
 	// Hashes
-	Hash        string `json:"hash,omitempty"`
+	Hash         string `json:"hash,omitempty"`
 	Authentihash string `json:"authentihash,omitempty"`
-	CDHash      string `json:"cdhash,omitempty"`
-	MD5         string `json:"md5,omitempty"`
-	SHA1        string `json:"sha1,omitempty"`
-	SHA224      string `json:"sha224,omitempty"`
-	SHA256      string `json:"sha256,omitempty"`
-	SHA384      string `json:"sha384,omitempty"`
-	SHA3224     string `json:"sha3224,omitempty"`
-	SHA3256     string `json:"sha3256,omitempty"`
-	SHA3384     string `json:"sha3384,omitempty"`
-	SHA3512     string `json:"sha3512,omitempty"`
-	SHA512      string `json:"sha512,omitempty"`
-	SHA512224   string `json:"sha512224,omitempty"`
-	SHA512256   string `json:"sha512256,omitempty"`
-	Hex         string `json:"hex,omitempty"`
-	Base64      string `json:"base64,omitempty"`
+	CDHash       string `json:"cdhash,omitempty"`
+	MD5          string `json:"md5,omitempty"`
+	SHA1         string `json:"sha1,omitempty"`
+	SHA224       string `json:"sha224,omitempty"`
+	SHA256       string `json:"sha256,omitempty"`
+	SHA384       string `json:"sha384,omitempty"`
+	SHA3224      string `json:"sha3224,omitempty"`
+	SHA3256      string `json:"sha3256,omitempty"`
+	SHA3384      string `json:"sha3384,omitempty"`
+	SHA3512      string `json:"sha3512,omitempty"`
+	SHA512       string `json:"sha512,omitempty"`
+	SHA512224    string `json:"sha512224,omitempty"`
+	SHA512256    string `json:"sha512256,omitempty"`
+	Hex          string `json:"hex,omitempty"`
+	Base64       string `json:"base64,omitempty"`
 
 	// System
 	OperatingSystem string `json:"operatingSystem,omitempty"`

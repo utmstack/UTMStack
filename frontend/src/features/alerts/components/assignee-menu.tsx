@@ -29,8 +29,7 @@ export function AssigneeMenu({ current, onAssign }: { current?: string; onAssign
     }
   }, [loaded])
 
-  const label = (u: UserListItem) =>
-    [u.first_name, u.last_name].filter(Boolean).join(' ') || u.login
+  const label = (u: UserListItem) => u.name?.trim() || u.email
 
   return (
     <div onMouseEnter={() => setLoaded(true)} onFocusCapture={() => setLoaded(true)} onClickCapture={() => setLoaded(true)}>

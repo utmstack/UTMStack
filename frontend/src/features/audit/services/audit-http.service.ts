@@ -6,7 +6,7 @@ const api = createApiClient()
 /**
  * Translate the UI filters into the backend search_query DSL — "field.op.value"
  * terms joined by "&" (e.g. "status.eq.failure&timestamp.gte.2026-06-01"). Only
- * allowlisted fields survive on the backend (user_id, user_login, action, status,
+ * allowlisted fields survive on the backend (user_id, user_email, action, status,
  * resource_type, resource_id, event_type, ip, timestamp).
  */
 function buildSearchQuery(q: AuditListQuery): string {
@@ -15,7 +15,7 @@ function buildSearchQuery(q: AuditListQuery): string {
   if (q.status) terms.push(`status.eq.${q.status}`)
   if (q.resource_type) terms.push(`resource_type.like.${q.resource_type}`)
   if (q.resource_id) terms.push(`resource_id.eq.${q.resource_id}`)
-  if (q.user_login) terms.push(`user_login.like.${q.user_login}`)
+  if (q.user_email) terms.push(`user_email.like.${q.user_email}`)
   if (q.user_id != null) terms.push(`user_id.eq.${q.user_id}`)
   if (q.from) terms.push(`timestamp.gte.${q.from}`)
   if (q.to) terms.push(`timestamp.lte.${q.to}`)

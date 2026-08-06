@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -43,7 +44,11 @@ func initHTTPServer(cfg *config) *gin.Engine {
 	engine.Use(gin.Recovery())
 	engine.Use(requestLogger())
 	catcher.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode), nil)
-	engine.Use(cors.New(cors.Config{
+	// A SAML assertion arrives as a cross-site form POST that the provider itself
+	// caused, and the browser sends Origin: null for it. CORS exists to police
+	// what scripts may fetch, not top-level navigations, so the sign-in routes
+	// are outside it — the assertion's own signature is what authorises them.
+	corsGuard := cors.New(cors.Config{
 		AllowOriginFunc: func(origin string) bool {
 			allowed := cfg.devMode && strings.HasPrefix(origin, "http://localhost")
 			if !allowed {
@@ -56,7 +61,14 @@ func initHTTPServer(cfg *config) *gin.Engine {
 		ExposeHeaders:    []string{"Content-Length", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+	})
+	engine.Use(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/api/v1/sso/") {
+			c.Next()
+			return
+		}
+		corsGuard(c)
+	})
 	return engine
 }
 
@@ -109,15 +121,18 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		}
 		return &middleware.Actor{
 			UserID:      r.UserID,
-			Login:       r.Login,
 			Email:       r.Email,
 			Roles:       r.Roles,
 			Permissions: r.Permissions,
-			TenantID:    r.TenantID,
+			TenantID:    r.TenantID.String(),
 		}, nil
 	}
 	supportOf := func(ctx context.Context, tenantID string) (string, error) {
-		t, err := m.tenant.GetTenantUsecase().GetByID(ctx, tenantID)
+		tenantUUID, err := uuid.Parse(tenantID)
+		if err != nil {
+			return "", err
+		}
+		t, err := m.tenant.GetTenantUsecase().GetByID(ctx, tenantUUID)
 		if err != nil {
 			return "", err
 		}
@@ -125,9 +140,9 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	}
 	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf)
 
-	enterprise := middleware.RequireEnterprise(func() bool {
-		return m.billing.License().Current().IsEnterprise()
-	})
+	isEnterprise := func() bool { return m.billing.License().Current().IsEnterprise() }
+	enterprise := middleware.RequireEnterprise(isEnterprise)
+	enterpriseLicense := middleware.RequireEnterpriseLicense(isEnterprise)
 	mssp := middleware.RequireMSSP(func() bool {
 		return m.billing.License().Current().IsMSSP()
 	})
@@ -141,11 +156,11 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 			if err != nil {
 				return "", "", err
 			}
-			return t.ID, string(t.SupportAccess), nil
+			return t.ID.String(), string(t.SupportAccess), nil
 		},
 	))
 
-	iam.RegisterRoutes(api, m.iam, userAuth, enterprise)
+	iam.RegisterRoutes(api, m.iam, userAuth, enterprise, enterpriseLicense)
 	tenant.RegisterRoutes(api, m.tenant, userAuth, mssp, platform)
 	audit.RegisterRoutes(api, m.audit, userAuth)
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth, mssp)

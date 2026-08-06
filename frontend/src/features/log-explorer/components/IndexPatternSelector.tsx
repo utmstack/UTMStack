@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { ChevronDown, Database, Search } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
-import type { IndexPattern } from '../types/log-explorer.types'
 
 interface IndexPatternSelectorProps {
-  patterns: IndexPattern[]
-  pattern: IndexPattern | null
-  onPattern: (p: IndexPattern) => void
+  patterns: string[]
+  pattern: string | null
+  onPattern: (p: string) => void
 }
 
 export function IndexPatternSelector({ patterns, pattern, onPattern }: IndexPatternSelectorProps) {
@@ -32,7 +31,7 @@ export function IndexPatternSelector({ patterns, pattern, onPattern }: IndexPatt
   const filtered = useMemo(
     () =>
       query.trim()
-        ? patterns.filter((p) => p.pattern.toLowerCase().includes(query.trim().toLowerCase()))
+        ? patterns.filter((p) => p.toLowerCase().includes(query.trim().toLowerCase()))
         : patterns,
     [patterns, query]
   )
@@ -47,7 +46,7 @@ export function IndexPatternSelector({ patterns, pattern, onPattern }: IndexPatt
         )}
       >
         <Database size={13} className="text-muted-foreground" />
-        <span className="font-mono">{pattern?.pattern ?? '—'}</span>
+        <span className="font-mono">{pattern ?? t('logExplorer.query.allDataTypes')}</span>
         <ChevronDown size={12} className="text-muted-foreground" />
       </button>
       {open && (
@@ -77,17 +76,17 @@ export function IndexPatternSelector({ patterns, pattern, onPattern }: IndexPatt
             ) : (
               filtered.map((p) => (
                 <button
-                  key={p.id}
+                  key={p}
                   onClick={() => {
                     onPattern(p)
                     setOpen(false)
                   }}
                   className={cn(
                     'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
-                    p.id === pattern?.id ? 'bg-muted/60' : 'hover:bg-muted/60'
+                    p === pattern ? 'bg-muted/60' : 'hover:bg-muted/60'
                   )}
                 >
-                  <span className="font-mono">{p.pattern}</span>
+                  <span className="font-mono">{p}</span>
                 </button>
               ))
             )}

@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
 import { AuthHttpError } from '@/features/auth/services/auth-http.service'
 import { tfaService } from '../services/tfa.service'
-import type { TfaInitResponse, TfaMethod, User } from '@/features/auth/types/auth.types'
+import type { TfaInitResponse, TfaFactorType, User } from '@/features/auth/types/auth.types'
 
 type Mode = 'idle' | 'enroll' | 'disable'
 type EnrollStep = 'choose' | 'verify'
@@ -33,7 +33,7 @@ export function TwoFactorBody({
   const [busy, setBusy] = useState(false)
 
   // Enrollment state
-  const [method, setMethod] = useState<TfaMethod>('TOTP')
+  const [method, setMethod] = useState<TfaFactorType>('totp')
   const [step, setStep] = useState<EnrollStep>('choose')
   const [init, setInit] = useState<TfaInitResponse | null>(null)
   const [code, setCode] = useState('')
@@ -41,14 +41,15 @@ export function TwoFactorBody({
   // Disable state
   const [password, setPassword] = useState('')
 
-  const methodLabel = (m: TfaMethod) =>
-    m === 'TOTP' ? t('profile.tfa.methodTotp') : t('profile.tfa.methodEmail')
 
   const enrollError = (err: unknown): string => {
     if (err instanceof AuthHttpError) {
       if (err.status === 401 || err.status === 410) return t('profile.toast.tfaInvalidCode')
       if (err.status === 409) return t('profile.toast.tfaAlreadyEnabled')
       if (err.status === 429) return t('profile.toast.tfaTooManyRequests')
+      // The server already says what is missing and how to fix it; repeating a
+      // generic failure here would throw that away.
+      if (err.status === 503) return err.message || t('profile.toast.tfaMailUnavailable')
       if (err.status === 400) return err.message || t('profile.toast.tfaVerifyFailed')
     }
     return t('profile.toast.genericError')
@@ -59,16 +60,16 @@ export function TwoFactorBody({
     setStep('choose')
     setInit(null)
     setCode('')
-    setMethod('TOTP')
+    setMethod('totp')
   }
 
   const handleStartInit = async () => {
     setBusy(true)
     try {
-      const resp = await tfaService.tfaInit({ method })
-      setInit(resp)
+      const resp = await tfaService.enroll({ stage: 'INIT', type: method })
+      setInit(resp.init ?? null)
       setStep('verify')
-      if (method === 'EMAIL') toast.success(t('profile.toast.tfaEmailCodeSent'))
+      if (method === 'email') toast.success(t('profile.toast.tfaEmailCodeSent'))
     } catch (err) {
       toast.error(enrollError(err))
     } finally {
@@ -76,11 +77,13 @@ export function TwoFactorBody({
     }
   }
 
+  // Re-running INIT reissues the code: the challenge key is (user, purpose), so
+  // asking again replaces the pending one rather than leaving two valid.
   const handleResend = async () => {
     setBusy(true)
     try {
-      const resp = await tfaService.tfaRefreshChallenge('EMAIL')
-      if (resp.email_sent) toast.success(t('profile.toast.tfaNewCodeSent'))
+      const resp = await tfaService.enroll({ stage: 'INIT', type: 'email' })
+      if (resp.init?.email_sent) toast.success(t('profile.toast.tfaNewCodeSent'))
     } catch (err) {
       if (err instanceof AuthHttpError && err.status === 429) {
         toast.error(t('profile.toast.tfaWaitResend'))
@@ -100,8 +103,8 @@ export function TwoFactorBody({
     }
     setBusy(true)
     try {
-      await tfaService.tfaVerify({ method, code })
-      await tfaService.tfaComplete({ method })
+      await tfaService.enroll({ stage: 'VERIFY', type: method, code })
+      await tfaService.enroll({ stage: 'COMPLETE', type: method })
       await onChanged()
       toast.success(t('profile.toast.tfaEnabled'))
       resetEnroll()
@@ -145,9 +148,7 @@ export function TwoFactorBody({
           <div>
             <div className="text-sm font-medium">{t('profile.tfa.onTitle')}</div>
             <div className="mt-0.5 text-xs text-muted-foreground">
-              {t('profile.tfa.method', {
-                method: user.tfa_method ? methodLabel(user.tfa_method) : t('profile.tfa.configured'),
-              })}
+              {t('profile.tfa.configured')}
             </div>
           </div>
         </div>
@@ -222,20 +223,20 @@ export function TwoFactorBody({
         <div className="text-sm font-medium">{t('profile.tfa.chooseMethod')}</div>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <MethodCard
-            active={method === 'TOTP'}
+            active={method === 'totp'}
             icon={<Smartphone size={16} />}
             title={t('profile.tfa.methodTotp')}
             desc={t('profile.tfa.totpDesc')}
-            onClick={() => setMethod('TOTP')}
+            onClick={() => setMethod('totp')}
           />
           {allowEmail && (
             <MethodCard
-              active={method === 'EMAIL'}
+              active={method === 'email'}
               icon={<Mail size={16} />}
               title={t('profile.tfa.methodEmail')}
               desc={t('profile.tfa.emailDesc')}
               disabled={!user.email}
-              onClick={() => setMethod('EMAIL')}
+              onClick={() => setMethod('email')}
             />
           )}
         </div>
@@ -259,7 +260,7 @@ export function TwoFactorBody({
     const secret = otpSecret(init?.otp_auth_url)
     return (
       <form onSubmit={handleVerifyComplete} className="rounded-md border border-border bg-muted/40 p-4">
-        {method === 'TOTP' ? (
+        {method === 'totp' ? (
           <div className="flex flex-col items-start gap-4 sm:flex-row">
             {init?.qr_data_url && (
               <img

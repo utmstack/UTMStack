@@ -1,9 +1,9 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
-import { DatasourceLimitBanner } from '@/features/datasources/components/DatasourceLimitBanner'
 import { SocAiFloating, SocAiPanel, SocAiProvider, useSocAiConfigured } from '@/features/soc-ai'
 import { AdminSetupGate } from '@/features/onboarding/AdminSetupGate'
 import { Sidebar } from './Sidebar'
+import { SupportSessionBanner } from './SupportSessionBanner'
 import { Topbar } from './Topbar'
 
 export function DashboardLayout() {
@@ -19,8 +19,8 @@ export function DashboardLayout() {
   return (
     <SocAiProvider>
       <div className="flex h-screen w-screen flex-col overflow-hidden">
+        <SupportSessionBanner />
         <Topbar />
-        <DatasourceLimitBanner />
         <div className="flex min-h-0 flex-1">
           <Sidebar />
           {/* no padding on bottom section son socai pill overlaps page end as desired */}

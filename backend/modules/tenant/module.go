@@ -12,16 +12,20 @@ import (
 type Module struct {
 	tenantHandler *handler.TenantHandler
 	tenantUC      connectors.TenantUsecase
+	bootstrapUC   connectors.BootstrapUsecase
 }
 
-func NewModule(db *gorm.DB, admin connectors.AdminProvisioner) *Module {
-	tenantUC := usecase.NewTenantUsecase(repository.NewTenantRepository(db), admin)
+func NewModule(db *gorm.DB, admin connectors.UserProvisioner) *Module {
+	repo := repository.NewTenantRepository(db)
+	tenantUC := usecase.NewTenantUsecase(repo, admin)
 
 	return &Module{
 		tenantHandler: handler.NewTenantHandler(tenantUC),
 		tenantUC:      tenantUC,
+		bootstrapUC:   usecase.NewBootstrapUsecase(repo, admin),
 	}
 }
 
-func (m *Module) GetTenantHandler() *handler.TenantHandler   { return m.tenantHandler }
-func (m *Module) GetTenantUsecase() connectors.TenantUsecase { return m.tenantUC }
+func (m *Module) GetTenantHandler() *handler.TenantHandler         { return m.tenantHandler }
+func (m *Module) GetTenantUsecase() connectors.TenantUsecase       { return m.tenantUC }
+func (m *Module) GetBootstrapUsecase() connectors.BootstrapUsecase { return m.bootstrapUC }

@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils/tests"
 
+	"github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
@@ -89,4 +90,45 @@ func lastSQL(t *testing.T, db *gorm.DB, build func(*gorm.DB) *gorm.DB) string {
 	stmt := build(db.Session(&gorm.Session{DryRun: true})).
 		Model(&row{}).Find(&[]row{}).Statement
 	return stmt.SQL.String()
+}
+
+// The tenant's own row has to win over the one it would otherwise inherit.
+//
+// This was expressed as Order(gorm.Expr(...)), which GORM drops on the floor —
+// Order takes only a string or a clause.OrderByColumn — so the query ran with
+// no ordering at all and the database returned whichever row it felt like. The
+// symptom was a tenant saving its branding and reading the platform's back.
+func TestPreferOwnPicksTheTenantsRow(t *testing.T) {
+	rows := []domain.Config{
+		{TenantID: authz.DefaultTenantID, ConfParamShort: "branding", ConfParamValue: "platform"},
+		{TenantID: customerTenant, ConfParamShort: "branding", ConfParamValue: "theirs"},
+	}
+
+	got := preferOwn(rows, customerTenant)
+	if got == nil || got.ConfParamValue != "theirs" {
+		t.Fatalf("picked %v, want the tenant's own row", got)
+	}
+
+	// Order of arrival must not decide it.
+	rows[0], rows[1] = rows[1], rows[0]
+	if got := preferOwn(rows, customerTenant); got == nil || got.ConfParamValue != "theirs" {
+		t.Fatalf("picked %v after reordering, want the tenant's own row", got)
+	}
+}
+
+// With nothing of its own, the tenant reads what the instance set.
+func TestPreferOwnFallsBackToTheDefault(t *testing.T) {
+	rows := []domain.Config{
+		{TenantID: authz.DefaultTenantID, ConfParamShort: "branding", ConfParamValue: "platform"},
+	}
+	got := preferOwn(rows, customerTenant)
+	if got == nil || got.ConfParamValue != "platform" {
+		t.Fatalf("picked %v, want the inherited default", got)
+	}
+}
+
+func TestPreferOwnOnNothing(t *testing.T) {
+	if got := preferOwn(nil, customerTenant); got != nil {
+		t.Fatalf("picked %v from no rows, want nil", got)
+	}
 }

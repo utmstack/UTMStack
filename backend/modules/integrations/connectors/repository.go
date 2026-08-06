@@ -11,7 +11,7 @@ type TenantRepository interface {
 	Load(module string) ([]domain.Tenant, error)
 	Save(module string, tenants []domain.Tenant) error
 	Upsert(module string, t domain.Tenant) error
-	Delete(module, name string) error
+	Delete(module, name, tenantId string) error
 	SetActiveByModule(ctx context.Context, module string, active bool) error
 }
 

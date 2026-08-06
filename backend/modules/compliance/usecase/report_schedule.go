@@ -3,6 +3,9 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"strings"
 	"time"
 
@@ -27,7 +30,7 @@ func (u *scheduleUsecase) frameworkLocked(key string) bool {
 	return ok && u.ent.FrameworkLocked(fw)
 }
 
-func (u *scheduleUsecase) Create(ctx context.Context, userID int64, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error) {
+func (u *scheduleUsecase) Create(ctx context.Context, userID uuid.UUID, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error) {
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
 	}
@@ -47,7 +50,7 @@ func (u *scheduleUsecase) Create(ctx context.Context, userID int64, req dto.Crea
 	return toScheduleResp(s), nil
 }
 
-func (u *scheduleUsecase) Update(ctx context.Context, userID int64, req dto.UpdateScheduleRequest) (*dto.ScheduleResponse, error) {
+func (u *scheduleUsecase) Update(ctx context.Context, userID uuid.UUID, req dto.UpdateScheduleRequest) (*dto.ScheduleResponse, error) {
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
 	}
@@ -81,7 +84,7 @@ func (u *scheduleUsecase) GetByID(ctx context.Context, id int64) (*dto.ScheduleR
 	return toScheduleResp(s), nil
 }
 
-func (u *scheduleUsecase) ListByUser(ctx context.Context, userID int64, f dto.ScheduleFilters) ([]dto.ScheduleResponse, int64, error) {
+func (u *scheduleUsecase) ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]dto.ScheduleResponse, int64, error) {
 	items, total, err := u.repo.ListByUser(ctx, userID, f)
 	if err != nil {
 		return nil, 0, err
@@ -150,7 +153,10 @@ func (s *ReportScheduler) Start(ctx context.Context) {
 }
 
 func (s *ReportScheduler) run(ctx context.Context) {
-	schedules, err := s.scheduleRepo.ListAll(ctx)
+	// The sweep spans every tenant on purpose; each schedule is then claimed and
+	// delivered under its own, so a report is built from that tenant's data and
+	// no other.
+	schedules, err := s.scheduleRepo.ListAll(tenancy.WithAllTenants(ctx))
 	if err != nil {
 		_ = catcher.Error("compliance: listing schedules failed", err, nil)
 		return
@@ -163,7 +169,21 @@ func (s *ReportScheduler) run(ctx context.Context) {
 		if time.Now().UTC().Before(next) {
 			continue
 		}
-		s.deliver(ctx, &sched, next)
+		// Atomically claim this run before doing any work: with N
+		// horizontally-scaled replicas all polling the same due schedule,
+		// only the replica whose compare-and-swap succeeds proceeds — the
+		// rest see RowsAffected == 0 and skip, so the report email is never
+		// sent more than once per scheduled occurrence.
+		tenantCtx := authz.WithTenantID(ctx, sched.TenantID)
+		claimed, err := s.scheduleRepo.ClaimDue(tenantCtx, sched.ID, sched.LastExecutionDate, next)
+		if err != nil {
+			_ = catcher.Error("compliance: claiming schedule failed", err, map[string]any{"scheduleId": sched.ID})
+			continue
+		}
+		if !claimed {
+			continue
+		}
+		s.deliver(tenantCtx, &sched, next)
 	}
 }
 
@@ -185,10 +205,7 @@ func (s *ReportScheduler) deliver(ctx context.Context, sched *domain.UtmComplian
 			_ = catcher.Error("compliance: email delivery failed", err, map[string]any{"scheduleId": sched.ID, "to": to})
 		}
 	}
-	sched.LastExecutionDate = next
-	if err := s.scheduleRepo.Update(ctx, sched); err != nil {
-		_ = catcher.Error("compliance: updating last execution date failed", err, map[string]any{"scheduleId": sched.ID})
-	}
+	// LastExecutionDate was already advanced atomically by ClaimDue in run().
 }
 
 // validateCron does a basic 5-field UNIX cron validation.

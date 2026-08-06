@@ -50,7 +50,7 @@ func makeWriteHandler(r *runner.Runner, kind string) http.HandlerFunc {
 				fmt.Sprintf("failed to ensure directory: %v", err))
 			return
 		}
-		if err := os.WriteFile(destPath, []byte(body.Content), 0644); err != nil {
+		if err := runner.WriteFileAtomic(destDir, destPath, []byte(body.Content), 0644); err != nil {
 			writeError(w, http.StatusInternalServerError,
 				fmt.Sprintf("failed to write file: %v", err))
 			return

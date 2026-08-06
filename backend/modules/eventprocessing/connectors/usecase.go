@@ -12,12 +12,11 @@ type ListResult[T any] struct {
 	Total int64
 }
 
+// RegexPatternUsecase is read-only: patterns are a shared vocabulary seeded by
+// the pipeline bootstrap and referenced from filter YAMLs, not authored content.
 type RegexPatternUsecase interface {
-	Create(ctx context.Context, req dto.CreateRegexPatternRequest) (*dto.RegexPatternResponse, error)
-	Update(ctx context.Context, req dto.UpdateRegexPatternRequest) (*dto.RegexPatternResponse, error)
 	GetByID(ctx context.Context, patternID string) (*dto.RegexPatternResponse, error)
 	List(ctx context.Context, f dto.RegexPatternFilters) (*ListResult[dto.RegexPatternResponse], error)
-	Delete(ctx context.Context, patternID string) error
 }
 
 type TenantConfigUsecase interface {

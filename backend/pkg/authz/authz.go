@@ -5,6 +5,8 @@ import (
 	"errors"
 	"slices"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const RoleAdmin = "ROLE_ADMIN"
@@ -15,12 +17,11 @@ const RoleAdmin = "ROLE_ADMIN"
 const DefaultTenantID = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 
 type Actor struct {
-	UserID      uint64
-	Login       string
+	UserID      uuid.UUID
 	Email       string
 	Roles       []string
 	Permissions []string
-	SessionID   uint64
+	SessionID   uuid.UUID
 	Internal    bool
 	TenantID    string
 
@@ -129,7 +130,13 @@ func IsPlatform(a *Actor) bool {
 	if a.Internal {
 		return true
 	}
-	return a.TenantID == DefaultTenantID && HasRole(a, RoleAdmin)
+	return IsPlatformIdentity(a.TenantID, a.Roles)
+}
+
+// IsPlatformIdentity is the rule itself, so the token that tells a browser what
+// to show and the middleware that decides what to allow cannot drift apart.
+func IsPlatformIdentity(tenantID string, roles []string) bool {
+	return tenantID == DefaultTenantID && slices.Contains(roles, RoleAdmin)
 }
 
 func RequirePlatform(a *Actor) error {

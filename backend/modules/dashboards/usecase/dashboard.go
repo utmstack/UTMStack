@@ -45,6 +45,9 @@ func (u *dashboardUsecase) Update(ctx context.Context, d *domain.Dashboard, user
 	if existing == nil {
 		return nil, domain.ErrNotFound
 	}
+	if existing.SystemOwner {
+		return nil, domain.ErrSystemOwned
+	}
 	// Preserve creation metadata; never let an update rewrite it.
 	d.CreatedDate = existing.CreatedDate
 	d.SystemOwner = existing.SystemOwner
@@ -64,5 +67,15 @@ func (u *dashboardUsecase) List(ctx context.Context, f dto.DashboardFilter) ([]d
 }
 
 func (u *dashboardUsecase) Delete(ctx context.Context, id uint64) error {
+	existing, err := u.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return domain.ErrNotFound
+	}
+	if existing.SystemOwner {
+		return domain.ErrSystemOwned
+	}
 	return u.repo.Delete(ctx, id)
 }

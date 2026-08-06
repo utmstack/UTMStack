@@ -2,6 +2,10 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/google/uuid"
+	iamconnectors "github.com/utmstack/utmstack/backend/modules/iam/connectors"
+	iamdomain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -27,30 +31,25 @@ type iamUserListInput struct {
 }
 
 type iamUserIDInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 type iamUserCreateInput struct {
-	Login     string   `json:"login"`
 	Email     string   `json:"email"`
-	FirstName string   `json:"first_name,omitempty"`
-	LastName  string   `json:"last_name,omitempty"`
 	LangKey   string   `json:"lang_key,omitempty"`
 	RoleNames []string `json:"role_names,omitempty"`
 }
 
 type iamUserUpdateInput struct {
-	ID        uint64 `json:"id"`
-	Email     string `json:"email,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	LangKey   string `json:"lang_key,omitempty"`
-	Activated *bool  `json:"activated,omitempty"`
+	ID      uuid.UUID             `json:"id"`
+	Email   string                `json:"email,omitempty"`
+	LangKey string                `json:"lang_key,omitempty"`
+	Status  *iamdomain.UserStatus `json:"status,omitempty"`
 }
 
 type iamUserAssignRolesInput struct {
-	ID        uint64   `json:"id"`
-	RoleNames []string `json:"role_names"`
+	ID        uuid.UUID `json:"id"`
+	RoleNames []string  `json:"role_names"`
 }
 
 func registerIAMUsers(m *Module) {
@@ -78,19 +77,17 @@ func registerIAMUsers(m *Module) {
 		Name: "iam.user.create", Title: "Create user (invitation flow)",
 	}, Gate{Permission: "users.write"},
 		func(ctx context.Context, actor *authz.Actor, in iamUserCreateInput) (any, error) {
-			return uc.Create(ctx, actor.Login, dto.CreateUserRequest{
-				Login: in.Login, Email: in.Email, FirstName: in.FirstName,
-				LastName: in.LastName, LangKey: in.LangKey, RoleNames: in.RoleNames,
-			})
+			return uc.Create(ctx, dto.CreateUserRequest{
+				Email: in.Email, LangKey: in.LangKey, RoleNames: in.RoleNames,
+			}, iamconnectors.CreateUserOptions{Invite: true})
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "iam.user.update", Title: "Update user",
 	}, Gate{Permission: "users.write"},
 		func(ctx context.Context, actor *authz.Actor, in iamUserUpdateInput) (any, error) {
-			return uc.Update(ctx, actor.Login, in.ID, dto.UpdateUserRequest{
-				Email: in.Email, FirstName: in.FirstName, LastName: in.LastName,
-				LangKey: in.LangKey, Activated: in.Activated,
+			return uc.Update(ctx, in.ID, dto.UpdateUserRequest{
+				Email: in.Email, LangKey: in.LangKey, Status: in.Status,
 			})
 		})
 
@@ -98,7 +95,7 @@ func registerIAMUsers(m *Module) {
 		Name: "iam.user.deactivate", Title: "Deactivate user",
 	}, Gate{Permission: "users.delete"},
 		func(ctx context.Context, _ *authz.Actor, in iamUserIDInput) (any, error) {
-			if err := uc.Deactivate(ctx, in.ID); err != nil {
+			if err := uc.SetStatus(ctx, in.ID, iamdomain.UserStatusInactive); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "deactivated": true}, nil
@@ -108,7 +105,7 @@ func registerIAMUsers(m *Module) {
 		Name: "iam.user.assign_roles", Title: "Assign roles to user",
 	}, Gate{Permission: "users.write"},
 		func(ctx context.Context, actor *authz.Actor, in iamUserAssignRolesInput) (any, error) {
-			if err := uc.AssignRoles(ctx, actor.Login, in.ID, dto.AssignRolesRequest{RoleNames: in.RoleNames}); err != nil {
+			if err := uc.AssignRoles(ctx, in.ID, dto.AssignRolesRequest{RoleNames: in.RoleNames}); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "role_names": in.RoleNames}, nil
@@ -118,7 +115,7 @@ func registerIAMUsers(m *Module) {
 // ---- iam.role.* ------------------------------------------------------------
 
 type iamRoleNameInput struct {
-	Name string `json:"name"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerIAMRoles(m *Module) {
@@ -137,17 +134,15 @@ func registerIAMRoles(m *Module) {
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "roles.read"},
 		func(ctx context.Context, _ *authz.Actor, in iamRoleNameInput) (any, error) {
-			return uc.Get(ctx, in.Name)
+			return uc.Get(ctx, in.ID)
 		})
 }
 
 // ---- iam.auth.* ------------------------------------------------------------
 
 type iamAuthUpdateMeInput struct {
-	Email     string `json:"email,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	LangKey   string `json:"lang_key,omitempty"`
+	Email   string `json:"email,omitempty"`
+	LangKey string `json:"lang_key,omitempty"`
 }
 
 type iamAuthChangePasswordInput struct {
@@ -156,7 +151,7 @@ type iamAuthChangePasswordInput struct {
 }
 
 type iamAuthRevokeSessionInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerIAMAuth(m *Module) {
@@ -175,7 +170,7 @@ func registerIAMAuth(m *Module) {
 	}, Gate{},
 		func(ctx context.Context, actor *authz.Actor, in iamAuthUpdateMeInput) (any, error) {
 			return uc.UpdateMe(ctx, actor.UserID, dto.UpdateMeRequest{
-				Email: in.Email, FirstName: in.FirstName, LastName: in.LastName, LangKey: in.LangKey,
+				Email: in.Email, LangKey: in.LangKey,
 			})
 		})
 
@@ -223,7 +218,7 @@ func registerIAMAuth(m *Module) {
 // ---- iam.apikey.* ----------------------------------------------------------
 
 type iamAPIKeyUpsertInput struct {
-	ID        uint64     `json:"id,omitempty"`
+	ID        uuid.UUID  `json:"id,omitempty"`
 	Name      string     `json:"name"`
 	AllowedIP []string   `json:"allowed_ip,omitempty"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
@@ -303,15 +298,11 @@ func registerIAMAPIKeys(m *Module) {
 // ---- iam.idp.* -------------------------------------------------------------
 
 type iamIDPUpsertInput struct {
-	ID               uint64 `json:"id,omitempty"`
-	Name             string `json:"name"`
-	ProviderType     string `json:"provider_type"`
-	MetadataURL      string `json:"metadata_url"`
-	SpEntityID       string `json:"sp_entity_id"`
-	SpAcsURL         string `json:"sp_acs_url"`
-	SpPrivateKeyPem  string `json:"sp_private_key_pem,omitempty"`
-	SpCertificatePem string `json:"sp_certificate_pem,omitempty"`
-	Active           bool   `json:"active"`
+	ID           uuid.UUID       `json:"id,omitempty"`
+	Name         string          `json:"name"`
+	ProviderType string          `json:"provider_type"`
+	Settings     json.RawMessage `json:"settings"`
+	Active       bool            `json:"active"`
 }
 
 type iamIDPListInput struct {
@@ -354,8 +345,7 @@ func registerIAMIDPs(m *Module) {
 		func(ctx context.Context, _ *authz.Actor, in iamIDPUpsertInput) (any, error) {
 			return uc.Create(ctx, dto.IdentityProviderRequest{
 				ID: in.ID, Name: in.Name, ProviderType: in.ProviderType,
-				MetadataURL: in.MetadataURL, SpEntityID: in.SpEntityID, SpAcsURL: in.SpAcsURL,
-				SpPrivateKeyPem: in.SpPrivateKeyPem, SpCertificatePem: in.SpCertificatePem, Active: in.Active,
+				Settings: in.Settings, Active: in.Active,
 			})
 		})
 
@@ -365,8 +355,7 @@ func registerIAMIDPs(m *Module) {
 		func(ctx context.Context, _ *authz.Actor, in iamIDPUpsertInput) (any, error) {
 			return uc.Update(ctx, dto.IdentityProviderRequest{
 				ID: in.ID, Name: in.Name, ProviderType: in.ProviderType,
-				MetadataURL: in.MetadataURL, SpEntityID: in.SpEntityID, SpAcsURL: in.SpAcsURL,
-				SpPrivateKeyPem: in.SpPrivateKeyPem, SpCertificatePem: in.SpCertificatePem, Active: in.Active,
+				Settings: in.Settings, Active: in.Active,
 			})
 		})
 

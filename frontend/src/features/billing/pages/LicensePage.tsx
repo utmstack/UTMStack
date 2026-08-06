@@ -17,8 +17,8 @@ import { Button } from '@/shared/components/ui/button'
 import { BillingHttpError, billingHttpService } from '../services/billing-http.service'
 import { useBilling } from '../services/billing.context'
 import {
-  COMMUNITY_DATASOURCE_CAP,
   daysUntilExpiry,
+  hasCommercialTerms,
   hasExpiry,
   licenseStatus,
   type License,
@@ -74,7 +74,9 @@ export function LicensePage() {
       {license && (
         <div className="mt-6 space-y-5">
           <LicenseCard license={license} version={version} />
-          <UploadCard onUploaded={() => void refresh()} />
+          {/* The licence belongs to the instance, not to a tenant on it: the
+              upload is refused for anyone outside the default tenant. */}
+          {hasCommercialTerms(license) && <UploadCard onUploaded={() => void refresh()} />}
         </div>
       )}
     </div>
@@ -88,11 +90,16 @@ function LicenseCard({ license, version }: { license: License; version: VersionI
   const isEnterprise = license.edition === 'enterprise'
   const days = daysUntilExpiry(license)
   const editionName = isEnterprise ? t('license.enterprise') : t('license.community')
-  const datasourceLimit = !isEnterprise
-    ? String(COMMUNITY_DATASOURCE_CAP)
-    : license.datasources === 0
-      ? t('license.unlimited')
-      : license.datasources.toLocaleString()
+  // A customer administrator is never sent the commercial terms — they are the
+  // contract with whoever runs the instance, not with them.
+  const showsTerms = hasCommercialTerms(license)
+  const ingestLimit = !showsTerms
+    ? null
+    : !isEnterprise
+      ? t('license.notMetered')
+      : license.ingestGbPerMonth === 0
+        ? t('license.unlimited')
+        : t('license.gbPerMonth', { gb: license.ingestGbPerMonth!.toLocaleString() })
 
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
@@ -120,12 +127,14 @@ function LicenseCard({ license, version }: { license: License; version: VersionI
                 {editionName}
               </span>
             </Row>
-            <Row k={t('license.datasourceLimit')}>
-              <span className="inline-flex items-center gap-1.5">
-                <Database size={11} className="text-muted-foreground" />
-                {datasourceLimit}
-              </span>
-            </Row>
+            {ingestLimit && (
+              <Row k={t('license.ingestLimit')}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Database size={11} className="text-muted-foreground" />
+                  {ingestLimit}
+                </span>
+              </Row>
+            )}
             {license.mssp && (
               <Row k={t('license.mssp')}>
                 <span className="font-medium text-primary">{t('license.enabled')}</span>
@@ -168,18 +177,20 @@ function LicenseCard({ license, version }: { license: License; version: VersionI
                 <span className="font-medium">{t('license.enterpriseUnlocked')}</span>
               </div>
               <dl className="space-y-2 text-xs">
-                <KV
-                  k={t('license.validUntil')}
-                  v={
-                    hasExpiry(license) ? (
-                      <span className="font-mono">
-                        {new Date(license.expiresAt as string).toLocaleDateString(i18n.language)}
-                      </span>
-                    ) : (
-                      t('license.noExpiry')
-                    )
-                  }
-                />
+                {showsTerms && (
+                  <KV
+                    k={t('license.validUntil')}
+                    v={
+                      hasExpiry(license) ? (
+                        <span className="font-mono">
+                          {new Date(license.expiresAt as string).toLocaleDateString(i18n.language)}
+                        </span>
+                      ) : (
+                        t('license.noExpiry')
+                      )
+                    }
+                  />
+                )}
                 {days != null && (
                   <KV
                     k={t('license.timeRemaining')}

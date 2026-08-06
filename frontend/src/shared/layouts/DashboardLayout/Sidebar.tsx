@@ -7,7 +7,7 @@ import {
   BadgeCheck,
   Bell,
   Bot,
-  Boxes,
+  Building2,
   CalendarClock,
   ChevronDown,
   Database,
@@ -20,6 +20,7 @@ import {
   KeySquare,
   Languages,
   LayoutDashboard,
+  LifeBuoy,
   Mail,
   Palette,
   Plug,
@@ -30,7 +31,6 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Filter,
-  Regex,
   Tags,
   Terminal,
   UserCheck,
@@ -42,6 +42,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useAuth } from '@/features/auth'
+import { useBilling } from '@/features/billing'
+import { useSupportTenant } from '@/shared/lib/current-tenant'
 import { IS_FEDERATION } from '@/shared/config/mode'
 
 type LeafItem = {
@@ -50,6 +52,10 @@ type LeafItem = {
   icon: LucideIcon
   /** Light up for any path under `to` (e.g. Dashboards spans /dashboards/*). */
   matchPrefix?: boolean
+  /** Only for whoever runs the instance, and only where there are tenants to
+   * run: a customer's own administrator holds ROLE_ADMIN too, and without MSSP
+   * the single tenant's administrator *is* the platform identity. */
+  platformOnly?: boolean
 }
 
 type GroupItem = {
@@ -81,6 +87,7 @@ const sections: Section[] = [
     label: null,
     items: [
       { to: '/home', label: 'nav.overview', icon: Home },
+      { to: '/tenants', label: 'nav.tenants', icon: Building2, platformOnly: true },
       { to: '/dashboards', label: 'nav.dashboards', icon: LayoutDashboard, matchPrefix: true },
       {
         id: 'threat-management',
@@ -120,7 +127,6 @@ const sections: Section[] = [
       { to: '/integrations', label: 'nav.integrations', icon: Plug },
       { to: '/alerting-rules', label: 'nav.alertingRules', icon: SlidersHorizontal },
       { to: '/pipelines', label: 'nav.parsingFilters', icon: Filter },
-      { to: '/regex-patterns', label: 'nav.regexPatterns', icon: Regex },
       { to: '/data-processing', label: 'nav.dataProcessing', icon: Activity },
       { to: '/team', label: 'nav.team', icon: Users },
       { to: '/settings', label: 'nav.settings', icon: Settings },
@@ -130,23 +136,43 @@ const sections: Section[] = [
 
 // Settings drill-down — when pathname is under /settings the sidebar swaps
 // its content for this list + a Back button. `label` values are i18n keys.
-const settingsItems: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: '/settings/license', label: 'settings.license', icon: BadgeCheck },
+const settingsItems: {
+  to: string
+  label: string
+  icon: LucideIcon
+  /** For customer tenants only: the platform's own tenant has nobody to grant
+   * support access to. */
+  tenantOnly?: boolean
+  /** Properties of the instance rather than of a customer on it — the licence,
+   * the retention policy, the build. Only the default tenant sees these. */
+  platformOnly?: boolean
+}[] = [
+  { to: '/settings/license', label: 'settings.license', icon: BadgeCheck, platformOnly: true },
   { to: '/settings/notifications', label: 'settings.notifications', icon: Bell },
   { to: '/settings/connection-key', label: 'settings.connectionKey', icon: KeyRound },
-  { to: '/settings/data-retention', label: 'settings.dataRetention', icon: HardDriveDownload },
-  { to: '/settings/indices', label: 'settings.indices', icon: Boxes },
+  {
+    to: '/settings/data-retention',
+    label: 'settings.dataRetention',
+    icon: HardDriveDownload,
+    platformOnly: true,
+  },
   { to: '/settings/branding', label: 'settings.branding', icon: Palette },
   ...(!IS_FEDERATION
     ? [{ to: '/settings/api-keys', label: 'settings.apiKeys', icon: KeySquare }]
     : []),
   { to: '/settings/identity-providers', label: 'settings.identityProviders', icon: ShieldCheck },
+  {
+    to: '/settings/support-access',
+    label: 'settings.supportAccess',
+    icon: LifeBuoy,
+    tenantOnly: true,
+  },
   { to: '/settings/email', label: 'settings.email', icon: Mail },
   { to: '/settings/soc-ai', label: 'settings.socAi', icon: Bot },
   { to: '/settings/date-format', label: 'settings.dateFormat', icon: CalendarClock },
   { to: '/settings/language', label: 'settings.language', icon: Languages },
   { to: '/settings/audit-logs', label: 'settings.auditLogs', icon: History },
-  { to: '/settings/about', label: 'settings.about', icon: Info },
+  { to: '/settings/about', label: 'settings.about', icon: Info, platformOnly: true },
 ]
 
 const SECTIONS_KEY = 'utmstack-sidebar-sections-closed'
@@ -166,7 +192,13 @@ function loadSet(key: string): Set<string> {
 
 export function Sidebar() {
   const { t } = useTranslation()
-  const { isAdmin } = useAuth()
+  const { isAdmin, isPlatformAdmin } = useAuth()
+  const { license } = useBilling()
+  const isMSSP = license?.mssp === true
+  const supportTenant = useSupportTenant()
+  // Inside a support session the operator *is* that tenant as far as the API is
+  // concerned, so the platform-plane entries would only lead to a 403.
+  const actingAsPlatform = isPlatformAdmin && supportTenant === null
   const [closedSections, setClosedSections] = useState<Set<string>>(() => loadSet(SECTIONS_KEY))
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => loadSet(GROUPS_KEY))
   const { pathname } = useLocation()
@@ -230,7 +262,12 @@ export function Sidebar() {
               )}
               {!isClosed && (
                 <div className="space-y-0.5">
-                  {section.items.map((item) =>
+                  {section.items
+                    .filter(
+                      (item) =>
+                        isGroup(item) || !item.platformOnly || (actingAsPlatform && isMSSP)
+                    )
+                    .map((item) =>
                     isGroup(item) ? (
                       <SidebarGroup
                         key={item.id}
@@ -342,6 +379,14 @@ function SidebarGroup({
 
 function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boolean }) {
   const { t } = useTranslation()
+  const { isAdmin, isPlatformAdmin } = useAuth()
+  const { license } = useBilling()
+  const supportTenant = useSupportTenant()
+  const items = settingsItems.filter((item) => {
+    if (item.platformOnly) return isPlatformAdmin && supportTenant === null
+    if (item.tenantOnly) return isAdmin && !isPlatformAdmin && license?.mssp === true
+    return true
+  })
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border p-2">
@@ -357,7 +402,7 @@ function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boole
         {t('settings.title')}
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-2 pt-1">
-        {settingsItems.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon
           return (
             <Link

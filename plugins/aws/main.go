@@ -20,6 +20,8 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 )
 
+// defaultTenant is the fallback used only when a connector instance's config
+// has no tenantId (every on-prem/single-tenant install today).
 const (
 	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	urlCheckConnection = "https://sts.amazonaws.com"
@@ -203,7 +205,7 @@ func streamLogs(ctx context.Context, group *ModuleGroup) {
 			streamCtx, streamCancel := context.WithCancel(ctx)
 			currentStreams[stream] = streamCancel
 
-			go streamLogStream(streamCtx, cwl, agent.LogGroup, stream, startTime, group.GroupName)
+			go streamLogStream(streamCtx, cwl, agent.LogGroup, stream, startTime, group.GroupName, agent.TenantId)
 		}
 
 		awsStreamsMap := make(map[string]bool)
@@ -238,10 +240,11 @@ type AWSProcessor struct {
 	AccessKey       string
 	SecretAccessKey string
 	LogGroup        string
+	TenantId        string
 }
 
 func getAWSProcessor(group *ModuleGroup) AWSProcessor {
-	awsPro := AWSProcessor{}
+	awsPro := AWSProcessor{TenantId: group.TenantId}
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
 		case "aws_default_region":
@@ -315,7 +318,10 @@ func describeLogStreams(ctx context.Context, cwl *cloudwatchlogs.Client, logGrou
 	return logStreams, nil
 }
 
-func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, streamName string, startTime time.Time, dataSource string) {
+func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, streamName string, startTime time.Time, dataSource, tenantId string) {
+	if tenantId == "" {
+		tenantId = defaultTenant
+	}
 	var nextToken *string
 	processedCount := 0
 
@@ -360,7 +366,7 @@ func streamLogStream(ctx context.Context, cwl *cloudwatchlogs.Client, logGroup, 
 		for _, event := range result.Events {
 			_ = plugins.EnqueueLog(&plugins.Log{
 				Id:         uuid.NewString(),
-				TenantId:   defaultTenant,
+				TenantId:   tenantId,
 				DataType:   "aws",
 				DataSource: dataSource,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),

@@ -22,7 +22,7 @@ func NewHandler(uc connectors.Usecase) *Handler {
 // @Tags        Audit
 // @Security    BearerAuth
 // @Produce     json
-// @Param       search_query   query string false "filter DSL: field.op.value joined by & (e.g. status.eq.success&timestamp.gte.2026-06-01). Allowed fields: user_id, user_login, action, status, resource_type, resource_id, event_type, ip, timestamp. Ops: eq,neq,like,nlike,in,nin,gt,gte,lt,lte,null,nnull"
+// @Param       search_query   query string false "filter DSL: field.op.value joined by & (e.g. status.eq.success&timestamp.gte.2026-06-01). Allowed fields: user_id, user_email, action, status, resource_type, resource_id, event_type, ip, timestamp. Ops: eq,neq,like,nlike,in,nin,gt,gte,lt,lte,null,nnull"
 // @Param       sort_by        query string false "sort DSL: field.dir joined by & (e.g. timestamp.desc). Same allowed fields. Default: id desc"
 // @Param       page_number    query int    false "default 1"
 // @Param       page_size      query int    false "default 50, max 500"

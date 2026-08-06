@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	auditcon "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	auditdom "github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -58,15 +59,15 @@ func (m *Module) auditDenied(ctx context.Context, actor *authz.Actor, tool strin
 }
 
 func auditEvent(actor *authz.Actor, tool, status, errMsg string) auditcon.Event {
-	var uid, sid *uint64
+	var uid, sid *uuid.UUID
 	var login string
 	if actor != nil {
-		login = actor.Login
-		if actor.UserID != 0 {
+		login = actor.Email
+		if actor.UserID != uuid.Nil {
 			id := actor.UserID
 			uid = &id
 		}
-		if actor.SessionID != 0 {
+		if actor.SessionID != uuid.Nil {
 			s := actor.SessionID
 			sid = &s
 		}
@@ -78,7 +79,7 @@ func auditEvent(actor *authz.Actor, tool, status, errMsg string) auditcon.Event 
 		ErrorMessage: errMsg,
 		Metadata:     map[string]any{"transport": "mcp"},
 		EventType:    auditdom.APP_EVENT_MCP_TOOL_CALL,
-		UserLogin:    login,
+		UserEmail:    login,
 		UserID:       uid,
 		SessionID:    sid,
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"gorm.io/gorm"
 )
 
@@ -20,17 +21,41 @@ func NewIncidentRepository(db *gorm.DB) connectors.IncidentRepository {
 	return &pgIncidentRepository{db: db}
 }
 
+// scopeTenant narrows q to the acting tenant when one is set in ctx. An
+// on-prem/global actor (empty ctx tenant) sees every incident, matching
+// legacy behavior.
+func scopeTenant(ctx context.Context, q *gorm.DB) *gorm.DB {
+	if tid := authz.TenantIDFromContext(ctx); tid != "" {
+		return q.Where("tenant_id = ?", tid)
+	}
+	return q
+}
+
+// scopeTenantViaIncident narrows q (a query against a child table with an
+// incident_id column — alerts, history, notes) to rows whose parent incident
+// belongs to the acting tenant. These child tables have no tenant_id column
+// of their own; ownership flows from the parent utm_incident row.
+func scopeTenantViaIncident(ctx context.Context, q *gorm.DB) *gorm.DB {
+	if tid := authz.TenantIDFromContext(ctx); tid != "" {
+		return q.Where("incident_id IN (SELECT id FROM utm_incident WHERE tenant_id = ?)", tid)
+	}
+	return q
+}
+
 func (r *pgIncidentRepository) Save(ctx context.Context, incident *domain.UtmIncident) error {
+	if incident.TenantID == "" {
+		incident.TenantID = authz.TenantIDFromContext(ctx)
+	}
 	return r.db.WithContext(ctx).Create(incident).Error
 }
 
 func (r *pgIncidentRepository) Update(ctx context.Context, incident *domain.UtmIncident) error {
-	return r.db.WithContext(ctx).Save(incident).Error
+	return scopeTenant(ctx, r.db.WithContext(ctx)).Save(incident).Error
 }
 
 func (r *pgIncidentRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncident, error) {
 	var row domain.UtmIncident
-	if err := r.db.WithContext(ctx).First(&row, id).Error; err != nil {
+	if err := scopeTenant(ctx, r.db.WithContext(ctx)).First(&row, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -47,7 +72,7 @@ func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQu
 		q.Size = 20
 	}
 
-	db := r.db.WithContext(ctx).Model(&domain.UtmIncident{})
+	db := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncident{}))
 
 	if q.IncidentName != nil && *q.IncidentName != "" {
 		db = db.Where("incident_name ILIKE ?", "%"+*q.IncidentName+"%")
@@ -86,7 +111,7 @@ func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQu
 }
 
 func (r *pgIncidentRepository) Delete(ctx context.Context, id int64) error {
-	return r.db.WithContext(ctx).Unscoped().Delete(&domain.UtmIncident{}, id).Error
+	return scopeTenant(ctx, r.db.WithContext(ctx).Unscoped()).Delete(&domain.UtmIncident{}, id).Error
 }
 
 func parseSortParam(sort string) string {

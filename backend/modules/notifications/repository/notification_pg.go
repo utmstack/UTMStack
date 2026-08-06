@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/notifications/connectors"
 	"github.com/utmstack/utmstack/backend/modules/notifications/domain"
@@ -155,4 +156,15 @@ func parseSortParam(sort string) string {
 		dir = "DESC"
 	}
 	return field + " " + dir
+}
+
+func (r *pgNotificationRepository) DeleteOlderThan(
+	ctx context.Context, cutoff time.Time, onlyRead bool, limit int,
+) (int64, error) {
+	q := r.db.WithContext(ctx).Where("created_at < ?", cutoff)
+	if onlyRead {
+		q = q.Where("read = ?", true)
+	}
+	res := q.Limit(limit).Delete(&domain.UtmNotification{})
+	return res.RowsAffected, res.Error
 }

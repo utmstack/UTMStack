@@ -170,11 +170,16 @@ func pull(startTime time.Time, group *ModuleGroup) {
 		return
 	}
 
+	tenantId := group.TenantId
+	if tenantId == "" {
+		tenantId = defaultTenant
+	}
+
 	if len(logs) > 0 {
 		for _, log := range logs {
 			plugins.EnqueueLog(&plugins.Log{
 				Id:         uuid.New().String(),
-				TenantId:   defaultTenant,
+				TenantId:   tenantId,
 				DataType:   "sophos-central",
 				DataSource: group.GroupName,
 				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),

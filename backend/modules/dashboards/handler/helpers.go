@@ -13,7 +13,9 @@ func writeError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired), errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrSQLQueryRequired), errors.Is(err, domain.ErrInvalidSQL):
+	case errors.Is(err, domain.ErrSystemOwned):
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired), errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrSpecRequired), errors.Is(err, domain.ErrInvalidSpec):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -37,4 +39,4 @@ func writeList[T any](c *gin.Context, items []T, total int64) {
 	c.JSON(http.StatusOK, items)
 }
 
-func currentUser(c *gin.Context) string { return c.GetString("user_login") }
+func currentUser(c *gin.Context) string { return c.GetString("user_email") }

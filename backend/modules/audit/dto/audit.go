@@ -2,6 +2,7 @@ package dto
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -11,11 +12,11 @@ import (
 type LogResponse struct {
 	ID           uint64          `json:"id"`
 	Timestamp    time.Time       `json:"timestamp"`
-	UserID       *uint64         `json:"user_id,omitempty"`
-	UserLogin    string          `json:"user_login,omitempty"`
+	UserID       *uuid.UUID      `json:"user_id,omitempty"`
+	UserEmail    string          `json:"user_email,omitempty"`
 	IP           string          `json:"ip,omitempty"`
 	UserAgent    string          `json:"user_agent,omitempty"`
-	SessionID    *uint64         `json:"session_id,omitempty"`
+	SessionID    *uuid.UUID      `json:"session_id,omitempty"`
 	Action       string          `json:"action"`
 	Status       string          `json:"status"`
 	ErrorMessage string          `json:"error_message,omitempty"`
@@ -33,7 +34,7 @@ func ToResponse(a domain.AuditLog) LogResponse {
 		ID:           a.ID,
 		Timestamp:    a.Timestamp,
 		UserID:       a.UserID,
-		UserLogin:    a.UserLogin,
+		UserEmail:    a.UserEmail,
 		IP:           a.IP,
 		UserAgent:    a.UserAgent,
 		SessionID:    a.SessionID,

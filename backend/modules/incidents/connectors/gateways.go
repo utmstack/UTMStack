@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
@@ -29,12 +30,12 @@ func NewNoopAlertsGateway() AlertsGateway { return &noopAlertsGateway{} }
 
 // IAMGateway resolves assigned users from the iam module.
 type IAMGateway interface {
-	FindUsersByIDs(ctx context.Context, ids []int64) ([]dto.UserAssignedDTO, error)
+	FindUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]dto.UserAssignedDTO, error)
 }
 
 type noopIAMGateway struct{}
 
-func (n *noopIAMGateway) FindUsersByIDs(_ context.Context, ids []int64) ([]dto.UserAssignedDTO, error) {
+func (n *noopIAMGateway) FindUsersByIDs(_ context.Context, ids []uuid.UUID) ([]dto.UserAssignedDTO, error) {
 	result := make([]dto.UserAssignedDTO, 0, len(ids))
 	for _, id := range ids {
 		result = append(result, dto.UserAssignedDTO{ID: id, Login: ""})

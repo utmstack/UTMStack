@@ -9,7 +9,6 @@ import type {
   FilterOperator,
   FilterType,
   IndexField,
-  IndexPattern,
   TopValues,
 } from '../types/log-explorer.types'
 import { OP_KEY, SELECT_CLS } from './log-explorer.constants'
@@ -29,7 +28,7 @@ export function AddFilterButton({
   filters,
   onAdd,
 }: {
-  pattern: IndexPattern
+  pattern: string
   fields: IndexField[]
   filters: FilterType[]
   onAdd: (f: FilterType) => void
@@ -68,7 +67,7 @@ export function AddFilterButton({
     setLoadingValues(true)
     setValues([])
     svc
-      .topValues(pattern.pattern, aggField, filters, 100)
+      .topValues(pattern, aggField, filters, 100)
       .then((r) => setValues(r.top ?? []))
       .catch(() => setValues([]))
       .finally(() => setLoadingValues(false))

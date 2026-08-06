@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/audit/dto"
@@ -19,11 +20,11 @@ type Event struct {
 	ErrorMessage  string         // when Status = failure
 	Metadata      map[string]any // free-form context; serialized to jsonb
 	EventType     domain.ApplicationEventType
-	UserLogin     string
-	UserID        *uint64
+	UserEmail     string
+	UserID        *uuid.UUID
 	IP            string
 	UserAgent     string
-	SessionID     *uint64
+	SessionID     *uuid.UUID
 	SupportAccess string // set when a platform administrator acted inside another tenant
 }
 

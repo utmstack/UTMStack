@@ -62,14 +62,20 @@ func (r *pgDatasourceRepository) Count(ctx context.Context) (int64, error) {
 	return r.db.Count(ctx, new(domain.Datasource))
 }
 
+// dedupBySourceRef keeps the last entry per (tenant, source_ref), which is what
+// the unique index is: source_ref is "<dataType>:<dataSource>" and carries no
+// tenant, so two tenants running an agent with the same hostname produce the
+// same one.
 func dedupBySourceRef(items []domain.Datasource) []domain.Datasource {
-	seen := make(map[string]int, len(items))
+	type key struct{ tenant, ref string }
+	seen := make(map[key]int, len(items))
 	out := make([]domain.Datasource, 0, len(items))
 	for _, item := range items {
-		if idx, ok := seen[item.SourceRef]; ok {
+		k := key{item.TenantID, item.SourceRef}
+		if idx, ok := seen[k]; ok {
 			out[idx] = item
 		} else {
-			seen[item.SourceRef] = len(out)
+			seen[k] = len(out)
 			out = append(out, item)
 		}
 	}
@@ -83,7 +89,7 @@ func (r *pgDatasourceRepository) UpsertBatch(ctx context.Context, items []domain
 	}
 	return r.db.GORM().WithContext(ctx).
 		Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "source_ref"}},
+			Columns: []clause.Column{{Name: "tenant_id"}, {Name: "source_ref"}},
 			DoUpdates: clause.AssignmentColumns([]string{
 				"asset_name", "data_type", "source_kind", "asset_ip", "metadata", "last_ping_at", "modified_at",
 			}),
@@ -98,7 +104,7 @@ func (r *pgDatasourceRepository) RegisterBatch(ctx context.Context, items []doma
 	}
 	return r.db.GORM().WithContext(ctx).
 		Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "source_ref"}},
+			Columns: []clause.Column{{Name: "tenant_id"}, {Name: "source_ref"}},
 			DoUpdates: clause.AssignmentColumns([]string{
 				"asset_name", "data_type", "source_kind", "asset_ip", "metadata", "modified_at",
 			}),
@@ -112,7 +118,7 @@ func (r *pgDatasourceRepository) UpsertLivenessBatch(ctx context.Context, items 
 	}
 	return r.db.GORM().WithContext(ctx).
 		Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "source_ref"}},
+			Columns:   []clause.Column{{Name: "tenant_id"}, {Name: "source_ref"}},
 			DoUpdates: clause.AssignmentColumns([]string{"last_ping_at", "modified_at"}),
 			Where: clause.Where{Exprs: []clause.Expression{
 				gorm.Expr("datasources.source_kind <> 'agent'"),

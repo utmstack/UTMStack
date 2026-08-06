@@ -16,10 +16,14 @@ type Module struct {
 	license *usecase.LicenseService
 }
 
-func NewModule(updatesDir string) *Module {
+func NewModule(updatesDir, devLicense string) *Module {
+	license := usecase.NewLicenseService(updatesDir, PublicKey, EncryptSalt)
+	if devLicense != "" {
+		license.UseDevLicense(devLicense)
+	}
 	return &Module{
 		version: usecase.NewVersionUsecase(updatesDir),
-		license: usecase.NewLicenseService(updatesDir, PublicKey, EncryptSalt),
+		license: license,
 	}
 }
 

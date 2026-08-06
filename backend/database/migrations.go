@@ -20,6 +20,7 @@ import (
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	socai_domain "github.com/utmstack/utmstack/backend/modules/socai/domain"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	"github.com/utmstack/utmstack/backend/pkg/joblease"
 	"gorm.io/gorm"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -33,16 +34,19 @@ func Models() []any {
 	return []any{
 		iam_domain.User{},
 		tenant_domain.Tenant{},
-		iam_domain.Authority{},
+		iam_domain.Role{},
 		iam_domain.Permission{},
-		iam_domain.AuthorityPermission{},
-		iam_domain.UserAuthority{},
+		iam_domain.RolePermission{},
+		iam_domain.UserRole{},
 		iam_domain.APIKey{},
 		iam_domain.RefreshToken{},
 		iam_domain.IdentityProviderConfig{},
-		iam_domain.TfaSetupState{},
+		iam_domain.IdentityProviderGroupMapping{},
+		iam_domain.UserChallenge{},
+		iam_domain.TfaFactor{},
 		audit_domain.AuditLog{},
 		socai_domain.AIUsage{},
+		joblease.Lease{},
 		appconfig_domain.Config{},
 		alerts_domain.UtmAlertTag{},
 		alerts_domain.UtmAlertTagRule{},
@@ -66,7 +70,7 @@ func Models() []any {
 		datasources_domain.Datasource{},
 		dashboards_domain.Dashboard{},
 		dashboards_domain.Visualization{},
-		loganalyzer_domain.UtmLogAnalyzerQuery{},
+		loganalyzer_domain.SavedQuery{},
 		adaudit_domain.ADUser{},
 	}
 }

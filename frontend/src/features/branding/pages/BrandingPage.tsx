@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Check, Crown, ImageOff, Loader2, Paintbrush, Upload } from 'lucide-react'
+import { Check, ImageOff, Loader2, Paintbrush, RotateCcw, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { useBilling } from '@/features/billing'
+import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
 import { brandingHttpService } from '../services/branding-http.service'
 import { useBranding } from '../services/branding.context'
 import type { Branding, BrandingAssetSlot } from '../types/branding.types'
@@ -29,7 +29,7 @@ export function BrandingPage() {
   const { t } = useTranslation()
   const { license } = useBilling()
   const { refresh: refreshGlobal } = useBranding()
-  const entitled = !!license?.mssp
+  const isEnterprise = license?.edition === 'enterprise'
 
   const [form, setForm] = useState<Branding>(EMPTY)
   const [initial, setInitial] = useState<Branding>(EMPTY)
@@ -59,6 +59,25 @@ export function BrandingPage() {
 
   const patch = (p: Partial<Branding>) => setForm((f) => ({ ...f, ...p }))
   const dirty = JSON.stringify(form) !== JSON.stringify(initial)
+
+  // Restoring is a save of the empty shape with the brand switched off, not a
+  // separate endpoint: the uploaded files stay on disk, so turning it back on
+  // recovers the previous look without re-uploading anything.
+  const restoreDefaults = async () => {
+    setSaving(true)
+    try {
+      const saved = await brandingHttpService.update({ ...EMPTY, enabled: false })
+      const v = { ...saved, productName: saved.productName || 'UTMStack' }
+      setForm(v)
+      setInitial(v)
+      await refreshGlobal()
+      toast.success(t('branding.restored'))
+    } catch {
+      toast.error(t('branding.saveError'))
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const save = async () => {
     setSaving(true)
@@ -92,6 +111,22 @@ export function BrandingPage() {
     await refreshGlobal()
   }
 
+  if (!isEnterprise) {
+    return (
+      <EnterpriseGate
+        header={<header>
+            <h1 className="flex items-center gap-2 text-base font-semibold">
+              <Paintbrush size={16} strokeWidth={1.75} />
+              {t('branding.title')}
+            </h1>
+          </header>}
+        title={t('branding.enterprise.title')}
+        body={t('branding.enterprise.body')}
+        cta={t('branding.enterprise.upgrade')}
+      />
+    )
+  }
+
   return (
     <div className="w-full px-6 pb-6 pt-3">
       <header>
@@ -101,24 +136,13 @@ export function BrandingPage() {
         </h1>
       </header>
 
-      {!entitled && (
-        <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm">
-          <Crown size={16} className="mt-0.5 shrink-0 text-amber-500" />
-          <div className="flex-1">
-            <span className="text-foreground">{t('branding.msspRequired')}</span>{' '}
-            <Link to="/settings/license" className="font-medium text-primary hover:underline">
-              {t('branding.manageLicense')}
-            </Link>
-          </div>
-        </div>
-      )}
 
       {loading ? (
         <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>
       ) : (
-        <fieldset disabled={!entitled || saving} className="mt-6 space-y-5">
+        <fieldset disabled={!isEnterprise || saving} className="mt-6 space-y-5">
           {/* Enable */}
           <Section title={t('branding.enable.title')} subtitle={t('branding.enable.description')}>
             <label className="flex cursor-pointer items-center justify-between gap-4">
@@ -181,22 +205,31 @@ export function BrandingPage() {
           {/* Logos */}
           <Section title={t('branding.logos.title')} subtitle={t('branding.logos.hint')}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <AssetCard slot="logo" label={t('branding.logos.logo')} url={form.logoUrl} disabled={!entitled} onUploaded={onUploaded} t={t} />
-              <AssetCard slot="logoDark" label={t('branding.logos.logoDark')} url={form.logoDarkUrl} dark disabled={!entitled} onUploaded={onUploaded} t={t} />
-              <AssetCard slot="favicon" label={t('branding.logos.favicon')} url={form.faviconUrl} disabled={!entitled} onUploaded={onUploaded} t={t} />
+              <AssetCard slot="logo" label={t('branding.logos.logo')} url={form.logoUrl} disabled={!isEnterprise} onUploaded={onUploaded} t={t} />
+              <AssetCard slot="logoDark" label={t('branding.logos.logoDark')} url={form.logoDarkUrl} dark disabled={!isEnterprise} onUploaded={onUploaded} t={t} />
+              <AssetCard slot="favicon" label={t('branding.logos.favicon')} url={form.faviconUrl} disabled={!isEnterprise} onUploaded={onUploaded} t={t} />
             </div>
           </Section>
 
           {/* Reports */}
           <Section title={t('branding.reports.title')} subtitle={t('branding.reports.hint')}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <AssetCard slot="reportLogo" label={t('branding.reports.reportLogo')} url={form.reportLogoUrl} disabled={!entitled} onUploaded={onUploaded} t={t} />
-              <AssetCard slot="reportCover" label={t('branding.reports.reportCover')} url={form.reportCoverUrl} disabled={!entitled} onUploaded={onUploaded} t={t} />
+              <AssetCard slot="reportLogo" label={t('branding.reports.reportLogo')} url={form.reportLogoUrl} disabled={!isEnterprise} onUploaded={onUploaded} t={t} />
+              <AssetCard slot="reportCover" label={t('branding.reports.reportCover')} url={form.reportCoverUrl} disabled={!isEnterprise} onUploaded={onUploaded} t={t} />
             </div>
           </Section>
 
-          <div className="flex items-center justify-end gap-2">
-            <Button size="sm" disabled={!dirty || saving || !entitled} onClick={() => void save()}>
+          <div className="flex items-center justify-between gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={saving || !isEnterprise}
+              onClick={() => void restoreDefaults()}
+            >
+              <RotateCcw size={13} className="mr-1.5" />
+              {t('branding.restore')}
+            </Button>
+            <Button size="sm" disabled={!dirty || saving || !isEnterprise} onClick={() => void save()}>
               {saving ? t('branding.saving') : t('branding.save')}
             </Button>
           </div>

@@ -3,7 +3,6 @@ import type {
   ChartView,
   FilterType,
   IndexField,
-  IndexPattern,
   LogDocument,
   TopValues,
 } from '../types/log-explorer.types'
@@ -15,39 +14,43 @@ export { ApiError as LogExplorerHttpError }
 /** Top results cap the backend search honours (matches the legacy MAX_SEARCH_RESULTS). */
 export const MAX_SEARCH_RESULTS = 10_000
 
+/** The explorer explores logs; alerts have their own page. */
+const LOGS_DATASET = 'logs'
+
 export const logExplorerHttpService = {
-  // Active index patterns for the selector (few — fetch all).
-  patterns: async (): Promise<IndexPattern[]> => {
-    const { data } = await api.getPaged<IndexPattern[]>(
-      '/opensearch/index-patterns?isActive.equals=true&page=0&size=2000&sort=pattern,asc'
-    )
-    return data ?? []
-  },
+  // The explorer always reads logs; what an analyst picks between is the kind
+  // of log. Read from the data, so a type that stopped arriving stops being
+  // offered — which is what the index-pattern registry used to be for.
+  dataTypes: () => api.get<string[]>(`/log-analyzer/datasets/${LOGS_DATASET}/data-types`),
 
-  // Field list (name + type) for the selected pattern.
-  fields: (indexPattern: string) =>
-    api.get<IndexField[]>(
-      `/opensearch/index/properties?indexPattern=${encodeURIComponent(indexPattern)}`
-    ),
+  // Queryable fields of a dataset, straight from the store: a field that exists
+  // is offered and one that does not is not.
+  fields: () => api.get<IndexField[]>(`/log-analyzer/datasets/${LOGS_DATASET}/fields`),
 
-  // Main document search. Returns { data: _source[], total } from X-Total-Count.
-  search: (params: {
-    indexPattern: string
+  // Main document search, through the store rather than the index gateway.
+  // `page` is 0-based here, matching the endpoint.
+  search: async (params: {
+    dataType: string | null
     filters: FilterType[]
-    page: number // 1-based
+    page: number
     size: number
+    from?: string
+    to?: string
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
-  }) => {
-    const q = new URLSearchParams({
-      indexPattern: params.indexPattern,
-      page: String(params.page),
-      size: String(params.size),
-      top: String(MAX_SEARCH_RESULTS),
+  }): Promise<{ data: LogDocument[]; total: number }> => {
+    const res = await api.post<{ data: LogDocument[]; total: number }>('/log-analyzer/search', {
+      dataset: LOGS_DATASET,
+      dataType: params.dataType ?? undefined,
+      filters: params.filters,
+      page: params.page,
+      size: params.size,
+      from: params.from,
+      to: params.to,
       sortBy: params.sortBy ?? '@timestamp',
-      sortOrder: params.sortOrder ?? 'desc',
+      order: params.sortOrder ?? 'desc',
     })
-    return api.postPaged<LogDocument[]>(`/opensearch/search?${q.toString()}`, params.filters)
+    return { data: res.data ?? [], total: res.total ?? 0 }
   },
 
   // SQL mode.

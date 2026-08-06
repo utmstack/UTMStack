@@ -8,9 +8,9 @@ import "testing"
 // the tenant the rest of the statement is bound to.
 func TestSortIsAnAllowlist(t *testing.T) {
 	injections := []string{
-		"(CASE WHEN (SELECT password_hash FROM jhi_user LIMIT 1) LIKE 'a%' THEN 1 ELSE 2 END)",
+		"(CASE WHEN (SELECT password_hash FROM \"user\" LIMIT 1) LIKE 'a%' THEN 1 ELSE 2 END)",
 		"(SELECT api_key FROM api_keys LIMIT 1)",
-		"id; DROP TABLE utm_notification",
+		"id; DROP TABLE notification",
 		"created_at DESC, (SELECT 1)",
 		"tenant_id", // a real column, but not one to order strangers' data by
 		"",

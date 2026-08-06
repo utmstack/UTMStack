@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/geolocation
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.26
+	github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482
 	github.com/tidwall/gjson v1.19.0
 	github.com/tidwall/sjson v1.2.5
 )

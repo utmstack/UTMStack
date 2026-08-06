@@ -4,6 +4,7 @@ import "time"
 
 type UtmIncidentHistory struct {
 	ID                int64     `gorm:"primaryKey;autoIncrement"                        json:"id"`
+	TenantID          string    `gorm:"column:tenant_id;size:36;index"                  json:"-"`
 	IncidentID        int64     `gorm:"column:incident_id;not null"                     json:"incidentId"`
 	Action            string    `gorm:"column:action;size:255"                          json:"action"`
 	ActionType        string    `gorm:"column:action_type;size:255;not null"            json:"actionType"`

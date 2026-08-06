@@ -84,7 +84,7 @@ func enrichFromDatasource(a *AlertFields) {
 	if dsCache == nil || a.DataSource == "" {
 		return
 	}
-	e, ok := dsCache.Lookup(a.DataSource)
+	e, ok := dsCache.Lookup(a.TenantId, a.DataSource)
 	if !ok {
 		return
 	}
@@ -177,7 +177,7 @@ func correlate(ctx context.Context,
 
 	var snapshot []RuleSnapshot
 	if rules != nil {
-		snapshot = rules.Snapshot()
+		snapshot = rules.Snapshot(alert.TenantId)
 	}
 
 	if err := newAlert(alert, parentId, snapshot); err != nil {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	osdk "github.com/threatwinds/go-sdk/os"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 // ---------------------------------------------------------------------------
@@ -47,9 +48,26 @@ func (s Script) Render() map[string]any {
 // go-sdk `os` call wrappers preserving the former pkg client method shapes.
 // ---------------------------------------------------------------------------
 
+func scopeTenantQuery(ctx context.Context, query map[string]any) map[string]any {
+	tid := authz.TenantIDFromContext(ctx)
+	if tid == "" {
+		return query
+	}
+	tenantFilter := termQuery("tenantId", tid)
+	if query == nil {
+		return tenantFilter
+	}
+	return map[string]any{
+		"bool": map[string]any{
+			"must":   []map[string]any{query},
+			"filter": []map[string]any{tenantFilter},
+		},
+	}
+}
+
 func osUpdateByQuery(ctx context.Context, index string, query map[string]any, script Script) error {
 	body := map[string]any{
-		"query":  query,
+		"query":  scopeTenantQuery(ctx, query),
 		"script": script.Render(),
 	}
 	const maxAttempts = 5
@@ -81,6 +99,7 @@ func isVersionConflict(err error) bool {
 }
 
 func osSearchSources(ctx context.Context, index string, query map[string]any, size int) ([]json.RawMessage, error) {
+	query = scopeTenantQuery(ctx, query)
 	body := map[string]any{"size": size}
 	if query != nil {
 		body["query"] = query
@@ -103,6 +122,7 @@ func osSearchSources(ctx context.Context, index string, query map[string]any, si
 // osSearchPage runs a paged + sorted search and returns the raw source docs
 // alongside the matching total count.
 func osSearchPage(ctx context.Context, index string, query map[string]any, from, size int, sortBy, sortOrder string) ([]json.RawMessage, int64, error) {
+	query = scopeTenantQuery(ctx, query)
 	body := map[string]any{
 		"from":             from,
 		"size":             size,
@@ -132,6 +152,7 @@ func osSearchPage(ctx context.Context, index string, query map[string]any, from,
 }
 
 func osCount(ctx context.Context, index string, query map[string]any) (int64, error) {
+	query = scopeTenantQuery(ctx, query)
 	body := map[string]any{"size": 0, "track_total_hits": true}
 	if query != nil {
 		body["query"] = query
@@ -141,4 +162,30 @@ func osCount(ctx context.Context, index string, query map[string]any) (int64, er
 		return 0, err
 	}
 	return res.Hits.Total.Value, nil
+}
+
+// osAggregate runs an aggregation-only search and returns the raw
+// {"aggregations": {...}} envelope for the caller to decode.
+//
+// Like every other wrapper here it scopes the query to the acting tenant first.
+// Aggregations are the easiest place to leak across tenants without noticing:
+// the response carries no documents, so nothing in it looks like another
+// tenant's data — only counts and terms derived from it.
+func osAggregate(ctx context.Context, index string, query map[string]any, aggs map[string]any, timeout string) (json.RawMessage, error) {
+	body := map[string]any{
+		"size": 0,
+		"aggs": aggs,
+	}
+	if timeout != "" {
+		body["timeout"] = timeout
+	}
+	if q := scopeTenantQuery(ctx, query); q != nil {
+		body["query"] = q
+	}
+
+	res, err := osdk.RawSearch(ctx, []string{index}, body)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(map[string]any{"aggregations": res.Aggregations})
 }

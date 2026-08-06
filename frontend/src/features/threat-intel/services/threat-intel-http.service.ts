@@ -41,6 +41,9 @@ export const threatIntelHttpService = {
     wrap(() => api.get<EntityRelation[]>(`${BASE}/entity/${encodeURIComponent(id)}/relations`)),
   feeds: () => wrap(() => api.get<ThreatFeed[]>(`${BASE}/feeds`)),
   chat: (body: ChatRequest) => wrap(() => api.post<ChatResponse>(`${BASE}/ai/chat`, body)),
+  // Whether the instance is registered with ThreatWinds. Open to any tenant —
+  // unlike the counters below, which are the operator's.
+  status: () => api.get<{ configured: boolean }>(`${BASE}/status`),
   usage: () => wrap(() => api.get<UsageInfo>(`${BASE}/usage`)),
   entityLookup: (body: EntityLookupRequest) =>
     wrap(() => api.post<EntityLookupResponse>(`${BASE}/entity/lookup`, body)),

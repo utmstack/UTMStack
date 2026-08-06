@@ -1,6 +1,10 @@
 package usecase
 
-import "time"
+import (
+	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+)
 
 const (
 	// Rules
@@ -22,7 +26,7 @@ const (
 	PatternsFileName   = "patterns.yaml"
 
 	// Tenant UUID is a system-wide constant used by all plugins.
-	DefaultTenantID   = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	DefaultTenantID   = authz.DefaultTenantID
 	DefaultTenantName = "Default"
 
 	// Shared

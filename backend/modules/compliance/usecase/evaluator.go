@@ -128,13 +128,13 @@ func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, control
 		return domain.ErrInvalidStatus
 	}
 
-	note:=domain.UtmComplianceControlNote{
-		ControlID:    controlID,
-		Note: 		  reason,
+	note := domain.UtmComplianceControlNote{
+		ControlID: controlID,
+		Note:      reason,
 	}
 
-	err:=e.notes.Upsert(ctx,&note)
-	if err!=nil{
+	err := e.notes.Upsert(ctx, &note)
+	if err != nil {
 		return err
 	}
 
@@ -384,6 +384,6 @@ func tally(s *domain.ReportSummary, status string) {
 func finalizeSummary(s *domain.ReportSummary) {
 	evaluated := s.Compliant + s.NonCompliant + s.AtRisk + s.Pending
 	if evaluated > 0 {
-		s.CompliantPct = (s.Compliant  / evaluated) * 100
+		s.CompliantPct = (s.Compliant / evaluated) * 100
 	}
 }

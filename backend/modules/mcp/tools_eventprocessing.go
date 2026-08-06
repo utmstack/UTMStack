@@ -27,18 +27,6 @@ func registerEventProcessing(m *Module) {
 
 // ---- regex_pattern.* -------------------------------------------------------
 
-type epRegexCreateInput struct {
-	PatternID          string `json:"pattern_id"`
-	PatternDescription string `json:"pattern_description,omitempty"`
-	PatternDefinition  string `json:"pattern_definition"`
-}
-
-type epRegexUpdateInput struct {
-	PatternID          string `json:"pattern_id"`
-	PatternDescription string `json:"pattern_description,omitempty"`
-	PatternDefinition  string `json:"pattern_definition"`
-}
-
 type epRegexListInput struct {
 	Search string `json:"search,omitempty"`
 	Page   int    `json:"page,omitempty"`
@@ -52,24 +40,8 @@ type epRegexIDInput struct {
 func registerEPRegexPatterns(m *Module) {
 	uc := m.deps.EventProcessing.GetRegexPatternUsecase()
 
-	Add(m, &mcp.Tool{
-		Name: "regex_pattern.create", Title: "Create regex pattern",
-	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in epRegexCreateInput) (any, error) {
-			return uc.Create(ctx, dto.CreateRegexPatternRequest{
-				PatternID: in.PatternID, PatternDescription: in.PatternDescription, PatternDefinition: in.PatternDefinition,
-			})
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "regex_pattern.update", Title: "Update regex pattern",
-	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in epRegexUpdateInput) (any, error) {
-			return uc.Update(ctx, dto.UpdateRegexPatternRequest{
-				PatternID: in.PatternID, PatternDescription: in.PatternDescription, PatternDefinition: in.PatternDefinition,
-			})
-		})
-
+	// Read-only surface: patterns are a shared vocabulary seeded by the pipeline
+	// bootstrap, so there are no create/update/delete tools.
 	Add(m, &mcp.Tool{
 		Name: "regex_pattern.list", Title: "List regex patterns",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
@@ -86,16 +58,6 @@ func registerEPRegexPatterns(m *Module) {
 	}, Gate{Permission: "eventprocessing.read"},
 		func(ctx context.Context, _ *authz.Actor, in epRegexIDInput) (any, error) {
 			return uc.GetByID(ctx, in.PatternID)
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "regex_pattern.delete", Title: "Delete regex pattern",
-	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in epRegexIDInput) (any, error) {
-			if err := uc.Delete(ctx, in.PatternID); err != nil {
-				return nil, err
-			}
-			return map[string]any{"pattern_id": in.PatternID, "deleted": true}, nil
 		})
 }
 
@@ -432,12 +394,12 @@ type epIngestionTotalsInput struct {
 }
 
 type epIngestionTimelineInput struct {
-	GroupBy  string `json:"group_by,omitempty"`
-	Status   string `json:"status,omitempty"`
-	Interval string `json:"interval,omitempty"`
-	From     string `json:"from,omitempty"`
-	To       string `json:"to,omitempty"`
-	Top      int    `json:"top,omitempty"`
+	GroupBy    string `json:"group_by,omitempty"`
+	Status     string `json:"status,omitempty"`
+	Interval   string `json:"interval,omitempty"`
+	From       string `json:"from,omitempty"`
+	To         string `json:"to,omitempty"`
+	Top        int    `json:"top,omitempty"`
 	DataSource string `json:"data_source,omitempty"`
 }
 

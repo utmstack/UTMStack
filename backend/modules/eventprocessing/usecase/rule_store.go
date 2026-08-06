@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -9,7 +10,15 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/threatwinds/go-sdk/catcher"
 )
+
+// reloadInterval bounds how stale one backend replica's in-memory rule/filter
+// cache can get relative to another replica's writes to the same shared
+// directories. A short poll is simpler and more robust here than a recursive
+// filesystem watch, since rules/filters are organized in nested subfolders.
+const reloadInterval = 10 * time.Second
 
 type RuleListFilter struct {
 	Page int // 0-based
@@ -20,6 +29,10 @@ type RuleListFilter struct {
 
 	Active      *bool // enabled state
 	SystemOwner *bool // system overlay membership
+
+	// TenantId, when set, restricts results to that tenant's own rules —
+	// empty string means no filter (system + global + every tenant's rules).
+	TenantId string
 
 	Categories  []string // any-of
 	Adversaries []string // any-of
@@ -100,6 +113,24 @@ func (s *RuleStore) Load() error {
 	s.index = index
 	s.mu.Unlock()
 	return nil
+}
+
+// Watch periodically reloads the rule overlays so this replica picks up
+// rules/enable-state written by another backend replica sharing the same
+// directories. Intended to run as its own goroutine for the lifetime of ctx.
+func (s *RuleStore) Watch(ctx context.Context) {
+	ticker := time.NewTicker(reloadInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := s.Load(); err != nil {
+				_ = catcher.Error("eventprocessing: periodic rule reload failed", err, nil)
+			}
+		}
+	}
 }
 
 // loadOverlay walks one overlay directory and parses every rule file in it.
@@ -215,6 +246,9 @@ func (s *RuleStore) List(f RuleListFilter) ([]*StoredRule, int) {
 }
 
 func ruleMatches(sr *StoredRule, f RuleListFilter) bool {
+	if f.TenantId != "" && sr.TenantId != f.TenantId {
+		return false
+	}
 	if f.Name != "" && !strings.Contains(strings.ToLower(sr.Name), strings.ToLower(f.Name)) {
 		return false
 	}
@@ -259,8 +293,22 @@ func ruleMatches(sr *StoredRule, f RuleListFilter) bool {
 
 // Create writes a new rule into the user overlay. The relPath is derived from
 // the rule name; a collision is reported as an error.
-func (s *RuleStore) Create(rule Rule) (*StoredRule, error) {
-	relPath := slug(rule.Name) + RuleFileExt
+// Create writes a new rule into the user overlay. tenantId scopes the rule to
+// one tenant — empty means a global user rule, placed exactly as before this
+// field existed. A tenant-owned rule lives in its own subfolder (userDir/
+// <tenantId>/), and its filename is suffixed with the tenant id too: identity
+// (see ruleIdentity) is basename-only, so without the suffix two tenants
+// picking the same rule name would collide on the exact same identity the
+// engine uses for enable/disable and error-tracking.
+func (s *RuleStore) Create(rule Rule, tenantId string) (*StoredRule, error) {
+	rule.TenantId = tenantId
+
+	var relPath string
+	if tenantId == "" {
+		relPath = slug(rule.Name) + RuleFileExt
+	} else {
+		relPath = filepath.ToSlash(filepath.Join(tenantId, slug(rule.Name)+"-"+tenantId+RuleFileExt))
+	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -269,7 +317,7 @@ func (s *RuleStore) Create(rule Rule) (*StoredRule, error) {
 		return nil, os.ErrExist
 	}
 
-	abs := filepath.Join(s.userDir, relPath)
+	abs := filepath.Join(s.userDir, filepath.FromSlash(relPath))
 	if err := writeRuleFile(abs, rule); err != nil {
 		return nil, err
 	}

@@ -8,10 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-type LicenseCapProvider interface {
-	DatasourceCap() (limit int64, unlimited bool)
-}
-
 type AssetProjector interface {
 	ProjectAssets(assets []common_models.AssetSensitivity) error
 }

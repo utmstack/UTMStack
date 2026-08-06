@@ -2,21 +2,31 @@ package connectors
 
 import (
 	"context"
+	"github.com/google/uuid"
 
+	iam_connectors "github.com/utmstack/utmstack/backend/modules/iam/connectors"
+	iam_dto "github.com/utmstack/utmstack/backend/modules/iam/dto"
 	"github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	"github.com/utmstack/utmstack/backend/modules/tenant/dto"
 )
 
-type AdminProvisioner interface {
-	CreateTenantAdmin(ctx context.Context, tenantID, login, email string) error
+// UserProvisioner is iam's create, nothing more. Tenant owns tenancy, so it is
+// this module that puts the tenant on the context before calling; iam only makes
+// the account it is asked for, wherever the caller says it belongs.
+type UserProvisioner interface {
+	Create(ctx context.Context, input iam_dto.CreateUserRequest, opts iam_connectors.CreateUserOptions) (*iam_dto.UserDetailResponse, error)
+}
+
+type BootstrapUsecase interface {
+	EnsureDefaultTenant(ctx context.Context, adminEmail, adminPassword string) (created bool, err error)
 }
 
 type TenantUsecase interface {
 	Create(ctx context.Context, req dto.CreateRequest) (*domain.Tenant, error)
-	Update(ctx context.Context, id string, req dto.UpdateRequest) (*domain.Tenant, error)
-	GetByID(ctx context.Context, id string) (*domain.Tenant, error)
+	Update(ctx context.Context, id uuid.UUID, req dto.UpdateRequest) (*domain.Tenant, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Tenant, error)
 	List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error)
-	SetSupportAccess(ctx context.Context, id string, level domain.SupportAccess) (*domain.Tenant, error)
-	Terminate(ctx context.Context, id string) error
+	SetSupportAccess(ctx context.Context, id uuid.UUID, level domain.SupportAccess) (*domain.Tenant, error)
+	Terminate(ctx context.Context, id uuid.UUID) error
 	ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error)
 }

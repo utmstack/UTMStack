@@ -27,13 +27,13 @@ func NewQueryHandler(uc connectors.QueryUsecase) *QueryHandler {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmLogAnalyzerQuery	true	"Query to create"
-//	@Success		201		{object}	domain.UtmLogAnalyzerQuery
+//	@Param			input	body		domain.SavedQuery	true	"Query to create"
+//	@Success		201		{object}	domain.SavedQuery
 //	@Failure		400		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/log-analyzer/queries [post]
 func (h *QueryHandler) Create(c *gin.Context) {
-	var q domain.UtmLogAnalyzerQuery
+	var q domain.SavedQuery
 	if err := c.ShouldBindJSON(&q); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -55,14 +55,14 @@ func (h *QueryHandler) Create(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		domain.UtmLogAnalyzerQuery	true	"Query to update"
-//	@Success		200		{object}	domain.UtmLogAnalyzerQuery
+//	@Param			input	body		domain.SavedQuery	true	"Query to update"
+//	@Success		200		{object}	domain.SavedQuery
 //	@Failure		400		{object}	map[string]string
 //	@Failure		404		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Router			/log-analyzer/queries [put]
 func (h *QueryHandler) Update(c *gin.Context) {
-	var q domain.UtmLogAnalyzerQuery
+	var q domain.SavedQuery
 	if err := c.ShouldBindJSON(&q); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -87,7 +87,7 @@ func (h *QueryHandler) Update(c *gin.Context) {
 //	@Param			owner	query		string	false	"Filter by owner"
 //	@Param			page	query		int		false	"Page (0-based)"
 //	@Param			size	query		int		false	"Page size"
-//	@Success		200		{array}		domain.UtmLogAnalyzerQuery
+//	@Success		200		{array}		domain.SavedQuery
 //	@Header			200		{string}	X-Total-Count	"Total records"
 //	@Failure		500		{object}	map[string]string
 //	@Router			/log-analyzer/queries [get]
@@ -112,7 +112,7 @@ func (h *QueryHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Param			id	path		int	true	"Query id"
-//	@Success		200	{object}	domain.UtmLogAnalyzerQuery
+//	@Success		200	{object}	domain.SavedQuery
 //	@Failure		404	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
 //	@Router			/log-analyzer/queries/{id} [get]

@@ -42,7 +42,7 @@ func registerDashboardDashboards(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in dashboardUpsertInput) (any, error) {
 			d := &domain.Dashboard{Name: in.Name, Description: in.Description, Config: in.Config}
-			return uc.Create(ctx, d, actor.Login)
+			return uc.Create(ctx, d, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -51,7 +51,7 @@ func registerDashboardDashboards(m *Module) {
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in dashboardUpsertInput) (any, error) {
 			d := &domain.Dashboard{ID: in.ID, Name: in.Name, Description: in.Description, Config: in.Config}
-			return uc.Update(ctx, d, actor.Login)
+			return uc.Update(ctx, d, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -92,9 +92,12 @@ func registerDashboardDashboards(m *Module) {
 type visualizationUpsertInput struct {
 	ID          uint64 `json:"id,omitempty"`
 	DashboardID uint64 `json:"dashboard_id"`
-	SQLQuery    string `json:"sql_query,omitempty"`
-	Config      string `json:"config,omitempty"`
-	Layout      string `json:"layout,omitempty"`
+	// Spec is the question the widget asks, as JSON: dataset, chart,
+	// aggregation, breakdown, filters. It replaced the SQL a visualization used
+	// to carry.
+	Spec   string `json:"spec"`
+	Config string `json:"config,omitempty"`
+	Layout string `json:"layout,omitempty"`
 }
 
 type visualizationListInput struct {
@@ -112,8 +115,8 @@ func registerDashboardVisualizations(m *Module) {
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Create(ctx, &domain.Visualization{
 				DashboardID: in.DashboardID,
-				SQLQuery:    in.SQLQuery, Config: in.Config, Layout: in.Layout,
-			}, actor.Login)
+				Spec:        in.Spec, Config: in.Config, Layout: in.Layout,
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -122,8 +125,8 @@ func registerDashboardVisualizations(m *Module) {
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			return uc.Update(ctx, &domain.Visualization{
 				ID: in.ID, DashboardID: in.DashboardID,
-				SQLQuery: in.SQLQuery, Config: in.Config, Layout: in.Layout,
-			}, actor.Login)
+				Spec: in.Spec, Config: in.Config, Layout: in.Layout,
+			}, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{

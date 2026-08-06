@@ -7,6 +7,7 @@ import (
 
 	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 const alertIndex = "v11-alert-*"
@@ -24,13 +25,20 @@ func (r *osAlerts) CountByRuleNames(ctx context.Context, ruleNames []string, sin
 	for i, n := range ruleNames {
 		terms[i] = n
 	}
+	filters := []any{
+		map[string]any{"terms": map[string]any{"name.keyword": terms}},
+		map[string]any{"range": map[string]any{"@timestamp": map[string]any{"gte": sinceISO}}},
+	}
+	// A SaaS-scoped compliance report must only ever count its own tenant's
+	// alerts. Empty ctx tenant (on-prem/global) is unrestricted, matching
+	// legacy behavior.
+	if tid := authz.TenantIDFromContext(ctx); tid != "" {
+		filters = append(filters, map[string]any{"term": map[string]any{"tenantId": tid}})
+	}
 	body := map[string]any{
 		"query": map[string]any{
 			"bool": map[string]any{
-				"filter": []any{
-					map[string]any{"terms": map[string]any{"name.keyword": terms}},
-					map[string]any{"range": map[string]any{"@timestamp": map[string]any{"gte": sinceISO}}},
-				},
+				"filter": filters,
 			},
 		},
 	}

@@ -20,11 +20,11 @@ type Service struct {
 	purger *purger
 }
 
-func New(repo connectors.Repository, retainDays int) *Service {
+func New(repo connectors.Repository, leases Leases, retainDays int) *Service {
 	return &Service{
 		repo:   repo,
 		writer: newWriter(repo),
-		purger: newPurger(repo, retainDays),
+		purger: newPurger(repo, leases, retainDays),
 	}
 }
 
@@ -47,7 +47,7 @@ func (s *Service) Log(ctx context.Context, ev connectors.Event) {
 		ResourceID:    ev.ResourceID,
 		IP:            ev.IP,
 		UserAgent:     ev.UserAgent,
-		UserLogin:     ev.UserLogin,
+		UserEmail:     ev.UserEmail,
 		UserID:        ev.UserID,
 		SessionID:     ev.SessionID,
 		EventType:     ev.EventType,
@@ -78,8 +78,8 @@ func emitToStdout(ev connectors.Event, row *domain.AuditLog) {
 		"event_type": ev.EventType,
 		"outcome":    row.Status,
 	}
-	if row.UserLogin != "" {
-		args["username"] = row.UserLogin
+	if row.UserEmail != "" {
+		args["username"] = row.UserEmail
 	}
 	if row.UserID != nil {
 		args["user_id"] = *row.UserID

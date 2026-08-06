@@ -8,7 +8,8 @@ import (
 
 type Datasource struct {
 	ID                   uint64         `gorm:"primaryKey;autoIncrement;column:id"`
-	SourceRef            string         `gorm:"column:source_ref;size:255;uniqueIndex"`
+	TenantID             string         `gorm:"column:tenant_id;size:36;index;uniqueIndex:idx_datasource_tenant_ref" json:"-"`
+	SourceRef            string         `gorm:"column:source_ref;size:255;uniqueIndex:idx_datasource_tenant_ref"`
 	Name                 string         `gorm:"column:asset_name;size:255;index"` // == dataSource in OpenSearch (display, not unique)
 	DataType             string         `gorm:"column:data_type;size:250"`        // == dataType in OpenSearch; "" for agents (host emits many types)
 	IP                   string         `gorm:"column:asset_ip;size:255"`

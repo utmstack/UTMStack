@@ -7,7 +7,7 @@ import { usersHttpService } from '@/features/team/services/team-http.service'
 export interface UseIncidentAssignmentResult {
   users: string[] | null // null while loading
   busy: boolean
-  assign: (login: string | null) => Promise<void>
+  assign: (email: string | null) => Promise<void>
 }
 
 /**
@@ -28,17 +28,17 @@ export function useIncidentAssignment(
     if (!enabled || users !== null) return
     usersHttpService
       .list({ page_size: 500 })
-      .then((r) => setUsers((r.data ?? []).map((u) => u.login).sort()))
+      .then((r) => setUsers((r.data ?? []).map((u) => u.email).sort()))
       .catch(() => setUsers([]))
   }, [enabled, users])
 
   const assign = useCallback(
-    async (login: string | null) => {
+    async (email: string | null) => {
       if (busy) return
       setBusy(true)
       try {
-        await svc.assign(incidentId, login)
-        toast.success(login ? t('incidents.assign.assigned', { user: login }) : t('incidents.assign.unassigned'))
+        await svc.assign(incidentId, email)
+        toast.success(email ? t('incidents.assign.assigned', { user: email }) : t('incidents.assign.unassigned'))
         onChanged()
       } catch (e) {
         toast.error(e instanceof IncidentsHttpError ? e.message : t('incidents.assign.error'))

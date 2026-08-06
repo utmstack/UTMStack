@@ -24,7 +24,7 @@ import (
 type auditListInput struct {
 	PageNumber  int    `json:"page_number,omitempty"`
 	PageSize    int    `json:"page_size,omitempty"`
-	SearchQuery string `json:"search_query,omitempty" jsonschema:"DSL e.g. user_login.equals.alex&event_type.equals.MCP_TOOL_CALL"`
+	SearchQuery string `json:"search_query,omitempty" jsonschema:"DSL e.g. user_email.equals.alex&event_type.equals.MCP_TOOL_CALL"`
 	SortBy      string `json:"sort_by,omitempty"`
 }
 
@@ -58,11 +58,10 @@ func registerAudit(m *Module) {
 // ---- adaudit.* -------------------------------------------------------------
 
 type adauditListInput struct {
-	Search   string `json:"search,omitempty"`
-	TenantID string `json:"tenant_id,omitempty"`
-	Active   *bool  `json:"active,omitempty"`
-	Page     int    `json:"page,omitempty"`
-	Size     int    `json:"size,omitempty"`
+	Search string `json:"search,omitempty"`
+	Active *bool  `json:"active,omitempty"`
+	Page   int    `json:"page,omitempty"`
+	Size   int    `json:"size,omitempty"`
 }
 
 func registerADAudit(m *Module) {
@@ -74,7 +73,7 @@ func registerADAudit(m *Module) {
 	}, Gate{Permission: "adaudit.read"},
 		func(ctx context.Context, _ *authz.Actor, in adauditListInput) (any, error) {
 			f := adauditdto.ADUserFilter{
-				Search: in.Search, TenantID: in.TenantID, Active: in.Active,
+				Search: in.Search, Active: in.Active,
 			}
 			f.Page = in.Page
 			f.Size = clampPageSize(in.Size)
@@ -249,7 +248,7 @@ func registerAppConfig(m *Module) {
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "config.write"},
 		func(ctx context.Context, actor *authz.Actor, in configUpdateInput) (any, error) {
-			return uc.Update(ctx, actor.Login, in.Key, appconfigdto.UpsertRequest{
+			return uc.Update(ctx, actor.Email, in.Key, appconfigdto.UpsertRequest{
 				Value: in.Value, IsSecret: in.IsSecret, Label: in.Label, Description: in.Description,
 			})
 		})
@@ -276,7 +275,7 @@ func registerAppConfig(m *Module) {
 		Name: "branding.update", Title: "Update branding (MSSP)",
 	}, Gate{Permission: "config.write", MSSP: true},
 		func(ctx context.Context, actor *authz.Actor, in brandingUpdateInput) (any, error) {
-			return branding.Update(ctx, actor.Login, appconfigdto.BrandingRequest{
+			return branding.Update(ctx, actor.Email, appconfigdto.BrandingRequest{
 				Enabled: in.Enabled, ProductName: in.ProductName,
 				LogoURL: in.LogoURL, LogoDarkURL: in.LogoDarkURL, FaviconURL: in.FaviconURL,
 				ReportLogoURL: in.ReportLogoURL, ReportCoverURL: in.ReportCoverURL,

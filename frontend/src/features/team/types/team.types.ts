@@ -1,39 +1,35 @@
 /* Types mirror the backend iam DTOs (modules/iam/dto). */
 
-export type TfaMethod = 'EMAIL' | 'TOTP'
+export type UserStatus = 'pending' | 'active' | 'inactive' | 'suspended'
 
 export interface RoleDigest {
   name: string
   display_name: string
 }
 
-/** Base user shape (UserResponse). */
+/** Base user shape (UserResponse). The email is the login. */
 export interface UserBase {
-  id: number
-  login: string
-  email?: string
-  first_name?: string
-  last_name?: string
-  activated: boolean
+  id: string
+  email: string
+  name?: string
+  status: UserStatus
   lang_key?: string
   image_url?: string
+  /** Signs in through an identity provider, so there is no local password to
+   * reset and the directory may rewrite the roles at the next login. */
+  federated: boolean
   tfa_enabled: boolean
-  tfa_method?: TfaMethod
 }
 
-/** Row in GET /users (UserListItem): base + roles + default_password. */
+/** Row in GET /users (UserListItem). */
 export interface UserListItem extends UserBase {
-  default_password: boolean
   roles?: RoleDigest[]
 }
 
 /** GET /users/:id (UserDetailResponse). */
 export interface UserDetail extends UserBase {
-  default_password: boolean
-  created_by?: string
-  created_date?: string
-  last_modified_by?: string
-  last_modified_date?: string
+  created_at: string
+  updated_at: string
   roles?: RoleDigest[]
 }
 
@@ -58,20 +54,17 @@ export interface ListUsersQuery {
 }
 
 export interface CreateUserRequest {
-  login: string
   email: string
-  first_name?: string
-  last_name?: string
+  name?: string
   lang_key?: string
   role_names?: string[]
 }
 
 export interface UpdateUserRequest {
   email?: string
-  first_name?: string
-  last_name?: string
+  name?: string
   lang_key?: string
-  activated?: boolean
+  status?: UserStatus
 }
 
 export interface AssignRolesRequest {
@@ -81,19 +74,27 @@ export interface AssignRolesRequest {
 /* ---- roles ---- */
 
 export interface Role {
+  id: string
   name: string
   display_name: string
   description?: string
+  /** Seeded with the platform and the same for every tenant, so it cannot be
+   * edited or deleted. */
+  system: boolean
 }
 
 export interface Permission {
-  id: number
   name: string
-  resource: string
-  action: string
   description?: string
 }
 
 export interface RoleDetail extends Role {
   permissions: Permission[]
+}
+
+export interface RoleUpsertRequest {
+  name: string
+  display_name?: string
+  description?: string
+  permissions: string[]
 }

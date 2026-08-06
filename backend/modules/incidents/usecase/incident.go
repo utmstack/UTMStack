@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
@@ -340,8 +341,8 @@ func (u *incidentUsecase) GetUsersAssigned(ctx context.Context) ([]dto.UserAssig
 		return nil, err
 	}
 
-	seen := make(map[int64]struct{})
-	var ids []int64
+	seen := make(map[uuid.UUID]struct{})
+	var ids []uuid.UUID
 
 	for _, inc := range all {
 		if inc.IncidentAssignedTo == nil || *inc.IncidentAssignedTo == "" {
@@ -353,7 +354,7 @@ func (u *incidentUsecase) GetUsersAssigned(ctx context.Context) ([]dto.UserAssig
 			if p == "" {
 				continue
 			}
-			id, err := strconv.ParseInt(p, 10, 64)
+			id, err := uuid.Parse(p)
 			if err != nil {
 				continue
 			}

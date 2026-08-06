@@ -29,6 +29,7 @@ type RuleSnapshot struct {
 }
 
 type activeRuleWire struct {
+	TenantID        string          `json:"tenantId"`
 	ID              uint64          `json:"id"`
 	Name            string          `json:"name"`
 	Conditions      json.RawMessage `json:"conditions"`
@@ -42,7 +43,7 @@ type ruleCache struct {
 	refresh     time.Duration
 
 	mu    sync.RWMutex
-	rules []RuleSnapshot
+	rules map[string][]RuleSnapshot
 }
 
 func newRuleCache() *ruleCache {
@@ -63,14 +64,18 @@ func newRuleCache() *ruleCache {
 	}
 }
 
-func (c *ruleCache) Snapshot() []RuleSnapshot {
+// Snapshot returns one tenant's rules. This process holds every tenant's, and a
+// rule that fired on another tenant's alert would be that tenant's tags leaking
+// into someone else's data.
+func (c *ruleCache) Snapshot(tenant string) []RuleSnapshot {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	if len(c.rules) == 0 {
+	rules := c.rules[tenant]
+	if len(rules) == 0 {
 		return nil
 	}
-	out := make([]RuleSnapshot, len(c.rules))
-	copy(out, c.rules)
+	out := make([]RuleSnapshot, len(rules))
+	copy(out, rules)
 	return out
 }
 
@@ -108,7 +113,7 @@ func (c *ruleCache) Refresh(ctx context.Context) error {
 		return catcher.Error("rule cache: decode failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
 	}
 
-	next := make([]RuleSnapshot, 0, len(wire))
+	next := make(map[string][]RuleSnapshot, len(wire))
 	for _, r := range wire {
 		var conditions []FilterType
 		if len(r.Conditions) > 0 {
@@ -120,7 +125,7 @@ func (c *ruleCache) Refresh(ctx context.Context) error {
 				continue
 			}
 		}
-		next = append(next, RuleSnapshot{
+		next[r.TenantID] = append(next[r.TenantID], RuleSnapshot{
 			ID:         r.ID,
 			Name:       r.Name,
 			Conditions: conditions,
@@ -166,6 +171,7 @@ type datasourceEnrichment struct {
 }
 
 type enrichmentWire struct {
+	TenantID  string   `json:"tenantId"`
 	Name      string   `json:"name"`
 	DataType  string   `json:"dataType"`
 	GroupID   *uint64  `json:"groupId"`
@@ -180,8 +186,13 @@ type datasourceCache struct {
 	refresh     time.Duration
 
 	mu     sync.RWMutex
-	byName map[string]datasourceEnrichment
+	byName map[dsKey]datasourceEnrichment
 }
+
+// dsKey is what the backend's uniqueness actually is: a datasource name is
+// unique inside a tenant, and two tenants running a host of the same name are
+// two different assets.
+type dsKey struct{ tenant, name string }
 
 func newDatasourceCache() *datasourceCache {
 	cfg := plugins.PluginCfg("com.utmstack")
@@ -201,10 +212,10 @@ func newDatasourceCache() *datasourceCache {
 	}
 }
 
-func (c *datasourceCache) Lookup(name string) (datasourceEnrichment, bool) {
+func (c *datasourceCache) Lookup(tenant, name string) (datasourceEnrichment, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	e, ok := c.byName[name]
+	e, ok := c.byName[dsKey{tenant, name}]
 	return e, ok
 }
 
@@ -242,11 +253,11 @@ func (c *datasourceCache) Refresh(ctx context.Context) error {
 		return catcher.Error("datasource cache: decode failed", err, map[string]any{"process": "plugin_com.utmstack.alerts"})
 	}
 
-	next := make(map[string]datasourceEnrichment, len(wire))
+	next := make(map[dsKey]datasourceEnrichment, len(wire))
 	for _, w := range wire {
-		// Keyed by name; a host's group is the same across its data types, so a
-		// repeated name just overwrites with equivalent enrichment.
-		next[w.Name] = datasourceEnrichment{
+		// A host's group is the same across its data types, so a repeated name
+		// within a tenant just overwrites with equivalent enrichment.
+		next[dsKey{w.TenantID, w.Name}] = datasourceEnrichment{
 			GroupID:   w.GroupID,
 			GroupName: w.GroupName,
 			Labels:    w.Labels,

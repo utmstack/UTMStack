@@ -15,9 +15,9 @@ type Module struct {
 	analyzerUC      connectors.AnalyzerUsecase
 }
 
-func NewModule(db *gorm.DB) *Module {
+func NewModule(db *gorm.DB, events repository.Reader) *Module {
 	queryRepo := repository.NewQueryRepository(db)
-	analyzerRepo := repository.NewAnalyzerRepository()
+	analyzerRepo := repository.NewAnalyzerRepository(events)
 
 	queryUC := usecase.NewQueryUsecase(queryRepo)
 	analyzerUC := usecase.NewAnalyzerUsecase(analyzerRepo)

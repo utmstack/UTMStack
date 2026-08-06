@@ -19,7 +19,6 @@ type Module struct {
 	tenants    *usecase.TenantUsecase
 	modules    connectors.ModuleUsecase
 	collectors connectors.CollectorUsecase
-	bootstrap  *usecase.Bootstrap
 	opensearch os_connectors.IndexPatternUsecase
 }
 
@@ -50,14 +49,10 @@ func NewModule(
 		tenants:    usecase.NewTenantUsecase(store, schema, verif, cipher, moduleRepo, datasources),
 		modules:    moduleUC,
 		collectors: collectorUC,
-		bootstrap:  usecase.NewBootstrap(db, store),
 	}
 }
 
 func (m *Module) Start(ctx context.Context) {
-	if err := m.bootstrap.Run(ctx); err != nil {
-		_ = catcher.Error("integrations bootstrap failed", err, nil)
-	}
 
 	if err := m.tenants.SyncDatasources(ctx); err != nil {
 		_ = catcher.Error("integrations: datasource sync failed", err, nil)

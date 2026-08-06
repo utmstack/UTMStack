@@ -28,9 +28,14 @@ func CreateMessage(cnf *config.ConfigurationSection, events []string) {
 					continue
 				}
 
+				tenantId := cnf.TenantId
+				if tenantId == "" {
+					tenantId = config.DefaultTenant
+				}
+
 				_ = plugins.EnqueueLog(&plugins.Log{
 					Id:         uuid.New().String(),
-					TenantId:   config.DefaultTenant,
+					TenantId:   tenantId,
 					DataType:   "antivirus-bitdefender-gz",
 					DataSource: cnf.GroupName,
 					Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),

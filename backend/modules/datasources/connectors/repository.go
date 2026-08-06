@@ -9,6 +9,9 @@ import (
 )
 
 type StatSource struct {
+	// TenantID is whose source this is. One reconciler serves every tenant, so
+	// a batch spans them and the tenant cannot be inferred from the caller.
+	TenantID   string
 	DataSource string
 	DataType   string
 	LastSeen   time.Time

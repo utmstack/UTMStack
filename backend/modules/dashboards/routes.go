@@ -25,4 +25,10 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	v.GET("", read, vh.List)
 	v.GET("/:id", read, vh.GetByID)
 	v.DELETE("/:id", write, vh.Delete)
+
+	// Answering a widget is a read of the event store, and the spec cannot name
+	// a tenant: every call reaches it through a scope carrying the caller's own.
+	if qh := m.QueryHandler(); qh != nil {
+		v.POST("/query", read, qh.Run)
+	}
 }

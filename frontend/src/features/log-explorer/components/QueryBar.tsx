@@ -6,7 +6,7 @@ import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { IndexPatternSelector } from './IndexPatternSelector'
 import { SqlQueryEditor } from '@/shared/components/sql-editor'
-import type { IndexField, IndexPattern } from '../types/log-explorer.types'
+import type { IndexField } from '../types/log-explorer.types'
 
 export function QueryBar({
   patterns,
@@ -26,9 +26,9 @@ export function QueryBar({
   loading,
   onExport,
 }: {
-  patterns: IndexPattern[]
-  pattern: IndexPattern | null
-  onPattern: (p: IndexPattern) => void
+  patterns: string[]
+  pattern: string | null
+  onPattern: (p: string) => void
   searchInput: string
   onSearchInput: (q: string) => void
   sqlMode: boolean
@@ -59,7 +59,7 @@ export function QueryBar({
             onChange={onSqlInput}
             onRun={onRun}
             fields={fields}
-            patterns={patterns}
+            patterns={patterns.map((p) => ({ pattern: p }))}
             placeholder={'SELECT * FROM "v11-log-*" ORDER BY @timestamp DESC'}
           />
         ) : (

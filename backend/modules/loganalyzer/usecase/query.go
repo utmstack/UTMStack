@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
@@ -16,16 +15,14 @@ func NewQueryUsecase(repo connectors.QueryRepository) connectors.QueryUsecase {
 	return &queryUsecase{repo: repo}
 }
 
-func (u *queryUsecase) Create(ctx context.Context, q *domain.UtmLogAnalyzerQuery, owner string) (*domain.UtmLogAnalyzerQuery, error) {
+func (u *queryUsecase) Create(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error) {
 	if q.ID != 0 {
 		return nil, domain.ErrIDForbidden
 	}
 	if strings.TrimSpace(q.Name) == "" {
 		return nil, domain.ErrNameRequired
 	}
-	now := time.Now().UTC()
-	q.CreationDate = now
-	q.ModificationDate = now
+	// CreatedAt / UpdatedAt are GORM's to fill.
 	if q.Owner == "" {
 		q.Owner = owner
 	}
@@ -35,7 +32,7 @@ func (u *queryUsecase) Create(ctx context.Context, q *domain.UtmLogAnalyzerQuery
 	return q, nil
 }
 
-func (u *queryUsecase) Update(ctx context.Context, q *domain.UtmLogAnalyzerQuery, owner string) (*domain.UtmLogAnalyzerQuery, error) {
+func (u *queryUsecase) Update(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error) {
 	if q.ID == 0 {
 		return nil, domain.ErrIDRequired
 	}
@@ -46,22 +43,23 @@ func (u *queryUsecase) Update(ctx context.Context, q *domain.UtmLogAnalyzerQuery
 	if existing == nil {
 		return nil, domain.ErrNotFound
 	}
-	q.CreationDate = existing.CreationDate
+
+	q.CreatedAt = existing.CreatedAt
+	q.TenantID = existing.TenantID
 	if q.Owner == "" {
 		q.Owner = existing.Owner
 	}
-	q.ModificationDate = time.Now().UTC()
 	if err := u.repo.Save(ctx, q); err != nil {
 		return nil, err
 	}
 	return q, nil
 }
 
-func (u *queryUsecase) GetByID(ctx context.Context, id uint64) (*domain.UtmLogAnalyzerQuery, error) {
+func (u *queryUsecase) GetByID(ctx context.Context, id uint64) (*domain.SavedQuery, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
-func (u *queryUsecase) List(ctx context.Context, f dto.QueryFilter) ([]domain.UtmLogAnalyzerQuery, int64, error) {
+func (u *queryUsecase) List(ctx context.Context, f dto.QueryFilter) ([]domain.SavedQuery, int64, error) {
 	return u.repo.List(ctx, f)
 }
 
