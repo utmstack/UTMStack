@@ -5,16 +5,18 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 type frameworkUsecase struct {
 	controls   *ControlStore
 	frameworks *FrameworkStore
+	possessed  connectors.TenantFrameworkRepository // nil → single-tenant / no possession layer
 	ent        *Entitlement
 }
 
-func NewFrameworkUsecase(controls *ControlStore, frameworks *FrameworkStore, ent *Entitlement) connectors.FrameworkUsecase {
-	return &frameworkUsecase{controls: controls, frameworks: frameworks, ent: ent}
+func NewFrameworkUsecase(controls *ControlStore, frameworks *FrameworkStore, possessed connectors.TenantFrameworkRepository, ent *Entitlement) connectors.FrameworkUsecase {
+	return &frameworkUsecase{controls: controls, frameworks: frameworks, possessed: possessed, ent: ent}
 }
 
 func (u *frameworkUsecase) ListControls(ctx context.Context) []domain.Control {
@@ -36,8 +38,16 @@ func (u *frameworkUsecase) GetControl(ctx context.Context, id string) (*domain.C
 
 func (u *frameworkUsecase) ListFrameworks(ctx context.Context) []domain.Framework {
 	out := u.frameworks.All()
+	// A tenant sees Enabled ⇔ they possess the framework (row present in
+	// compliance_tenant_framework) AND the file itself isn't `.disabled` at
+	// the platform level. Empty ctx tenant (on-prem/global) keeps the file
+	// state — same behaviour the module had before possession existed.
+	possessed := u.possessedSet(ctx)
 	for i := range out {
 		out[i].Locked = u.ent.FrameworkLocked(&out[i])
+		if possessed != nil {
+			out[i].Enabled = out[i].Enabled && possessed[out[i].Key]
+		}
 	}
 	return out
 }
@@ -48,7 +58,28 @@ func (u *frameworkUsecase) GetFramework(ctx context.Context, key string) (*domai
 		return nil, domain.ErrFrameworkNotFound
 	}
 	fw.Locked = u.ent.FrameworkLocked(fw)
+	if possessed := u.possessedSet(ctx); possessed != nil {
+		fw.Enabled = fw.Enabled && possessed[fw.Key]
+	}
 	return fw, nil
+}
+
+// possessedSet returns the acting tenant's framework-key set, or nil for a
+// global/on-prem caller (empty tenant) — nil means "don't overlay, take the
+// file state as-is".
+func (u *frameworkUsecase) possessedSet(ctx context.Context) map[string]bool {
+	if u.possessed == nil || authz.TenantIDFromContext(ctx) == "" {
+		return nil
+	}
+	keys, err := u.possessed.List(ctx)
+	if err != nil {
+		return map[string]bool{}
+	}
+	set := make(map[string]bool, len(keys))
+	for _, k := range keys {
+		set[k] = true
+	}
+	return set
 }
 
 // ── Control user-overlay CRUD ─────────────────────────────────────────────────
@@ -93,8 +124,22 @@ func (u *frameworkUsecase) DeleteFramework(ctx context.Context, key string) erro
 }
 
 func (u *frameworkUsecase) SetFrameworkEnabled(ctx context.Context, key string, enabled bool) error {
-	if fw, ok := u.frameworks.Get(key); ok && u.ent.FrameworkLocked(fw) {
+	fw, ok := u.frameworks.Get(key)
+	if !ok {
+		return domain.ErrFrameworkNotFound
+	}
+	if u.ent.FrameworkLocked(fw) {
 		return domain.ErrFrameworkLocked
+	}
+	// Multi-tenant: toggle the possession row for the acting tenant. The file's
+	// .disabled state stays as the platform-wide off switch and is only touched
+	// by an on-prem/global caller (empty ctx tenant), matching the pre-
+	// possession behaviour so a single-tenant install keeps working.
+	if u.possessed != nil && authz.TenantIDFromContext(ctx) != "" {
+		if enabled {
+			return u.possessed.Enable(ctx, key)
+		}
+		return u.possessed.Disable(ctx, key)
 	}
 	return u.frameworks.SetEnabled(key, enabled)
 }

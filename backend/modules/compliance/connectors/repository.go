@@ -56,3 +56,16 @@ type ControlNoteRepository interface {
 	Delete(ctx context.Context, frameworkKey, controlID string) error
 	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
 }
+
+// TenantFrameworkRepository records which frameworks each tenant possesses.
+// Row-present = enabled; disable is a delete. ListForTenant is the input to
+// the tenant-scoped evaluate loop. ListAll spans every tenant and is what the
+// scheduler's sweep would use.
+type TenantFrameworkRepository interface {
+	List(ctx context.Context) ([]string, error)                           // framework keys the acting tenant possesses
+	ListForTenant(ctx context.Context, tenantID string) ([]string, error) // same, for a specific tenant
+	Enable(ctx context.Context, frameworkKey string) error                // upsert (tenant, framework)
+	Disable(ctx context.Context, frameworkKey string) error               // delete (tenant, framework)
+	Has(ctx context.Context, frameworkKey string) (bool, error)
+	ListTenants(ctx context.Context, frameworkKey string) ([]string, error) // tenants who possess this framework
+}

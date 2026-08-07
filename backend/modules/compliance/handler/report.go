@@ -44,7 +44,7 @@ func (h *ReportHandler) GetFrameworkReport(c *gin.Context) {
 // GenerateReport godoc
 //
 //	@Summary     Generate + store a report
-//	@Description Evaluates the framework and persists a snapshot in OpenSearch (history), returning the report JSON.
+//	@Description Evaluates the framework and persists a tenant-scoped snapshot in postgres (history), returning the report JSON.
 //	@Tags        Compliance Reports
 //	@Security    BearerAuth
 //	@Produce     json
