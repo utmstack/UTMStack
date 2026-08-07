@@ -3,7 +3,6 @@ import { Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
-import { useDateFormat } from '@/shared/lib/datetime'
 import { operatorById } from '../lib/tagging-rule-meta'
 import {
   deserializeConditions,
@@ -41,12 +40,11 @@ export function TaggingRuleDrawer({
   startInEdit?: boolean
   tagCatalog: AlertTag[]
   onClose: () => void
-  onSubmit: (input: FormState, id?: number) => Promise<unknown>
+  onSubmit: (input: FormState, id?: string) => Promise<unknown>
   onDelete?: (rule: TaggingRule) => Promise<unknown>
   onCreateTag: (tagName: string, tagColor: string) => Promise<AlertTag | null>
 }) {
   const { t } = useTranslation()
-  const df = useDateFormat()
   const [editing, setEditing] = useState(!!create || !!startInEdit)
   const [form, setForm] = useState<FormState>(() => ({
     ...ruleToForm(rule, initialTags, initialConditions),
@@ -140,7 +138,7 @@ export function TaggingRuleDrawer({
               t={t}
             />
           ) : rule ? (
-            <TaggingRuleView rule={rule} df={df} t={t} />
+            <TaggingRuleView rule={rule} t={t} />
           ) : null}
         </div>
 

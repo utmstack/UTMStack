@@ -15,6 +15,7 @@ function defaultTab(overrides: Partial<LogExplorerTabConfig> = {}): LogExplorerT
   return {
     id: newId(),
     name: 'New tab',
+    dataset: 'logs',
     patternStr: null,
     range: presetRange('24h'),
     filters: [],

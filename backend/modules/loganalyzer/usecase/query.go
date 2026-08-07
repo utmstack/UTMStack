@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"strings"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
@@ -16,7 +17,7 @@ func NewQueryUsecase(repo connectors.QueryRepository) connectors.QueryUsecase {
 }
 
 func (u *queryUsecase) Create(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error) {
-	if q.ID != 0 {
+	if q.ID != uuid.Nil {
 		return nil, domain.ErrIDForbidden
 	}
 	if strings.TrimSpace(q.Name) == "" {
@@ -33,7 +34,7 @@ func (u *queryUsecase) Create(ctx context.Context, q *domain.SavedQuery, owner s
 }
 
 func (u *queryUsecase) Update(ctx context.Context, q *domain.SavedQuery, owner string) (*domain.SavedQuery, error) {
-	if q.ID == 0 {
+	if q.ID == uuid.Nil {
 		return nil, domain.ErrIDRequired
 	}
 	existing, err := u.repo.FindByID(ctx, q.ID)
@@ -55,7 +56,7 @@ func (u *queryUsecase) Update(ctx context.Context, q *domain.SavedQuery, owner s
 	return q, nil
 }
 
-func (u *queryUsecase) GetByID(ctx context.Context, id uint64) (*domain.SavedQuery, error) {
+func (u *queryUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.SavedQuery, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
@@ -63,6 +64,6 @@ func (u *queryUsecase) List(ctx context.Context, f dto.QueryFilter) ([]domain.Sa
 	return u.repo.List(ctx, f)
 }
 
-func (u *queryUsecase) Delete(ctx context.Context, id uint64) error {
+func (u *queryUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	return u.repo.Delete(ctx, id)
 }

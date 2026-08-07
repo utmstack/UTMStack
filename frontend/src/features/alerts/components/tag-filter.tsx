@@ -18,13 +18,13 @@ export function TagFilter({
   selected: string[]
   onSelected: (tags: string[]) => void
   onCreateTag: (tagName: string, tagColor: string) => void
-  onUpdateTag: (id: number, tagName: string, tagColor: string) => void
-  onDeleteTag: (id: number, tagName: string) => void
+  onUpdateTag: (id: string, tagName: string, tagColor: string) => void
+  onDeleteTag: (id: string, tagName: string) => void
   onCreateRule: (tg: AlertTag) => void
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editColor, setEditColor] = useState(TAG_COLORS[5])
   const [name, setName] = useState('')

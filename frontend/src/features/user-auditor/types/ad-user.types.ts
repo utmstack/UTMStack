@@ -4,7 +4,7 @@ export type ADUserSource = 'windows' | 'linux'
 
 /** One user account observed in ingested Windows or Linux logs. */
 export interface ADUser {
-  id: number
+  id: string
   tenantId: string
   source: ADUserSource
   /* Windows-only fields */
@@ -13,7 +13,7 @@ export interface ADUser {
   domain?: string
   /* Linux-only fields */
   machineId?: string
-  uidNumber?: string
+  uidNumber?: number
   hostname?: string
   username?: string
   /* Shared lifecycle */

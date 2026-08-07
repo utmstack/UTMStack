@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import { TaggingRulesTableRow } from './tagging-rules-table-row'
 
-export const TAGGING_RULES_TABLE_COLS = '1.6fr 0.9fr 90px 140px 140px'
+export const TAGGING_RULES_TABLE_COLS = '1.6fr 0.9fr 90px'
 
 export function TaggingRulesTable({
   rules,
@@ -21,8 +21,6 @@ export function TaggingRulesTable({
         <div>{t('taggingRules.table.rule')}</div>
         <div>{t('taggingRules.table.tags')}</div>
         <div className="text-center">{t('taggingRules.table.conditions')}</div>
-        <div>{t('taggingRules.table.modifiedBy')}</div>
-        <div>{t('taggingRules.table.modifiedDate')}</div>
       </div>
       {rules.map((rule) => (
         <TaggingRulesTableRow key={rule.id} rule={rule} onOpen={onOpen} />

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 
@@ -12,6 +13,10 @@ import (
 
 func writeError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, domain.ErrNoTextSearch):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	case errors.Is(err, domain.ErrInvalidSQL):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired),
@@ -24,11 +29,11 @@ func writeError(c *gin.Context, err error) {
 	}
 }
 
-func pathID(c *gin.Context) (uint64, bool) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+func pathID(c *gin.Context) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil || id == uuid.Nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		return 0, false
+		return uuid.Nil, false
 	}
 	return id, true
 }

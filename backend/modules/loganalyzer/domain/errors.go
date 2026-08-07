@@ -10,4 +10,7 @@ var (
 	ErrFieldRequired   = errors.New("field is required")
 	ErrDatasetRequired = errors.New("dataset is required")
 	ErrUnknownDataset  = errors.New("unknown dataset")
+	ErrInvalidSQL      = errors.New("invalid SQL")
 )
+
+var ErrNoTextSearch = errors.New("this data source has no full-text field; filter by field instead")

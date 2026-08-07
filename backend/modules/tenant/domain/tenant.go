@@ -41,13 +41,6 @@ func (l Limits) Valid() bool {
 	return l.MaxAIRequests == nil || *l.MaxAIRequests >= 0
 }
 
-// AllowanceOf resolves what this tenant may actually spend, given what the
-// instance itself is allowed. A negative instance limit means the instance has
-// no cap of its own — and then the tenant's cap is the only bound there is,
-// which is the whole point of an operational limit. Comparing against it as a
-// number would make every tenant cap larger than -1, so all of them would be
-// thrown away and an operator handing out "none" would be handing out
-// everything.
 func (l Limits) AllowanceOf(instanceLimit int) int {
 	if l.MaxAIRequests == nil {
 		return instanceLimit

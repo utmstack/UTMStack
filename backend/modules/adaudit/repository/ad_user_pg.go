@@ -132,9 +132,6 @@ func (r *pgADUserRepository) ResolveLinuxIdentity(ctx context.Context, tenantID,
 	return result.RowsAffected, result.Error
 }
 
-// applyStatus narrows a query to a derived lifecycle bucket. These derivations
-// (active vs disabled vs deleted vs stale) live here because the raw record only
-// stores `active` + the timestamps — the buckets the UI filters by are computed.
 func applyStatus(q *gorm.DB, status string) *gorm.DB {
 	switch status {
 	case "active":

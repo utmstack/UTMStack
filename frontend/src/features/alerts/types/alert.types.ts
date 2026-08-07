@@ -1,4 +1,4 @@
-/* Mirrors the v11-alert-* OpenSearch alert document + the alerts module DTOs. */
+/* Mirrors a row of utmstack.alerts plus the alerts module DTOs. */
 
 export interface FilterType {
   field: string
@@ -45,21 +45,23 @@ export interface Alert {
   '@timestamp'?: string
   name?: string
   category?: string
-  severity?: number // 1=Low 2=Medium 3=High
-  severityLabel?: string
-  status?: number // 1=Automatic review 2=Open 3=In review 5=Completed
-  statusLabel?: string
+  // Stored as the label itself — there is no parallel numeric code and no
+  // second field holding the text.
+  severity?: string // low | medium | high
+  status?: string // Automatic review | Open | In review | Completed | Merged
   statusObservation?: string
   isIncident?: boolean
   incidentDetail?: IncidentDetail
   technique?: string
   description?: string
   solution?: string
-  reference?: string[]
+  references?: string[]
   dataSource?: string
   dataType?: string
   impactScore?: number
-  impact?: { score?: number; label?: string }
+  // The CIA triad the rule declared, nought to three. It is not a score: the
+  // single number the UI shows is impactScore.
+  impact?: { confidentiality?: number; integrity?: number; availability?: number }
   adversary?: Side
   target?: Side
   tags?: string[]
@@ -107,7 +109,7 @@ export interface RelatedLogsResponse {
 
 /** GET /utm-alert-tags item. */
 export interface AlertTag {
-  id: number
+  id: string
   tagName: string
   tagColor?: string
   systemOwner?: boolean
@@ -118,13 +120,49 @@ export interface AlertTag {
 export type SeverityKey = 'high' | 'medium' | 'low'
 export type StatusKey = 'auto' | 'open' | 'in_review' | 'completed'
 
-export const SEVERITY_BY_INT: Record<number, SeverityKey> = { 3: 'high', 2: 'medium', 1: 'low' }
-export const SEVERITY_INT: Record<SeverityKey, number> = { high: 3, medium: 2, low: 1 }
+/* Two vocabularies, and mixing them is the bug this shape exists to prevent.
+ *
+ * SEVERITY_VALUE / STATUS_VALUE are what the store holds, so they are what a
+ * filter matches on and what a bucket of an aggregation is keyed by.
+ *
+ * STATUS_CODE is the number the status-update endpoint still takes. It is a
+ * contract with that one call, not a model — nothing reads it back. */
 
-export const STATUS_BY_INT: Record<number, StatusKey> = { 1: 'auto', 2: 'open', 3: 'in_review', 5: 'completed' }
-export const STATUS_INT: Record<StatusKey, number> = { auto: 1, open: 2, in_review: 3, completed: 5 }
+export const SEVERITY_VALUE: Record<SeverityKey, string> = { high: 'high', medium: 'medium', low: 'low' }
+export const SEVERITY_BY_VALUE: Record<string, SeverityKey> = { high: 'high', medium: 'medium', low: 'low' }
 
-export const STATUS_TABS = ['all', 'open', 'in_review', 'completed', 'auto'] as const
+/** The incidents module ranks severity numerically; this is the boundary. */
+export const SEVERITY_RANK: Record<string, number> = { low: 1, medium: 2, high: 3 }
+
+export const STATUS_VALUE: Record<StatusKey, string> = {
+  auto: 'Automatic review',
+  open: 'Open',
+  in_review: 'In review',
+  completed: 'Completed',
+}
+export const STATUS_BY_VALUE: Record<string, StatusKey> = {
+  'Automatic review': 'auto',
+  Open: 'open',
+  'In review': 'in_review',
+  Completed: 'completed',
+}
+
+export const STATUS_CODE: Record<StatusKey, number> = { auto: 1, open: 2, in_review: 3, completed: 5 }
+
+/** What the store will hold once a status-update call with this code lands —
+ *  for the optimistic copy the page keeps while the request is in flight. */
+export const STATUS_VALUE_BY_CODE: Record<number, string> = {
+  1: 'Automatic review',
+  2: 'Open',
+  3: 'In review',
+  5: 'Completed',
+}
+
+// "Automatic review" is absent on purpose: nothing writes it. The engine opens
+// every alert it raises and the tag-rule pass completes the ones it judges
+// false positives, so the tab was a filter that could only ever return nothing.
+// The status itself stays in the model — an older alert may still carry it.
+export const STATUS_TABS = ['all', 'open', 'in_review', 'completed'] as const
 export type StatusTab = (typeof STATUS_TABS)[number]
 
 /** A user-defined filter row in the page filter bar. */

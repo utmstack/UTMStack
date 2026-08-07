@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 )
@@ -46,12 +47,11 @@ func queryInt(c *gin.Context, key string, defaultVal int) int {
 	return n
 }
 
-func pathID(c *gin.Context, name string) (uint64, bool) {
-	idStr := c.Param(name)
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil || id == 0 {
+func pathID(c *gin.Context, name string) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param(name))
+	if err != nil || id == uuid.Nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid " + name})
-		return 0, false
+		return uuid.Nil, false
 	}
 	return id, true
 }
@@ -74,6 +74,8 @@ func writeAlertError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid alert status"})
 	case errors.Is(err, domain.ErrMissingAlertID):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing alert id"})
+	case errors.Is(err, domain.ErrTooManyAlerts):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "too many alerts in one action; narrow the selection"})
 	default:
 		_ = catcher.Error("alert op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})

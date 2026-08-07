@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { STATUS_INT, STATUS_TABS, type StatusKey, type StatusTab } from '../types/alert.types'
+import { STATUS_VALUE, STATUS_TABS, type StatusKey, type StatusTab } from '../types/alert.types'
 
 export function AlertsStatusTabs({
   current,
@@ -13,7 +13,7 @@ export function AlertsStatusTabs({
 }) {
   const { t } = useTranslation()
   const label = (id: StatusTab) => (id === 'all' ? t('alerts.statusTabs.all') : t(`alerts.status.${id}`))
-  const count = (id: StatusTab) => (id === 'all' ? undefined : counts[String(STATUS_INT[id as StatusKey])])
+  const count = (id: StatusTab) => (id === 'all' ? undefined : counts[STATUS_VALUE[id as StatusKey]])
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-border">
       {STATUS_TABS.map((id) => {

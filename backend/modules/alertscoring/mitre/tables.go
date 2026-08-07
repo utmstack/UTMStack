@@ -61,11 +61,10 @@ var HighRiskTechniques = map[string]int{
 
 const DefaultTechniqueScore = 10
 
-var SeverityMultiplier = map[int]float64{
-	1: 0.5,  // Low
-	2: 0.75, // Medium
-	3: 1.0,  // High
-	4: 1.2,  // Critical
+var SeverityMultiplier = map[string]float64{
+	"low":    0.5,
+	"medium": 0.75,
+	"high":   1.0,
 }
 
 const DefaultSeverityMultiplier = 0.75

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
@@ -20,7 +21,7 @@ func (r *pgQueryRepository) Save(ctx context.Context, q *domain.SavedQuery) erro
 	return r.db.WithContext(ctx).Save(q).Error
 }
 
-func (r *pgQueryRepository) FindByID(ctx context.Context, id uint64) (*domain.SavedQuery, error) {
+func (r *pgQueryRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.SavedQuery, error) {
 	var q domain.SavedQuery
 	err := r.db.WithContext(ctx).First(&q, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -51,6 +52,6 @@ func (r *pgQueryRepository) List(ctx context.Context, f dto.QueryFilter) ([]doma
 	return items, total, nil
 }
 
-func (r *pgQueryRepository) Delete(ctx context.Context, id uint64) error {
+func (r *pgQueryRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&domain.SavedQuery{}, id).Error
 }

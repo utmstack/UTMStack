@@ -5,6 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/handler"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/repository"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ type Module struct {
 	analyzerUC      connectors.AnalyzerUsecase
 }
 
-func NewModule(db *gorm.DB, events repository.Reader) *Module {
+func NewModule(db *gorm.DB, events *eventstore.Store) *Module {
 	queryRepo := repository.NewQueryRepository(db)
 	analyzerRepo := repository.NewAnalyzerRepository(events)
 

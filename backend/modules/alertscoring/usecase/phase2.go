@@ -81,7 +81,7 @@ func historicalResolutionModifier(pastAlerts []alertdomain.UtmAlert) (int, strin
 			falsePositive++
 		case a.IsIncident:
 			partOfIncident++
-		case a.Status == int(alertdomain.AlertStatusCompleted):
+		case a.Status == alertdomain.AlertStatusCompleted:
 			completedNoIncident++
 		}
 	}

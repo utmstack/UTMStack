@@ -1,7 +1,7 @@
 import {
   type Alert,
-  SEVERITY_BY_INT,
-  STATUS_BY_INT,
+  SEVERITY_BY_VALUE,
+  STATUS_BY_VALUE,
   type SeverityKey,
   type StatusKey,
 } from '../types/alert.types'
@@ -28,14 +28,14 @@ export const ST_META: Record<StatusKey, { label: string; pill: string }> = {
 }
 
 export function sevKey(a: Alert): SeverityKey {
-  return SEVERITY_BY_INT[a.severity ?? 1] ?? 'low'
+  return SEVERITY_BY_VALUE[a.severity ?? ''] ?? 'low'
 }
 export function statusKey(a: Alert): StatusKey {
-  return STATUS_BY_INT[a.status ?? 2] ?? 'open'
+  return STATUS_BY_VALUE[a.status ?? ''] ?? 'open'
 }
 
 export function riskOf(a: Alert): string {
-  const r = a.impactScore ?? a.impact?.score
+  const r = a.impactScore
   return r != null ? String(Math.round(r)) : '—'
 }
 
@@ -45,23 +45,45 @@ export const fieldKey = (field: string) => field.replace(/\./g, '_')
 
 // Filterable alert fields (ported from the legacy ALERT_FILTERS_FIELDS).
 export const FILTER_FIELDS: { label: string; field: string }[] = [
-  { label: 'Datasource group', field: 'assetGroupName' },
+  // The alert itself
+  { label: 'Alert name', field: 'name' },
   { label: 'Category', field: 'category' },
+  { label: 'Technique', field: 'technique' },
+  { label: 'Description', field: 'description' },
+  { label: 'Severity', field: 'severity' },
+  { label: 'Status', field: 'status' },
+  { label: 'Risk', field: 'impactScore' },
+
+  // Where it came from
   { label: 'Sensor', field: 'dataSource' },
+  { label: 'Data type', field: 'dataType' },
+
+  // What an analyst put on it
   { label: 'Tags', field: 'tags' },
+  { label: 'Assignee', field: 'assignee' },
+  { label: 'Notes', field: 'notes' },
+  { label: 'Is incident', field: 'isIncident' },
   { label: 'Incident name', field: 'incidentDetail.incidentName' },
-  { label: 'Availability', field: 'impact.availability' },
+
   { label: 'Confidentiality', field: 'impact.confidentiality' },
   { label: 'Integrity', field: 'impact.integrity' },
-  { label: 'Protocol', field: 'protocol' },
+  { label: 'Availability', field: 'impact.availability' },
+
   { label: 'Adversary IP', field: 'adversary.ip' },
+  { label: 'Adversary host', field: 'adversary.host' },
+  { label: 'Adversary user', field: 'adversary.user' },
   { label: 'Adversary domain', field: 'adversary.domain' },
   { label: 'Adversary URL', field: 'adversary.url' },
+  { label: 'Adversary country', field: 'adversary.geolocation.country' },
   { label: 'Adversary ASN', field: 'adversary.geolocation.asn' },
   { label: 'Adversary ASO', field: 'adversary.geolocation.aso' },
+
   { label: 'Target IP', field: 'target.ip' },
+  { label: 'Target host', field: 'target.host' },
+  { label: 'Target user', field: 'target.user' },
   { label: 'Target domain', field: 'target.domain' },
   { label: 'Target URL', field: 'target.url' },
+  { label: 'Target country', field: 'target.geolocation.country' },
   { label: 'Target ASN', field: 'target.geolocation.asn' },
   { label: 'Target ASO', field: 'target.geolocation.aso' },
 ]

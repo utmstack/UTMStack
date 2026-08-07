@@ -41,7 +41,6 @@ type DomainCount struct {
 	Count  int64  `json:"count"`
 }
 
-// SourceCount is the by-source breakdown returned by GET /ad-audit/stats.
 type SourceCount struct {
 	Windows int64 `json:"windows"`
 	Linux   int64 `json:"linux"`

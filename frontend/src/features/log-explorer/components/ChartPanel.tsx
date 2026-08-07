@@ -20,10 +20,13 @@ const CALENDAR_INTERVALS = [
 ]
 
 export function ChartPanel({
+  dataset,
+
   pattern,
   fields,
   filters,
 }: {
+  dataset: string
   pattern: string | null
   fields: IndexField[]
   filters: FilterType[]
@@ -55,7 +58,8 @@ export function ChartPanel({
     setError(false)
     svc
       .chartView({
-        indexPattern: pattern,
+        dataset,
+      dataType: pattern,
         field: aggField,
         fieldDataType: field.type,
         filters,

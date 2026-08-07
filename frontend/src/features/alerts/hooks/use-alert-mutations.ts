@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { alertsHttpService as svc, AlertsHttpError } from '../services/alerts-http.service'
-import type { Alert, FilterType } from '../types/alert.types'
+import { STATUS_VALUE_BY_CODE, type Alert, type FilterType } from '../types/alert.types'
 
 export interface UseAlertMutationsArgs {
   refresh: () => void
@@ -57,7 +57,7 @@ export function useAlertMutations({
         clearSelection()
         refresh()
         if (openAlert && ids.includes(openAlert.id)) {
-          setOpenAlert({ ...openAlert, status })
+          setOpenAlert({ ...openAlert, status: STATUS_VALUE_BY_CODE[status] })
           refetchOpen(openAlert.id)
         }
       } catch (e) {

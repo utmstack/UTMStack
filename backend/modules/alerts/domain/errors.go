@@ -11,4 +11,9 @@ var (
 	ErrRuleNameTaken        = errors.New("rule name already in use")
 	ErrInvalidAlertStatus   = errors.New("invalid alert status")
 	ErrMissingAlertID       = errors.New("missing alert id")
+
+	// ErrTooManyAlerts is a refusal, not a failure: an action over more alerts
+	// than one request may rewrite is rejected whole rather than applied to
+	// part of the selection and reported as done.
+	ErrTooManyAlerts = errors.New("this action covers more alerts than one request may change")
 )

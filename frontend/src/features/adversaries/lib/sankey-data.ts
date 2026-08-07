@@ -1,3 +1,4 @@
+import { SEVERITY_RANK } from '@/features/alerts/types/alert.types'
 import type { AdversaryResponse, Side } from '../types/adversary.types'
 
 function sideLabel(s?: Side | null): string {
@@ -85,7 +86,7 @@ export function buildSankey(responses: AdversaryResponse[]): SankeyGraph {
         if (!name || !victimLabel) continue
         const altKey = ALT + name
         const vicKey = VIC + victimLabel
-        const sev = a.severity ?? 0
+        const sev = SEVERITY_RANK[a.severity ?? ''] ?? 0
         ensureNode(advKey, advLabel, 'adversary', sev, r.adversary)
         ensureNode(altKey, name, 'alert', sev)
         ensureNode(vicKey, victimLabel, 'victim', sev, a.target)

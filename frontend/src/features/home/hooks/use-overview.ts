@@ -15,17 +15,20 @@ import type { FilterType } from '@/features/alerts/types/alert.types'
  * same partial-failure posture the Alerts/Data Sources pages use. The overview
  * is a glanceable summary, so a 1-minute stale window is plenty.
  */
+import { SEVERITY_VALUE } from '@/features/alerts/types/alert.types'
+import { resolveRange } from '@/shared/components/ui/time-range-picker'
+
 const STALE = 60_000
 
-// A last-N-window scope for the alert endpoints. `parentId DOES_NOT_EXIST` rolls
+// A last-N-window scope for the alert endpoints. `parentId IS ''` rolls
 // deduplicated child echoes up under their parent (matches the Alerts page
-// default), and `@timestamp IS_BETWEEN [now-…, now]` reuses the datemath tokens
-// the backend already resolves for the Alerts time filter.
-const NO_PARENT: FilterType = { field: 'parentId', operator: 'DOES_NOT_EXIST' }
-const lastWindow = (fromToken: string): FilterType[] => [
-  NO_PARENT,
-  { field: '@timestamp', operator: 'IS_BETWEEN', value: [fromToken, 'now'] },
-]
+// default). The window is resolved to instants here: the store takes datetimes,
+// not the relative tokens the pickers carry around.
+const NO_PARENT: FilterType = { field: 'parentId', operator: 'IS', value: '' }
+const lastWindow = (fromToken: string): FilterType[] => {
+  const { from, to } = resolveRange({ from: fromToken, to: 'now', interval: 'hour' })
+  return [NO_PARENT, { field: '@timestamp', operator: 'IS_BETWEEN', value: [from, to] }]
+}
 
 /* ─── Datasources: count, active sources, events + ingestion timeline ───────── */
 
@@ -98,7 +101,7 @@ export function useAlertKpis(): AlertKpis {
     // buckets is the total alert count for the window regardless of how the
     // endpoint defines its own `total`.
     const alerts24h = buckets.reduce((acc, b) => acc + b.count, 0)
-    const high24h = buckets.find((b) => b.value === '3')?.count ?? 0
+    const high24h = buckets.find((b) => b.value === SEVERITY_VALUE.high)?.count ?? 0
     return {
       alerts24h,
       high24h,

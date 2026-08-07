@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
-import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
+import { presetRange, type TimeRange, resolveRange } from '@/shared/components/ui/time-range-picker'
 import { FILTER_OPS, TS } from '../lib/alert-meta'
 import { alertToRuleConditions } from '../lib/tagging-rule-meta'
 import {
-  STATUS_INT,
-  SEVERITY_INT,
+  STATUS_VALUE,
+  SEVERITY_VALUE,
   type Alert,
   type CustomFilter,
   type FilterType,
@@ -133,11 +133,12 @@ export function AlertsPage() {
     return () => clearTimeout(h)
   }, [search])
 
-  // Scope filters (time + search). `parentId DOES_NOT_EXIST` hides deduplicated
+  // Scope filters (time + search). `parentId IS ''` hides deduplicated
   // child "echoes" — they roll up under their parent (matches the legacy default).
   const scopeFilters = useMemo<FilterType[]>(() => {
-    const f: FilterType[] = [{ field: 'parentId', operator: 'DOES_NOT_EXIST' }]
-    if (range.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [range.from, range.to] })
+    const f: FilterType[] = [{ field: 'parentId', operator: 'IS', value: '' }]
+    const abs = resolveRange(range)
+    if (abs.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
     if (debounced) f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
     // Tag selector: match alerts carrying ANY of the chosen tags (OR semantics).
     if (tagFilter.length) f.push({ field: 'tags', operator: 'IS_ONE_OF', value: tagFilter })
@@ -151,8 +152,8 @@ export function AlertsPage() {
   // List filters add the tab (status) + severity refinement.
   const listFilters = useMemo<FilterType[]>(() => {
     const f = [...scopeFilters]
-    if (statusTab !== 'all') f.push({ field: 'status', operator: 'IS', value: STATUS_INT[statusTab as StatusKey] })
-    if (severity !== 'all') f.push({ field: 'severity', operator: 'IS', value: SEVERITY_INT[severity] })
+    if (statusTab !== 'all') f.push({ field: 'status', operator: 'IS', value: STATUS_VALUE[statusTab as StatusKey] })
+    if (severity !== 'all') f.push({ field: 'severity', operator: 'IS', value: SEVERITY_VALUE[severity] })
     return f
   }, [scopeFilters, statusTab, severity])
 
@@ -209,7 +210,7 @@ export function AlertsPage() {
 
   const submitRule = async (
     input: { name: string; description: string; conditions: any[]; tags: any[] },
-    id?: number,
+    id?: string,
   ) => {
     const ok = id != null ? await updateRule({ id, ...input }) : await createRule(input)
     if (ok) setRuleDrawer(null)

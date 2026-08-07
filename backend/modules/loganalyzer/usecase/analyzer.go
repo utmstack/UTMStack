@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/repository"
 
@@ -49,4 +50,11 @@ func (u *analyzerUsecase) Search(ctx context.Context, req dto.SearchRequest) (*d
 
 func (u *analyzerUsecase) DataTypes(ctx context.Context, dataset string) ([]string, error) {
 	return u.repo.DataTypes(ctx, dataset)
+}
+
+func (u *analyzerUsecase) SearchSQL(ctx context.Context, sql string, page, size int) (*dto.SearchResponse, error) {
+	if err := ValidateSQL(sql); err != nil {
+		return nil, fmt.Errorf("%w: %s", domain.ErrInvalidSQL, err.Error())
+	}
+	return u.repo.SearchSQL(ctx, sql, page, size)
 }

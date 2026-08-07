@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -68,7 +67,7 @@ func (h *QueryHandler) Update(c *gin.Context) {
 		return
 	}
 	res, err := h.uc.Update(c.Request.Context(), &q, currentUser(c))
-	audit.Record(c, audit_connectors.Event{Action: "log_analyzer.query.update", ResourceType: "log_analyzer_query", ResourceID: strconv.FormatUint(q.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "log_analyzer.query.update", ResourceType: "log_analyzer_query", ResourceID: q.ID.String()},
 		audit_domain.LOG_ANALYZER_QUERY_UPDATE_ATTEMPT, audit_domain.LOG_ANALYZER_QUERY_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
@@ -148,7 +147,7 @@ func (h *QueryHandler) Delete(c *gin.Context) {
 		return
 	}
 	err := h.uc.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "log_analyzer.query.delete", ResourceType: "log_analyzer_query", ResourceID: strconv.FormatUint(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "log_analyzer.query.delete", ResourceType: "log_analyzer_query", ResourceID: id.String()},
 		audit_domain.LOG_ANALYZER_QUERY_DELETE_ATTEMPT, audit_domain.LOG_ANALYZER_QUERY_DELETE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)

@@ -19,7 +19,6 @@ type UpdateAlertAssigneeRequest struct {
 }
 
 type ConvertToIncidentRequest struct {
-	// AlertIDs maps to Java's ConvertToIncidentRequestBody.eventIds field (not alertIds).
 	AlertIDs       []string `json:"eventIds"       binding:"required"`
 	IncidentName   string   `json:"incidentName"   binding:"required"`
 	IncidentID     int      `json:"incidentId"     binding:"required"`

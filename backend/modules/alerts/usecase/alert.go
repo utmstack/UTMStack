@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -14,15 +13,11 @@ import (
 
 type alertUsecase struct {
 	repo     connectors.AlertRepository
-	history  connectors.HistoryRecorder
 	resolver connectors.CorrelationResolver // injected post-construction; may be nil
 }
 
-func NewAlertUsecase(
-	repo connectors.AlertRepository,
-	history connectors.HistoryRecorder,
-) connectors.AlertUsecase {
-	return &alertUsecase{repo: repo, history: history}
+func NewAlertUsecase(repo connectors.AlertRepository) connectors.AlertUsecase {
+	return &alertUsecase{repo: repo}
 }
 
 func (u *alertUsecase) SetCorrelationResolver(r connectors.CorrelationResolver) {
@@ -40,43 +35,21 @@ func resolveUser(userLogin string) string {
 }
 
 func (u *alertUsecase) UpdateStatus(ctx context.Context, userLogin string, req dto.UpdateAlertStatusRequest) error {
-	if !domain.IsValid(domain.AlertStatus(req.Status)) {
+	status := domain.StatusFromCode(req.Status)
+	if !domain.IsValid(status) {
 		return domain.ErrInvalidAlertStatus
 	}
 
 	user := resolveUser(userLogin)
 
-	label := domain.StatusName(domain.AlertStatus(req.Status))
+	// Read first: the history says what the status changed from, and once the
+	// change lands there is nothing left to read it off.
+	oldAlerts, _ := u.repo.SearchByIDs(ctx, req.AlertIDs)
 
-	var oldAlerts []domain.UtmAlert
-	if u.history != nil {
-		oldAlerts, _ = u.repo.SearchByIDs(ctx, req.AlertIDs)
-	}
+	tagFalsePositive := status == domain.AlertStatusCompleted && req.AddFalsePositiveTag
 
-	if req.Status == int(domain.AlertStatusCompleted) && req.AddFalsePositiveTag {
-		if err := u.repo.UpdateStatus(ctx, req.AlertIDs, req.Status, label, req.StatusObservation); err != nil {
-			return err
-		}
-		if err := u.repo.UpdateStatusAndTag(ctx, req.AlertIDs); err != nil {
-			return err
-		}
-		if err := u.repo.UpdateStatus(ctx, req.AlertIDs, req.Status, label, req.StatusObservation); err != nil {
-			return err
-		}
-	} else {
-		if err := u.repo.UpdateStatus(ctx, req.AlertIDs, req.Status, label, req.StatusObservation); err != nil {
-			return err
-		}
-	}
-
-	if u.history != nil {
-		entries := buildStatusEntries(oldAlerts, user, label, req)
-		if err := u.history.Record(ctx, entries); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return u.repo.UpdateStatus(ctx, req.AlertIDs, status, req.StatusObservation,
+		tagFalsePositive, buildStatusEntries(oldAlerts, user, status, req))
 }
 
 func (u *alertUsecase) UpdateNotes(ctx context.Context, userLogin string, alertID string, notes string) error {
@@ -86,17 +59,8 @@ func (u *alertUsecase) UpdateNotes(ctx context.Context, userLogin string, alertI
 
 	user := resolveUser(userLogin)
 
-	if err := u.repo.UpdateNotes(ctx, alertID, notes); err != nil {
-		return err
-	}
-
-	if u.history != nil {
-		entry := buildNotesEntry(alertID, user, notes)
-		if err := u.history.Record(ctx, []connectors.HistoryEntry{entry}); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.repo.UpdateNotes(ctx, alertID, notes,
+		[]connectors.HistoryEntry{buildNotesEntry(alertID, user, notes)})
 }
 
 func (u *alertUsecase) UpdateAssignee(ctx context.Context, userLogin string, alertID string, assignee string) error {
@@ -106,50 +70,23 @@ func (u *alertUsecase) UpdateAssignee(ctx context.Context, userLogin string, ale
 
 	user := resolveUser(userLogin)
 
-	if err := u.repo.UpdateAssignee(ctx, alertID, assignee); err != nil {
-		return err
-	}
-
-	if u.history != nil {
-		entry := buildAssigneeEntry(alertID, user, assignee)
-		if err := u.history.Record(ctx, []connectors.HistoryEntry{entry}); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.repo.UpdateAssignee(ctx, alertID, assignee,
+		[]connectors.HistoryEntry{buildAssigneeEntry(alertID, user, assignee)})
 }
 
 func (u *alertUsecase) UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error {
 	user := resolveUser(userLogin)
 
-	if err := u.repo.UpdateTags(ctx, req.AlertIDs, req.Tags); err != nil {
-		return err
-	}
-
-	if u.history != nil {
-		entries := buildTagEntries(user, req.AlertIDs, req.Tags)
-		if err := u.history.Record(ctx, entries); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.repo.UpdateTags(ctx, req.AlertIDs, req.Tags,
+		buildTagEntries(user, req.AlertIDs, req.Tags))
 }
 
 func (u *alertUsecase) ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error {
 	createdBy := resolveUser(userLogin)
 	createdAt := time.Now().UTC()
 
-	if err := u.repo.ConvertToIncident(ctx, req.AlertIDs, req.IncidentName, req.IncidentID, createdAt, createdBy, req.IncidentSource); err != nil {
-		return err
-	}
-
-	if u.history != nil {
-		entries := buildIncidentEntries(createdBy, createdAt, req)
-		if err := u.history.Record(ctx, entries); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.repo.ConvertToIncident(ctx, req.AlertIDs, req.IncidentName, req.IncidentID,
+		createdAt, createdBy, req.IncidentSource, buildIncidentEntries(createdBy, createdAt, req))
 }
 
 func (u *alertUsecase) CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlertsResponse, error) {
@@ -187,18 +124,12 @@ func (u *alertUsecase) ListEchoes(ctx context.Context, parentID string, page, si
 // Internal helpers for HistoryEntry construction
 // ---------------------------------------------------------------------------
 
-func buildStatusEntries(oldAlerts []domain.UtmAlert, user, newLabel string, req dto.UpdateAlertStatusRequest) []connectors.HistoryEntry {
-	// Build new-value map that matches Java's logManualAlertStatusChange.
-	newVal := map[string]any{
-		"status":            req.Status,
-		"statusLabel":       newLabel,
-		"statusObservation": req.StatusObservation,
-	}
-	newValJSON, _ := json.Marshal(newVal)
-
+// buildStatusEntries records the change, not a sentence describing it. The
+// previous status is part of it because "from Open to Completed" is what a
+// reader wants and it cannot be recovered afterwards.
+func buildStatusEntries(oldAlerts []domain.UtmAlert, user string, status domain.AlertStatus, req dto.UpdateAlertStatusRequest) []connectors.HistoryEntry {
 	now := time.Now().UTC()
 
-	// Index old alerts by ID for fast lookup.
 	oldByID := make(map[string]domain.UtmAlert, len(oldAlerts))
 	for _, a := range oldAlerts {
 		oldByID[a.ID] = a
@@ -206,27 +137,22 @@ func buildStatusEntries(oldAlerts []domain.UtmAlert, user, newLabel string, req 
 
 	entries := make([]connectors.HistoryEntry, 0, len(req.AlertIDs))
 	for _, id := range req.AlertIDs {
-		e := connectors.HistoryEntry{
+		newVal := map[string]any{
+			"status":            string(status),
+			"statusObservation": req.StatusObservation,
+		}
+		if old, ok := oldByID[id]; ok {
+			newVal["previousStatus"] = string(old.Status)
+		}
+		newValJSON, _ := json.Marshal(newVal)
+
+		entries = append(entries, connectors.HistoryEntry{
 			AlertID:  id,
 			User:     user,
 			Action:   domain.ActionUpdateStatus,
 			NewValue: string(newValJSON),
 			At:       now,
-		}
-
-		if old, ok := oldByID[id]; ok {
-			oldLabel := old.StatusLabel
-			if oldLabel == "" {
-				oldLabel = domain.StatusName(domain.AlertStatus(old.Status))
-			}
-			if strings.TrimSpace(req.StatusObservation) == "" {
-				e.Message = fmt.Sprintf(domain.MsgStatusChangedNoObs, user, oldLabel, newLabel)
-			} else {
-				e.Message = fmt.Sprintf(domain.MsgStatusChangedWithObs, user, oldLabel, newLabel, req.StatusObservation)
-			}
-		}
-
-		entries = append(entries, e)
+		})
 	}
 	return entries
 }
@@ -235,19 +161,11 @@ func buildAssigneeEntry(alertID, user, assignee string) connectors.HistoryEntry 
 	newVal := map[string]any{"assignee": assignee}
 	newValJSON, _ := json.Marshal(newVal)
 
-	var msg string
-	if strings.TrimSpace(assignee) != "" {
-		msg = fmt.Sprintf(domain.MsgAssigneeSet, user, assignee)
-	} else {
-		msg = fmt.Sprintf(domain.MsgAssigneeCleared, user)
-	}
-
 	return connectors.HistoryEntry{
 		AlertID:  alertID,
 		User:     user,
 		Action:   domain.ActionUpdateAssignee,
 		NewValue: string(newValJSON),
-		Message:  msg,
 		At:       time.Now().UTC(),
 	}
 }
@@ -256,19 +174,11 @@ func buildNotesEntry(alertID, user, notes string) connectors.HistoryEntry {
 	newVal := map[string]any{"notes": notes}
 	newValJSON, _ := json.Marshal(newVal)
 
-	var msg string
-	if strings.TrimSpace(notes) != "" {
-		msg = fmt.Sprintf(domain.MsgNotesUpdated, user, notes)
-	} else {
-		msg = fmt.Sprintf(domain.MsgNotesCleared, user)
-	}
-
 	return connectors.HistoryEntry{
 		AlertID:  alertID,
 		User:     user,
 		Action:   domain.ActionUpdateNotes,
 		NewValue: string(newValJSON),
-		Message:  msg,
 		At:       time.Now().UTC(),
 	}
 }
@@ -288,19 +198,11 @@ func buildTagEntries(user string, alertIDs, tags []string) []connectors.HistoryE
 
 	entries := make([]connectors.HistoryEntry, 0, len(alertIDs))
 	for _, id := range alertIDs {
-		var msg string
-		if len(tags) > 0 {
-			msg = fmt.Sprintf(domain.MsgTagsManual, user, tagsCSV)
-		} else {
-			msg = fmt.Sprintf(domain.MsgTagsManualCleared, user)
-		}
-
 		entries = append(entries, connectors.HistoryEntry{
 			AlertID:  id,
 			User:     user,
 			Action:   domain.ActionUpdateTags,
 			NewValue: string(newValJSON),
-			Message:  msg,
 			At:       now,
 		})
 	}
@@ -308,8 +210,6 @@ func buildTagEntries(user string, alertIDs, tags []string) []connectors.HistoryE
 }
 
 func buildIncidentEntries(createdBy string, createdAt time.Time, req dto.ConvertToIncidentRequest) []connectors.HistoryEntry {
-	incidentRef := fmt.Sprintf("%s(%d)", req.IncidentName, req.IncidentID)
-
 	newVal := map[string]any{
 		"isIncident":                  true,
 		"incidentDetail.incidentName": req.IncidentName,
@@ -320,8 +220,6 @@ func buildIncidentEntries(createdBy string, createdAt time.Time, req dto.Convert
 	}
 	newValJSON, _ := json.Marshal(newVal)
 
-	msg := fmt.Sprintf(domain.MsgConvertToIncident, incidentRef, createdBy)
-
 	now := time.Now().UTC()
 
 	entries := make([]connectors.HistoryEntry, 0, len(req.AlertIDs))
@@ -331,7 +229,6 @@ func buildIncidentEntries(createdBy string, createdAt time.Time, req dto.Convert
 			User:     createdBy,
 			Action:   domain.ActionMarkAsIncident,
 			NewValue: string(newValJSON),
-			Message:  msg,
 			At:       now,
 		})
 	}

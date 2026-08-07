@@ -3,7 +3,7 @@ import { AlertTriangle, Loader2, RefreshCw, ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
-import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
+import { TimeRangePicker, presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { AlertsFilterBar } from '@/features/alerts/components/alerts-filter-bar'
 import { FILTER_OPS, TS } from '@/features/alerts/lib/alert-meta'
 import type { CustomFilter, FilterType } from '@/features/alerts/types/alert.types'
@@ -17,7 +17,8 @@ export function AdversariesPage() {
 
   const filters = useMemo<FilterType[]>(() => {
     const f: FilterType[] = []
-    if (range.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [range.from, range.to] })
+    const abs = resolveRange(range)
+    if (abs.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
     for (const cf of customFilters) {
       const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
       f.push({ field: cf.field, operator: cf.operator, value: needsValue ? cf.value : undefined })

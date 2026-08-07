@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { relativeTime } from '../lib/alert-meta'
 import { isAiNote } from '../lib/ai-note'
-import { STATUS_BY_INT, type Alert } from '../types/alert.types'
+import { STATUS_BY_VALUE, type Alert } from '../types/alert.types'
 
 const ACTION_KEYS = ['UPDATE_STATUS', 'UPDATE_TAGS', 'UPDATE_NOTES', 'UPDATE_SOLUTION', 'MARK_AS_INCIDENT']
 function actionLabel(a: string | undefined, t: TFunction) {
@@ -17,8 +17,8 @@ function historyDetail(h: { message?: string; newValue?: string }, t: TFunction)
   try {
     const v = JSON.parse(h.newValue || '{}') as Record<string, unknown>
     const parts: string[] = []
-    if (typeof v.status === 'number') {
-      const stKey = STATUS_BY_INT[v.status]
+    if (typeof v.status === 'string' && v.status) {
+      const stKey = STATUS_BY_VALUE[v.status]
       parts.push(
         t('alerts.history.detail.statusTo', { status: stKey ? t(`alerts.status.${stKey}`) : String(v.status) })
       )

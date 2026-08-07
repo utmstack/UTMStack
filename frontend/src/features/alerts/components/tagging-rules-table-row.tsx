@@ -1,5 +1,4 @@
 import { Tag as TagIcon } from 'lucide-react'
-import { useDateFormat } from '@/shared/lib/datetime'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import { TAGGING_RULES_TABLE_COLS } from './tagging-rules-table'
 
@@ -10,10 +9,7 @@ export function TaggingRulesTableRow({
   rule: TaggingRule
   onOpen: (rule: TaggingRule) => void
 }) {
-  const df = useDateFormat()
   const tags = rule.tags ?? []
-  const date = rule.lastModifiedDate ?? rule.createdDate
-  const by = rule.lastModifiedBy || rule.createdBy
   return (
     <div
       onClick={() => onOpen(rule)}
@@ -38,8 +34,6 @@ export function TaggingRulesTableRow({
         {tags.length === 0 && <span className="text-xs text-muted-foreground/60">—</span>}
       </div>
       <div className="text-center font-mono text-xs text-muted-foreground">{rule.conditions?.length ?? 0}</div>
-      <div className="truncate text-xs text-muted-foreground">{by || '—'}</div>
-      <div className="text-xs text-muted-foreground">{date ? df.formatDateTime(date) : '—'}</div>
     </div>
   )
 }

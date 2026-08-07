@@ -6,7 +6,6 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
 	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
-	la_repository "github.com/utmstack/utmstack/backend/modules/loganalyzer/repository"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
 	"path/filepath"
 	"strings"
@@ -147,11 +146,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		eventReader = events
 	}
 	dashboardsMod := dashboards.NewModule(db, eventReader)
-	var logReader la_repository.Reader
-	if events != nil {
-		logReader = events
-	}
-	loganalyzerMod := loganalyzer.NewModule(db, logReader)
+	loganalyzerMod := loganalyzer.NewModule(db, events)
 
 	userRepo := iam_repository.NewUserRepository(db)
 	rbacRepo := iam_repository.NewRBACRepository(db)
@@ -176,7 +171,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("opensearch SDK connect failed", err, nil)
 	}
 
-	alertsMod := alerts.NewModule(db)
+	alertsMod := alerts.NewModule(db, events)
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {

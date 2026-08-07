@@ -121,28 +121,24 @@ ON CONFLICT DO NOTHING;
 -- Idempotent: every statement is ON CONFLICT DO NOTHING or a delete.
 
 
--- The legacy backend seeded this row in data.sql (id=1, system_owner=true). It
--- is the canonical tag the rules engine applies to auto-complete alerts: the
--- OpenSearch Painless scripts and the Go usecase reference it by NAME
--- ("False positive"), so the managed tag must exist for the UI tag picker and
--- for parity with legacy installs.
+-- "False positive" is the tag the rules engine applies to auto-complete an
+-- alert. Both the engine and this service reference it by NAME, never by id,
+-- so what matters is that a row with this name exists before either runs.
 --
--- On an in-place upgrade the legacy row already exists (utm_alert_tag is not
--- dropped), so this is a no-op via ON CONFLICT. On a fresh install GORM creates
--- an empty table and this seeds it.
+-- It is system-owned, which is how it belongs to every tenant and to none: the
+-- tenancy callbacks read a scoped table as "tenant_id = mine OR system_owner",
+-- so the tenant on this row is never matched against. It still has to hold a
+-- value — the column is NOT NULL — and the nil UUID is the one that says "no
+-- tenant" without naming one.
 --
--- We intentionally omit an explicit id and let the GORM-created sequence assign
--- it: forcing id=1 would not advance the sequence and the next auto-insert would
--- collide. The Go code keys off tag_name, not the id, so the value is irrelevant.
--- The conflict target is (tenant_id, tag_name) because that is the unique
--- index: a tag name is unique inside a tenant, not across the table. This tag
--- belongs to none — it is system-owned, which every tenant reads and none may
--- change — so its tenant is empty.
-INSERT INTO utm_alert_tag (tenant_id, tag_name, tag_color, system_owner)
-VALUES ('', 'False positive', '#f44336', true)
+-- The id is left to the column's own gen_random_uuid(). The conflict target is
+-- (tenant_id, tag_name) because that is the unique index: a tag name is unique
+-- inside a tenant, not across the table.
+INSERT INTO alert_tag (tenant_id, tag_name, tag_color, system_owner)
+VALUES ('00000000-0000-0000-0000-000000000000', 'False positive', '#f44336', true)
 ON CONFLICT (tenant_id, tag_name) DO NOTHING;
 
--- Seed default mail configuration rows in utm_configuration_parameter so the
+-- Seed default mail configuration rows in app_config so the
 -- settings UI has stable keys to bind to before an admin fills them in. Keys
 
 -- legacy Liquibase data.sql so the Go appconfig module (which only ever UPDATEs
@@ -155,7 +151,7 @@ ON CONFLICT (tenant_id, tag_name) DO NOTHING;
 -- instead of ON CONFLICT. On an in-place upgrade the legacy rows already exist
 -- (this is a no-op); on a fresh install GORM creates an empty table and this
 -- seeds it.
-INSERT INTO utm_configuration_parameter
+INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
 FROM (VALUES
@@ -169,34 +165,34 @@ FROM (VALUES
     ('utmstack.mail.properties.mail.smtp.auth', 'Encryption type',          'Select the encryption type used by the SMTP server', 'TLS', true, 'radio',    'TLS,SSL,NONE')
 ) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 WHERE NOT EXISTS (
-    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short
 );
 
 -- White-label branding is stored as a single JSON value on this config row
 -- (the appconfig branding usecase marshals/unmarshals it). Reuses the config
 -- table instead of a dedicated table. Empty value => default UTMStack brand.
-INSERT INTO utm_configuration_parameter
+INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', 'branding', 'White-label branding', 'White-label branding (logo, product name, colors) as JSON', '', false, 'text', NULL
 WHERE NOT EXISTS (
-    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'branding'
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = 'branding'
 );
 
 -- Platform-default UI language. Drives the pre-login screens, system emails and
 -- the default for users without a personal lang_key (each user can override it
 -- from their profile). The appconfig module only UPDATEs pre-seeded params, so
 -- it must exist here for GET/PUT /config/utmstack.system.language to work.
-INSERT INTO utm_configuration_parameter
+INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', 'utmstack.system.language', 'Platform Language', 'Default UI language for the platform (pre-login screens, system emails and new users). Each user can override it in their profile.', 'en', false, 'radio', 'en,es,pt,fr,de'
 WHERE NOT EXISTS (
-    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = 'utmstack.system.language'
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = 'utmstack.system.language'
 );
 
 -- Org-wide timestamp display preference. Data is always stored in UTC; these only
 -- control how timestamps are rendered in the UI (timezone + format). Read app-wide
 -- via the public GET /date-format, edited by an admin via /config.
-INSERT INTO utm_configuration_parameter
+INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
 FROM (VALUES
@@ -204,14 +200,14 @@ FROM (VALUES
     ('utmstack.time.dateformat', 'Date Format',       'Format used to display dates and times.',                          'medium', false, 'radio', 'short,medium,long,full')
 ) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 WHERE NOT EXISTS (
-    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short
 );
 
 -- ThreatWinds (feeds plugin) integration credentials. Seeded as empty so the
 -- appconfig module (which only UPDATEs pre-seeded params) can serve/store them
 -- and the feeds plugin reads them via GET /api/v1/config/<key>. apiSecret is a
 -- secret (encrypted at rest, decrypted on per-key read).
-INSERT INTO utm_configuration_parameter
+INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
 FROM (VALUES
@@ -220,7 +216,7 @@ FROM (VALUES
     ('utmstack.tw.apiSecret', 'ThreatWinds API Secret', 'API Secret for ThreatWinds integration.',                     '', true,  'password', NULL)
 ) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 WHERE NOT EXISTS (
-    SELECT 1 FROM utm_configuration_parameter c WHERE c.conf_param_short = v.conf_param_short
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short
 );
 
 -- utm_regex_pattern and utm_tenant_config are NOT dropped here — PipelineBootstrap
@@ -379,3 +375,18 @@ BEGIN
     DROP TABLE utm_log_analyzer_query;
   END IF;
 END $$;
+
+-- Global alert/incident email recipients. Both optional, comma-separated; with
+-- both empty the incident mailer falls back to every active user. The appconfig
+-- usecase only ever UPDATEs pre-seeded rows, so these have to exist for
+-- GET/PUT /config/<key> to answer.
+INSERT INTO app_config
+    (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
+FROM (VALUES
+    ('utmstack.alerts.notification_to', 'Alerts notification To',  'Comma-separated addresses that receive alert/incident notifications. Empty falls back to every activated user.', '', false, 'text', NULL),
+    ('utmstack.alerts.notification_cc', 'Alerts notification Cc',  'Comma-separated addresses copied on alert/incident notifications.',                                          '', false, 'text', NULL)
+) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
+WHERE NOT EXISTS (
+    SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short
+);

@@ -25,12 +25,11 @@ export interface AlertRaw {
   '@timestamp'?: string
   name?: string
   category?: string
-  severity?: number
-  severityLabel?: string
+  // Stored as the label itself; there is no parallel numeric code.
+  severity?: string // low | medium | high
   description?: string
   technique?: string
-  status?: number
-  statusLabel?: string
+  status?: string
   tags?: string[]
   target?: Side
 }

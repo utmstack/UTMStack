@@ -41,8 +41,8 @@ export function AlertDrawer({
   onStatus: (status: number, observation: string, fp: boolean) => void
   onTags: (tags: string[]) => void
   onCreateTag: (tagName: string, tagColor: string) => void
-  onUpdateTag: (id: number, tagName: string, tagColor: string) => void
-  onDeleteTag: (id: number, tagName: string) => void
+  onUpdateTag: (id: string, tagName: string, tagColor: string) => void
+  onDeleteTag: (id: string, tagName: string) => void
   onCreateRule: (tg: AlertTag) => void
   onIncident: () => void
   onNotes: (notes: string) => void
@@ -186,10 +186,10 @@ export function AlertDrawer({
                   <p className="text-xs leading-relaxed text-muted-foreground">{a.solution}</p>
                 </Section>
               )}
-              {(a.reference ?? []).length > 0 && (
+              {(a.references ?? []).length > 0 && (
                 <Section title={t('alerts.drawer.section.references')}>
                   <ul className="space-y-1 text-xs">
-                    {(a.reference ?? []).map((r) => (
+                    {(a.references ?? []).map((r: string) => (
                       <li key={r}>
                         <a
                           href={r}

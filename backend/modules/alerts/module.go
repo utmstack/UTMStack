@@ -5,6 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/handler"
 	"github.com/utmstack/utmstack/backend/modules/alerts/repository"
 	"github.com/utmstack/utmstack/backend/modules/alerts/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 	"gorm.io/gorm"
 )
 
@@ -19,12 +20,10 @@ type Module struct {
 	adversaryUsecase    connectors.AdversaryUsecase
 }
 
-func NewModule(db *gorm.DB) *Module {
-	alertRepo := repository.NewOSAlertRepository()
+func NewModule(db *gorm.DB, events *eventstore.Store) *Module {
+	alertRepo := repository.NewCHAlertRepository(events, db)
 
-	historyRecorder := repository.NewHistoryRecorder()
-
-	alertUC := usecase.NewAlertUsecase(alertRepo, historyRecorder)
+	alertUC := usecase.NewAlertUsecase(alertRepo)
 	alertH := handler.NewAlertHandler(alertUC)
 
 	alertTagRepo := repository.NewAlertTagRepository(db)
@@ -35,7 +34,7 @@ func NewModule(db *gorm.DB) *Module {
 	alertTagRuleUC := usecase.NewAlertTagRuleUsecase(alertTagRuleRepo, alertTagRepo)
 	alertTagRuleH := handler.NewAlertTagRuleHandler(alertTagRuleUC)
 
-	adversaryUC := usecase.NewAdversaryUsecase(repository.NewAdversaryRepository())
+	adversaryUC := usecase.NewAdversaryUsecase(repository.NewAdversaryRepository(events))
 	adversaryH := handler.NewAdversaryHandler(adversaryUC)
 
 	return &Module{
