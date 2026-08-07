@@ -36,7 +36,7 @@ func (h *ActionCommandHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Create(req)
+	result, err := h.uc.Create(c.Request.Context(), req)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -64,7 +64,7 @@ func (h *ActionCommandHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Update(req)
+	result, err := h.uc.Update(c.Request.Context(), req)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -95,7 +95,7 @@ func (h *ActionCommandHandler) List(c *gin.Context) {
 		OsPlatform: queryString(c, "osPlatform"),
 		Command:    queryString(c, "command"),
 	}
-	items, total, err := h.uc.FindAll(f)
+	items, total, err := h.uc.FindAll(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -120,7 +120,7 @@ func (h *ActionCommandHandler) GetByID(c *gin.Context) {
 	if !ok {
 		return
 	}
-	result, err := h.uc.FindByID(id)
+	result, err := h.uc.FindByID(c.Request.Context(), id)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -144,7 +144,7 @@ func (h *ActionCommandHandler) Delete(c *gin.Context) {
 	if !ok {
 		return
 	}
-	if err := h.uc.Delete(id); err != nil {
+	if err := h.uc.Delete(c.Request.Context(), id); err != nil {
 		writeARRError(c, err)
 		return
 	}

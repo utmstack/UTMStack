@@ -36,7 +36,7 @@ func (h *VariableHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Create(req, loginFromCtx(c))
+	result, err := h.uc.Create(c.Request.Context(), req, loginFromCtx(c))
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -64,7 +64,7 @@ func (h *VariableHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Update(req, loginFromCtx(c))
+	result, err := h.uc.Update(c.Request.Context(), req, loginFromCtx(c))
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -91,7 +91,7 @@ func (h *VariableHandler) List(c *gin.Context) {
 		Params:       database.Params{Page: queryInt(c, "page", 0), Size: queryInt(c, "size", 20)},
 		VariableName: queryString(c, "variableName"),
 	}
-	items, total, err := h.uc.FindAll(f)
+	items, total, err := h.uc.FindAll(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -116,7 +116,7 @@ func (h *VariableHandler) GetByID(c *gin.Context) {
 	if !ok {
 		return
 	}
-	result, err := h.uc.FindByID(id)
+	result, err := h.uc.FindByID(c.Request.Context(), id)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -140,7 +140,7 @@ func (h *VariableHandler) Delete(c *gin.Context) {
 	if !ok {
 		return
 	}
-	if err := h.uc.Delete(id); err != nil {
+	if err := h.uc.Delete(c.Request.Context(), id); err != nil {
 		writeARRError(c, err)
 		return
 	}

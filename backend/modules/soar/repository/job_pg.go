@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -20,16 +21,19 @@ func NewJobRepository(db *gorm.DB) *jobRepository {
 	return &jobRepository{db: db}
 }
 
-func (r *jobRepository) Save(job *domain.UtmIncidentJob) error {
+func (r *jobRepository) Save(ctx context.Context, job *domain.UtmIncidentJob) error {
+	if job.TenantID == "" {
+		job.TenantID = tenantFromCtx(ctx)
+	}
 	if err := r.db.Save(job).Error; err != nil {
 		return fmt.Errorf("jobRepository.Save: %w", err)
 	}
 	return nil
 }
 
-func (r *jobRepository) FindByID(id int64) (*domain.UtmIncidentJob, error) {
+func (r *jobRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentJob, error) {
 	var j domain.UtmIncidentJob
-	err := r.db.First(&j, id).Error
+	err := scopeTenant(ctx, r.db).First(&j, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, domain.ErrIncidentRecordNotFound
 	}
@@ -58,8 +62,8 @@ func (r *jobRepository) applyFilters(q *gorm.DB, f dto.JobFilter) *gorm.DB {
 	return q
 }
 
-func (r *jobRepository) FindAll(f dto.JobFilter) ([]domain.UtmIncidentJob, int64, error) {
-	q := r.applyFilters(r.db.Model(&domain.UtmIncidentJob{}), f)
+func (r *jobRepository) FindAll(ctx context.Context, f dto.JobFilter) ([]domain.UtmIncidentJob, int64, error) {
+	q := r.applyFilters(scopeTenant(ctx, r.db.Model(&domain.UtmIncidentJob{})), f)
 
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
@@ -73,17 +77,17 @@ func (r *jobRepository) FindAll(f dto.JobFilter) ([]domain.UtmIncidentJob, int64
 	return items, total, nil
 }
 
-func (r *jobRepository) Count(f dto.JobFilter) (int64, error) {
+func (r *jobRepository) Count(ctx context.Context, f dto.JobFilter) (int64, error) {
 	var total int64
-	q := r.applyFilters(r.db.Model(&domain.UtmIncidentJob{}), f)
+	q := r.applyFilters(scopeTenant(ctx, r.db.Model(&domain.UtmIncidentJob{})), f)
 	if err := q.Count(&total).Error; err != nil {
 		return 0, fmt.Errorf("jobRepository.Count: %w", err)
 	}
 	return total, nil
 }
 
-func (r *jobRepository) Delete(id int64) error {
-	if err := r.db.Delete(&domain.UtmIncidentJob{}, id).Error; err != nil {
+func (r *jobRepository) Delete(ctx context.Context, id int64) error {
+	if err := scopeTenant(ctx, r.db).Delete(&domain.UtmIncidentJob{}, id).Error; err != nil {
 		return fmt.Errorf("jobRepository.Delete: %w", err)
 	}
 	return nil

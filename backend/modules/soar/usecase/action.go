@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,7 +18,7 @@ func NewActionUsecase(repo connectors.ActionRepository) connectors.ActionUsecase
 	return &actionUsecase{repo: repo}
 }
 
-func (u *actionUsecase) Create(req dto.CreateActionRequest, user string) (*domain.UtmIncidentAction, error) {
+func (u *actionUsecase) Create(ctx context.Context, req dto.CreateActionRequest, user string) (*domain.UtmIncidentAction, error) {
 	a := &domain.UtmIncidentAction{
 		ActionCommand:     req.ActionCommand,
 		ActionDescription: req.ActionDescription,
@@ -27,14 +28,14 @@ func (u *actionUsecase) Create(req dto.CreateActionRequest, user string) (*domai
 		CreatedDate:       time.Now().UTC(),
 		CreatedUser:       user,
 	}
-	if err := u.repo.Save(a); err != nil {
+	if err := u.repo.Save(ctx, a); err != nil {
 		return nil, fmt.Errorf("actionUsecase.Create: %w", err)
 	}
 	return a, nil
 }
 
-func (u *actionUsecase) Update(req dto.UpdateActionRequest, user string) (*domain.UtmIncidentAction, error) {
-	a, err := u.repo.FindByID(req.ID)
+func (u *actionUsecase) Update(ctx context.Context, req dto.UpdateActionRequest, user string) (*domain.UtmIncidentAction, error) {
+	a, err := u.repo.FindByID(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -46,20 +47,20 @@ func (u *actionUsecase) Update(req dto.UpdateActionRequest, user string) (*domai
 	a.ActionEditable = req.ActionEditable
 	a.ModifiedDate = &now
 	a.ModifiedUser = &user
-	if err := u.repo.Save(a); err != nil {
+	if err := u.repo.Save(ctx, a); err != nil {
 		return nil, fmt.Errorf("actionUsecase.Update: %w", err)
 	}
 	return a, nil
 }
 
-func (u *actionUsecase) FindByID(id int64) (*domain.UtmIncidentAction, error) {
-	return u.repo.FindByID(id)
+func (u *actionUsecase) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentAction, error) {
+	return u.repo.FindByID(ctx, id)
 }
 
-func (u *actionUsecase) FindAll(f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error) {
-	return u.repo.FindAll(f)
+func (u *actionUsecase) FindAll(ctx context.Context, f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error) {
+	return u.repo.FindAll(ctx, f)
 }
 
-func (u *actionUsecase) Delete(id int64) error {
-	return u.repo.Delete(id)
+func (u *actionUsecase) Delete(ctx context.Context, id int64) error {
+	return u.repo.Delete(ctx, id)
 }

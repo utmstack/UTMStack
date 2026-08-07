@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 type pgExecutionRepository struct {
 	db *gorm.DB
 }
@@ -18,6 +19,9 @@ func NewExecutionRepository(db *gorm.DB) connectors.ExecutionRepository {
 }
 
 func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.AlertResponseRuleExecution) (*domain.AlertResponseRuleExecution, error) {
+	if e.TenantID == "" {
+		e.TenantID = tenantFromCtx(ctx)
+	}
 	if err := r.db.WithContext(ctx).Create(e).Error; err != nil {
 		return nil, err
 	}
@@ -26,7 +30,7 @@ func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.AlertRespo
 
 func (r *pgExecutionRepository) List(ctx context.Context, f connectors.ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error) {
 
-	q := r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{})
+	q := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{}))
 
 	// id.equals
 	if f.ID != 0 {
@@ -95,8 +99,7 @@ func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id int64, u co
 		return nil
 	}
 
-	res := r.db.WithContext(ctx).
-		Model(&domain.AlertResponseRuleExecution{}).
+	res := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{})).
 		Where("id = ?", id).
 		Updates(updates)
 	if res.Error != nil {

@@ -36,7 +36,7 @@ func (h *JobHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Create(req, loginFromCtx(c))
+	result, err := h.uc.Create(c.Request.Context(), req, loginFromCtx(c))
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -71,7 +71,7 @@ func (h *JobHandler) List(c *gin.Context) {
 		OriginID:   queryIntPtr(c, "originId"),
 		OriginType: queryString(c, "originType"),
 	}
-	items, total, err := h.uc.FindAll(f)
+	items, total, err := h.uc.FindAll(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -102,7 +102,7 @@ func (h *JobHandler) Count(c *gin.Context) {
 		OriginID:   queryIntPtr(c, "originId"),
 		OriginType: queryString(c, "originType"),
 	}
-	total, err := h.uc.Count(f)
+	total, err := h.uc.Count(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -127,7 +127,7 @@ func (h *JobHandler) GetByID(c *gin.Context) {
 	if !ok {
 		return
 	}
-	result, err := h.uc.FindByID(id)
+	result, err := h.uc.FindByID(c.Request.Context(), id)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -151,7 +151,7 @@ func (h *JobHandler) Delete(c *gin.Context) {
 	if !ok {
 		return
 	}
-	if err := h.uc.Delete(id); err != nil {
+	if err := h.uc.Delete(c.Request.Context(), id); err != nil {
 		writeARRError(c, err)
 		return
 	}
