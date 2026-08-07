@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -20,16 +21,19 @@ func NewVariableRepository(db *gorm.DB) *variableRepository {
 	return &variableRepository{db: db}
 }
 
-func (r *variableRepository) Save(v *domain.UtmIncidentVariable) error {
+func (r *variableRepository) Save(ctx context.Context, v *domain.UtmIncidentVariable) error {
+	if v.TenantID == "" {
+		v.TenantID = tenantFromCtx(ctx)
+	}
 	if err := r.db.Save(v).Error; err != nil {
 		return fmt.Errorf("variableRepository.Save: %w", err)
 	}
 	return nil
 }
 
-func (r *variableRepository) FindByID(id int64) (*domain.UtmIncidentVariable, error) {
+func (r *variableRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentVariable, error) {
 	var v domain.UtmIncidentVariable
-	err := r.db.First(&v, id).Error
+	err := scopeTenant(ctx, r.db).First(&v, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, domain.ErrVariableNotFound
 	}
@@ -39,8 +43,8 @@ func (r *variableRepository) FindByID(id int64) (*domain.UtmIncidentVariable, er
 	return &v, nil
 }
 
-func (r *variableRepository) FindAll(f dto.VariableFilter) ([]domain.UtmIncidentVariable, int64, error) {
-	q := r.db.Model(&domain.UtmIncidentVariable{})
+func (r *variableRepository) FindAll(ctx context.Context, f dto.VariableFilter) ([]domain.UtmIncidentVariable, int64, error) {
+	q := scopeTenant(ctx, r.db.Model(&domain.UtmIncidentVariable{}))
 	if f.VariableName != nil {
 		q = q.Where("variable_name ILIKE ?", "%"+*f.VariableName+"%")
 	}
@@ -57,17 +61,17 @@ func (r *variableRepository) FindAll(f dto.VariableFilter) ([]domain.UtmIncident
 	return items, total, nil
 }
 
-func (r *variableRepository) FindAllPlain() ([]domain.UtmIncidentVariable, error) {
+func (r *variableRepository) FindAllPlain(ctx context.Context) ([]domain.UtmIncidentVariable, error) {
 	var items []domain.UtmIncidentVariable
-	if err := r.db.Find(&items).Error; err != nil {
+	if err := scopeTenant(ctx, r.db).Find(&items).Error; err != nil {
 		return nil, fmt.Errorf("variableRepository.FindAllPlain: %w", err)
 	}
 	return items, nil
 }
 
-func (r *variableRepository) FindByName(name string) (*domain.UtmIncidentVariable, error) {
+func (r *variableRepository) FindByName(ctx context.Context, name string) (*domain.UtmIncidentVariable, error) {
 	var v domain.UtmIncidentVariable
-	err := r.db.Where("variable_name = ?", name).First(&v).Error
+	err := scopeTenant(ctx, r.db).Where("variable_name = ?", name).First(&v).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, domain.ErrVariableNotFound
 	}
@@ -77,19 +81,19 @@ func (r *variableRepository) FindByName(name string) (*domain.UtmIncidentVariabl
 	return &v, nil
 }
 
-func (r *variableRepository) FindByNames(names []string) ([]domain.UtmIncidentVariable, error) {
+func (r *variableRepository) FindByNames(ctx context.Context, names []string) ([]domain.UtmIncidentVariable, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
 	var items []domain.UtmIncidentVariable
-	if err := r.db.Where("variable_name IN ?", names).Find(&items).Error; err != nil {
+	if err := scopeTenant(ctx, r.db).Where("variable_name IN ?", names).Find(&items).Error; err != nil {
 		return nil, fmt.Errorf("variableRepository.FindByNames: %w", err)
 	}
 	return items, nil
 }
 
-func (r *variableRepository) Delete(id int64) error {
-	if err := r.db.Delete(&domain.UtmIncidentVariable{}, id).Error; err != nil {
+func (r *variableRepository) Delete(ctx context.Context, id int64) error {
+	if err := scopeTenant(ctx, r.db).Delete(&domain.UtmIncidentVariable{}, id).Error; err != nil {
 		return fmt.Errorf("variableRepository.Delete: %w", err)
 	}
 	return nil

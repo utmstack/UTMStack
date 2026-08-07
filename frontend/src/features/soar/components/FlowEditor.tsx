@@ -41,6 +41,7 @@ export function FlowEditor({
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const [agents, setAgents] = useState<AgentOption[]>([])
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const set = <K extends keyof FlowFormState>(k: K, v: FlowFormState[K]) => setForm((f) => ({ ...f, [k]: v }))
 
@@ -200,7 +201,7 @@ export function FlowEditor({
             <YamlCodeEditor value={yaml} onChange={setYaml} readOnly={readOnly} />
           </div>
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-6">
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-6 pb-64">
             {/* Flow identity */}
             <div className="mx-auto mb-2 max-w-[660px] space-y-3 rounded-xl border border-border bg-card p-4">
               <div className="space-y-1">
@@ -272,7 +273,7 @@ export function FlowEditor({
 
               <Connector />
               <WorkflowNode icon={Play} tone="emerald" badge={t('soar.editor.thenRun')} title={t('soar.editor.thenTitle')}>
-                <CommandsEditor commands={form.commands} agentPlatform={form.agentPlatform} shell={form.shell} readOnly={readOnly} onChange={(c) => set('commands', c)} t={t} />
+                <CommandsEditor commands={form.commands} agentPlatform={form.agentPlatform} shell={form.shell} readOnly={readOnly} onChange={(c) => set('commands', c)} scrollRef={scrollRef} t={t} />
               </WorkflowNode>
             </div>
           </div>
@@ -424,6 +425,7 @@ function CommandsEditor({
   shell,
   readOnly,
   onChange,
+  scrollRef,
   t,
 }: {
   commands: FlowCommand[]
@@ -431,6 +433,7 @@ function CommandsEditor({
   shell: string
   readOnly?: boolean
   onChange: (c: FlowCommand[]) => void
+  scrollRef?: React.RefObject<HTMLDivElement | null>
   t: ReturnType<typeof useTranslation>['t']
 }) {
   const refs = useRef<(HTMLInputElement | null)[]>([])
@@ -441,6 +444,15 @@ function CommandsEditor({
   const fieldRef = useRef<HTMLDivElement>(null)
   const templatesRef = useRef<HTMLDivElement>(null)
   const shellKind = shellKindFor(agentPlatform, shell)
+  const prevLen = useRef(commands.length)
+
+  useEffect(() => {
+    if (commands.length > prevLen.current) {
+      const el = scrollRef?.current
+      if (el) requestAnimationFrame(() => el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' }))
+    }
+    prevLen.current = commands.length
+  }, [commands.length, scrollRef])
 
   useEffect(() => {
     if (!fieldOpen) return
@@ -528,7 +540,7 @@ function CommandsEditor({
 
       <div className="space-y-1.5">
         {commands.map((cmd, i) => (
-          <div key={i}>
+          <div key={i} className={i === commands.length - 1 ? 'mb-4' : undefined}>
             {i > 0 && (
               <div className="relative flex h-10 items-center justify-center">
                 <div className="soar-flow-line absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 rounded-full" />

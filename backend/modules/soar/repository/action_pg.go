@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -20,16 +21,19 @@ func NewActionRepository(db *gorm.DB) *actionRepository {
 	return &actionRepository{db: db}
 }
 
-func (r *actionRepository) Save(action *domain.UtmIncidentAction) error {
+func (r *actionRepository) Save(ctx context.Context, action *domain.UtmIncidentAction) error {
+	if action.TenantID == "" {
+		action.TenantID = tenantFromCtx(ctx)
+	}
 	if err := r.db.Save(action).Error; err != nil {
 		return fmt.Errorf("actionRepository.Save: %w", err)
 	}
 	return nil
 }
 
-func (r *actionRepository) FindByID(id int64) (*domain.UtmIncidentAction, error) {
+func (r *actionRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentAction, error) {
 	var a domain.UtmIncidentAction
-	err := r.db.First(&a, id).Error
+	err := scopeTenant(ctx, r.db).First(&a, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, domain.ErrIncidentRecordNotFound
 	}
@@ -39,8 +43,8 @@ func (r *actionRepository) FindByID(id int64) (*domain.UtmIncidentAction, error)
 	return &a, nil
 }
 
-func (r *actionRepository) FindAll(f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error) {
-	q := r.db.Model(&domain.UtmIncidentAction{})
+func (r *actionRepository) FindAll(ctx context.Context, f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error) {
+	q := scopeTenant(ctx, r.db.Model(&domain.UtmIncidentAction{}))
 	if f.ActionCommand != nil {
 		q = q.Where("action_command = ?", *f.ActionCommand)
 	}
@@ -63,8 +67,8 @@ func (r *actionRepository) FindAll(f dto.ActionFilter) ([]domain.UtmIncidentActi
 	return items, total, nil
 }
 
-func (r *actionRepository) Delete(id int64) error {
-	if err := r.db.Delete(&domain.UtmIncidentAction{}, id).Error; err != nil {
+func (r *actionRepository) Delete(ctx context.Context, id int64) error {
+	if err := scopeTenant(ctx, r.db).Delete(&domain.UtmIncidentAction{}, id).Error; err != nil {
 		return fmt.Errorf("actionRepository.Delete: %w", err)
 	}
 	return nil

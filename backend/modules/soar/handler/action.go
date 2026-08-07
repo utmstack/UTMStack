@@ -36,7 +36,7 @@ func (h *ActionHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Create(req, loginFromCtx(c))
+	result, err := h.uc.Create(c.Request.Context(), req, loginFromCtx(c))
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -63,7 +63,7 @@ func (h *ActionHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, err := h.uc.Update(req, loginFromCtx(c))
+	result, err := h.uc.Update(c.Request.Context(), req, loginFromCtx(c))
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -94,7 +94,7 @@ func (h *ActionHandler) List(c *gin.Context) {
 		ActionType:     queryIntPtr(c, "actionType"),
 		ActionEditable: queryBoolPtr(c, "actionEditable"),
 	}
-	items, total, err := h.uc.FindAll(f)
+	items, total, err := h.uc.FindAll(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -135,7 +135,7 @@ func (h *ActionHandler) Count(c *gin.Context) {
 		ActionType:     queryIntPtr(c, "actionType"),
 		ActionEditable: queryBoolPtr(c, "actionEditable"),
 	}
-	_, total, err := h.uc.FindAll(f)
+	_, total, err := h.uc.FindAll(c.Request.Context(), f)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -160,7 +160,7 @@ func (h *ActionHandler) GetByID(c *gin.Context) {
 	if !ok {
 		return
 	}
-	result, err := h.uc.FindByID(id)
+	result, err := h.uc.FindByID(c.Request.Context(), id)
 	if err != nil {
 		writeARRError(c, err)
 		return
@@ -184,7 +184,7 @@ func (h *ActionHandler) Delete(c *gin.Context) {
 	if !ok {
 		return
 	}
-	if err := h.uc.Delete(id); err != nil {
+	if err := h.uc.Delete(c.Request.Context(), id); err != nil {
 		writeARRError(c, err)
 		return
 	}
