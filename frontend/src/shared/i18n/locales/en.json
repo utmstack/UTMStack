@@ -1802,14 +1802,17 @@
     "eventsIn": "events in",
     "searching": "Searching…",
     "query": {
-      "indexPatterns": "Index patterns",
-      "noPatterns": "No patterns",
-      "noPatternsMatch": "No matching patterns",
-      "filterPatterns": "Filter patterns…",
-      "searchPlaceholder": "Search across all fields…",
-      "refresh": "Refresh",
+      "allDataTypes": "All data types",
+      "dataTypes": "Data types",
       "exportCsv": "Export CSV",
-      "run": "Run"
+      "filterDataTypes": "Filter data types…",
+      "noDataTypes": "No data types",
+      "noDataTypesMatch": "No matching data types",
+      "noTextSearch": "This data source has no full-text field — filter by field instead",
+      "refresh": "Refresh",
+      "run": "Run",
+      "search": "Search",
+      "searchPlaceholder": "Search across all fields…"
     },
     "time": {
       "15m": "Last 15 minutes",
@@ -1849,17 +1852,17 @@
       "empty": "(empty)"
     },
     "results": {
-      "time": "Time",
-      "source": "Source",
-      "message": "Message",
-      "removeColumn": "Remove {{field}}",
-      "searching": "Searching…",
-      "patternsFailed": "Could not load index patterns.",
-      "searchFailed": "Search failed.",
-      "retry": "Retry",
-      "none": "No logs match this query.",
+      "dataTypesFailed": "Could not load data types.",
+      "endOfResults": "All {{count}} events loaded",
       "loadingMore": "Loading more…",
-      "endOfResults": "All {{count}} events loaded"
+      "message": "Message",
+      "none": "No logs match this query.",
+      "removeColumn": "Remove {{field}}",
+      "retry": "Retry",
+      "searchFailed": "Search failed.",
+      "searching": "Searching…",
+      "source": "Source",
+      "time": "Time"
     },
     "detail": {
       "fieldsCount_one": "{{count}} field",

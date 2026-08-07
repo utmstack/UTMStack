@@ -158,3 +158,38 @@ func (h *AnalyzerHandler) DataTypes(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, out)
 }
+
+type sqlSearchRequest struct {
+	Query string `json:"query" binding:"required"`
+}
+
+// SearchSQL runs a caller-written SELECT over the scoped datasets.
+//
+//	@Summary		Search with SQL
+//	@Description	Runs a SELECT over the `logs` and `alerts` datasets. Both names resolve to the caller's own tenant; naming a real table, another database or a table function is refused.
+//	@Tags			Log Analyzer
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int					false	"Page (default 1)"
+//	@Param			size	query		int					false	"Page size (default 50, max 500)"
+//	@Param			input	body		sqlSearchRequest	true	"SQL"
+//	@Success		200		{object}	dto.SearchResponse
+//	@Failure		400		{object}	map[string]string
+//	@Router			/log-analyzer/search-sql [post]
+func (h *AnalyzerHandler) SearchSQL(c *gin.Context) {
+	var req sqlSearchRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	page, _ := strconv.Atoi(c.Query("page"))
+	size, _ := strconv.Atoi(c.Query("size"))
+
+	res, err := h.uc.SearchSQL(c.Request.Context(), req.Query, page, size)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}

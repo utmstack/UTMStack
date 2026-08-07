@@ -6,7 +6,7 @@ export type FilterOperator =
   | 'IS_NOT'
   | 'IS_BETWEEN'
   | 'IS_IN_FIELDS'
-  | 'IS_ONE_OF_TERMS' // terms query — used by the "related logs" deep-link (_id in [...])
+  | 'IS_ONE_OF_TERMS' // used by the "related logs" deep-link (id in [...])
   | 'CONTAIN'
   | 'EXIST'
 
@@ -51,6 +51,7 @@ export interface TopValues {
 export interface LogExplorerTabConfig {
   id: string
   name: string
+  dataset: string
   patternStr: string | null
   range: { from: string | null; to: string; interval: string }
   filters: FilterType[]

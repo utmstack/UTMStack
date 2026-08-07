@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
 
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/threatwinds/go-sdk/store"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
@@ -30,13 +32,31 @@ type Reader interface {
 	Count(ctx context.Context, s store.Scope, filters []store.Filter) (int64, error)
 }
 
-type chAnalyzerRepository struct{ store Reader }
+type chAnalyzerRepository struct {
+	store  Reader
+	events *eventstore.Store
+}
 
-func NewAnalyzerRepository(r Reader) connectors.AnalyzerRepository {
-	if r == nil {
+func NewAnalyzerRepository(events *eventstore.Store) connectors.AnalyzerRepository {
+	if events == nil {
 		return nil
 	}
-	return &chAnalyzerRepository{store: r}
+	return &chAnalyzerRepository{store: events, events: events}
+}
+
+// rejectUnsupportedTextSearch turns a question the dataset cannot answer into a
+// refusal the caller can read, rather than letting the driver fail mid-query.
+func rejectUnsupportedTextSearch(dataset string, filters []common_models.FilterType) error {
+	ds, ok := datasets[dataset]
+	if !ok || eventstore.SupportsTextSearch(ds) {
+		return nil
+	}
+	for _, f := range filters {
+		if f.Operator == common_models.OpIsInFields || f.Operator == common_models.OpIsNotInFields {
+			return domain.ErrNoTextSearch
+		}
+	}
+	return nil
 }
 
 func scopeFor(ctx context.Context, dataset, dataType string) (store.Scope, error) {
@@ -56,16 +76,16 @@ func (r *chAnalyzerRepository) TopValues(ctx context.Context, dataset, dataType,
 	if err != nil {
 		return nil, err
 	}
+	if err := rejectUnsupportedTextSearch(dataset, filters); err != nil {
+		return nil, err
+	}
 	scope, filters = common_models.SplitTimeBounds(scope, filters)
 	f, err := common_models.ToStoreFilters(filters)
 	if err != nil {
 		return nil, err
 	}
 
-	if top <= 0 {
-		top = 10
-	}
-	buckets, err := r.store.TopValues(ctx, scope, field, f, top)
+	buckets, err := r.store.TopValues(ctx, scope, field, f, clampTop(top))
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +108,9 @@ func (r *chAnalyzerRepository) TopValues(ctx context.Context, dataset, dataType,
 func (r *chAnalyzerRepository) ChartView(ctx context.Context, req dto.ChartViewRequest) (*dto.ChartViewResponse, error) {
 	scope, err := scopeFor(ctx, req.Dataset, req.DataType)
 	if err != nil {
+		return nil, err
+	}
+	if err := rejectUnsupportedTextSearch(req.Dataset, req.Filters); err != nil {
 		return nil, err
 	}
 	scope, reqFilters := common_models.SplitTimeBounds(scope, req.Filters)
@@ -114,11 +137,7 @@ func (r *chAnalyzerRepository) ChartView(ctx context.Context, req dto.ChartViewR
 		return out, nil
 	}
 
-	top := req.Top
-	if top <= 0 {
-		top = 10
-	}
-	buckets, err := r.store.TopValues(ctx, scope, req.Field, f, top)
+	buckets, err := r.store.TopValues(ctx, scope, req.Field, f, clampTop(req.Top))
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +196,19 @@ func (r *chAnalyzerRepository) Fields(ctx context.Context, dataset string) ([]dt
 const (
 	defaultSearchSize = 50
 	maxSearchSize     = 500
+	defaultTopValues  = 10
+	maxTopValues      = 1000
 )
+
+func clampTop(top int) int {
+	if top <= 0 {
+		return defaultTopValues
+	}
+	if top > maxTopValues {
+		return maxTopValues
+	}
+	return top
+}
 
 // Search returns a page of documents for what the explorer has on screen.
 //
@@ -196,6 +227,9 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 		scope.To = *req.To
 	}
 
+	if err := rejectUnsupportedTextSearch(req.Dataset, req.Filters); err != nil {
+		return nil, err
+	}
 	scope, reqFilters := common_models.SplitTimeBounds(scope, req.Filters)
 	f, err := common_models.ToStoreFilters(reqFilters)
 	if err != nil {
@@ -266,3 +300,58 @@ const (
 	dataTypeField = "dataType"
 	maxDataTypes  = 200
 )
+
+func (r *chAnalyzerRepository) SearchSQL(ctx context.Context, sql string, page, size int) (*dto.SearchResponse, error) {
+	tenant := authz.TenantIDFromContext(ctx)
+	if tenant == "" {
+		return nil, store.ErrNoTenant
+	}
+	if size <= 0 {
+		size = defaultSearchSize
+	}
+	if size > maxSearchSize {
+		size = maxSearchSize
+	}
+
+	scoped := scopedSQL(sql, r.events.TableName(eventstore.DatasetLogs), r.events.TableName(eventstore.DatasetAlerts), page, size)
+
+	qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{
+		"readonly":             1,
+		"max_execution_time":   30,
+		"max_result_rows":      maxSearchSize,
+		"result_overflow_mode": "break",
+	}))
+
+	rows, err := r.events.Conn.Query(qctx, scoped, tenant, tenant)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make([]json.RawMessage, 0, size)
+	cols := rows.Columns()
+	types := rows.ColumnTypes()
+
+	for rows.Next() {
+		ptrs := make([]any, len(cols))
+		for i := range ptrs {
+			ptrs[i] = reflect.New(types[i].ScanType()).Interface()
+		}
+		if err := rows.Scan(ptrs...); err != nil {
+			return nil, err
+		}
+		doc := make(map[string]any, len(cols))
+		for i, c := range cols {
+			doc[c] = reflect.ValueOf(ptrs[i]).Elem().Interface()
+		}
+		raw, err := json.Marshal(doc)
+		if err != nil {
+			continue
+		}
+		out = append(out, raw)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return &dto.SearchResponse{Data: out, Total: int64(len(out))}, nil
+}

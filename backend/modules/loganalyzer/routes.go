@@ -25,6 +25,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/datasets/:dataset/data-types", read, ah.DataTypes)
 	g.POST("/chart-view", read, ah.ChartView)
 	g.POST("/search", read, ah.Search)
+	g.POST("/search-sql", read, ah.SearchSQL)
 
 	q := g.Group("/queries")
 	q.POST("", write, qh.Create)

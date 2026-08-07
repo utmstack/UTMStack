@@ -10,6 +10,11 @@ export { ApiError as AlertsHttpError }
 const ALERT_DATASET = 'alerts'
 const CSV_MAX = 10_000
 
+// The search endpoint caps a page at 500, so the export walks pages rather than
+// asking for everything at once — a single oversized request comes back
+// silently truncated, which is the one thing an export must not do.
+const SEARCH_PAGE_MAX = 500
+
 interface TopValues {
   total: number
   top: { value: string; count: number; percent: number }[]
@@ -144,14 +149,20 @@ export const alertsHttpService = {
       { label: 'Notes', field: 'notes' },
     ]
 
-    const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
-      dataset: ALERT_DATASET,
-      filters,
-      page: 1,
-      size: CSV_MAX,
-      sortBy: '@timestamp',
-      order: 'desc',
-    })
+    const rows: Alert[] = []
+    for (let page = 1; rows.length < CSV_MAX; page++) {
+      const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
+        dataset: ALERT_DATASET,
+        filters,
+        page,
+        size: Math.min(SEARCH_PAGE_MAX, CSV_MAX - rows.length),
+        sortBy: '@timestamp',
+        order: 'desc',
+      })
+      const batch = r.data ?? []
+      rows.push(...batch)
+      if (batch.length < SEARCH_PAGE_MAX) break
+    }
 
     const cell = (v: unknown) => {
       const t = Array.isArray(v) ? v.join(', ') : v == null ? '' : String(v)
@@ -159,7 +170,7 @@ export const alertsHttpService = {
     }
     const csv = [
       columns.map((c) => c.label).join(','),
-      ...(r.data ?? []).map((a) => columns.map((c) => cell(a[c.field as keyof Alert])).join(',')),
+      ...rows.map((a) => columns.map((c) => cell(a[c.field as keyof Alert])).join(',')),
     ].join('\n')
 
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))

@@ -4,14 +4,16 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { IndexPatternSelector } from './IndexPatternSelector'
+import { IndexPatternSelector, type DatasetTypes } from './IndexPatternSelector'
 import { SqlQueryEditor } from '@/shared/components/sql-editor'
 import type { IndexField } from '../types/log-explorer.types'
 
 export function QueryBar({
-  patterns,
-  pattern,
-  onPattern,
+  sources,
+  dataset,
+  dataType,
+  onSelect,
+  textSearchable,
   searchInput,
   onSearchInput,
   sqlMode,
@@ -26,9 +28,11 @@ export function QueryBar({
   loading,
   onExport,
 }: {
-  patterns: string[]
-  pattern: string | null
-  onPattern: (p: string) => void
+  sources: DatasetTypes[]
+  dataset: string
+  dataType: string | null
+  onSelect: (dataset: string, dataType: string | null) => void
+  textSearchable: boolean
   searchInput: string
   onSearchInput: (q: string) => void
   sqlMode: boolean
@@ -47,7 +51,7 @@ export function QueryBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
-      <IndexPatternSelector patterns={patterns} pattern={pattern} onPattern={onPattern} />
+      <IndexPatternSelector sources={sources} dataset={dataset} dataType={dataType} onSelect={onSelect} />
 
       <div className="h-5 w-px bg-border" />
 
@@ -59,8 +63,8 @@ export function QueryBar({
             onChange={onSqlInput}
             onRun={onRun}
             fields={fields}
-            patterns={patterns.map((p) => ({ pattern: p }))}
-            placeholder={'SELECT * FROM "v11-log-*" ORDER BY @timestamp DESC'}
+            patterns={sources.flatMap((s) => s.dataTypes).map((p) => ({ pattern: p }))}
+            placeholder={'SELECT * FROM logs ORDER BY `@timestamp` DESC   —   Enter runs, Shift+Enter for a new line'}
           />
         ) : (
           <>
@@ -69,7 +73,10 @@ export function QueryBar({
               value={searchInput}
               onChange={(e) => onSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && onRun()}
-              placeholder={t('logExplorer.query.searchPlaceholder')}
+              disabled={!textSearchable}
+              placeholder={t(
+                textSearchable ? 'logExplorer.query.searchPlaceholder' : 'logExplorer.query.noTextSearch',
+              )}
               className="h-9 border-0 bg-transparent pl-8 font-mono text-xs shadow-none focus-visible:ring-0"
             />
           </>
@@ -103,9 +110,10 @@ export function QueryBar({
         <Download size={13} />
       </Button>
 
+      {/* The verb follows the box: one searches, the other runs a statement. */}
       <Button size="sm" onClick={onRun}>
-        <Play size={12} className="mr-1.5" />
-        {t('logExplorer.query.run')}
+        {sqlMode ? <Play size={12} className="mr-1.5" /> : <Search size={12} className="mr-1.5" />}
+        {t(sqlMode ? 'logExplorer.query.run' : 'logExplorer.query.search')}
       </Button>
     </div>
   )

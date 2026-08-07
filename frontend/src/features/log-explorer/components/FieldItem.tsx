@@ -11,6 +11,8 @@ import { TypeBadge } from './TypeBadge'
 // FieldSidebar can pass stable identities.
 function FieldItemImpl({
   field,
+  dataset,
+
   pattern,
   filters,
   isColumn,
@@ -20,6 +22,7 @@ function FieldItemImpl({
   onToggleColumn,
 }: {
   field: IndexField
+  dataset: string
   pattern: string | null
   filters: FilterType[]
   isColumn: boolean
@@ -40,7 +43,7 @@ function FieldItemImpl({
     if (!open || !pattern || top) return
     setLoading(true)
     svc
-      .topValues(pattern, aggField, filters, 5)
+      .topValues(dataset, pattern, aggField, filters, 5)
       .then(setTop)
       .catch(() => setTop({ total: 0, top: [] }))
       .finally(() => setLoading(false))

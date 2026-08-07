@@ -10,7 +10,7 @@ const api = createApiClient()
  * much part of "the search I had on screen".
  */
 export interface SavedQuery {
-  id: number
+  id: string
   name: string
   description: string
   owner: string
@@ -33,5 +33,5 @@ export const savedQueriesHttpService = {
   // page is 0-based here, and 200 is the largest size this endpoint honours.
   list: () => api.get<SavedQuery[]>('/log-analyzer/queries?page=0&size=200'),
   create: (input: SavedQueryInput) => api.post<SavedQuery>('/log-analyzer/queries', input),
-  remove: (id: number) => api.delete<void>(`/log-analyzer/queries/${id}`),
+  remove: (id: string) => api.delete<void>(`/log-analyzer/queries/${id}`),
 }

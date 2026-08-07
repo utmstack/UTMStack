@@ -1,10 +1,14 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type SavedQuery struct {
-	ID          uint64    `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	TenantID    string    `gorm:"column:tenant_id;size:36;index" json:"-"`
+	ID          uuid.UUID `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	TenantID    uuid.UUID `gorm:"column:tenant_id;type:uuid;not null;index" json:"-"`
 	Name        string    `gorm:"column:name;size:100;not null" json:"name"`
 	Description string    `gorm:"column:description" json:"description"`
 	Owner       string    `gorm:"column:owner" json:"owner"`

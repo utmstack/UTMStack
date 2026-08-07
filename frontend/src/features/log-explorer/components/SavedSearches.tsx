@@ -11,6 +11,7 @@ import { savedQueriesHttpService, type SavedQuery } from '../services/saved-quer
 // follow the analyst to another browser instead of living in this one.
 
 export interface SavedSearchState {
+  dataset: string
   patternStr: string | null
   range: TimeRange
   filters: FilterType[]

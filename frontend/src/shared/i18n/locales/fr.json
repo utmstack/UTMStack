@@ -1650,14 +1650,17 @@
     "eventsIn": "événements dans",
     "searching": "Recherche…",
     "query": {
-      "indexPatterns": "Index patterns",
-      "noPatterns": "Aucun pattern",
-      "noPatternsMatch": "Aucun pattern correspondant",
-      "filterPatterns": "Filtrer les patterns…",
-      "searchPlaceholder": "Rechercher dans tous les champs…",
-      "refresh": "Actualiser",
+      "allDataTypes": "Tous les types de données",
+      "dataTypes": "Types de données",
       "exportCsv": "Exporter CSV",
-      "run": "Exécuter"
+      "filterDataTypes": "Filtrer les types de données…",
+      "noDataTypes": "Aucun type de données",
+      "noDataTypesMatch": "Aucun type de données correspondant",
+      "noTextSearch": "Cette source n’a pas de champ plein texte — filtrez par champ",
+      "refresh": "Actualiser",
+      "run": "Exécuter",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher dans tous les champs…"
     },
     "time": {
       "15m": "15 dernières minutes",
@@ -1697,17 +1700,17 @@
       "empty": "(vide)"
     },
     "results": {
-      "time": "Heure",
-      "source": "Source",
-      "message": "Message",
-      "removeColumn": "Retirer {{field}}",
-      "searching": "Recherche…",
-      "patternsFailed": "Impossible de charger les index patterns.",
-      "searchFailed": "La recherche a échoué.",
-      "retry": "Réessayer",
-      "none": "Aucun log ne correspond à cette requête.",
+      "dataTypesFailed": "Impossible de charger les types de données.",
+      "endOfResults": "{{count}} événements chargés",
       "loadingMore": "Chargement…",
-      "endOfResults": "{{count}} événements chargés"
+      "message": "Message",
+      "none": "Aucun log ne correspond à cette requête.",
+      "removeColumn": "Retirer {{field}}",
+      "retry": "Réessayer",
+      "searchFailed": "La recherche a échoué.",
+      "searching": "Recherche…",
+      "source": "Source",
+      "time": "Heure"
     },
     "detail": {
       "fieldsCount_one": "{{count}} champ",

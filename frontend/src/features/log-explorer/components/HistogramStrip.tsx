@@ -26,10 +26,13 @@ function histogramInterval(from?: string | null, to?: string | null): string {
 // Memoized: props are reference-stable (activeFilterList useMemo, pattern/range
 // state) so SQL-mode keystrokes don't re-enter this subtree.
 function HistogramStripImpl({
+  dataset,
+
   pattern,
   filters,
   range,
 }: {
+  dataset: string
   pattern: string
   filters: FilterType[]
   range: TimeRange
@@ -41,7 +44,8 @@ function HistogramStripImpl({
     let cancelled = false
     svc
       .chartView({
-        indexPattern: pattern,
+        dataset,
+      dataType: pattern,
         field: TS,
         fieldDataType: 'date',
         filters,

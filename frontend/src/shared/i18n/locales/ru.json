@@ -1539,14 +1539,17 @@
     "eventsIn": "событий в",
     "searching": "Поиск…",
     "query": {
-      "indexPatterns": "Index patterns",
-      "noPatterns": "Нет patterns",
-      "noPatternsMatch": "Нет подходящих patterns",
-      "filterPatterns": "Фильтр patterns…",
-      "searchPlaceholder": "Поиск по всем полям…",
-      "refresh": "Обновить",
+      "allDataTypes": "Все типы данных",
+      "dataTypes": "Типы данных",
       "exportCsv": "Экспорт CSV",
-      "run": "Выполнить"
+      "filterDataTypes": "Фильтр типов данных…",
+      "noDataTypes": "Нет типов данных",
+      "noDataTypesMatch": "Нет подходящих типов данных",
+      "noTextSearch": "У этого источника нет полнотекстового поля — фильтруйте по полю",
+      "refresh": "Обновить",
+      "run": "Выполнить",
+      "search": "Искать",
+      "searchPlaceholder": "Поиск по всем полям…"
     },
     "time": {
       "15m": "Последние 15 минут",
@@ -1588,17 +1591,17 @@
       "empty": "(пусто)"
     },
     "results": {
-      "time": "Время",
-      "source": "Источник",
-      "message": "Сообщение",
-      "removeColumn": "Убрать {{field}}",
-      "searching": "Поиск…",
-      "patternsFailed": "Не удалось загрузить index patterns.",
-      "searchFailed": "Поиск не удался.",
-      "retry": "Повторить",
-      "none": "Нет логов по этому запросу.",
+      "dataTypesFailed": "Не удалось загрузить типы данных.",
+      "endOfResults": "Загружено событий: {{count}}",
       "loadingMore": "Загрузка ещё…",
-      "endOfResults": "Загружено событий: {{count}}"
+      "message": "Сообщение",
+      "none": "Нет логов по этому запросу.",
+      "removeColumn": "Убрать {{field}}",
+      "retry": "Повторить",
+      "searchFailed": "Поиск не удался.",
+      "searching": "Поиск…",
+      "source": "Источник",
+      "time": "Время"
     },
     "detail": {
       "fieldsCount_one": "{{count}} поле",

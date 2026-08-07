@@ -10,6 +10,8 @@ import { SidebarSectionLabel } from './SidebarSectionLabel'
 // SQL-typing keystrokes don't re-run FieldItem() N times.
 function FieldSidebarImpl({
   fields,
+  dataset,
+
   pattern,
   filters,
   columns,
@@ -17,6 +19,7 @@ function FieldSidebarImpl({
   onToggleColumn,
 }: {
   fields: IndexField[]
+  dataset: string
   pattern: string | null
   filters: FilterType[]
   columns: string[]
@@ -51,6 +54,7 @@ function FieldSidebarImpl({
     <FieldItem
       key={f.name}
       field={f}
+      dataset={dataset}
       pattern={pattern}
       filters={filters}
       isColumn={columns.includes(f.name)}

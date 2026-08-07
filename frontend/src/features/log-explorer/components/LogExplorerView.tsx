@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { ResultsHeader, ResultRow, flattenDoc } from './log-results'
+import { looksLikeSql } from '../domain/sql-sync'
+import { ResultsHeader, ResultRow } from './log-results'
+import { MSG_FIELDS, SRC_FIELDS, flattenDoc, pick, previewText } from '../domain/flatten'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
 import { QueryBar } from './QueryBar'
@@ -19,7 +21,10 @@ import { OP_KEY, TS } from './log-explorer.constants'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
+  DEFAULT_DATASET,
+  type ExportColumn,
 } from '../services/log-explorer-http.service'
+import type { DatasetTypes } from './IndexPatternSelector'
 import type {
   FilterOperator,
   FilterType,
@@ -30,15 +35,7 @@ import type {
 
 /* ─── Constants ────────────────────────────────────────────────────────── */
 
-// Field-name candidates for the compact result columns (read from the flattened doc).
-const MSG_FIELDS = ['log.message', 'logx.message', 'message', 'event.original', 'rule.name', 'logx.raw']
-
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
-
-// Free-text "search all" maps to a wildcard field by data nature (logx.* / alert.*).
-function textPrefix(pattern: string): string {
-  return /alert/i.test(pattern) ? 'alert.*' : 'logx.*'
-}
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
@@ -107,7 +104,9 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const location = useLocation()
   const navigate = useNavigate()
   const seededRef = useRef(false)
-  const [patterns, setPatterns] = useState<string[]>([])
+  // Two axes: which table, and which kind of record inside it.
+  const [sources, setSources] = useState<DatasetTypes[]>([])
+  const [dataset, setDataset] = useState<string>(initial.dataset ?? DEFAULT_DATASET)
   const [pattern, setPattern] = useState<string | null>(null)
 
   const [range, setRange] = useState<TimeRange>(initial.range)
@@ -127,6 +126,9 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fields, setFields] = useState<IndexField[]>([])
+  // Which dataset the loaded fields describe. Until it matches the one on
+  // screen, nothing may reason about the shape of what it is searching.
+  const [fieldsFor, setFieldsFor] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)
   const [nonce, setNonce] = useState(0)
   // Infinite scroll: pages are accumulated, not replaced. pageRef tracks the last
@@ -147,6 +149,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   // Capture the current query as a reusable saved search.
   const currentSnapshot = useCallback(
     (): SavedSearchState => ({
+      dataset,
       patternStr: pattern ?? null,
       range,
       filters,
@@ -158,17 +161,15 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
   const loadSnapshot = useCallback(
     (s: SavedSearchState) => {
-      if (s.patternStr) {
-        const p = patterns.find((x) => x === s.patternStr)
-        if (p) setPattern(p)
-      }
+      if (s.dataset) setDataset(s.dataset)
+      setPattern(s.patternStr ?? null)
       setRange(s.range)
       setFilters(s.filters ?? [])
       setSearchInput(s.searchInput ?? '')
       setAppliedQuery(s.appliedQuery ?? '')
       setExpanded(null)
     },
-    [patterns]
+    []
   )
 
   // "View surrounding events": re-scope the view to a ±15-minute window around the
@@ -197,10 +198,14 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   useEffect(() => {
     let cancelled = false
     svc
-      .dataTypes()
-      .then((ps) => {
+      .datasets()
+      .then(async (names) => {
+        const list = await Promise.all(
+          names.map(async (d) => ({ dataset: d, dataTypes: await svc.dataTypes(d).catch(() => []) })),
+        )
         if (cancelled) return
-        setPatterns(ps)
+        setSources(list)
+        const ps = list.find((l) => l.dataset === (initial.dataset ?? DEFAULT_DATASET))?.dataTypes ?? []
         const state = location.state as {
           relatedLogs?: RelatedLogsSeed
           socaiFilters?: FilterType[]
@@ -209,8 +214,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         const seed = state?.relatedLogs
         if (seed?.ids?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p === seed.indexPattern) ?? ps.find((p) => p === 'logs') ?? ps[0] ?? null)
-          setFilters([{ field: '_id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
+          setPattern(ps.find((p) => p === seed.indexPattern) ?? null)
+          setFilters([{ field: 'id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
           setRange({ from: seed.timeFrom, to: seed.timeTo, interval: 'hour' })
           if (seed.truncated) {
             toast.info(t('logExplorer.related.truncated', { count: seed.ids.length }))
@@ -223,7 +228,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         // SOC-AI chat navigation: apply the agent's filters + time window.
         if (state?.socaiFilters?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p === 'logs') ?? ps[0] ?? null)
+          setPattern(null)
           setFilters(state.socaiFilters)
           if (state.socaiTime) setRange(presetRange(state.socaiTime))
           navigate(location.pathname, { replace: true })
@@ -232,12 +237,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         }
         // Default: resolve the tab's saved patternStr to a live IndexPattern.
         const target = initial.patternStr
-        setPattern(
-          (target ? ps.find((p) => p === target) : null) ??
-            ps.find((p) => p === 'logs') ??
-            ps[0] ??
-            null
-        )
+        // A saved tab keeps its data type; anything else starts on all of them.
+        setPattern(target ? (ps.find((p) => p === target) ?? null) : null)
         setReadyToPersist(true)
       })
       .catch(() => {
@@ -249,23 +250,31 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  /* Field list for the sidebar follows the selected pattern. */
+  /* Field list for the sidebar follows the selected dataset. */
   useEffect(() => {
-    if (!pattern) return
     let cancelled = false
     svc
-      .fields()
-      .then((f) => !cancelled && setFields(f ?? []))
-      .catch(() => !cancelled && setFields([]))
+      .fields(dataset)
+      .then((f) => {
+        if (cancelled) return
+        setFields(f ?? [])
+        setFieldsFor(dataset)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setFields([])
+        setFieldsFor(dataset)
+      })
     return () => {
       cancelled = true
     }
-  }, [pattern])
+  }, [dataset])
 
   /* Persist any change to the tab's config (after the first patterns load). */
   useEffect(() => {
     if (!readyToPersist) return
     onConfigChange({
+      dataset,
       patternStr: pattern ?? null,
       range,
       filters,
@@ -293,16 +302,26 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   ])
 
   /* The filter array sent to the backend: time + free-text + chips. */
+  // The store searches one column, `raw`; a dataset without it cannot be
+  // searched by text at all.
+  const supportsTextSearch = useMemo(
+    () => fieldsFor === dataset && fields.some((f) => f.name === 'raw'),
+    [fieldsFor, dataset, fields],
+  )
+
   const buildFilters = useCallback((): FilterType[] => {
     const out: FilterType[] = []
     const abs = resolveRange(range)
     if (abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
-    if (appliedQuery.trim() && pattern) {
-      out.push({ field: textPrefix(pattern), operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
+    // Free text reads the record as it arrived, which only some datasets keep.
+    // Sending it at a dataset that has no such column is an error, so the box
+    // is disabled there rather than the text being dropped on the floor.
+    if (appliedQuery.trim() && supportsTextSearch) {
+      out.push({ field: 'raw', operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
     out.push(...filters)
     return out
-  }, [range.from, range.to, appliedQuery, pattern, filters])
+  }, [range.from, range.to, appliedQuery, supportsTextSearch, filters])
 
   const activeFilterList = useMemo(() => buildFilters(), [buildFilters])
 
@@ -320,11 +339,33 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     return present.slice(0, MAX_AUTO_COLUMNS)
   }, [columns.length, rows])
 
+  // The CSV is the table: the analyst's own columns when they picked any, the
+  // default source/important/message layout when they didn't. Exporting a fixed
+  // pair of fields instead was how a download of one populated column happened.
+  const exportColumns = useMemo<ExportColumn[]>(() => {
+    const field = (f: string) => ({
+      label: f,
+      value: (flat: Record<string, unknown>) => (flat[f] == null ? '' : String(flat[f])),
+    })
+    const time = { ...field(TS), label: 'Time' }
+    if (columns.length > 0) return [time, ...columns.map(field)]
+    return [
+      time,
+      { label: 'Source', value: (flat: Record<string, unknown>) => pick(flat, SRC_FIELDS) ?? '' },
+      ...autoColumns.map(field),
+      // Same fallback the row uses: most normalized logs carry no message
+      // field, and the cell shows a summary of the record instead.
+      {
+        label: 'Message',
+        value: (flat: Record<string, unknown>) => pick(flat, MSG_FIELDS) ?? previewText(flat),
+      },
+    ]
+  }, [columns, autoColumns])
+
   /* Fetch one page. page 1 replaces the list (fresh query); later pages append
      (infinite scroll). The histogram fetches separately. */
   const fetchPage = useCallback(
     async (pageNum: number) => {
-      if (!pattern) return
       const fresh = pageNum <= 1
       if (fresh) {
         setLoading(true)
@@ -347,6 +388,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           totalCount = r.total
         } else {
           const r = await svc.search({
+            dataset,
             dataType: pattern,
             filters: buildFilters(),
             // The view counts pages from 1; the endpoint from 0.
@@ -370,7 +412,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         setLoadingMore(false)
       }
     },
-    [pattern, sqlMode, appliedSql, buildFilters]
+    [dataset, pattern, sqlMode, appliedSql, buildFilters]
   )
 
   // Fresh load whenever the query inputs change → reset to page 1 (replace).
@@ -378,7 +420,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     setExpanded(null)
     void fetchPage(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pattern, range.from, range.to, appliedQuery, appliedSql, sqlMode, filters, nonce])
+  }, [dataset, pattern, range.from, range.to, appliedQuery, appliedSql, sqlMode, filters, nonce])
 
   const loadMore = useCallback(() => {
     if (loading || loadingMore) return
@@ -401,10 +443,22 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     if (sqlMode) {
       if (appliedSql === sqlInput) setNonce((n) => n + 1)
       else setAppliedSql(sqlInput)
-    } else {
-      if (appliedQuery === searchInput) setNonce((n) => n + 1)
-      else setAppliedQuery(searchInput)
+      return
     }
+
+    // A statement typed into the search box runs as one, and the toggle moves
+    // so the mode is visible rather than inferred: the box behaves differently
+    // from here on, and a person should be able to see why.
+    if (looksLikeSql(searchInput)) {
+      setSqlInput(searchInput)
+      setAppliedSql(searchInput)
+      setSearchInput('')
+      setSqlMode(true)
+      return
+    }
+
+    if (appliedQuery === searchInput) setNonce((n) => n + 1)
+    else setAppliedQuery(searchInput)
   }
 
   // Stable identities: memoized children (FieldSidebar/FieldItem/HistogramStrip/
@@ -445,10 +499,9 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
   const fetchValues = useCallback(
     (field: string) => {
-      if (!pattern) return Promise.resolve([])
       const fieldDef = fields.find((f) => f.name === field)
       const aggField = fieldDef?.type === 'text' && !field.endsWith('.keyword') ? `${field}.keyword` : field
-      return svc.topValues(pattern, aggField, activeFilterList, 100).then((r) => r.top ?? [])
+      return svc.topValues(dataset, pattern, aggField, activeFilterList, 100).then((r) => r.top ?? [])
     },
     [fields, pattern, activeFilterList]
   )
@@ -496,10 +549,13 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-3">
       <div>
         <QueryBar
-          patterns={patterns}
-          pattern={pattern}
-          onPattern={(p) => {
-            setPattern(p)
+          sources={sources}
+          dataset={dataset}
+          dataType={pattern}
+          textSearchable={supportsTextSearch}
+          onSelect={(ds: string, dt: string | null) => {
+            setDataset(ds)
+            setPattern(dt)
             setFilters([])
             setColumns([])
           }}
@@ -516,17 +572,15 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           loading={loading}
           onRefresh={() => setNonce((n) => n + 1)}
           onExport={() =>
-            pattern &&
-            svc
-              .exportCsv({
-                indexPattern: pattern,
-                filters: buildFilters(),
-                columns: [
-                  { label: 'Timestamp', field: TS, type: 'date', visible: true },
-                  { label: 'Message', field: MSG_FIELDS[0], type: 'text', visible: true },
-                ],
-              })
-              .catch(() => toast.error(t('logExplorer.toast.exportFailed')))
+            (sqlMode
+              ? svc.exportSqlCsv(appliedSql.trim())
+              : svc.exportCsv({
+                  dataset,
+                  dataType: pattern,
+                  filters: buildFilters(),
+                  columns: exportColumns,
+                })
+            ).catch(() => toast.error(t('logExplorer.toast.exportFailed')))
           }
         />
       </div>
@@ -583,16 +637,16 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         {viewMode === 'chart' && !sqlMode ? (
-          <ChartPanel pattern={pattern} fields={fields} filters={activeFilterList} />
+          <ChartPanel dataset={dataset} pattern={pattern} fields={fields} filters={activeFilterList} />
         ) : (
           <>
             {pattern &&  (
-              <HistogramStrip pattern={pattern} filters={activeFilterList} range={range} />
+              <HistogramStrip dataset={dataset} pattern={pattern} filters={activeFilterList} range={range} />
             )}
             <div className="flex min-h-0 flex-1">
               <FieldSidebar
                 fields={fields}
-                pattern={pattern}
+                dataset={dataset} pattern={pattern}
                 filters={activeFilterList}
                 columns={columns}
                 onAdd={addFilter}
@@ -609,7 +663,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                   <RowMessage>
                     <AlertTriangle size={16} className="text-amber-500" />
                     {error === 'explorer:patterns'
-                      ? t('logExplorer.results.patternsFailed')
+                      ? t('logExplorer.results.dataTypesFailed')
                       : error === 'explorer:failed'
                         ? t('logExplorer.results.searchFailed')
                         : error}

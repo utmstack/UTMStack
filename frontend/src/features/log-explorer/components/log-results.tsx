@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
+import { MSG_FIELDS, SRC_FIELDS, docPreview, flattenDoc, pick } from '../domain/flatten'
 
 /**
  * Shared "Discover-style" log results rendering: the table row + the expandable
@@ -14,43 +15,7 @@ import type { FilterType, LogDocument } from '../types/log-explorer.types'
 
 const TS = '@timestamp'
 
-// Field-name candidates for the compact result columns (read from the flattened doc).
-const MSG_FIELDS = ['log.message', 'logx.message', 'message', 'event.original', 'rule.name', 'logx.raw']
-// "Source" = where the log came from (the host/origin, which varies row to row).
-const SRC_FIELDS = ['dataSource', 'host.name', 'agent.name', 'log.computer', 'source', 'origin']
 const LEVEL_FIELDS = ['log.level', 'severity', 'level', 'event.severity', 'logx.severity']
-
-// Metadata/noise fields excluded from the inline document preview (same on every row).
-const NOISE_KEYS = new Set(['@timestamp', '@version', 'dataType', 'deviceTime', 'id', 'isAnomaly', 'timestamp'])
-const NOISE_PREFIXES = [
-  'tenant',
-  'globalaccount',
-  'log.activityid',
-  'log.correlation',
-  'log.version',
-  'log.opcode',
-  'log.task',
-  'log.keywords',
-  'log.processid',
-  'log.threadid',
-  'log.recordid',
-  'log.providerguid',
-  'log.level',
-]
-
-function isNoise(k: string): boolean {
-  if (NOISE_KEYS.has(k)) return true
-  const lower = k.toLowerCase()
-  return NOISE_PREFIXES.some((p) => lower.startsWith(p))
-}
-
-// Rank fields so the event-specific content (log.data.*) leads the preview.
-function fieldRank(k: string): number {
-  if (k.startsWith('log.data.')) return 0
-  if (k.startsWith('event.')) return 1
-  if (k.startsWith('log.') || k.startsWith('logx.') || k.startsWith('alert.')) return 2
-  return 3
-}
 
 const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
   critical: { dot: 'bg-red-500', tone: 'text-red-500' },
@@ -62,35 +27,6 @@ const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
   info: { dot: 'bg-sky-500', tone: 'text-sky-500' },
   low: { dot: 'bg-sky-500', tone: 'text-sky-500' },
   debug: { dot: 'bg-muted-foreground', tone: 'text-muted-foreground' },
-}
-
-export function flattenDoc(obj: unknown, prefix = '', out: Record<string, unknown> = {}): Record<string, unknown> {
-  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-      const key = prefix ? `${prefix}.${k}` : k
-      if (v && typeof v === 'object' && !Array.isArray(v)) flattenDoc(v, key, out)
-      else out[key] = Array.isArray(v) ? v.join(', ') : v
-    }
-  }
-  return out
-}
-
-function pick(flat: Record<string, unknown>, fields: string[]): string | undefined {
-  for (const f of fields) {
-    const v = flat[f]
-    if (v != null && v !== '') return String(v)
-  }
-  return undefined
-}
-
-// Ordered, signal-carrying key/value pairs for the inline document preview shown
-// when there's no single "message" field (the common case for raw event logs).
-function docPreview(flat: Record<string, unknown>): [string, string][] {
-  return Object.entries(flat)
-    .filter(([k, v]) => v != null && v !== '' && k !== 'dataSource' && !isNoise(k))
-    .sort((a, b) => fieldRank(a[0]) - fieldRank(b[0]))
-    .slice(0, 8)
-    .map(([k, v]) => [k.split('.').pop() ?? k, String(v)])
 }
 
 function shortTime(iso: string) {

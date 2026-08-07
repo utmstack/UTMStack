@@ -23,11 +23,14 @@ const BUILDER_OPS: { id: FilterOperator; label: string; needsValue: boolean }[] 
 ]
 
 export function AddFilterButton({
+  dataset,
+
   pattern,
   fields,
   filters,
   onAdd,
 }: {
+  dataset: string
   pattern: string
   fields: IndexField[]
   filters: FilterType[]
@@ -67,7 +70,7 @@ export function AddFilterButton({
     setLoadingValues(true)
     setValues([])
     svc
-      .topValues(pattern, aggField, filters, 100)
+      .topValues(dataset, pattern, aggField, filters, 100)
       .then((r) => setValues(r.top ?? []))
       .catch(() => setValues([]))
       .finally(() => setLoadingValues(false))

@@ -1650,14 +1650,17 @@
     "eventsIn": "eventos em",
     "searching": "Buscando…",
     "query": {
-      "indexPatterns": "Index patterns",
-      "noPatterns": "Sem patterns",
-      "noPatternsMatch": "Sem patterns correspondentes",
-      "filterPatterns": "Filtrar patterns…",
-      "searchPlaceholder": "Buscar em todos os campos…",
-      "refresh": "Atualizar",
+      "allDataTypes": "Todos os tipos de dados",
+      "dataTypes": "Tipos de dados",
       "exportCsv": "Exportar CSV",
-      "run": "Executar"
+      "filterDataTypes": "Filtrar tipos de dados…",
+      "noDataTypes": "Sem tipos de dados",
+      "noDataTypesMatch": "Nenhum tipo de dados corresponde",
+      "noTextSearch": "Esta origem não tem campo de texto completo — filtre por campo",
+      "refresh": "Atualizar",
+      "run": "Executar",
+      "search": "Pesquisar",
+      "searchPlaceholder": "Buscar em todos os campos…"
     },
     "time": {
       "15m": "Últimos 15 minutos",
@@ -1697,17 +1700,17 @@
       "empty": "(vazio)"
     },
     "results": {
-      "time": "Hora",
-      "source": "Origem",
-      "message": "Mensagem",
-      "removeColumn": "Remover {{field}}",
-      "searching": "Buscando…",
-      "patternsFailed": "Não foi possível carregar os index patterns.",
-      "searchFailed": "A busca falhou.",
-      "retry": "Tentar novamente",
-      "none": "Nenhum log corresponde a esta consulta.",
+      "dataTypesFailed": "Não foi possível carregar os tipos de dados.",
+      "endOfResults": "Todos os {{count}} eventos carregados",
       "loadingMore": "Carregando mais…",
-      "endOfResults": "Todos os {{count}} eventos carregados"
+      "message": "Mensagem",
+      "none": "Nenhum log corresponde a esta consulta.",
+      "removeColumn": "Remover {{field}}",
+      "retry": "Tentar novamente",
+      "searchFailed": "A busca falhou.",
+      "searching": "Buscando…",
+      "source": "Origem",
+      "time": "Hora"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",

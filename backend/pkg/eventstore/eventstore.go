@@ -49,16 +49,10 @@ func New() (*Store, error) {
 			DatasetAlerts: "alerts",
 			DatasetStats:  "statistics",
 		},
-		// Only logs keep the whole record as text, so only logs can be searched
-		// that way. Asking it of alerts is an error rather than a query that
-		// quietly matches nothing.
 		TextColumns: map[store.Dataset]string{
 			DatasetLogs: "raw",
 		},
-		TenantColumn: "tenantId",
-
-		// What an index pattern used to encode besides the table:
-		// v11-log-o365-* named the logs table and the o365 data type at once.
+		TenantColumn:   "tenantId",
 		DataTypeColumn: "dataType",
 		TimeColumn:     "@timestamp",
 	})
@@ -68,3 +62,11 @@ func New() (*Store, error) {
 
 	return &Store{Driver: d, Conn: conn}, nil
 }
+
+func (s *Store) TableName(d store.Dataset) string {
+	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics"}[d]
+	db := env.String("CLICKHOUSE_DB", "utmstack", false)
+	return db + "." + name
+}
+
+func SupportsTextSearch(d store.Dataset) bool { return d == DatasetLogs }

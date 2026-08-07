@@ -6,6 +6,12 @@
  * flattening so the playground can evolve independently for testing purposes.
  */
 
+function joinArray(v: unknown[]): string {
+  return v
+    .map((e) => (e !== null && typeof e === 'object' ? JSON.stringify(e) : String(e)))
+    .join(', ')
+}
+
 /** Flattens a nested object into dotted-path key/value pairs, e.g.
  * `{ origin: { ip: '1.2.3.4' } }` → `{ 'origin.ip': '1.2.3.4' }`. */
 export function flatten(obj: unknown, prefix = '', out: Record<string, unknown> = {}): Record<string, unknown> {
@@ -13,7 +19,7 @@ export function flatten(obj: unknown, prefix = '', out: Record<string, unknown> 
     for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
       const key = prefix ? `${prefix}.${k}` : k
       if (v && typeof v === 'object' && !Array.isArray(v)) flatten(v, key, out)
-      else out[key] = Array.isArray(v) ? v.join(', ') : v
+      else out[key] = Array.isArray(v) ? joinArray(v) : v
     }
   }
   return out

@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	ladomain "github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
@@ -53,12 +54,12 @@ func registerLogAnalyzerAnalyzer(m *Module) {
 // ---- loganalyzer.query.* ---------------------------------------------------
 
 type laQueryUpsertInput struct {
-	ID          uint64 `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Columns     string `json:"columns,omitempty"`
-	Filters     string `json:"filters,omitempty"`
-	Dataset     string `json:"dataset,omitempty"`
+	ID          uuid.UUID `json:"id,omitempty"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Columns     string    `json:"columns,omitempty"`
+	Filters     string    `json:"filters,omitempty"`
+	Dataset     string    `json:"dataset,omitempty"`
 }
 
 type laQueryListInput struct {
@@ -69,7 +70,7 @@ type laQueryListInput struct {
 }
 
 type laQueryIDInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerLogAnalyzerQueries(m *Module) {
