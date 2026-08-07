@@ -1,15 +1,21 @@
 package handler
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/modules/audit"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
+
+const notifyTimeout = 30 * time.Second
 
 type AlertHandler struct {
 	usecase connectors.AlertUsecase
@@ -218,4 +224,38 @@ func (h *AlertHandler) ListEchoes(c *gin.Context) {
 		return
 	}
 	writePagedArray(c, items, total)
+}
+
+// NotifyRaised godoc
+// @Summary     Notify that an alert was raised (internal)
+// @Description Called by the alerts plugin after it writes an alert. Emails the
+// @Description configured recipients. Echoes of a grouped alert are skipped.
+// @Tags        Alerts
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.NotifyAlertRequest true "Alert id"
+// @Success     202 "Accepted"
+// @Failure     400 {object} map[string]string
+// @Router      /internal/alerts/notify [post]
+func (h *AlertHandler) NotifyRaised(c *gin.Context) {
+	var req dto.NotifyAlertRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	tenant := authz.TenantIDFromContext(c.Request.Context())
+	go func() {
+		ctx, cancel := context.WithTimeout(authz.WithTenantID(context.Background(), tenant), notifyTimeout)
+		defer cancel()
+		if err := h.usecase.NotifyRaised(ctx, req.AlertID); err != nil {
+			catcher.Warn("alerts: notification failed", map[string]any{
+				"error":   err.Error(),
+				"alertId": req.AlertID,
+			})
+		}
+	}()
+
+	c.Status(http.StatusAccepted)
 }

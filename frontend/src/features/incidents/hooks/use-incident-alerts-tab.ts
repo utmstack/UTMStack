@@ -16,7 +16,7 @@ export interface UseIncidentAlertsTabResult {
 }
 
 /** Data + remove-alert mutation for the incident drawer's "Alerts" tab. */
-export function useIncidentAlertsTab(incidentId: number, onChanged: () => void): UseIncidentAlertsTabResult {
+export function useIncidentAlertsTab(incidentId: string, onChanged: () => void): UseIncidentAlertsTabResult {
   const { t } = useTranslation()
   const [rows, setRows] = useState<IncidentAlert[] | null>(null)
   const [error, setError] = useState(false)

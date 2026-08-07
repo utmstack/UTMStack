@@ -1,7 +1,7 @@
 import { Link2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_TONE, ST_META, STATUSES, sevKey } from '../lib/incident-meta'
+import { SEV_TONE, ST_META, STATUSES, sevKey , statusKey} from '../lib/incident-meta'
 import type { Incident } from '../types/incident.types'
 
 export function IncidentsBoard({ incidents, onOpen }: { incidents: Incident[]; onOpen: (i: Incident) => void }) {
@@ -20,7 +20,7 @@ export function IncidentsBoard({ incidents, onOpen }: { incidents: Incident[]; o
           >
             <div className="flex items-center justify-between px-3 py-2 text-xs font-medium">
               <span className="flex items-center gap-1.5">
-                <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${s}`)}
+                <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${statusKey(s)}`)}
               </span>
               <span className="font-mono text-muted-foreground">{items.length}</span>
             </div>

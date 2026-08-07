@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 )
@@ -59,14 +60,29 @@ func writePagedArray[T any](c *gin.Context, items []T, total int64) {
 	c.JSON(http.StatusOK, items)
 }
 
-func pathInt64(c *gin.Context, name string) (int64, bool) {
-	idStr := c.Param(name)
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || id <= 0 {
+func pathUUID(c *gin.Context, name string) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param(name))
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid " + name})
-		return 0, false
+		return uuid.Nil, false
 	}
 	return id, true
+}
+
+// queryUUID reads an optional id filter. A malformed one is refused rather than
+// dropped: a filter that silently disappears answers the wrong question with
+// every row the caller can see, which reads as success.
+func queryUUID(c *gin.Context, key string) (*uuid.UUID, bool) {
+	v := c.Query(key)
+	if v == "" {
+		return nil, true
+	}
+	id, err := uuid.Parse(v)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid " + key})
+		return nil, false
+	}
+	return &id, true
 }
 
 func queryInt(c *gin.Context, key string, defaultVal int) int {
@@ -81,36 +97,12 @@ func queryInt(c *gin.Context, key string, defaultVal int) int {
 	return n
 }
 
-func queryInt64(c *gin.Context, key string) *int64 {
-	v := c.Query(key)
-	if v == "" {
-		return nil
-	}
-	n, err := strconv.ParseInt(v, 10, 64)
-	if err != nil {
-		return nil
-	}
-	return &n
-}
-
 func queryString(c *gin.Context, key string) *string {
 	v := c.Query(key)
 	if v == "" {
 		return nil
 	}
 	return &v
-}
-
-func queryIntPtr(c *gin.Context, key string) *int {
-	v := c.Query(key)
-	if v == "" {
-		return nil
-	}
-	n, err := strconv.Atoi(v)
-	if err != nil {
-		return nil
-	}
-	return &n
 }
 
 func queryTime(c *gin.Context, key string) *time.Time {

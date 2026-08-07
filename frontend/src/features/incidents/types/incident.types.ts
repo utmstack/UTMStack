@@ -1,22 +1,28 @@
 /* Mirrors backend modules/incidents/dto. */
 
-export type IncidentStatus = 'OPEN' | 'IN_REVIEW' | 'COMPLETED' | 'MERGED'
+// The words the backend stores, not codes. They are the same vocabulary the
+// alerts use, so an incident's status and its alerts' statuses read alike.
+export type IncidentStatus = 'Open' | 'In review' | 'Completed' | 'Merged'
+
+/** low | medium | high, or absent on an incident that holds no alerts. */
+export type IncidentSeverity = 'low' | 'medium' | 'high'
 
 /** Alert reference linked into an incident (matches backend AlertLinkItem). */
 export interface AlertLinkItem {
   alertId: string
   alertName: string
-  alertSeverity: number
-  alertStatus?: number
+  alertSeverity: string
+  alertStatus?: string
 }
 
 /** GET /incidents item (IncidentResponse). */
 export interface Incident {
-  id: number
+  id: string
   incidentName: string
   incidentDescription?: string
   incidentStatus: IncidentStatus
-  incidentSeverity?: number
+  incidentSeverity?: IncidentSeverity
+  /** Free text: a platform user's email, or anyone else the incident was handed to. */
   incidentAssignedTo?: string
   incidentSolution?: string
   incidentCreatedDate: string
@@ -24,35 +30,30 @@ export interface Incident {
 }
 
 export interface IncidentAlert {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   alertId: string
   alertName: string
-  alertSeverity: number
-  alertStatus?: number
+  alertSeverity: IncidentSeverity
+  alertStatus?: string
 }
 
 export interface IncidentNote {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   noteText: string
   noteSendDate: string
   noteSendBy?: string
 }
 
 export interface IncidentHistory {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
+  /** The action code, e.g. INCIDENT_STATUS_CHANGE. The English label and the
+   *  detail line that used to sit beside it no longer have columns. */
   action: string
-  actionType: string
-  actionDetail?: string
   actionCreatedDate: string
   actionCreatedBy?: string
-}
-
-export interface UserAssigned {
-  id: number
-  login: string
 }
 
 export interface CreateIncidentInput {
@@ -64,11 +65,10 @@ export interface CreateIncidentInput {
 }
 
 export interface ChangeStatusInput {
-  id: number
+  id: string
   incidentName: string
   incidentDescription?: string
   incidentStatus: IncidentStatus
-  incidentSeverity?: number
   incidentSolution?: string
   incidentCreatedDate?: string
 }

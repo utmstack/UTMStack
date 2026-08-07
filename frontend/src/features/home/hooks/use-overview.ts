@@ -116,7 +116,7 @@ export function useAlertKpis(): AlertKpis {
 export function useOpenIncidents(): { count: number; isLoading: boolean } {
   const q = useQuery({
     queryKey: ['overview', 'incidents', 'open'],
-    queryFn: () => incidentsHttpService.list({ incidentStatus: 'OPEN', page: 1, size: 1 }),
+    queryFn: () => incidentsHttpService.list({ incidentStatus: 'Open', page: 1, size: 1 }),
     staleTime: STALE,
   })
   return { count: q.data?.total ?? 0, isLoading: q.isLoading }

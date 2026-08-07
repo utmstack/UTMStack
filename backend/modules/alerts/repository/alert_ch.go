@@ -232,7 +232,7 @@ func contains(vals []string, want string) bool {
 	return false
 }
 
-func (r *chAlertRepo) ConvertToIncident(ctx context.Context, alertIDs []string, name string, id int, createdAt time.Time, createdBy, source string, history []connectors.HistoryEntry) error {
+func (r *chAlertRepo) ConvertToIncident(ctx context.Context, alertIDs []string, name, id string, createdAt time.Time, createdBy, source string, history []connectors.HistoryEntry) error {
 	filters := []store.Filter{
 		idIn(alertIDs),
 		{Field: "isIncident", Op: store.OpEq, Value: false},

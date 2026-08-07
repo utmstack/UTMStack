@@ -8,9 +8,10 @@ export interface EmailChipInputProps {
   onChange: (v: string[]) => void
   placeholder?: string
   invalidMessage?: string
+  addLabel?: string
 }
 
-export function EmailChipInput({ values, onChange, placeholder, invalidMessage = 'Invalid email' }: EmailChipInputProps) {
+export function EmailChipInput({ values, onChange, placeholder, invalidMessage = 'Invalid email', addLabel }: EmailChipInputProps) {
   const [error, setError] = useState<string | null>(null)
   return (
     <div className="space-y-1">
@@ -20,6 +21,7 @@ export function EmailChipInput({ values, onChange, placeholder, invalidMessage =
         placeholder={placeholder}
         validate={(v) => (EMAIL_RE.test(v) ? null : invalidMessage)}
         onInvalid={setError}
+        addLabel={addLabel}
       />
       {error && <p className="text-[11px] text-red-500">{error}</p>}
     </div>

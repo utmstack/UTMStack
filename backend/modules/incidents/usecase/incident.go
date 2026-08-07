@@ -3,10 +3,10 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
@@ -22,7 +22,6 @@ type incidentUsecase struct {
 	historyRepo   connectors.IncidentHistoryRepository
 	mailer        connectors.IncidentMailer
 	alertsGateway connectors.AlertsGateway
-	iamGateway    connectors.IAMGateway
 	audit         audit_connectors.Logger
 }
 
@@ -32,7 +31,6 @@ func NewIncidentUsecase(
 	historyRepo connectors.IncidentHistoryRepository,
 	mailer connectors.IncidentMailer,
 	alertsGateway connectors.AlertsGateway,
-	iamGateway connectors.IAMGateway,
 	audit audit_connectors.Logger,
 ) connectors.IncidentUsecase {
 	return &incidentUsecase{
@@ -41,12 +39,11 @@ func NewIncidentUsecase(
 		historyRepo:   historyRepo,
 		mailer:        mailer,
 		alertsGateway: alertsGateway,
-		iamGateway:    iamGateway,
 		audit:         audit,
 	}
 }
 
-func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.CreateIncidentRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) Create(ctx context.Context, userEmail string, req dto.CreateIncidentRequest) (*domain.Incident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.create.attempt",
 		EventType: audit_domain.INCIDENT_CREATION_ATTEMPT,
@@ -55,6 +52,9 @@ func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.
 
 	if len(req.AlertList) == 0 {
 		return nil, fmt.Errorf("at least one alert is required")
+	}
+	if err := validateAlertList(req.AlertList); err != nil {
+		return nil, err
 	}
 
 	alertIDs := make([]string, len(req.AlertList))
@@ -69,18 +69,15 @@ func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.
 		return nil, domain.ErrAlertAlreadyLinked
 	}
 
-	severity := maxSeverity(req.AlertList)
-
-	now := time.Now().UTC()
-	incident := &domain.UtmIncident{
-		IncidentName:        req.IncidentName,
-		IncidentDescription: req.IncidentDescription,
-		IncidentStatus:      string(domain.StatusOpen),
-		IncidentSeverity:    &severity,
-		IncidentAssignedTo:  req.IncidentAssignedTo,
-		IncidentCreatedDate: now,
+	incident := &domain.Incident{
+		Name:        req.IncidentName,
+		Description: req.IncidentDescription,
+		Status:      domain.StatusOpen,
+		Severity:    maxRequestedSeverity(req.AlertList),
+		AssignedTo:  strings.TrimSpace(req.IncidentAssignedTo),
+		CreatedDate: time.Now().UTC(),
 	}
-	if err := u.incidentRepo.Save(ctx, incident); err != nil {
+	if err := u.incidentRepo.Create(ctx, incident, alertRows(incident, req.AlertList)); err != nil {
 		u.audit.Log(ctx, audit_connectors.Event{
 			Action:       "incident.create.fail",
 			EventType:    audit_domain.INCIDENT_CREATION_ATTEMPT,
@@ -90,27 +87,8 @@ func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.
 		return nil, err
 	}
 
-	alertStatus := domain.StatusOpen.ToAlertStatus()
-	for _, item := range req.AlertList {
-		s := alertStatus
-		row := &domain.UtmIncidentAlert{
-			IncidentID:    incident.ID,
-			AlertID:       item.AlertID,
-			AlertName:     item.AlertName,
-			AlertSeverity: item.AlertSeverity,
-			AlertStatus:   &s,
-		}
-		if item.AlertStatus != nil {
-			row.AlertStatus = item.AlertStatus
-		}
-		if err := u.alertRepo.Save(ctx, row); err != nil {
-			return nil, err
-		}
-	}
-
-	currentUser := resolveUser(userLogin)
-	detail := fmt.Sprintf("Incident created with %d alerts", len(req.AlertList))
-	if err := u.saveHistory(ctx, incident.ID, domain.ActionCreated, detail, currentUser); err != nil {
+	currentUser := resolveUser(userEmail)
+	if err := u.saveHistory(ctx, incident.ID, domain.ActionCreated, currentUser); err != nil {
 		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
@@ -118,7 +96,11 @@ func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.
 		Action:     "incident.create.success",
 		EventType:  audit_domain.INCIDENT_CREATION_SUCCESS,
 		Status:     audit_domain.StatusSuccess,
-		ResourceID: strconv.FormatInt(incident.ID, 10),
+		ResourceID: incident.ID.String(),
+		Metadata: map[string]any{
+			"alertCount": len(req.AlertList),
+			"severity":   incident.Severity,
+		},
 	})
 
 	if err := u.mailer.SendIncidentCreated(ctx, *incident); err != nil {
@@ -128,12 +110,16 @@ func (u *incidentUsecase) Create(ctx context.Context, userLogin string, req dto.
 	return incident, nil
 }
 
-func (u *incidentUsecase) AddAlerts(ctx context.Context, userLogin string, req dto.AddAlertsRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) AddAlerts(ctx context.Context, userEmail string, req dto.AddAlertsRequest) (*domain.Incident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.alert.add.attempt",
 		EventType: audit_domain.INCIDENT_ALERT_ADD_ATTEMPT,
 		Status:    audit_domain.StatusSuccess,
 	})
+
+	if err := validateAlertList(req.AlertList); err != nil {
+		return nil, err
+	}
 
 	incident, err := u.incidentRepo.FindByID(ctx, req.IncidentID)
 	if err != nil {
@@ -155,34 +141,19 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, userLogin string, req d
 		return nil, domain.ErrAlertAlreadyLinked
 	}
 
-	alertStatus := domain.IncidentStatus(incident.IncidentStatus).ToAlertStatus()
-	for _, item := range req.AlertList {
-		s := alertStatus
-		row := &domain.UtmIncidentAlert{
-			IncidentID:    incident.ID,
-			AlertID:       item.AlertID,
-			AlertName:     item.AlertName,
-			AlertSeverity: item.AlertSeverity,
-			AlertStatus:   &s,
-		}
-		if item.AlertStatus != nil {
-			row.AlertStatus = item.AlertStatus
-		}
-		if err := u.alertRepo.Save(ctx, row); err != nil {
-			return nil, err
-		}
+	// An incident is as bad as its worst alert, so adding one can raise the
+	// severity but never lower it. The new rows and the severity they imply are
+	// stored together — a half-applied add leaves the incident understating what
+	// it holds.
+	if newMax := maxRequestedSeverity(req.AlertList); newMax.Rank() > incident.Severity.Rank() {
+		incident.Severity = newMax
+	}
+	if err := u.incidentRepo.LinkAlerts(ctx, incident, alertRows(incident, req.AlertList)); err != nil {
+		return nil, err
 	}
 
-	if newMax := maxSeverity(req.AlertList); incident.IncidentSeverity == nil || newMax > *incident.IncidentSeverity {
-		incident.IncidentSeverity = &newMax
-		if err := u.incidentRepo.Update(ctx, incident); err != nil {
-			return nil, err
-		}
-	}
-
-	currentUser := resolveUser(userLogin)
-	detail := fmt.Sprintf("New %d alerts added to incident", len(req.AlertList))
-	if err := u.saveHistory(ctx, incident.ID, domain.ActionAlertAdd, detail, currentUser); err != nil {
+	currentUser := resolveUser(userEmail)
+	if err := u.saveHistory(ctx, incident.ID, domain.ActionAlertAdd, currentUser); err != nil {
 		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
@@ -190,18 +161,24 @@ func (u *incidentUsecase) AddAlerts(ctx context.Context, userLogin string, req d
 		Action:     "incident.alert.add.success",
 		EventType:  audit_domain.INCIDENT_ALERT_ADD_SUCCESS,
 		Status:     audit_domain.StatusSuccess,
-		ResourceID: strconv.FormatInt(incident.ID, 10),
+		ResourceID: incident.ID.String(),
+		Metadata:   map[string]any{"alertCount": len(req.AlertList)},
 	})
 
 	return incident, nil
 }
 
-func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, req dto.ChangeStatusRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) ChangeStatus(ctx context.Context, userEmail string, req dto.ChangeStatusRequest) (*domain.Incident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.status.change.attempt",
 		EventType: audit_domain.INCIDENT_UPDATE_ATTEMPT,
 		Status:    audit_domain.StatusSuccess,
 	})
+
+	newStatus := domain.IncidentStatus(req.IncidentStatus)
+	if !newStatus.Valid() {
+		return nil, fmt.Errorf("%w: %q", domain.ErrInvalidStatus, req.IncidentStatus)
+	}
 
 	incident, err := u.incidentRepo.FindByID(ctx, req.IncidentID)
 	if err != nil {
@@ -211,12 +188,10 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, re
 		return nil, domain.ErrNotFound
 	}
 
-	oldStatus := domain.IncidentStatus(incident.IncidentStatus)
-	newStatus := domain.IncidentStatus(req.IncidentStatus)
-
-	incident.IncidentStatus = string(newStatus)
+	oldStatus := incident.Status
+	incident.Status = newStatus
 	if req.IncidentSolution != nil {
-		incident.IncidentSolution = req.IncidentSolution
+		incident.Solution = req.IncidentSolution
 	}
 
 	if err := u.incidentRepo.Update(ctx, incident); err != nil {
@@ -233,7 +208,7 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, re
 		for i, a := range linkedAlerts {
 			alertIDs[i] = a.AlertID
 		}
-		if err := u.alertRepo.BulkUpdateStatus(ctx, alertIDs, newStatus.ToAlertStatus()); err != nil {
+		if err := u.alertRepo.BulkUpdateStatus(ctx, alertIDs, string(newStatus)); err != nil {
 			return nil, err
 		}
 
@@ -241,17 +216,13 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, re
 		if req.IncidentSolution != nil {
 			observation = *req.IncidentSolution
 		}
-		if err := u.alertsGateway.UpdateAlertStatus(ctx, alertIDs, newStatus.ToAlertStatus(), observation); err != nil {
-			catcher.Warn("incidents: failed to sync OpenSearch alert status", map[string]any{"error": err.Error()})
+		if err := u.alertsGateway.UpdateAlertStatus(ctx, alertIDs, newStatus, observation); err != nil {
+			catcher.Warn("incidents: failed to sync alert status", map[string]any{"error": err.Error()})
 		}
 	}
 
-	currentUser := resolveUser(userLogin)
-	detail := fmt.Sprintf("Incident status changed from %s to %s", oldStatus.Label(), newStatus.Label())
-	if newStatus == domain.StatusCompleted && req.IncidentSolution != nil {
-		detail += fmt.Sprintf(" with solution: %s", *req.IncidentSolution)
-	}
-	if err := u.saveHistory(ctx, incident.ID, domain.ActionStatusChange, detail, currentUser); err != nil {
+	currentUser := resolveUser(userEmail)
+	if err := u.saveHistory(ctx, incident.ID, domain.ActionStatusChange, currentUser); err != nil {
 		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
@@ -259,13 +230,14 @@ func (u *incidentUsecase) ChangeStatus(ctx context.Context, userLogin string, re
 		Action:     "incident.status.change.success",
 		EventType:  audit_domain.INCIDENT_UPDATE_SUCCESS,
 		Status:     audit_domain.StatusSuccess,
-		ResourceID: strconv.FormatInt(incident.ID, 10),
+		ResourceID: incident.ID.String(),
+		Metadata:   map[string]any{"from": oldStatus, "to": newStatus},
 	})
 
 	return incident, nil
 }
 
-func (u *incidentUsecase) Assign(ctx context.Context, userLogin string, req dto.AssignRequest) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) Assign(ctx context.Context, userEmail string, req dto.AssignRequest) (*domain.Incident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.assign.attempt",
 		EventType: audit_domain.INCIDENT_UPDATE_ATTEMPT,
@@ -280,33 +252,16 @@ func (u *incidentUsecase) Assign(ctx context.Context, userLogin string, req dto.
 		return nil, domain.ErrNotFound
 	}
 
-	old := ""
-	if incident.IncidentAssignedTo != nil {
-		old = *incident.IncidentAssignedTo
-	}
-	// A nil/blank AssignedTo unassigns the incident.
-	var newAssignee *string
-	if req.AssignedTo != nil {
-		if v := strings.TrimSpace(*req.AssignedTo); v != "" {
-			newAssignee = &v
-		}
-	}
-	incident.IncidentAssignedTo = newAssignee
+	// A blank AssignedTo unassigns the incident.
+	old := incident.AssignedTo
+	incident.AssignedTo = strings.TrimSpace(req.AssignedTo)
 
 	if err := u.incidentRepo.Update(ctx, incident); err != nil {
 		return nil, err
 	}
 
-	currentUser := resolveUser(userLogin)
-	newLabel := "Unassigned"
-	if newAssignee != nil {
-		newLabel = *newAssignee
-	}
-	detail := fmt.Sprintf("Incident assigned to %s", newLabel)
-	if old != "" {
-		detail = fmt.Sprintf("Incident reassigned from %s to %s", old, newLabel)
-	}
-	if err := u.saveHistory(ctx, incident.ID, domain.ActionAssigned, detail, currentUser); err != nil {
+	currentUser := resolveUser(userEmail)
+	if err := u.saveHistory(ctx, incident.ID, domain.ActionAssigned, currentUser); err != nil {
 		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
 	}
 
@@ -314,17 +269,18 @@ func (u *incidentUsecase) Assign(ctx context.Context, userLogin string, req dto.
 		Action:     "incident.assign.success",
 		EventType:  audit_domain.INCIDENT_UPDATE_SUCCESS,
 		Status:     audit_domain.StatusSuccess,
-		ResourceID: strconv.FormatInt(incident.ID, 10),
+		ResourceID: incident.ID.String(),
+		Metadata:   map[string]any{"from": old, "to": incident.AssignedTo},
 	})
 
 	return incident, nil
 }
 
-func (u *incidentUsecase) List(ctx context.Context, query dto.IncidentListQuery) ([]domain.UtmIncident, int64, error) {
+func (u *incidentUsecase) List(ctx context.Context, query dto.IncidentListQuery) ([]domain.Incident, int64, error) {
 	return u.incidentRepo.FindAll(ctx, query)
 }
 
-func (u *incidentUsecase) GetByID(ctx context.Context, id int64) (*domain.UtmIncident, error) {
+func (u *incidentUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Incident, error) {
 	incident, err := u.incidentRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -335,82 +291,74 @@ func (u *incidentUsecase) GetByID(ctx context.Context, id int64) (*domain.UtmInc
 	return incident, nil
 }
 
-func (u *incidentUsecase) GetUsersAssigned(ctx context.Context) ([]dto.UserAssignedDTO, error) {
-	all, _, err := u.incidentRepo.FindAll(ctx, dto.IncidentListQuery{Page: 1, Size: 1000})
+func (u *incidentUsecase) GetAssignees(ctx context.Context) ([]string, error) {
+	names, err := u.incidentRepo.DistinctAssignees(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	seen := make(map[uuid.UUID]struct{})
-	var ids []uuid.UUID
-
-	for _, inc := range all {
-		if inc.IncidentAssignedTo == nil || *inc.IncidentAssignedTo == "" {
-			continue
-		}
-		parts := strings.Split(*inc.IncidentAssignedTo, ",")
-		for _, p := range parts {
-			p = strings.TrimSpace(p)
-			if p == "" {
-				continue
-			}
-			id, err := uuid.Parse(p)
-			if err != nil {
-				continue
-			}
-			if _, dup := seen[id]; !dup {
-				seen[id] = struct{}{}
-				ids = append(ids, id)
-			}
-		}
+	if names == nil {
+		return []string{}, nil
 	}
-
-	if len(ids) == 0 {
-		return []dto.UserAssignedDTO{}, nil
-	}
-
-	return u.iamGateway.FindUsersByIDs(ctx, ids)
+	return names, nil
 }
 
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-// resolveUser falls back to "system" when no authenticated user is present.
-// The login is supplied by the handler from the request context, matching the
-// identity-at-the-boundary convention used across the backend.
-func resolveUser(userLogin string) string {
-	if userLogin == "" {
+func resolveUser(userEmail string) string {
+	if userEmail == "" {
 		return "system"
 	}
-	return userLogin
+	return userEmail
+}
+
+// alertRows turns the requested links into rows. Their status mirrors the
+// incident's: linking an alert into an open incident is what takes it off the
+// queue.
+func alertRows(incident *domain.Incident, list []dto.AlertLinkItem) []domain.IncidentAlert {
+	rows := make([]domain.IncidentAlert, 0, len(list))
+	for _, item := range list {
+		row := domain.IncidentAlert{
+			IncidentID:    incident.ID,
+			AlertID:       item.AlertID,
+			AlertName:     item.AlertName,
+			AlertSeverity: domain.IncidentSeverity(item.AlertSeverity),
+			AlertStatus:   string(incident.Status),
+		}
+		if item.AlertStatus != nil && *item.AlertStatus != "" {
+			row.AlertStatus = *item.AlertStatus
+		}
+		rows = append(rows, row)
+	}
+	return rows
 }
 
 func (u *incidentUsecase) saveHistory(
 	ctx context.Context,
-	incidentID int64,
-	action domain.HistoryAction,
-	detail string,
+	incidentID uuid.UUID,
+	action domain.Action,
 	by string,
 ) error {
-	now := time.Now().UTC()
-	h := &domain.UtmIncidentHistory{
+	return u.historyRepo.Save(ctx, &domain.IncidentHistory{
 		IncidentID:        incidentID,
-		Action:            action.Label,
-		ActionType:        action.Type,
-		ActionDetail:      &detail,
-		ActionCreatedDate: now,
+		Action:            action,
+		ActionCreatedDate: time.Now().UTC(),
 		ActionCreatedBy:   &by,
-	}
-	return u.historyRepo.Save(ctx, h)
+	})
 }
 
-func maxSeverity(list []dto.AlertLinkItem) int {
-	max := 0
+func validateAlertList(list []dto.AlertLinkItem) error {
 	for _, item := range list {
-		if item.AlertSeverity > max {
-			max = item.AlertSeverity
+		if !domain.IncidentSeverity(item.AlertSeverity).Valid() {
+			return fmt.Errorf("alert %s: unknown severity %q", item.AlertID, item.AlertSeverity)
 		}
 	}
-	return max
+	return nil
+}
+
+func maxRequestedSeverity(list []dto.AlertLinkItem) domain.IncidentSeverity {
+	worst := domain.IncidentSeverity("")
+	for _, item := range list {
+		if s := domain.IncidentSeverity(item.AlertSeverity); s.Rank() > worst.Rank() {
+			worst = s
+		}
+	}
+	return worst
 }

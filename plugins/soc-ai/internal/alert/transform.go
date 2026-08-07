@@ -13,7 +13,7 @@ import (
 func Clean(alert schema.AlertFields) schema.AlertFields {
 	alert.Events = nil
 	alert.TagRulesApplied = nil
-	alert.DeduplicatedBy = nil
+	alert.DeduplicateBy = nil
 
 	var anonymized []string
 
@@ -76,57 +76,14 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 
 	return alert
 }
-
-// ToAlertFields converts a plugins.Alert to schema.AlertFields
 func ToAlertFields(alert *plugins.Alert) schema.AlertFields {
-	var severityN int
-	var severityLabel string
-	switch alert.Severity {
-	case "low":
-		severityN = 1
-		severityLabel = "Low"
-	case "medium":
-		severityN = 2
-		severityLabel = "Medium"
-	case "high":
-		severityN = 3
-		severityLabel = "High"
-	default:
-		severityN = 1
-		severityLabel = "Low"
-	}
-
 	a := schema.AlertFields{
-		Timestamp:      alert.Timestamp,
-		Status:         1,
-		StatusLabel:    "Automatic review",
-		Severity:       severityN,
-		SeverityLabel:  severityLabel,
-		Reference:      alert.References,
-		DeduplicatedBy: alert.DeduplicateBy,
-		GroupedBy:      alert.GroupBy,
-		LastEvent: func() *plugins.Event {
-			l := len(alert.Events)
-			if l == 0 {
-				return nil
-			}
-			return alert.Events[l-1]
-		}(),
+		Timestamp: alert.Timestamp,
+		Alert:     *alert,
 	}
-
-	// Set fields from embedded plugins.Alert
-	a.Id = alert.Id
-	a.Name = alert.Name
-	a.Category = alert.Category
-	a.Description = alert.Description
-	a.Technique = alert.Technique
-	a.DataType = alert.DataType
-	a.DataSource = alert.DataSource
-	a.Adversary = alert.Adversary
-	a.Target = alert.Target
-	a.Events = alert.Events
-	a.Impact = alert.Impact
-	a.ImpactScore = alert.ImpactScore
-
+	a.Alert.Timestamp = ""
+	if len(alert.Events) > 0 {
+		a.LastEvent = alert.Events[len(alert.Events)-1]
+	}
 	return a
 }

@@ -4,7 +4,7 @@ import "encoding/json"
 
 type IncidentDetail struct {
 	IncidentName string `json:"incidentName,omitempty"`
-	IncidentID   any    `json:"incidentId,omitempty"`
+	IncidentID   string `json:"incidentId,omitempty"`
 	CreationDate string `json:"creationDate,omitempty"`
 	CreatedBy    string `json:"createdBy,omitempty"`
 	Source       string `json:"source,omitempty"`
@@ -198,26 +198,6 @@ const (
 	AlertStatusCompleted       AlertStatus = "Completed"
 	AlertStatusMerged          AlertStatus = "Merged"
 )
-
-// StatusFromCode maps the numeric status the HTTP API and the incidents module
-// still speak onto the stored value. It is a boundary shim and nothing below it
-// knows the codes: they are a contract with callers, not a model.
-func StatusFromCode(code int) AlertStatus {
-	switch code {
-	case 0:
-		return AlertStatusMerged
-	case 1:
-		return AlertStatusAutomaticReview
-	case 2:
-		return AlertStatusOpen
-	case 3:
-		return AlertStatusInReview
-	case 5:
-		return AlertStatusCompleted
-	default:
-		return ""
-	}
-}
 
 func IsValid(s AlertStatus) bool {
 	switch s {

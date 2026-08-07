@@ -7,7 +7,7 @@ import { usersHttpService } from '@/features/team/services/team-http.service'
 export interface UseIncidentAssignmentResult {
   users: string[] | null // null while loading
   busy: boolean
-  assign: (email: string | null) => Promise<void>
+  assign: (email: string) => Promise<void>
 }
 
 /**
@@ -16,7 +16,7 @@ export interface UseIncidentAssignmentResult {
  * cost until the user opens the picker.
  */
 export function useIncidentAssignment(
-  incidentId: number,
+  incidentId: string,
   enabled: boolean,
   onChanged: () => void
 ): UseIncidentAssignmentResult {
@@ -33,7 +33,7 @@ export function useIncidentAssignment(
   }, [enabled, users])
 
   const assign = useCallback(
-    async (email: string | null) => {
+    async (email: string) => {
       if (busy) return
       setBusy(true)
       try {

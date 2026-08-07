@@ -33,7 +33,7 @@ export function AlertRow({
   onCreateRule: (alert: Alert) => void
   onIncident: (alert: Alert) => void
   onToggleEchoes: () => void
-  onStatus: (status: number, observation: string, fp: boolean) => void
+  onStatus: (status: string, observation: string, fp: boolean) => void
 }) {
   const { t } = useTranslation()
   const sk = sevKey(a)

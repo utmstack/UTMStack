@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
-import { SELECT_CLS, STATUSES } from '../lib/incident-meta'
+import { SELECT_CLS, STATUSES , statusKey} from '../lib/incident-meta'
 import type { IncidentStatus } from '../types/incident.types'
 
 export interface IncidentsToolbarProps {
@@ -55,7 +55,7 @@ export function IncidentsToolbar({
         <option value="all">{t('incidents.toolbar.allStatuses')}</option>
         {STATUSES.map((s) => (
           <option key={s} value={s}>
-            {t(`incidents.status.${s}`)}
+            {t(`incidents.status.${statusKey(s)}`)}
           </option>
         ))}
       </select>

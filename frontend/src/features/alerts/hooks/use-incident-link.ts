@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { alertsHttpService as svc, AlertsHttpError } from '../services/alerts-http.service'
 import { incidentsHttpService } from '@/features/incidents/services/incidents-http.service'
 import type { AlertLinkItem, Incident } from '@/features/incidents/types/incident.types'
-import { SEVERITY_RANK, STATUS_BY_VALUE, STATUS_CODE } from '../types/alert.types'
+import { STATUS_BY_VALUE, STATUS_VALUE } from '../types/alert.types'
 import type { Alert } from '../types/alert.types'
 
 export type IncidentMode = 'new' | 'existing'
@@ -20,7 +20,7 @@ export interface UseIncidentLinkResult {
   loadingIncidents: boolean
   busy: boolean
   alertList: AlertLinkItem[]
-  submit: (input: { name: string; description: string; incidentId: number | '' }) => Promise<void>
+  submit: (input: { name: string; description: string; incidentId: string }) => Promise<void>
 }
 
 /**
@@ -40,9 +40,8 @@ export function useIncidentLink({ alerts, mode, onDone }: UseIncidentLinkArgs): 
       alerts.map((a) => ({
         alertId: a.id,
         alertName: a.name || a.id,
-        // The incidents module still ranks severity numerically.
-        alertSeverity: SEVERITY_RANK[a.severity ?? 'low'] ?? 1,
-        alertStatus: STATUS_CODE[STATUS_BY_VALUE[a.status ?? ''] ?? 'open'],
+        alertSeverity: a.severity ?? 'low',
+        alertStatus: STATUS_VALUE[STATUS_BY_VALUE[a.status ?? ''] ?? 'open'],
       })),
     [alerts]
   )
@@ -58,7 +57,7 @@ export function useIncidentLink({ alerts, mode, onDone }: UseIncidentLinkArgs): 
   }, [mode, incidents.length])
 
   const submit = useCallback(
-    async ({ name, description, incidentId }: { name: string; description: string; incidentId: number | '' }) => {
+    async ({ name, description, incidentId }: { name: string; description: string; incidentId: string }) => {
       if (busy) return
       setBusy(true)
       try {
@@ -69,7 +68,7 @@ export function useIncidentLink({ alerts, mode, onDone }: UseIncidentLinkArgs): 
                 incidentDescription: description.trim() || undefined,
                 alertList,
               })
-            : await incidentsHttpService.addAlerts(Number(incidentId), alertList)
+            : await incidentsHttpService.addAlerts(incidentId, alertList)
         await svc.convertToIncident(
           alerts.map((a) => a.id),
           inc.incidentName,

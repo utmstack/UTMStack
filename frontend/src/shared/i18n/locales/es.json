@@ -1545,7 +1545,16 @@
     "saving": "Guardando…",
     "saved": "Configuración de correo guardada",
     "saveError": "No se pudo guardar la configuración",
-    "loadError": "No se pudo cargar la configuración"
+    "loadError": "No se pudo cargar la configuración",
+    "recipients": {
+      "alertsTitle": "Destinatarios de alertas",
+      "incidentsTitle": "Destinatarios de incidentes",
+      "to": "Para",
+      "cc": "CC",
+      "alertsHelper": "Direcciones avisadas cuando se generan nuevas alertas. Si lo dejas vacío, las alertas no se envían por correo.",
+      "incidentsHelper": "Direcciones avisadas cuando se crea un incidente. Si lo dejas vacío, los incidentes no se envían por correo.",
+      "add": "Añadir"
+    }
   },
   "dateFormat": {
     "title": "Fecha y hora",
@@ -1710,7 +1719,9 @@
       "searchFailed": "La búsqueda falló.",
       "searching": "Buscando…",
       "source": "Origen",
-      "time": "Hora"
+      "time": "Hora",
+      "scope": "Buscado en {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Buscar en todos los tipos"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -4318,10 +4329,10 @@
     "unassigned": "Sin asignar",
     "unknownUser": "Desconocido",
     "status": {
-      "OPEN": "Abierto",
-      "IN_REVIEW": "En revisión",
-      "COMPLETED": "Completado",
-      "MERGED": "Fusionado"
+      "open": "Abierto",
+      "in_review": "En revisión",
+      "completed": "Completado",
+      "merged": "Fusionado"
     },
     "sev": {
       "high": "Alta",
@@ -4379,7 +4390,11 @@
       "remove": "Desvincular alerta",
       "removeConfirm": "¿Desvincular «{{name}}» de este incidente?",
       "removed": "Alerta desvinculada",
-      "removeError": "No se pudo desvincular la alerta"
+      "removeError": "No se pudo desvincular la alerta",
+      "loadingAlert": "Cargando alerta…",
+      "alertGone": "Esta alerta ya no está en el almacén — puede que la retención la haya eliminado.",
+      "alertFailed": "No se pudo cargar la alerta.",
+      "openInAlerts": "Abrir en Alertas"
     },
     "notes": {
       "empty": "Aún no hay notas.",
@@ -4404,6 +4419,15 @@
       "error": "No se pudo cambiar el asignado",
       "custom": "Asignar personalizado",
       "customPlaceholder": "Escribe un usuario…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incidente creado",
+      "INCIDENT_ALERT_ADD": "Alertas añadidas",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Estado de alertas cambiado",
+      "INCIDENT_STATUS_CHANGE": "Estado cambiado",
+      "INCIDENT_NOTE_ADD": "Nota añadida",
+      "INCIDENT_NOTE_CHANGE": "Nota editada",
+      "INCIDENT_ASSIGNED": "Asignación cambiada"
     }
   },
   "parsingFilters": {

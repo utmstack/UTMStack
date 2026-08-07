@@ -3,45 +3,39 @@ package incidents
 import (
 	"context"
 	"fmt"
-	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"html"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	mail_connectors "github.com/utmstack/utmstack/backend/internal/mail/connectors"
 	appconfig_connectors "github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
-	iam_connectors "github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 )
 
-// Config keys for the global alert/incident notification recipients. Both are
-// comma-separated lists of email addresses; both are optional. See migration
-// 000003_alert_notification_recipients.
 const (
-	ConfigKeyNotificationTo = "utmstack.alerts.notification_to"
-	ConfigKeyNotificationCc = "utmstack.alerts.notification_cc"
+	ConfigKeyNotificationTo = "utmstack.incidents.notification_to"
+	ConfigKeyNotificationCc = "utmstack.incidents.notification_cc"
 )
 
-// incidentMailer sends incident-created notifications. Recipients come from the
-// two config keys above; when both are empty it falls back to every activated
-// user.
+// incidentMailer sends incident-created notifications to whoever the two config
+// keys name. Nobody named means nobody notified: emptying the lists is how an
+// admin turns these off, and it used to do the opposite — fall back to mailing
+// every active user in the tenant.
 type incidentMailer struct {
-	mail     mail_connectors.MailService
-	store    appconfig_connectors.Store
-	userRepo iam_connectors.UserRepository
+	mail  mail_connectors.MailService
+	store appconfig_connectors.Store
 }
 
 // NewIncidentMailer wires the real mailer used at composition time.
 func NewIncidentMailer(
 	mail mail_connectors.MailService,
 	store appconfig_connectors.Store,
-	userRepo iam_connectors.UserRepository,
 ) connectors.IncidentMailer {
-	return &incidentMailer{mail: mail, store: store, userRepo: userRepo}
+	return &incidentMailer{mail: mail, store: store}
 }
 
-func (m *incidentMailer) SendIncidentCreated(ctx context.Context, incident domain.UtmIncident) error {
+func (m *incidentMailer) SendIncidentCreated(ctx context.Context, incident domain.Incident) error {
 	if m.mail == nil {
 		catcher.Warn("incidents: mail service not configured — skipping notification", nil)
 		return nil
@@ -51,39 +45,20 @@ func (m *incidentMailer) SendIncidentCreated(ctx context.Context, incident domai
 		return fmt.Errorf("resolve incident notification recipients: %w", err)
 	}
 	if len(to) == 0 {
-		catcher.Warn("incidents: no recipients available — skipping notification", nil)
+		// Not an error: no To configured is how notifications are switched off.
+		// A Cc with no To is not a recipient list either — SMTP needs a To.
 		return nil
 	}
 	subject, body := renderIncidentCreated(incident)
 	return m.mail.SendMail(ctx, to, cc, subject, body, nil)
 }
 
-// resolveRecipients returns (to, cc) resolved from config; when BOTH config
-// keys are empty it falls back to every activated user's email as `to` and no
-// cc.
-func (m *incidentMailer) resolveRecipients(ctx context.Context) ([]string, []string, error) {
-	to := readList(ctx, m.store, ConfigKeyNotificationTo)
-	cc := readList(ctx, m.store, ConfigKeyNotificationCc)
-	if len(to) > 0 || len(cc) > 0 {
-		return to, cc, nil
-	}
-	if m.userRepo == nil {
-		return nil, nil, nil
-	}
-	// ponytail: single page, PageSize=200 (repo cap). Enough for every
-	// production tenant we've seen; paginate if a deployment exceeds it.
-	users, _, err := m.userRepo.List(ctx, iam_connectors.ListUsersFilter{PageSize: 200})
-	if err != nil {
-		return nil, nil, err
-	}
-	fallback := make([]string, 0, len(users))
-	for _, u := range users {
-		if u.Status != iam_domain.UserStatusActive || u.Email == "" {
-			continue
-		}
-		fallback = append(fallback, u.Email)
-	}
-	return fallback, nil, nil
+// resolveRecipients reads the two configured lists. There is no fallback: an
+// address gets incident mail because somebody put it here.
+func (m *incidentMailer) resolveRecipients(ctx context.Context) (to []string, cc []string, err error) {
+	return readList(ctx, m.store, ConfigKeyNotificationTo),
+		readList(ctx, m.store, ConfigKeyNotificationCc),
+		nil
 }
 
 // readList reads a config key and splits it on commas. Missing/empty → nil.
@@ -107,16 +82,18 @@ func readList(ctx context.Context, store appconfig_connectors.Store, key string)
 }
 
 // renderIncidentCreated builds a subject + minimal HTML body for the notification.
-func renderIncidentCreated(inc domain.UtmIncident) (subject, body string) {
-	subject = "New incident: " + inc.IncidentName
+func renderIncidentCreated(inc domain.Incident) (subject, body string) {
+	subject = "New incident: " + inc.Name
 
 	desc := ""
-	if inc.IncidentDescription != nil {
-		desc = *inc.IncidentDescription
+	if inc.Description != nil {
+		desc = *inc.Description
 	}
-	sev := "unknown"
-	if inc.IncidentSeverity != nil {
-		sev = fmt.Sprintf("%d", *inc.IncidentSeverity)
+	// The severity is the word now, so the analyst reads "high" instead of the
+	// "2" this used to print.
+	sev := string(inc.Severity)
+	if sev == "" {
+		sev = "unknown"
 	}
 	body = fmt.Sprintf(
 		`<html><body>`+
@@ -125,9 +102,9 @@ func renderIncidentCreated(inc domain.UtmIncident) (subject, body string) {
 			`<p><strong>Status:</strong> %s</p>`+
 			`<p>%s</p>`+
 			`</body></html>`,
-		html.EscapeString(inc.IncidentName),
+		html.EscapeString(inc.Name),
 		html.EscapeString(sev),
-		html.EscapeString(inc.IncidentStatus),
+		html.EscapeString(string(inc.Status)),
 		html.EscapeString(desc),
 	)
 	return subject, body

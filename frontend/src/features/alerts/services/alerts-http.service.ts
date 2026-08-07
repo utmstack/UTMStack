@@ -25,7 +25,7 @@ interface ChartView {
 }
 
 export interface AlertListParams {
-  page: number // 1-based
+  page: number // 0-based, like the search endpoint
   size: number
   filters: FilterType[]
 }
@@ -95,7 +95,9 @@ export const alertsHttpService = {
     const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
       dataset: ALERT_DATASET,
       filters: [{ field: 'id', operator: 'IS', value: id }],
-      page: 1,
+      // The endpoint counts pages from 0. Asking for page 1 with size 1 skipped
+      // the only row there was, so this always answered "no such alert".
+      page: 0,
       size: 1,
     })
     return r.data?.[0] ?? null
@@ -150,7 +152,9 @@ export const alertsHttpService = {
     ]
 
     const rows: Alert[] = []
-    for (let page = 1; rows.length < CSV_MAX; page++) {
+    // From 0: the endpoint's first page. Starting at 1 dropped the newest
+    // SEARCH_PAGE_MAX alerts from every export.
+    for (let page = 0; rows.length < CSV_MAX; page++) {
       const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
         dataset: ALERT_DATASET,
         filters,
@@ -184,7 +188,7 @@ export const alertsHttpService = {
   },
 
   // Actions (operate on one or many alert ids).
-  updateStatus: (alertIds: string[], status: number, statusObservation = '', addFalsePositiveTag = false) =>
+  updateStatus: (alertIds: string[], status: string, statusObservation = '', addFalsePositiveTag = false) =>
     api.post<void>('/utm-alerts/status', { alertIds, status, statusObservation, addFalsePositiveTag }),
 
   updateTags: (alertIds: string[], tags: string[], createRule = false) =>
@@ -201,7 +205,7 @@ export const alertsHttpService = {
     api.post<void>('/utm-alerts/assignee', { alertId, assignee }),
 
   // Flag alert docs as belonging to an incident (after the incident exists).
-  convertToIncident: (eventIds: string[], incidentName: string, incidentId: number) =>
+  convertToIncident: (eventIds: string[], incidentName: string, incidentId: string) =>
     api.post<void>('/utm-alerts/convert-to-incident', {
       eventIds,
       incidentName,

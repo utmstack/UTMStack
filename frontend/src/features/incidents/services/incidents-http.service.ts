@@ -8,7 +8,6 @@ import type {
   IncidentHistory,
   IncidentListQuery,
   IncidentNote,
-  UserAssigned,
 } from '../types/incident.types'
 
 const api = createApiClient()
@@ -31,30 +30,32 @@ function listQuery(q: IncidentListQuery): string {
 export const incidentsHttpService = {
   // ── Incidents ──
   list: (q: IncidentListQuery = {}) => api.getPaged<Incident[]>(`/incidents?${listQuery({ size: 500, ...q })}`),
-  getById: (id: number) => api.get<Incident>(`/incidents/${id}`),
+  getById: (id: string) => api.get<Incident>(`/incidents/${id}`),
   create: (input: CreateIncidentInput) => api.post<Incident>('/incidents', input),
-  addAlerts: (incidentId: number, alertList: AlertLinkItem[]) =>
+  addAlerts: (incidentId: string, alertList: AlertLinkItem[]) =>
     api.post<Incident>('/incidents/add-alerts', { incidentId, alertList }),
   changeStatus: (input: ChangeStatusInput) => api.put<Incident>('/incidents/change-status', input),
-  // Assign / reassign (assignedTo = login) or unassign (assignedTo = null).
-  assign: (incidentId: number, assignedTo: string | null) =>
+  // Assign / reassign, or unassign with an empty string. Free text: the picker
+  // suggests platform users, but an incident can be handed to anyone.
+  assign: (incidentId: string, assignedTo: string) =>
     api.put<Incident>('/incidents/assign', { incidentId, assignedTo }),
-  usersAssigned: () => api.get<UserAssigned[]>('/incidents/users-assigned'),
+  // The assignees currently in use, for the filter to offer.
+  assignees: () => api.get<string[]>('/incidents/assignees'),
 
   // ── Linked alerts ──
-  alerts: (incidentId: number) =>
+  alerts: (incidentId: string) =>
     api.getPaged<IncidentAlert[]>(`/incident-alerts?incidentId=${incidentId}&page=1&size=500`),
-  updateAlertStatus: (incidentId: number, alertIds: string[], status: number) =>
+  updateAlertStatus: (incidentId: string, alertIds: string[], status: string) =>
     api.post<void>('/incident-alerts/update-status', { incidentId, alertIds, status }),
-  removeAlert: (id: number) => api.delete<{ message: string }>(`/incident-alerts/${id}`),
+  removeAlert: (id: string) => api.delete<{ message: string }>(`/incident-alerts/${id}`),
 
   // ── Notes ──
-  notes: (incidentId: number) =>
+  notes: (incidentId: string) =>
     api.getPaged<IncidentNote[]>(`/incident-notes?incidentId=${incidentId}&page=1&size=500`),
-  addNote: (incidentId: number, noteText: string) =>
+  addNote: (incidentId: string, noteText: string) =>
     api.post<IncidentNote>('/incident-notes', { incidentId, noteText }),
 
   // ── History ──
-  history: (incidentId: number) =>
+  history: (incidentId: string) =>
     api.getPaged<IncidentHistory[]>(`/incident-histories?incidentId=${incidentId}&page=1&size=500`),
 }

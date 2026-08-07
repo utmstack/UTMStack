@@ -20,10 +20,10 @@ type Module struct {
 	adversaryUsecase    connectors.AdversaryUsecase
 }
 
-func NewModule(db *gorm.DB, events *eventstore.Store) *Module {
+func NewModule(db *gorm.DB, events *eventstore.Store, mailer connectors.AlertMailer) *Module {
 	alertRepo := repository.NewCHAlertRepository(events, db)
 
-	alertUC := usecase.NewAlertUsecase(alertRepo)
+	alertUC := usecase.NewAlertUsecase(alertRepo, mailer)
 	alertH := handler.NewAlertHandler(alertUC)
 
 	alertTagRepo := repository.NewAlertTagRepository(db)

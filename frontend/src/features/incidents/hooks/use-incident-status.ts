@@ -10,7 +10,7 @@ export interface UseIncidentStatusResult {
 }
 
 /** Status transitions for a single incident. */
-export function useIncidentStatus(incident: Incident, onChanged: (id: number) => void): UseIncidentStatusResult {
+export function useIncidentStatus(incident: Incident, onChanged: (id: string) => void): UseIncidentStatusResult {
   const { t } = useTranslation()
   const [busy, setBusy] = useState(false)
 
@@ -24,7 +24,7 @@ export function useIncidentStatus(incident: Incident, onChanged: (id: number) =>
           incidentName: incident.incidentName,
           incidentStatus: status,
           incidentSolution:
-            status === 'COMPLETED' && solution && solution.trim() ? solution.trim() : incident.incidentSolution,
+            status === 'Completed' && solution && solution.trim() ? solution.trim() : incident.incidentSolution,
         })
         toast.success(t('incidents.toast.statusChanged'))
         onChanged(incident.id)

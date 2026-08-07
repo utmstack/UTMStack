@@ -13,7 +13,10 @@ export function IncidentAssignee({ login }: { login?: string }) {
       </span>
     )
   return (
-    <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
+    // flex, not inline-flex: an inline box sizes to its content, so a long
+    // address ran past the column and over the one beside it instead of
+    // truncating inside its own cell.
+    <span className="flex min-w-0 items-center gap-1 text-muted-foreground" title={login}>
       <UserCircle2 size={12} className="shrink-0" />
       <span className="truncate">{login}</span>
     </span>
@@ -78,7 +81,7 @@ export function IncidentAssigneePicker({
           </div>
           {current && (
             <button
-              onClick={() => void assign(null)}
+              onClick={() => void assign('')}
               className="flex w-full items-center gap-2 border-b border-border px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted"
             >
               <X size={12} /> {t('incidents.assign.unassign')}

@@ -10,8 +10,8 @@ import (
 // fakeOverrides is a minimal in-memory ControlStatusOverrideRepository.
 // Records what got Deleted so the test can assert the cleanup fired.
 type fakeOverrides struct {
-	list    map[string]string  // controlID → status
-	deleted map[string]bool    // controlID → true when Delete was called
+	list    map[string]string // controlID → status
+	deleted map[string]bool   // controlID → true when Delete was called
 }
 
 func (f *fakeOverrides) Upsert(_ context.Context, o *domain.UtmComplianceControlStatusOverride) error {

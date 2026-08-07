@@ -6,7 +6,7 @@ import { useDateFormat } from '@/shared/lib/datetime'
 import { useIncidentNotesTab } from '../hooks/use-incident-notes-tab'
 import { TabEmpty, TabError, TabLoader } from './ui-primitives'
 
-export function IncidentNotesTab({ incidentId }: { incidentId: number }) {
+export function IncidentNotesTab({ incidentId }: { incidentId: string }) {
   const { t } = useTranslation()
   const df = useDateFormat()
   const [text, setText] = useState('')

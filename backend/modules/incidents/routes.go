@@ -21,7 +21,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	ig.PUT("/change-status", write, ih.ChangeStatus)
 	ig.PUT("/assign", write, ih.Assign)
 	ig.GET("", read, ih.List)
-	ig.GET("/users-assigned", read, ih.GetUsersAssigned)
+	ig.GET("/assignees", read, ih.GetAssignees)
 	ig.GET("/:id", read, ih.GetByID)
 
 	// Incident alerts

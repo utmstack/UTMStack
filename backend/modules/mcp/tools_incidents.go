@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
@@ -27,17 +28,16 @@ type incidentsCreateInput struct {
 }
 
 type incidentsAddAlertsInput struct {
-	IncidentID int64               `json:"incident_id"`
+	IncidentID uuid.UUID           `json:"incident_id"`
 	AlertList  []dto.AlertLinkItem `json:"alert_list"`
 }
 
 type incidentsChangeStatusInput struct {
-	IncidentID  int64  `json:"incident_id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Status      string `json:"status" jsonschema:"e.g. OPEN, IN_REVIEW, CLOSED, FALSE_POSITIVE"`
-	Severity    *int   `json:"severity,omitempty"`
-	Solution    string `json:"solution,omitempty"`
+	IncidentID  uuid.UUID `json:"incident_id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Status      string    `json:"status" jsonschema:"one of: Open, In review, Completed, Merged"`
+	Solution    string    `json:"solution,omitempty"`
 }
 
 type incidentsListInput struct {
@@ -52,7 +52,7 @@ type incidentsListInput struct {
 }
 
 type incidentIDInput struct {
-	ID int64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerIncidentMain(m *Module) {
@@ -74,9 +74,7 @@ func registerIncidentMain(m *Module) {
 			if in.Description != "" {
 				req.IncidentDescription = &in.Description
 			}
-			if in.AssignedTo != "" {
-				req.IncidentAssignedTo = &in.AssignedTo
-			}
+			req.IncidentAssignedTo = in.AssignedTo
 			if in.Observation != "" {
 				req.IncidentObservation = &in.Observation
 			}
@@ -102,10 +100,9 @@ func registerIncidentMain(m *Module) {
 	}, Gate{Permission: "incidents.write"},
 		func(ctx context.Context, actor *authz.Actor, in incidentsChangeStatusInput) (any, error) {
 			req := dto.ChangeStatusRequest{
-				IncidentID:       in.IncidentID,
-				IncidentName:     in.Name,
-				IncidentStatus:   in.Status,
-				IncidentSeverity: in.Severity,
+				IncidentID:     in.IncidentID,
+				IncidentName:   in.Name,
+				IncidentStatus: in.Status,
 			}
 			if in.Description != "" {
 				req.IncidentDescription = &in.Description
@@ -151,47 +148,47 @@ func registerIncidentMain(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name:        "incidents.users_assigned",
-		Title:       "List users currently assigned to incidents",
+		Name:        "incidents.assignees",
+		Title:       "List the assignees incidents are currently handed to",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "incidents.read"},
 		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
-			return uc.GetUsersAssigned(ctx)
+			return uc.GetAssignees(ctx)
 		})
 }
 
 // ---- incident_alerts.* -----------------------------------------------------
 
 type incidentAlertsCreateInput struct {
-	IncidentID    int64  `json:"incident_id"`
-	AlertID       string `json:"alert_id"`
-	AlertName     string `json:"alert_name"`
-	AlertSeverity int    `json:"alert_severity"`
-	AlertStatus   *int   `json:"alert_status,omitempty"`
+	IncidentID    uuid.UUID `json:"incident_id"`
+	AlertID       string    `json:"alert_id"`
+	AlertName     string    `json:"alert_name"`
+	AlertSeverity string    `json:"alert_severity" jsonschema:"one of: low, medium, high"`
+	AlertStatus   *string   `json:"alert_status,omitempty"`
 }
 
 type incidentAlertsUpdateStatusInput struct {
-	IncidentID  int64    `json:"incident_id"`
-	AlertIDs    []string `json:"alert_ids"`
-	AlertStatus int      `json:"status"`
+	IncidentID  uuid.UUID `json:"incident_id"`
+	AlertIDs    []string  `json:"alert_ids"`
+	AlertStatus string    `json:"status"`
 }
 
 type incidentAlertsUpdateInput struct {
-	ID            int64  `json:"id"`
-	IncidentID    int64  `json:"incident_id"`
-	AlertID       string `json:"alert_id"`
-	AlertName     string `json:"alert_name,omitempty"`
-	AlertSeverity int    `json:"alert_severity,omitempty"`
-	AlertStatus   *int   `json:"alert_status,omitempty"`
+	ID            uuid.UUID `json:"id"`
+	IncidentID    uuid.UUID `json:"incident_id"`
+	AlertID       string    `json:"alert_id"`
+	AlertName     string    `json:"alert_name,omitempty"`
+	AlertSeverity string    `json:"alert_severity,omitempty" jsonschema:"one of: low, medium, high"`
+	AlertStatus   *string   `json:"alert_status,omitempty"`
 }
 
 type incidentAlertsListInput struct {
-	IncidentID  *int64  `json:"incident_id,omitempty"`
-	AlertID     *string `json:"alert_id,omitempty"`
-	AlertStatus *int    `json:"alert_status,omitempty"`
-	Page        int     `json:"page,omitempty"`
-	Size        int     `json:"size,omitempty"`
-	Sort        string  `json:"sort,omitempty"`
+	IncidentID  *uuid.UUID `json:"incident_id,omitempty"`
+	AlertID     *string    `json:"alert_id,omitempty"`
+	AlertStatus *string    `json:"alert_status,omitempty"`
+	Page        int        `json:"page,omitempty"`
+	Size        int        `json:"size,omitempty"`
+	Sort        string     `json:"sort,omitempty"`
 }
 
 func registerIncidentAlerts(m *Module) {
@@ -261,15 +258,15 @@ func registerIncidentAlerts(m *Module) {
 // ---- incident_notes.* ------------------------------------------------------
 
 type incidentNotesCreateInput struct {
-	IncidentID int64  `json:"incident_id"`
-	NoteText   string `json:"note_text"`
+	IncidentID uuid.UUID `json:"incident_id"`
+	NoteText   string    `json:"note_text"`
 }
 
 type incidentNotesListInput struct {
-	IncidentID *int64 `json:"incident_id,omitempty"`
-	Page       int    `json:"page,omitempty"`
-	Size       int    `json:"size,omitempty"`
-	Sort       string `json:"sort,omitempty"`
+	IncidentID *uuid.UUID `json:"incident_id,omitempty"`
+	Page       int        `json:"page,omitempty"`
+	Size       int        `json:"size,omitempty"`
+	Sort       string     `json:"sort,omitempty"`
 }
 
 func registerIncidentNotes(m *Module) {
@@ -302,11 +299,11 @@ func registerIncidentNotes(m *Module) {
 // ---- incident_history.* ----------------------------------------------------
 
 type incidentHistoryListInput struct {
-	IncidentID *int64  `json:"incident_id,omitempty"`
-	ActionType *string `json:"action_type,omitempty"`
-	Page       int     `json:"page,omitempty"`
-	Size       int     `json:"size,omitempty"`
-	Sort       string  `json:"sort,omitempty"`
+	IncidentID *uuid.UUID `json:"incident_id,omitempty"`
+	Action     *string    `json:"action,omitempty"`
+	Page       int        `json:"page,omitempty"`
+	Size       int        `json:"size,omitempty"`
+	Sort       string     `json:"sort,omitempty"`
 }
 
 func registerIncidentHistory(m *Module) {
@@ -318,7 +315,7 @@ func registerIncidentHistory(m *Module) {
 	}, Gate{Permission: "incidents.read"},
 		func(ctx context.Context, _ *authz.Actor, in incidentHistoryListInput) (any, error) {
 			items, total, err := uc.List(ctx, dto.HistoryListQuery{
-				IncidentID: in.IncidentID, ActionType: in.ActionType,
+				IncidentID: in.IncidentID, Action: in.Action,
 				Page: in.Page, Size: clampPageSize(in.Size), Sort: in.Sort,
 			})
 			if err != nil {
@@ -333,7 +330,7 @@ func registerIncidentHistory(m *Module) {
 	}, Gate{Permission: "incidents.read"},
 		func(ctx context.Context, _ *authz.Actor, in incidentHistoryListInput) (any, error) {
 			c, err := uc.Count(ctx, dto.HistoryListQuery{
-				IncidentID: in.IncidentID, ActionType: in.ActionType,
+				IncidentID: in.IncidentID, Action: in.Action,
 			})
 			if err != nil {
 				return nil, err

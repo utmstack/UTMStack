@@ -197,7 +197,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("opensearch SDK connect failed", err, nil)
 	}
 
-	alertsMod := alerts.NewModule(db, events)
+	alertsMod := alerts.NewModule(db, events, alerts.NewAlertMailer(mailMod.Service(), configMod.Store()))
 
 	agentClient, agentErr := agentmanager.NewClient()
 	if agentErr != nil {
@@ -270,9 +270,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	incidentsMod := incidents.NewModule(
 		db,
-		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store(), userRepo),
+		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store()),
 		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
-		incidents.NewIAMGatewayFromRepo(userRepo),
 		auditMod.Logger(),
 	)
 	adauditMod := adaudit.NewModule(db)

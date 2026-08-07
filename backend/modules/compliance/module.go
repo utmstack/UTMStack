@@ -40,15 +40,15 @@ type Module struct {
 	scheduler  *usecase.ReportScheduler
 	coverage   *usecase.CoverageIndex
 
-	frameworkUC       connectors.FrameworkUsecase
-	evaluatorUC       connectors.EvaluatorUsecase
-	scheduleUC        connectors.ScheduleUsecase
-	tenantFrameworks  connectors.TenantFrameworkRepository
-	frameworkStore    *usecase.FrameworkStore
-	entitlement       *usecase.Entitlement
-	tenantLister      TenantLister // nil → skip the tenant iteration (on-prem)
-	leases            Leases       // nil → no replica coordination (single-instance)
-	evalInterval      time.Duration
+	frameworkUC      connectors.FrameworkUsecase
+	evaluatorUC      connectors.EvaluatorUsecase
+	scheduleUC       connectors.ScheduleUsecase
+	tenantFrameworks connectors.TenantFrameworkRepository
+	frameworkStore   *usecase.FrameworkStore
+	entitlement      *usecase.Entitlement
+	tenantLister     TenantLister // nil → skip the tenant iteration (on-prem)
+	leases           Leases       // nil → no replica coordination (single-instance)
+	evalInterval     time.Duration
 }
 
 func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.frameworkUC }

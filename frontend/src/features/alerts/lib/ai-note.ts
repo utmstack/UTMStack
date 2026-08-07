@@ -60,15 +60,34 @@ export interface AiNote {
   sections: { label: string; value: string }[]
 }
 
+// The agent writes free text into every section, so a pipe inside one of them
+// is indistinguishable from the separator by position alone. What tells them
+// apart is the label: a real section opens with one, a continuation does not.
+// Splitting on the bare "|" turned "Action: block the IP | then escalate" into
+// two entries, the second of them unlabelled and orphaned.
+const SECTION_LABEL = /^[A-Za-z][A-Za-z ]{0,30}:\s/
+
+function splitSections(body: string): string[] {
+  const out: string[] = []
+  for (const fragment of body.split(/\s\|\s/)) {
+    const part = fragment.trim()
+    if (!part) continue
+    // The first fragment is the headline, which carries no label of its own.
+    if (out.length > 0 && !SECTION_LABEL.test(part)) {
+      out[out.length - 1] += ' | ' + part
+      continue
+    }
+    out.push(part)
+  }
+  return out
+}
+
 export function parseAiNote(notes?: string): AiNote | null {
   const v = unquoteNotes(notes)
   const idx = aiMarkerIndex(notes)
   if (idx < 0 || !v) return null
   const body = v.slice(idx + AI_NOTE_MARKER.length)
-  const parts = body
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean)
+  const parts = splitSections(body)
   const headline = parts[0] ?? ''
   const sections = parts.slice(1).map((p) => {
     const i = p.indexOf(':')

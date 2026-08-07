@@ -45,6 +45,9 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	ig := api.Group("/internal/alert-tag-rules", userAuth, middleware.RequireInternal())
 	ig.GET("/active", rh.ListActive)
 
+	ia := api.Group("/internal/alerts", userAuth, middleware.RequireInternal())
+	ia.POST("/notify", h.NotifyRaised)
+
 	// Adversary alert aggregation (merged from the former threat_management module).
 	adv := api.Group("/adversary", userAuth)
 	adv.POST("/alerts", read, dh.SearchAdversaryAlerts)

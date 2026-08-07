@@ -12,7 +12,7 @@ export function useIncidentSync(
   setOpen: (updater: (prev: Incident | null) => Incident | null) => void
 ) {
   return useCallback(
-    async (id: number) => {
+    async (id: string) => {
       refresh()
       try {
         const fresh = await svc.getById(id)

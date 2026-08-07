@@ -3,25 +3,38 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"gorm.io/gorm"
 )
 
-// tenantFromCtx pulls the acting tenant UUID from ctx. Returns uuid.Nil when
-// the ctx carries no tenant (on-prem/global actor) or an unparseable one —
-// callers use uuid.Nil as the "unscoped" sentinel, matching the empty-string
-// convention the module used before tenant_id became a real UUID column.
 func tenantFromCtx(ctx context.Context) uuid.UUID {
 	tid, _ := uuid.Parse(authz.TenantIDFromContext(ctx))
 	return tid
 }
+
+func scopeTenant(ctx context.Context, q *gorm.DB) *gorm.DB {
+	tid := tenantFromCtx(ctx)
+	if tid != uuid.Nil {
+		return q.Where("tenant_id = ?", tid)
+	}
+	// Fail closed. The gorm tenancy plugin already aborts an unscoped query on a
+	// multi-tenant install, but this must not be the thing that reads every
+	// tenant's incidents if that plugin is ever unregistered or bypassed. On a
+	// single-tenant install the plugin fills in the default tenant instead.
+	if tenancy.Enabled() {
+		q.AddError(ErrNoTenant)
+	}
+	return q
+}
+
+// ErrNoTenant is returned when a query would otherwise run unscoped.
+var ErrNoTenant = errors.New("incidents: no tenant in scope")
 
 type pgIncidentRepository struct {
 	db *gorm.DB
@@ -31,41 +44,56 @@ func NewIncidentRepository(db *gorm.DB) connectors.IncidentRepository {
 	return &pgIncidentRepository{db: db}
 }
 
-// scopeTenant narrows q to the acting tenant when one is set in ctx. An
-// on-prem/global actor (empty ctx tenant) sees every incident, matching
-// legacy behavior.
-func scopeTenant(ctx context.Context, q *gorm.DB) *gorm.DB {
-	if tid := tenantFromCtx(ctx); tid != uuid.Nil {
-		return q.Where("tenant_id = ?", tid)
-	}
-	return q
-}
+// alertInsertBatch bounds how many rows go in one INSERT. Linking a selection
+// of alerts used to be one round trip per alert; a few hundred of those is the
+// difference between a click and a wait.
+const alertInsertBatch = 200
 
-// scopeTenantViaIncident narrows q (a query against a child table with a
-// tenant_id column of its own — alerts, history, notes) to the acting tenant.
-// The column is stamped on write from ctx so this filter reads directly
-// instead of joining back to utm_incident.
-func scopeTenantViaIncident(ctx context.Context, q *gorm.DB) *gorm.DB {
-	if tid := tenantFromCtx(ctx); tid != uuid.Nil {
-		return q.Where("tenant_id = ?", tid)
-	}
-	return q
-}
-
-func (r *pgIncidentRepository) Save(ctx context.Context, incident *domain.UtmIncident) error {
+func (r *pgIncidentRepository) Create(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) error {
+	tenant := tenantFromCtx(ctx)
 	if incident.TenantID == uuid.Nil {
-		incident.TenantID = tenantFromCtx(ctx)
+		incident.TenantID = tenant
 	}
-	return r.db.WithContext(ctx).Create(incident).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(incident).Error; err != nil {
+			return err
+		}
+		return insertAlerts(tx, incident, alerts, tenant)
+	})
 }
 
-func (r *pgIncidentRepository) Update(ctx context.Context, incident *domain.UtmIncident) error {
+func (r *pgIncidentRepository) LinkAlerts(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) error {
+	tenant := tenantFromCtx(ctx)
+	return scopeTenant(ctx, r.db.WithContext(ctx)).Transaction(func(tx *gorm.DB) error {
+		if err := insertAlerts(tx, incident, alerts, tenant); err != nil {
+			return err
+		}
+		return tx.Save(incident).Error
+	})
+}
+
+// insertAlerts stamps the parent and tenant on each row and writes them in
+// batches. The ids are left to the database default rather than generated here.
+func insertAlerts(tx *gorm.DB, incident *domain.Incident, alerts []domain.IncidentAlert, tenant uuid.UUID) error {
+	if len(alerts) == 0 {
+		return nil
+	}
+	for i := range alerts {
+		alerts[i].IncidentID = incident.ID
+		if alerts[i].TenantID == uuid.Nil {
+			alerts[i].TenantID = tenant
+		}
+	}
+	return tx.CreateInBatches(alerts, alertInsertBatch).Error
+}
+
+func (r *pgIncidentRepository) Update(ctx context.Context, incident *domain.Incident) error {
 	return scopeTenant(ctx, r.db.WithContext(ctx)).Save(incident).Error
 }
 
-func (r *pgIncidentRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncident, error) {
-	var row domain.UtmIncident
-	if err := scopeTenant(ctx, r.db.WithContext(ctx)).First(&row, id).Error; err != nil {
+func (r *pgIncidentRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Incident, error) {
+	var row domain.Incident
+	if err := scopeTenant(ctx, r.db.WithContext(ctx)).Where("id = ?", id).First(&row).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -74,7 +102,7 @@ func (r *pgIncidentRepository) FindByID(ctx context.Context, id int64) (*domain.
 	return &row, nil
 }
 
-func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQuery) ([]domain.UtmIncident, int64, error) {
+func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQuery) ([]domain.Incident, int64, error) {
 	if q.Page < 1 {
 		q.Page = 1
 	}
@@ -82,7 +110,7 @@ func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQu
 		q.Size = 20
 	}
 
-	db := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncident{}))
+	db := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.Incident{}))
 
 	if q.IncidentName != nil && *q.IncidentName != "" {
 		db = db.Where("incident_name ILIKE ?", "%"+*q.IncidentName+"%")
@@ -105,34 +133,65 @@ func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQu
 		return nil, 0, err
 	}
 
-	orderBy := "incident_created_date DESC"
-	if q.Sort != "" {
-		orderBy = parseSortParam(q.Sort)
-	}
-
-	var rows []domain.UtmIncident
-	if err := db.Order(orderBy).
+	var rows []domain.Incident
+	if err := db.Order(orderBy(q.Sort, incidentSortable, "incident_created_date DESC")).
 		Offset((q.Page - 1) * q.Size).
 		Limit(q.Size).
 		Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
+	if err := r.fillAlertCounts(ctx, rows); err != nil {
+		return nil, 0, err
+	}
 	return rows, total, nil
 }
 
-func (r *pgIncidentRepository) Delete(ctx context.Context, id int64) error {
-	return scopeTenant(ctx, r.db.WithContext(ctx).Unscoped()).Delete(&domain.UtmIncident{}, id).Error
+// fillAlertCounts counts the alerts of a whole page in one grouped query rather
+// than one per row.
+func (r *pgIncidentRepository) fillAlertCounts(ctx context.Context, rows []domain.Incident) error {
+	if len(rows) == 0 {
+		return nil
+	}
+	ids := make([]uuid.UUID, len(rows))
+	for i := range rows {
+		ids[i] = rows[i].ID
+	}
+
+	var counts []struct {
+		IncidentID uuid.UUID
+		N          int
+	}
+	err := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.IncidentAlert{})).
+		Select("incident_id, count(*) AS n").
+		Where("incident_id IN ?", ids).
+		Group("incident_id").
+		Scan(&counts).Error
+	if err != nil {
+		return err
+	}
+
+	byID := make(map[uuid.UUID]int, len(counts))
+	for _, c := range counts {
+		byID[c.IncidentID] = c.N
+	}
+	for i := range rows {
+		rows[i].AlertCount = byID[rows[i].ID]
+	}
+	return nil
 }
 
-func parseSortParam(sort string) string {
-	parts := strings.SplitN(sort, ",", 2)
-	if len(parts) == 2 {
-		field := strings.TrimSpace(parts[0])
-		dir := strings.ToUpper(strings.TrimSpace(parts[1]))
-		if dir != "ASC" && dir != "DESC" {
-			dir = "ASC"
-		}
-		return fmt.Sprintf("%s %s", field, dir)
+// DistinctAssignees reads the column rather than walking every incident: the
+// old version paged through the first thousand and split them on commas, so an
+// assignee whose incidents had aged past that simply vanished from the filter.
+func (r *pgIncidentRepository) DistinctAssignees(ctx context.Context) ([]string, error) {
+	var out []string
+	err := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.Incident{})).
+		Where("incident_assigned_to <> ''").
+		Distinct().
+		Order("incident_assigned_to ASC").
+		Pluck("incident_assigned_to", &out).Error
+	if err != nil {
+		return nil, err
 	}
-	return sort
+	return out, nil
 }

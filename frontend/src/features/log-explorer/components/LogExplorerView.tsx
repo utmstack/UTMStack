@@ -673,7 +673,22 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                   </RowMessage>
                 ) : rows.length === 0 ? (
                   <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-                    {t('logExplorer.results.none')}
+                    <div>{t('logExplorer.results.none')}</div>
+                    {/* A data type still narrows the search even when the filter
+                        names a single id, and nothing on the empty state said so:
+                        "no alert of this type has that id" looked identical to
+                        "that id does not exist". */}
+                    <div className="mt-1 text-xs">
+                      {t('logExplorer.results.scope', { dataset, dataType: pattern ?? t('logExplorer.query.allDataTypes') })}
+                      {pattern && (
+                        <button
+                          onClick={() => setPattern(null)}
+                          className="ml-2 underline underline-offset-2 hover:text-foreground"
+                        >
+                          {t('logExplorer.results.searchAllDataTypes')}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <>

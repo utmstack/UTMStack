@@ -19,16 +19,16 @@ func NewIncidentHistoryRepository(db *gorm.DB) connectors.IncidentHistoryReposit
 	return &pgIncidentHistoryRepository{db: db}
 }
 
-func (r *pgIncidentHistoryRepository) Save(ctx context.Context, h *domain.UtmIncidentHistory) error {
+func (r *pgIncidentHistoryRepository) Save(ctx context.Context, h *domain.IncidentHistory) error {
 	if h.TenantID == uuid.Nil {
 		h.TenantID = tenantFromCtx(ctx)
 	}
 	return r.db.WithContext(ctx).Create(h).Error
 }
 
-func (r *pgIncidentHistoryRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentHistory, error) {
-	var row domain.UtmIncidentHistory
-	if err := scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).First(&row, id).Error; err != nil {
+func (r *pgIncidentHistoryRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.IncidentHistory, error) {
+	var row domain.IncidentHistory
+	if err := scopeTenant(ctx, r.db.WithContext(ctx)).Where("id = ?", id).First(&row).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -37,7 +37,17 @@ func (r *pgIncidentHistoryRepository) FindByID(ctx context.Context, id int64) (*
 	return &row, nil
 }
 
-func (r *pgIncidentHistoryRepository) FindAll(ctx context.Context, q dto.HistoryListQuery) ([]domain.UtmIncidentHistory, int64, error) {
+func filterHistory(db *gorm.DB, q dto.HistoryListQuery) *gorm.DB {
+	if q.IncidentID != nil {
+		db = db.Where("incident_id = ?", *q.IncidentID)
+	}
+	if q.Action != nil && *q.Action != "" {
+		db = db.Where("action = ?", *q.Action)
+	}
+	return db
+}
+
+func (r *pgIncidentHistoryRepository) FindAll(ctx context.Context, q dto.HistoryListQuery) ([]domain.IncidentHistory, int64, error) {
 	if q.Page < 1 {
 		q.Page = 1
 	}
@@ -45,27 +55,15 @@ func (r *pgIncidentHistoryRepository) FindAll(ctx context.Context, q dto.History
 		q.Size = 20
 	}
 
-	db := scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncidentHistory{}))
-
-	if q.IncidentID != nil {
-		db = db.Where("incident_id = ?", *q.IncidentID)
-	}
-	if q.ActionType != nil && *q.ActionType != "" {
-		db = db.Where("action_type = ?", *q.ActionType)
-	}
+	db := filterHistory(scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.IncidentHistory{})), q)
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	orderBy := "action_created_date DESC"
-	if q.Sort != "" {
-		orderBy = q.Sort
-	}
-
-	var rows []domain.UtmIncidentHistory
-	if err := db.Order(orderBy).
+	var rows []domain.IncidentHistory
+	if err := db.Order(orderBy(q.Sort, historySortable, "action_created_date DESC, id ASC")).
 		Offset((q.Page - 1) * q.Size).
 		Limit(q.Size).
 		Find(&rows).Error; err != nil {
@@ -75,13 +73,7 @@ func (r *pgIncidentHistoryRepository) FindAll(ctx context.Context, q dto.History
 }
 
 func (r *pgIncidentHistoryRepository) Count(ctx context.Context, q dto.HistoryListQuery) (int64, error) {
-	db := scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncidentHistory{}))
-	if q.IncidentID != nil {
-		db = db.Where("incident_id = ?", *q.IncidentID)
-	}
-	if q.ActionType != nil && *q.ActionType != "" {
-		db = db.Where("action_type = ?", *q.ActionType)
-	}
+	db := filterHistory(scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.IncidentHistory{})), q)
 	var total int64
 	return total, db.Count(&total).Error
 }

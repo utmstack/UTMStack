@@ -11,26 +11,16 @@ type IncidentDetail struct {
 
 type AlertFields struct {
 	Timestamp         string         `json:"@timestamp"`
-	Status            int            `json:"status"`
-	StatusLabel       string         `json:"statusLabel"`
-	StatusObservation string         `json:"statusObservation"`
-	IsIncident        bool           `json:"isIncident"`
-	IncidentDetail    IncidentDetail `json:"incidentDetail"`
-	Severity          int            `json:"severity"`
-	SeverityLabel     string         `json:"severityLabel"`
-	Solution          string         `json:"solution"`
-	Reference         []string       `json:"reference"`
-	LastEvent         *plugins.Event `json:"lastEvent"`
-	Tags              []string       `json:"tags"`
-	Notes             string         `json:"notes"`
-	TagRulesApplied   []int          `json:"tagRulesApplied,omitempty"`
-	DeduplicatedBy    []string       `json:"deduplicatedBy,omitempty"`
-	GroupedBy         []string       `json:"groupedBy,omitempty"`
-	GPTTimestamp      string         `json:"gpt_timestamp,omitempty"`
-	GPTClassification string         `json:"gpt_classification,omitempty"`
-	GPTReasoning      string         `json:"gpt_reasoning,omitempty"`
-	GPTNextSteps      string         `json:"gpt_next_steps,omitempty"`
-	AnonymizedFields  []string       `json:"anonymizedFields,omitempty"` // Fields that were anonymized for privacy
+	Status            string         `json:"status,omitempty"`
+	StatusObservation string         `json:"statusObservation,omitempty"`
+	IsIncident        bool           `json:"isIncident,omitempty"`
+	IncidentDetail    IncidentDetail `json:"incidentDetail,omitzero"`
+	Solution          string         `json:"solution,omitempty"`
+	Tags              []string       `json:"tags,omitempty"`
+	Notes             string         `json:"notes,omitempty"`
+	TagRulesApplied   []string       `json:"tagRulesApplied,omitempty"`
+	LastEvent         *plugins.Event `json:"lastEvent,omitempty"`
+	AnonymizedFields  []string       `json:"anonymizedFields,omitempty"`
 	plugins.Alert
 }
 

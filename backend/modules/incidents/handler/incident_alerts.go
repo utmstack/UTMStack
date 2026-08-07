@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -26,7 +25,7 @@ func NewIncidentAlertHandler(uc connectors.IncidentAlertUsecase) *IncidentAlertH
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.IncidentAlertRequest true "Incident alert"
-// @Success     201 {object} domain.UtmIncidentAlert
+// @Success     201 {object} domain.IncidentAlert
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incident-alerts [post]
@@ -78,7 +77,7 @@ func (h *IncidentAlertHandler) UpdateStatus(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.UpdateIncidentAlertRequest true "Incident alert update"
-// @Success     200 {object} domain.UtmIncidentAlert
+// @Success     200 {object} domain.IncidentAlert
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incident-alerts [put]
@@ -102,20 +101,24 @@ func (h *IncidentAlertHandler) Update(c *gin.Context) {
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       incidentId   query int    false "Filter by incident ID"
+// @Param       incidentId   query string false "Filter by incident ID"
 // @Param       alertId      query string false "Filter by alert ID"
-// @Param       alertStatus  query int    false "Filter by alert status"
+// @Param       alertStatus  query string false "Filter by alert status"
 // @Param       page         query int    false "Page (default 1)"
 // @Param       size         query int    false "Page size (default 20)"
-// @Success     200 {array} domain.UtmIncidentAlert
+// @Success     200 {array} domain.IncidentAlert
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
 // @Router      /incident-alerts [get]
 func (h *IncidentAlertHandler) List(c *gin.Context) {
+	incidentID, ok := queryUUID(c, "incidentId")
+	if !ok {
+		return
+	}
 	query := dto.IncidentAlertListQuery{
-		IncidentID:  queryInt64(c, "incidentId"),
+		IncidentID:  incidentID,
 		AlertID:     queryString(c, "alertId"),
-		AlertStatus: queryIntPtr(c, "alertStatus"),
+		AlertStatus: queryString(c, "alertStatus"),
 		Page:        queryInt(c, "page", 1),
 		Size:        queryInt(c, "size", 20),
 	}
@@ -130,24 +133,24 @@ func (h *IncidentAlertHandler) List(c *gin.Context) {
 // @Summary     Delete incident alert
 // @Tags        Incidents
 // @Security    BearerAuth
-// @Param       id path int true "Incident alert ID"
+// @Param       id path string true "Incident alert ID"
 // @Success     200 "Deleted"
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incident-alerts/{id} [delete]
 func (h *IncidentAlertHandler) Delete(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
+	id, ok := pathUUID(c, "id")
 	if !ok {
 		return
 	}
 	err := h.usecase.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "incident.alert.delete", ResourceType: "incident_alert", ResourceID: strconv.FormatInt(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "incident.alert.delete", ResourceType: "incident_alert", ResourceID: id.String()},
 		audit_domain.INCIDENT_UPDATE_ATTEMPT, audit_domain.INCIDENT_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeIncidentError(c, err)
 		return
 	}
 	// Java sets X-utmstackApp-alert header on deletion.
-	c.Header("X-utmstackApp-alert", "incidentAlert,"+strconv.FormatInt(id, 10))
+	c.Header("X-utmstackApp-alert", "incidentAlert,"+id.String())
 	c.Status(http.StatusOK)
 }

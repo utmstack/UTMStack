@@ -25,11 +25,11 @@ func NewIncidentNoteUsecase(
 	}
 }
 
-func (u *incidentNoteUsecase) Create(ctx context.Context, userLogin string, req dto.CreateNoteRequest) (*domain.UtmIncidentNote, error) {
-	currentUser := resolveUser(userLogin)
+func (u *incidentNoteUsecase) Create(ctx context.Context, userEmail string, req dto.CreateNoteRequest) (*domain.IncidentNote, error) {
+	currentUser := resolveUser(userEmail)
 
 	now := time.Now().UTC()
-	note := &domain.UtmIncidentNote{
+	note := &domain.IncidentNote{
 		IncidentID:   req.IncidentID,
 		NoteText:     req.NoteText,
 		NoteSendDate: now,
@@ -39,13 +39,10 @@ func (u *incidentNoteUsecase) Create(ctx context.Context, userLogin string, req 
 		return nil, err
 	}
 
-	detail := "New note added to incident"
 	by := currentUser
-	h := &domain.UtmIncidentHistory{
+	h := &domain.IncidentHistory{
 		IncidentID:        req.IncidentID,
-		Action:            domain.ActionNoteAdd.Label,
-		ActionType:        domain.ActionNoteAdd.Type,
-		ActionDetail:      &detail,
+		Action:            domain.ActionNoteAdd,
 		ActionCreatedDate: now,
 		ActionCreatedBy:   &by,
 	}
@@ -56,6 +53,6 @@ func (u *incidentNoteUsecase) Create(ctx context.Context, userLogin string, req 
 	return note, nil
 }
 
-func (u *incidentNoteUsecase) List(ctx context.Context, query dto.IncidentNoteListQuery) ([]domain.UtmIncidentNote, int64, error) {
+func (u *incidentNoteUsecase) List(ctx context.Context, query dto.IncidentNoteListQuery) ([]domain.IncidentNote, int64, error) {
 	return u.noteRepo.FindAll(ctx, query)
 }

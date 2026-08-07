@@ -1545,7 +1545,16 @@
     "saving": "Salvataggio…",
     "saved": "Configurazione email salvata",
     "saveError": "Impossibile salvare la configurazione",
-    "loadError": "Impossibile caricare la configurazione"
+    "loadError": "Impossibile caricare la configurazione",
+    "recipients": {
+      "alertsTitle": "Destinatari degli avvisi",
+      "incidentsTitle": "Destinatari degli incidenti",
+      "to": "A",
+      "cc": "CC",
+      "alertsHelper": "Indirizzi avvisati quando vengono generati nuovi avvisi. Se lasci il campo vuoto, gli avvisi non vengono inviati per email.",
+      "incidentsHelper": "Indirizzi avvisati alla creazione di un incidente. Se lasci il campo vuoto, gli incidenti non vengono inviati per email.",
+      "add": "Aggiungi"
+    }
   },
   "dateFormat": {
     "title": "Data e ora",
@@ -1710,7 +1719,9 @@
       "searchFailed": "Ricerca fallita.",
       "searching": "Ricerca…",
       "source": "Origine",
-      "time": "Ora"
+      "time": "Ora",
+      "scope": "Cercato in {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Cerca in tutti i tipi"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -4196,10 +4207,10 @@
     "unassigned": "Non assegnato",
     "unknownUser": "Sconosciuto",
     "status": {
-      "OPEN": "Aperto",
-      "IN_REVIEW": "In revisione",
-      "COMPLETED": "Completato",
-      "MERGED": "Unito"
+      "open": "Aperto",
+      "in_review": "In revisione",
+      "completed": "Completato",
+      "merged": "Unito"
     },
     "sev": {
       "high": "Alta",
@@ -4257,7 +4268,11 @@
       "remove": "Scollega alert",
       "removeConfirm": "Scollegare “{{name}}” da questo incidente?",
       "removed": "Alert scollegato",
-      "removeError": "Impossibile scollegare l’alert"
+      "removeError": "Impossibile scollegare l’alert",
+      "loadingAlert": "Caricamento avviso…",
+      "alertGone": "Questo avviso non è più nell'archivio — la conservazione potrebbe averlo rimosso.",
+      "alertFailed": "Impossibile caricare l'avviso.",
+      "openInAlerts": "Apri in Avvisi"
     },
     "notes": {
       "empty": "Ancora nessuna nota.",
@@ -4282,6 +4297,15 @@
       "error": "Impossibile cambiare l’assegnatario",
       "custom": "Assegna personalizzato",
       "customPlaceholder": "Inserisci un login…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incidente creato",
+      "INCIDENT_ALERT_ADD": "Avvisi aggiunti",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Stato degli avvisi cambiato",
+      "INCIDENT_STATUS_CHANGE": "Stato cambiato",
+      "INCIDENT_NOTE_ADD": "Nota aggiunta",
+      "INCIDENT_NOTE_CHANGE": "Nota modificata",
+      "INCIDENT_ASSIGNED": "Assegnazione cambiata"
     }
   },
   "alertingRules": {

@@ -1545,7 +1545,16 @@
     "saving": "Wird gespeichert…",
     "saved": "E-Mail-Konfiguration gespeichert",
     "saveError": "Konfiguration konnte nicht gespeichert werden",
-    "loadError": "Konfiguration konnte nicht geladen werden"
+    "loadError": "Konfiguration konnte nicht geladen werden",
+    "recipients": {
+      "alertsTitle": "Empfänger für Alarme",
+      "incidentsTitle": "Empfänger für Vorfälle",
+      "to": "An",
+      "cc": "CC",
+      "alertsHelper": "Adressen, die bei neuen Alarmen benachrichtigt werden. Bleibt das Feld leer, werden Alarme nicht per E-Mail versendet.",
+      "incidentsHelper": "Adressen, die bei einem neuen Vorfall benachrichtigt werden. Bleibt das Feld leer, werden Vorfälle nicht per E-Mail versendet.",
+      "add": "Hinzufügen"
+    }
   },
   "dateFormat": {
     "title": "Datum & Uhrzeit",
@@ -1710,7 +1719,9 @@
       "searchFailed": "Suche fehlgeschlagen.",
       "searching": "Suche…",
       "source": "Quelle",
-      "time": "Zeit"
+      "time": "Zeit",
+      "scope": "Durchsucht: {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Alle Datentypen durchsuchen"
     },
     "detail": {
       "fieldsCount_one": "{{count}} Feld",
@@ -4196,10 +4207,10 @@
     "unassigned": "Nicht zugewiesen",
     "unknownUser": "Unbekannt",
     "status": {
-      "OPEN": "Offen",
-      "IN_REVIEW": "In Prüfung",
-      "COMPLETED": "Abgeschlossen",
-      "MERGED": "Zusammengeführt"
+      "open": "Offen",
+      "in_review": "In Prüfung",
+      "completed": "Abgeschlossen",
+      "merged": "Zusammengeführt"
     },
     "sev": {
       "high": "Hoch",
@@ -4257,7 +4268,11 @@
       "remove": "Alarm trennen",
       "removeConfirm": "„{{name}}“ von diesem Vorfall trennen?",
       "removed": "Alarm getrennt",
-      "removeError": "Alarm konnte nicht getrennt werden"
+      "removeError": "Alarm konnte nicht getrennt werden",
+      "loadingAlert": "Alarm wird geladen…",
+      "alertGone": "Dieser Alarm ist nicht mehr im Speicher — die Aufbewahrung hat ihn möglicherweise gelöscht.",
+      "alertFailed": "Der Alarm konnte nicht geladen werden.",
+      "openInAlerts": "In Alarmen öffnen"
     },
     "notes": {
       "empty": "Noch keine Notizen.",
@@ -4282,6 +4297,15 @@
       "error": "Zuweisung konnte nicht geändert werden",
       "custom": "Benutzerdefiniert zuweisen",
       "customPlaceholder": "Login eingeben…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Vorfall erstellt",
+      "INCIDENT_ALERT_ADD": "Alarme hinzugefügt",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Alarmstatus geändert",
+      "INCIDENT_STATUS_CHANGE": "Status geändert",
+      "INCIDENT_NOTE_ADD": "Notiz hinzugefügt",
+      "INCIDENT_NOTE_CHANGE": "Notiz bearbeitet",
+      "INCIDENT_ASSIGNED": "Zuweisung geändert"
     }
   },
   "alertingRules": {

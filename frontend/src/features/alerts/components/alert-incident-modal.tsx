@@ -21,7 +21,7 @@ export function AlertIncidentModal({
   const [mode, setMode] = useState<IncidentMode>('new')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [incidentId, setIncidentId] = useState<number | ''>('')
+  const [incidentId, setIncidentId] = useState('')
   const { incidents, loadingIncidents, busy, submit } = useIncidentLink({ alerts, mode, onDone })
 
   const canSubmit = mode === 'new' ? !!name.trim() : !!incidentId
@@ -102,13 +102,13 @@ export function AlertIncidentModal({
               ) : (
                 <select
                   value={incidentId}
-                  onChange={(e) => setIncidentId(e.target.value ? Number(e.target.value) : '')}
+                  onChange={(e) => setIncidentId(e.target.value)}
                   className={cn(SELECT_CLS, 'w-full')}
                 >
                   <option value="">{t('alerts.incident.selectPlaceholder')}</option>
                   {incidents.map((i) => (
                     <option key={i.id} value={i.id}>
-                      #{i.id} · {i.incidentName}
+                      {i.incidentName}
                     </option>
                   ))}
                 </select>

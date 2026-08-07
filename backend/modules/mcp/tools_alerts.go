@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
@@ -30,7 +31,7 @@ func registerAlerts(m *Module) {
 
 type alertsUpdateStatusInput struct {
 	AlertIDs            []string `json:"alert_ids" jsonschema:"OpenSearch _id values of the alerts to update"`
-	Status              int      `json:"status" jsonschema:"Target status code (UTMStack convention: 1=automatic-review, 2=open, 3=in-review, 5=completed/closed)"`
+	Status              string   `json:"status" jsonschema:"Target status, one of: Automatic review, Open, In review, Completed, Merged"`
 	StatusObservation   string   `json:"status_observation,omitempty" jsonschema:"Optional analyst note attached to the status change"`
 	AddFalsePositiveTag bool     `json:"add_false_positive_tag,omitempty" jsonschema:"If true, also apply the FALSE_POSITIVE tag (used when closing as FP)"`
 }
@@ -49,7 +50,7 @@ type alertsUpdateTagsInput struct {
 type alertsConvertToIncidentInput struct {
 	AlertIDs       []string `json:"alert_ids" jsonschema:"_id values of the alerts to attach to the incident"`
 	IncidentName   string   `json:"incident_name" jsonschema:"Display name for the new/target incident"`
-	IncidentID     int      `json:"incident_id" jsonschema:"Numeric ID of the incident to attach to (0 = create new)"`
+	IncidentID     string   `json:"incident_id" jsonschema:"Numeric ID of the incident to attach to (0 = create new)"`
 	IncidentSource string   `json:"incident_source,omitempty"`
 }
 
@@ -70,7 +71,7 @@ func registerAlertActions(m *Module) {
 			}
 			err := uc.UpdateStatus(ctx, actor.Email, dto.UpdateAlertStatusRequest{
 				AlertIDs:            in.AlertIDs,
-				Status:              in.Status,
+				Status:              alerts_domain.AlertStatus(in.Status),
 				StatusObservation:   in.StatusObservation,
 				AddFalsePositiveTag: in.AddFalsePositiveTag,
 			})

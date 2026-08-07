@@ -25,25 +25,14 @@ func NewModule(
 	db *gorm.DB,
 	mailer connectors.IncidentMailer,
 	alertsGateway connectors.AlertsGateway,
-	iamGateway connectors.IAMGateway,
 	audit audit_connectors.Logger,
 ) *Module {
-	if mailer == nil {
-		mailer = connectors.NewNoopMailer()
-	}
-	if alertsGateway == nil {
-		alertsGateway = connectors.NewNoopAlertsGateway()
-	}
-	if iamGateway == nil {
-		iamGateway = connectors.NewNoopIAMGateway()
-	}
-
 	incidentRepo := repository.NewIncidentRepository(db)
 	alertRepo := repository.NewIncidentAlertRepository(db)
 	noteRepo := repository.NewIncidentNoteRepository(db)
 	historyRepo := repository.NewIncidentHistoryRepository(db)
 
-	incidentUC := usecase.NewIncidentUsecase(incidentRepo, alertRepo, historyRepo, mailer, alertsGateway, iamGateway, audit)
+	incidentUC := usecase.NewIncidentUsecase(incidentRepo, alertRepo, historyRepo, mailer, alertsGateway, audit)
 	incidentAlertUC := usecase.NewIncidentAlertUsecase(alertRepo, historyRepo, incidentRepo)
 	incidentNoteUC := usecase.NewIncidentNoteUsecase(noteRepo, historyRepo)
 	historyUC := usecase.NewIncidentHistoryUsecase(historyRepo)

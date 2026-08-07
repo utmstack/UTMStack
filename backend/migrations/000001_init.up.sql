@@ -376,16 +376,23 @@ BEGIN
   END IF;
 END $$;
 
--- Global alert/incident email recipients. Both optional, comma-separated; with
--- both empty the incident mailer falls back to every active user. The appconfig
--- usecase only ever UPDATEs pre-seeded rows, so these have to exist for
--- GET/PUT /config/<key> to answer.
+-- Email recipients, kept apart for alerts and for incidents because they are
+-- different audiences at different volumes: an incident is raised by a person
+-- and there are few, while alerts arrive on their own and at whatever rate the
+-- environment produces. One list for both means whoever wants incident mail
+-- also gets every alert.
+--
+-- All four optional and comma-separated. The appconfig usecase only ever
+-- UPDATEs pre-seeded rows, so they have to exist here for GET/PUT
+-- /config/<key> to answer.
 INSERT INTO app_config
     (tenant_id, conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 SELECT 'ce66672c-e36d-4761-a8c8-90058fee1a24', v.conf_param_short, v.conf_param_large, v.conf_param_description, v.conf_param_value, v.conf_param_required, v.conf_param_datatype, v.conf_param_option
 FROM (VALUES
-    ('utmstack.alerts.notification_to', 'Alerts notification To',  'Comma-separated addresses that receive alert/incident notifications. Empty falls back to every activated user.', '', false, 'text', NULL),
-    ('utmstack.alerts.notification_cc', 'Alerts notification Cc',  'Comma-separated addresses copied on alert/incident notifications.',                                          '', false, 'text', NULL)
+    ('utmstack.alerts.notification_to',    'Alerts notification To',    'Comma-separated addresses that receive new-alert notifications. Empty means alerts are not emailed.', '', false, 'text', NULL),
+    ('utmstack.alerts.notification_cc',    'Alerts notification Cc',    'Comma-separated addresses copied on new-alert notifications.',                                     '', false, 'text', NULL),
+    ('utmstack.incidents.notification_to', 'Incidents notification To', 'Comma-separated addresses that receive incident notifications. Empty means incidents are not emailed.', '', false, 'text', NULL),
+    ('utmstack.incidents.notification_cc', 'Incidents notification Cc', 'Comma-separated addresses copied on incident notifications.',                                      '', false, 'text', NULL)
 ) AS v(conf_param_short, conf_param_large, conf_param_description, conf_param_value, conf_param_required, conf_param_datatype, conf_param_option)
 WHERE NOT EXISTS (
     SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short

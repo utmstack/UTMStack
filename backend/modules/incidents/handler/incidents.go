@@ -25,7 +25,7 @@ func NewIncidentHandler(uc connectors.IncidentUsecase) *IncidentHandler {
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.CreateIncidentRequest true "Create incident"
-// @Success     200 {object} domain.UtmIncident
+// @Success     200 {object} domain.Incident
 // @Failure     400 {object} map[string]string
 // @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
@@ -53,7 +53,7 @@ func (h *IncidentHandler) Create(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.AddAlertsRequest true "Add alerts"
-// @Success     201 {object} domain.UtmIncident
+// @Success     201 {object} domain.Incident
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     409 {object} map[string]string
@@ -82,7 +82,7 @@ func (h *IncidentHandler) AddAlerts(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.ChangeStatusRequest true "Change status"
-// @Success     200 {object} domain.UtmIncident
+// @Success     200 {object} domain.Incident
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
@@ -110,7 +110,7 @@ func (h *IncidentHandler) ChangeStatus(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.AssignRequest true "Assignment"
-// @Success     200 {object} domain.UtmIncident
+// @Success     200 {object} domain.Incident
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Router      /incidents/assign [put]
@@ -139,7 +139,7 @@ func (h *IncidentHandler) Assign(c *gin.Context) {
 // @Param       incidentAssignedTo query string false "Filter by assigned user"
 // @Param       page               query int    false "Page (default 1)"
 // @Param       size               query int    false "Page size (default 20)"
-// @Success     200 {array} domain.UtmIncident
+// @Success     200 {array} domain.Incident
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
 // @Router      /incidents [get]
@@ -162,36 +162,33 @@ func (h *IncidentHandler) List(c *gin.Context) {
 	writePagedArray(c, rows, total)
 }
 
-// @Summary     Get users assigned to incidents
+// @Summary     List the assignees currently in use
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Success     200 {array} dto.UserAssignedDTO
+// @Success     200 {array} string
 // @Failure     500 {object} map[string]string
-// @Router      /incidents/users-assigned [get]
-func (h *IncidentHandler) GetUsersAssigned(c *gin.Context) {
-	users, err := h.usecase.GetUsersAssigned(c.Request.Context())
+// @Router      /incidents/assignees [get]
+func (h *IncidentHandler) GetAssignees(c *gin.Context) {
+	names, err := h.usecase.GetAssignees(c.Request.Context())
 	if err != nil {
 		writeIncidentError(c, err)
 		return
 	}
-	if users == nil {
-		users = []dto.UserAssignedDTO{}
-	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, names)
 }
 
 // @Summary     Get incident by ID
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       id path int true "Incident ID"
-// @Success     200 {object} domain.UtmIncident
+// @Param       id path string true "Incident ID"
+// @Success     200 {object} domain.Incident
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incidents/{id} [get]
 func (h *IncidentHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
+	id, ok := pathUUID(c, "id")
 	if !ok {
 		return
 	}

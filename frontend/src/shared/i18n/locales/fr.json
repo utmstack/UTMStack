@@ -1545,7 +1545,16 @@
     "saving": "Enregistrement…",
     "saved": "Configuration e-mail enregistrée",
     "saveError": "Impossible d’enregistrer la configuration",
-    "loadError": "Impossible de charger la configuration"
+    "loadError": "Impossible de charger la configuration",
+    "recipients": {
+      "alertsTitle": "Destinataires des alertes",
+      "incidentsTitle": "Destinataires des incidents",
+      "to": "À",
+      "cc": "Cc",
+      "alertsHelper": "Adresses prévenues lors de nouvelles alertes. Laissez vide et les alertes ne sont pas envoyées par e-mail.",
+      "incidentsHelper": "Adresses prévenues à la création d'un incident. Laissez vide et les incidents ne sont pas envoyés par e-mail.",
+      "add": "Ajouter"
+    }
   },
   "dateFormat": {
     "title": "Date et heure",
@@ -1710,7 +1719,9 @@
       "searchFailed": "La recherche a échoué.",
       "searching": "Recherche…",
       "source": "Source",
-      "time": "Heure"
+      "time": "Heure",
+      "scope": "Recherché dans {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Chercher dans tous les types"
     },
     "detail": {
       "fieldsCount_one": "{{count}} champ",
@@ -4196,10 +4207,10 @@
     "unassigned": "Non attribué",
     "unknownUser": "Inconnu",
     "status": {
-      "OPEN": "Ouvert",
-      "IN_REVIEW": "En revue",
-      "COMPLETED": "Terminé",
-      "MERGED": "Fusionné"
+      "open": "Ouvert",
+      "in_review": "En revue",
+      "completed": "Terminé",
+      "merged": "Fusionné"
     },
     "sev": {
       "high": "Élevée",
@@ -4257,7 +4268,11 @@
       "remove": "Dissocier l’alerte",
       "removeConfirm": "Dissocier « {{name}} » de cet incident ?",
       "removed": "Alerte dissociée",
-      "removeError": "Impossible de dissocier l’alerte"
+      "removeError": "Impossible de dissocier l’alerte",
+      "loadingAlert": "Chargement de l'alerte…",
+      "alertGone": "Cette alerte n'est plus dans le stockage — la rétention l'a peut-être supprimée.",
+      "alertFailed": "Impossible de charger l'alerte.",
+      "openInAlerts": "Ouvrir dans Alertes"
     },
     "notes": {
       "empty": "Pas encore de notes.",
@@ -4282,6 +4297,15 @@
       "error": "Impossible de changer l’assigné",
       "custom": "Assigner personnalisé",
       "customPlaceholder": "Saisir un identifiant…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incident créé",
+      "INCIDENT_ALERT_ADD": "Alertes ajoutées",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Statut des alertes modifié",
+      "INCIDENT_STATUS_CHANGE": "Statut modifié",
+      "INCIDENT_NOTE_ADD": "Note ajoutée",
+      "INCIDENT_NOTE_CHANGE": "Note modifiée",
+      "INCIDENT_ASSIGNED": "Attribution modifiée"
     }
   },
   "alertingRules": {

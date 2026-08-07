@@ -9,7 +9,7 @@ export interface UseIncidentHistoryTabResult {
 }
 
 /** Data for the incident drawer's "History" tab — sorted newest-first. */
-export function useIncidentHistoryTab(incidentId: number): UseIncidentHistoryTabResult {
+export function useIncidentHistoryTab(incidentId: string): UseIncidentHistoryTabResult {
   const [rows, setRows] = useState<IncidentHistory[] | null>(null)
   const [error, setError] = useState(false)
 

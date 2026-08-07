@@ -1545,7 +1545,16 @@
     "saving": "Salvando…",
     "saved": "Configuração de e-mail salva",
     "saveError": "Não foi possível salvar a configuração",
-    "loadError": "Não foi possível carregar a configuração"
+    "loadError": "Não foi possível carregar a configuração",
+    "recipients": {
+      "alertsTitle": "Destinatários de alertas",
+      "incidentsTitle": "Destinatários de incidentes",
+      "to": "Para",
+      "cc": "CC",
+      "alertsHelper": "Endereços avisados quando novos alertas são gerados. Se deixar vazio, os alertas não são enviados por email.",
+      "incidentsHelper": "Endereços avisados quando um incidente é criado. Se deixar vazio, os incidentes não são enviados por email.",
+      "add": "Adicionar"
+    }
   },
   "dateFormat": {
     "title": "Data e hora",
@@ -1710,7 +1719,9 @@
       "searchFailed": "A busca falhou.",
       "searching": "Buscando…",
       "source": "Origem",
-      "time": "Hora"
+      "time": "Hora",
+      "scope": "Pesquisado em {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Pesquisar todos os tipos"
     },
     "detail": {
       "fieldsCount_one": "{{count}} campo",
@@ -4318,10 +4329,10 @@
     "unassigned": "Não atribuído",
     "unknownUser": "Desconhecido",
     "status": {
-      "OPEN": "Aberto",
-      "IN_REVIEW": "Em revisão",
-      "COMPLETED": "Concluído",
-      "MERGED": "Mesclado"
+      "open": "Aberto",
+      "in_review": "Em revisão",
+      "completed": "Concluído",
+      "merged": "Mesclado"
     },
     "sev": {
       "high": "Alta",
@@ -4379,7 +4390,11 @@
       "remove": "Desvincular alerta",
       "removeConfirm": "Desvincular “{{name}}” deste incidente?",
       "removed": "Alerta desvinculado",
-      "removeError": "Não foi possível desvincular o alerta"
+      "removeError": "Não foi possível desvincular o alerta",
+      "loadingAlert": "A carregar alerta…",
+      "alertGone": "Este alerta já não está no armazenamento — a retenção pode tê-lo removido.",
+      "alertFailed": "Não foi possível carregar o alerta.",
+      "openInAlerts": "Abrir em Alertas"
     },
     "notes": {
       "empty": "Ainda sem notas.",
@@ -4404,6 +4419,15 @@
       "error": "Não foi possível alterar o responsável",
       "custom": "Atribuir personalizado",
       "customPlaceholder": "Digite um login…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incidente criado",
+      "INCIDENT_ALERT_ADD": "Alertas adicionados",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Estado dos alertas alterado",
+      "INCIDENT_STATUS_CHANGE": "Estado alterado",
+      "INCIDENT_NOTE_ADD": "Nota adicionada",
+      "INCIDENT_NOTE_CHANGE": "Nota editada",
+      "INCIDENT_ASSIGNED": "Atribuição alterada"
     }
   },
   "parsingFilters": {

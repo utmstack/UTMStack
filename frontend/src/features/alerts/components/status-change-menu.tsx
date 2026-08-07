@@ -3,12 +3,12 @@ import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { ST_META } from '../lib/alert-meta'
-import { STATUS_CODE, type StatusKey } from '../types/alert.types'
+import { STATUS_VALUE, type StatusKey } from '../types/alert.types'
 import { StatusObservationModal } from './status-observation-modal'
 
 type Variant = 'pill' | 'action'
 
-type Pending = { status: number; fp: boolean; title: string }
+type Pending = { status: string; fp: boolean; title: string }
 
 export function StatusChangeMenu({
   status,
@@ -17,7 +17,7 @@ export function StatusChangeMenu({
   onCreateRule,
 }: {
   status: StatusKey
-  onStatus: (status: number, observation: string, fp: boolean) => void
+  onStatus: (status: string, observation: string, fp: boolean) => void
   variant: Variant
   onCreateRule?: () => void
 }) {
@@ -37,15 +37,15 @@ export function StatusChangeMenu({
   const pickStatus = (k: StatusKey) => {
     setOpen(false)
     if (k === 'completed') {
-      setPending({ status: STATUS_CODE.completed, fp: false, title: t('alerts.status.completed') })
+      setPending({ status: STATUS_VALUE.completed, fp: false, title: t('alerts.status.completed') })
       return
     }
-    onStatus(STATUS_CODE[k], '', false)
+    onStatus(STATUS_VALUE[k], '', false)
   }
 
   const pickFalsePositive = () => {
     setOpen(false)
-    setPending({ status: STATUS_CODE.completed, fp: true, title: t('alerts.drawer.completeFalsePositive') })
+    setPending({ status: STATUS_VALUE.completed, fp: true, title: t('alerts.drawer.completeFalsePositive') })
   }
 
   return (

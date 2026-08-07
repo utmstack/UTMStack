@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
@@ -44,15 +45,8 @@ type EvaluatorUsecase interface {
 	DeleteReport(ctx context.Context, id string) error
 	FrameworkReportPDF(ctx context.Context, frameworkKey string) ([]byte, string, error) // live eval → PDF + framework name
 	SnapshotPDF(ctx context.Context, id string) ([]byte, string, error)                  // stored snapshot → PDF + framework name
-
-	// Manual status overrides — applied on live evaluations only (historical
-	// snapshots are frozen). SetStatusOverride upserts; ClearStatusOverride
-	// removes the override so the row falls back to the computed status.
 	SetStatusOverride(ctx context.Context, frameworkKey, controlID, status, reason string) error
 	ClearStatusOverride(ctx context.Context, frameworkKey, controlID string) error
-
-	// User notes on (framework, control) — freeform text, surfaced on live report
-	// rows. Empty note deletes the row.
 	SetControlNote(ctx context.Context, frameworkKey, controlID, note string) error
 	ClearControlNote(ctx context.Context, frameworkKey, controlID string) error
 }

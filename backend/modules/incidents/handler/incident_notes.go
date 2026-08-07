@@ -25,7 +25,7 @@ func NewIncidentNoteHandler(uc connectors.IncidentNoteUsecase) *IncidentNoteHand
 // @Accept      json
 // @Produce     json
 // @Param       input body dto.CreateNoteRequest true "Create note"
-// @Success     201 {object} domain.UtmIncidentNote
+// @Success     201 {object} domain.IncidentNote
 // @Failure     400 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incident-notes [post]
@@ -49,16 +49,20 @@ func (h *IncidentNoteHandler) Create(c *gin.Context) {
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       incidentId query int false "Filter by incident ID"
+// @Param       incidentId query string false "Filter by incident ID"
 // @Param       page       query int false "Page (default 1)"
 // @Param       size       query int false "Page size (default 20)"
-// @Success     200 {array} domain.UtmIncidentNote
+// @Success     200 {array} domain.IncidentNote
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
 // @Router      /incident-notes [get]
 func (h *IncidentNoteHandler) List(c *gin.Context) {
+	incidentID, ok := queryUUID(c, "incidentId")
+	if !ok {
+		return
+	}
 	query := dto.IncidentNoteListQuery{
-		IncidentID: queryInt64(c, "incidentId"),
+		IncidentID: incidentID,
 		Page:       queryInt(c, "page", 1),
 		Size:       queryInt(c, "size", 20),
 	}

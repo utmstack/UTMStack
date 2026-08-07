@@ -18,12 +18,17 @@ type AdversaryUsecase interface {
 	FetchAdversaryAlerts(ctx context.Context, filters []common_models.FilterType) ([]dto.AdversaryResponse, error)
 }
 
+type AlertMailer interface {
+	SendAlertRaised(ctx context.Context, alert domain.UtmAlert) error
+}
+
 type AlertUsecase interface {
-	UpdateStatus(ctx context.Context, userLogin string, req dto.UpdateAlertStatusRequest) error
-	UpdateNotes(ctx context.Context, userLogin string, alertID string, notes string) error
-	UpdateAssignee(ctx context.Context, userLogin string, alertID string, assignee string) error
-	UpdateTags(ctx context.Context, userLogin string, req dto.UpdateAlertTagsRequest) error
-	ConvertToIncident(ctx context.Context, userLogin string, req dto.ConvertToIncidentRequest) error
+	UpdateStatus(ctx context.Context, userEmail string, req dto.UpdateAlertStatusRequest) error
+	NotifyRaised(ctx context.Context, alertID string) error
+	UpdateNotes(ctx context.Context, userEmail string, alertID string, notes string) error
+	UpdateAssignee(ctx context.Context, userEmail string, alertID string, assignee string) error
+	UpdateTags(ctx context.Context, userEmail string, req dto.UpdateAlertTagsRequest) error
+	ConvertToIncident(ctx context.Context, userEmail string, req dto.ConvertToIncidentRequest) error
 	CountOpenAlerts(ctx context.Context) (*dto.CountOpenAlertsResponse, error)
 	RelatedLogs(ctx context.Context, alertID string) (*dto.RelatedLogsResponse, error)
 	ListEchoes(ctx context.Context, parentID string, page, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error)

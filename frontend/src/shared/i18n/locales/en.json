@@ -1697,7 +1697,16 @@
     "saving": "Saving…",
     "saved": "Email configuration saved",
     "saveError": "Could not save the configuration",
-    "loadError": "Could not load the configuration"
+    "loadError": "Could not load the configuration",
+    "recipients": {
+      "alertsTitle": "Alert recipients",
+      "incidentsTitle": "Incident recipients",
+      "to": "To",
+      "cc": "CC",
+      "alertsHelper": "Addresses notified when new alerts are raised. Leave empty and alerts are not emailed.",
+      "incidentsHelper": "Addresses notified when an incident is created. Leave empty and incidents are not emailed.",
+      "add": "Add"
+    }
   },
   "dateFormat": {
     "title": "Date & time",
@@ -1862,7 +1871,9 @@
       "searchFailed": "Search failed.",
       "searching": "Searching…",
       "source": "Source",
-      "time": "Time"
+      "time": "Time",
+      "scope": "Searched {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Search every data type"
     },
     "detail": {
       "fieldsCount_one": "{{count}} field",
@@ -4567,10 +4578,10 @@
     "unassigned": "Unassigned",
     "unknownUser": "Unknown",
     "status": {
-      "OPEN": "Open",
-      "IN_REVIEW": "In review",
-      "COMPLETED": "Completed",
-      "MERGED": "Merged"
+      "open": "Open",
+      "in_review": "In review",
+      "completed": "Completed",
+      "merged": "Merged"
     },
     "sev": {
       "high": "High",
@@ -4628,7 +4639,11 @@
       "remove": "Unlink alert",
       "removeConfirm": "Unlink “{{name}}” from this incident?",
       "removed": "Alert unlinked",
-      "removeError": "Could not unlink the alert"
+      "removeError": "Could not unlink the alert",
+      "loadingAlert": "Loading alert…",
+      "alertGone": "This alert is no longer in the store — retention may have dropped it.",
+      "alertFailed": "Could not load the alert.",
+      "openInAlerts": "Open in Alerts"
     },
     "notes": {
       "empty": "No notes yet.",
@@ -4653,6 +4668,15 @@
       "error": "Could not change the assignee",
       "custom": "Assign custom",
       "customPlaceholder": "Type a login…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incident created",
+      "INCIDENT_ALERT_ADD": "Alerts added",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Alert status changed",
+      "INCIDENT_STATUS_CHANGE": "Status changed",
+      "INCIDENT_NOTE_ADD": "Note added",
+      "INCIDENT_NOTE_CHANGE": "Note edited",
+      "INCIDENT_ASSIGNED": "Assignee changed"
     }
   },
   "parsingFilters": {

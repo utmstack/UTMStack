@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { ST_META } from '../lib/incident-meta'
+import { ST_META , statusKey} from '../lib/incident-meta'
 import type { IncidentStatus } from '../types/incident.types'
 
 export function IncidentStatusPill({ status }: { status: IncidentStatus }) {
@@ -12,7 +12,7 @@ export function IncidentStatusPill({ status }: { status: IncidentStatus }) {
         ST_META[status].pill
       )}
     >
-      <span className={cn('h-1.5 w-1.5 rounded-full', ST_META[status].dot)} /> {t(`incidents.status.${status}`)}
+      <span className={cn('h-1.5 w-1.5 rounded-full', ST_META[status].dot)} /> {t(`incidents.status.${statusKey(status)}`)}
     </span>
   )
 }

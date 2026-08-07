@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { alertsHttpService as svc, AlertsHttpError } from '../services/alerts-http.service'
-import { STATUS_VALUE_BY_CODE, type Alert, type FilterType } from '../types/alert.types'
+import { type Alert, type FilterType } from '../types/alert.types'
 
 export interface UseAlertMutationsArgs {
   refresh: () => void
@@ -12,7 +12,7 @@ export interface UseAlertMutationsArgs {
 }
 
 export interface UseAlertMutationsResult {
-  applyStatus: (ids: string[], status: number, observation?: string, fp?: boolean) => Promise<void>
+  applyStatus: (ids: string[], status: string, observation?: string, fp?: boolean) => Promise<void>
   applyTags: (ids: string[], tags: string[]) => Promise<void>
   updateNotes: (alertId: string, notes: string) => Promise<void>
   updateAssignee: (alertId: string, assignee: string) => Promise<void>
@@ -50,14 +50,14 @@ export function useAlertMutations({
   )
 
   const applyStatus = useCallback(
-    async (ids: string[], status: number, observation = '', fp = false) => {
+    async (ids: string[], status: string, observation = '', fp = false) => {
       try {
         await svc.updateStatus(ids, status, observation, fp)
         toast.success(t('alerts.toast.statusUpdated'))
         clearSelection()
         refresh()
         if (openAlert && ids.includes(openAlert.id)) {
-          setOpenAlert({ ...openAlert, status: STATUS_VALUE_BY_CODE[status] })
+          setOpenAlert({ ...openAlert, status })
           refetchOpen(openAlert.id)
         }
       } catch (e) {

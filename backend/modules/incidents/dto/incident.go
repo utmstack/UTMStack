@@ -1,50 +1,40 @@
 package dto
 
-import "time"
+import "github.com/google/uuid"
 
 type AlertLinkItem struct {
-	AlertID       string `json:"alertId"       binding:"required"`
-	AlertName     string `json:"alertName"     binding:"required"`
-	AlertStatus   *int   `json:"alertStatus"`
-	AlertSeverity int    `json:"alertSeverity" binding:"required"`
+	AlertID       string  `json:"alertId"       binding:"required"`
+	AlertName     string  `json:"alertName"     binding:"required"`
+	AlertStatus   *string `json:"alertStatus"`
+	AlertSeverity string  `json:"alertSeverity" binding:"required"`
 }
 
 type CreateIncidentRequest struct {
-	IncidentName        string          `json:"incidentName"        binding:"required"`
-	IncidentDescription *string         `json:"incidentDescription"`
-	IncidentAssignedTo  *string         `json:"incidentAssignedTo"`
-	IncidentObservation *string         `json:"incidentObservation"`
-	AlertList           []AlertLinkItem `json:"alertList"           binding:"required,min=1"`
+	IncidentName        string  `json:"incidentName"        binding:"required"`
+	IncidentDescription *string `json:"incidentDescription"`
+	IncidentAssignedTo  string  `json:"incidentAssignedTo"`
+	IncidentObservation *string `json:"incidentObservation"`
+	// Capped because nothing else caps it: the rows are written in one
+	// transaction, and an unbounded list is a request that holds a Postgres
+	// transaction open for as long as the caller likes.
+	AlertList []AlertLinkItem `json:"alertList" binding:"required,min=1,max=1000"`
 }
 
 type AddAlertsRequest struct {
-	IncidentID int64           `json:"incidentId" binding:"required"`
-	AlertList  []AlertLinkItem `json:"alertList"  binding:"required,min=1"`
+	IncidentID uuid.UUID       `json:"incidentId" binding:"required"`
+	AlertList  []AlertLinkItem `json:"alertList"  binding:"required,min=1,max=1000"`
 }
 
 type ChangeStatusRequest struct {
-	IncidentID          int64   `json:"id"                  binding:"required"`
-	IncidentName        string  `json:"incidentName"        binding:"required"`
-	IncidentDescription *string `json:"incidentDescription"`
-	IncidentStatus      string  `json:"incidentStatus"      binding:"required"`
-	IncidentSeverity    *int    `json:"incidentSeverity"`
-	IncidentCreatedDate *string `json:"incidentCreatedDate"`
-	IncidentSolution    *string `json:"incidentSolution"`
+	IncidentID          uuid.UUID `json:"id"                  binding:"required"`
+	IncidentName        string    `json:"incidentName"        binding:"required"`
+	IncidentDescription *string   `json:"incidentDescription"`
+	IncidentStatus      string    `json:"incidentStatus"      binding:"required"`
+	IncidentCreatedDate *string   `json:"incidentCreatedDate"`
+	IncidentSolution    *string   `json:"incidentSolution"`
 }
 
 type AssignRequest struct {
-	IncidentID int64   `json:"incidentId" binding:"required"`
-	AssignedTo *string `json:"assignedTo"`
-}
-
-type IncidentResponse struct {
-	ID                  int64     `json:"id"`
-	IncidentName        string    `json:"incidentName"`
-	IncidentDescription *string   `json:"incidentDescription,omitempty"`
-	IncidentStatus      string    `json:"incidentStatus"`
-	IncidentSeverity    *int      `json:"incidentSeverity,omitempty"`
-	IncidentAssignedTo  *string   `json:"incidentAssignedTo,omitempty"`
-	IncidentSolution    *string   `json:"incidentSolution,omitempty"`
-	IncidentCreatedDate time.Time `json:"incidentCreatedDate"`
-	AlertCount          int       `json:"alertCount"`
+	IncidentID uuid.UUID `json:"incidentId" binding:"required"`
+	AssignedTo string    `json:"assignedTo"`
 }

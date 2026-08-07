@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
@@ -16,7 +18,7 @@ func NewIncidentHistoryUsecase(historyRepo connectors.IncidentHistoryRepository)
 	return &incidentHistoryUsecase{historyRepo: historyRepo}
 }
 
-func (u *incidentHistoryUsecase) List(ctx context.Context, query dto.HistoryListQuery) ([]domain.UtmIncidentHistory, int64, error) {
+func (u *incidentHistoryUsecase) List(ctx context.Context, query dto.HistoryListQuery) ([]domain.IncidentHistory, int64, error) {
 	return u.historyRepo.FindAll(ctx, query)
 }
 
@@ -24,7 +26,7 @@ func (u *incidentHistoryUsecase) Count(ctx context.Context, query dto.HistoryLis
 	return u.historyRepo.Count(ctx, query)
 }
 
-func (u *incidentHistoryUsecase) GetByID(ctx context.Context, id int64) (*domain.UtmIncidentHistory, error) {
+func (u *incidentHistoryUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.IncidentHistory, error) {
 	h, err := u.historyRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err

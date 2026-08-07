@@ -38,7 +38,7 @@ export function AlertDrawer({
   alert: Alert
   tagCatalog: AlertTag[]
   onClose: () => void
-  onStatus: (status: number, observation: string, fp: boolean) => void
+  onStatus: (status: string, observation: string, fp: boolean) => void
   onTags: (tags: string[]) => void
   onCreateTag: (tagName: string, tagColor: string) => void
   onUpdateTag: (id: string, tagName: string, tagColor: string) => void

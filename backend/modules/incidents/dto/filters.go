@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type IncidentListQuery struct {
 	IncidentName       *string
@@ -14,16 +18,16 @@ type IncidentListQuery struct {
 }
 
 type IncidentAlertListQuery struct {
-	IncidentID  *int64
+	IncidentID  *uuid.UUID
 	AlertID     *string
-	AlertStatus *int
+	AlertStatus *string
 	Page        int
 	Size        int
 	Sort        string
 }
 
 type IncidentNoteListQuery struct {
-	IncidentID *int64
+	IncidentID *uuid.UUID
 	Page       int
 	Size       int
 	Sort       string

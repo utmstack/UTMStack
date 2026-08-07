@@ -20,18 +20,22 @@ func NewIncidentHistoryHandler(uc connectors.IncidentHistoryUsecase) *IncidentHi
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       incidentId query int false "Filter by incident ID"
+// @Param       incidentId query string false "Filter by incident ID"
 // @Param       page       query int false "Page (default 1)"
 // @Param       size       query int false "Page size (default 20)"
 // @Param       sort       query string false "Sort field (default action_date DESC)"
-// @Success     200 {array} domain.UtmIncidentHistory
+// @Success     200 {array} domain.IncidentHistory
 // @Header      200 {string} X-Total-Count "Total items"
 // @Failure     500 {object} map[string]string
 // @Router      /incident-histories [get]
 func (h *IncidentHistoryHandler) List(c *gin.Context) {
+	incidentID, ok := queryUUID(c, "incidentId")
+	if !ok {
+		return
+	}
 	query := dto.HistoryListQuery{
-		IncidentID: queryInt64(c, "incidentId"),
-		ActionType: queryString(c, "actionType"),
+		IncidentID: incidentID,
+		Action:     queryString(c, "action"),
 		Page:       queryInt(c, "page", 1),
 		Size:       queryInt(c, "size", 20),
 		Sort:       c.Query("sort"),
@@ -48,13 +52,17 @@ func (h *IncidentHistoryHandler) List(c *gin.Context) {
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       incidentId query int false "Filter by incident ID"
+// @Param       incidentId query string false "Filter by incident ID"
 // @Success     200 {integer} int64
 // @Failure     500 {object} map[string]string
 // @Router      /incident-histories/count [get]
 func (h *IncidentHistoryHandler) Count(c *gin.Context) {
+	incidentID, ok := queryUUID(c, "incidentId")
+	if !ok {
+		return
+	}
 	query := dto.HistoryListQuery{
-		IncidentID: queryInt64(c, "incidentId"),
+		IncidentID: incidentID,
 	}
 	total, err := h.usecase.Count(c.Request.Context(), query)
 	if err != nil {
@@ -68,13 +76,13 @@ func (h *IncidentHistoryHandler) Count(c *gin.Context) {
 // @Tags        Incidents
 // @Security    BearerAuth
 // @Produce     json
-// @Param       id path int true "History ID"
-// @Success     200 {object} domain.UtmIncidentHistory
+// @Param       id path string true "History ID"
+// @Success     200 {object} domain.IncidentHistory
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /incident-histories/{id} [get]
 func (h *IncidentHistoryHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
+	id, ok := pathUUID(c, "id")
 	if !ok {
 		return
 	}

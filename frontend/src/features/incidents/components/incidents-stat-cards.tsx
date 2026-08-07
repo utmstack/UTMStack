@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { ST_META, STATUSES } from '../lib/incident-meta'
+import { ST_META, STATUSES , statusKey} from '../lib/incident-meta'
 import type { IncidentStatus } from '../types/incident.types'
 
 export function IncidentsStatCards({
@@ -25,7 +25,7 @@ export function IncidentsStatCards({
           )}
         >
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-            <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${s}`)}
+            <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${statusKey(s)}`)}
           </div>
           <div className="mt-1 text-2xl font-semibold tabular-nums">{counts[s]}</div>
         </button>

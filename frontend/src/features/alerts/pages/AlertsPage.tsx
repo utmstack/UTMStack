@@ -157,7 +157,7 @@ export function AlertsPage() {
     return f
   }, [scopeFilters, statusTab, severity])
 
-  const { alerts, total, loading, error, refresh: refreshList } = useAlertsList(page, pageSize, listFilters)
+  const { alerts, total, hasMore, loading, error, refresh: refreshList } = useAlertsList(page, pageSize, listFilters)
 
   useEffect(() => {
     const name = pendingOpenNameRef.current
@@ -393,7 +393,7 @@ export function AlertsPage() {
               {alerts.length > 0 && (
                 <InfiniteScrollSentinel
                   onReach={() => setPage((p) => p + 1)}
-                  hasMore={alerts.length < total}
+                  hasMore={hasMore}
                   loading={loading}
                   endLabel={t('common.allLoaded', { count: total })}
                 />

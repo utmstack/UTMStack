@@ -13,7 +13,7 @@ export interface UseIncidentNotesTabResult {
 }
 
 /** Data + add-note mutation for the incident drawer's "Notes" tab. */
-export function useIncidentNotesTab(incidentId: number): UseIncidentNotesTabResult {
+export function useIncidentNotesTab(incidentId: string): UseIncidentNotesTabResult {
   const { t } = useTranslation()
   const [rows, setRows] = useState<IncidentNote[] | null>(null)
   const [error, setError] = useState(false)

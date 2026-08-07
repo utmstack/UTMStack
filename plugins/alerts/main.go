@@ -59,7 +59,10 @@ type AlertFields struct {
 	plugins.Alert
 }
 
-var rules *ruleCache
+var (
+	rules  *ruleCache
+	notify *notifier
+)
 
 func main() {
 	cfg := plugins.PluginCfg("clickhouse")
@@ -89,6 +92,7 @@ func main() {
 	defer alertStore.Close()
 
 	rules = newRuleCache()
+	notify = newNotifier()
 	initialCtx, initialCancel := context.WithTimeout(context.Background(), rulesRequestTimeout)
 	if err := rules.Refresh(initialCtx); err != nil {
 		// First-pass failure is non-fatal — the background loop keeps trying.
@@ -436,6 +440,7 @@ func newAlert(alert *plugins.Alert, alertJSON string, parentId *string, ruleSnap
 		cancel()
 
 		if err == nil {
+			notify.Notify(alert.TenantId, a.Id, a.ParentId)
 			return nil
 		}
 

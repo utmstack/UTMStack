@@ -16,7 +16,7 @@ type AlertRepository interface {
 	UpdateNotes(ctx context.Context, alertID, notes string, history []HistoryEntry) error
 	UpdateAssignee(ctx context.Context, alertID, assignee string, history []HistoryEntry) error
 	UpdateTags(ctx context.Context, alertIDs []string, tags []string, history []HistoryEntry) error
-	ConvertToIncident(ctx context.Context, alertIDs []string, name string, id int, createdAt time.Time, createdBy, source string, history []HistoryEntry) error
+	ConvertToIncident(ctx context.Context, alertIDs []string, name, id string, createdAt time.Time, createdBy, source string, history []HistoryEntry) error
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status domain.AlertStatus) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)

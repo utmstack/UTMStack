@@ -15,6 +15,7 @@ import (
 
 const (
 	internalKeyHeader   = "X-Internal-Key"
+	tenantHeader        = "X-Tenant-Id"
 	defaultRefreshSec   = 60
 	rulesRequestTimeout = 10 * time.Second
 	activeRulesPath     = "/api/v1/internal/alert-tag-rules/active"

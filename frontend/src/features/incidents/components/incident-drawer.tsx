@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
-import { SEV_TONE, ST_META, STATUSES, sevKey } from '../lib/incident-meta'
+import { SEV_TONE, ST_META, STATUSES, sevKey , statusKey} from '../lib/incident-meta'
 import { useIncidentStatus } from '../hooks/use-incident-status'
 import type { Incident, IncidentStatus } from '../types/incident.types'
 import { IncidentAssignee, IncidentAssigneePicker } from './incident-assignee'
@@ -22,7 +22,7 @@ export function IncidentDrawer({
 }: {
   incident: Incident
   onClose: () => void
-  onChanged: (id: number) => void
+  onChanged: (id: string) => void
 }) {
   const { t } = useTranslation()
   const df = useDateFormat()
@@ -75,7 +75,7 @@ export function IncidentDrawer({
                     : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${s}`)}
+                <span className={cn('h-2 w-2 rounded-full', ST_META[s].dot)} /> {t(`incidents.status.${statusKey(s)}`)}
               </button>
             ))}
             <span className="mx-1 h-4 w-px bg-border" />

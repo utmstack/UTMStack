@@ -35,7 +35,7 @@ export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsLis
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [counts, setCounts] = useState<Record<IncidentStatus, number>>({ OPEN: 0, IN_REVIEW: 0, COMPLETED: 0, MERGED: 0 })
+  const [counts, setCounts] = useState<Record<IncidentStatus, number>>({ Open: 0, 'In review': 0, Completed: 0, Merged: 0 })
   const [assigneeOptions, setAssigneeOptions] = useState<string[]>([])
   const [nonce, setNonce] = useState(0)
 
@@ -80,9 +80,11 @@ export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsLis
           .catch(() => [s, 0] as const)
       )
     ).then((pairs) => !cancelled && setCounts(Object.fromEntries(pairs) as Record<IncidentStatus, number>))
+    // The assignees are free text, so the filter offers the ones actually in
+    // use rather than the platform's user list.
     svc
-      .usersAssigned()
-      .then((u) => !cancelled && setAssigneeOptions(u.map((x) => x.login)))
+      .assignees()
+      .then((names) => !cancelled && setAssigneeOptions(names))
       .catch(() => {})
     return () => {
       cancelled = true
