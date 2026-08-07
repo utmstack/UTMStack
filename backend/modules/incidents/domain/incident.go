@@ -1,10 +1,14 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type UtmIncident struct {
 	ID                  int64     `gorm:"primaryKey;autoIncrement"                           json:"id"`
-	TenantID            string    `gorm:"column:tenant_id;size:36;index;uniqueIndex:idx_incident_tenant_name" json:"-"`
+	TenantID            uuid.UUID `gorm:"column:tenant_id;type:uuid;not null;index;uniqueIndex:idx_incident_tenant_name" json:"-"`
 	IncidentName        string    `gorm:"column:incident_name;size:255;not null;uniqueIndex:idx_incident_tenant_name" json:"incidentName"`
 	IncidentDescription *string   `gorm:"column:incident_description;type:text"              json:"incidentDescription,omitempty"`
 	IncidentStatus      string    `gorm:"column:incident_status;size:255;not null"           json:"incidentStatus"`
@@ -18,4 +22,4 @@ type UtmIncident struct {
 	History []UtmIncidentHistory `gorm:"foreignKey:IncidentID;references:ID;constraint:OnDelete:CASCADE" json:"-"`
 }
 
-func (UtmIncident) TableName() string { return "utm_incident" }
+func (UtmIncident) TableName() string { return "incident" }

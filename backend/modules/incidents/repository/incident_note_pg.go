@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
@@ -18,11 +19,14 @@ func NewIncidentNoteRepository(db *gorm.DB) connectors.IncidentNoteRepository {
 }
 
 func (r *pgIncidentNoteRepository) Save(ctx context.Context, note *domain.UtmIncidentNote) error {
+	if note.TenantID == uuid.Nil {
+		note.TenantID = tenantFromCtx(ctx)
+	}
 	return r.db.WithContext(ctx).Create(note).Error
 }
 
 func (r *pgIncidentNoteRepository) Update(ctx context.Context, note *domain.UtmIncidentNote) error {
-	return r.db.WithContext(ctx).Save(note).Error
+	return scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).Save(note).Error
 }
 
 func (r *pgIncidentNoteRepository) FindByIncidentID(ctx context.Context, incidentID int64) ([]domain.UtmIncidentNote, error) {

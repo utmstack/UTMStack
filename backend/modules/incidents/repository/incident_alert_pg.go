@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
@@ -19,11 +20,14 @@ func NewIncidentAlertRepository(db *gorm.DB) connectors.IncidentAlertRepository 
 }
 
 func (r *pgIncidentAlertRepository) Save(ctx context.Context, alert *domain.UtmIncidentAlert) error {
+	if alert.TenantID == uuid.Nil {
+		alert.TenantID = tenantFromCtx(ctx)
+	}
 	return r.db.WithContext(ctx).Create(alert).Error
 }
 
 func (r *pgIncidentAlertRepository) Update(ctx context.Context, alert *domain.UtmIncidentAlert) error {
-	return r.db.WithContext(ctx).Save(alert).Error
+	return scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).Save(alert).Error
 }
 
 func (r *pgIncidentAlertRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentAlert, error) {
@@ -89,7 +93,7 @@ func (r *pgIncidentAlertRepository) FindByAlertIDs(ctx context.Context, alertIDs
 		return nil, nil
 	}
 	var rows []domain.UtmIncidentAlert
-	if err := r.db.WithContext(ctx).Where("alert_id IN ?", alertIDs).Find(&rows).Error; err != nil {
+	if err := scopeTenantViaIncident(ctx, r.db.WithContext(ctx)).Where("alert_id IN ?", alertIDs).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	return rows, nil
@@ -97,7 +101,7 @@ func (r *pgIncidentAlertRepository) FindByAlertIDs(ctx context.Context, alertIDs
 
 func (r *pgIncidentAlertRepository) ExistsByAlertID(ctx context.Context, alertID string) (bool, error) {
 	var count int64
-	if err := r.db.WithContext(ctx).Model(&domain.UtmIncidentAlert{}).
+	if err := scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncidentAlert{})).
 		Where("alert_id = ?", alertID).
 		Count(&count).Error; err != nil {
 		return false, err
@@ -109,7 +113,7 @@ func (r *pgIncidentAlertRepository) BulkUpdateStatus(ctx context.Context, alertI
 	if len(alertIDs) == 0 {
 		return nil
 	}
-	return r.db.WithContext(ctx).
-		Exec("UPDATE utm_incident_alert SET alert_status = ? WHERE alert_id IN ?", status, alertIDs).
-		Error
+	q := scopeTenantViaIncident(ctx, r.db.WithContext(ctx).Model(&domain.UtmIncidentAlert{})).
+		Where("alert_id IN ?", alertIDs)
+	return q.Update("alert_status", status).Error
 }

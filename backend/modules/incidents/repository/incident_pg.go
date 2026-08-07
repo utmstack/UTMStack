@@ -6,12 +6,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"gorm.io/gorm"
 )
+
+// tenantFromCtx pulls the acting tenant UUID from ctx. Returns uuid.Nil when
+// the ctx carries no tenant (on-prem/global actor) or an unparseable one —
+// callers use uuid.Nil as the "unscoped" sentinel, matching the empty-string
+// convention the module used before tenant_id became a real UUID column.
+func tenantFromCtx(ctx context.Context) uuid.UUID {
+	tid, _ := uuid.Parse(authz.TenantIDFromContext(ctx))
+	return tid
+}
 
 type pgIncidentRepository struct {
 	db *gorm.DB
@@ -25,26 +35,26 @@ func NewIncidentRepository(db *gorm.DB) connectors.IncidentRepository {
 // on-prem/global actor (empty ctx tenant) sees every incident, matching
 // legacy behavior.
 func scopeTenant(ctx context.Context, q *gorm.DB) *gorm.DB {
-	if tid := authz.TenantIDFromContext(ctx); tid != "" {
+	if tid := tenantFromCtx(ctx); tid != uuid.Nil {
 		return q.Where("tenant_id = ?", tid)
 	}
 	return q
 }
 
-// scopeTenantViaIncident narrows q (a query against a child table with an
-// incident_id column — alerts, history, notes) to rows whose parent incident
-// belongs to the acting tenant. These child tables have no tenant_id column
-// of their own; ownership flows from the parent utm_incident row.
+// scopeTenantViaIncident narrows q (a query against a child table with a
+// tenant_id column of its own — alerts, history, notes) to the acting tenant.
+// The column is stamped on write from ctx so this filter reads directly
+// instead of joining back to utm_incident.
 func scopeTenantViaIncident(ctx context.Context, q *gorm.DB) *gorm.DB {
-	if tid := authz.TenantIDFromContext(ctx); tid != "" {
-		return q.Where("incident_id IN (SELECT id FROM utm_incident WHERE tenant_id = ?)", tid)
+	if tid := tenantFromCtx(ctx); tid != uuid.Nil {
+		return q.Where("tenant_id = ?", tid)
 	}
 	return q
 }
 
 func (r *pgIncidentRepository) Save(ctx context.Context, incident *domain.UtmIncident) error {
-	if incident.TenantID == "" {
-		incident.TenantID = authz.TenantIDFromContext(ctx)
+	if incident.TenantID == uuid.Nil {
+		incident.TenantID = tenantFromCtx(ctx)
 	}
 	return r.db.WithContext(ctx).Create(incident).Error
 }
