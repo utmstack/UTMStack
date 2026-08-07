@@ -23,7 +23,6 @@ type StatsReader interface {
 
 type DatasourceRepository interface {
 	FindByID(ctx context.Context, id uint64) (*domain.Datasource, error)
-	FindByName(ctx context.Context, name string) (*domain.Datasource, error)
 	List(ctx context.Context, req common_models.IListRequest) (common_models.ListResponse[domain.Datasource], error)
 	Count(ctx context.Context) (int64, error)
 	UpsertBatch(ctx context.Context, items []domain.Datasource) error
@@ -33,6 +32,10 @@ type DatasourceRepository interface {
 	UpdateGroup(ctx context.Context, ids []uint64, groupID *uint64) error
 	UpdateLabels(ctx context.Context, id uint64, labels string) error
 	UpdateSensitivity(ctx context.Context, id uint64, conf, integ, avail int) error
+	// ClearGroup nulls group_id on every datasource pointing at groupID so an
+	// asset-group delete does not leave dangling references. The tenancy
+	// callback scopes the write to the caller's tenant.
+	ClearGroup(ctx context.Context, groupID uint64) error
 	ListSensitive(ctx context.Context) ([]domain.Datasource, error)
 	Delete(ctx context.Context, id uint64) error
 }
