@@ -11,11 +11,12 @@ import (
 )
 
 type assetGroupUsecase struct {
-	repo connectors.AssetGroupRepository
+	repo        connectors.AssetGroupRepository
+	datasources connectors.DatasourceRepository // for clearing dangling group_id on delete
 }
 
-func NewAssetGroupUsecase(repo connectors.AssetGroupRepository) connectors.AssetGroupUsecase {
-	return &assetGroupUsecase{repo: repo}
+func NewAssetGroupUsecase(repo connectors.AssetGroupRepository, datasources connectors.DatasourceRepository) connectors.AssetGroupUsecase {
+	return &assetGroupUsecase{repo: repo, datasources: datasources}
 }
 
 func (u *assetGroupUsecase) Create(ctx context.Context, g *domain.UtmAssetGroup) (*domain.UtmAssetGroup, error) {
@@ -57,5 +58,13 @@ func (u *assetGroupUsecase) List(ctx context.Context, req common_models.IListReq
 }
 
 func (u *assetGroupUsecase) Delete(ctx context.Context, id uint64) error {
+	// Clear the FK first: there is no ON DELETE SET NULL, so a group with
+	// datasources attached would leave them pointing nowhere. The clear is
+	// tenant-scoped by the callback, so another tenant's rows are untouched.
+	if u.datasources != nil {
+		if err := u.datasources.ClearGroup(ctx, id); err != nil {
+			return err
+		}
+	}
 	return u.repo.Delete(ctx, id)
 }
