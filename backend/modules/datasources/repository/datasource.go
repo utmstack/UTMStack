@@ -42,18 +42,6 @@ func (r *pgDatasourceRepository) FindByID(ctx context.Context, id uint64) (*doma
 	return &d, nil
 }
 
-func (r *pgDatasourceRepository) FindByName(ctx context.Context, name string) (*domain.Datasource, error) {
-	var d domain.Datasource
-	err := r.db.FindOne(ctx, &d, database.Where("asset_name = ?", name), database.Preload("Group"))
-	if errors.Is(err, database.ErrNotFound) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	return &d, nil
-}
-
 func (r *pgDatasourceRepository) List(ctx context.Context, req common_models.IListRequest) (common_models.ListResponse[domain.Datasource], error) {
 	return r.GetAll(ctx, req, datasourceFilterFields, "id DESC", database.Preload("Group"))
 }
@@ -149,6 +137,13 @@ func (r *pgDatasourceRepository) UpdateGroup(ctx context.Context, ids []uint64, 
 		Model(&domain.Datasource{}).
 		Where("id IN ?", ids).
 		Update("group_id", groupID).Error
+}
+
+func (r *pgDatasourceRepository) ClearGroup(ctx context.Context, groupID uint64) error {
+	return r.db.GORM().WithContext(ctx).
+		Model(&domain.Datasource{}).
+		Where("group_id = ?", groupID).
+		Update("group_id", nil).Error
 }
 
 func (r *pgDatasourceRepository) UpdateLabels(ctx context.Context, id uint64, labels string) error {

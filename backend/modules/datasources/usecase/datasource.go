@@ -15,11 +15,12 @@ import (
 
 type datasourceUsecase struct {
 	repo      connectors.DatasourceRepository
-	projector connectors.AssetProjector // may be nil (projection disabled)
+	groups    connectors.AssetGroupRepository // nil means UpdateGroup skips cross-tenant validation
+	projector connectors.AssetProjector       // may be nil (projection disabled)
 }
 
-func NewDatasourceUsecase(repo connectors.DatasourceRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
-	return &datasourceUsecase{repo: repo, projector: projector}
+func NewDatasourceUsecase(repo connectors.DatasourceRepository, groups connectors.AssetGroupRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
+	return &datasourceUsecase{repo: repo, groups: groups, projector: projector}
 }
 
 func (u *datasourceUsecase) GetByID(ctx context.Context, id uint64) (*dto.DatasourceDTO, error) {
@@ -103,8 +104,11 @@ func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterReques
 	return u.repo.RegisterBatch(ctx, []domain.Datasource{item})
 }
 
+// Enrichment feeds the alert plugin cache, which needs every tenant's rows
+// (each carries its own TenantID). Scoped to the caller's tenant it would
+// return only their slice and quietly drop the rest.
 func (u *datasourceUsecase) Enrichment(ctx context.Context) ([]dto.DatasourceEnrichment, error) {
-	rows, err := u.repo.EnrichmentRows(ctx)
+	rows, err := u.repo.EnrichmentRows(tenancy.WithAllTenantsRead(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -142,6 +146,20 @@ func splitLabels(labels string) []string {
 }
 
 func (u *datasourceUsecase) UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error {
+	// Cross-tenant guard: the datasource update itself is scoped by the tenancy
+	// callback, but the group_id is a raw uint64 from the client — nothing stops
+	// tenant A from pointing their datasources at tenant B's group. The group
+	// lookup is tenant-scoped by the same callback, so a miss means it either
+	// does not exist or belongs to someone else.
+	if req.GroupID != nil && u.groups != nil {
+		g, err := u.groups.FindByID(ctx, *req.GroupID)
+		if err != nil {
+			return err
+		}
+		if g == nil {
+			return domain.ErrNotFound
+		}
+	}
 	return u.repo.UpdateGroup(ctx, req.IDs, req.GroupID)
 }
 
@@ -166,11 +184,14 @@ func (u *datasourceUsecase) Delete(ctx context.Context, id uint64) error {
 }
 
 // ProjectAssets rebuilds tenants.yaml from every datasource with non-zero CIA.
+// The read spans tenants because the projector writes one shared file: scoped
+// to the caller's tenant, an UpdateSensitivity or Delete on tenant A would
+// rewrite the file with only A's assets and wipe every other tenant's.
 func (u *datasourceUsecase) ProjectAssets(ctx context.Context) error {
 	if u.projector == nil {
 		return nil
 	}
-	rows, err := u.repo.ListSensitive(ctx)
+	rows, err := u.repo.ListSensitive(tenancy.WithAllTenants(ctx))
 	if err != nil {
 		return err
 	}
