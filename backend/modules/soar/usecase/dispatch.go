@@ -150,7 +150,7 @@ func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRu
 
 	command := exec.Command
 	if d.vars != nil {
-		interpolated, ierr := d.vars.InterpolateCommand(exec.Command)
+		interpolated, ierr := d.vars.InterpolateCommand(ctx, exec.Command)
 		if ierr != nil {
 			_ = catcher.Error("soar dispatch: variable interpolation failed", ierr, map[string]any{"execution": exec.ID})
 		}
@@ -182,7 +182,7 @@ func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRu
 	result := res.GetResult()
 
 	if d.vars != nil {
-		masked, merr := d.vars.MaskSecrets(result)
+		masked, merr := d.vars.MaskSecrets(ctx, result)
 		if merr != nil {
 			_ = catcher.Error("soar dispatch: mask secrets failed", merr, map[string]any{"execution": exec.ID})
 		}

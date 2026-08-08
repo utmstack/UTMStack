@@ -191,8 +191,8 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 
 	dsRepo := ns_repository.NewDatasourceRepository(db)
 	dsGroupRepo := ns_repository.NewAssetGroupRepository(db)
-	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetTenantConfigUsecase())
-	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo)
+	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, dsGroupRepo, eventProcessingMod.GetTenantConfigUsecase())
+	dsGroupUC := ns_usecase.NewAssetGroupUsecase(dsGroupRepo, dsRepo)
 	// Discovery from ingestion needs the event store, not OpenSearch: the
 	// statistics it reads moved there with the rest of the pipeline.
 	var dsReconciler *ns_usecase.StatsReconciler

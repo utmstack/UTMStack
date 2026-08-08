@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -20,16 +21,19 @@ func NewActionCommandRepository(db *gorm.DB) *actionCommandRepository {
 	return &actionCommandRepository{db: db}
 }
 
-func (r *actionCommandRepository) Save(cmd *domain.UtmIncidentActionCommand) error {
+func (r *actionCommandRepository) Save(ctx context.Context, cmd *domain.UtmIncidentActionCommand) error {
+	if cmd.TenantID == "" {
+		cmd.TenantID = tenantFromCtx(ctx)
+	}
 	if err := r.db.Save(cmd).Error; err != nil {
 		return fmt.Errorf("actionCommandRepository.Save: %w", err)
 	}
 	return nil
 }
 
-func (r *actionCommandRepository) FindByID(id int64) (*domain.UtmIncidentActionCommand, error) {
+func (r *actionCommandRepository) FindByID(ctx context.Context, id int64) (*domain.UtmIncidentActionCommand, error) {
 	var c domain.UtmIncidentActionCommand
-	err := r.db.First(&c, id).Error
+	err := scopeTenant(ctx, r.db).First(&c, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, domain.ErrIncidentRecordNotFound
 	}
@@ -39,8 +43,8 @@ func (r *actionCommandRepository) FindByID(id int64) (*domain.UtmIncidentActionC
 	return &c, nil
 }
 
-func (r *actionCommandRepository) FindAll(f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error) {
-	q := r.db.Model(&domain.UtmIncidentActionCommand{})
+func (r *actionCommandRepository) FindAll(ctx context.Context, f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error) {
+	q := scopeTenant(ctx, r.db.Model(&domain.UtmIncidentActionCommand{}))
 	if f.ActionID != nil {
 		q = q.Where("action_id = ?", *f.ActionID)
 	}
@@ -63,8 +67,8 @@ func (r *actionCommandRepository) FindAll(f dto.ActionCommandFilter) ([]domain.U
 	return items, total, nil
 }
 
-func (r *actionCommandRepository) Delete(id int64) error {
-	if err := r.db.Delete(&domain.UtmIncidentActionCommand{}, id).Error; err != nil {
+func (r *actionCommandRepository) Delete(ctx context.Context, id int64) error {
+	if err := scopeTenant(ctx, r.db).Delete(&domain.UtmIncidentActionCommand{}, id).Error; err != nil {
 		return fmt.Errorf("actionCommandRepository.Delete: %w", err)
 	}
 	return nil

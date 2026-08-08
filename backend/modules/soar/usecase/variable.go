@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -22,7 +23,7 @@ func NewVariableUsecase(repo connectors.VariableRepository, cipher connectors.Va
 	return &variableUsecase{repo: repo, cipher: cipher}
 }
 
-func (u *variableUsecase) Create(req dto.CreateVariableRequest, user string) (*dto.VariableResponse, error) {
+func (u *variableUsecase) Create(ctx context.Context, req dto.CreateVariableRequest, user string) (*dto.VariableResponse, error) {
 	now := time.Now().UTC()
 	v := &domain.UtmIncidentVariable{
 		VariableDescription: req.VariableDescription,
@@ -43,14 +44,14 @@ func (u *variableUsecase) Create(req dto.CreateVariableRequest, user string) (*d
 		v.VariableValue = req.VariableValue
 	}
 
-	if err := u.repo.Save(v); err != nil {
+	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, fmt.Errorf("variableUsecase.Create: %w", err)
 	}
 	return u.toResponse(v), nil
 }
 
-func (u *variableUsecase) Update(req dto.UpdateVariableRequest, user string) (*dto.VariableResponse, error) {
-	v, err := u.repo.FindByID(req.ID)
+func (u *variableUsecase) Update(ctx context.Context, req dto.UpdateVariableRequest, user string) (*dto.VariableResponse, error) {
+	v, err := u.repo.FindByID(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,22 +74,22 @@ func (u *variableUsecase) Update(req dto.UpdateVariableRequest, user string) (*d
 		v.VariableValue = req.VariableValue
 	}
 
-	if err := u.repo.Save(v); err != nil {
+	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, fmt.Errorf("variableUsecase.Update: %w", err)
 	}
 	return u.toResponse(v), nil
 }
 
-func (u *variableUsecase) FindByID(id int64) (*dto.VariableResponse, error) {
-	v, err := u.repo.FindByID(id)
+func (u *variableUsecase) FindByID(ctx context.Context, id int64) (*dto.VariableResponse, error) {
+	v, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return u.toResponse(v), nil
 }
 
-func (u *variableUsecase) FindAll(f dto.VariableFilter) ([]dto.VariableResponse, int64, error) {
-	items, total, err := u.repo.FindAll(f)
+func (u *variableUsecase) FindAll(ctx context.Context, f dto.VariableFilter) ([]dto.VariableResponse, int64, error) {
+	items, total, err := u.repo.FindAll(ctx, f)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -99,11 +100,11 @@ func (u *variableUsecase) FindAll(f dto.VariableFilter) ([]dto.VariableResponse,
 	return resp, total, nil
 }
 
-func (u *variableUsecase) Delete(id int64) error {
-	return u.repo.Delete(id)
+func (u *variableUsecase) Delete(ctx context.Context, id int64) error {
+	return u.repo.Delete(ctx, id)
 }
 
-func (u *variableUsecase) InterpolateCommand(cmd string) (string, error) {
+func (u *variableUsecase) InterpolateCommand(ctx context.Context, cmd string) (string, error) {
 	matches := variableInterpolationRegex.FindAllStringSubmatch(cmd, -1)
 	if len(matches) == 0 {
 		return cmd, nil
@@ -117,7 +118,7 @@ func (u *variableUsecase) InterpolateCommand(cmd string) (string, error) {
 		}
 	}
 
-	vars, err := u.repo.FindByNames(names)
+	vars, err := u.repo.FindByNames(ctx, names)
 	if err != nil {
 		return cmd, fmt.Errorf("InterpolateCommand: %w", err)
 	}
@@ -143,8 +144,8 @@ func (u *variableUsecase) InterpolateCommand(cmd string) (string, error) {
 	return cmd, nil
 }
 
-func (u *variableUsecase) MaskSecrets(output string) (string, error) {
-	vars, err := u.repo.FindAllPlain()
+func (u *variableUsecase) MaskSecrets(ctx context.Context, output string) (string, error) {
+	vars, err := u.repo.FindAllPlain(ctx)
 	if err != nil {
 		return output, fmt.Errorf("MaskSecrets: %w", err)
 	}

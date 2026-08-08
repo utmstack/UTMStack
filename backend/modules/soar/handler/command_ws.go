@@ -154,7 +154,7 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	}
 	command := req.Command
 	if h.variableUC != nil {
-		if interpolated, vErr := h.variableUC.InterpolateCommand(command); vErr != nil {
+		if interpolated, vErr := h.variableUC.InterpolateCommand(ctx, command); vErr != nil {
 			_ = catcher.Error("CommandStream: variable interpolation", vErr, nil)
 		} else {
 			command = interpolated
@@ -182,7 +182,7 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 			}
 			output := result.GetResult()
 			if h.variableUC != nil {
-				if masked, mErr := h.variableUC.MaskSecrets(output); mErr != nil {
+				if masked, mErr := h.variableUC.MaskSecrets(ctx, output); mErr != nil {
 					_ = catcher.Error("CommandStream: mask secrets", mErr, nil)
 				} else {
 					output = masked

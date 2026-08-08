@@ -28,30 +28,30 @@ type ExecutionUsecase interface {
 }
 
 type VariableUsecase interface {
-	Create(req dto.CreateVariableRequest, user string) (*dto.VariableResponse, error)
-	Update(req dto.UpdateVariableRequest, user string) (*dto.VariableResponse, error)
-	FindByID(id int64) (*dto.VariableResponse, error)
-	FindAll(f dto.VariableFilter) ([]dto.VariableResponse, int64, error)
-	Delete(id int64) error
+	Create(ctx context.Context, req dto.CreateVariableRequest, user string) (*dto.VariableResponse, error)
+	Update(ctx context.Context, req dto.UpdateVariableRequest, user string) (*dto.VariableResponse, error)
+	FindByID(ctx context.Context, id int64) (*dto.VariableResponse, error)
+	FindAll(ctx context.Context, f dto.VariableFilter) ([]dto.VariableResponse, int64, error)
+	Delete(ctx context.Context, id int64) error
 
-	InterpolateCommand(cmd string) (string, error)
-	MaskSecrets(output string) (string, error)
+	InterpolateCommand(ctx context.Context, cmd string) (string, error)
+	MaskSecrets(ctx context.Context, output string) (string, error)
 }
 
 type ActionUsecase interface {
-	Create(req dto.CreateActionRequest, user string) (*domain.UtmIncidentAction, error)
-	Update(req dto.UpdateActionRequest, user string) (*domain.UtmIncidentAction, error)
-	FindByID(id int64) (*domain.UtmIncidentAction, error)
-	FindAll(f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error)
-	Delete(id int64) error
+	Create(ctx context.Context, req dto.CreateActionRequest, user string) (*domain.UtmIncidentAction, error)
+	Update(ctx context.Context, req dto.UpdateActionRequest, user string) (*domain.UtmIncidentAction, error)
+	FindByID(ctx context.Context, id int64) (*domain.UtmIncidentAction, error)
+	FindAll(ctx context.Context, f dto.ActionFilter) ([]domain.UtmIncidentAction, int64, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 type ActionCommandUsecase interface {
-	Create(req dto.CreateActionCommandRequest) (*domain.UtmIncidentActionCommand, error)
-	Update(req dto.UpdateActionCommandRequest) (*domain.UtmIncidentActionCommand, error)
-	FindByID(id int64) (*domain.UtmIncidentActionCommand, error)
-	FindAll(f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error)
-	Delete(id int64) error
+	Create(ctx context.Context, req dto.CreateActionCommandRequest) (*domain.UtmIncidentActionCommand, error)
+	Update(ctx context.Context, req dto.UpdateActionCommandRequest) (*domain.UtmIncidentActionCommand, error)
+	FindByID(ctx context.Context, id int64) (*domain.UtmIncidentActionCommand, error)
+	FindAll(ctx context.Context, f dto.ActionCommandFilter) ([]domain.UtmIncidentActionCommand, int64, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 type AgentUsecase interface {
@@ -59,9 +59,9 @@ type AgentUsecase interface {
 }
 
 type JobUsecase interface {
-	Create(req dto.CreateJobRequest, user string) (*domain.UtmIncidentJob, error)
-	FindByID(id int64) (*domain.UtmIncidentJob, error)
-	FindAll(f dto.JobFilter) ([]domain.UtmIncidentJob, int64, error)
-	Count(f dto.JobFilter) (int64, error)
-	Delete(id int64) error
+	Create(ctx context.Context, req dto.CreateJobRequest, user string) (*domain.UtmIncidentJob, error)
+	FindByID(ctx context.Context, id int64) (*domain.UtmIncidentJob, error)
+	FindAll(ctx context.Context, f dto.JobFilter) ([]domain.UtmIncidentJob, int64, error)
+	Count(ctx context.Context, f dto.JobFilter) (int64, error)
+	Delete(ctx context.Context, id int64) error
 }
