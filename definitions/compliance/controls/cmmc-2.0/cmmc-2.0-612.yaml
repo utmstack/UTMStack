@@ -8,38 +8,42 @@ strategy: ANY
 checks:
   - key: aws-activity-console-logon
     name: AWS Activity Console Logon
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-events-by-service
     name: AWS Events by Service
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-events-by-asset
     name: AWS Events by Asset
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-iam-user-activity-per-hour
     name: AWS IAM User Activity per Hour
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.userIdentity.type.keyword = 'IAMUser')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.userIdentity.type
+        operator: IS
+        value: IAMUser
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-events-over-time
     name: AWS Events Over Time
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: processes-ran-with-administrator-privileges
     name: Processes Ran with Administrator Privileges
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.TokenElevationType IN ('%%1936', '%%1937'))
+    dataType: wineventlog
+    filters:
+      - field: log.tokenElevationType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '%%1936'
+          - '%%1937'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

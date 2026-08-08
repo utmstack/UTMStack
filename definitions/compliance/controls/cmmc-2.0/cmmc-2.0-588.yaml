@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-alerts-and-status
     name: Windows Alerts and Status
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword IN ('wineventlog'))
+    dataset: alerts
+    filters:
+      - field: dataType
+        operator: IS
+        value: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-alerts-by-category
     name: Windows Alerts by category
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword = 'wineventlog')
+    dataset: alerts
+    filters:
+      - field: dataType
+        operator: IS
+        value: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

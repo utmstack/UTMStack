@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-member-addition-to-a-security-local-group
     name: Windows Member Addition to a Security Local Group
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4732'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-member-addition-to-a-security-local-group-by-group
     name: Windows Member Addition to a Security Local Group by Group
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4732')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4732'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

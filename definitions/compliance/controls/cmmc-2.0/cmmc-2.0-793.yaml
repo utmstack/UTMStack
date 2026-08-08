@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-unexpected-service-failures
     name: Windows Unexpected Service Failures
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7031'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7031'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-unexpected-service-failures-by-service
     name: Windows Unexpected Service Failures by Service
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7031')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7031'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

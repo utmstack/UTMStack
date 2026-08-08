@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-critical-hardware-failure
     name: Windows Critical Hardware Failure
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '13')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '13'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-critical-hardware-failure-by-certification-authority
     name: Windows Critical Hardware Failure by Certification Authority
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '13')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '13'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

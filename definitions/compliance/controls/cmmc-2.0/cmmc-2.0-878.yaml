@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-bucket-access-policies
     name: AWS Bucket Access Policies
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'PutBucketPolicy')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: PutBucketPolicy
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-bucket-access-policies-by-assumed-role-arn
     name: AWS Bucket Access Policies by Assumed Role ARN
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'PutBucketPolicy')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: PutBucketPolicy
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

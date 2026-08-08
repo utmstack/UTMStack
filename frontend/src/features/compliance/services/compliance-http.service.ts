@@ -2,75 +2,71 @@ import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type {
   ComplianceSchedule,
   Control,
+  EditControlInput,
   Framework,
   Report,
-  ReportSnapshot,
-  ReportSnapshotMeta,
+  ReportMeta,
   SaveScheduleInput,
+  ScorePoint,
 } from '../types/compliance.types'
 
 const api = createApiClient()
 
 export { ApiError as ComplianceHttpError }
 
+const fw = (key: string) => `/compliance/frameworks/${encodeURIComponent(key)}`
+
 export const complianceService = {
   // ── Frameworks ──────────────────────────────────────────────────────────
   listFrameworks: () => api.get<Framework[]>('/compliance/frameworks'),
-  getFramework: (key: string) => api.get<Framework>(`/compliance/frameworks/${encodeURIComponent(key)}`),
+  getFramework: (key: string) => api.get<Framework>(fw(key)),
   createFramework: (f: Framework) => api.post<Framework>('/compliance/frameworks', f),
-  updateFramework: (key: string, f: Framework) => api.put<Framework>(`/compliance/frameworks/${encodeURIComponent(key)}`, f),
-  deleteFramework: (key: string) => api.delete<void>(`/compliance/frameworks/${encodeURIComponent(key)}`),
-  setFrameworkEnabled: (key: string, enabled: boolean) =>
-    api.put<void>(`/compliance/frameworks/${encodeURIComponent(key)}/enabled`, { enabled }),
+  updateFramework: (key: string, f: Framework) => api.put<Framework>(fw(key), f),
+  deleteFramework: (key: string) => api.delete<void>(fw(key)),
 
   // ── Controls (library) ──────────────────────────────────────────────────
   listControls: () => api.get<Control[]>('/compliance/controls'),
   getControl: (id: string) => api.get<Control>(`/compliance/controls/${encodeURIComponent(id)}`),
-  // Index-pattern catalog (OpenSearch) — to populate the check's indexPattern select.
-  listIndexPatterns: () => api.getPaged<{ pattern: string; isActive?: boolean }[]>('/opensearch/index-patterns?page=0&size=500&sort=pattern,asc'),
-
   createControl: (c: Control) => api.post<Control>('/compliance/controls', c),
   updateControl: (id: string, c: Control) => api.put<Control>(`/compliance/controls/${encodeURIComponent(id)}`, c),
   deleteControl: (id: string) => api.delete<void>(`/compliance/controls/${encodeURIComponent(id)}`),
-  setControlEnabled: (id: string, enabled: boolean) =>
-    api.put<void>(`/compliance/controls/${encodeURIComponent(id)}/enabled`, { enabled }),
 
-  // ── Reports (live evaluation + stored snapshots) ──────────────────────────
-  liveReport: (key: string) => api.get<Report>(`/compliance/frameworks/${encodeURIComponent(key)}/report`),
-  generateReport: (key: string) => api.post<Report>(`/compliance/frameworks/${encodeURIComponent(key)}/report`),
-  listSnapshots: (frameworkKey?: string, limit = 50) => {
-    const p = new URLSearchParams()
-    if (frameworkKey) p.set('framework', frameworkKey)
-    p.set('limit', String(limit))
-    return api.get<ReportSnapshotMeta[]>(`/compliance/reports?${p.toString()}`)
+  /** Data types a check can target, read from what the store actually holds. */
+  listDataTypes: (dataset: 'logs' | 'alerts' = 'logs') =>
+    api.get<string[]>(`/log-analyzer/data-types?dataset=${dataset}`),
+
+  // ── Report ──────────────────────────────────────────────────────────────
+  /** The standing report. Does not re-run the framework. */
+  getReport: (key: string) => api.get<Report>(`${fw(key)}/report`),
+  /** Re-runs it, keeping the edits already on it. */
+  evaluate: (key: string, windowDays?: number) => {
+    const q = windowDays ? `?windowDays=${windowDays}` : ''
+    return api.post<Report>(`${fw(key)}/report${q}`)
   },
-  getSnapshot: (id: string) => api.get<ReportSnapshot>(`/compliance/reports/${encodeURIComponent(id)}`),
-  deleteSnapshot: (id: string) => api.delete<void>(`/compliance/reports/${encodeURIComponent(id)}`),
-  // Backend-generated PDF (same renderer the scheduled email reports use).
-  downloadFrameworkPdf: (key: string) =>
-    api.get<Blob>(`/compliance/frameworks/${encodeURIComponent(key)}/report.pdf`, { responseType: 'blob' }),
-  downloadSnapshotPdf: (id: string) =>
-    api.get<Blob>(`/compliance/reports/${encodeURIComponent(id)}/pdf`, { responseType: 'blob' }),
+  listReports: () => api.get<ReportMeta[]>('/compliance/reports'),
+  deleteReport: (key: string) => api.delete<void>(`${fw(key)}/report`),
+  downloadReportPdf: (key: string) => api.get<Blob>(`${fw(key)}/report.pdf`, { responseType: 'blob' }),
 
-  // Manual (framework, control) status overrides — applied on live evaluations.
-  setControlStatusOverride: (frameworkKey: string, controlId: string, status: string, reason?: string) =>
-    api.put<void>(
-      `/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/status`,
-      { status, reason: reason ?? '' },
-    ),
-  clearControlStatusOverride: (frameworkKey: string, controlId: string) =>
-    api.delete<void>(`/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/status`),
+  /**
+   * Records a human verdict on one control. Everything above it — requirements,
+   * sections, the score — recomputes from it, so the whole report comes back.
+   */
+  editControl: (key: string, controlId: string, input: EditControlInput) =>
+    api.put<Report>(`${fw(key)}/controls/${encodeURIComponent(controlId)}/status`, input),
 
-  // User notes on (framework, control) — freeform text surfaced on report rows.
-  setControlNote: (frameworkKey: string, controlId: string, note: string) =>
-    api.put<void>(
-      `/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/note`,
-      { note },
-    ),
-  clearControlNote: (frameworkKey: string, controlId: string) =>
-    api.delete<void>(`/compliance/frameworks/${encodeURIComponent(frameworkKey)}/controls/${encodeURIComponent(controlId)}/note`),
+  // ── Score over time ─────────────────────────────────────────────────────
+  history: (key: string, from?: string, to?: string) => {
+    const p = new URLSearchParams()
+    if (from) p.set('from', from)
+    if (to) p.set('to', to)
+    const q = p.toString()
+    return api.get<ScorePoint[]>(`${fw(key)}/history${q ? `?${q}` : ''}`)
+  },
+  /** The document behind a point on the chart. `day` is YYYY-MM-DD. */
+  downloadHistoryPdf: (key: string, day: string) =>
+    api.get<Blob>(`${fw(key)}/history.pdf?day=${encodeURIComponent(day)}`, { responseType: 'blob' }),
 
-  // ── Schedules (Postgres) ─────────────────────────────────────────────────
+  // ── Schedules ───────────────────────────────────────────────────────────
   listSchedules: (frameworkKey?: string) => {
     const p = new URLSearchParams()
     if (frameworkKey) p.set('frameworkKey', frameworkKey)
@@ -80,5 +76,5 @@ export const complianceService = {
   },
   createSchedule: (input: SaveScheduleInput) => api.post<ComplianceSchedule>('/compliance-report-schedules', input),
   updateSchedule: (input: SaveScheduleInput) => api.put<ComplianceSchedule>('/compliance-report-schedules', input),
-  deleteSchedule: (id: number) => api.delete<void>(`/compliance-report-schedules/${id}`),
+  deleteSchedule: (id: string) => api.delete<void>(`/compliance-report-schedules/${encodeURIComponent(id)}`),
 }

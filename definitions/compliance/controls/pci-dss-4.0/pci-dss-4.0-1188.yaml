@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-system-time-settings-changes
     name: Windows System Time Settings Changes
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4616'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-system-time-settings-changes-by-subject-user
     name: Windows System Time Settings Changes by Subject User
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4616')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4616'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

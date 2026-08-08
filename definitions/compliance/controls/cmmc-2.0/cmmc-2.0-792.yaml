@@ -8,14 +8,28 @@ strategy: ANY
 checks:
   - key: windows-privilege-escalation-alerts
     name: Windows Privilege Escalation Alerts
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (tactic IN ('Account Manipulation', 'Domain Policy Modification', 'Impair Defenses', 'Account Access Removal'))
+    dataset: alerts
+    filters:
+      - field: technique
+        operator: IS_ONE_OF_TERMS
+        value:
+          - Account Manipulation
+          - Domain Policy Modification
+          - Impair Defenses
+          - Account Access Removal
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-privilege-escalation-alerts-by-tactic
     name: Windows Privilege Escalation Alerts by Tactic
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (tactic IN ('Account Manipulation', 'Domain Policy Modification', 'Impair Defenses', 'Account Access Removal'))
+    dataset: alerts
+    filters:
+      - field: technique
+        operator: IS_ONE_OF_TERMS
+        value:
+          - Account Manipulation
+          - Domain Policy Modification
+          - Impair Defenses
+          - Account Access Removal
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

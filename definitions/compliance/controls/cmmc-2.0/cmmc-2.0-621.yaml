@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-service-control-manager-log-information
     name: Windows Service Control Manager Log Information
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7030'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-service-control-manager-log-information-distribution-by-host
     name: 'Windows Service Control Manager Log Information Distribution by Host '
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7030')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7030'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

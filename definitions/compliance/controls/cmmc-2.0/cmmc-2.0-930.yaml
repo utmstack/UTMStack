@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-iam-user-deletion
     name: AWS IAM User Deletion
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DeleteUser
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-iam-user-deletion-by-ip
     name: AWS IAM User Deletion by IP
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DeleteUser')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DeleteUser
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

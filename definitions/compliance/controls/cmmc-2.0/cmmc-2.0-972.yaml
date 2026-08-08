@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-application-of-group-policies-errors
     name: Windows Application of Group Policies Errors
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1058')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1058'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-application-of-group-policies-errors-by-domain-controller
     name: Windows Application of Group Policies Errors by Domain Controller
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1058')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1058'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

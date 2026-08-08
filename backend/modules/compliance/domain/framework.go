@@ -6,11 +6,6 @@ type Framework struct {
 	Description string             `yaml:"description,omitempty" json:"description,omitempty"`
 	Source      string             `yaml:"source,omitempty" json:"source,omitempty"`
 	Sections    []FrameworkSection `yaml:"sections,omitempty" json:"sections,omitempty"`
-
-	RelPath string `yaml:"-" json:"relPath,omitempty"`
-	System  bool   `yaml:"-" json:"system"`
-	Enabled bool   `yaml:"-" json:"enabled"`
-	Locked  bool   `yaml:"-" json:"locked"`
 }
 
 type FrameworkSection struct {

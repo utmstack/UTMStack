@@ -51,26 +51,41 @@ id: au-6                      # canonical identity (= file/path-independent)
 family: au
 familyName: Audit and Accountability
 name: Audit Record Review, Analysis, and Reporting
+scope: data                   # data | governance (default data)
 statement: |-                 # what the control requires (NIST text)
   Review and analyze system audit records ...
+remediation: |-               # OPTIONAL — what to do when the checks fail
+  Enable the ... policy so ...
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY                 # ALL | ANY over the checks (default ALL)
 
-# analysis:                   # OPTIONAL — the analytical query that proves the control
-#   indexPattern: v11-log-*    # against the ingested data. Added per control over time.
-#   sql: 'SELECT count(*) FROM "v11-log-*" WHERE ...'
-#   rule: MIN_HITS_REQUIRED    # NO_HITS_ALLOWED | MIN_HITS_REQUIRED | THRESHOLD_MAX | MATCH_FIELD_VALUE
-#   ruleValue: 1
+checks:                       # OPTIONAL — how the control is proven against the data
+  - key: audit-records-reviewed
+    name: Audit records are being produced
+    dataset: logs             # logs | alerts (default logs)
+    dataType: wineventlog     # empty means every type in the dataset
+    filters:                  # same filter vocabulary as the log explorer
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value: ['4719', '1102']
+    rule: MIN_HITS_REQUIRED   # MIN_HITS_REQUIRED (count >= ruleValue) | THRESHOLD_MAX (count <= ruleValue)
+    ruleValue: 1
 ```
 
-Most controls ship **without** an `analysis` block (they are skeletons). Controls that
-can be proven by querying the log data get an `analysis` query; the rest are satisfied by
-tagged correlation rules (coverage/activity) or by manual attestation.
+A check separates **selecting** from **judging**: the filters say which records count,
+the rule says how many of them make a pass. `dataset` + `dataType` double as the
+applicability declaration — a check against a data type the tenant does not receive
+cannot be failed, only left unevaluated.
+
+Controls that cannot be proven from log data carry `scope: governance` and no checks;
+they are excluded from the score rather than counted as failing. A placeholder check
+marked `todo: true` means "not defined yet" and is likewise excluded.
 
 ## How a control's compliance status is computed (report time, backend)
 
 1. **Coverage** — correlation rules tagged with this control's id (`compliance: [au-6]`).
-2. **Activity** — alerts from those rules in the reporting window (query over `v11-alert-*`).
-3. **Analysis** — this control's `analysis` query over the logs → pass/fail.
+2. **Activity** — alerts from those rules in the reporting window.
+3. **Analysis** — this control's checks over the event store → pass/fail.
 
 The detection/alert pipeline is **not** involved at evaluation time.
 

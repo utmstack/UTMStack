@@ -4789,19 +4789,16 @@
     "comingSoon": "Prossimamente.",
     "tabs": {
       "frameworks": "Framework",
-      "reports": "Report",
       "schedule": "Pianificazione",
       "controls": "Controlli"
     },
     "search": "Cerca framework…",
-    "refresh": "Aggiorna",
+    "refresh": "Refresh",
     "loading": "Caricamento framework…",
-    "loadError": "Impossibile caricare i framework.",
+    "loadError": "Could not load reports",
     "retry": "Riprova",
     "empty": "Nessun framework corrisponde.",
     "notEvaluated": "Non valutato",
-    "enabled": "Attivo",
-    "disabled": "Inattivo",
     "controlsCount": "{{n}} controlli",
     "enabledLabel": "Attivo",
     "runReport": "Esegui report",
@@ -4841,25 +4838,13 @@
       "NOT_COVERED": "Non coperto",
       "OUT_OF_SCOPE": "Fuori ambito",
       "PENDING": "In sospeso",
-      "label": "Stato"
+      "label": "Stato",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Impossibile cambiare lo stato del framework",
       "reportGenerated": "Report generato",
       "reportError": "Impossibile generare il report"
-    },
-    "reports": {
-      "allFrameworks": "Tutti i framework",
-      "loading": "Caricamento report…",
-      "loadError": "Impossibile caricare i report.",
-      "empty": "Ancora nessun report. Apri un framework ed esegui un report.",
-      "delete": "Elimina",
-      "confirmDelete": "Conferma",
-      "cancel": "Annulla",
-      "toast": {
-        "deleted": "Report eliminato",
-        "deleteError": "Eliminazione del report non riuscita"
-      }
     },
     "schedule": {
       "new": "Nuova pianificazione",
@@ -4873,7 +4858,6 @@
       "framework": "Framework",
       "cadenceLabel": "Cadenza",
       "cronHint": "Cron a 5 campi (min ora giorno mese giornoSettimana).",
-      "recipients": "Destinatari",
       "recipientsHint": "Email separate da virgola. Lascia vuoto per salvare solo lo snapshot.",
       "save": "Salva",
       "cancel": "Annulla",
@@ -4890,7 +4874,13 @@
         "saveError": "Impossibile salvare la pianificazione",
         "deleted": "Pianificazione eliminata",
         "deleteError": "Impossibile eliminare la pianificazione"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "Nuovo framework",
@@ -4956,17 +4946,12 @@
       "checksHint": "Ogni verifica esegue una query SQL su OpenSearch e applica una regola per decidere superato/fallito.",
       "checkKey": "chiave",
       "checkName": "Nome della verifica",
-      "indexPattern": "index pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "Nessun risultato consentito",
         "MIN_HITS_REQUIRED": "Risultati minimi richiesti",
-        "THRESHOLD_MAX": "Soglia massima",
-        "MATCH_FIELD_VALUE": "Corrispondenza valore campo"
+        "THRESHOLD_MAX": "Soglia massima"
       },
       "ruleNone": "Nessuna regola",
       "ruleValue": "valore",
-      "field": "campo",
-      "expected": "atteso",
       "addCheck": "Aggiungi verifica",
       "createTitle": "Nuovo controllo",
       "visualTab": "Visuale",
@@ -4978,34 +4963,77 @@
       "yamlError": "Impossibile applicare lo YAML: {{error}}",
       "idRequired": "L'ID è obbligatorio",
       "nameRequired": "Il nome è obbligatorio",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Controllo creato",
         "saved": "Controllo salvato",
         "saveError": "Impossibile salvare il controllo",
         "deleted": "Controllo eliminato",
-        "deleteError": "Impossibile eliminare il controllo",
-        "toggleError": "Impossibile cambiare lo stato del controllo"
+        "deleteError": "Impossibile eliminare il controllo"
       }
     },
     "doc": {
       "title": "Report di conformità",
       "print": "Stampa / PDF",
-      "generated": "Generato {{date}}",
       "controlsEvaluated": "{{n}} controlli valutati",
       "executiveSummary": "Sintesi esecutiva",
       "bySection": "Risultati per sezione",
-      "controlCol": "Controllo",
-      "statusCol": "Stato",
-      "evidenceCol": "Evidenza",
-      "coverageCol": "Regole / Avvisi",
       "footer": "{{framework}} — Report di conformità generato {{date}} · {{brand}}",
       "download": "Scarica PDF",
-      "downloadError": "Impossibile scaricare il PDF"
+      "downloadError": "Impossibile scaricare il PDF",
+      "error": "Impossibile generare il PDF",
+      "building": "Generazione del documento…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Passa a Enterprise",
       "upsell": "Questo framework/controllo richiede l'edizione Enterprise."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Di sistema",
+    "addNote": "Aggiungi nota",
+    "noteModal": {
+      "title": "Nota",
+      "description": "Registrata nel report. Non cambia lo stato del controllo.",
+      "placeholder": "Rimedio in corso — ticket OPS-4412."
+    },
+    "startFrom": {
+      "scratch": "Da zero",
+      "scratchHint": "Una definizione vuota che compili tu.",
+      "copy": "Da una esistente",
+      "copyHint": "Viene copiato tutto tranne identificatore e nome.",
+      "pickTitle": "Scegli cosa copiare",
+      "back": "Indietro",
+      "count": "{{n}} disponibili",
+      "search": "Cerca per nome",
+      "none": "Nessun risultato per questa ricerca"
+    },
+    "history": {
+      "title": "Score nel tempo",
+      "score": "Score di conformità",
+      "coverage": "Valutati",
+      "error": "Impossibile caricare lo storico"
     }
   },
   "socAi": {

@@ -9,7 +9,6 @@ import (
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
-	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
 )
 
 type FrameworkHandler struct{ uc connectors.FrameworkUsecase }
@@ -139,35 +138,6 @@ func (h *FrameworkHandler) DeleteControl(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// SetControlEnabled godoc
-//
-//	@Summary     Enable/disable a control
-//	@Description Toggles the control's enabled state via the .disabled filename suffix.
-//	@Tags        Compliance Controls
-//	@Security    BearerAuth
-//	@Accept      json
-//	@Param       id   path string             true "Control id"
-//	@Param       body body dto.EnabledRequest true "Enabled flag"
-//	@Success     204
-//	@Failure     404 {object} map[string]string
-//	@Router      /compliance/controls/{id}/enabled [put]
-func (h *FrameworkHandler) SetControlEnabled(c *gin.Context) {
-	id := c.Param("id")
-	var req dto.EnabledRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	err := h.uc.SetControlEnabled(c.Request.Context(), id, req.Enabled)
-	audit.Record(c, audit_connectors.Event{Action: "compliance.control.set-enabled", ResourceType: "compliance_control", ResourceID: id},
-		audit_domain.COMPLIANCE_CONTROL_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_CONTROL_UPDATE_SUCCESS, err)
-	if err != nil {
-		writeError(c, err)
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
-
 // ── Frameworks (read) ─────────────────────────────────────────────────────────
 
 // ListFrameworks godoc
@@ -282,35 +252,6 @@ func (h *FrameworkHandler) DeleteFramework(c *gin.Context) {
 	err := h.uc.DeleteFramework(c.Request.Context(), key)
 	audit.Record(c, audit_connectors.Event{Action: "compliance.framework.delete", ResourceType: "compliance_framework", ResourceID: key},
 		audit_domain.COMPLIANCE_FRAMEWORK_DELETE_ATTEMPT, audit_domain.COMPLIANCE_FRAMEWORK_DELETE_SUCCESS, err)
-	if err != nil {
-		writeError(c, err)
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
-
-// SetFrameworkEnabled godoc
-//
-//	@Summary     Enable/disable a framework
-//	@Description Toggles the framework's enabled state via the .disabled filename suffix.
-//	@Tags        Compliance Frameworks
-//	@Security    BearerAuth
-//	@Accept      json
-//	@Param       key  path string             true "Framework key"
-//	@Param       body body dto.EnabledRequest true "Enabled flag"
-//	@Success     204
-//	@Failure     404 {object} map[string]string
-//	@Router      /compliance/frameworks/{key}/enabled [put]
-func (h *FrameworkHandler) SetFrameworkEnabled(c *gin.Context) {
-	key := c.Param("key")
-	var req dto.EnabledRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	err := h.uc.SetFrameworkEnabled(c.Request.Context(), key, req.Enabled)
-	audit.Record(c, audit_connectors.Event{Action: "compliance.framework.set-enabled", ResourceType: "compliance_framework", ResourceID: key},
-		audit_domain.COMPLIANCE_FRAMEWORK_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_FRAMEWORK_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
 		return

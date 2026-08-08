@@ -46,8 +46,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
-	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
-	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -146,26 +144,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	if events != nil {
 		complianceEventReader = events
 	}
-	// tenantMod is built further down but the compliance eval loop needs to
-	// enumerate active tenants at tick time — a closure late-binds it.
-	var tenantModRef *tenant.Module
-	complianceTenantLister := compliance.TenantLister(func(ctx context.Context) ([]string, error) {
-		if tenantModRef == nil {
-			return nil, nil
-		}
-		items, _, err := tenantModRef.GetTenantUsecase().List(ctx, tenant_dto.Filter{Size: 1000})
-		if err != nil {
-			return nil, err
-		}
-		out := make([]string, 0, len(items))
-		for _, t := range items {
-			if t.Status == tenant_domain.StatusActive {
-				out = append(out, t.ID.String())
-			}
-		}
-		return out, nil
-	})
-	complianceMod := compliance.NewModule(db, complianceEventReader, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir}, complianceTenantLister, joblease.New(db),
+	complianceMod := compliance.NewModule(db, complianceEventReader, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
 		func() bool { return billingMod.License().Current().IsEnterprise() })
 	var eventReader dash_usecase.Reader
 	if events != nil {
@@ -246,7 +225,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))
 
 	tenantMod := tenant.NewModule(db, userUsecase)
-	tenantModRef = tenantMod
 
 	aiUsage := socai_repository.NewUsageRepo(db)
 	aiQuota := &socai.AIQuota{
@@ -354,6 +332,7 @@ func (a complianceBranding) ReportBrand(ctx context.Context) compliance_connecto
 	return compliance_connectors.ReportBrand{
 		Name:      b.ProductName,
 		LogoPath:  uploadFilePath(a.uploadDir, logoURL),
+		CoverPath: uploadFilePath(a.uploadDir, b.ReportCoverURL),
 		AccentHex: b.AccentColor,
 	}
 }

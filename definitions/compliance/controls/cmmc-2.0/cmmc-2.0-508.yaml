@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-monitoring-of-critical-system-services-status
     name: Windows Monitoring of Critical System Services Status
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '7035'
+          - '7036'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-monitoring-of-critical-system-services-status-by-event
     name: Windows Monitoring of Critical System Services Status by Event
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7035', '7036'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '7035'
+          - '7036'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-event-logging-service-shut-down
     name: Windows Event Logging Service Shut Down
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1100'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-event-logging-service-shutdowns-count-by-host
     name: Windows Event Logging Service Shutdowns - Count by Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1100')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1100'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, Lock, Plus, RefreshCw, Search, ShieldCheck } from 'lucide-react'
-import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { complianceService } from '../services/compliance-http.service'
 import type { Control } from '../types/compliance.types'
+import { copyOfControl } from '../lib/duplicate'
+import { StartFromModal } from './StartFromModal'
 import { ControlEditor } from './ControlEditor'
 
-const COLS = '120px minmax(180px,1fr) 130px 110px 70px 56px'
+// Same rule as the frameworks grid: the column count follows the card's own
+// width, so a wide monitor adds columns instead of stretching each card.
+const CARD_GRID = 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3'
+
 const MAX_SHOWN = 200
 
 export function ControlsTab() {
@@ -20,6 +24,7 @@ export function ControlsTab() {
   const [family, setFamily] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [starting, setStarting] = useState(false)
   const [editing, setEditing] = useState<{ control?: Control; creating: boolean } | null>(null)
 
   useEffect(() => {
@@ -56,21 +61,6 @@ export function ControlsTab() {
 
   const shown = filtered.slice(0, MAX_SHOWN)
 
-  const toggle = async (c: Control) => {
-    if (c.locked) {
-      toast.error(t('compliance.locked.upsell'))
-      return
-    }
-    const next = !c.enabled
-    setControls((list) => list.map((x) => (x.id === c.id ? { ...x, enabled: next } : x)))
-    try {
-      await complianceService.setControlEnabled(c.id, next)
-    } catch {
-      setControls((list) => list.map((x) => (x.id === c.id ? { ...x, enabled: c.enabled } : x)))
-      toast.error(t('compliance.controls.toast.toggleError'))
-    }
-  }
-
   return (
     <>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -88,56 +78,78 @@ export function ControlsTab() {
           <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
         </Button>
         <div className="ml-auto">
-          <Button size="sm" onClick={() => setEditing({ creating: true })}>
+          <Button size="sm" onClick={() => setStarting(true)}>
             <Plus size={14} className="mr-1.5" /> {t('compliance.controls.new')}
           </Button>
         </div>
       </div>
 
-      <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
-          <div>{t('compliance.controls.id')}</div>
-          <div>{t('compliance.controls.name')}</div>
-          <div>{t('compliance.controls.family')}</div>
-          <div>{t('compliance.controls.scope')}</div>
-          <div className="text-center">{t('compliance.enabled')}</div>
-          <div />
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {loading && controls.length === 0 ? (
-            <Center><Loader2 className="h-4 w-4 animate-spin" /> {t('compliance.controls.loading')}</Center>
-          ) : error ? (
-            <Center><AlertTriangle size={16} className="text-amber-500" /> {t('compliance.controls.loadError')}<Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button></Center>
-          ) : shown.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('compliance.controls.empty')}</div>
-          ) : (
-            shown.map((c) => (
-              <div key={c.id} className={cn('grid cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-sm transition-colors last:border-0 hover:bg-muted/40', c.locked && 'opacity-60')} style={{ gridTemplateColumns: COLS }} onClick={() => setEditing({ control: c, creating: false })}>
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="shrink-0 text-muted-foreground" />
-                  <span className="truncate font-mono text-[12px]">{c.id}</span>
-                </div>
-                <span className="truncate text-[13px]">{c.name}</span>
-                <span className="truncate text-[11px] text-muted-foreground">{c.familyName || c.family || '—'}</span>
-                <span className="text-[11px] text-muted-foreground">{c.scope ? t(`compliance.controls.scopeOpt.${c.scope}`) : '—'}</span>
-                <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-                  {c.locked ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-medium text-amber-600 dark:text-amber-400" title={t('compliance.locked.upsell')}>
+      <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
+        {loading && controls.length === 0 ? (
+          <Center><Loader2 className="h-4 w-4 animate-spin" /> {t('compliance.controls.loading')}</Center>
+        ) : error ? (
+          <Center><AlertTriangle size={16} className="text-amber-500" /> {t('compliance.controls.loadError')}<Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('compliance.retry')}</Button></Center>
+        ) : shown.length === 0 ? (
+          <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('compliance.controls.empty')}</div>
+        ) : (
+          <div className={CARD_GRID}>
+            {shown.map((c) => (
+              <div
+                key={c.id}
+                onClick={() => setEditing({ control: c, creating: false })}
+                className={cn(
+                  'flex cursor-pointer flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40',
+                  c.locked && 'opacity-60',
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <ShieldCheck size={13} className="shrink-0 text-muted-foreground" />
+                    <span className="truncate font-mono text-[11px] text-muted-foreground">{c.id}</span>
+                  </div>
+                                    {c.locked && (
+                    <span
+                      className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-medium text-amber-600 dark:text-amber-400"
+                      title={t('compliance.locked.upsell')}
+                    >
                       <Lock size={9} /> {t('compliance.locked.badge')}
                     </span>
-                  ) : (
-                    <Toggle checked={c.enabled} onChange={() => toggle(c)} />
                   )}
                 </div>
-                <div className="flex justify-end">{c.system && !c.locked && <Lock size={11} className="text-muted-foreground/60" />}</div>
+
+                {/* Two lines, then it stops: with 967 controls, cards that grow
+                    with their title turn the grid into a ragged wall. */}
+                <h3 className="mt-1.5 line-clamp-2 text-[13px] font-medium leading-snug">{c.name}</h3>
+
+                <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-[11px] text-muted-foreground">
+                  <span className="truncate">{c.familyName || c.family || '—'}</span>
+                  <span className="shrink-0">{c.scope ? t(`compliance.controls.scopeOpt.${c.scope}`) : '—'}</span>
+                </div>
               </div>
-            ))
-          )}
-          {filtered.length > MAX_SHOWN && (
-            <div className="px-4 py-3 text-center text-[11px] text-muted-foreground">{t('compliance.controls.showingOf', { shown: MAX_SHOWN, total: filtered.length })}</div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+        {filtered.length > MAX_SHOWN && (
+          <div className="px-4 py-4 text-center text-[11px] text-muted-foreground">{t('compliance.controls.showingOf', { shown: MAX_SHOWN, total: filtered.length })}</div>
+        )}
       </div>
+
+      {starting && (
+        <StartFromModal
+          title={t('compliance.controls.new')}
+          options={controls.map((c) => ({ id: c.id, name: c.name }))}
+          onScratch={() => {
+            setStarting(false)
+            setEditing({ creating: true })
+          }}
+          onCopy={(id) => {
+            const src = controls.find((c) => c.id === id)
+            setStarting(false)
+            if (src) setEditing({ control: copyOfControl(src), creating: true })
+          }}
+          onClose={() => setStarting(false)}
+        />
+      )}
 
       {editing && (
         <ControlEditor
@@ -151,14 +163,6 @@ export function ControlsTab() {
         />
       )}
     </>
-  )
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button type="button" role="switch" aria-checked={checked} onClick={onChange} className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-muted-foreground/30')}>
-      <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
   )
 }
 

@@ -4789,26 +4789,23 @@
     "comingSoon": "Bientôt disponible.",
     "tabs": {
       "frameworks": "Frameworks",
-      "reports": "Rapports",
       "schedule": "Planification",
       "controls": "Contrôles"
     },
     "search": "Rechercher des frameworks…",
-    "refresh": "Actualiser",
+    "refresh": "Refresh",
     "loading": "Chargement des frameworks…",
-    "loadError": "Impossible de charger les frameworks.",
+    "loadError": "Could not load reports",
     "retry": "Réessayer",
     "empty": "Aucun framework ne correspond.",
     "notEvaluated": "Non évalué",
-    "enabled": "Activé",
-    "disabled": "Désactivé",
     "controlsCount": "{{n}} contrôles",
     "enabledLabel": "Activé",
     "runReport": "Exécuter le rapport",
     "backToFrameworks": "Retour aux frameworks",
     "statusAuto": "Auto (évalué)",
     "overrideError": "Impossible de mettre à jour le statut",
-    "noteError": "Impossible d'enregistrer la note",
+    "noteError": "Impossible d’enregistrer la note",
     "notes": {
       "title": "Notes",
       "placeholder": "Ajouter une note…",
@@ -4841,25 +4838,13 @@
       "NOT_COVERED": "Non couvert",
       "OUT_OF_SCOPE": "Hors périmètre",
       "PENDING": "En attente",
-      "label": "Statut"
+      "label": "Statut",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Échec du changement d'état du framework",
       "reportGenerated": "Rapport généré",
       "reportError": "Échec de la génération du rapport"
-    },
-    "reports": {
-      "allFrameworks": "Tous les frameworks",
-      "loading": "Chargement des rapports…",
-      "loadError": "Impossible de charger les rapports.",
-      "empty": "Aucun rapport pour l'instant. Ouvrez un framework et exécutez un rapport.",
-      "delete": "Supprimer",
-      "confirmDelete": "Confirmer",
-      "cancel": "Annuler",
-      "toast": {
-        "deleted": "Rapport supprimé",
-        "deleteError": "Échec de la suppression du rapport"
-      }
     },
     "schedule": {
       "new": "Nouvelle planification",
@@ -4873,7 +4858,6 @@
       "framework": "Framework",
       "cadenceLabel": "Cadence",
       "cronHint": "Cron à 5 champs (min heure jour mois jourSemaine).",
-      "recipients": "Destinataires",
       "recipientsHint": "E-mails séparés par des virgules. Laissez vide pour seulement stocker le snapshot.",
       "save": "Enregistrer",
       "cancel": "Annuler",
@@ -4890,7 +4874,13 @@
         "saveError": "Échec de l'enregistrement de la planification",
         "deleted": "Planification supprimée",
         "deleteError": "Échec de la suppression de la planification"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "Nouveau framework",
@@ -4956,17 +4946,12 @@
       "checksHint": "Chaque vérification exécute une requête SQL OpenSearch et applique une règle pour décider réussite/échec.",
       "checkKey": "clé",
       "checkName": "Nom de la vérification",
-      "indexPattern": "index pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "Aucun résultat autorisé",
         "MIN_HITS_REQUIRED": "Minimum de résultats requis",
-        "THRESHOLD_MAX": "Seuil maximum",
-        "MATCH_FIELD_VALUE": "Correspondance de valeur de champ"
+        "THRESHOLD_MAX": "Seuil maximum"
       },
       "ruleNone": "Aucune règle",
       "ruleValue": "valeur",
-      "field": "champ",
-      "expected": "attendu",
       "addCheck": "Ajouter une vérification",
       "createTitle": "Nouveau contrôle",
       "visualTab": "Visuel",
@@ -4978,34 +4963,77 @@
       "yamlError": "Impossible d'appliquer le YAML : {{error}}",
       "idRequired": "L'ID est requis",
       "nameRequired": "Le nom est requis",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Contrôle créé",
         "saved": "Contrôle enregistré",
         "saveError": "Échec de l'enregistrement du contrôle",
         "deleted": "Contrôle supprimé",
-        "deleteError": "Échec de la suppression du contrôle",
-        "toggleError": "Échec du changement d'état du contrôle"
+        "deleteError": "Échec de la suppression du contrôle"
       }
     },
     "doc": {
       "title": "Rapport de conformité",
       "print": "Imprimer / PDF",
-      "generated": "Généré {{date}}",
       "controlsEvaluated": "{{n}} contrôles évalués",
       "executiveSummary": "Résumé exécutif",
       "bySection": "Résultats par section",
-      "controlCol": "Contrôle",
-      "statusCol": "Statut",
-      "evidenceCol": "Preuve",
-      "coverageCol": "Règles / Alertes",
       "footer": "{{framework}} — Rapport de conformité généré {{date}} · {{brand}}",
       "download": "Télécharger le PDF",
-      "downloadError": "Échec du téléchargement du PDF"
+      "downloadError": "Échec du téléchargement du PDF",
+      "error": "Impossible de générer le PDF",
+      "building": "Génération du document…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Passer à Enterprise",
       "upsell": "Ce framework/contrôle nécessite l'édition Enterprise."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Fourni",
+    "addNote": "Ajouter une note",
+    "noteModal": {
+      "title": "Note",
+      "description": "Enregistrée dans le rapport. Ne change pas le statut du contrôle.",
+      "placeholder": "Remédiation en cours — ticket OPS-4412."
+    },
+    "startFrom": {
+      "scratch": "De zéro",
+      "scratchHint": "Une définition vide que vous remplissez.",
+      "copy": "À partir d’une existante",
+      "copyHint": "Tout est copié sauf l’identifiant et le nom.",
+      "pickTitle": "Choisissez quoi copier",
+      "back": "Retour",
+      "count": "{{n}} disponibles",
+      "search": "Rechercher par nom",
+      "none": "Aucun résultat pour cette recherche"
+    },
+    "history": {
+      "title": "Score dans le temps",
+      "score": "Score de conformité",
+      "coverage": "Évalués",
+      "error": "Impossible de charger l’historique"
     }
   },
   "socAi": {

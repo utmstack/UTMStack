@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: windows-user-accounts-created
     name: Windows User Accounts Created
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4720'
+      - field: log.subjectUserName
+        operator: NOT_ENDS_WITH
+        value: $
+      - field: log.targetUserName
+        operator: NOT_ENDS_WITH
+        value: $
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-new-accounts-created-over-time
     name: Windows New Accounts Created Over Time
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4720')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4720'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

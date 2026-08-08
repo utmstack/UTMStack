@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: bitdefender-activity
     name: Bitdefender Activity
-    indexPattern: v11-log-antivirus-bitdefender-gz-*
-    sql: SELECT count(*) AS c FROM v11-log-antivirus-bitdefender-gz-*
+    dataType: antivirus-bitdefender-gz
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: bitdefender-activity-by-event-source
     name: Bitdefender Activity by Event Source
-    indexPattern: v11-log-antivirus-bitdefender-gz-*
-    sql: SELECT count(*) AS c FROM v11-log-antivirus-bitdefender-gz-*
+    dataType: antivirus-bitdefender-gz
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-application-failure
     name: Windows Application failure
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1000'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-application-failure-by-source
     name: Windows Application failure by Source
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '1000')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '1000'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

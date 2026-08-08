@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -40,7 +39,7 @@ func (h *ScheduleHandler) Create(c *gin.Context) {
 	resp, err := h.uc.Create(c.Request.Context(), actor, req)
 	ev := audit_connectors.Event{Action: "compliance.schedule.create", ResourceType: "compliance_report_schedule"}
 	if resp != nil {
-		ev.ResourceID = strconv.FormatInt(resp.ID, 10)
+		ev.ResourceID = resp.ID.String()
 	}
 	audit.Record(c, ev, audit_domain.COMPLIANCE_SCHEDULE_CREATE_ATTEMPT, audit_domain.COMPLIANCE_SCHEDULE_CREATE_SUCCESS, err)
 	if err != nil {
@@ -71,7 +70,7 @@ func (h *ScheduleHandler) Update(c *gin.Context) {
 		return
 	}
 	resp, err := h.uc.Update(c.Request.Context(), actor, req)
-	audit.Record(c, audit_connectors.Event{Action: "compliance.schedule.update", ResourceType: "compliance_report_schedule", ResourceID: strconv.FormatInt(req.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "compliance.schedule.update", ResourceType: "compliance_report_schedule", ResourceID: req.ID.String()},
 		audit_domain.COMPLIANCE_SCHEDULE_UPDATE_ATTEMPT, audit_domain.COMPLIANCE_SCHEDULE_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
@@ -118,7 +117,7 @@ func (h *ScheduleHandler) ListByUser(c *gin.Context) {
 //	@Failure     404 {object} map[string]string
 //	@Router      /compliance-report-schedules/by-id/{id} [get]
 func (h *ScheduleHandler) GetByID(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
+	id, ok := pathUUID(c, "id")
 	if !ok {
 		return
 	}
@@ -141,12 +140,12 @@ func (h *ScheduleHandler) GetByID(c *gin.Context) {
 //	@Failure     404 {object} map[string]string
 //	@Router      /compliance-report-schedules/{id} [delete]
 func (h *ScheduleHandler) Delete(c *gin.Context) {
-	id, ok := pathInt64(c, "id")
+	id, ok := pathUUID(c, "id")
 	if !ok {
 		return
 	}
 	err := h.uc.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "compliance.schedule.delete", ResourceType: "compliance_report_schedule", ResourceID: strconv.FormatInt(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "compliance.schedule.delete", ResourceType: "compliance_report_schedule", ResourceID: id.String()},
 		audit_domain.COMPLIANCE_SCHEDULE_DELETE_ATTEMPT, audit_domain.COMPLIANCE_SCHEDULE_DELETE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)

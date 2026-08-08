@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-software-installation-failure
     name: Windows Software installation failure
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '11708')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '11708'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-software-installation-failure-by-os
     name: Windows Software installation failure by OS
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '11708')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '11708'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

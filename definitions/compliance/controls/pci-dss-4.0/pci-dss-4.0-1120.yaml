@@ -8,14 +8,38 @@ strategy: ANY
 checks:
   - key: windows-user-successful-logon-event-by-host
     name: Windows User Successful Logon Event by Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4672') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4624'
+          - '4672'
+      - field: log.targetUserName
+        operator: NOT_ENDS_WITH
+        value: $
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-logon-success-by-host
     name: Windows Logon success by Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4624', '4324') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName.keyword <> '-' AND logx.wineventlog.event_data.LogonType.keyword IN ('3', '2'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4624'
+          - '4324'
+      - field: log.targetUserName
+        operator: NOT_ENDS_WITH
+        value: $
+      - field: log.targetUserName
+        operator: IS_NOT
+        value: '-'
+      - field: log.logonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '3'
+          - '2'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

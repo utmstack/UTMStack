@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-file-access-and-activity
     name: O365 File Access and Activity
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileTranscriptContentAccessed')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileTranscriptContentAccessed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-file-access-and-activity-by-client-ip
     name: O365 File Access and Activity by Client IP
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileTranscriptContentAccessed')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileTranscriptContentAccessed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

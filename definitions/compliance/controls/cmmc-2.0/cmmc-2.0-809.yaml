@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: windows-defender-action-against-detected-threat
     name: Windows Defender Action Against Detected Threat
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('2001', '2003', '3002'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2001'
+          - '2003'
+          - '3002'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-defender-action-against-detected-threat-by-event
     name: Windows Defender Action Against Detected Threat by Event
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('2001', '2003', '3002'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2001'
+          - '2003'
+          - '3002'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

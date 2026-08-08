@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-describeloggroups-logs
     name: AWS DescribeLogGroups Logs
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogGroups')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DescribeLogGroups
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-describeloggroups-logs-by-region
     name: AWS DescribeLogGroups Logs by Region
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogGroups')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DescribeLogGroups
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -4911,26 +4911,23 @@
     "comingSoon": "Em breve.",
     "tabs": {
       "frameworks": "Frameworks",
-      "reports": "Relatórios",
       "schedule": "Agendamento",
       "controls": "Controles"
     },
     "search": "Buscar frameworks…",
-    "refresh": "Atualizar",
+    "refresh": "Refresh",
     "loading": "Carregando frameworks…",
-    "loadError": "Não foi possível carregar os frameworks.",
+    "loadError": "Could not load reports",
     "retry": "Tentar de novo",
     "empty": "Nenhum framework corresponde.",
     "notEvaluated": "Não avaliado",
-    "enabled": "Ativo",
-    "disabled": "Inativo",
     "controlsCount": "{{n}} controles",
     "enabledLabel": "Ativo",
     "runReport": "Executar relatório",
     "backToFrameworks": "Voltar aos frameworks",
     "statusAuto": "Auto (avaliado)",
     "overrideError": "Falha ao atualizar o status",
-    "noteError": "Falha ao salvar a nota",
+    "noteError": "Não foi possível salvar a nota",
     "notes": {
       "title": "Notas",
       "placeholder": "Adicionar uma nota…",
@@ -4963,25 +4960,13 @@
       "NOT_COVERED": "Sem cobertura",
       "OUT_OF_SCOPE": "Fora do escopo",
       "PENDING": "Pendente",
-      "label": "Status"
+      "label": "Status",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Falha ao mudar o estado do framework",
       "reportGenerated": "Relatório gerado",
       "reportError": "Falha ao gerar o relatório"
-    },
-    "reports": {
-      "allFrameworks": "Todos os frameworks",
-      "loading": "Carregando relatórios…",
-      "loadError": "Não foi possível carregar os relatórios.",
-      "empty": "Ainda não há relatórios. Abra um framework e execute um relatório.",
-      "delete": "Excluir",
-      "confirmDelete": "Confirmar",
-      "cancel": "Cancelar",
-      "toast": {
-        "deleted": "Relatório excluído",
-        "deleteError": "Falha ao excluir o relatório"
-      }
     },
     "schedule": {
       "new": "Novo agendamento",
@@ -4995,7 +4980,6 @@
       "framework": "Framework",
       "cadenceLabel": "Cadência",
       "cronHint": "Cron de 5 campos (min hora dia mês diaSemana).",
-      "recipients": "Destinatários",
       "recipientsHint": "Emails separados por vírgula. Vazio = só armazena o snapshot.",
       "save": "Salvar",
       "cancel": "Cancelar",
@@ -5012,7 +4996,13 @@
         "saveError": "Falha ao salvar o agendamento",
         "deleted": "Agendamento excluído",
         "deleteError": "Falha ao excluir o agendamento"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "Novo framework",
@@ -5078,17 +5068,12 @@
       "checksHint": "Cada check executa uma consulta SQL no OpenSearch e aplica uma regra para decidir passa/falha.",
       "checkKey": "chave",
       "checkName": "Nome do check",
-      "indexPattern": "index pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "Sem hits permitidos",
         "MIN_HITS_REQUIRED": "Mín hits exigidos",
-        "THRESHOLD_MAX": "Limite máx",
-        "MATCH_FIELD_VALUE": "Corresponder valor do campo"
+        "THRESHOLD_MAX": "Limite máx"
       },
       "ruleNone": "Sem regra",
       "ruleValue": "valor",
-      "field": "campo",
-      "expected": "esperado",
       "addCheck": "Adicionar check",
       "createTitle": "Novo controle",
       "visualTab": "Visual",
@@ -5100,34 +5085,77 @@
       "yamlError": "Não foi possível aplicar o YAML: {{error}}",
       "idRequired": "O ID é obrigatório",
       "nameRequired": "O nome é obrigatório",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Controle criado",
         "saved": "Controle salvo",
         "saveError": "Falha ao salvar o controle",
         "deleted": "Controle excluído",
-        "deleteError": "Falha ao excluir o controle",
-        "toggleError": "Falha ao mudar o estado do controle"
+        "deleteError": "Falha ao excluir o controle"
       }
     },
     "doc": {
       "title": "Relatório de Compliance",
       "print": "Imprimir / PDF",
-      "generated": "Gerado {{date}}",
       "controlsEvaluated": "{{n}} controles avaliados",
       "executiveSummary": "Resumo Executivo",
       "bySection": "Achados por Seção",
-      "controlCol": "Controle",
-      "statusCol": "Status",
-      "evidenceCol": "Evidência",
-      "coverageCol": "Regras / Alertas",
       "footer": "{{framework}} — Relatório de compliance gerado {{date}} · {{brand}}",
       "download": "Baixar PDF",
-      "downloadError": "Falha ao baixar o PDF"
+      "downloadError": "Falha ao baixar o PDF",
+      "error": "Não foi possível gerar o PDF",
+      "building": "Gerando o documento…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Atualizar para Enterprise",
       "upsell": "Este framework/controle requer a edição Enterprise."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Do sistema",
+    "addNote": "Adicionar nota",
+    "noteModal": {
+      "title": "Nota",
+      "description": "Registrada no relatório. Não altera o estado do controle.",
+      "placeholder": "Remediação em curso — ticket OPS-4412."
+    },
+    "startFrom": {
+      "scratch": "Do zero",
+      "scratchHint": "Uma definição vazia preenchida por você.",
+      "copy": "De uma existente",
+      "copyHint": "Copia-se tudo exceto o identificador e o nome.",
+      "pickTitle": "Escolha o que copiar",
+      "back": "Voltar",
+      "count": "{{n}} disponíveis",
+      "search": "Buscar por nome",
+      "none": "Nada corresponde a essa busca"
+    },
+    "history": {
+      "title": "Score ao longo do tempo",
+      "score": "Score de conformidade",
+      "coverage": "Avaliados",
+      "error": "Não foi possível carregar o histórico"
     }
   },
   "taggingRules": {

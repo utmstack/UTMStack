@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: aws-activity
     name: AWS Activity
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-activity-by-user-iam
     name: AWS Activity by User IAM
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-*
+    dataType: aws-cloudtrail
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

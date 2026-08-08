@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-filtering-platform
     name: Windows Filtering Platform
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5158'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-filtering-platform-by-protocol
     name: Windows Filtering Platform by Protocol
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5158')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5158'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

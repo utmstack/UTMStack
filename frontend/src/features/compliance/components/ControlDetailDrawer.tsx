@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { complianceService } from '../services/compliance-http.service'
-import type { Control, ReportControlRow } from '../types/compliance.types'
+import type { CheckResult, Control, ControlRow, Report } from '../types/compliance.types'
 import { ControlStatusBadge } from './ControlStatusBadge'
 
 /** Right-side drawer showing full details of a report control row + its library Control. */
@@ -14,9 +14,9 @@ export function ControlDetailDrawer({
   onStatusChanged,
 }: {
   frameworkKey: string
-  row: ReportControlRow
+  row: ControlRow
   onClose: () => void
-  onStatusChanged?: () => void
+  onStatusChanged?: (updated: Report) => void
 }) {
   const { t } = useTranslation()
   const [control, setControl] = useState<Control | null>(null)
@@ -62,6 +62,30 @@ export function ControlDetailDrawer({
           </section>
           <EvidenceBlock text={row.evidence} />
 
+          {/* What each check actually returned. The one-line evidence names the
+              first failure only; a control failing three of five checks reported
+              one, which was enough to work with on screen and not enough to hand
+              an auditor. */}
+          {row.checks && row.checks.length > 0 && (
+            <Block label={t('compliance.checkResults', { defaultValue: 'Check results' })}>
+              <ul className="space-y-1.5">
+                {row.checks.map((c, i) => (
+                  <CheckResultLine key={i} result={c} />
+                ))}
+              </ul>
+            </Block>
+          )}
+
+          {row.note && (
+            <Block label={t('compliance.verdict', { defaultValue: 'Recorded verdict' })}>
+              <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground/90">{row.note}</p>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                {row.editedBy}
+                {row.originalStatus && ` · ${t('compliance.engineSaid', { defaultValue: 'engine said' })} ${t(`compliance.status.${row.originalStatus}`)}`}
+              </p>
+            </Block>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> {t('compliance.loading')}
@@ -101,14 +125,24 @@ export function ControlDetailDrawer({
                           <span className="text-[13px] font-medium">{c.name}</span>
                           {c.todo && <span className="ml-auto rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-sky-400">TODO</span>}
                         </div>
-                        {c.indexPattern && <div className="mt-1 font-mono text-[10px] text-muted-foreground">{c.indexPattern}</div>}
-                        {c.sql && <pre className="mt-1.5 overflow-x-auto rounded bg-muted/60 p-2 font-mono text-[10px] leading-snug">{c.sql}</pre>}
+                        <div className="mt-1 font-mono text-[10px] text-muted-foreground">
+                          {c.dataset ?? 'logs'}
+                          {c.dataType ? ` · ${c.dataType}` : ''}
+                        </div>
+                        {c.filters && c.filters.length > 0 && (
+                          <ul className="mt-1.5 space-y-0.5">
+                            {c.filters.map((f, fi) => (
+                              <li key={fi} className="font-mono text-[10px] text-muted-foreground">
+                                {f.field} <span className="text-foreground/70">{f.operator}</span>{' '}
+                                {Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '')}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                         {c.rule && (
                           <div className="mt-1.5 text-[11px] text-muted-foreground">
                             {c.rule}
                             {c.ruleValue != null && ` = ${c.ruleValue}`}
-                            {c.field && ` · ${c.field}`}
-                            {c.expected != null && ` = ${c.expected}`}
                           </div>
                         )}
                       </li>
@@ -121,6 +155,36 @@ export function ControlDetailDrawer({
         </div>
       </aside>
     </div>
+  )
+}
+
+const OUTCOME_TONE: Record<CheckResult['outcome'], string> = {
+  PASSED: 'bg-emerald-500/15 text-emerald-500',
+  FAILED: 'bg-red-500/15 text-red-500',
+  NOT_APPLICABLE: 'bg-slate-500/15 text-slate-400',
+  ERROR: 'bg-amber-500/15 text-amber-500',
+}
+
+function CheckResultLine({ result }: { result: CheckResult }) {
+  const { t } = useTranslation()
+  return (
+    <li className="rounded-md border border-border bg-background/40 p-2.5">
+      <div className="flex items-baseline gap-2">
+        <span className={cn('rounded px-1.5 py-0.5 text-[10px] font-semibold', OUTCOME_TONE[result.outcome])}>
+          {t(`compliance.outcome.${result.outcome}`, { defaultValue: result.outcome })}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-[12px]">{result.name}</span>
+      </div>
+      <div className="mt-1 font-mono text-[10px] text-muted-foreground">
+        {/* A NOT_APPLICABLE check failed on nothing — its data type never
+            arrived — so the data type is the explanation, not the hit count. */}
+        {result.outcome === 'NOT_APPLICABLE'
+          ? t('compliance.noDataFor', { dataType: result.dataType || result.dataset || 'logs', defaultValue: `no ${result.dataType} data in the window` })
+          : result.outcome === 'ERROR'
+            ? result.error
+            : `${result.hits} ${t('compliance.hits', { defaultValue: 'hits' })}${result.required != null ? ` · ${result.rule} ${result.required}` : ''}`}
+      </div>
+    </li>
   )
 }
 

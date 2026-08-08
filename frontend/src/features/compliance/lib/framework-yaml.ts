@@ -7,7 +7,6 @@ export interface FrameworkFormState {
   description: string
   source: string
   sections: FrameworkSection[]
-  enabled: boolean
 }
 
 export type FrameworkParseResult = { ok: true; form: FrameworkFormState } | { ok: false; error: string }
@@ -44,7 +43,6 @@ export function frameworkToForm(f?: Framework): FrameworkFormState {
       name: s.name,
       requirements: (s.requirements ?? []).map((r) => ({ id: r.id, name: r.name, satisfiedBy: [...(r.satisfiedBy ?? [])] })),
     })),
-    enabled: f?.enabled ?? true,
   }
 }
 
@@ -67,8 +65,6 @@ export function formToFramework(f: FrameworkFormState): Framework {
     description: f.description.trim(),
     source: f.source.trim(),
     sections: cleanSections(f.sections),
-    system: false,
-    enabled: f.enabled,
   }
 }
 
@@ -96,7 +92,6 @@ export function yamlToFrameworkForm(content: string): FrameworkParseResult {
     description: str(raw.description),
     source: str(raw.source),
     sections: parseSections(raw.sections),
-    enabled: true,
   }
   return { ok: true, form }
 }

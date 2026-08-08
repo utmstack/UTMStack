@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-describelogstreams-logs
     name: AWS DescribeLogStreams Logs
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogStreams')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DescribeLogStreams
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-describelogstreams-logs-by-source
     name: AWS DescribeLogStreams Logs by Source
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'DescribeLogStreams')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DescribeLogStreams
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -4,15 +4,24 @@ import { ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { complianceService, ComplianceHttpError } from '../services/compliance-http.service'
-import { CONTROL_STATUSES, type ControlStatus, type ReportControlRow } from '../types/compliance.types'
+import {
+  COMPLIANCE_STATUSES,
+  isOverridden,
+  type ComplianceStatus,
+  type ControlRow,
+  type Report,
+} from '../types/compliance.types'
 import { STATUS_TONE } from './ReportView'
 import { StatusChangeReasonModal } from './StatusChangeReasonModal'
 
 /**
- * Status pill that doubles as a manual-override selector. Native <select> styled
- * as a badge — click opens the OS picker. Used inline on report rows and inside
- * the control detail drawer. Stops propagation so it works inside clickable rows.
- * Setting a status opens a modal that requires a reason before submitting.
+ * Status pill that doubles as the verdict selector — the only editable level in
+ * a report. Choosing a status opens a modal for the justification, which the
+ * backend requires: an override no one can explain is worth nothing to whoever
+ * reads the report later.
+ *
+ * The edit returns the whole recomputed report, so the caller replaces its copy
+ * rather than refetching.
  */
 export function ControlStatusBadge({
   frameworkKey,
@@ -21,80 +30,65 @@ export function ControlStatusBadge({
   className,
 }: {
   frameworkKey: string
-  row: ReportControlRow
-  onChanged?: () => void
+  row: ControlRow
+  onChanged?: (updated: Report) => void
   className?: string
 }) {
   const { t } = useTranslation()
   const [busy, setBusy] = useState(false)
-  const [pending, setPending] = useState<ControlStatus | null>(null)
+  const [pending, setPending] = useState<ComplianceStatus | null>(null)
 
   const errorMessage = (e: unknown) =>
-    e instanceof ComplianceHttpError ? e.message : t('compliance.overrideError', { defaultValue: 'Failed to update status' })
+    e instanceof ComplianceHttpError
+      ? e.message
+      : t('compliance.overrideError', { defaultValue: 'Failed to update status' })
 
-  const submit = async (next: ControlStatus, reason: string) => {
+  const submit = async (note: string) => {
+    if (!pending) return
     setBusy(true)
     try {
-      await complianceService.setControlStatusOverride(frameworkKey, row.controlId, next, reason)
+      const updated = await complianceService.editControl(frameworkKey, row.controlId, { status: pending, note })
       setPending(null)
-      onChanged?.()
+      onChanged?.(updated)
     } catch (e) {
       toast.error(errorMessage(e))
     } finally {
       setBusy(false)
     }
-  }
-
-  const clear = async () => {
-    if (busy) return
-    setBusy(true)
-    try {
-      // ponytail: no reason on clear — backend DELETE endpoint doesn't accept one
-      await complianceService.clearControlStatusOverride(frameworkKey, row.controlId)
-      onChanged?.()
-    } catch (e) {
-      toast.error(errorMessage(e))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const change = (next: ControlStatus | '') => {
-    if (busy) return
-    if (next === '') void clear()
-    else setPending(next)
   }
 
   return (
     <>
-      <span className={cn('relative inline-flex items-center', className)}>
-        <select
-          value={row.overridden ? row.status : ''}
-          disabled={busy}
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => change(e.target.value as ControlStatus | '')}
-          title={t('compliance.status.label', { defaultValue: 'Status' })}
+      <div className={cn('relative inline-flex shrink-0', className)} onClick={(e) => e.stopPropagation()}>
+        <span
           className={cn(
-            'cursor-pointer appearance-none rounded py-0.5 pl-1.5 pr-5 text-[10px] font-semibold outline-none transition-opacity focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60',
+            'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
             STATUS_TONE[row.status],
+            busy && 'opacity-60',
           )}
         >
-          <option value="">
-            {row.overridden ? t('compliance.statusAuto', { defaultValue: 'Auto (evaluated)' }) : t(`compliance.status.${row.status}`)}
-          </option>
-          {CONTROL_STATUSES.map((s) => (
-            <option key={s} value={s}>{t(`compliance.status.${s}`)}</option>
+          {t(`compliance.status.${row.status}`)}
+          {/* An overridden row says so; the engine's own verdict stays on record.
+              A plain note is not an override and does not get the mark. */}
+          {isOverridden(row) && <span title={row.note}>*</span>}
+          <ChevronDown size={11} className="opacity-70" />
+        </span>
+        <select
+          aria-label={t('compliance.setStatus', { defaultValue: 'Set status' })}
+          value={row.status}
+          disabled={busy}
+          onChange={(e) => setPending(e.target.value as ComplianceStatus)}
+          className="absolute inset-0 cursor-pointer opacity-0"
+        >
+          {COMPLIANCE_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {t(`compliance.status.${s}`)}
+            </option>
           ))}
         </select>
-        <ChevronDown size={10} className="pointer-events-none absolute right-1 opacity-70" />
-      </span>
-      {pending && (
-        <StatusChangeReasonModal
-          busy={busy}
-          onCancel={() => { if (!busy) setPending(null) }}
-          onConfirm={(reason) => void submit(pending, reason)}
-        />
-      )}
+      </div>
+
+      {pending && <StatusChangeReasonModal busy={busy} onCancel={() => setPending(null)} onConfirm={submit} />}
     </>
   )
 }

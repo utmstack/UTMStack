@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-permissions-issues-in-dcom-by-level
     name: Windows Permissions issues in DCOM by Level
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '10016')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '10016'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-permissions-issues-in-dcom
     name: Windows Permissions issues in DCOM
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '10016')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '10016'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

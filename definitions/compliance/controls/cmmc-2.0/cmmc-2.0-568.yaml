@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-user-account-attributes-changes
     name: Windows User Account Attributes Changes
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4738'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: distribution-of-account-attribute-changes-by-operating-system
     name: Distribution of Account Attribute Changes by Operating System
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4738')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4738'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

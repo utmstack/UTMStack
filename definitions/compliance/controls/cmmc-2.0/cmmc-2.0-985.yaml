@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-event-log-service
     name: Windows Event Log Service
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '6005'
+          - '6006'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: event-log-service-count-by-event
     name: Event Log Service Count by Event
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('6005', '6006'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '6005'
+          - '6006'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

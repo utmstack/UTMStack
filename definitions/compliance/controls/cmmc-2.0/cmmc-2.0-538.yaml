@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-installation-of-services
     name: Windows Installation of Services
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7045'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-installation-of-services-by-services
     name: Windows Installation of Services by Services
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '7045')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '7045'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-bitlocker-settings-modification-attempts
     name: Windows BitLocker Settings Modification Attempts
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4826'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-bitlocker-settings-modification-attempts-by-outcome
     name: Windows BitLocker Settings Modification Attempts by Outcome
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4826')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4826'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

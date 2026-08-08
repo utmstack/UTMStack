@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-file-renamed
     name: O365 File Renamed
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileRenamed')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileRenamed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-file-renamed-by-workload
     name: O365 File Renamed by Workload
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'FileRenamed')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileRenamed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

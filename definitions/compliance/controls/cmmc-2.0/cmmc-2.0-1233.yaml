@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-file-sync-uploaded-full
     name: O365 File Sync Uploaded Full
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncUploadedFull')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileSyncUploadedFull
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-file-sync-uploaded-full-by-platform
     name: O365 File Sync Uploaded Full by Platform
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'FileSyncUploadedFull')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: FileSyncUploadedFull
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-protected-object-access-operation
     name: Windows Protected Object Access Operation
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4662'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-protected-object-access-operation-by-object
     name: Windows Protected Object Access Operation by Object
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4662')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4662'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -4583,19 +4583,16 @@
     "comingSoon": "Скоро.",
     "tabs": {
       "frameworks": "Фреймворки",
-      "reports": "Отчёты",
       "schedule": "Расписание",
       "controls": "Контроли"
     },
     "search": "Поиск фреймворков…",
-    "refresh": "Обновить",
+    "refresh": "Refresh",
     "loading": "Загрузка фреймворков…",
-    "loadError": "Не удалось загрузить фреймворки.",
+    "loadError": "Could not load reports",
     "retry": "Повторить",
     "empty": "Нет подходящих фреймворков.",
     "notEvaluated": "Не оценён",
-    "enabled": "Включён",
-    "disabled": "Отключён",
     "controlsCount": "Контролей: {{n}}",
     "enabledLabel": "Включён",
     "runReport": "Запустить отчёт",
@@ -4635,25 +4632,13 @@
       "NOT_COVERED": "Не покрыт",
       "OUT_OF_SCOPE": "Вне области",
       "PENDING": "Ожидает",
-      "label": "Статус"
+      "label": "Статус",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Не удалось изменить состояние фреймворка",
       "reportGenerated": "Отчёт сгенерирован",
       "reportError": "Не удалось сгенерировать отчёт"
-    },
-    "reports": {
-      "allFrameworks": "Все фреймворки",
-      "loading": "Загрузка отчётов…",
-      "loadError": "Не удалось загрузить отчёты.",
-      "empty": "Отчётов пока нет. Откройте фреймворк и запустите отчёт.",
-      "delete": "Удалить",
-      "confirmDelete": "Подтвердить",
-      "cancel": "Отмена",
-      "toast": {
-        "deleted": "Отчёт удалён",
-        "deleteError": "Не удалось удалить отчёт"
-      }
     },
     "schedule": {
       "new": "Новое расписание",
@@ -4667,7 +4652,6 @@
       "framework": "Фреймворк",
       "cadenceLabel": "Частота",
       "cronHint": "Cron из 5 полей (мин час день месяц деньНедели).",
-      "recipients": "Получатели",
       "recipientsHint": "Email через запятую. Оставьте пустым, чтобы только сохранить снимок.",
       "save": "Сохранить",
       "cancel": "Отмена",
@@ -4684,7 +4668,13 @@
         "saveError": "Не удалось сохранить расписание",
         "deleted": "Расписание удалено",
         "deleteError": "Не удалось удалить расписание"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "Новый фреймворк",
@@ -4750,17 +4740,12 @@
       "checksHint": "Каждая проверка выполняет SQL-запрос в OpenSearch и применяет правило для решения пройдено/не пройдено.",
       "checkKey": "ключ",
       "checkName": "Название проверки",
-      "indexPattern": "index pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "Совпадения не допускаются",
         "MIN_HITS_REQUIRED": "Минимум совпадений",
-        "THRESHOLD_MAX": "Максимальный порог",
-        "MATCH_FIELD_VALUE": "Совпадение значения поля"
+        "THRESHOLD_MAX": "Максимальный порог"
       },
       "ruleNone": "Без правила",
       "ruleValue": "значение",
-      "field": "поле",
-      "expected": "ожидается",
       "addCheck": "Добавить проверку",
       "createTitle": "Новый контроль",
       "visualTab": "Визуально",
@@ -4772,34 +4757,77 @@
       "yamlError": "Не удалось применить YAML: {{error}}",
       "idRequired": "ID обязателен",
       "nameRequired": "Имя обязательно",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Контроль создан",
         "saved": "Контроль сохранён",
         "saveError": "Не удалось сохранить контроль",
         "deleted": "Контроль удалён",
-        "deleteError": "Не удалось удалить контроль",
-        "toggleError": "Не удалось изменить состояние контроля"
+        "deleteError": "Не удалось удалить контроль"
       }
     },
     "doc": {
       "title": "Отчёт о соответствии",
       "print": "Печать / PDF",
-      "generated": "Создан {{date}}",
       "controlsEvaluated": "Оценено контролей: {{n}}",
       "executiveSummary": "Резюме",
       "bySection": "Результаты по разделам",
-      "controlCol": "Контроль",
-      "statusCol": "Статус",
-      "evidenceCol": "Доказательство",
-      "coverageCol": "Правила / Алерты",
       "footer": "{{framework}} — Отчёт о соответствии создан {{date}} · {{brand}}",
       "download": "Скачать PDF",
-      "downloadError": "Не удалось скачать PDF"
+      "downloadError": "Не удалось скачать PDF",
+      "error": "Не удалось создать PDF",
+      "building": "Создание документа…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Перейти на Enterprise",
       "upsell": "Этот фреймворк/контроль требует редакции Enterprise."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Поставляется",
+    "addNote": "Добавить заметку",
+    "noteModal": {
+      "title": "Заметка",
+      "description": "Записывается в отчёт. Не меняет статус контроля.",
+      "placeholder": "Исправление в работе — тикет OPS-4412."
+    },
+    "startFrom": {
+      "scratch": "С нуля",
+      "scratchHint": "Пустое определение, которое вы заполните сами.",
+      "copy": "На основе существующего",
+      "copyHint": "Копируется всё, кроме идентификатора и названия.",
+      "pickTitle": "Выберите, что скопировать",
+      "back": "Назад",
+      "count": "доступно: {{n}}",
+      "search": "Поиск по названию",
+      "none": "Ничего не найдено"
+    },
+    "history": {
+      "title": "Динамика оценки",
+      "score": "Оценка соответствия",
+      "coverage": "Оценено",
+      "error": "Не удалось загрузить историю"
     }
   },
   "languageSettings": {

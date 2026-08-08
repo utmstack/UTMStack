@@ -1,158 +1,191 @@
 package usecase
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"sync"
 
-	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"gopkg.in/yaml.v3"
+
+	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 )
 
-// FrameworkStore holds the framework checklists across system + user overlays,
-// keyed by framework key (user wins).
 type FrameworkStore struct {
 	systemDir string
-	userDir   string
-	mu        sync.RWMutex
-	byKey     map[string]*domain.Framework
+	userRoot  string
+
+	mu     sync.RWMutex
+	system map[string]*domain.Framework
+	user   map[string]map[string]*domain.Framework // tenant → key → framework
 }
 
-func NewFrameworkStore(systemDir, userDir string) *FrameworkStore {
-	return &FrameworkStore{systemDir: systemDir, userDir: userDir, byKey: map[string]*domain.Framework{}}
+func NewFrameworkStore(systemDir, userRoot string) *FrameworkStore {
+	return &FrameworkStore{
+		systemDir: systemDir,
+		userRoot:  userRoot,
+		system:    map[string]*domain.Framework{},
+		user:      map[string]map[string]*domain.Framework{},
+	}
 }
 
 func (s *FrameworkStore) Load() error {
-	idx := map[string]*domain.Framework{}
-	for _, root := range []struct {
-		dir    string
-		system bool
-	}{{s.systemDir, true}, {s.userDir, false}} {
-		files, err := scanYAML(root.dir, root.system)
+	sys, err := loadFrameworks(s.systemDir)
+	if err != nil {
+		return err
+	}
+	users := map[string]map[string]*domain.Framework{}
+	for _, tid := range tenantDirs(s.userRoot) {
+		m, err := loadFrameworks(filepath.Join(s.userRoot, tid))
 		if err != nil {
 			return err
 		}
-		for _, f := range files {
-			var fw domain.Framework
-			if err := yaml.Unmarshal(f.data, &fw); err != nil {
-				continue
-			}
-			if strings.TrimSpace(fw.Key) == "" {
-				continue
-			}
-			fw.RelPath = f.relPath
-			fw.System = f.system
-			fw.Enabled = f.enabled
-			cp := fw
-			idx[fw.Key] = &cp
-		}
+		users[tid] = m
 	}
 	s.mu.Lock()
-	s.byKey = idx
+	s.system, s.user = sys, users
 	s.mu.Unlock()
 	return nil
 }
 
-// All returns every framework, sorted by key.
-func (s *FrameworkStore) All() []domain.Framework {
+func loadFrameworks(dir string) (map[string]*domain.Framework, error) {
+	out := map[string]*domain.Framework{}
+	files, err := scanYAML(dir, false)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		var fw domain.Framework
+		if err := yaml.Unmarshal(f.data, &fw); err != nil || fw.Key == "" {
+			continue
+		}
+		ff := fw
+		out[fw.Key] = &ff
+	}
+	return out, nil
+}
+
+func (s *FrameworkStore) Get(ctx context.Context, key string) (*domain.Framework, bool) {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil, false
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	out := make([]domain.Framework, 0, len(s.byKey))
-	for _, f := range s.byKey {
+	if f, ok := s.user[tid][key]; ok {
+		ff := *f
+		return &ff, true
+	}
+	if f, ok := s.system[key]; ok {
+		ff := *f
+		return &ff, true
+	}
+	return nil, false
+}
+
+func (s *FrameworkStore) All(ctx context.Context) []domain.Framework {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	merged := make(map[string]*domain.Framework, len(s.system)+len(s.user[tid]))
+	for k, f := range s.system {
+		merged[k] = f
+	}
+	for k, f := range s.user[tid] {
+		merged[k] = f
+	}
+	out := make([]domain.Framework, 0, len(merged))
+	for _, f := range merged {
 		out = append(out, *f)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Key < out[j].Key })
+	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out
 }
 
-// Get returns the framework for the given key (copy), or false.
-func (s *FrameworkStore) Get(key string) (*domain.Framework, bool) {
+func (s *FrameworkStore) IsSystem(key string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	f, ok := s.byKey[key]
-	if !ok {
-		return nil, false
-	}
-	cp := *f
-	return &cp, true
+	_, ok := s.system[key]
+	return ok
 }
 
-func frameworkRelPath(f *domain.Framework) string { return f.Key + fileExt }
-
-// Create writes a brand-new custom framework to the user overlay. Fails if the
-// key already exists (system or user).
-func (s *FrameworkStore) Create(f domain.Framework) (*domain.Framework, error) {
+func (s *FrameworkStore) Create(ctx context.Context, f domain.Framework) (*domain.Framework, error) {
 	if !safeID(f.Key) {
 		return nil, domain.ErrInvalidID
 	}
-	if _, ok := s.Get(f.Key); ok {
+	if _, ok := s.Get(ctx, f.Key); ok {
 		return nil, domain.ErrFrameworkExists
 	}
-	return s.writeUser(f)
+	return s.writeUser(ctx, f)
 }
 
-// Update writes the framework to the user overlay (copy-on-write).
-func (s *FrameworkStore) Update(f domain.Framework) (*domain.Framework, error) {
+// Update refuses a vendor framework for the same reason controls do: the tenant
+// layer sits beside the shipped catalogue, it does not fork it.
+func (s *FrameworkStore) Update(ctx context.Context, f domain.Framework) (*domain.Framework, error) {
 	if !safeID(f.Key) {
 		return nil, domain.ErrInvalidID
 	}
-	if _, ok := s.Get(f.Key); !ok {
+	if _, ok := s.Get(ctx, f.Key); !ok {
 		return nil, domain.ErrFrameworkNotFound
 	}
-	return s.writeUser(f)
+	if s.IsSystem(f.Key) {
+		return nil, domain.ErrSystemOwner
+	}
+	return s.writeUser(ctx, f)
 }
 
-func (s *FrameworkStore) writeUser(f domain.Framework) (*domain.Framework, error) {
-	f.RelPath, f.System, f.Enabled = "", false, true
+func (s *FrameworkStore) writeUser(ctx context.Context, f domain.Framework) (*domain.Framework, error) {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil, err
+	}
 	data, err := yaml.Marshal(f)
 	if err != nil {
 		return nil, err
 	}
-	if err := atomicWrite(filepath.Join(s.userDir, frameworkRelPath(&f)), data); err != nil {
+	if err := atomicWrite(filepath.Join(s.userRoot, tid, f.Key+fileExt), data); err != nil {
 		return nil, err
 	}
-	if err := s.Load(); err != nil {
+	if err := s.reloadTenant(tid); err != nil {
 		return nil, err
 	}
-	out, _ := s.Get(f.Key)
+	out, _ := s.Get(ctx, f.Key)
 	return out, nil
 }
 
-// Delete removes the user-overlay file for key. A vendor-only framework cannot be
-// deleted — disable it instead.
-func (s *FrameworkStore) Delete(key string) error {
-	f, ok := s.Get(key)
-	if !ok {
-		return domain.ErrFrameworkNotFound
+func (s *FrameworkStore) Delete(ctx context.Context, key string) error {
+	if !safeID(key) {
+		return domain.ErrInvalidID
 	}
-	rel := frameworkRelPath(f)
-	userPath := filepath.Join(s.userDir, rel)
-	if _, err := os.Stat(userPath); err != nil {
-		if _, err2 := os.Stat(userPath + disabledSuffix); err2 != nil {
-			return domain.ErrSystemOwner
-		}
-		userPath += disabledSuffix
-	}
-	if err := os.Remove(userPath); err != nil {
+	tid, err := tenantDir(ctx)
+	if err != nil {
 		return err
 	}
-	return s.Load()
+	if _, ok := s.Get(ctx, key); !ok {
+		return domain.ErrFrameworkNotFound
+	}
+	path := filepath.Join(s.userRoot, tid, key+fileExt)
+	if _, err := os.Stat(path); err != nil {
+		return domain.ErrSystemOwner
+	}
+	if err := os.Remove(path); err != nil {
+		return err
+	}
+	return s.reloadTenant(tid)
 }
 
-// SetEnabled toggles the framework's enabled state via the .disabled suffix.
-func (s *FrameworkStore) SetEnabled(key string, enabled bool) error {
-	f, ok := s.Get(key)
-	if !ok {
-		return domain.ErrFrameworkNotFound
-	}
-	dir := s.userDir
-	if f.System {
-		dir = s.systemDir
-	}
-	if err := setEnabledFile(dir, frameworkRelPath(f), enabled); err != nil {
+func (s *FrameworkStore) reloadTenant(tid string) error {
+	m, err := loadFrameworks(filepath.Join(s.userRoot, tid))
+	if err != nil {
 		return err
 	}
-	return s.Load()
+	s.mu.Lock()
+	s.user[tid] = m
+	s.mu.Unlock()
+	return nil
 }

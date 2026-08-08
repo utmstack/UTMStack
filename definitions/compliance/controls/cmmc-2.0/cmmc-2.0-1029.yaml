@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-sharing-set
     name: O365 Sharing Set
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: SharingSet
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-sharing-set-by-geo-location
     name: O365 Sharing Set By Geo Location
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'SharingSet')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: SharingSet
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

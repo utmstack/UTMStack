@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-ad-failed-logins-by-user
     name: O365 AD Failed Logins by User
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.ResultStatus.keyword = 'Failed')
+    dataType: o365
+    filters:
+      - field: log.ResultStatus
+        operator: IS
+        value: Failed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-ad-unsuccesful-login-location
     name: O365 AD Unsuccesful Login Location
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoginFailed')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: UserLoginFailed
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

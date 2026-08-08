@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-user-policies-removal
     name: AWS User Policies Removal
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DetachUserPolicy')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DetachUserPolicy
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-user-policy-removals-daily-trend
     name: AWS User Policy Removals - Daily Trend
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'DetachUserPolicy')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: DetachUserPolicy
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

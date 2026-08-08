@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-failure-to-load-system-services
     name: Windows Failure to load system services
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7023', '7026'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '7023'
+          - '7026'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-failure-to-load-system-services-by-event
     name: Windows Failure to load system services by Event
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('7023', '7026'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '7023'
+          - '7026'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

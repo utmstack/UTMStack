@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-access-to-shared-resources
     name: Windows Access to Shared Resources
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5140'
+          - '5145'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-access-to-shared-resources-by-resource
     name: Windows Access to Shared Resources by Resource
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5140', '5145'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5140'
+          - '5145'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

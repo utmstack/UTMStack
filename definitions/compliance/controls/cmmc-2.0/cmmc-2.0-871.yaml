@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-access-roles-assumption
     name: AWS Access Roles Assumption
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: AssumeRole
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-access-roles-assumption-by-source-ip
     name: AWS Access Roles Assumption by Source IP
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'AssumeRole')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: AssumeRole
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

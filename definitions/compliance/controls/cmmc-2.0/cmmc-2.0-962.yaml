@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-shared-resource-modification
     name: Windows Shared Resource Modification
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5143')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5143'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-shared-resource-modification-by-user
     name: Windows Shared Resource Modification by User
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5143')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5143'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

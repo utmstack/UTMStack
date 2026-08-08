@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   BadgeCheck,
   CalendarClock,
-  FileBarChart,
   ListChecks,
   Loader2,
   Lock,
@@ -15,19 +14,24 @@ import {
   Search,
   ShieldCheck,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { complianceService } from '../services/compliance-http.service'
 import type { Framework } from '../types/compliance.types'
 import { scoreTone } from '../components/ReportView'
-import { ReportsTab } from '../components/ReportsTab'
 import { ScheduleTab } from '../components/ScheduleTab'
 import { ControlsTab } from '../components/ControlsTab'
+import { copyOfFramework } from '../lib/duplicate'
+import { StartFromModal } from '../components/StartFromModal'
 import { FrameworkEditor } from '../components/FrameworkEditor'
 
-type PageTab = 'frameworks' | 'controls' | 'reports' | 'schedule'
+type PageTab = 'frameworks' | 'controls' | 'schedule'
+
+// The column count follows the card's own width rather than a ladder of
+// breakpoints: fixed at two, a wide monitor stretched every card to twice the
+// length its content needed.
+const CARD_GRID = 'grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3'
 
 export function CompliancePage() {
   const { t } = useTranslation()
@@ -39,13 +43,12 @@ export function CompliancePage() {
         <div className="inline-flex rounded-md border border-border p-0.5">
           <TabButton active={tab === 'frameworks'} onClick={() => setTab('frameworks')} icon={ShieldCheck} label={t('compliance.tabs.frameworks')} />
           <TabButton active={tab === 'controls'} onClick={() => setTab('controls')} icon={ListChecks} label={t('compliance.tabs.controls')} />
-          <TabButton active={tab === 'reports'} onClick={() => setTab('reports')} icon={FileBarChart} label={t('compliance.tabs.reports')} />
           <TabButton active={tab === 'schedule'} onClick={() => setTab('schedule')} icon={CalendarClock} label={t('compliance.tabs.schedule')} />
         </div>
       </header>
 
       <div className="mt-4 flex min-h-0 flex-1 flex-col">
-        {tab === 'frameworks' ? <FrameworksTab /> : tab === 'controls' ? <ControlsTab /> : tab === 'reports' ? <ReportsTab /> : <ScheduleTab />}
+        {tab === 'frameworks' ? <FrameworksTab /> : tab === 'controls' ? <ControlsTab /> : <ScheduleTab />}
       </div>
     </div>
   )
@@ -78,6 +81,7 @@ function FrameworksTab() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [starting, setStarting] = useState(false)
   const [editing, setEditing] = useState<{ framework?: Framework; creating: boolean } | null>(null)
 
   const load = useCallback(() => {
@@ -88,12 +92,13 @@ function FrameworksTab() {
       .then((fws) => setFrameworks(fws ?? []))
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-    // Latest snapshot score per framework (one call, newest-first → dedupe).
+    // The standing report per framework — its presence is also what makes a
+    // framework "in play" for this tenant.
     complianceService
-      .listSnapshots(undefined, 200)
-      .then((snaps) => {
+      .listReports()
+      .then((rs) => {
         const m: Record<string, number> = {}
-        for (const s of snaps ?? []) if (!(s.frameworkKey in m)) m[s.frameworkKey] = s.score
+        for (const r of rs ?? []) m[r.frameworkKey] = r.score
         setScores(m)
       })
       .catch(() => setScores({}))
@@ -101,21 +106,6 @@ function FrameworksTab() {
   useEffect(() => {
     load()
   }, [load])
-
-  const toggle = async (f: Framework) => {
-    if (f.locked) {
-      toast.error(t('compliance.locked.upsell'))
-      return
-    }
-    const next = !f.enabled
-    setFrameworks((list) => list.map((x) => (x.key === f.key ? { ...x, enabled: next } : x)))
-    try {
-      await complianceService.setFrameworkEnabled(f.key, next)
-    } catch {
-      setFrameworks((list) => list.map((x) => (x.key === f.key ? { ...x, enabled: f.enabled } : x)))
-      toast.error(t('compliance.toast.toggleError'))
-    }
-  }
 
   const shown = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -133,7 +123,7 @@ function FrameworksTab() {
           <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
         </Button>
         <div className="ml-auto">
-          <Button size="sm" onClick={() => setEditing({ creating: true })}>
+          <Button size="sm" onClick={() => setStarting(true)}>
             <Plus size={14} className="mr-1.5" /> {t('compliance.frameworks.new')}
           </Button>
         </div>
@@ -150,13 +140,37 @@ function FrameworksTab() {
         ) : shown.length === 0 ? (
           <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('compliance.empty')}</div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className={CARD_GRID}>
             {shown.map((f) => (
-              <FrameworkCard key={f.key} f={f} score={scores[f.key]} onOpen={() => navigate(`/compliance/frameworks/${encodeURIComponent(f.key)}`)} onEdit={() => setEditing({ framework: f, creating: false })} onToggle={() => toggle(f)} t={t} />
+              <FrameworkCard
+                key={f.key}
+                f={f}
+                score={scores[f.key]}
+                onOpen={() => navigate(`/compliance/frameworks/${encodeURIComponent(f.key)}`)}
+                onEdit={() => setEditing({ framework: f, creating: false })}
+                t={t}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {starting && (
+        <StartFromModal
+          title={t('compliance.frameworks.new')}
+          options={frameworks.map((f) => ({ id: f.key, name: f.name }))}
+          onScratch={() => {
+            setStarting(false)
+            setEditing({ creating: true })
+          }}
+          onCopy={(key) => {
+            const src = frameworks.find((f) => f.key === key)
+            setStarting(false)
+            if (src) setEditing({ framework: copyOfFramework(src), creating: true })
+          }}
+          onClose={() => setStarting(false)}
+        />
+      )}
 
       {editing && (
         <FrameworkEditor
@@ -173,18 +187,19 @@ function FrameworksTab() {
   )
 }
 
-function FrameworkCard({ f, score, onOpen, onEdit, onToggle, t }: { f: Framework; score?: number; onOpen: () => void; onEdit: () => void; onToggle: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
+function FrameworkCard({ f, score, onOpen, onEdit, t }: { f: Framework; score?: number; onOpen: () => void; onEdit: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
   return (
-    <div className={cn('flex cursor-pointer flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40', (!f.enabled || f.locked) && 'opacity-60')} onClick={f.locked ? onToggle : onOpen}>
+    <div className={cn('flex cursor-pointer flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40', f.locked && 'opacity-60')} onClick={f.locked ? undefined : onOpen}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <h3 className="truncate text-sm font-semibold">{f.name}</h3>
-            {f.system && !f.locked && <Lock size={11} className="shrink-0 text-muted-foreground/60" />}
           </div>
           <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{f.description || f.key}</p>
         </div>
         <div className="flex shrink-0 items-start gap-2">
+          {/* Shipped frameworks open too: the editor is read-only for them, and
+              being able to look inside is most of what the catalogue is for. */}
           {!f.locked && (
             <button onClick={(e) => { e.stopPropagation(); onEdit() }} title={t('compliance.frameworks.edit')} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
               <Pencil size={13} />
@@ -205,30 +220,11 @@ function FrameworkCard({ f, score, onOpen, onEdit, onToggle, t }: { f: Framework
       </div>
       <div className="mt-3 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
         <span className="text-[11px] text-muted-foreground">{t('compliance.controlsCount', { n: controlCount(f) })}</span>
-        {f.locked ? (
+        {f.locked && (
           <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400">{t('compliance.locked.upgrade')}</span>
-        ) : (
-          <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            {f.enabled ? t('compliance.enabled') : t('compliance.disabled')}
-            <Toggle checked={f.enabled} onChange={onToggle} />
-          </label>
         )}
       </div>
     </div>
-  )
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={onChange}
-      className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-muted-foreground/30')}
-    >
-      <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
   )
 }
 

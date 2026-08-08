@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-listaccesskeys-logs-by-mfa-authenticated
     name: AWS ListAccessKeys Logs by MFA Authenticated
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ListAccessKeys
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-listaccesskeys-logs
     name: AWS ListAccessKeys Logs
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListAccessKeys')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ListAccessKeys
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

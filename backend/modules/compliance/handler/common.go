@@ -22,7 +22,9 @@ func writeError(c *gin.Context, err error) {
 		errors.Is(err, domain.ErrFrameworkLocked),
 		errors.Is(err, domain.ErrControlLocked):
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-	case errors.Is(err, domain.ErrControlExists), errors.Is(err, domain.ErrFrameworkExists):
+	case errors.Is(err, domain.ErrControlExists),
+		errors.Is(err, domain.ErrFrameworkExists),
+		errors.Is(err, domain.ErrReportConflict):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrInvalidCron), errors.Is(err, domain.ErrInvalidID), errors.Is(err, domain.ErrInvalidStatus):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -31,11 +33,11 @@ func writeError(c *gin.Context, err error) {
 	}
 }
 
-func pathInt64(c *gin.Context, param string) (int64, bool) {
-	v, err := strconv.ParseInt(c.Param(param), 10, 64)
+func pathUUID(c *gin.Context, param string) (uuid.UUID, bool) {
+	v, err := uuid.Parse(c.Param(param))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": param + " must be an integer"})
-		return 0, false
+		c.JSON(http.StatusBadRequest, gin.H{"error": param + " must be a uuid"})
+		return uuid.Nil, false
 	}
 	return v, true
 }

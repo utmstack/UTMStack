@@ -4789,19 +4789,16 @@
     "comingSoon": "Demnächst verfügbar.",
     "tabs": {
       "frameworks": "Frameworks",
-      "reports": "Berichte",
       "schedule": "Zeitplan",
       "controls": "Kontrollen"
     },
     "search": "Frameworks suchen…",
-    "refresh": "Aktualisieren",
+    "refresh": "Refresh",
     "loading": "Frameworks werden geladen…",
-    "loadError": "Frameworks konnten nicht geladen werden.",
+    "loadError": "Could not load reports",
     "retry": "Erneut versuchen",
     "empty": "Keine passenden Frameworks.",
     "notEvaluated": "Nicht bewertet",
-    "enabled": "Aktiviert",
-    "disabled": "Deaktiviert",
     "controlsCount": "{{n}} Kontrollen",
     "enabledLabel": "Aktiviert",
     "runReport": "Bericht ausführen",
@@ -4841,25 +4838,13 @@
       "NOT_COVERED": "Nicht abgedeckt",
       "OUT_OF_SCOPE": "Außerhalb des Umfangs",
       "PENDING": "Ausstehend",
-      "label": "Status"
+      "label": "Status",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Status des Frameworks konnte nicht geändert werden",
       "reportGenerated": "Bericht erstellt",
       "reportError": "Bericht konnte nicht erstellt werden"
-    },
-    "reports": {
-      "allFrameworks": "Alle Frameworks",
-      "loading": "Berichte werden geladen…",
-      "loadError": "Berichte konnten nicht geladen werden.",
-      "empty": "Noch keine Berichte. Öffnen Sie ein Framework und führen Sie einen Bericht aus.",
-      "delete": "Löschen",
-      "confirmDelete": "Bestätigen",
-      "cancel": "Abbrechen",
-      "toast": {
-        "deleted": "Bericht gelöscht",
-        "deleteError": "Bericht konnte nicht gelöscht werden"
-      }
     },
     "schedule": {
       "new": "Neuer Zeitplan",
@@ -4873,7 +4858,6 @@
       "framework": "Framework",
       "cadenceLabel": "Frequenz",
       "cronHint": "Cron mit 5 Feldern (Min Std Tag Monat Wochentag).",
-      "recipients": "Empfänger",
       "recipientsHint": "Kommagetrennte E-Mails. Leer lassen, um nur den Snapshot zu speichern.",
       "save": "Speichern",
       "cancel": "Abbrechen",
@@ -4890,7 +4874,13 @@
         "saveError": "Zeitplan konnte nicht gespeichert werden",
         "deleted": "Zeitplan gelöscht",
         "deleteError": "Zeitplan konnte nicht gelöscht werden"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "Neues Framework",
@@ -4956,17 +4946,12 @@
       "checksHint": "Jede Prüfung führt eine OpenSearch-SQL-Abfrage aus und wendet eine Regel an, um Bestehen/Fehlschlag zu entscheiden.",
       "checkKey": "Schlüssel",
       "checkName": "Name der Prüfung",
-      "indexPattern": "Index-Pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "Keine Treffer erlaubt",
         "MIN_HITS_REQUIRED": "Mindesttreffer erforderlich",
-        "THRESHOLD_MAX": "Höchstschwelle",
-        "MATCH_FIELD_VALUE": "Feldwert abgleichen"
+        "THRESHOLD_MAX": "Höchstschwelle"
       },
       "ruleNone": "Keine Regel",
       "ruleValue": "Wert",
-      "field": "Feld",
-      "expected": "erwartet",
       "addCheck": "Prüfung hinzufügen",
       "createTitle": "Neue Kontrolle",
       "visualTab": "Visuell",
@@ -4978,34 +4963,77 @@
       "yamlError": "YAML kann nicht angewendet werden: {{error}}",
       "idRequired": "ID ist erforderlich",
       "nameRequired": "Name ist erforderlich",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Kontrolle erstellt",
         "saved": "Kontrolle gespeichert",
         "saveError": "Kontrolle konnte nicht gespeichert werden",
         "deleted": "Kontrolle gelöscht",
-        "deleteError": "Kontrolle konnte nicht gelöscht werden",
-        "toggleError": "Status der Kontrolle konnte nicht geändert werden"
+        "deleteError": "Kontrolle konnte nicht gelöscht werden"
       }
     },
     "doc": {
       "title": "Compliance-Bericht",
       "print": "Drucken / PDF",
-      "generated": "Erstellt {{date}}",
       "controlsEvaluated": "{{n}} Kontrollen bewertet",
       "executiveSummary": "Zusammenfassung",
       "bySection": "Ergebnisse nach Abschnitt",
-      "controlCol": "Kontrolle",
-      "statusCol": "Status",
-      "evidenceCol": "Nachweis",
-      "coverageCol": "Regeln / Alarme",
       "footer": "{{framework}} — Compliance-Bericht erstellt {{date}} · {{brand}}",
       "download": "PDF herunterladen",
-      "downloadError": "PDF konnte nicht heruntergeladen werden"
+      "downloadError": "PDF konnte nicht heruntergeladen werden",
+      "error": "PDF konnte nicht erstellt werden",
+      "building": "Dokument wird erstellt…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Auf Enterprise upgraden",
       "upsell": "Dieses Framework/dieser Control erfordert die Enterprise-Edition."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Ausgeliefert",
+    "addNote": "Notiz hinzufügen",
+    "noteModal": {
+      "title": "Notiz",
+      "description": "Im Bericht vermerkt. Ändert den Status der Kontrolle nicht.",
+      "placeholder": "Behebung läuft — Ticket OPS-4412."
+    },
+    "startFrom": {
+      "scratch": "Von Grund auf",
+      "scratchHint": "Eine leere Definition, die Sie selbst ausfüllen.",
+      "copy": "Von einer vorhandenen",
+      "copyHint": "Alles wird kopiert außer Kennung und Name.",
+      "pickTitle": "Wählen Sie die Vorlage",
+      "back": "Zurück",
+      "count": "{{n}} verfügbar",
+      "search": "Nach Name suchen",
+      "none": "Keine Treffer für diese Suche"
+    },
+    "history": {
+      "title": "Score im Zeitverlauf",
+      "score": "Compliance-Score",
+      "coverage": "Bewertet",
+      "error": "Verlauf konnte nicht geladen werden"
     }
   },
   "socAi": {

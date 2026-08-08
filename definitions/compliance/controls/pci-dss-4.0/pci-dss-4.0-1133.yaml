@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-changes-to-defender-settings
     name: Windows Changes to Defender settings
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5007'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-changes-to-defender-settings-by-host
     name: Windows Changes to Defender settings by Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5007')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5007'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

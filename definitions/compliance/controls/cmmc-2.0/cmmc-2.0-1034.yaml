@@ -8,14 +8,23 @@ strategy: ANY
 checks:
   - key: o365-ad-successful-login-location
     name: O365 AD Successful Login Location
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'UserLoggedIn')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: UserLoggedIn
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-ad-successful-login-by-user
     name: O365 AD Successful Login by User
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.UserId.keyword <> 'Not Available' AND logx.o365.Operation.keyword = 'UserLoggedIn')
+    dataType: o365
+    filters:
+      - field: log.UserId
+        operator: IS_NOT
+        value: Not Available
+      - field: log.Operation
+        operator: IS
+        value: UserLoggedIn
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

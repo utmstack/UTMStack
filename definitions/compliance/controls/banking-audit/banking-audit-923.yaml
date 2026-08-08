@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: windows-user-accounts-deleted-over-time
     name: Windows User Accounts Deleted Over Time
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4726'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-user-accounts-deleted
     name: Windows User Accounts Deleted
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4726' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$' AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4726'
+      - field: log.subjectUserName
+        operator: NOT_ENDS_WITH
+        value: $
+      - field: log.targetUserName
+        operator: NOT_ENDS_WITH
+        value: $
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

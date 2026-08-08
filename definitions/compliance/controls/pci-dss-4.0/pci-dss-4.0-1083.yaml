@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-connections-and-port-assignments
     name: Windows Connections and Port Assignments
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5156', '5158'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5156'
+          - '5158'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-connections-and-port-assignments-by-process
     name: Windows Connections and Port Assignments by Process
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('5156', '5158'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5156'
+          - '5158'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

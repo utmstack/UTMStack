@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: azure-activity
     name: Azure Activity
-    indexPattern: v11-log-azure-*
-    sql: SELECT count(*) AS c FROM v11-log-azure-*
+    dataType: azure
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: azure-activity-by-category
     name: Azure Activity by Category
-    indexPattern: v11-log-azure-*
-    sql: SELECT count(*) AS c FROM v11-log-azure-*
+    dataType: azure
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

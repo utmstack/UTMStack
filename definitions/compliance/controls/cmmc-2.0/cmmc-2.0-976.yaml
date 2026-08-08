@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-protected-files-decryption
     name: Windows Protected Files Decryption
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5061')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5061'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-protected-files-decryption-by-key-type
     name: Windows Protected Files Decryption by Key Type
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5061')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5061'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

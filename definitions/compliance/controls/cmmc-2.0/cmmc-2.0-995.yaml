@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-possible-disk-errors
     name: Windows Possible Disk Errors
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '15')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '15'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-possible-disk-errors-by-level
     name: Windows Possible Disk Errors by Level
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '15')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '15'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-security-group-member-removal
     name: Windows Security Group Member Removal
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4729')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4729'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-security-group-member-removal-by-group
     name: Windows Security Group Member Removal by Group
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4729')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4729'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

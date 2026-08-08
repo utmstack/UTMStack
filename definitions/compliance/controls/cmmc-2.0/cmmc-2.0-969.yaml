@@ -8,14 +8,23 @@ strategy: ANY
 checks:
   - key: windows-special-privileges-assigned-to-new-logon
     name: Windows Special privileges assigned to new logon
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672' AND logx.wineventlog.event_data.SubjectUserName NOT LIKE '%$')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4672'
+      - field: log.subjectUserName
+        operator: NOT_ENDS_WITH
+        value: $
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-special-privileges-assigned-to-new-logon-2
     name: Windows Special privileges assigned to new logon
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4672')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4672'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

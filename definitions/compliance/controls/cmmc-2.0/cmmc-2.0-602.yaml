@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: o365-sharepoint-group-membership-additions
     name: O365 SharePoint Group Membership Additions
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'AddedToGroup' AND logx.o365.Workload.keyword = 'OneDrive')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: AddedToGroup
+      - field: log.Workload
+        operator: IS
+        value: OneDrive
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-sharepoint-group-membership-additions-by-group
     name: O365 SharePoint Group Membership Additions by Group
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation.keyword = 'AddedToGroup' AND logx.o365.Workload.keyword = 'OneDrive')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: AddedToGroup
+      - field: log.Workload
+        operator: IS
+        value: OneDrive
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -8,14 +8,28 @@ strategy: ANY
 checks:
   - key: windows-changes-in-account-status
     name: Windows Changes in account status
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4722', '4723', '4725', '4726'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4722'
+          - '4723'
+          - '4725'
+          - '4726'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-security-events-by-category
     name: Windows Security Events by Category
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4722', '4723', '4725', '4726'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4722'
+          - '4723'
+          - '4725'
+          - '4726'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

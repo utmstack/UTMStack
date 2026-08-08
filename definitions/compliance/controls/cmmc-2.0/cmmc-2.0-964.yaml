@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-handle-closure-in-security-system
     name: Windows Handle Closure in Security System
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4658')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4658'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-handle-closure-in-security-system-by-user
     name: Windows Handle Closure in Security System by User
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4658')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4658'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

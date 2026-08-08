@@ -8,26 +8,48 @@ strategy: ANY
 checks:
   - key: threat-intelligence-by-ip
     name: Threat Intelligence by IP
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (source.ip.keyword IS NOT NULL AND source.ip.keyword <> '')
+    dataset: alerts
+    filters:
+      - field: adversary.ip
+        operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-threat-intelligence-alerts
     name: Windows Threat Intelligence Alerts
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (name.keyword = 'Connection attempt from a blacklisted IP address')
+    dataset: alerts
+    filters:
+      - field: name
+        operator: IS
+        value: Connection attempt from a blacklisted IP address
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-threat-intelligence-by-ip
     name: Windows Threat Intelligence by IP
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (source.ip.keyword IS NOT NULL AND source.ip.keyword <> '' AND dataType = 'wineventlog' AND isIncident = 'true')
+    dataset: alerts
+    filters:
+      - field: adversary.ip
+        operator: EXIST
+      - field: dataType
+        operator: IS
+        value: wineventlog
+      - field: isIncident
+        operator: IS
+        value: true
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-threat-intelligence-alert
     name: Windows Threat Intelligence Alert
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (name.keyword = 'Connection attempt from a blacklisted IP address' AND dataType = 'wineventlog' AND isIncident = 'true')
+    dataset: alerts
+    filters:
+      - field: name
+        operator: IS
+        value: Connection attempt from a blacklisted IP address
+      - field: dataType
+        operator: IS
+        value: wineventlog
+      - field: isIncident
+        operator: IS
+        value: true
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

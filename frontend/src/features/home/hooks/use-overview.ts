@@ -174,27 +174,24 @@ export function useComplianceScores(): { items: ComplianceScore[]; isLoading: bo
     queryFn: () => complianceService.listFrameworks(),
     staleTime: 5 * 60 * 1000,
   })
-  const snapshots = useQuery({
-    queryKey: ['overview', 'compliance', 'snapshots'],
-    queryFn: () => complianceService.listSnapshots(undefined, 200),
+  const reports = useQuery({
+    queryKey: ['overview', 'compliance', 'reports'],
+    queryFn: () => complianceService.listReports(),
     staleTime: STALE,
   })
 
   const items = useMemo<ComplianceScore[]>(() => {
     const names = new Map((frameworks.data ?? []).map((f) => [f.key, f.name]))
-    // Snapshots come back newest-first; the first one seen per framework is its
-    // latest score (same dedupe the Compliance page uses).
+    // One report per framework, so the score is simply the row's.
     const latest = new Map<string, number>()
-    for (const s of snapshots.data ?? []) {
-      if (!latest.has(s.frameworkKey)) latest.set(s.frameworkKey, s.score)
-    }
+    for (const r of reports.data ?? []) latest.set(r.frameworkKey, r.score)
     return Array.from(latest.entries())
       .map(([key, score]) => ({ key, name: names.get(key) ?? key, score: Math.round(score) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 6)
-  }, [frameworks.data, snapshots.data])
+  }, [frameworks.data, reports.data])
 
-  return { items, isLoading: frameworks.isLoading || snapshots.isLoading }
+  return { items, isLoading: frameworks.isLoading || reports.isLoading }
 }
 
 /* ─── System health (real backend / OpenSearch / SOC-AI status) ─────────────── */

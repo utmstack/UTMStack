@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-user-listing-activity
     name: AWS User Listing Activity
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListUsers')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ListUsers
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-user-listing-activity-by-user
     name: AWS User Listing Activity by User
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ListUsers')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ListUsers
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

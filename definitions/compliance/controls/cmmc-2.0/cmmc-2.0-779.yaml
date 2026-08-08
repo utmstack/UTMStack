@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-account-authentication-using-ntlm
     name: Windows Account authentication using NTLM
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4776'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-account-authentication-using-ntlm-by-outcome
     name: Windows Account authentication using NTLM by Outcome
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4776')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4776'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

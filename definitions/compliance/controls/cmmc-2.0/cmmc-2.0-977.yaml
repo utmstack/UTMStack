@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: windows-activity
     name: Windows Activity
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    dataType: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-activity-by-event
     name: Windows Activity by Event
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    dataType: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

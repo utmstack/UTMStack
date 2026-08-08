@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-logon-attempt-failed
     name: Windows Logon attempt failed
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4690'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-failed-logon-attempt-by-domain-and-user
     name: Windows Failed logon attempt by Domain and User
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4690')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4690'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

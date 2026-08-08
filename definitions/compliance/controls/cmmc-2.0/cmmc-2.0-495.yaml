@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-use-of-elevated-privileges
     name: Windows Use of Elevated Privileges
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4673'
+          - '4674'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-use-of-elevated-privileges-by-outcome
     name: Windows Use of Elevated Privileges by Outcome
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4673', '4674'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4673'
+          - '4674'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

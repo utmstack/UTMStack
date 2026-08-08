@@ -3,11 +3,12 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
-	"strings"
-	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
@@ -25,25 +26,34 @@ func NewScheduleUsecase(repo connectors.ScheduleRepository, frameworks *Framewor
 	return &scheduleUsecase{repo: repo, frameworks: frameworks, ent: ent}
 }
 
-func (u *scheduleUsecase) frameworkLocked(key string) bool {
-	fw, ok := u.frameworks.Get(key)
-	return ok && u.ent.FrameworkLocked(fw)
+func (u *scheduleUsecase) frameworkLocked(ctx context.Context, key string) bool {
+	fw, ok := u.frameworks.Get(ctx, key)
+	return ok && u.ent.FrameworkLocked(fw, u.frameworks.IsSystem(key))
 }
 
 func (u *scheduleUsecase) Create(ctx context.Context, userID uuid.UUID, req dto.CreateScheduleRequest) (*dto.ScheduleResponse, error) {
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
 	}
-	if u.frameworkLocked(req.FrameworkKey) {
+	if u.frameworkLocked(ctx, req.FrameworkKey) {
 		return nil, domain.ErrFrameworkLocked
 	}
-	s := &domain.UtmComplianceReportSchedule{
+	now := time.Now().UTC()
+	s := &domain.ReportSchedule{
 		UserID:            userID,
 		FrameworkKey:      req.FrameworkKey,
 		ScheduleString:    req.ScheduleString,
-		Recipients:        req.Recipients,
-		LastExecutionDate: time.Now().UTC(),
+		WindowDays:        windowDaysOrDefault(req.WindowDays),
+		To:                req.To,
+		Cc:                req.Cc,
+		LastExecutionDate: now,
 	}
+
+	next, err := nextCronTime(s.ScheduleString, now)
+	if err != nil {
+		return nil, domain.ErrInvalidCron
+	}
+	s.NextExecutionDate = next
 	if err := u.repo.Create(ctx, s); err != nil {
 		return nil, err
 	}
@@ -54,7 +64,7 @@ func (u *scheduleUsecase) Update(ctx context.Context, userID uuid.UUID, req dto.
 	if err := validateCron(req.ScheduleString); err != nil {
 		return nil, domain.ErrInvalidCron
 	}
-	if u.frameworkLocked(req.FrameworkKey) {
+	if u.frameworkLocked(ctx, req.FrameworkKey) {
 		return nil, domain.ErrFrameworkLocked
 	}
 	existing, err := u.repo.GetByID(ctx, req.ID)
@@ -66,14 +76,21 @@ func (u *scheduleUsecase) Update(ctx context.Context, userID uuid.UUID, req dto.
 	}
 	existing.FrameworkKey = req.FrameworkKey
 	existing.ScheduleString = req.ScheduleString
-	existing.Recipients = req.Recipients
+	existing.WindowDays = windowDaysOrDefault(req.WindowDays)
+	existing.To = req.To
+	existing.Cc = req.Cc
+	next, err := nextCronTime(existing.ScheduleString, time.Now().UTC())
+	if err != nil {
+		return nil, domain.ErrInvalidCron
+	}
+	existing.NextExecutionDate = next
 	if err := u.repo.Update(ctx, existing); err != nil {
 		return nil, err
 	}
 	return toScheduleResp(existing), nil
 }
 
-func (u *scheduleUsecase) GetByID(ctx context.Context, id int64) (*dto.ScheduleResponse, error) {
+func (u *scheduleUsecase) GetByID(ctx context.Context, id uuid.UUID) (*dto.ScheduleResponse, error) {
 	s, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -96,7 +113,7 @@ func (u *scheduleUsecase) ListByUser(ctx context.Context, userID uuid.UUID, f dt
 	return out, total, nil
 }
 
-func (u *scheduleUsecase) Delete(ctx context.Context, id int64) error {
+func (u *scheduleUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	s, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return err
@@ -107,20 +124,37 @@ func (u *scheduleUsecase) Delete(ctx context.Context, id int64) error {
 	return u.repo.Delete(ctx, id)
 }
 
-func toScheduleResp(s *domain.UtmComplianceReportSchedule) *dto.ScheduleResponse {
+func toScheduleResp(s *domain.ReportSchedule) *dto.ScheduleResponse {
 	return &dto.ScheduleResponse{
 		ID:                s.ID,
 		UserID:            s.UserID,
 		FrameworkKey:      s.FrameworkKey,
 		ScheduleString:    s.ScheduleString,
-		Recipients:        s.Recipients,
+		WindowDays:        s.WindowDays,
+		To:                s.To,
+		Cc:                s.Cc,
 		LastExecutionDate: s.LastExecutionDate,
 	}
 }
 
-// ── Report scheduler background job ──────────────────────────────────────────
+func windowDaysOrDefault(d int) int {
+	if d <= 0 {
+		return domain.DefaultWindowDays
+	}
+	return d
+}
 
-// ReportScheduler polls DB every 5s and fires PDF+email delivery for due schedules.
+func splitEmails(s string) []string {
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
 type ReportScheduler struct {
 	scheduleRepo connectors.ScheduleRepository
 	evaluator    connectors.EvaluatorUsecase
@@ -140,7 +174,7 @@ func NewReportScheduler(
 }
 
 func (s *ReportScheduler) Start(ctx context.Context) {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {
 		select {
@@ -153,29 +187,22 @@ func (s *ReportScheduler) Start(ctx context.Context) {
 }
 
 func (s *ReportScheduler) run(ctx context.Context) {
-	// The sweep spans every tenant on purpose; each schedule is then claimed and
-	// delivered under its own, so a report is built from that tenant's data and
-	// no other.
-	schedules, err := s.scheduleRepo.ListAll(tenancy.WithAllTenants(ctx))
+
+	now := time.Now().UTC()
+	schedules, err := s.scheduleRepo.ListDue(tenancy.WithAllTenants(ctx), now)
 	if err != nil {
-		_ = catcher.Error("compliance: listing schedules failed", err, nil)
+		_ = catcher.Error("compliance: listing due schedules failed", err, nil)
 		return
 	}
 	for _, sched := range schedules {
-		next, err := nextCronTime(sched.ScheduleString, sched.LastExecutionDate)
+		next, err := nextCronTime(sched.ScheduleString, sched.NextExecutionDate)
 		if err != nil {
+			_ = catcher.Error("compliance: unusable cron on schedule", err, map[string]any{"scheduleId": sched.ID})
 			continue
 		}
-		if time.Now().UTC().Before(next) {
-			continue
-		}
-		// Atomically claim this run before doing any work: with N
-		// horizontally-scaled replicas all polling the same due schedule,
-		// only the replica whose compare-and-swap succeeds proceeds — the
-		// rest see RowsAffected == 0 and skip, so the report email is never
-		// sent more than once per scheduled occurrence.
-		tenantCtx := authz.WithTenantID(ctx, sched.TenantID)
-		claimed, err := s.scheduleRepo.ClaimDue(tenantCtx, sched.ID, sched.LastExecutionDate, next)
+
+		tenantCtx := authz.WithTenantID(ctx, sched.TenantID.String())
+		claimed, err := s.scheduleRepo.ClaimDue(tenantCtx, sched.ID, sched.NextExecutionDate, sched.NextExecutionDate, next)
 		if err != nil {
 			_ = catcher.Error("compliance: claiming schedule failed", err, map[string]any{"scheduleId": sched.ID})
 			continue
@@ -187,28 +214,26 @@ func (s *ReportScheduler) run(ctx context.Context) {
 	}
 }
 
-func (s *ReportScheduler) deliver(ctx context.Context, sched *domain.UtmComplianceReportSchedule, next time.Time) {
-	pdf, _, err := s.evaluator.FrameworkReportPDF(ctx, sched.FrameworkKey)
+func (s *ReportScheduler) deliver(ctx context.Context, sched *domain.ReportSchedule, next time.Time) {
+	if _, err := s.evaluator.Evaluate(ctx, sched.FrameworkKey, sched.WindowDays); err != nil {
+		_ = catcher.Error("compliance: scheduled evaluation failed", err, map[string]any{"scheduleId": sched.ID, "framework": sched.FrameworkKey})
+		return
+	}
+	pdf, _, err := s.evaluator.PDF(ctx, sched.FrameworkKey, "")
 	if err != nil {
 		_ = catcher.Error("compliance: PDF generation failed", err, map[string]any{"scheduleId": sched.ID, "framework": sched.FrameworkKey})
 		return
 	}
-	subject := fmt.Sprintf("UTMStack Compliance Report - %s - %s", sched.FrameworkKey, time.Now().UTC().Format("2006-01-02"))
-	// Email each recipient (comma-separated). The mail sender is a no-op until the
-	// platform mail gateway is wired.
-	for _, to := range strings.Split(sched.Recipients, ",") {
-		to = strings.TrimSpace(to)
-		if to == "" {
-			continue
-		}
-		if err := s.mail.SendComplianceReport(ctx, to, subject, pdf); err != nil {
-			_ = catcher.Error("compliance: email delivery failed", err, map[string]any{"scheduleId": sched.ID, "to": to})
-		}
+	to, cc := splitEmails(sched.To), splitEmails(sched.Cc)
+	if len(to) == 0 {
+		return
 	}
-	// LastExecutionDate was already advanced atomically by ClaimDue in run().
+	subject := fmt.Sprintf("UTMStack Compliance Report - %s - %s", sched.FrameworkKey, time.Now().UTC().Format("2006-01-02"))
+	if err := s.mail.SendComplianceReport(ctx, to, cc, subject, pdf); err != nil {
+		_ = catcher.Error("compliance: email delivery failed", err, map[string]any{"scheduleId": sched.ID})
+	}
 }
 
-// validateCron does a basic 5-field UNIX cron validation.
 func validateCron(expr string) error {
 	fields := strings.Fields(expr)
 	if len(fields) != 5 {
@@ -217,13 +242,10 @@ func validateCron(expr string) error {
 	return nil
 }
 
-// nextCronTime computes the next execution time after `last` for a 5-field cron.
-// Implementation uses a simple minute-step search (mirrors Java CronExpression semantics).
 func nextCronTime(expr string, last time.Time) (time.Time, error) {
 	if err := validateCron(expr); err != nil {
 		return time.Time{}, err
 	}
-	// Advance by 1 minute steps up to 1 year.
 	t := last.Add(time.Minute).Truncate(time.Minute)
 	for i := 0; i < 525960; i++ {
 		if cronMatches(expr, t) {
@@ -247,16 +269,13 @@ func matchField(field string, value int) bool {
 	if field == "*" {
 		return true
 	}
-	// handle */n step
 	if strings.HasPrefix(field, "*/") {
 		var step int
 		if _, err := fmt.Sscanf(field[2:], "%d", &step); err == nil && step > 0 {
 			return value%step == 0
 		}
 	}
-	// handle list a,b,c
 	for _, part := range strings.Split(field, ",") {
-		// handle range a-b
 		if strings.Contains(part, "-") {
 			var lo, hi int
 			if _, err := fmt.Sscanf(part, "%d-%d", &lo, &hi); err == nil {

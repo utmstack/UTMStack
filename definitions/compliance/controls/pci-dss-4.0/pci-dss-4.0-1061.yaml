@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-attempt-to-access-a-protected-object
     name: Windows Attempt to access a protected object
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4663', '4656'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4663'
+          - '4656'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-file-access-events
     name: Windows File Access Events
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id NOT IN ('4663', '4656'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_NOT_ONE_OF
+        value:
+          - '4663'
+          - '4656'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

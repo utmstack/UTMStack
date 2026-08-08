@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-unexpected-logon-process-termination
     name: Windows Unexpected Logon Process Termination
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4005')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4005'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-unexpected-logon-process-termination-by-host
     name: Windows Unexpected Logon Process Termination by Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4005')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4005'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

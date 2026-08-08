@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: windows-kerberos-ticket-requests
     name: Windows Kerberos ticket requests
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4768'
+          - '4769'
+          - '4771'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-kerberos-ticket-requests-by-outcome
     name: Windows Kerberos ticket requests by Outcome
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4768', '4769', '4771'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4768'
+          - '4769'
+          - '4771'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

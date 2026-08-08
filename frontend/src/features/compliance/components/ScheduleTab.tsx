@@ -90,7 +90,8 @@ export function ScheduleTab() {
                 <div className="truncate text-[13px] font-medium">{fwName[s.frameworkKey] ?? s.frameworkKey}</div>
                 <div className="flex flex-wrap items-center gap-x-3 text-[11px] text-muted-foreground">
                   <span>{cadenceLabel(s.scheduleString, t)} · <span className="font-mono">{s.scheduleString}</span></span>
-                  {s.recipients && <span className="inline-flex items-center gap-1"><Mail size={10} /> {s.recipients}</span>}
+                  <span>{t('compliance.schedule.windowDaysShort', { days: s.windowDays, defaultValue: `over ${s.windowDays}d` })}</span>
+                  {s.to && <span className="inline-flex items-center gap-1"><Mail size={10} /> {s.to}{s.cc ? ` · cc ${s.cc}` : ''}</span>}
                 </div>
               </div>
               <button onClick={() => setEditing(s)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={t('compliance.schedule.edit')}>
@@ -135,7 +136,11 @@ function ScheduleEditor({
 }) {
   const [frameworkKey, setFrameworkKey] = useState(schedule?.frameworkKey ?? frameworks[0]?.key ?? '')
   const [cron, setCron] = useState(schedule?.scheduleString ?? CRON_PRESETS[0].cron)
-  const [recipients, setRecipients] = useState(schedule?.recipients ?? '')
+  const [to, setTo] = useState(schedule?.to ?? '')
+  const [cc, setCc] = useState(schedule?.cc ?? '')
+  // How much the report covers, which is not how often it runs: "every morning
+  // over the last 30 days" is the ordinary case.
+  const [windowDays, setWindowDays] = useState(schedule?.windowDays ?? 30)
   const [busy, setBusy] = useState(false)
 
   const matchedPreset = CRON_PRESETS.find((p) => p.cron === cron.trim())?.key ?? 'custom'
@@ -149,7 +154,17 @@ function ScheduleEditor({
       toast.error(t('compliance.schedule.cronRequired'))
       return
     }
-    const input: SaveScheduleInput = { frameworkKey, scheduleString: cron.trim(), recipients: recipients.trim() }
+    if (!to.trim()) {
+      toast.error(t('compliance.schedule.toRequired', { defaultValue: 'At least one recipient is required' }))
+      return
+    }
+    const input: SaveScheduleInput = {
+      frameworkKey,
+      scheduleString: cron.trim(),
+      windowDays,
+      to: to.trim(),
+      cc: cc.trim(),
+    }
     if (schedule) input.id = schedule.id
     setBusy(true)
     try {
@@ -203,9 +218,28 @@ function ScheduleEditor({
             <p className="mt-1 text-[11px] text-muted-foreground">{t('compliance.schedule.cronHint')}</p>
           </Field>
 
-          <Field label={t('compliance.schedule.recipients')}>
-            <Input value={recipients} onChange={(e) => setRecipients(e.target.value)} placeholder="soc@acme.com, ciso@acme.com" />
+          <Field label={t('compliance.schedule.windowDays', { defaultValue: 'Reporting window (days)' })}>
+            <Input
+              type="number"
+              min={1}
+              max={3650}
+              value={windowDays}
+              onChange={(e) => setWindowDays(Number(e.target.value) || 30)}
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {t('compliance.schedule.windowDaysHint', {
+                defaultValue: 'How far back the report counts. Independent of how often it runs.',
+              })}
+            </p>
+          </Field>
+
+          <Field label={t('compliance.schedule.to', { defaultValue: 'To' })}>
+            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="soc@acme.com, ciso@acme.com" />
             <p className="mt-1 text-[11px] text-muted-foreground">{t('compliance.schedule.recipientsHint')}</p>
+          </Field>
+
+          <Field label={t('compliance.schedule.cc', { defaultValue: 'Cc' })}>
+            <Input value={cc} onChange={(e) => setCc(e.target.value)} placeholder="audit@acme.com" />
           </Field>
         </div>
 

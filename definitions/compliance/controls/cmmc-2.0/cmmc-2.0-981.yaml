@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: o365-activity
     name: O365 Activity
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-*
+    dataType: o365
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-activity-by-operation
     name: O365 Activity by Operation
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-*
+    dataType: o365
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

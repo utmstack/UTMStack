@@ -2,428 +2,330 @@ package usecase
 
 import (
 	"context"
-	"fmt"
-	"strings"
+	"encoding/json"
+	"errors"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
+
 	"github.com/utmstack/utmstack/backend/modules/compliance/connectors"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
-	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
 )
 
 type evaluator struct {
 	controls   *ControlStore
 	frameworks *FrameworkStore
-	sql        connectors.OpenSearchSQL
 	coverage   *CoverageIndex
-	alerts     connectors.OpenSearchAlerts
+	events     connectors.EventCounter
 	store      connectors.ReportStore
-	overrides  connectors.ControlStatusOverrideRepository // optional; nil → no manual overrides
-	notes      connectors.ControlNoteRepository           // optional; nil → no user notes on rows
-	possessed  connectors.TenantFrameworkRepository       // optional; nil → skip possession check (on-prem)
-	brand      connectors.BrandingProvider                // optional; nil → default UTMStack branding
+	scores     connectors.ReportScoreStore
+	schedules  connectors.ScheduleRepository
+	brand      connectors.BrandingProvider // optional; nil → default UTMStack branding
 	ent        *Entitlement
 }
 
-func NewEvaluator(controls *ControlStore, frameworks *FrameworkStore, sql connectors.OpenSearchSQL, coverage *CoverageIndex, alerts connectors.OpenSearchAlerts, store connectors.ReportStore, overrides connectors.ControlStatusOverrideRepository, notes connectors.ControlNoteRepository, possessed connectors.TenantFrameworkRepository, brand connectors.BrandingProvider, ent *Entitlement) connectors.EvaluatorUsecase {
-	return &evaluator{controls: controls, frameworks: frameworks, sql: sql, coverage: coverage, alerts: alerts, store: store, overrides: overrides, notes: notes, possessed: possessed, brand: brand, ent: ent}
-}
-
-func (e *evaluator) reportBrand(ctx context.Context) connectors.ReportBrand {
-	if e.brand == nil {
-		return connectors.ReportBrand{}
+func NewEvaluator(
+	controls *ControlStore,
+	frameworks *FrameworkStore,
+	coverage *CoverageIndex,
+	events connectors.EventCounter,
+	store connectors.ReportStore,
+	scores connectors.ReportScoreStore,
+	schedules connectors.ScheduleRepository,
+	brand connectors.BrandingProvider,
+	ent *Entitlement,
+) connectors.EvaluatorUsecase {
+	return &evaluator{
+		controls: controls, frameworks: frameworks, coverage: coverage,
+		events: events, store: store, scores: scores, schedules: schedules,
+		brand: brand, ent: ent,
 	}
-	return e.brand.ReportBrand(ctx)
 }
 
-// GenerateReport evaluates the framework and persists a snapshot (history). The
-// snapshot is the report DATA — the frontend renders it and the PDF path renders
-// it; no binary PDF is stored.
-func (e *evaluator) GenerateReport(ctx context.Context, key string) (*domain.Report, error) {
-	rep, err := e.EvaluateFramework(ctx, key)
+func (e *evaluator) brandFor(ctx context.Context, preparedBy string) connectors.ReportBrand {
+	var b connectors.ReportBrand
+	if e.brand != nil {
+		b = e.brand.ReportBrand(ctx)
+	}
+	b.PreparedBy = preparedBy
+	return b
+}
+
+// Evaluate runs the framework and replaces the standing report.
+func (e *evaluator) Evaluate(ctx context.Context, frameworkKey string, windowDays int) (*dto.ReportResponse, error) {
+	fw, ok := e.frameworks.Get(ctx, frameworkKey)
+	if !ok {
+		return nil, domain.ErrFrameworkNotFound
+	}
+	if e.ent.FrameworkLocked(fw, e.frameworks.IsSystem(fw.Key)) {
+		return nil, domain.ErrFrameworkLocked
+	}
+
+	now := time.Now().UTC()
+	from, to := windowOf(now, e.resolveWindow(ctx, frameworkKey, windowDays))
+
+	// The previous report is read before anything is computed: its human edits
+	// have to survive this run, and a nightly schedule would otherwise erase
+	// every justification written the day before.
+	prev, prevBody := e.previous(ctx, frameworkKey)
+
+	ids := controlIDsOf(fw)
+	activity, err := e.events.CountByRuleNames(ctx, e.ruleNames(ids), from, to)
 	if err != nil {
+		_ = catcher.Error("compliance: activity query failed", err, map[string]any{"framework": frameworkKey})
+		activity = map[string]int64{}
+	}
+	results := e.runChecks(ctx, e.collectChecks(ctx, ids), from, to)
+
+	body := dto.ReportBody{Controls: make([]dto.ControlRow, 0, len(ids))}
+	for _, id := range ids {
+		row := e.controlRow(ctx, id, results, activity)
+		inheritEdit(&row, prevBody.Controls)
+		body.Controls = append(body.Controls, row)
+	}
+	body.Sections = sectionsOf(fw, body.Controls)
+	recompute(&body)
+
+	rep := &domain.Report{
+		FrameworkKey:    fw.Key,
+		FrameworkName:   fw.Name,
+		FrameworkSource: fw.Source,
+		GeneratedAt:     now,
+		WindowFrom:      from,
+		WindowTo:        to,
+	}
+	if prev != nil {
+		rep.ID, rep.Version = prev.ID, prev.Version
+	}
+	if err := e.save(ctx, rep, &body); err != nil {
 		return nil, err
 	}
-	snap := &domain.ReportSnapshot{
-		ID:            uuid.NewString(),
-		FrameworkKey:  rep.FrameworkKey,
-		FrameworkName: rep.FrameworkName,
-		Timestamp:     time.Now().UTC().Format(time.RFC3339),
-		Score:         rep.Summary.CompliantPct,
-		Report:        *rep,
-	}
-	if err := e.store.Save(ctx, snap); err != nil {
-		// Don't fail the report if persistence fails — the live report is still useful.
-		_ = catcher.Error("compliance: saving report snapshot failed", err, map[string]any{"framework": key})
-	}
-	return rep, nil
+	e.recordPoint(ctx, rep, &body)
+
+	return response(rep, &body), nil
 }
 
-func (e *evaluator) ListReports(ctx context.Context, frameworkKey string, limit int) ([]domain.ReportSnapshotMeta, error) {
-	metas, err := e.store.List(ctx, frameworkKey, limit)
-	if err != nil {
-		return nil, err
+// resolveWindow: what the caller asked, else the framework's schedule, else the
+// default. Borrowing the schedule's window is what keeps a manual run and the
+// mailed report describing the same period.
+func (e *evaluator) resolveWindow(ctx context.Context, frameworkKey string, windowDays int) int {
+	if windowDays > 0 {
+		return windowDays
 	}
-	out := metas[:0]
-	for _, m := range metas {
-		if !e.frameworkKeyLocked(m.FrameworkKey) {
-			out = append(out, m)
+	if e.schedules != nil {
+		if s, err := e.schedules.ForFramework(ctx, frameworkKey); err == nil && s != nil && s.WindowDays > 0 {
+			return s.WindowDays
 		}
+	}
+	return domain.DefaultWindowDays
+}
+
+func (e *evaluator) previous(ctx context.Context, frameworkKey string) (*domain.Report, dto.ReportBody) {
+	var body dto.ReportBody
+	rep, err := e.store.Get(ctx, frameworkKey)
+	if err != nil {
+		if !errors.Is(err, domain.ErrReportNotFound) {
+			_ = catcher.Error("compliance: reading the previous report failed", err, map[string]any{"framework": frameworkKey})
+		}
+		return nil, body
+	}
+	if len(rep.Body) > 0 {
+		if err := json.Unmarshal(rep.Body, &body); err != nil {
+			_ = catcher.Error("compliance: previous report body is unreadable", err, map[string]any{"framework": frameworkKey})
+		}
+	}
+	return rep, body
+}
+
+func (e *evaluator) save(ctx context.Context, rep *domain.Report, body *dto.ReportBody) error {
+	raw, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	rep.Body = raw
+	rep.Score = body.Summary.CompliantPct
+	return e.store.Save(ctx, rep)
+}
+
+// recordPoint writes the day's point on the chart. A failure here is logged
+// rather than returned: the report is the deliverable, the chart is a
+// by-product, and losing one point must not lose the run.
+func (e *evaluator) recordPoint(ctx context.Context, rep *domain.Report, body *dto.ReportBody) {
+	if e.scores == nil {
+		return
+	}
+	err := e.scores.Upsert(ctx, &domain.ReportScore{
+		FrameworkKey: rep.FrameworkKey,
+		Day:          rep.GeneratedAt,
+		GeneratedAt:  rep.GeneratedAt,
+		Score:        body.Summary.CompliantPct,
+		Total:        body.Summary.Total,
+		Evaluated:    body.Summary.Evaluated,
+		Compliant:    body.Summary.Compliant,
+		Body:         rep.Body,
+	})
+	if err != nil {
+		_ = catcher.Error("compliance: recording the score point failed", err, map[string]any{"framework": rep.FrameworkKey})
+	}
+}
+
+func (e *evaluator) Get(ctx context.Context, frameworkKey string) (*dto.ReportResponse, error) {
+	rep, err := e.store.Get(ctx, frameworkKey)
+	if err != nil {
+		return nil, err
+	}
+	var body dto.ReportBody
+	if len(rep.Body) > 0 {
+		if err := json.Unmarshal(rep.Body, &body); err != nil {
+			return nil, err
+		}
+	}
+	return response(rep, &body), nil
+}
+
+func (e *evaluator) List(ctx context.Context) ([]dto.ReportMeta, error) {
+	rows, err := e.store.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]dto.ReportMeta, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, dto.ReportMeta{
+			ID:            r.ID,
+			FrameworkKey:  r.FrameworkKey,
+			FrameworkName: r.FrameworkName,
+			GeneratedAt:   r.GeneratedAt,
+			Score:         r.Score,
+		})
 	}
 	return out, nil
 }
 
-func (e *evaluator) GetReport(ctx context.Context, id string) (*domain.ReportSnapshot, error) {
-	snap, err := e.store.Get(ctx, id)
+func (e *evaluator) Delete(ctx context.Context, frameworkKey string) error {
+	return e.store.Delete(ctx, frameworkKey)
+}
+
+func (e *evaluator) EditControl(ctx context.Context, editedBy, frameworkKey, controlID string, req dto.EditControlRequest) (*dto.ReportResponse, error) {
+	// An empty status means the caller is annotating, not overriding.
+	if req.Status != "" && !validStatus(req.Status) {
+		return nil, domain.ErrInvalidStatus
+	}
+	rep, err := e.store.Get(ctx, frameworkKey)
 	if err != nil {
 		return nil, err
 	}
-	if snap != nil && e.frameworkKeyLocked(snap.FrameworkKey) {
-		return nil, domain.ErrFrameworkLocked
-	}
-	return snap, nil
-}
-
-func (e *evaluator) DeleteReport(ctx context.Context, id string) error {
-	return e.store.Delete(ctx, id)
-}
-
-func (e *evaluator) frameworkKeyLocked(key string) bool {
-	fw, ok := e.frameworks.Get(key)
-	return ok && e.ent.FrameworkLocked(fw)
-}
-
-func (e *evaluator) FrameworkReportPDF(ctx context.Context, key string) ([]byte, string, error) {
-	rep, err := e.EvaluateFramework(ctx, key)
-	if err != nil {
-		return nil, "", err
-	}
-	pdf, err := renderReportPDF(*rep, e.reportBrand(ctx))
-	return pdf, rep.FrameworkName, err
-}
-
-func (e *evaluator) SnapshotPDF(ctx context.Context, id string) ([]byte, string, error) {
-	snap, err := e.GetReport(ctx, id)
-	if err != nil {
-		return nil, "", err
-	}
-	if snap == nil {
-		return nil, "", domain.ErrReportNotFound
-	}
-	pdf, err := renderReportPDF(snap.Report, e.reportBrand(ctx))
-	return pdf, snap.FrameworkName, err
-}
-
-func (e *evaluator) SetStatusOverride(ctx context.Context, frameworkKey, controlID, status, reason string) error {
-	if e.overrides == nil {
-		return fmt.Errorf("status overrides not configured")
-	}
-	if frameworkKey == "" || controlID == "" {
-		return domain.ErrInvalidID
-	}
-	if _, ok := e.frameworks.Get(frameworkKey); !ok {
-		return domain.ErrFrameworkNotFound
-	}
-	if !domain.ValidStatus(status) {
-		return domain.ErrInvalidStatus
-	}
-
-	if err := e.notes.Upsert(ctx, &domain.UtmComplianceControlNote{
-		FrameworkKey: frameworkKey,
-		ControlID:    controlID,
-		Note:         reason,
-	}); err != nil {
-		return err
-	}
-
-	return e.overrides.Upsert(ctx, &domain.UtmComplianceControlStatusOverride{
-		FrameworkKey: frameworkKey,
-		ControlID:    controlID,
-		Status:       status,
-		Reason:       reason,
-	})
-}
-
-func (e *evaluator) ClearStatusOverride(ctx context.Context, frameworkKey, controlID string) error {
-	if e.overrides == nil {
-		return nil
-	}
-	if frameworkKey == "" || controlID == "" {
-		return domain.ErrInvalidID
-	}
-	return e.overrides.Delete(ctx, frameworkKey, controlID)
-}
-
-func (e *evaluator) SetControlNote(ctx context.Context, frameworkKey, controlID, note string) error {
-	if e.notes == nil {
-		return fmt.Errorf("control notes not configured")
-	}
-	if frameworkKey == "" || controlID == "" {
-		return domain.ErrInvalidID
-	}
-	if _, ok := e.frameworks.Get(frameworkKey); !ok {
-		return domain.ErrFrameworkNotFound
-	}
-	// Empty / whitespace-only note is a delete — keep the table tidy.
-	if strings.TrimSpace(note) == "" {
-		return e.notes.Delete(ctx, frameworkKey, controlID)
-	}
-	return e.notes.Upsert(ctx, &domain.UtmComplianceControlNote{
-		FrameworkKey: frameworkKey,
-		ControlID:    controlID,
-		Note:         note,
-	})
-}
-
-func (e *evaluator) ClearControlNote(ctx context.Context, frameworkKey, controlID string) error {
-	if e.notes == nil {
-		return nil
-	}
-	if frameworkKey == "" || controlID == "" {
-		return domain.ErrInvalidID
-	}
-	return e.notes.Delete(ctx, frameworkKey, controlID)
-}
-
-// activityWindow is how far back the activity dimension counts alerts.
-const activityWindow = -30 * 24 * time.Hour
-
-// EvaluateFramework resolves the framework's requirements to controls, evaluates
-// each control once (cached), and assembles the report with a rollup.
-func (e *evaluator) EvaluateFramework(ctx context.Context, key string) (*domain.Report, error) {
-	fw, ok := e.frameworks.Get(key)
-	if !ok {
-		return nil, domain.ErrFrameworkNotFound
-	}
-	if e.ent.FrameworkLocked(fw) {
-		return nil, domain.ErrFrameworkLocked
-	}
-	// The acting tenant must possess the framework — an empty ctx tenant
-	// (on-prem/global) is allowed to evaluate anything, matching the rest of
-	// this module.
-	if e.possessed != nil {
-		if tid := authz.TenantIDFromContext(ctx); tid != "" {
-			has, err := e.possessed.Has(ctx, key)
-			if err != nil {
-				return nil, err
-			}
-			if !has {
-				return nil, domain.ErrFrameworkNotPossessed
-			}
+	var body dto.ReportBody
+	if len(rep.Body) > 0 {
+		if err := json.Unmarshal(rep.Body, &body); err != nil {
+			return nil, err
 		}
+	}
+
+	idx := -1
+	for i := range body.Controls {
+		if body.Controls[i].ControlID == controlID {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		return nil, domain.ErrControlNotFound
 	}
 
 	now := time.Now().UTC()
-	report := domain.Report{
-		FrameworkKey:  fw.Key,
-		FrameworkName: fw.Name,
-		GeneratedAt:   now.Format("2006-01-02 15:04 UTC"),
-	}
-	since := now.Add(activityWindow).Format(time.RFC3339)
-	cache := map[string]domain.ReportControlRow{}
+	row := &body.Controls[idx]
+	row.Note = req.Note
+	row.EditedBy = editedBy
+	row.EditedAt = &now
 
-	// Load manual overrides once per evaluation; missing / errored → treat as no overrides.
-	var overrides map[string]string
-	if e.overrides != nil {
-		if m, err := e.overrides.ListByFramework(ctx, fw.Key); err == nil {
-			overrides = m
-		} else {
-			_ = catcher.Error("compliance: loading status overrides failed", err, map[string]any{"framework": fw.Key})
-		}
-	}
-	// Notes are surfaced on report rows; errored → treat as no notes.
-	var notes map[string]string
-	if e.notes != nil {
-		if m, err := e.notes.ListByFramework(ctx, fw.Key); err == nil {
-			notes = m
-		} else {
-			_ = catcher.Error("compliance: loading control notes failed", err, map[string]any{"framework": fw.Key})
-		}
+	if req.Status == "" || req.Status == row.EngineStatus {
+		// A note that leaves the verdict alone is an annotation. Recording it
+		// as an override would put a verdict on the row nobody gave, and would
+		// have it go stale the day the engine changes its mind.
+		row.Status = row.EngineStatus
+		row.OriginalStatus = ""
+	} else {
+		// OriginalStatus is what the engine said at the moment of the override,
+		// which is what lets a later run notice the ground moved underneath it.
+		row.OriginalStatus = row.EngineStatus
+		row.Status = req.Status
 	}
 
-	// stale collects overrides whose target matches the freshly-computed status
-	// — the override is no longer changing anything, so it gets cleared after
-	// the report is assembled (never mid-loop: an eval error would leave a
-	// half-cleaned overrides table). Delete-in-a-defer isn't quite right
-	// either — we only clear on successful eval.
-	var stale []string
-	for _, sec := range fw.Sections {
-		rs := domain.ReportSection{Name: sec.Name}
-		seen := map[string]bool{}
-		for _, req := range sec.Requirements {
-			for _, cid := range req.SatisfiedBy {
-				if seen[cid] {
-					continue
-				}
-				seen[cid] = true
-				row, cached := cache[cid]
-				if !cached {
-					row = e.evalControl(ctx, cid, since)
-					if s, ok := overrides[cid]; ok && domain.ValidStatus(s) {
-						switch {
-						case s != row.Status:
-							row.Evidence = fmt.Sprintf("manual override (was %s)", row.Status)
-							row.Status = s
-							row.Overridden = true
-						default:
-							// Override target caught up to what the evaluator now
-							// produces — the human's forced status is the same
-							// as the computed one, so the override is dead
-							// weight. Queue it for deletion.
-							stale = append(stale, cid)
-						}
-					}
-					if n, ok := notes[cid]; ok {
-						row.Note = n
-					}
-					cache[cid] = row
-				}
-				rs.Controls = append(rs.Controls, row)
-				tally(&report.Summary, row.Status)
-			}
-		}
-		report.Sections = append(report.Sections, rs)
+	recompute(&body)
+	if err := e.save(ctx, rep, &body); err != nil {
+		return nil, err
 	}
-
-	finalizeSummary(&report.Summary)
-
-	// Clean up any overrides that are now redundant. Errors are logged but
-	// not returned — the report itself is correct either way.
-	if e.overrides != nil {
-		for _, cid := range stale {
-			if err := e.overrides.Delete(ctx, fw.Key, cid); err != nil {
-				_ = catcher.Error("compliance: clearing stale status override failed", err, map[string]any{"framework": fw.Key, "control": cid})
-			}
-		}
-	}
-
-	return &report, nil
+	return response(rep, &body), nil
 }
 
-// evalControl evaluates one control across the three dimensions: ① coverage (how
-// many enabled rules tag it), ② activity (alerts from those rules in the window),
-// ③ analysis (its checks). Governance → out of scope; analysis is authoritative
-// when present; otherwise coverage decides; otherwise pending.
-func (e *evaluator) evalControl(ctx context.Context, id, since string) domain.ReportControlRow {
-	row := domain.ReportControlRow{ControlID: id, Name: id}
-	c, ok := e.controls.Get(id)
-	if !ok {
-		row.Status = domain.StatusNotCovered
-		row.Evidence = "control not found in library"
-		return row
-	}
-	row.Name = c.Name
-
-	if c.EffectiveScope() == domain.ScopeGovernance {
-		row.Status = domain.StatusOutOfScope
-		row.Evidence = "governance control — not evaluated from logs"
-		return row
-	}
-
-	// ① coverage + ② activity.
-	rules := e.coverage.Rules(id)
-	row.Coverage = len(rules)
-	if len(rules) > 0 {
-		if n, err := e.alerts.CountByRuleNames(ctx, rules, since); err == nil {
-			row.Activity = int(n)
-		}
-	}
-
-	// ③ analysis — authoritative when the control has runnable checks.
-	checks := c.RunnableChecks()
-	if len(checks) > 0 {
-		passed, failed := 0, 0
-		var firstFail string
-		for _, ch := range checks {
-			hits, err := e.sql.RunCheck(ctx, ch.SQL)
-			pass := false
-			detail := ""
-			if err != nil {
-				detail = "error: " + err.Error()
-			} else {
-				pass = passesRule(ch, hits)
-				detail = fmt.Sprintf("hits=%d %s", hits, ch.Rule)
-			}
-			if pass {
-				passed++
-			} else {
-				failed++
-				if firstFail == "" {
-					firstFail = ch.Name + " (" + detail + ")"
-				}
-			}
-		}
-		compliant := failed == 0
-		if c.EffectiveStrategy() == domain.StrategyAny {
-			compliant = passed > 0
-		}
-		if compliant {
-			row.Status = domain.StatusCompliant
-			row.Evidence = fmt.Sprintf("%d/%d checks passed", passed, len(checks))
-		} else {
-			row.Status = domain.StatusNonCompliant
-			if firstFail != "" {
-				row.Evidence = firstFail
-			} else {
-				row.Evidence = fmt.Sprintf("%d/%d checks failed", failed, len(checks))
-			}
-		}
-		return row
-	}
-
-	// No analysis → fall back to coverage.
-	if len(rules) > 0 {
-		row.Status = domain.StatusCompliant
-		row.Evidence = fmt.Sprintf("covered by %d rule(s), %d alerts in window", len(rules), row.Activity)
-		return row
-	}
-
-	row.Status = domain.StatusPending
-	row.Evidence = "no check or rule coverage"
-	return row
-}
-
-// passesRule applies a check's rule to the hit count.
-func passesRule(ch domain.Check, hits int64) bool {
-	rv := int64(1)
-	if ch.RuleValue != nil {
-		rv = int64(*ch.RuleValue)
-	}
-	switch ch.Rule {
-	case domain.RuleNoHitsAllowed:
-		return hits == 0
-	case domain.RuleMinHitsRequired, domain.RuleMatchFieldValue:
-		return hits >= rv
-	case domain.RuleThresholdMax:
-		return hits <= rv
-	default:
-		return false
+func response(rep *domain.Report, body *dto.ReportBody) *dto.ReportResponse {
+	return &dto.ReportResponse{
+		ID:              rep.ID,
+		FrameworkKey:    rep.FrameworkKey,
+		FrameworkName:   rep.FrameworkName,
+		FrameworkSource: rep.FrameworkSource,
+		GeneratedAt:     rep.GeneratedAt,
+		WindowFrom:      rep.WindowFrom,
+		WindowTo:        rep.WindowTo,
+		Summary:         body.Summary,
+		Sections:        body.Sections,
+		Controls:        body.Controls,
 	}
 }
 
-func tally(s *domain.ReportSummary, status string) {
-	s.Total++
-	switch status {
-	case domain.StatusCompliant:
-		s.Compliant++
-	case domain.StatusNonCompliant:
-		s.NonCompliant++
-	case domain.StatusAtRisk:
-		s.AtRisk++
-	case domain.StatusNotCovered:
-		s.NotCovered++
-	case domain.StatusOutOfScope:
-		s.OutOfScope++
-	case domain.StatusPending:
-		s.Pending++
+func (e *evaluator) History(ctx context.Context, frameworkKey string, from, to time.Time) ([]dto.ScorePoint, error) {
+	rows, err := e.scores.History(ctx, frameworkKey, from, to)
+	if err != nil {
+		return nil, err
 	}
+	out := make([]dto.ScorePoint, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, dto.ScorePoint{
+			Day:         r.Day,
+			GeneratedAt: r.GeneratedAt,
+			Score:       r.Score,
+			Total:       r.Total,
+			Evaluated:   r.Evaluated,
+			Compliant:   r.Compliant,
+			HasDocument: r.HasBody,
+		})
+	}
+	return out, nil
 }
 
-func finalizeSummary(s *domain.ReportSummary) {
-	evaluated := s.Compliant + s.NonCompliant + s.AtRisk + s.Pending
-	if evaluated > 0 {
-		s.CompliantPct = (s.Compliant / evaluated) * 100
+// PDF renders the standing report.
+func (e *evaluator) PDF(ctx context.Context, frameworkKey, preparedBy string) ([]byte, string, error) {
+	rep, err := e.Get(ctx, frameworkKey)
+	if err != nil {
+		return nil, "", err
 	}
+	pdf, err := renderReportPDF(*rep, e.brandFor(ctx, preparedBy))
+	return pdf, rep.FrameworkName, err
+}
+
+func (e *evaluator) HistoryPDF(ctx context.Context, frameworkKey, preparedBy string, day time.Time) ([]byte, string, error) {
+	raw, err := e.scores.Body(ctx, frameworkKey, day)
+	if err != nil {
+		return nil, "", err
+	}
+	if len(raw) == 0 {
+		return nil, "", domain.ErrReportNotFound
+	}
+	var body dto.ReportBody
+	if err := json.Unmarshal(raw, &body); err != nil {
+		return nil, "", err
+	}
+	rep := dto.ReportResponse{
+		FrameworkKey: frameworkKey,
+		GeneratedAt:  day,
+		Summary:      body.Summary,
+		Sections:     body.Sections,
+		Controls:     body.Controls,
+	}
+	if fw, ok := e.frameworks.Get(ctx, frameworkKey); ok {
+		rep.FrameworkName, rep.FrameworkSource = fw.Name, fw.Source
+	}
+	pdf, err := renderReportPDF(rep, e.brandFor(ctx, preparedBy))
+	return pdf, rep.FrameworkName, err
 }

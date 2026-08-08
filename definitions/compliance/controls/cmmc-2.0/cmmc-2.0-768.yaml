@@ -8,14 +8,24 @@ strategy: ANY
 checks:
   - key: windows-created-and-terminated-processes
     name: Windows Created and Terminated Processes
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4689', '4688'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4689'
+          - '4688'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-created-and-terminated-processes-by-process
     name: Windows Created and Terminated Processes by Process
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id IN ('4688', '4689'))
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4688'
+          - '4689'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

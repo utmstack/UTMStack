@@ -8,7 +8,11 @@ import { Input } from '@/shared/components/ui/input'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { complianceService, ComplianceHttpError } from '../services/compliance-http.service'
 import {
+  CHECK_DATASETS,
+  CHECK_OPERATORS,
   CHECK_RULES,
+  LIST_OPERATORS,
+  VALUELESS_OPERATORS,
   CONTROL_SCOPES,
   CONTROL_STRATEGIES,
   controlToForm,
@@ -17,7 +21,7 @@ import {
   yamlToControlForm,
   type ControlFormState,
 } from '../lib/control-yaml'
-import type { Check, Control } from '../types/compliance.types'
+import type { Check, CheckFilter, CheckFilterOperator, CheckRule, Control, Dataset } from '../types/compliance.types'
 
 const SELECT = 'h-9 w-full rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60'
 const TA = 'w-full resize-none rounded-md border border-input bg-background/40 p-2 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring read-only:opacity-80'
@@ -36,7 +40,9 @@ export function ControlEditor({
   onSaved: (created?: Control) => void
 }) {
   const { t } = useTranslation()
-  const readOnly = !!control?.system
+  // The shipped catalogue is not editable, and neither is anything the
+  // licence withholds.
+  const readOnly = !!control?.system || !!control?.locked
   const [form, setForm] = useState<ControlFormState>(() => {
     const f = controlToForm(control)
     if (!control && prefillName) f.name = prefillName
@@ -46,20 +52,15 @@ export function ControlEditor({
   const [yaml, setYaml] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [indexPatterns, setIndexPatterns] = useState<string[]>([])
+  const [dataTypes, setDataTypes] = useState<string[]>([])
 
   const set = <K extends keyof ControlFormState>(k: K, v: ControlFormState[K]) => setForm((f) => ({ ...f, [k]: v }))
 
   useEffect(() => {
     complianceService
-      .listIndexPatterns()
-      .then((r) => {
-        const seen = new Set<string>()
-        const out: string[] = []
-        for (const p of r.data ?? []) if (p.pattern && !seen.has(p.pattern)) { seen.add(p.pattern); out.push(p.pattern) }
-        setIndexPatterns(out)
-      })
-      .catch(() => setIndexPatterns([]))
+      .listDataTypes('logs')
+      .then((d) => setDataTypes(d ?? []))
+      .catch(() => setDataTypes([]))
   }, [])
 
   const toCode = () => {
@@ -72,7 +73,7 @@ export function ControlEditor({
       toast.error(t('compliance.controls.yamlError', { error: r.error }))
       return
     }
-    setForm({ ...r.form, enabled: form.enabled })
+    setForm(r.form)
     setMode('visual')
   }
 
@@ -85,7 +86,7 @@ export function ControlEditor({
         toast.error(t('compliance.controls.yamlError', { error: r.error }))
         return
       }
-      f = { ...r.form, enabled: form.enabled }
+      f = r.form
       setForm(f)
     }
     const payload = formToControl(f)
@@ -200,7 +201,7 @@ export function ControlEditor({
               <textarea value={form.remediation} readOnly={readOnly} onChange={(e) => set('remediation', e.target.value)} rows={2} className={TA} />
             </Field>
 
-            <ChecksEditor checks={form.checks} indexPatterns={indexPatterns} readOnly={readOnly} onChange={(c) => set('checks', c)} t={t} />
+            <ChecksEditor checks={form.checks} dataTypes={dataTypes} readOnly={readOnly} onChange={(c) => set('checks', c)} t={t} />
           </div>
         )}
 
@@ -227,7 +228,7 @@ export function ControlEditor({
   )
 }
 
-function ChecksEditor({ checks, indexPatterns, readOnly, onChange, t }: { checks: Check[]; indexPatterns: string[]; readOnly?: boolean; onChange: (c: Check[]) => void; t: ReturnType<typeof useTranslation>['t'] }) {
+function ChecksEditor({ checks, dataTypes, readOnly, onChange, t }: { checks: Check[]; dataTypes: string[]; readOnly?: boolean; onChange: (c: Check[]) => void; t: ReturnType<typeof useTranslation>['t'] }) {
   const setAt = (i: number, patch: Partial<Check>) => onChange(checks.map((c, k) => (k === i ? { ...c, ...patch } : c)))
   return (
     <div className="space-y-2">
@@ -242,28 +243,34 @@ function ChecksEditor({ checks, indexPatterns, readOnly, onChange, t }: { checks
               <button type="button" onClick={() => onChange(checks.filter((_, k) => k !== i))} className="rounded p-1 text-muted-foreground hover:text-red-500"><X size={13} /></button>
             )}
           </div>
-          <select value={c.indexPattern ?? ''} disabled={readOnly} onChange={(e) => setAt(i, { indexPattern: e.target.value })} className={cn(SELECT, 'h-8 font-mono text-xs')}>
-            <option value="">{t('compliance.controls.indexPattern')}</option>
-            {indexPatterns.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-            {c.indexPattern && !indexPatterns.includes(c.indexPattern) && <option value={c.indexPattern}>{c.indexPattern}</option>}
-          </select>
-          <textarea value={c.sql ?? ''} readOnly={readOnly} onChange={(e) => setAt(i, { sql: e.target.value })} rows={2} placeholder="SELECT count(*) FROM ..." className={cn(TA, 'font-mono text-[11px]')} />
+          {/* Which slice of the event store this measures. It is also the
+              applicability declaration: a check against a data type the tenant
+              never receives goes unevaluated rather than failing. */}
           <div className="flex flex-wrap items-center gap-2">
-            <select value={c.rule ?? ''} disabled={readOnly} onChange={(e) => setAt(i, { rule: e.target.value })} className={cn(SELECT, 'h-8 w-auto text-xs')}>
+            <select value={c.dataset ?? 'logs'} disabled={readOnly} onChange={(e) => setAt(i, { dataset: e.target.value as Dataset, dataType: '' })} className={cn(SELECT, 'h-8 w-auto text-xs')}>
+              {CHECK_DATASETS.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            <select value={c.dataType ?? ''} disabled={readOnly} onChange={(e) => setAt(i, { dataType: e.target.value })} className={cn(SELECT, 'h-8 w-auto font-mono text-xs')}>
+              <option value="">{t('compliance.controls.anyDataType', { defaultValue: 'Any data type' })}</option>
+              {dataTypes.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+              {c.dataType && !dataTypes.includes(c.dataType) && <option value={c.dataType}>{c.dataType}</option>}
+            </select>
+          </div>
+
+          <FilterRows readOnly={!!readOnly} filters={c.filters ?? []} onChange={(filters) => setAt(i, { filters })} />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={c.rule ?? ''} disabled={readOnly} onChange={(e) => setAt(i, { rule: (e.target.value || undefined) as CheckRule | undefined })} className={cn(SELECT, 'h-8 w-auto text-xs')}>
               {CHECK_RULES.map((r) => (
                 <option key={r} value={r}>{r ? t(`compliance.controls.rule.${r}`) : t('compliance.controls.ruleNone')}</option>
               ))}
             </select>
-            {(c.rule === 'MIN_HITS_REQUIRED' || c.rule === 'THRESHOLD_MAX') && (
+            {c.rule && (
               <Input type="number" value={c.ruleValue ?? ''} readOnly={readOnly} onChange={(e) => setAt(i, { ruleValue: e.target.value === '' ? undefined : Number(e.target.value) })} placeholder={t('compliance.controls.ruleValue')} className="h-8 w-28 text-xs" />
-            )}
-            {c.rule === 'MATCH_FIELD_VALUE' && (
-              <>
-                <Input value={c.field ?? ''} readOnly={readOnly} onChange={(e) => setAt(i, { field: e.target.value })} placeholder={t('compliance.controls.field')} className="h-8 w-36 font-mono text-xs" />
-                <Input value={c.expected ?? ''} readOnly={readOnly} onChange={(e) => setAt(i, { expected: e.target.value })} placeholder={t('compliance.controls.expected')} className="h-8 w-36 text-xs" />
-              </>
             )}
           </div>
         </div>
@@ -272,6 +279,83 @@ function ChecksEditor({ checks, indexPatterns, readOnly, onChange, t }: { checks
         <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => onChange([...checks, { key: '', name: '' }])}>
           <Plus size={12} className="mr-1" /> {t('compliance.controls.addCheck')}
         </Button>
+      )}
+    </div>
+  )
+}
+
+/**
+ * The check's filters. They select; the rule judges. Keeping the two apart is
+ * why a check no longer carries a query dialect of its own.
+ */
+function FilterRows({
+  filters,
+  onChange,
+  readOnly,
+}: {
+  filters: CheckFilter[]
+  onChange: (f: CheckFilter[]) => void
+  readOnly: boolean
+}) {
+  const { t } = useTranslation()
+  const setAt = (i: number, patch: Partial<CheckFilter>) =>
+    onChange(filters.map((f, k) => (k === i ? { ...f, ...patch } : f)))
+
+  return (
+    <div className="space-y-1.5">
+      {filters.map((f, i) => {
+        const isList = LIST_OPERATORS.has(f.operator)
+        const valueless = VALUELESS_OPERATORS.has(f.operator)
+        return (
+          <div key={i} className="flex items-center gap-2">
+            <Input
+              value={f.field}
+              readOnly={readOnly}
+              onChange={(e) => setAt(i, { field: e.target.value })}
+              placeholder={t('compliance.controls.filterField', { defaultValue: 'log.eventID' })}
+              className="h-8 flex-1 font-mono text-xs"
+            />
+            <select
+              value={f.operator}
+              disabled={readOnly}
+              onChange={(e) => setAt(i, { operator: e.target.value as CheckFilterOperator, value: undefined })}
+              className={cn(SELECT, 'h-8 w-auto text-xs')}
+            >
+              {CHECK_OPERATORS.map((op) => (
+                <option key={op} value={op}>{op}</option>
+              ))}
+            </select>
+            {!valueless && (
+              <Input
+                value={Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '')}
+                readOnly={readOnly}
+                onChange={(e) =>
+                  setAt(i, {
+                    value: isList
+                      ? e.target.value.split(',').map((v) => v.trim()).filter(Boolean)
+                      : e.target.value,
+                  })
+                }
+                placeholder={isList ? t('compliance.controls.filterValues', { defaultValue: 'a, b, c' }) : t('compliance.controls.filterValue', { defaultValue: 'value' })}
+                className="h-8 flex-1 font-mono text-xs"
+              />
+            )}
+            {!readOnly && (
+              <button type="button" onClick={() => onChange(filters.filter((_, k) => k !== i))} className="rounded p-1 text-muted-foreground hover:text-red-500">
+                <X size={13} />
+              </button>
+            )}
+          </div>
+        )
+      })}
+      {!readOnly && (
+        <button
+          type="button"
+          onClick={() => onChange([...filters, { field: '', operator: 'IS' }])}
+          className="text-[11px] text-muted-foreground underline-offset-2 hover:underline"
+        >
+          + {t('compliance.controls.addFilter', { defaultValue: 'Add filter' })}
+        </button>
       )}
     </div>
   )

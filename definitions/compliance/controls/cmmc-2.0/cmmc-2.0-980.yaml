@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: firewall-activity
     name: Firewall Activity
-    indexPattern: v11-log-firewall-*
-    sql: SELECT count(*) AS c FROM v11-log-firewall-*
+    dataType: firewall
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: firewall-activity-by-data-source
     name: Firewall Activity by Data Source
-    indexPattern: v11-log-firewall-*
-    sql: SELECT count(*) AS c FROM v11-log-firewall-*
+    dataType: firewall
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

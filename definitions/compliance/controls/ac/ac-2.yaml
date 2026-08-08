@@ -34,7 +34,20 @@ source: NIST SP 800-53 Rev 5 (public domain)
 checks:
   - key: account-mgmt-logged
     name: Account lifecycle events are being captured (create/enable/disable/delete/modify/lockout)
-    indexPattern: v11-log-wineventlog-*
-    sql: 'SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE log.eventCode IN (4720,4722,4723,4724,4725,4726,4738,4740,4767,4781)'
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4720'
+          - '4722'
+          - '4723'
+          - '4724'
+          - '4725'
+          - '4726'
+          - '4738'
+          - '4740'
+          - '4767'
+          - '4781'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

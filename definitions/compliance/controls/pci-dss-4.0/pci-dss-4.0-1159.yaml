@@ -8,14 +8,23 @@ strategy: ANY
 checks:
   - key: windows-failed-logon-attempts-by-reason-status
     name: Windows Failed Logon Attempts by Reason Status
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-*
+    dataType: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-logon-failure-by-user-and-host
     name: Windows Logon Failure by User and Host
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_data.StatusDescription.keyword IN ('Logon failure', 'Clients credentials have been revoked', 'Pre-authentication information was invalid', 'Account restriction') AND logx.wineventlog.event_data.TargetUserName NOT LIKE '%$')
+    dataType: wineventlog
+    filters:
+      - field: log.statusDescription
+        operator: IS_ONE_OF_TERMS
+        value:
+          - Logon failure
+          - Clients credentials have been revoked
+          - Pre-authentication information was invalid
+          - Account restriction
+      - field: log.targetUserName
+        operator: NOT_ENDS_WITH
+        value: $
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

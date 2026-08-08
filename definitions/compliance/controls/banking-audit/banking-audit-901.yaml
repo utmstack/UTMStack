@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-certificate-configuration-changes
     name: Windows Certificate Configuration Changes
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5058'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-certificate-configuration-changes-by-key-name
     name: Windows Certificate Configuration Changes by Key Name
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '5058')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '5058'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

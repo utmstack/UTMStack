@@ -8,50 +8,43 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 type ScheduleRepository interface {
-	Create(ctx context.Context, s *domain.UtmComplianceReportSchedule) error
-	Update(ctx context.Context, s *domain.UtmComplianceReportSchedule) error
-	GetByID(ctx context.Context, id int64) (*domain.UtmComplianceReportSchedule, error)
-	ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]domain.UtmComplianceReportSchedule, int64, error)
-	ListAll(ctx context.Context) ([]domain.UtmComplianceReportSchedule, error)
-	Delete(ctx context.Context, id int64) error
-	ClaimDue(ctx context.Context, id int64, expectedLast, newLast time.Time) (bool, error)
+	Create(ctx context.Context, s *domain.ReportSchedule) error
+	Update(ctx context.Context, s *domain.ReportSchedule) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.ReportSchedule, error)
+	ListByUser(ctx context.Context, userID uuid.UUID, f dto.ScheduleFilters) ([]domain.ReportSchedule, int64, error)
+	ListDue(ctx context.Context, now time.Time) ([]domain.ReportSchedule, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	ClaimDue(ctx context.Context, id uuid.UUID, expectedNext, newLast, newNext time.Time) (bool, error)
+	ForFramework(ctx context.Context, frameworkKey string) (*domain.ReportSchedule, error)
 }
 
-type OpenSearchSQL interface {
-	RunCheck(ctx context.Context, sql string) (hits int64, err error)
+type CheckQuery struct {
+	Dataset  domain.Dataset
+	DataType string
+	Filters  []common_models.FilterType
+	From, To time.Time
 }
 
-type OpenSearchAlerts interface {
-	CountByRuleNames(ctx context.Context, ruleNames []string, sinceISO string) (int64, error)
+type EventCounter interface {
+	Count(ctx context.Context, q CheckQuery) (int64, error)
+	HasData(ctx context.Context, dataset domain.Dataset, dataType string, from, to time.Time) (bool, error)
+	CountByRuleNames(ctx context.Context, ruleNames []string, from, to time.Time) (map[string]int64, error)
 }
 
 type ReportStore interface {
-	Save(ctx context.Context, snap *domain.ReportSnapshot) error
-	List(ctx context.Context, frameworkKey string, limit int) ([]domain.ReportSnapshotMeta, error)
-	Get(ctx context.Context, id string) (*domain.ReportSnapshot, error)
-	Delete(ctx context.Context, id string) error
+	Get(ctx context.Context, frameworkKey string) (*domain.Report, error)
+	Save(ctx context.Context, r *domain.Report) error
+	List(ctx context.Context) ([]domain.Report, error)
+	Delete(ctx context.Context, frameworkKey string) error
 }
 
-type ControlStatusOverrideRepository interface {
-	Upsert(ctx context.Context, o *domain.UtmComplianceControlStatusOverride) error
-	Delete(ctx context.Context, frameworkKey, controlID string) error
-	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
-}
-
-type ControlNoteRepository interface {
-	Upsert(ctx context.Context, n *domain.UtmComplianceControlNote) error
-	Delete(ctx context.Context, frameworkKey, controlID string) error
-	ListByFramework(ctx context.Context, frameworkKey string) (map[string]string, error)
-}
-
-type TenantFrameworkRepository interface {
-	List(ctx context.Context) ([]string, error)                           // framework keys the acting tenant possesses
-	ListForTenant(ctx context.Context, tenantID string) ([]string, error) // same, for a specific tenant
-	Enable(ctx context.Context, frameworkKey string) error                // upsert (tenant, framework)
-	Disable(ctx context.Context, frameworkKey string) error               // delete (tenant, framework)
-	Has(ctx context.Context, frameworkKey string) (bool, error)
-	ListTenants(ctx context.Context, frameworkKey string) ([]string, error) // tenants who possess this framework
+type ReportScoreStore interface {
+	Upsert(ctx context.Context, p *domain.ReportScore) error
+	History(ctx context.Context, frameworkKey string, from, to time.Time) ([]domain.ReportScore, error)
+	Body(ctx context.Context, frameworkKey string, day time.Time) ([]byte, error)
+	PruneBodies(ctx context.Context, before time.Time) (int64, error)
 }

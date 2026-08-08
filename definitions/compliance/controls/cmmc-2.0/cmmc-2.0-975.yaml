@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-tls-protocol-errors
     name: Windows TLS protocol Errors
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '36874')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '36874'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-tls-protocol-errors-by-ip
     name: Windows TLS protocol Errors by IP
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '36874')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '36874'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

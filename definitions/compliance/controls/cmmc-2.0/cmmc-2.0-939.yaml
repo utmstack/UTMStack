@@ -8,14 +8,26 @@ strategy: ANY
 checks:
   - key: windows-incidents-generated-from-alerts
     name: Windows Incidents Generated from Alerts
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (isIncident = 'true' AND dataType = 'wineventlog')
+    dataset: alerts
+    filters:
+      - field: isIncident
+        operator: IS
+        value: true
+      - field: dataType
+        operator: IS
+        value: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-incidents-generated-from-alerts-by-status
     name: Windows Incidents Generated from Alerts by Status
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (isIncident = 'true' AND dataType = 'wineventlog')
+    dataset: alerts
+    filters:
+      - field: isIncident
+        operator: IS
+        value: true
+      - field: dataType
+        operator: IS
+        value: wineventlog
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -1,169 +1,195 @@
 package usecase
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"sync"
 
-	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"gopkg.in/yaml.v3"
+
+	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 )
 
-// ControlStore holds the control library across the system + user overlays,
-// keyed by control ID (a user control overrides the system one — copy-on-write).
 type ControlStore struct {
 	systemDir string
-	userDir   string
-	mu        sync.RWMutex
-	byID      map[string]*domain.Control
+	userRoot  string
+
+	mu     sync.RWMutex
+	system map[string]*domain.Control
+	user   map[string]map[string]*domain.Control // tenant → id → control
 }
 
-func NewControlStore(systemDir, userDir string) *ControlStore {
-	return &ControlStore{systemDir: systemDir, userDir: userDir, byID: map[string]*domain.Control{}}
+func NewControlStore(systemDir, userRoot string) *ControlStore {
+	return &ControlStore{
+		systemDir: systemDir,
+		userRoot:  userRoot,
+		system:    map[string]*domain.Control{},
+		user:      map[string]map[string]*domain.Control{},
+	}
 }
 
-// Load rescans both overlays and rebuilds the in-memory index (user wins by ID).
 func (s *ControlStore) Load() error {
-	idx := map[string]*domain.Control{}
-	for _, root := range []struct {
-		dir    string
-		system bool
-	}{{s.systemDir, true}, {s.userDir, false}} {
-		files, err := scanYAML(root.dir, root.system)
+	sys, err := loadControls(s.systemDir, true)
+	if err != nil {
+		return err
+	}
+	users := map[string]map[string]*domain.Control{}
+	for _, tid := range tenantDirs(s.userRoot) {
+		m, err := loadControls(filepath.Join(s.userRoot, tid), false)
 		if err != nil {
 			return err
 		}
-		for _, f := range files {
-			var c domain.Control
-			if err := yaml.Unmarshal(f.data, &c); err != nil {
-				continue
-			}
-			if strings.TrimSpace(c.ID) == "" {
-				continue
-			}
-			c.RelPath = f.relPath
-			c.System = f.system
-			c.Enabled = f.enabled
-			cp := c
-			idx[c.ID] = &cp
-		}
+		users[tid] = m
 	}
 	s.mu.Lock()
-	s.byID = idx
+	s.system, s.user = sys, users
 	s.mu.Unlock()
 	return nil
 }
 
-// All returns every control, sorted by ID.
-func (s *ControlStore) All() []domain.Control {
+func loadControls(dir string, system bool) (map[string]*domain.Control, error) {
+	out := map[string]*domain.Control{}
+	files, err := scanYAML(dir, system)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		var c domain.Control
+		if err := yaml.Unmarshal(f.data, &c); err != nil || c.ID == "" {
+			continue
+		}
+		cc := c
+		out[c.ID] = &cc
+	}
+	return out, nil
+}
+
+func (s *ControlStore) Get(ctx context.Context, id string) (*domain.Control, bool) {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil, false
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	out := make([]domain.Control, 0, len(s.byID))
-	for _, c := range s.byID {
+	if c, ok := s.user[tid][id]; ok {
+		cc := *c
+		return &cc, true
+	}
+	if c, ok := s.system[id]; ok {
+		cc := *c
+		return &cc, true
+	}
+	return nil, false
+}
+
+func (s *ControlStore) All(ctx context.Context) []domain.Control {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	merged := make(map[string]*domain.Control, len(s.system)+len(s.user[tid]))
+	for id, c := range s.system {
+		merged[id] = c
+	}
+	for id, c := range s.user[tid] {
+		merged[id] = c
+	}
+	out := make([]domain.Control, 0, len(merged))
+	for _, c := range merged {
 		out = append(out, *c)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out
 }
 
-// Get returns the control for the given ID (copy), or false.
-func (s *ControlStore) Get(id string) (*domain.Control, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	c, ok := s.byID[id]
-	if !ok {
-		return nil, false
-	}
-	cp := *c
-	return &cp, true
-}
-
-// controlRelPath derives the user-overlay file path from family/id (the client's
-// RelPath is ignored to prevent path traversal).
-func controlRelPath(c *domain.Control) string {
-	if c.Family != "" {
-		return c.Family + "/" + c.ID + fileExt
-	}
-	return c.ID + fileExt
-}
-
-// Create writes a brand-new custom control to the user overlay. Fails if the id
-// already exists (system or user).
-func (s *ControlStore) Create(c domain.Control) (*domain.Control, error) {
+func (s *ControlStore) Create(ctx context.Context, c domain.Control) (*domain.Control, error) {
 	if !safeID(c.ID) {
 		return nil, domain.ErrInvalidID
 	}
-	if _, ok := s.Get(c.ID); ok {
+	if _, ok := s.Get(ctx, c.ID); ok {
 		return nil, domain.ErrControlExists
 	}
-	return s.writeUser(c)
+	return s.writeUser(ctx, c)
 }
 
-// Update writes the control to the user overlay (copy-on-write): editing a system
-// control creates a user override with the same id; the system file is untouched.
-func (s *ControlStore) Update(c domain.Control) (*domain.Control, error) {
+// Update writes to the tenant's overlay, and refuses to touch a vendor control.
+//
+// The tenant layer is additive: a tenant builds its own controls beside the
+// shipped library rather than forking it. An override would fragment the
+// crosswalk — the same id meaning different things per tenant — and would put
+// the copy beyond the reach of the next release's corrections.
+func (s *ControlStore) Update(ctx context.Context, c domain.Control) (*domain.Control, error) {
 	if !safeID(c.ID) {
 		return nil, domain.ErrInvalidID
 	}
-	if _, ok := s.Get(c.ID); !ok {
+	if _, ok := s.Get(ctx, c.ID); !ok {
 		return nil, domain.ErrControlNotFound
 	}
-	return s.writeUser(c)
+	if s.IsSystem(c.ID) {
+		return nil, domain.ErrSystemOwner
+	}
+	return s.writeUser(ctx, c)
 }
 
-func (s *ControlStore) writeUser(c domain.Control) (*domain.Control, error) {
-	c.RelPath, c.System, c.Enabled = "", false, true // never persist store metadata
+func (s *ControlStore) writeUser(ctx context.Context, c domain.Control) (*domain.Control, error) {
+	tid, err := tenantDir(ctx)
+	if err != nil {
+		return nil, err
+	}
 	data, err := yaml.Marshal(c)
 	if err != nil {
 		return nil, err
 	}
-	if err := atomicWrite(filepath.Join(s.userDir, controlRelPath(&c)), data); err != nil {
+	if err := atomicWrite(filepath.Join(s.userRoot, tid, c.ID+fileExt), data); err != nil {
 		return nil, err
 	}
-	if err := s.Load(); err != nil {
+	if err := s.reloadTenant(tid); err != nil {
 		return nil, err
 	}
-	out, _ := s.Get(c.ID)
+	out, _ := s.Get(ctx, c.ID)
 	return out, nil
 }
 
-// Delete removes the user-overlay file for id. A vendor-only (system) control
-// cannot be deleted — disable it instead. Deleting a user override of a system
-// control reverts it to the vendor version.
-func (s *ControlStore) Delete(id string) error {
-	c, ok := s.Get(id)
-	if !ok {
-		return domain.ErrControlNotFound
+func (s *ControlStore) Delete(ctx context.Context, id string) error {
+	if !safeID(id) {
+		return domain.ErrInvalidID
 	}
-	rel := controlRelPath(c)
-	userPath := filepath.Join(s.userDir, rel)
-	if _, err := os.Stat(userPath); err != nil {
-		if _, err2 := os.Stat(userPath + disabledSuffix); err2 != nil {
-			return domain.ErrSystemOwner // no user file → vendor-only
-		}
-		userPath += disabledSuffix
-	}
-	if err := os.Remove(userPath); err != nil {
+	tid, err := tenantDir(ctx)
+	if err != nil {
 		return err
 	}
-	return s.Load()
+	if _, ok := s.Get(ctx, id); !ok {
+		return domain.ErrControlNotFound
+	}
+	path := filepath.Join(s.userRoot, tid, id+fileExt)
+	if _, err := os.Stat(path); err != nil {
+		return domain.ErrSystemOwner
+	}
+	if err := os.Remove(path); err != nil {
+		return err
+	}
+	return s.reloadTenant(tid)
 }
 
-// SetEnabled toggles the control's enabled state via the .disabled filename
-// suffix, in its own overlay dir (system or user).
-func (s *ControlStore) SetEnabled(id string, enabled bool) error {
-	c, ok := s.Get(id)
-	if !ok {
-		return domain.ErrControlNotFound
-	}
-	dir := s.userDir
-	if c.System {
-		dir = s.systemDir
-	}
-	if err := setEnabledFile(dir, controlRelPath(c), enabled); err != nil {
+func (s *ControlStore) reloadTenant(tid string) error {
+	m, err := loadControls(filepath.Join(s.userRoot, tid), false)
+	if err != nil {
 		return err
 	}
-	return s.Load()
+	s.mu.Lock()
+	s.user[tid] = m
+	s.mu.Unlock()
+	return nil
+}
+
+func (s *ControlStore) IsSystem(id string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	_, ok := s.system[id]
+	return ok
 }

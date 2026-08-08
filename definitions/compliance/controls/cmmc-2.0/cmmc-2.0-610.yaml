@@ -7,8 +7,11 @@ statement: This report compiles relevant information from Windows logs associate
 checks:
   - key: aws-alerts
     name: AWS Alerts
-    indexPattern: v11-alert-*
-    sql: SELECT count(*) AS c FROM v11-alert-* WHERE (dataType.keyword = 'aws')
+    dataset: alerts
+    filters:
+      - field: dataType
+        operator: IS
+        value: aws
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

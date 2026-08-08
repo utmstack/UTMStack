@@ -1,21 +1,24 @@
 package usecase
 
 import (
+	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-// Shared system/user overlay mechanics for the file-backed control library and
-// framework checklists, mirroring eventprocessing's rule/filter stores: system =
-// vendor (read-only, refreshed on upgrade), user = created/cloned (never
-// overwritten), `.disabled` filename suffix toggles enabled state.
+	"github.com/google/uuid"
+
+	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
+)
 
 const (
 	SystemSubdir   = "system"
 	UserSubdir     = "user"
-	disabledSuffix = ".disabled"
 	fileExt        = ".yaml"
+	disabledSuffix = ".disabled"
 )
 
 type scannedFile struct {
@@ -25,8 +28,6 @@ type scannedFile struct {
 	system  bool
 }
 
-// safeID rejects ids/keys that are empty or could escape the overlay directory
-// (path separators / traversal), guarding the user-overlay writes.
 func safeID(id string) bool {
 	id = strings.TrimSpace(id)
 	if id == "" {
@@ -35,7 +36,23 @@ func safeID(id string) bool {
 	return !strings.ContainsAny(id, "/\\") && !strings.Contains(id, "..")
 }
 
-// atomicWrite writes data to path via a temp file + rename (creating parents).
+func tenantDir(ctx context.Context) (string, error) {
+	tid := authz.TenantIDFromContext(ctx)
+	if tid == "" {
+
+		if tenancy.Enabled() {
+			return "", ErrNoTenant
+		}
+		tid = authz.DefaultTenantID
+	}
+	if _, err := uuid.Parse(tid); err != nil {
+		return "", domain.ErrInvalidID
+	}
+	return tid, nil
+}
+
+var ErrNoTenant = errors.New("compliance: no tenant in scope")
+
 func atomicWrite(path string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
@@ -47,24 +64,6 @@ func atomicWrite(path string, data []byte) error {
 	return os.Rename(tmp, path)
 }
 
-// setEnabledFile toggles relPath ↔ relPath.disabled within dir.
-func setEnabledFile(dir, relPath string, enabled bool) error {
-	enabledPath := filepath.Join(dir, relPath)
-	disabledPath := enabledPath + disabledSuffix
-	if enabled {
-		if _, err := os.Stat(disabledPath); err == nil {
-			return os.Rename(disabledPath, enabledPath)
-		}
-		return nil
-	}
-	if _, err := os.Stat(enabledPath); err == nil {
-		return os.Rename(enabledPath, disabledPath)
-	}
-	return nil
-}
-
-// scanYAML walks dir recursively and returns every .yaml (and .yaml.disabled)
-// file. relPath is canonical (without the .disabled suffix).
 func scanYAML(dir string, system bool) ([]scannedFile, error) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return nil, nil
@@ -74,11 +73,9 @@ func scanYAML(dir string, system bool) ([]scannedFile, error) {
 		if err != nil || d.IsDir() {
 			return err
 		}
-		base := path
-		enabled := true
+		base, enabled := path, true
 		if strings.HasSuffix(base, disabledSuffix) {
-			base = strings.TrimSuffix(base, disabledSuffix)
-			enabled = false
+			base, enabled = strings.TrimSuffix(base, disabledSuffix), false
 		}
 		if filepath.Ext(base) != fileExt {
 			return nil
@@ -95,4 +92,18 @@ func scanYAML(dir string, system bool) ([]scannedFile, error) {
 		return nil
 	})
 	return out, err
+}
+
+func tenantDirs(userRoot string) []string {
+	entries, err := os.ReadDir(userRoot)
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, e := range entries {
+		if e.IsDir() {
+			out = append(out, e.Name())
+		}
+	}
+	return out
 }

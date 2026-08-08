@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: windows-threat-detection-and-response-using-soc-ai
     name: Windows Threat Detection and Response using SOC AI
-    indexPattern: v11-soc-ai
-    sql: SELECT count(*) AS c FROM v11-soc-ai
+    dataset: alerts
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-threat-detection-and-response-using-soc-ai-by-classification
     name: Windows Threat Detection and Response using SOC AI by Classification
-    indexPattern: v11-soc-ai
-    sql: SELECT count(*) AS c FROM v11-soc-ai
+    dataset: alerts
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

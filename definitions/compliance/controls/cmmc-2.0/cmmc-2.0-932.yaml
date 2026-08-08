@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: aws-console-login
     name: AWS Console Login
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName = 'ConsoleLogin')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ConsoleLogin
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: aws-console-login-by-ip
     name: AWS Console Login by IP
-    indexPattern: v11-log-aws-*
-    sql: SELECT count(*) AS c FROM v11-log-aws-* WHERE (logx.aws.eventName.keyword = 'ConsoleLogin')
+    dataType: aws-cloudtrail
+    filters:
+      - field: log.eventName
+        operator: IS
+        value: ConsoleLogin
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

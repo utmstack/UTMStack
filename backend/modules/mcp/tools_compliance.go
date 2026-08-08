@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	"github.com/utmstack/utmstack/backend/modules/compliance/dto"
@@ -29,11 +31,6 @@ type complianceFrameworkUpsertInput struct {
 	Description string                    `json:"description,omitempty"`
 	Source      string                    `json:"source,omitempty"`
 	Sections    []domain.FrameworkSection `json:"sections,omitempty"`
-}
-
-type complianceFrameworkSetEnabledInput struct {
-	Key     string `json:"key"`
-	Enabled bool   `json:"enabled"`
 }
 
 func registerComplianceFrameworks(m *Module) {
@@ -83,16 +80,6 @@ func registerComplianceFrameworks(m *Module) {
 			return map[string]any{"key": in.Key, "deleted": true}, nil
 		})
 
-	Add(m, &mcp.Tool{
-		Name: "compliance.framework.set_enabled", Title: "Enable or disable framework",
-		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
-	}, Gate{Permission: "compliance.write"},
-		func(ctx context.Context, _ *authz.Actor, in complianceFrameworkSetEnabledInput) (any, error) {
-			if err := uc.SetFrameworkEnabled(ctx, in.Key, in.Enabled); err != nil {
-				return nil, err
-			}
-			return map[string]any{"key": in.Key, "enabled": in.Enabled}, nil
-		})
 }
 
 // ---- compliance.control.* --------------------------------------------------
@@ -101,22 +88,17 @@ type complianceControlIDInput struct {
 	ID string `json:"id"`
 }
 
-type complianceControlSetEnabledInput struct {
-	ID      string `json:"id"`
-	Enabled bool   `json:"enabled"`
-}
-
 type complianceControlUpsertInput struct {
-	ID          string         `json:"id"`
-	Family      string         `json:"family,omitempty"`
-	FamilyName  string         `json:"family_name,omitempty"`
-	Name        string         `json:"name"`
-	Scope       string         `json:"scope,omitempty"`
-	Statement   string         `json:"statement,omitempty"`
-	Remediation string         `json:"remediation,omitempty"`
-	Strategy    string         `json:"strategy,omitempty"`
-	Checks      []domain.Check `json:"checks,omitempty"`
-	Source      string         `json:"source,omitempty"`
+	ID          string               `json:"id"`
+	Family      string               `json:"family,omitempty"`
+	FamilyName  string               `json:"family_name,omitempty"`
+	Name        string               `json:"name"`
+	Scope       domain.ControlScope  `json:"scope,omitempty"`
+	Statement   string               `json:"statement,omitempty"`
+	Remediation string               `json:"remediation,omitempty"`
+	Strategy    domain.CheckStrategy `json:"strategy,omitempty"`
+	Checks      []domain.Check       `json:"checks,omitempty"`
+	Source      string               `json:"source,omitempty"`
 }
 
 func registerComplianceControls(m *Module) {
@@ -170,16 +152,6 @@ func registerComplianceControls(m *Module) {
 			return map[string]any{"id": in.ID, "deleted": true}, nil
 		})
 
-	Add(m, &mcp.Tool{
-		Name: "compliance.control.set_enabled", Title: "Enable or disable control",
-		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
-	}, Gate{Permission: "compliance.write"},
-		func(ctx context.Context, _ *authz.Actor, in complianceControlSetEnabledInput) (any, error) {
-			if err := uc.SetControlEnabled(ctx, in.ID, in.Enabled); err != nil {
-				return nil, err
-			}
-			return map[string]any{"id": in.ID, "enabled": in.Enabled}, nil
-		})
 }
 
 // ---- compliance.report.* ---------------------------------------------------
@@ -188,57 +160,43 @@ type complianceReportEvalInput struct {
 	FrameworkKey string `json:"framework_key"`
 }
 
-type complianceReportListInput struct {
+type complianceReportEvaluateInput struct {
 	FrameworkKey string `json:"framework_key"`
-	Limit        int    `json:"limit,omitempty"`
-}
-
-type complianceReportIDInput struct {
-	ID string `json:"id"`
+	// WindowDays is how much the report covers. 0 takes the framework's
+	// schedule, then the default.
+	WindowDays int `json:"window_days,omitempty"`
 }
 
 func registerComplianceReports(m *Module) {
 	uc := m.deps.Compliance.GetEvaluatorUsecase()
 
 	Add(m, &mcp.Tool{
-		Name: "compliance.report.evaluate", Title: "Evaluate framework (no snapshot)",
+		Name: "compliance.report.get", Title: "Get a framework's standing report",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "compliance.read"},
 		func(ctx context.Context, _ *authz.Actor, in complianceReportEvalInput) (any, error) {
 			if in.FrameworkKey == "" {
 				return nil, fmt.Errorf("framework_key is required")
 			}
-			return uc.EvaluateFramework(ctx, in.FrameworkKey)
+			return uc.Get(ctx, in.FrameworkKey)
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "compliance.report.generate", Title: "Generate compliance report (saves snapshot)",
+		Name: "compliance.report.list", Title: "List the tenant's standing reports",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, Gate{Permission: "compliance.read"},
+		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
+			return uc.List(ctx)
+		})
+
+	Add(m, &mcp.Tool{
+		Name: "compliance.report.evaluate", Title: "Run a framework evaluation",
 	}, Gate{Permission: "compliance.write"},
-		func(ctx context.Context, _ *authz.Actor, in complianceReportEvalInput) (any, error) {
+		func(ctx context.Context, _ *authz.Actor, in complianceReportEvaluateInput) (any, error) {
 			if in.FrameworkKey == "" {
 				return nil, fmt.Errorf("framework_key is required")
 			}
-			return uc.GenerateReport(ctx, in.FrameworkKey)
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "compliance.report.list", Title: "List historical reports",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "compliance.read"},
-		func(ctx context.Context, _ *authz.Actor, in complianceReportListInput) (any, error) {
-			lim := in.Limit
-			if lim <= 0 {
-				lim = 25
-			}
-			return uc.ListReports(ctx, in.FrameworkKey, lim)
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "compliance.report.get", Title: "Get report snapshot",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "compliance.read"},
-		func(ctx context.Context, _ *authz.Actor, in complianceReportIDInput) (any, error) {
-			return uc.GetReport(ctx, in.ID)
+			return uc.Evaluate(ctx, in.FrameworkKey, in.WindowDays)
 		})
 }
 
@@ -247,14 +205,22 @@ func registerComplianceReports(m *Module) {
 type complianceScheduleCreateInput struct {
 	FrameworkKey   string `json:"framework_key"`
 	ScheduleString string `json:"schedule_string"`
-	Recipients     string `json:"recipients,omitempty"`
+	WindowDays     int    `json:"window_days,omitempty"`
+	To             string `json:"to"`
+	Cc             string `json:"cc,omitempty"`
 }
 
 type complianceScheduleUpdateInput struct {
-	ID             int64  `json:"id"`
-	FrameworkKey   string `json:"framework_key"`
-	ScheduleString string `json:"schedule_string"`
-	Recipients     string `json:"recipients,omitempty"`
+	ID             uuid.UUID `json:"id"`
+	FrameworkKey   string    `json:"framework_key"`
+	ScheduleString string    `json:"schedule_string"`
+	WindowDays     int       `json:"window_days,omitempty"`
+	To             string    `json:"to"`
+	Cc             string    `json:"cc,omitempty"`
+}
+
+type complianceScheduleIDInput struct {
+	ID uuid.UUID `json:"id"`
 }
 
 type complianceScheduleListInput struct {
@@ -271,7 +237,8 @@ func registerComplianceSchedules(m *Module) {
 	}, Gate{Permission: "compliance.write"},
 		func(ctx context.Context, actor *authz.Actor, in complianceScheduleCreateInput) (any, error) {
 			return uc.Create(ctx, actor.UserID, dto.CreateScheduleRequest{
-				FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString, Recipients: in.Recipients,
+				FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString,
+				WindowDays: in.WindowDays, To: in.To, Cc: in.Cc,
 			})
 		})
 
@@ -280,7 +247,8 @@ func registerComplianceSchedules(m *Module) {
 	}, Gate{Permission: "compliance.write"},
 		func(ctx context.Context, actor *authz.Actor, in complianceScheduleUpdateInput) (any, error) {
 			return uc.Update(ctx, actor.UserID, dto.UpdateScheduleRequest{
-				ID: in.ID, FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString, Recipients: in.Recipients,
+				ID: in.ID, FrameworkKey: in.FrameworkKey, ScheduleString: in.ScheduleString,
+				WindowDays: in.WindowDays, To: in.To, Cc: in.Cc,
 			})
 		})
 
@@ -302,14 +270,14 @@ func registerComplianceSchedules(m *Module) {
 		Name: "compliance.schedule.get", Title: "Get schedule",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "compliance.read"},
-		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+		func(ctx context.Context, _ *authz.Actor, in complianceScheduleIDInput) (any, error) {
 			return uc.GetByID(ctx, in.ID)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "compliance.schedule.delete", Title: "Delete schedule",
 	}, Gate{Permission: "compliance.write"},
-		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+		func(ctx context.Context, _ *authz.Actor, in complianceScheduleIDInput) (any, error) {
 			if err := uc.Delete(ctx, in.ID); err != nil {
 				return nil, err
 			}

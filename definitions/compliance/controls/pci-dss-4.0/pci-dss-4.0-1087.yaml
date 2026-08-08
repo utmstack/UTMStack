@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: windows-user-accounts-enumeration
     name: Windows User Accounts Enumeration
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4799'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: windows-user-accounts-enumeration-by-target-user
     name: Windows User Accounts Enumeration by Target User
-    indexPattern: v11-log-wineventlog-*
-    sql: SELECT count(*) AS c FROM v11-log-wineventlog-* WHERE (logx.wineventlog.event_id = '4799')
+    dataType: wineventlog
+    filters:
+      - field: log.eventID
+        operator: IS
+        value: '4799'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

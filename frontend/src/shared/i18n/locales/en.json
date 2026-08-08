@@ -5216,26 +5216,23 @@
     "comingSoon": "Coming soon.",
     "tabs": {
       "frameworks": "Frameworks",
-      "reports": "Reports",
       "schedule": "Schedule",
       "controls": "Controls"
     },
     "search": "Search frameworks…",
     "refresh": "Refresh",
     "loading": "Loading frameworks…",
-    "loadError": "Could not load frameworks.",
+    "loadError": "Could not load reports",
     "retry": "Retry",
     "empty": "No frameworks match.",
     "notEvaluated": "Not evaluated",
-    "enabled": "Enabled",
-    "disabled": "Disabled",
     "controlsCount": "{{n}} controls",
     "enabledLabel": "Enabled",
     "runReport": "Run report",
     "backToFrameworks": "Back to frameworks",
     "statusAuto": "Auto (evaluated)",
     "overrideError": "Failed to update status",
-    "noteError": "Failed to save note",
+    "noteError": "Could not save the note",
     "notes": {
       "title": "Notes",
       "placeholder": "Add a note…",
@@ -5268,25 +5265,13 @@
       "NOT_COVERED": "Not covered",
       "OUT_OF_SCOPE": "Out of scope",
       "PENDING": "Pending",
-      "label": "Status"
+      "label": "Status",
+      "NOT_EVALUATED": "Not evaluated"
     },
     "toast": {
       "toggleError": "Failed to change framework state",
       "reportGenerated": "Report generated",
       "reportError": "Failed to generate report"
-    },
-    "reports": {
-      "allFrameworks": "All frameworks",
-      "loading": "Loading reports…",
-      "loadError": "Could not load reports.",
-      "empty": "No reports yet. Open a framework and run a report.",
-      "delete": "Delete",
-      "confirmDelete": "Confirm",
-      "cancel": "Cancel",
-      "toast": {
-        "deleted": "Report deleted",
-        "deleteError": "Failed to delete report"
-      }
     },
     "schedule": {
       "new": "New schedule",
@@ -5300,7 +5285,6 @@
       "framework": "Framework",
       "cadenceLabel": "Cadence",
       "cronHint": "5-field cron (min hour day month weekday).",
-      "recipients": "Recipients",
       "recipientsHint": "Comma-separated emails. Leave empty to only store the snapshot.",
       "save": "Save",
       "cancel": "Cancel",
@@ -5317,7 +5301,13 @@
         "saveError": "Failed to save schedule",
         "deleted": "Schedule deleted",
         "deleteError": "Failed to delete schedule"
-      }
+      },
+      "to": "To",
+      "cc": "Cc",
+      "toRequired": "At least one recipient is required",
+      "windowDays": "Reporting window (days)",
+      "windowDaysShort": "over {{days}}d",
+      "windowDaysHint": "How far back the report counts. Independent of how often it runs."
     },
     "frameworks": {
       "new": "New framework",
@@ -5383,17 +5373,12 @@
       "checksHint": "Each check runs an OpenSearch SQL query and applies a rule to decide pass/fail.",
       "checkKey": "key",
       "checkName": "Check name",
-      "indexPattern": "index pattern",
       "rule": {
-        "NO_HITS_ALLOWED": "No hits allowed",
         "MIN_HITS_REQUIRED": "Min hits required",
-        "THRESHOLD_MAX": "Threshold max",
-        "MATCH_FIELD_VALUE": "Match field value"
+        "THRESHOLD_MAX": "Threshold max"
       },
       "ruleNone": "No rule",
       "ruleValue": "value",
-      "field": "field",
-      "expected": "expected",
       "addCheck": "Add check",
       "createTitle": "New control",
       "visualTab": "Visual",
@@ -5405,34 +5390,77 @@
       "yamlError": "Can't apply the YAML: {{error}}",
       "idRequired": "ID is required",
       "nameRequired": "Name is required",
+      "anyDataType": "Any data type",
+      "addFilter": "Add filter",
+      "filterField": "log.eventID",
+      "filterValue": "value",
+      "filterValues": "a, b, c",
       "toast": {
         "created": "Control created",
         "saved": "Control saved",
         "saveError": "Failed to save control",
         "deleted": "Control deleted",
-        "deleteError": "Failed to delete control",
-        "toggleError": "Failed to change control state"
+        "deleteError": "Failed to delete control"
       }
     },
     "doc": {
       "title": "Compliance Report",
       "print": "Print / PDF",
-      "generated": "Generated {{date}}",
       "controlsEvaluated": "{{n}} controls evaluated",
       "executiveSummary": "Executive Summary",
       "bySection": "Findings by Section",
-      "controlCol": "Control",
-      "statusCol": "Status",
-      "evidenceCol": "Evidence",
-      "coverageCol": "Rules / Alerts",
       "footer": "{{framework}} — Compliance report generated {{date}} · {{brand}}",
       "download": "Download PDF",
-      "downloadError": "Failed to download the PDF"
+      "downloadError": "Failed to download the PDF",
+      "error": "Could not generate the PDF",
+      "building": "Building the document…"
     },
     "locked": {
       "badge": "Enterprise",
       "upgrade": "Upgrade to Enterprise",
       "upsell": "This framework/control requires the Enterprise edition."
+    },
+    "run": "Run evaluation",
+    "runError": "Evaluation failed",
+    "noReportYet": "This framework has not been evaluated yet.",
+    "window": "window {{from}} → {{to}}",
+    "scoredOver": "{{compliant}} of {{evaluated}} requirements met · {{total}} in the framework",
+    "editStale": "Recorded when the engine said {{was}}; it now says {{now}}",
+    "checkResults": "Check results",
+    "verdict": "Recorded verdict",
+    "engineSaid": "engine said",
+    "hits": "hits",
+    "noDataFor": "no {{dataType}} data in the window",
+    "setStatus": "Set status",
+    "outcome": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "NOT_APPLICABLE": "No data",
+      "ERROR": "Error"
+    },
+    "system": "Shipped",
+    "addNote": "Add a note",
+    "noteModal": {
+      "title": "Note",
+      "description": "Recorded on the report. It does not change the control’s status.",
+      "placeholder": "Remediation in progress — ticket OPS-4412, due end of quarter."
+    },
+    "startFrom": {
+      "scratch": "From scratch",
+      "scratchHint": "An empty definition you fill in yourself.",
+      "copy": "From an existing one",
+      "copyHint": "Everything is copied except the identifier and the name.",
+      "pickTitle": "Choose what to copy",
+      "back": "Back",
+      "count": "{{n}} available",
+      "search": "Search by name",
+      "none": "Nothing matches that search"
+    },
+    "history": {
+      "title": "Score over time",
+      "score": "Compliance score",
+      "coverage": "Evaluated",
+      "error": "Could not load the score history"
     }
   },
   "tenants": {

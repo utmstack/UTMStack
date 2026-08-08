@@ -35,7 +35,9 @@ export function FrameworkEditor({
   onSaved: () => void
 }) {
   const { t } = useTranslation()
-  const readOnly = !!framework?.system
+  // The shipped catalogue is not editable, and neither is anything the
+  // licence withholds.
+  const readOnly = !!framework?.system || !!framework?.locked
   const [form, setForm] = useState<FrameworkFormState>(() => frameworkToForm(framework))
   const [mode, setMode] = useState<'visual' | 'code'>('visual')
   const [yaml, setYaml] = useState('')
@@ -62,7 +64,7 @@ export function FrameworkEditor({
       toast.error(t('compliance.frameworks.yamlError', { error: r.error }))
       return
     }
-    setForm({ ...r.form, enabled: form.enabled })
+    setForm(r.form)
     setMode('visual')
   }
 
@@ -75,7 +77,7 @@ export function FrameworkEditor({
         toast.error(t('compliance.frameworks.yamlError', { error: r.error }))
         return
       }
-      f = { ...r.form, enabled: form.enabled }
+      f = r.form
       setForm(f)
     }
     const payload = formToFramework(f)

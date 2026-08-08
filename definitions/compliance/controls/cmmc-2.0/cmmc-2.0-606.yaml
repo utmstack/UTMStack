@@ -8,14 +8,20 @@ strategy: ANY
 checks:
   - key: o365-secure-link-operation
     name: O365 Secure Link Operation
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSecureLink')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: AddedToSecureLink
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: o365-secure-link-operation-by-client
     name: O365 Secure Link Operation by Client
-    indexPattern: v11-log-o365-*
-    sql: SELECT count(*) AS c FROM v11-log-o365-* WHERE (logx.o365.Operation = 'AddedToSecureLink')
+    dataType: o365
+    filters:
+      - field: log.Operation
+        operator: IS
+        value: AddedToSecureLink
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11

@@ -9,22 +9,28 @@ import (
 type CreateScheduleRequest struct {
 	FrameworkKey   string `json:"frameworkKey" binding:"required"`
 	ScheduleString string `json:"scheduleString" binding:"required,max=250"`
-	Recipients     string `json:"recipients"`
+	WindowDays     int    `json:"windowDays" binding:"omitempty,min=1,max=3650"`
+	To             string `json:"to" binding:"required,max=2000"`
+	Cc             string `json:"cc" binding:"max=2000"`
 }
 
 type UpdateScheduleRequest struct {
-	ID             int64  `json:"id" binding:"required"`
-	FrameworkKey   string `json:"frameworkKey" binding:"required"`
-	ScheduleString string `json:"scheduleString" binding:"required,max=250"`
-	Recipients     string `json:"recipients"`
+	ID             uuid.UUID `json:"id" binding:"required"`
+	FrameworkKey   string    `json:"frameworkKey" binding:"required"`
+	ScheduleString string    `json:"scheduleString" binding:"required,max=250"`
+	WindowDays     int       `json:"windowDays" binding:"omitempty,min=1,max=3650"`
+	To             string    `json:"to" binding:"required,max=2000"`
+	Cc             string    `json:"cc" binding:"max=2000"`
 }
 
 type ScheduleResponse struct {
-	ID                int64     `json:"id"`
+	ID                uuid.UUID `json:"id"`
 	UserID            uuid.UUID `json:"userId"`
 	FrameworkKey      string    `json:"frameworkKey"`
 	ScheduleString    string    `json:"scheduleString"`
-	Recipients        string    `json:"recipients"`
+	WindowDays        int       `json:"windowDays"`
+	To                string    `json:"to"`
+	Cc                string    `json:"cc"`
 	LastExecutionDate time.Time `json:"lastExecutionDate"`
 }
 

@@ -8,14 +8,12 @@ strategy: ANY
 checks:
   - key: linux-activity
     name: Linux Activity
-    indexPattern: v11-log-linux-*
-    sql: SELECT count(*) AS c FROM v11-log-linux-*
+    dataType: linux
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: linux-activity-by-os
     name: Linux Activity by OS
-    indexPattern: v11-log-linux-*
-    sql: SELECT count(*) AS c FROM v11-log-linux-*
+    dataType: linux
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
 source: Migrated from UTMStack v11
