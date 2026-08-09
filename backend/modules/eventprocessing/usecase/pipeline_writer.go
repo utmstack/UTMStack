@@ -46,6 +46,12 @@ type tenantEntryYAML struct {
 	DisabledPipelines []string        `yaml:"disabledPipelines,omitempty"`
 }
 
+type TenantAssets struct {
+	ID     string
+	Name   string
+	Assets []assetFileYAML
+}
+
 type assetFileYAML struct {
 	Name            string   `yaml:"name"`
 	Hostnames       []string `yaml:"hostnames,omitempty"`
@@ -59,19 +65,27 @@ type patternsFileYAML struct {
 	Patterns map[string]string `yaml:"patterns"`
 }
 
-// readTenantEntry reads tenants.yaml as it is on disk right now, tolerating a
-// missing/empty file. Callers needing a consistent read-modify-write must
-// call this from inside withFileLock.
-func (w *pipelineWriter) readTenantEntry() (tenantEntryYAML, error) {
+func (w *pipelineWriter) readTenantFile() (tenantFileYAML, error) {
 	data, err := os.ReadFile(filepath.Join(w.dir, TenantFileName))
 	if os.IsNotExist(err) {
-		return tenantEntryYAML{ID: DefaultTenantID, Name: DefaultTenantName}, nil
+		return tenantFileYAML{}, nil
 	}
 	if err != nil {
-		return tenantEntryYAML{}, err
+		return tenantFileYAML{}, err
 	}
 	var content tenantFileYAML
 	if err := yaml.Unmarshal(data, &content); err != nil {
+		return tenantFileYAML{}, err
+	}
+	return content, nil
+}
+
+// readTenantEntry is readTenantFile for the callers that only care about the
+// opt-out lists. Those are an install-wide setting replicated onto every tenant
+// entry, so reading the first is reading all of them.
+func (w *pipelineWriter) readTenantEntry() (tenantEntryYAML, error) {
+	content, err := w.readTenantFile()
+	if err != nil {
 		return tenantEntryYAML{}, err
 	}
 	if len(content.Tenants) == 0 {
@@ -80,30 +94,81 @@ func (w *pipelineWriter) readTenantEntry() (tenantEntryYAML, error) {
 	return content.Tenants[0], nil
 }
 
-// writeTenantEntryLocked writes t as the sole tenant in tenants.yaml. Caller
-// must hold both w.mu and the file lock.
-func (w *pipelineWriter) writeTenantEntryLocked(t tenantEntryYAML) error {
-	t.ID = DefaultTenantID
-	t.Name = DefaultTenantName
-	sort.Strings(t.DisabledRules)
-	sort.Strings(t.DisabledPipelines)
-	return w.writeYAML(TenantFileName, tenantFileYAML{Tenants: []tenantEntryYAML{t}})
+// writeTenantsLocked writes one entry per tenant, carrying the install-wide
+// opt-out lists onto each. Caller must hold both w.mu and the file lock.
+//
+// The default tenant is always present even with no assets of its own: it is
+// where a single-tenant install lives, and dropping it would take the opt-out
+// lists with it.
+func (w *pipelineWriter) writeTenantsLocked(tenants []TenantAssets, disabledRules, disabledPipelines []string) error {
+	sort.Strings(disabledRules)
+	sort.Strings(disabledPipelines)
+
+	out := make([]tenantEntryYAML, 0, len(tenants)+1)
+	seenDefault := false
+	for _, t := range tenants {
+		if t.ID == "" {
+			continue
+		}
+		if t.ID == DefaultTenantID {
+			seenDefault = true
+			if t.Name == "" {
+				t.Name = DefaultTenantName
+			}
+		}
+		out = append(out, tenantEntryYAML{
+			ID:                t.ID,
+			Name:              t.Name,
+			Assets:            t.Assets,
+			DisabledRules:     disabledRules,
+			DisabledPipelines: disabledPipelines,
+		})
+	}
+	if !seenDefault {
+		out = append(out, tenantEntryYAML{
+			ID:                DefaultTenantID,
+			Name:              DefaultTenantName,
+			DisabledRules:     disabledRules,
+			DisabledPipelines: disabledPipelines,
+		})
+	}
+	// Ordered so an unchanged projection produces a byte-identical file and
+	// does not look like a change to anything watching it.
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+
+	return w.writeYAML(TenantFileName, tenantFileYAML{Tenants: out})
 }
 
-// WriteTenants atomically rewrites tenants.yaml with the full asset list,
+// writeTenantEntryLocked rewrites the opt-out lists across every tenant already
+// on disk, leaving each one's assets alone.
+func (w *pipelineWriter) writeTenantEntryLocked(t tenantEntryYAML) error {
+	content, err := w.readTenantFile()
+	if err != nil {
+		return err
+	}
+	existing := make([]TenantAssets, 0, len(content.Tenants))
+	for _, e := range content.Tenants {
+		existing = append(existing, TenantAssets{ID: e.ID, Name: e.Name, Assets: e.Assets})
+	}
+	return w.writeTenantsLocked(existing, t.DisabledRules, t.DisabledPipelines)
+}
+
+// WriteTenants atomically rewrites tenants.yaml with one entry per tenant,
 // keeping whatever disabled-rules/disabled-pipelines state is already on disk.
-// There is always exactly one tenant ("Default"); assets are its CIA-config entries.
-func (w *pipelineWriter) WriteTenants(assets []assetFileYAML) error {
+//
+// The assets are replaced wholesale rather than merged: the caller recomputes
+// them from the database every time, so what it passes is the whole truth and
+// a merge would resurrect assets that were deleted.
+func (w *pipelineWriter) WriteTenants(tenants []TenantAssets) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
 	return withFileLock(w.tenantLockPath(), func() error {
-		t, err := w.readTenantEntry()
+		cur, err := w.readTenantEntry()
 		if err != nil {
 			return err
 		}
-		t.Assets = assets
-		return w.writeTenantEntryLocked(t)
+		return w.writeTenantsLocked(tenants, cur.DisabledRules, cur.DisabledPipelines)
 	})
 }
 

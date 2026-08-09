@@ -63,8 +63,8 @@ INSERT INTO permissions (name, description) VALUES
     ('dashboards.write',      'Create, update and delete dashboards, visualizations and layouts'),
     ('loganalyzer.read',      'Explore logs and view saved queries'),
     ('loganalyzer.write',     'Create, update and delete saved log-analyzer queries'),
-    ('datasources.read',      'List and view datasources and their groups'),
-    ('datasources.write',     'Create, update and delete datasources and their groups'),
+    ('datasources.read',      'List and view datasources'),
+    ('datasources.write',     'Update datasource labels and asset sensitivity, and delete datasources'),
     ('eventprocessing.read',  'List and view correlation rules and regex patterns'),
     ('eventprocessing.write', 'Create, update and delete correlation rules and regex patterns'),
     ('integrations.read',     'List integrations and their configuration'),
@@ -219,9 +219,9 @@ WHERE NOT EXISTS (
     SELECT 1 FROM app_config c WHERE c.conf_param_short = v.conf_param_short
 );
 
--- utm_regex_pattern and utm_tenant_config are NOT dropped here — PipelineBootstrap
--- reads them first, migrates to YAML files, then drops them. Dropping here
--- (before the bootstrap runs) would lose user data.
+-- Named regex patterns and asset CIA are no longer tables: the patterns ship
+-- baked into the pipeline bootstrap, and asset sensitivity lives on the
+-- datasource row that owns it.
 
 
 INSERT INTO utm_module (module_name, pretty_name, module_description, module_active, module_icon, module_category, ingest_type, data_type, is_system) VALUES

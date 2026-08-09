@@ -23,8 +23,7 @@ const (
 )
 
 type dsPingEntry struct {
-	TenantID   string          `json:"tenantId"`
-	SourceRef  string          `json:"sourceRef"`
+	TenantID   string          `json:"tenantId,omitempty"`
 	Name       string          `json:"name"`
 	DataType   string          `json:"dataType,omitempty"`
 	SourceKind string          `json:"sourceKind"`
@@ -125,12 +124,10 @@ func (s *LastSeenService) agentEntries(seen map[uint]time.Time) []dsPingEntry {
 			continue
 		}
 		ts := seen[a.ID]
-		dataType := agentDataType(a.Os)
 		out = append(out, dsPingEntry{
 			TenantID:   tenantOrDefault(a.TenantID),
-			SourceRef:  dataType + ":" + a.Hostname, // == the (dataType,dataSource) key in stats
 			Name:       a.Hostname,
-			DataType:   dataType,
+			DataType:   agentDataType(a.Os),
 			SourceKind: "agent",
 			IP:         a.Ip,
 			Metadata: jsonMetadata(map[string]string{

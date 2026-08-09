@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -78,33 +77,6 @@ func (h *DatasourceHandler) Ping(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// Enrichment is the internal feed the alerts plugin caches to enrich alerts with
-// their datasource's group/labels. Not audited: internal, high-frequency poll.
-func (h *DatasourceHandler) Enrichment(c *gin.Context) {
-	out, err := h.uc.Enrichment(c.Request.Context())
-	if err != nil {
-		writeError(c, "datasource enrichment", err)
-		return
-	}
-	c.JSON(http.StatusOK, out)
-}
-
-func (h *DatasourceHandler) UpdateGroup(c *gin.Context) {
-	var req dto.UpdateGroupRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
-		return
-	}
-	err := h.uc.UpdateGroup(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "datasource.group.assign", ResourceType: "datasource"},
-		audit_domain.DATASOURCE_GROUP_ASSIGN_ATTEMPT, audit_domain.DATASOURCE_GROUP_ASSIGN_SUCCESS, err)
-	if err != nil {
-		writeError(c, "update group", err)
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
-
 func (h *DatasourceHandler) UpdateLabels(c *gin.Context) {
 	var req dto.UpdateLabelsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,7 +84,7 @@ func (h *DatasourceHandler) UpdateLabels(c *gin.Context) {
 		return
 	}
 	err := h.uc.UpdateLabels(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "datasource.labels.update", ResourceType: "datasource", ResourceID: strconv.FormatUint(req.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "datasource.labels.update", ResourceType: "datasource", ResourceID: req.ID.String()},
 		audit_domain.DATASOURCE_LABELS_UPDATE_ATTEMPT, audit_domain.DATASOURCE_LABELS_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, "update labels", err)
@@ -128,7 +100,7 @@ func (h *DatasourceHandler) UpdateSensitivity(c *gin.Context) {
 		return
 	}
 	err := h.uc.UpdateSensitivity(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "datasource.sensitivity.update", ResourceType: "datasource", ResourceID: strconv.FormatUint(req.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "datasource.sensitivity.update", ResourceType: "datasource", ResourceID: req.ID.String()},
 		audit_domain.DATASOURCE_SENSITIVITY_UPDATE_ATTEMPT, audit_domain.DATASOURCE_SENSITIVITY_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, "update sensitivity", err)
@@ -143,7 +115,7 @@ func (h *DatasourceHandler) Delete(c *gin.Context) {
 		return
 	}
 	err := h.uc.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "datasource.delete", ResourceType: "datasource", ResourceID: strconv.FormatUint(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "datasource.delete", ResourceType: "datasource", ResourceID: id.String()},
 		audit_domain.DATASOURCE_DELETE_ATTEMPT, audit_domain.DATASOURCE_DELETE_SUCCESS, err)
 	if err != nil {
 		writeError(c, "delete datasource", err)

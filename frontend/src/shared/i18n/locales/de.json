@@ -3655,15 +3655,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Nach Name suchen…",
-      "allGroups": "Alle Gruppen",
       "list": "Liste",
       "cards": "Karten",
       "refresh": "Aktualisieren"
-    },
-    "groups": {
-      "new": "Neue Gruppe",
-      "namePlaceholder": "Gruppenname",
-      "create": "Erstellen"
     },
     "labels": {
       "filteredBy": "Gefiltert nach Label",
@@ -3699,7 +3693,6 @@
       "loadFailed": "Datenquelle konnte nicht geladen werden.",
       "statsIdentity": "Statistik & Identität",
       "metadata": "Metadaten",
-      "group": "Gruppe",
       "labelsSection": "Labels",
       "dangerZone": "Gefahrenzone",
       "rows": {
@@ -3711,7 +3704,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "Keine Gruppe",
       "dangerText": "Das Löschen entfernt diese Quelle aus dem Register. Historische Ereignisse bleiben im Log-Explorer durchsuchbar; sendet die Quelle weiter Daten, wird sie erneut erkannt.",
       "delete": "Datenquelle löschen",
       "confirmDelete": "Löschen bestätigen",
@@ -3724,12 +3716,8 @@
     "toast": {
       "labelsUpdated": "Labels aktualisiert",
       "labelsFailed": "Labels konnten nicht aktualisiert werden",
-      "groupUpdated": "Gruppe aktualisiert",
-      "groupFailed": "Gruppe konnte nicht aktualisiert werden",
       "deleted": "Datenquelle gelöscht",
-      "deleteFailed": "Löschen fehlgeschlagen",
-      "groupCreated": "Gruppe erstellt",
-      "groupCreateFailed": "Gruppe konnte nicht erstellt werden"
+      "deleteFailed": "Löschen fehlgeschlagen"
     },
     "sensitivity": {
       "section": "Asset-Sensibilität",

@@ -23,8 +23,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	rg.GET("", read, rph.List)
 	rg.GET("/:id", read, rph.GetByID)
 
-	// Tenant config (assets) is retired: asset CIA now lives on datasources, which
-	// project it into tenants.yaml via the eventprocessing TenantConfig usecase.
+	// Asset CIA lives on datasources, which projects it into tenants.yaml.
 
 	// Correlation rules — audit is recorded handler-side via audit.Record.
 	cr := g.Group("/correlation-rule")

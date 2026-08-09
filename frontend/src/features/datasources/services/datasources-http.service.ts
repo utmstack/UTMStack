@@ -1,7 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 import type {
-  AssetGroup,
   Datasource,
   IngestionTimeline,
   IngestionTotals,
@@ -25,7 +24,6 @@ export interface ListParams {
   size: number
   search?: string
   kind?: SourceKind
-  groupId?: number
   label?: string // matches the comma-separated labels column (ILIKE %label%)
   staleBefore?: string // RFC3339 → last_ping_at.lt.<iso> (the "offline" filter)
   pingNull?:boolean,
@@ -42,7 +40,6 @@ export const datasourcesHttpService = {
     const filter = buildSearchQuery([
       p.search ? `asset_name.like.${p.search}` : null,
       p.kind ? `source_kind.eq.${p.kind}` : null,
-      p.groupId != null ? `group_id.eq.${p.groupId}` : null,
       p.label ? `labels.like.${p.label}` : null,
       p.staleBefore ? `last_ping_at.lt.${p.staleBefore}` : null,
       p.pingNull ? `last_ping_at.null` : null,
@@ -50,23 +47,16 @@ export const datasourcesHttpService = {
     if (filter) q.set('search_query', filter)
     return api.get<ListResponse<Datasource>>(`/datasources?${q.toString()}`)
   },
-  get: (id: number) => api.get<Datasource>(`/datasources/${id}`),
-  remove: (id: number) => api.delete<void>(`/datasources/${id}`),
-  updateLabels: (id: number, labels: string) =>
+  get: (id: string) => api.get<Datasource>(`/datasources/${id}`),
+  remove: (id: string) => api.delete<void>(`/datasources/${id}`),
+  updateLabels: (id: string, labels: string) =>
     api.put<void>('/datasources/labels', { id, labels }),
-  updateGroup: (ids: number[], groupId: number | null) =>
-    api.put<void>('/datasources/group', { ids, groupId }),
   updateSensitivity: (
-    id: number,
+    id: string,
     cia: { assetConfidentiality: number; assetIntegrity: number; assetAvailability: number },
   ) => api.put<void>('/datasources/sensitivity', { id, ...cia }),
 
   count: () => api.get<DatasourceCount>('/datasources/count'),
-
-  groups: () =>
-    api.get<ListResponse<AssetGroup>>('/datasource-groups?page_number=1&page_size=200&sort_by=group_name.asc'),
-  createGroup: (input: { groupName: string; groupDescription?: string }) =>
-    api.post<AssetGroup>('/datasource-groups', input),
 
   // Live ingestion stats from v11-statistics-* (no DB). Keyed by dataSource name.S
   ingestionTotals: () =>

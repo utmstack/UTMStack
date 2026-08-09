@@ -3655,15 +3655,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Rechercher par nom…",
-      "allGroups": "Tous les groupes",
       "list": "Liste",
       "cards": "Cartes",
       "refresh": "Actualiser"
-    },
-    "groups": {
-      "new": "Nouveau groupe",
-      "namePlaceholder": "Nom du groupe",
-      "create": "Créer"
     },
     "labels": {
       "filteredBy": "Filtré par label",
@@ -3699,7 +3693,6 @@
       "loadFailed": "Impossible de charger la source de données.",
       "statsIdentity": "Stats et identité",
       "metadata": "Métadonnées",
-      "group": "Groupe",
       "labelsSection": "Labels",
       "dangerZone": "Zone de danger",
       "rows": {
@@ -3711,7 +3704,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "Aucun groupe",
       "dangerText": "La suppression retire cette source du registre. Les événements historiques restent consultables dans le Log Explorer ; si la source continue d'envoyer des données, elle sera redécouverte.",
       "delete": "Supprimer la source",
       "confirmDelete": "Confirmer la suppression",
@@ -3724,12 +3716,8 @@
     "toast": {
       "labelsUpdated": "Labels mis à jour",
       "labelsFailed": "Échec de la mise à jour des labels",
-      "groupUpdated": "Groupe mis à jour",
-      "groupFailed": "Échec de la mise à jour du groupe",
       "deleted": "Source supprimée",
-      "deleteFailed": "Échec de la suppression",
-      "groupCreated": "Groupe créé",
-      "groupCreateFailed": "Échec de la création du groupe"
+      "deleteFailed": "Échec de la suppression"
     },
     "sensitivity": {
       "section": "Sensibilité de l'actif",

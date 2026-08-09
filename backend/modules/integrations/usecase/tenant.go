@@ -7,6 +7,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	ds_connectors "github.com/utmstack/utmstack/backend/modules/datasources/connectors"
+	ds_domain "github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	ds_dto "github.com/utmstack/utmstack/backend/modules/datasources/dto"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
@@ -96,10 +97,9 @@ func (u *TenantUsecase) SyncDatasources(ctx context.Context) error {
 		}
 		for _, t := range tenants {
 			if err := u.datasources.Register(ctx, ds_dto.RegisterRequest{
-				SourceRef:  datasourceRef(m.DataType, t.Name),
 				Name:       t.Name,
 				DataType:   m.DataType,
-				SourceKind: "puller",
+				SourceKind: ds_domain.SourceKindPuller,
 			}); err != nil {
 				_ = catcher.Error("integrations: failed to register datasource", err,
 					map[string]any{"module": m.ModuleName, "tenant": t.Name})
@@ -115,14 +115,11 @@ func (u *TenantUsecase) registerDatasource(ctx context.Context, module, name str
 		return err
 	}
 	return u.datasources.Register(ctx, ds_dto.RegisterRequest{
-		SourceRef:  datasourceRef(m.DataType, name),
 		Name:       name,
 		DataType:   m.DataType,
-		SourceKind: "puller",
+		SourceKind: ds_domain.SourceKindPuller,
 	})
 }
-
-func datasourceRef(dataType, name string) string { return dataType + ":" + name }
 
 func (u *TenantUsecase) List(ctx context.Context, module string) ([]dto.TenantResponse, error) {
 	return u.transform(module, authz.TenantIDFromContext(ctx))

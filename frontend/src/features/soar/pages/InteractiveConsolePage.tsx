@@ -9,7 +9,7 @@ import { deriveStatus, STATUS_META } from '@/features/datasources/lib/status'
 import type { Datasource } from '@/features/datasources/types/datasource.types'
 
 interface AgentItem {
-  id: number
+  id: string // the datasource uuid — React key and selection identity
   agentId: string
   name: string
   osPlatform?: string

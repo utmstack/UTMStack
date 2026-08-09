@@ -3617,15 +3617,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Buscar por nombre…",
-      "allGroups": "Todos los grupos",
       "list": "Lista",
       "cards": "Tarjetas",
       "refresh": "Actualizar"
-    },
-    "groups": {
-      "new": "Nuevo grupo",
-      "namePlaceholder": "Nombre del grupo",
-      "create": "Crear"
     },
     "labels": {
       "filteredBy": "Filtrado por label",
@@ -3661,7 +3655,6 @@
       "loadFailed": "No se pudo cargar la fuente de datos.",
       "statsIdentity": "Stats e identidad",
       "metadata": "Metadata",
-      "group": "Grupo",
       "labelsSection": "Labels",
       "dangerZone": "Zona de peligro",
       "rows": {
@@ -3673,7 +3666,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "Sin grupo",
       "dangerText": "Eliminar quita esta fuente del registro. Los eventos históricos siguen disponibles en el Log Explorer; si la fuente sigue enviando datos, se redescubrirá.",
       "delete": "Eliminar fuente",
       "confirmDelete": "Confirmar eliminación",
@@ -3686,12 +3678,8 @@
     "toast": {
       "labelsUpdated": "Labels actualizados",
       "labelsFailed": "No se pudieron actualizar los labels",
-      "groupUpdated": "Grupo actualizado",
-      "groupFailed": "No se pudo actualizar el grupo",
       "deleted": "Fuente eliminada",
-      "deleteFailed": "No se pudo eliminar",
-      "groupCreated": "Grupo creado",
-      "groupCreateFailed": "No se pudo crear el grupo"
+      "deleteFailed": "No se pudo eliminar"
     },
     "console": {
       "section": "Consola",

@@ -3797,15 +3797,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Search by name…",
-      "allGroups": "All groups",
       "list": "List",
       "cards": "Cards",
       "refresh": "Refresh"
-    },
-    "groups": {
-      "new": "New group",
-      "namePlaceholder": "Group name",
-      "create": "Create"
     },
     "labels": {
       "filteredBy": "Filtered by label",
@@ -3841,7 +3835,6 @@
       "loadFailed": "Could not load the data source.",
       "statsIdentity": "Stats & identity",
       "metadata": "Metadata",
-      "group": "Group",
       "labelsSection": "Labels",
       "dangerZone": "Danger zone",
       "rows": {
@@ -3853,7 +3846,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "No group",
       "dangerText": "Deleting removes this source from the registry. Historical events stay searchable in the Log Explorer; if the source keeps sending data it will be rediscovered.",
       "delete": "Delete data source",
       "confirmDelete": "Confirm delete",
@@ -3866,12 +3858,8 @@
     "toast": {
       "labelsUpdated": "Labels updated",
       "labelsFailed": "Failed to update labels",
-      "groupUpdated": "Group updated",
-      "groupFailed": "Failed to update group",
       "deleted": "Data source deleted",
-      "deleteFailed": "Failed to delete",
-      "groupCreated": "Group created",
-      "groupCreateFailed": "Failed to create group"
+      "deleteFailed": "Failed to delete"
     },
     "console": {
       "section": "Console",

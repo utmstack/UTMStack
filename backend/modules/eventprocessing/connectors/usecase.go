@@ -12,21 +12,12 @@ type ListResult[T any] struct {
 	Total int64
 }
 
-// RegexPatternUsecase is read-only: patterns are a shared vocabulary seeded by
-// the pipeline bootstrap and referenced from filter YAMLs, not authored content.
 type RegexPatternUsecase interface {
 	GetByID(ctx context.Context, patternID string) (*dto.RegexPatternResponse, error)
 	List(ctx context.Context, f dto.RegexPatternFilters) (*ListResult[dto.RegexPatternResponse], error)
 }
 
-type TenantConfigUsecase interface {
-	Create(ctx context.Context, req dto.CreateTenantConfigRequest) (*dto.TenantConfigResponse, error)
-	Update(ctx context.Context, req dto.UpdateTenantConfigRequest) (*dto.TenantConfigResponse, error)
-	GetByID(ctx context.Context, assetName string) (*dto.TenantConfigResponse, error)
-	List(ctx context.Context, f dto.TenantConfigFilters) (*ListResult[dto.TenantConfigResponse], error)
-	Delete(ctx context.Context, assetName string) error
-	// ProjectAssets rewrites tenants.yaml from an externally-owned asset set
-	// (the datasources module). This is the source of truth post-migration.
+type AssetProjectionUsecase interface {
 	ProjectAssets(assets []common_models.AssetSensitivity) error
 }
 

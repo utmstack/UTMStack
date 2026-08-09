@@ -66,7 +66,6 @@ func Models() []any {
 		incidents_domain.IncidentNote{},
 		incidents_domain.IncidentHistory{},
 		notifications_domain.UtmNotification{},
-		datasources_domain.UtmAssetGroup{},
 		datasources_domain.Datasource{},
 		dashboards_domain.Dashboard{},
 		dashboards_domain.Visualization{},

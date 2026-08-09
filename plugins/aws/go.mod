@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.33
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482
+	github.com/threatwinds/go-sdk v1.1.27-0.20260808112451-a0c815800e09
 )
 
 require (
@@ -17,7 +17,6 @@ require (
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
-	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect

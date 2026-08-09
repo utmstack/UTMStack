@@ -39,7 +39,6 @@ import {
 import { AgentConsole } from '../components/AgentConsole'
 import { deriveStatus, statusLabel, STATUS_META, IDLE_MS } from '../lib/status'
 import type {
-  AssetGroup,
   Datasource,
   IngestionBucket,
   ListResponse,
@@ -120,7 +119,6 @@ export function DataSourcesPage() {
   const [tab, setTab] = useState<TabId>('all')
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
-  const [groupId, setGroupId] = useState<number | null>(null)
   const [labelFilter, setLabelFilter] = useState<string | null>(null)
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
 
@@ -131,13 +129,12 @@ export function DataSourcesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const [groups, setGroups] = useState<AssetGroup[]>([])
   const [usage, setUsage] = useState<DatasourceCount | null>(null)
   const [stats, setStats] = useState<Record<string, IngestionBucket>>({})
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
   const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
   const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
-  const [openId, setOpenId] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<string | null>(null)
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -156,7 +153,6 @@ export function DataSourcesPage() {
         size: pageSize,
         search: debounced || undefined,
         kind: tab === 'all' || tab === 'offline' ? undefined : (tab as SourceKind),
-        groupId: groupId ?? undefined,
         label: labelFilter ?? undefined,
         staleBefore: tab === 'offline' ? new Date(Date.now() - IDLE_MS).toISOString() : undefined,
       })
@@ -169,7 +165,7 @@ export function DataSourcesPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, pageSize, debounced, tab, groupId, labelFilter])
+  }, [page, pageSize, debounced, tab, labelFilter])
 
   const filterByLabel = (l: string) => {
     setLabelFilter(l)
@@ -180,16 +176,14 @@ export function DataSourcesPage() {
     void load()
   }, [load])
 
-  // Side data (groups, usage, ingestion stats) — load once + on manual refresh.
+  // Side data (usage, ingestion stats) — load once + on manual refresh.
   const loadAux = useCallback(async () => {
     setLoading(true)
-    const [g, u, totals, tl] = await Promise.allSettled([
-      svc.groups(),
+    const [u, totals, tl] = await Promise.allSettled([
       svc.count(),
       svc.ingestionTotals(),
       svc.ingestionTimeline(range),
     ])
-    if (g.status === 'fulfilled') setGroups(g.value.items ?? [])
     if (u.status === 'fulfilled') setUsage(u.value)
     if (totals.status === 'fulfilled') {
       const map: Record<string, IngestionBucket> = {}
@@ -202,12 +196,12 @@ export function DataSourcesPage() {
     // that only read total_items; reflect global health (no search/group filter).
     const staleIso = new Date(Date.now() - IDLE_MS).toISOString()
     const [cAll, cAgent, cPuller, cDirect, cOffline,cNotConnected] = await Promise.allSettled([
-      svc.list({ page: 1, size: 1 ,groupId: groupId??undefined }),
-      svc.list({ page: 1, size: 1, kind: 'agent' ,groupId: groupId??undefined }),
-      svc.list({ page: 1, size: 1, kind: 'puller',groupId: groupId??undefined }),
-      svc.list({ page: 1, size: 1, kind: 'direct',groupId: groupId??undefined}),
-      svc.list({ page: 1, size: 1, staleBefore: staleIso,groupId: groupId??undefined }),
-      svc.list({ page: 1, size: 1, pingNull: true,groupId: groupId??undefined }),
+      svc.list({ page: 1, size: 1 }),
+      svc.list({ page: 1, size: 1, kind: 'agent' }),
+      svc.list({ page: 1, size: 1, kind: 'puller'}),
+      svc.list({ page: 1, size: 1, kind: 'direct'}),
+      svc.list({ page: 1, size: 1, staleBefore: staleIso}),
+      svc.list({ page: 1, size: 1, pingNull: true}),
     ])
 
 
@@ -221,28 +215,11 @@ export function DataSourcesPage() {
       offline: tot(cOffline)+tot(cNotConnected),
     })
     setLoading(false)
-  }, [groupId, range, setLoading])
+  }, [range, setLoading])
 
   useEffect(() => {
     void loadAux()
   }, [loadAux])
-
-  const createGroup = useCallback(
-    async (name: string): Promise<AssetGroup | null> => {
-      const trimmed = name.trim()
-      if (!trimmed) return null
-      try {
-        const g = await svc.createGroup({ groupName: trimmed })
-        await loadAux()
-        toast.success(t('datasources.toast.groupCreated'))
-        return g
-      } catch (e) {
-        toast.error(e instanceof DatasourcesHttpError ? e.message : t('datasources.toast.groupCreateFailed'))
-        return null
-      }
-    },
-    [loadAux, t]
-  )
 
   const refresh = () => {
     void loadAux()
@@ -273,10 +250,6 @@ export function DataSourcesPage() {
       <Toolbar
         search={search}
         onSearch={setSearch}
-        groups={groups}
-        groupId={groupId}
-        onGroup={(id) => { setGroupId(id); setPage(0) }}
-        onCreateGroup={createGroup}
         layout={layout}
         onLayout={setLayout}
         onRefresh={refresh}
@@ -341,9 +314,7 @@ export function DataSourcesPage() {
       {openId != null && (
         <SourceDrawer
           id={openId}
-          groups={groups}
           events24h={(n) => events24h(n)}
-          onCreateGroup={createGroup}
           onClose={() => setOpenId(null)}
           onChanged={() => { void load(); void loadAux() }}
         />
@@ -529,10 +500,6 @@ function HealthSummary({ counts }: { counts: Record<TabId, number> }) {
 function Toolbar({
   search,
   onSearch,
-  groups,
-  groupId,
-  onGroup,
-  onCreateGroup,
   layout,
   onLayout,
   onRefresh,
@@ -540,10 +507,6 @@ function Toolbar({
 }: {
   search: string
   onSearch: (s: string) => void
-  groups: AssetGroup[]
-  groupId: number | null
-  onGroup: (id: number | null) => void
-  onCreateGroup: (name: string) => Promise<AssetGroup | null>
   layout: 'list' | 'cards'
   onLayout: (l: 'list' | 'cards') => void
   onRefresh: () => void
@@ -556,23 +519,6 @@ function Toolbar({
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input placeholder={t('datasources.toolbar.searchPlaceholder')} value={search} onChange={(e) => onSearch(e.target.value)} className="h-9 pl-9" />
       </div>
-      <select
-        value={groupId ?? ''}
-        onChange={(e) => onGroup(e.target.value ? Number(e.target.value) : null)}
-        className="h-9 cursor-pointer rounded-md border border-input bg-background/40 px-2 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-      >
-        <option value="">{t('datasources.toolbar.allGroups')}</option>
-        {groups.map((g) => (
-          <option key={g.id} value={g.id}>{g.groupName}</option>
-        ))}
-      </select>
-      <CreateGroupInline
-        onCreate={async (name) => {
-          const g = await onCreateGroup(name)
-          if (g) onGroup(g.id)
-          return g
-        }}
-      />
       <div className="ml-auto flex items-center gap-1 rounded-md border border-border p-0.5">
         <button onClick={() => onLayout('list')} title={t('datasources.toolbar.list')} className={cn('flex h-7 w-7 items-center justify-center rounded transition-colors', layout === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground')}>
           <ListIcon size={13} />
@@ -636,10 +582,8 @@ function SourceListRow({
         <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
           <span className="truncate">
             {s.ip && <span className="font-mono">{s.ip}</span>}
-            {s.ip && (s.dataType || s.group) && ' · '}
+            {s.ip && s.dataType && ' · '}
             {s.dataType && <span className="font-mono">{s.dataType}</span>}
-            {s.dataType && s.group && ' · '}
-            {s.group && s.group.groupName}
           </span>
           {labelList(s.labels).slice(0, 3).map((l) => (
             <LabelChip key={l} label={l} onClick={onLabelClick} />
@@ -757,16 +701,12 @@ function CardStat({ label, value }: { label: string; value: string }) {
 
 function SourceDrawer({
   id,
-  groups,
   events24h,
-  onCreateGroup,
   onClose,
   onChanged,
 }: {
-  id: number
-  groups: AssetGroup[]
+  id: string
   events24h: (name: string) => number
-  onCreateGroup: (name: string) => Promise<AssetGroup | null>
   onClose: () => void
   onChanged: () => void
 }) {
@@ -852,19 +792,6 @@ function SourceDrawer({
     } catch (e) {
       toast.error(e instanceof DatasourcesHttpError ? e.message : t('datasources.sensitivity.failed'))
       return false
-    }
-  }
-
-  const assignGroup = async (gid: number | null) => {
-    if (!src) return
-    try {
-      await svc.updateGroup([src.id], gid)
-      const g = gid ? groups.find((x) => x.id === gid) : null
-      setSrc({ ...src, group: g ? { id: g.id, groupName: g.groupName } : undefined })
-      toast.success(t('datasources.toast.groupUpdated'))
-      onChanged()
-    } catch {
-      toast.error(t('datasources.toast.groupFailed'))
     }
   }
 
@@ -973,32 +900,6 @@ function SourceDrawer({
                   </dl>
                 </Section>
               )}
-
-              <Section title={t('datasources.drawer.group')}>
-                <select
-                  value={src.group?.id ?? ''}
-                  onChange={(e) => void assignGroup(e.target.value ? Number(e.target.value) : null)}
-                  className="h-9 w-full cursor-pointer rounded-md border border-input bg-background/40 px-2 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="">{t('datasources.drawer.noGroup')}</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>{g.groupName}</option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <CreateGroupInline
-                    onCreate={async (name) => {
-                      const g = await onCreateGroup(name)
-                      if (g && src) {
-                        await svc.updateGroup([src.id], g.id)
-                        setSrc({ ...src, group: { id: g.id, groupName: g.groupName } })
-                        onChanged()
-                      }
-                      return g
-                    }}
-                  />
-                </div>
-              </Section>
 
               <Section title={t('datasources.drawer.labelsSection')}>
                 <LabelsEditor value={src.labels} onSave={saveLabels} />
@@ -1237,56 +1138,6 @@ function LabelsEditor({ value, onSave }: { value?: string; onSave: (labels: stri
         placeholder={labels.length ? t('datasources.labels.add') : t('datasources.labels.addFirst')}
         className="min-w-[110px] flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
       />
-    </div>
-  )
-}
-
-function CreateGroupInline({ onCreate }: { onCreate: (name: string) => Promise<AssetGroup | null> }) {
-  const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [busy, setBusy] = useState(false)
-
-  const submit = async () => {
-    if (!name.trim() || busy) return
-    setBusy(true)
-    const g = await onCreate(name)
-    setBusy(false)
-    if (g) {
-      setName('')
-      setOpen(false)
-    }
-  }
-
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="flex h-9 items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      >
-        <Plus size={13} /> {t('datasources.groups.new')}
-      </button>
-    )
-  }
-  return (
-    <div className="flex items-center gap-1.5">
-      <Input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && void submit()}
-        placeholder={t('datasources.groups.namePlaceholder')}
-        className="h-9 w-44"
-        autoFocus
-      />
-      <Button size="sm" onClick={() => void submit()} disabled={busy || !name.trim()}>
-        {busy ? '…' : t('datasources.groups.create')}
-      </Button>
-      <button
-        onClick={() => { setOpen(false); setName('') }}
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-      >
-        <X size={14} />
-      </button>
     </div>
   )
 }

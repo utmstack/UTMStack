@@ -3418,15 +3418,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Поиск по имени…",
-      "allGroups": "Все группы",
       "list": "Список",
       "cards": "Карточки",
       "refresh": "Обновить"
-    },
-    "groups": {
-      "new": "Новая группа",
-      "namePlaceholder": "Название группы",
-      "create": "Создать"
     },
     "labels": {
       "filteredBy": "Фильтр по label",
@@ -3462,7 +3456,6 @@
       "loadFailed": "Не удалось загрузить источник данных.",
       "statsIdentity": "Статистика и идентификация",
       "metadata": "Метаданные",
-      "group": "Группа",
       "labelsSection": "Labels",
       "dangerZone": "Опасная зона",
       "rows": {
@@ -3474,7 +3467,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "Без группы",
       "dangerText": "Удаление убирает источник из реестра. Исторические события остаются доступны в Log Explorer; если источник продолжит присылать данные, он будет обнаружен заново.",
       "delete": "Удалить источник",
       "confirmDelete": "Подтвердить удаление",
@@ -3487,12 +3479,8 @@
     "toast": {
       "labelsUpdated": "Labels обновлены",
       "labelsFailed": "Не удалось обновить labels",
-      "groupUpdated": "Группа обновлена",
-      "groupFailed": "Не удалось обновить группу",
       "deleted": "Источник удалён",
-      "deleteFailed": "Не удалось удалить",
-      "groupCreated": "Группа создана",
-      "groupCreateFailed": "Не удалось создать группу"
+      "deleteFailed": "Не удалось удалить"
     },
     "sensitivity": {
       "section": "Чувствительность актива",

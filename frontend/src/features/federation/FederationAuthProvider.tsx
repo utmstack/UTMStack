@@ -12,20 +12,32 @@ import { federationAuthService } from './services/federation-auth.service'
 import type { FederationUser } from './types'
 
 // Map the FS user onto the instance User shape so the shared shell (Topbar,
-// ProtectedRoute, etc.) works unchanged.
+// ProtectedRoute, etc.) works unchanged. The FS still models a person as a
+// login plus a first/last name; the instance moved to one display name, so the
+// two are joined here and split again on the way back out.
 function toUser(fu: FederationUser): User {
+  const name = [fu.firstName, fu.lastName].filter(Boolean).join(' ')
   return {
-    id: fu.id,
-    login: fu.login,
-    email: fu.email,
-    first_name: fu.firstName,
-    last_name: fu.lastName,
+    id: String(fu.id),
+    email: fu.email ?? '',
+    name: name || fu.login,
+    status: 'active',
     image_url: fu.imageUrl,
     lang_key: fu.langKey,
-    activated: true,
-    tfa_enabled: fu.tfaEnabled,
-    tfa_type: fu.tfaMethod,
+    // The FS authenticates against its own user table and offers a password
+    // change, so the account is never federated in the instance's sense.
+    federated: false,
+    tfa_enabled: fu.tfaEnabled ?? false,
   }
+}
+
+// splitName undoes the join above. Everything after the first space is the last
+// name, so a multi-word surname survives the round trip.
+function splitName(name?: string): { firstName?: string; lastName?: string } {
+  if (!name) return {}
+  const at = name.indexOf(' ')
+  if (at < 0) return { firstName: name }
+  return { firstName: name.slice(0, at), lastName: name.slice(at + 1) }
 }
 
 // Stash the FS token pair from a (possibly 2FA-gated) login response.
@@ -127,6 +139,12 @@ export function FederationAuthProvider({ children }: { children: ReactNode }) {
       roles: ['FS_ADMIN'],
       permissions: [],
       isAdmin: true,
+      // An FS admin administers instances, not the platform inside one. False
+      // is also the safe direction: the platform-only routes stay closed rather
+      // than opening on a guess.
+      isPlatformAdmin: false,
+      // An FS session belongs to no tenant — it is outside any single instance.
+      tenantId: undefined,
       hasPermission: () => true,
       login,
       verifyTfaCode,
@@ -142,8 +160,7 @@ export function FederationAuthProvider({ children }: { children: ReactNode }) {
       },
       updateMe: async (input) => {
         const fu = await federationAuthService.updateMe({
-          firstName: input.first_name,
-          lastName: input.last_name,
+          ...splitName(input.name),
           email: input.email,
           langKey: input.lang_key,
         })
@@ -156,6 +173,10 @@ export function FederationAuthProvider({ children }: { children: ReactNode }) {
       removeAvatar: async () => {
         setUser(toUser(await federationAuthService.removeAvatar()))
       },
+      // adoptSession takes the token an instance SSO round trip hands back.
+      // The FS has its own login and never makes that round trip, so there is
+      // no session to adopt here.
+      adoptSession: async () => {},
       refreshUser,
     }),
     [user, isLoading, login, verifyTfaCode, logout, refreshUser],

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/modules/datasources/domain"
 	"github.com/utmstack/utmstack/backend/modules/datasources/dto"
@@ -13,17 +15,29 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
+var defaultTenant = uuid.MustParse(authz.DefaultTenantID)
+
 type datasourceUsecase struct {
 	repo      connectors.DatasourceRepository
-	groups    connectors.AssetGroupRepository // nil means UpdateGroup skips cross-tenant validation
-	projector connectors.AssetProjector       // may be nil (projection disabled)
+	projector connectors.AssetProjector // may be nil (projection disabled)
+	notifier  Notifier                  // nil → project inline
 }
 
-func NewDatasourceUsecase(repo connectors.DatasourceRepository, groups connectors.AssetGroupRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
-	return &datasourceUsecase{repo: repo, groups: groups, projector: projector}
+func NewDatasourceUsecase(repo connectors.DatasourceRepository, projector connectors.AssetProjector) connectors.DatasourceUsecase {
+	return &datasourceUsecase{repo: repo, projector: projector}
 }
 
-func (u *datasourceUsecase) GetByID(ctx context.Context, id uint64) (*dto.DatasourceDTO, error) {
+func (u *datasourceUsecase) SetAssetNotifier(n Notifier) { u.notifier = n }
+
+func (u *datasourceUsecase) assetsChanged(ctx context.Context) error {
+	if u.notifier != nil {
+		u.notifier.Notify()
+		return nil
+	}
+	return u.ProjectAssets(ctx)
+}
+
+func (u *datasourceUsecase) GetByID(ctx context.Context, id uuid.UUID) (*dto.DatasourceDTO, error) {
 	d, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -49,9 +63,6 @@ func (u *datasourceUsecase) Count(ctx context.Context) (int64, error) {
 	return u.repo.Count(ctx)
 }
 
-// Ping is a batch that spans tenants: one agent-manager serves every tenant's
-// agents. The tenant therefore travels per entry, and the write runs unscoped so
-// the callback does not collapse the batch onto one of them.
 func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error {
 	now := time.Now().UTC()
 	items := make([]domain.Datasource, 0, len(req.Datasources))
@@ -62,7 +73,6 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 		}
 		items = append(items, domain.Datasource{
 			TenantID:     tenantOf(ctx, e.TenantID),
-			SourceRef:    e.SourceRef,
 			Name:         e.Name,
 			DataType:     e.DataType,
 			SourceKind:   e.SourceKind,
@@ -76,23 +86,19 @@ func (u *datasourceUsecase) Ping(ctx context.Context, req dto.PingRequest) error
 	return u.repo.UpsertBatch(tenancy.WithAllTenants(ctx), items)
 }
 
-// tenantOf resolves the tenant a batch entry belongs to: what the caller said,
-// then the caller's own, then the default. A caller that has not been taught to
-// send one keeps working on the single-tenant install it was written for.
-func tenantOf(ctx context.Context, entry string) string {
-	if entry != "" {
+func tenantOf(ctx context.Context, entry uuid.UUID) uuid.UUID {
+	if entry != uuid.Nil {
 		return entry
 	}
-	if t := authz.TenantIDFromContext(ctx); t != "" {
-		return t
+	if own, err := uuid.Parse(authz.TenantIDFromContext(ctx)); err == nil {
+		return own
 	}
-	return authz.DefaultTenantID
+	return defaultTenant
 }
 
 func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterRequest) error {
 	now := time.Now().UTC()
 	item := domain.Datasource{
-		SourceRef:    req.SourceRef,
 		Name:         req.Name,
 		DataType:     req.DataType,
 		SourceKind:   req.SourceKind,
@@ -104,65 +110,6 @@ func (u *datasourceUsecase) Register(ctx context.Context, req dto.RegisterReques
 	return u.repo.RegisterBatch(ctx, []domain.Datasource{item})
 }
 
-// Enrichment feeds the alert plugin cache, which needs every tenant's rows
-// (each carries its own TenantID). Scoped to the caller's tenant it would
-// return only their slice and quietly drop the rest.
-func (u *datasourceUsecase) Enrichment(ctx context.Context) ([]dto.DatasourceEnrichment, error) {
-	rows, err := u.repo.EnrichmentRows(tenancy.WithAllTenantsRead(ctx))
-	if err != nil {
-		return nil, err
-	}
-	out := make([]dto.DatasourceEnrichment, 0, len(rows))
-	for i := range rows {
-		d := &rows[i]
-		e := dto.DatasourceEnrichment{
-			TenantID: d.TenantID,
-			Name:     d.Name,
-			DataType: d.DataType,
-			GroupID:  d.GroupID,
-			Labels:   splitLabels(d.Labels),
-		}
-		if d.Group != nil {
-			e.GroupName = d.Group.GroupName
-		}
-		out = append(out, e)
-	}
-	return out, nil
-}
-
-// splitLabels turns the stored comma-separated labels into a trimmed slice.
-func splitLabels(labels string) []string {
-	if strings.TrimSpace(labels) == "" {
-		return nil
-	}
-	parts := strings.Split(labels, ",")
-	out := make([]string, 0, len(parts))
-	for _, p := range parts {
-		if t := strings.TrimSpace(p); t != "" {
-			out = append(out, t)
-		}
-	}
-	return out
-}
-
-func (u *datasourceUsecase) UpdateGroup(ctx context.Context, req dto.UpdateGroupRequest) error {
-	// Cross-tenant guard: the datasource update itself is scoped by the tenancy
-	// callback, but the group_id is a raw uint64 from the client — nothing stops
-	// tenant A from pointing their datasources at tenant B's group. The group
-	// lookup is tenant-scoped by the same callback, so a miss means it either
-	// does not exist or belongs to someone else.
-	if req.GroupID != nil && u.groups != nil {
-		g, err := u.groups.FindByID(ctx, *req.GroupID)
-		if err != nil {
-			return err
-		}
-		if g == nil {
-			return domain.ErrNotFound
-		}
-	}
-	return u.repo.UpdateGroup(ctx, req.IDs, req.GroupID)
-}
-
 func (u *datasourceUsecase) UpdateLabels(ctx context.Context, req dto.UpdateLabelsRequest) error {
 	return u.repo.UpdateLabels(ctx, req.ID, req.Labels)
 }
@@ -172,21 +119,17 @@ func (u *datasourceUsecase) UpdateSensitivity(ctx context.Context, req dto.Updat
 		clampCIA(req.AssetConfidentiality), clampCIA(req.AssetIntegrity), clampCIA(req.AssetAvailability)); err != nil {
 		return err
 	}
-	return u.ProjectAssets(ctx)
+	return u.assetsChanged(ctx)
 }
 
-func (u *datasourceUsecase) Delete(ctx context.Context, id uint64) error {
+func (u *datasourceUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := u.repo.Delete(ctx, id); err != nil {
 		return err
 	}
 	// The deleted datasource may have carried CIA — rebuild the asset set.
-	return u.ProjectAssets(ctx)
+	return u.assetsChanged(ctx)
 }
 
-// ProjectAssets rebuilds tenants.yaml from every datasource with non-zero CIA.
-// The read spans tenants because the projector writes one shared file: scoped
-// to the caller's tenant, an UpdateSensitivity or Delete on tenant A would
-// rewrite the file with only A's assets and wipe every other tenant's.
 func (u *datasourceUsecase) ProjectAssets(ctx context.Context) error {
 	if u.projector == nil {
 		return nil
@@ -199,6 +142,7 @@ func (u *datasourceUsecase) ProjectAssets(ctx context.Context) error {
 	for i := range rows {
 		d := &rows[i]
 		a := common_models.AssetSensitivity{
+			TenantID:        d.TenantID.String(),
 			Name:            d.Name,
 			Hostnames:       []string{d.Name},
 			Confidentiality: d.AssetConfidentiality,

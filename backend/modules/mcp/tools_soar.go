@@ -237,8 +237,8 @@ func registerSOARVariables(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.variable.create", Title: "Create incident variable",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, actor *authz.Actor, in soarVariableCreateInput) (any, error) {
-			return uc.Create(dto.CreateVariableRequest{
+		func(ctx context.Context, actor *authz.Actor, in soarVariableCreateInput) (any, error) {
+			return uc.Create(ctx, dto.CreateVariableRequest{
 				VariableName: in.Name, VariableDescription: in.Description, VariableValue: in.Value, IsSecret: in.IsSecret,
 			}, actor.Email)
 		})
@@ -246,8 +246,8 @@ func registerSOARVariables(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.variable.update", Title: "Update incident variable",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, actor *authz.Actor, in soarVariableUpdateInput) (any, error) {
-			return uc.Update(dto.UpdateVariableRequest{
+		func(ctx context.Context, actor *authz.Actor, in soarVariableUpdateInput) (any, error) {
+			return uc.Update(ctx, dto.UpdateVariableRequest{
 				ID: in.ID, VariableName: in.Name, VariableDescription: in.Description, VariableValue: in.Value, IsSecret: in.IsSecret,
 			}, actor.Email)
 		})
@@ -256,16 +256,16 @@ func registerSOARVariables(m *Module) {
 		Name: "soar.variable.get", Title: "Get incident variable",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			return uc.FindByID(in.ID)
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			return uc.FindByID(ctx, in.ID)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "soar.variable.list", Title: "List incident variables",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in soarVariableListInput) (any, error) {
-			items, total, err := uc.FindAll(dto.VariableFilter{
+		func(ctx context.Context, _ *authz.Actor, in soarVariableListInput) (any, error) {
+			items, total, err := uc.FindAll(ctx, dto.VariableFilter{
 				VariableName: in.Name,
 				Params:       database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			})
@@ -278,8 +278,8 @@ func registerSOARVariables(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.variable.delete", Title: "Delete incident variable",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			if err := uc.Delete(in.ID); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			if err := uc.Delete(ctx, in.ID); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil
@@ -319,8 +319,8 @@ func registerSOARActions(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action.create", Title: "Create incident action",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, actor *authz.Actor, in soarActionCreateInput) (any, error) {
-			return uc.Create(dto.CreateActionRequest{
+		func(ctx context.Context, actor *authz.Actor, in soarActionCreateInput) (any, error) {
+			return uc.Create(ctx, dto.CreateActionRequest{
 				ActionCommand: in.ActionCommand, ActionDescription: in.ActionDescription,
 				ActionParams: in.ActionParams, ActionType: in.ActionType, ActionEditable: in.ActionEditable,
 			}, actor.Email)
@@ -329,8 +329,8 @@ func registerSOARActions(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action.update", Title: "Update incident action",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, actor *authz.Actor, in soarActionUpdateInput) (any, error) {
-			return uc.Update(dto.UpdateActionRequest{
+		func(ctx context.Context, actor *authz.Actor, in soarActionUpdateInput) (any, error) {
+			return uc.Update(ctx, dto.UpdateActionRequest{
 				ID: in.ID, ActionCommand: in.ActionCommand, ActionDescription: in.ActionDescription,
 				ActionParams: in.ActionParams, ActionType: in.ActionType, ActionEditable: in.ActionEditable,
 			}, actor.Email)
@@ -340,16 +340,16 @@ func registerSOARActions(m *Module) {
 		Name: "soar.action.get", Title: "Get incident action",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			return uc.FindByID(in.ID)
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			return uc.FindByID(ctx, in.ID)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "soar.action.list", Title: "List incident actions",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in soarActionListInput) (any, error) {
-			items, total, err := uc.FindAll(dto.ActionFilter{
+		func(ctx context.Context, _ *authz.Actor, in soarActionListInput) (any, error) {
+			items, total, err := uc.FindAll(ctx, dto.ActionFilter{
 				ActionCommand: in.ActionCommand, ActionType: in.ActionType, ActionEditable: in.ActionEditable,
 				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			})
@@ -362,8 +362,8 @@ func registerSOARActions(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action.delete", Title: "Delete incident action",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			if err := uc.Delete(in.ID); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			if err := uc.Delete(ctx, in.ID); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil
@@ -397,8 +397,8 @@ func registerSOARActionCommands(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action_command.create", Title: "Create action command",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in soarActionCommandCreateInput) (any, error) {
-			return uc.Create(dto.CreateActionCommandRequest{
+		func(ctx context.Context, _ *authz.Actor, in soarActionCommandCreateInput) (any, error) {
+			return uc.Create(ctx, dto.CreateActionCommandRequest{
 				ActionID: in.ActionID, OsPlatform: in.OsPlatform, Command: in.Command,
 			})
 		})
@@ -406,8 +406,8 @@ func registerSOARActionCommands(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action_command.update", Title: "Update action command",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in soarActionCommandUpdateInput) (any, error) {
-			return uc.Update(dto.UpdateActionCommandRequest{
+		func(ctx context.Context, _ *authz.Actor, in soarActionCommandUpdateInput) (any, error) {
+			return uc.Update(ctx, dto.UpdateActionCommandRequest{
 				ID: in.ID, ActionID: in.ActionID, OsPlatform: in.OsPlatform, Command: in.Command,
 			})
 		})
@@ -416,16 +416,16 @@ func registerSOARActionCommands(m *Module) {
 		Name: "soar.action_command.get", Title: "Get action command",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			return uc.FindByID(in.ID)
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			return uc.FindByID(ctx, in.ID)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "soar.action_command.list", Title: "List action commands",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in soarActionCommandListInput) (any, error) {
-			items, total, err := uc.FindAll(dto.ActionCommandFilter{
+		func(ctx context.Context, _ *authz.Actor, in soarActionCommandListInput) (any, error) {
+			items, total, err := uc.FindAll(ctx, dto.ActionCommandFilter{
 				ActionID: in.ActionID, OsPlatform: in.OsPlatform, Command: in.Command,
 				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			})
@@ -438,8 +438,8 @@ func registerSOARActionCommands(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.action_command.delete", Title: "Delete action command",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			if err := uc.Delete(in.ID); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			if err := uc.Delete(ctx, in.ID); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil
@@ -474,8 +474,8 @@ func registerSOARJobs(m *Module) {
 		Description: "Schedules an action command for execution on a target agent. DESTRUCTIVE: triggers a real command.",
 		Annotations: &mcp.ToolAnnotations{},
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, actor *authz.Actor, in soarJobCreateInput) (any, error) {
-			return uc.Create(dto.CreateJobRequest{
+		func(ctx context.Context, actor *authz.Actor, in soarJobCreateInput) (any, error) {
+			return uc.Create(ctx, dto.CreateJobRequest{
 				ActionID: in.ActionID, Params: in.Params, Agent: in.Agent, Status: in.Status,
 				OriginID: in.OriginID, OriginType: in.OriginType,
 			}, actor.Email)
@@ -485,16 +485,16 @@ func registerSOARJobs(m *Module) {
 		Name: "soar.job.get", Title: "Get SOAR job",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			return uc.FindByID(in.ID)
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			return uc.FindByID(ctx, in.ID)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "soar.job.list", Title: "List SOAR jobs",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in soarJobListInput) (any, error) {
-			items, total, err := uc.FindAll(dto.JobFilter{
+		func(ctx context.Context, _ *authz.Actor, in soarJobListInput) (any, error) {
+			items, total, err := uc.FindAll(ctx, dto.JobFilter{
 				ActionID: in.ActionID, Agent: in.Agent, Status: in.Status,
 				OriginID: in.OriginID, OriginType: in.OriginType,
 				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
@@ -509,8 +509,8 @@ func registerSOARJobs(m *Module) {
 		Name: "soar.job.count", Title: "Count SOAR jobs",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
-		func(_ context.Context, _ *authz.Actor, in soarJobListInput) (any, error) {
-			c, err := uc.Count(dto.JobFilter{
+		func(ctx context.Context, _ *authz.Actor, in soarJobListInput) (any, error) {
+			c, err := uc.Count(ctx, dto.JobFilter{
 				ActionID: in.ActionID, Agent: in.Agent, Status: in.Status,
 				OriginID: in.OriginID, OriginType: in.OriginType,
 			})
@@ -523,8 +523,8 @@ func registerSOARJobs(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "soar.job.delete", Title: "Delete SOAR job",
 	}, Gate{Permission: "soar.write"},
-		func(_ context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
-			if err := uc.Delete(in.ID); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in idInt64Input) (any, error) {
+			if err := uc.Delete(ctx, in.ID); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil

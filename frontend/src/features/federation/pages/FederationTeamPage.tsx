@@ -98,7 +98,7 @@ export function FederationTeamPage() {
               <MemberRow
                 key={u.id}
                 user={u}
-                isMe={me?.id === u.id}
+                isMe={me?.id === String(u.id)}
                 busy={busyId === u.id}
                 onResend={() =>
                   act(u.id, () => federationTeamService.resendInvite(u.id), 'Invitation resent')

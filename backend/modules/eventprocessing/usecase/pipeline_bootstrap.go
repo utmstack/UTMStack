@@ -1,25 +1,20 @@
 package usecase
 
-import (
-	"context"
+import "context"
 
-	"gorm.io/gorm"
-)
-
-// PipelineBootstrap migrates utm_tenant_config and utm_regex_pattern from the
-// the pipeline YAML the event processor reads.
+// PipelineBootstrap writes the pipeline files the event processor needs before
+// it can parse anything. It used to migrate them out of utm_regex_pattern and
+// utm_tenant_config; both are gone, so what it ships now is baked in.
 type PipelineBootstrap struct {
 	writer *pipelineWriter
-	db     *gorm.DB
 }
 
-func NewPipelineBootstrap(writer *pipelineWriter, db *gorm.DB) *PipelineBootstrap {
-	return &PipelineBootstrap{writer: writer, db: db}
+func NewPipelineBootstrap(writer *pipelineWriter) *PipelineBootstrap {
+	return &PipelineBootstrap{writer: writer}
 }
 
-// Run is idempotent and safe to call on every boot.
 // Run writes the named patterns the filter engine resolves {{.patternName}}
-// against. They are baked in rather than stored, so this is a plain write.
+// against. Idempotent, and safe to call on every boot.
 func (b *PipelineBootstrap) Run(ctx context.Context) error {
 	patterns := make(map[string]string, len(systemPatterns))
 	for k, v := range systemPatterns {
@@ -28,10 +23,8 @@ func (b *PipelineBootstrap) Run(ctx context.Context) error {
 	return b.writer.WritePatterns(patterns)
 }
 
-// systemPatterns are the 26 canonical named patterns the filter engine uses as
-// {{.patternName}} references. Previously seeded into utm_regex_pattern; now
-// baked into the bootstrap so the patterns.yaml always contains them even on a
-// fresh install (no DB table needed).
+// systemPatterns are the canonical named patterns the filter engine resolves
+// {{.patternName}} against.
 var systemPatterns = map[string]string{
 	"ciscoMacAddr":    `(?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})`,
 	"syslogDate":      `[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}`,

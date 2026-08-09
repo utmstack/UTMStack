@@ -26,8 +26,6 @@ func writeCorrelationError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required on update"})
 	case errors.Is(err, domain.ErrRegexPatternNotFound):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "regex pattern not found"})
-	case errors.Is(err, domain.ErrTenantConfigNotFound):
-		c.JSON(http.StatusBadRequest, gin.H{"error": "tenant config not found"})
 	case errors.Is(err, domain.ErrCorrelationRuleNotFound):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "correlation rule not found"})
 	case errors.Is(err, domain.ErrCorrelationRuleSystemOwner):
@@ -45,8 +43,7 @@ func writeCorrelationError(c *gin.Context, err error) {
 }
 
 func isNotFound(err error) bool {
-	return errors.Is(err, domain.ErrTenantConfigNotFound) ||
-		errors.Is(err, domain.ErrRegexPatternNotFound) ||
+	return errors.Is(err, domain.ErrRegexPatternNotFound) ||
 		errors.Is(err, domain.ErrCorrelationRuleNotFound)
 }
 

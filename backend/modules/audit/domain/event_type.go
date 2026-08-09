@@ -182,8 +182,6 @@ const (
 	// Datasources: curation of a datasource (group assignment, labels, delete) and
 	// CRUD of the datasource-group entity. Registration/liveness (ping) is internal
 	// and not audited.
-	DATASOURCE_GROUP_ASSIGN_ATTEMPT       ApplicationEventType = "DATASOURCE_GROUP_ASSIGN_ATTEMPT"
-	DATASOURCE_GROUP_ASSIGN_SUCCESS       ApplicationEventType = "DATASOURCE_GROUP_ASSIGN_SUCCESS"
 	DATASOURCE_LABELS_UPDATE_ATTEMPT      ApplicationEventType = "DATASOURCE_LABELS_UPDATE_ATTEMPT"
 	DATASOURCE_LABELS_UPDATE_SUCCESS      ApplicationEventType = "DATASOURCE_LABELS_UPDATE_SUCCESS"
 	DATASOURCE_SENSITIVITY_UPDATE_ATTEMPT ApplicationEventType = "DATASOURCE_SENSITIVITY_UPDATE_ATTEMPT"

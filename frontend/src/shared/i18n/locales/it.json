@@ -3655,15 +3655,9 @@
     },
     "toolbar": {
       "searchPlaceholder": "Cerca per nome…",
-      "allGroups": "Tutti i gruppi",
       "list": "Elenco",
       "cards": "Schede",
       "refresh": "Aggiorna"
-    },
-    "groups": {
-      "new": "Nuovo gruppo",
-      "namePlaceholder": "Nome del gruppo",
-      "create": "Crea"
     },
     "labels": {
       "filteredBy": "Filtrato per label",
@@ -3699,7 +3693,6 @@
       "loadFailed": "Impossibile caricare l'origine dati.",
       "statsIdentity": "Statistiche e identità",
       "metadata": "Metadati",
-      "group": "Gruppo",
       "labelsSection": "Labels",
       "dangerZone": "Zona pericolosa",
       "rows": {
@@ -3711,7 +3704,6 @@
         "ip": "IP",
         "id": "ID"
       },
-      "noGroup": "Nessun gruppo",
       "dangerText": "L'eliminazione rimuove questa origine dal registro. Gli eventi storici restano consultabili nel Log Explorer; se l'origine continua a inviare dati, verrà riscoperta.",
       "delete": "Elimina origine",
       "confirmDelete": "Conferma eliminazione",
@@ -3724,12 +3716,8 @@
     "toast": {
       "labelsUpdated": "Labels aggiornati",
       "labelsFailed": "Impossibile aggiornare i labels",
-      "groupUpdated": "Gruppo aggiornato",
-      "groupFailed": "Impossibile aggiornare il gruppo",
       "deleted": "Origine eliminata",
-      "deleteFailed": "Eliminazione non riuscita",
-      "groupCreated": "Gruppo creato",
-      "groupCreateFailed": "Impossibile creare il gruppo"
+      "deleteFailed": "Eliminazione non riuscita"
     },
     "sensitivity": {
       "section": "Sensibilità dell'asset",

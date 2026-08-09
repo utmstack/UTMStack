@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/alerts
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.27-0.20260804160110-0dab0e82abf5
+	github.com/threatwinds/go-sdk v1.1.27-0.20260808112451-a0c815800e09
 	github.com/tidwall/gjson v1.19.0
 	google.golang.org/protobuf v1.36.11
 )
@@ -67,5 +67,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/threatwinds/go-sdk => /Users/yorjanderhernandez/code/threatwinds/go-sdk

@@ -2,15 +2,9 @@
 
 export type SourceKind = 'agent' | 'puller' | 'direct'
 
-export interface AssetGroupRef {
-  id: number
-  groupName: string
-  groupDescription?: string
-}
-
 /** GET /datasources item / GET /datasources/:id */
 export interface Datasource {
-  id: number
+  id: string // uuid
   name: string
   dataType?: string
   ip?: string
@@ -21,7 +15,6 @@ export interface Datasource {
   assetConfidentiality?: number
   assetIntegrity?: number
   assetAvailability?: number
-  group?: AssetGroupRef
   discoveredAt?: string
   modifiedAt?: string
   lastPingAt?: string // liveness; status is derived from its staleness
@@ -39,16 +32,6 @@ export interface ListResponse<T> {
 /** GET /datasources/count */
 export interface DatasourceCount {
   count: number
-}
-
-/** GET /datasource-groups item */
-export interface AssetGroup {
-  id: number
-  groupName: string
-  groupDescription?: string
-  createdDate?: string
-  assetsCount: number
-  metrics?: Record<string, number>
 }
 
 /** GET /eventprocessing/ingestion-stats (groupBy=dataSource) */

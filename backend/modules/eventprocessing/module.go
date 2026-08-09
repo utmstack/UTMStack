@@ -18,11 +18,10 @@ import (
 
 type Module struct {
 	regexPatternHandler    *handler.RegexPatternHandler
-	tenantConfigHandler    *handler.TenantConfigHandler
 	correlationRuleHandler *handler.CorrelationRuleHandler
 
 	regexPatternUsecase    connectors.RegexPatternUsecase
-	tenantConfigUsecase    connectors.TenantConfigUsecase
+	assetProjectionUsecase connectors.AssetProjectionUsecase
 	correlationRuleUsecase connectors.CorrelationRuleUsecase
 	filterUsecase          connectors.FilterUsecase
 	ingestionStatsUsecase  connectors.IngestionStatsUsecase
@@ -44,7 +43,7 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseU
 	// and on bootstrap (migration from DB).
 	pipelineDir := env.String(usecase.PipelineDirEnv, usecase.DefaultPipelineDir, false)
 	pipelineWriter := usecase.NewPipelineWriter(pipelineDir)
-	pipelineBootstrap := usecase.NewPipelineBootstrap(pipelineWriter, db)
+	pipelineBootstrap := usecase.NewPipelineBootstrap(pipelineWriter)
 
 	// Rule store — YAML-direct overlays.
 	rulesRoot := env.String(usecase.RulesDirEnv, usecase.DefaultRulesDir, false)
@@ -66,7 +65,7 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseU
 	filterBootstrap := usecase.NewFilterBootstrap(usecase.SystemFiltersSrcDir, filterStore, db)
 
 	regexPatternUC := usecase.NewRegexPatternUsecase(pipelineWriter)
-	tenantConfigUC := usecase.NewTenantConfigUsecase(pipelineWriter)
+	assetProjectionUC := usecase.NewAssetProjection(pipelineWriter)
 	correlationRuleUC := usecase.NewCorrelationRuleUsecase(ruleStore)
 	filterUC := usecase.NewFilterUsecase(filterStore)
 
@@ -80,10 +79,9 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseU
 
 	return &Module{
 		regexPatternHandler:    handler.NewRegexPatternHandler(regexPatternUC),
-		tenantConfigHandler:    handler.NewTenantConfigHandler(tenantConfigUC),
 		correlationRuleHandler: handler.NewCorrelationRuleHandler(correlationRuleUC),
 		regexPatternUsecase:    regexPatternUC,
-		tenantConfigUsecase:    tenantConfigUC,
+		assetProjectionUsecase: assetProjectionUC,
 		correlationRuleUsecase: correlationRuleUC,
 		filterUsecase:          filterUC,
 		ingestionStatsUsecase:  ingestionStatsUC,
@@ -115,7 +113,6 @@ func (m *Module) Start(ctx context.Context) {
 }
 
 func (m *Module) GetRegexPatternHandler() *handler.RegexPatternHandler { return m.regexPatternHandler }
-func (m *Module) GetTenantConfigHandler() *handler.TenantConfigHandler { return m.tenantConfigHandler }
 func (m *Module) GetCorrelationRuleHandler() *handler.CorrelationRuleHandler {
 	return m.correlationRuleHandler
 }
@@ -127,8 +124,8 @@ func (m *Module) GetIngestionStatsHandler() *handler.IngestionStatsHandler {
 func (m *Module) GetRegexPatternUsecase() connectors.RegexPatternUsecase {
 	return m.regexPatternUsecase
 }
-func (m *Module) GetTenantConfigUsecase() connectors.TenantConfigUsecase {
-	return m.tenantConfigUsecase
+func (m *Module) GetAssetProjectionUsecase() connectors.AssetProjectionUsecase {
+	return m.assetProjectionUsecase
 }
 func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 	return m.correlationRuleUsecase

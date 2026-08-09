@@ -94,7 +94,7 @@ export function InstancePickerPage() {
         <div className="fs-fade-up flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Welcome back{user?.login ? `, ${user.login}` : ''}
+              Welcome back{user?.name ? `, ${user.name}` : ''}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Select an instance to manage, or connect a new one.
