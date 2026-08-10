@@ -1,4 +1,4 @@
-# Bitdefender GravityZone filter, version 3.0.2
+# Bitdefender GravityZone filter, version 3.1.0
 # Based on https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
 # and the previous version of the same filter
 
@@ -128,7 +128,8 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.restData
 
-      # Using grok to parse kv issued fields with space
+      # ---- CEF-aware extraction of space-bearing extension values ----
+
       - grok:
           patterns:
             - fieldName: log.2trash
@@ -141,6 +142,23 @@ pipeline:
 
       - grok:
           patterns:
+            - fieldName: log.dvcFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.dvcToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}dvc='
+            - fieldName: log.dvcFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.dvcFull")'
+
+      - grok:
+          patterns:
             - fieldName: log.2trash
               pattern: '{{.data}}request='
             - fieldName: log.requestToParse
@@ -149,24 +167,239 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.restData
 
-      # Applying grok to remove unnecessary data
       - grok:
           patterns:
-            - fieldName: log.deviceIps
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.dvcToParse
-
-      - grok:
-          patterns:
-            - fieldName: log.requested
+            - fieldName: log.requestFull
               pattern: '{{.greedy}}{{.space}}'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.requestToParse
 
-      # Using the kv filter with default config, usefull in key-value logs
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}request='
+            - fieldName: log.requestFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.requestFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}act='
+            - fieldName: log.actToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.actFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.actToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}act='
+            - fieldName: log.actFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.actFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}sproc='
+            - fieldName: log.sprocToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.sprocFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.sprocToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}sproc='
+            - fieldName: log.sprocFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.sprocFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}filePath='
+            - fieldName: log.filePathToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.filePathFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.filePathToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}filePath='
+            - fieldName: log.filePathFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.filePathFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZDetectionName='
+            - fieldName: log.BitdefenderGZDetectionNameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.BitdefenderGZDetectionNameFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.BitdefenderGZDetectionNameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZDetectionName='
+            - fieldName: log.BitdefenderGZDetectionNameFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.BitdefenderGZDetectionNameFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZAttackTypes='
+            - fieldName: log.BitdefenderGZAttackTypesToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.BitdefenderGZAttackTypesFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.BitdefenderGZAttackTypesToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZAttackTypes='
+            - fieldName: log.BitdefenderGZAttackTypesFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.BitdefenderGZAttackTypesFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}suser='
+            - fieldName: log.suserToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.suserFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.suserToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}suser='
+            - fieldName: log.suserFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.suserFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}fname='
+            - fieldName: log.fnameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.fnameFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.fnameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}fname='
+            - fieldName: log.fnameFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.fnameFull")'
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZMalwareName='
+            - fieldName: log.BitdefenderGZMalwareNameToParse
+              pattern: '{{.data}}{{.word}}\='
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.restData
+
+      - grok:
+          patterns:
+            - fieldName: log.BitdefenderGZMalwareNameFull
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.BitdefenderGZMalwareNameToParse
+
+      - grok:
+          patterns:
+            - fieldName: log.2trash
+              pattern: '{{.data}}BitdefenderGZMalwareName='
+            - fieldName: log.BitdefenderGZMalwareNameFull
+              pattern: '{{.greedy}}'
+          source: log.restData
+          where: '!exists("log.BitdefenderGZMalwareNameFull")'
+
       - kv:
           fieldSplit: " "
           valueSplit: "="
@@ -181,12 +414,13 @@ pipeline:
       - rename:
           from:
             - log.src
-          to: origin.ip
+          to: target.ip
 
       - rename:
           from:
-            - log.deviceIps
-          to: origin.ip
+            - log.dvcFull
+          to: target.ip
+          where: '!exists("target.ip")'
 
       - rename:
           from:
@@ -195,18 +429,29 @@ pipeline:
 
       - rename:
           from:
-            - log.sproc
+            - log.sprocFull
+          to: target.process
+
+      - rename:
+          from:
+            - log.filePathFull
           to: target.path
 
       - rename:
           from:
-            - log.filePath
-          to: origin.path
+            - log.actFull
+            - log.BitdefenderGZMainAction
+          to: action
 
       - rename:
           from:
-            - log.act
-          to: action
+            - log.BitdefenderGZDetectionNameFull
+          to: log.BitdefenderGZDetectionName
+
+      - rename:
+          from:
+            - log.BitdefenderGZAttackTypesFull
+          to: log.BitdefenderGZAttackTypes
 
       # Removing unnecessary characters
       - trim:
@@ -250,6 +495,89 @@ pipeline:
           fields:
             - log.processPid
 
+      - rename:
+          from:
+            - log.start
+            - log.end
+            - log.BitdefenderGZDetectionTime
+          to: deviceTime
+
+      - rename:
+          from:
+            - log.severity
+          to: severity
+
+      - rename:
+          from:
+            - log.BitdefenderGZComputerFQDN
+          to: target.domain
+
+      - rename:
+          from:
+            - log.suserFull
+          to: target.user
+
+      - rename:
+          from:
+            - log.BitdefenderGZMalwareNameFull
+          to: target.malware
+
+      - rename:
+          from:
+            - log.BitdefenderGZMalwareType
+          to: target.malwareType
+
+      - rename:
+          from:
+            - log.BitdefenderGZMalwareHash
+            - log.BitdefenderGZFileHashSha256
+          to: target.sha256
+
+      - rename:
+          from:
+            - log.fileHash
+          to: target.md5
+
+      - rename:
+          from:
+            - log.fnameFull
+          to: target.filename
+
+      - rename:
+          from:
+            - log.requestFull
+          to: origin.url
+
+      - rename:
+          from:
+            - log.BitdefenderGZDetectionLocalPort
+          to: target.port
+
+      - rename:
+          from:
+            - log.BitdefenderGZDetectionAttackerIp
+          to: origin.ip
+
+      - rename:
+          from:
+            - log.BitdefenderGZEventSourceIP
+          to: origin.ip
+
+      # Adding actionResult field to indicate whether the action was successful or failed
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'oneOf("action", ["blocked", "block", "aph_blocked", "portscan_blocked", "deleted", "disinfected", "quarantined", "restored"])'
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'oneOf("action", ["still present", "ignored", "no action", "reportOnly"])'
+
       # Adding geolocation to origin ip
       - dynamic:
           plugin: com.utmstack.geolocation
@@ -262,21 +590,34 @@ pipeline:
       - cast:
           fields:
             - origin.port
+            - target.port
           to: int
 
-      # Removing unused fields
+      # Removing unused fields.
       - delete:
           fields:
             - log.0trash
             - log.1trash
             - log.2trash
+            - log.3trash
             - log.restData
             - log.irrelevant
-            - log.spt
-            - log.src
+            - log.cefVersion
+            - log.dvcFull
+            - log.dvcToParse
+            - log.requestToParse
+            - log.actToParse
+            - log.sprocToParse
+            - log.filePathToParse
+            - log.fnameToParse
+            - log.BitdefenderGZDetectionNameToParse
+            - log.BitdefenderGZMalwareNameToParse
+            - log.BitdefenderGZAttackTypesToParse
+            - log.suserToParse
+            - log.act
             - log.sproc
             - log.filePath
             - log.dvc
             - log.request
-            - log.dvcToParse
-            - log.cefVersion
+            - log.suser
+            - log.fname

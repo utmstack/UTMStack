@@ -689,14 +689,14 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
-          where: exists("log.subType") && equals("log.subType", "Denied")
+          where: exists("log.subType") && regexMatch("log.subType", "(?i)\bdenied\b")
 
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: exists("log.subType") && equals("log.subType", "Accepted") || equals("log.subType", "Allowed")
+          where: exists("log.subType") && oneOf("log.subType", ["Accepted", "Allowed"])
 
       # Renaming "log.statusCode" to "statusCode" to add it to the event structure
       - rename:

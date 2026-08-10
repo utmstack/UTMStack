@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/as400/updater
 go 1.25.5
 
 require (
-	github.com/kardianos/service v1.2.4
+	github.com/kardianos/service v1.3.0
 	github.com/threatwinds/go-sdk v1.1.26
 	github.com/threatwinds/logger v1.2.3
 	gopkg.in/yaml.v3 v3.0.1

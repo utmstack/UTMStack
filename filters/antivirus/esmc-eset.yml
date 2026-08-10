@@ -63,6 +63,7 @@ pipeline:
           from:
             - log.event
           to: actionResult
+          where: '!regexMatch("log.result", "(?i)\b(?:denied|blocked|failed)\b")'
       - rename:
           from:
             - log.sourceaddress
@@ -83,6 +84,28 @@ pipeline:
           from:
             - log.targetport
           to: target.port
+
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: regexMatch("log.event", "(?i)\bdenied\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: regexMatch("log.event", "(?i)\bblocked\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: regexMatch("log.event", "(?i)\bfailed\b")
       
       # Adding severity field based on log.severity
       - add:

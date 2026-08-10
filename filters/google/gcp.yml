@@ -483,8 +483,53 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)'
+
+      # Adding actionResult for Cloud DNS query logs (dns.googleapis.com).
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: '!exists("actionResult") && equals("log.jsonPayloadResponseCode", "NOERROR")'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: '!exists("actionResult") && equals("log.jsonPayloadResponseCode", "REFUSED")'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failed"
+          where: '!exists("actionResult") && exists("log.jsonPayloadResponseCode")'
+
+      # Adding actionResult for plain HTTP request logs (Cloud Run, Load
+      # Balancer, Cloud Functions, App Engine, etc.).
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("statusCode") && !exists("actionResult") && lessThan("statusCode", 400)'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'exists("statusCode") && !exists("actionResult") && oneOf("statusCode", [401, 403])'
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("statusCode") && !exists("actionResult") && greaterOrEqual("statusCode", 400)'
 
       # Adding geolocation to origin.ip
       - dynamic:

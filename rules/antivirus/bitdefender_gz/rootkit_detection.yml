@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Rootkit Detection
+name: Bitdefender GravityZone Rootkit Detected
 impact:
   confidentiality: 3
   integrity: 3
@@ -12,28 +12,28 @@ technique: "T1014 - Rootkit"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1014/
 description: |
-  Detects rootkit infections and kernel-level threats that attempt to hide malicious activity at the system level using Bitdefender GravityZone's advanced detection capabilities.
-  
+  Detects a rootkit or kernel-level threat that Bitdefender identified by name. Signal is a match on the vendor's own detection classification (log.BitdefenderGZDetectionName or target.malware) against known rootkit families - Rootkit, Trojan.Rootkit, TDSS, ZeroAccess, Necurs, Alureon, Rustock, Sinowal - from any antimalware engine (Antimalware, ATC, HyperDetect).
+
+  A rootkit detection means the vendor believes something is hiding at or below the OS layer. The running OS on the endpoint cannot be trusted to report accurately after a rootkit verdict, so investigation from within the endpoint is unreliable.
+
   Next Steps:
-  1. Immediately isolate the affected system from the network to prevent lateral movement
-  2. Capture a memory dump and disk image for forensic analysis
-  3. Check for signs of privilege escalation or kernel-level modifications
-  4. Review system logs for any suspicious driver installations or kernel module loading
-  5. Scan other systems in the same network segment for similar infections
-  6. Consider rebuilding the system from a known clean state as rootkits can be difficult to fully remove
-  7. Review how the rootkit was initially delivered (email attachment, exploit kit, etc.)
-  8. Update all security software and operating system patches
+  1. Isolate the endpoint before doing anything else. Rootkits control what other tools see; every second of network access is another opportunity for lateral movement or exfiltration from a position where forensic tools lie about the state.
+  2. Do not investigate from the running OS. Boot from external media for imaging and forensic capture.
+  3. Read the vendor's classification:
+     - log.BitdefenderGZDetectionName or target.malware names the family and aligns with public IOCs.
+     - log.BitdefenderGZMalwareType tells you whether it caught a file, a process (still resident), or a boot artefact.
+     - actionResult tells you whether Bitdefender removed it; rootkit removal from within the OS often fails and that is not the vendor's fault.
+  4. Check for privilege escalation and driver installation events on the same target.host in the preceding hours - rootkits normally arrive through an existing privilege escalation.
+  5. Reimage from trusted media. Do not try to disinfect a running rootkit-infected OS.
+  6. Hunt the estate for target.sha256, the family name, and any driver names identified during forensics. A rootkit is a targeted delivery; the same delivery vector likely touched other endpoints.
+  7. Rotate credentials that could have been captured while the rootkit was resident. Every credential the affected endpoint touched is potentially compromised.
 where: |
-  equals("log.eventType", "malware_detected") &&
-  oneOf("log.severity", ["high", "critical"]) &&
-  (
-    contains("log.restData", ["rootkit", "kernel", "tdss", "zeroaccess",
-      "necurs", "bootkit", "alureon", "rustock", "sinowal"]) ||
-    contains("log.requested", "rootkit") ||
-    equals("log.signatureID", "rootkit")
-  )
+  oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
+  (regexMatch("log.BitdefenderGZDetectionName", "(?i)(rootkit|tdss|zeroaccess|necurs|alureon|rustock|sinowal|trojan\\.rootkit)") ||
+   regexMatch("target.malware", "(?i)(rootkit|tdss|zeroaccess|necurs|alureon|rustock|sinowal|trojan\\.rootkit)"))
 groupBy:
-  - lastEvent.log.hostId
-  - lastEvent.log.signatureID
+  - target.host
+  - target.malware

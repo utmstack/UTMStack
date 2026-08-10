@@ -28,7 +28,7 @@ public class NotificationDTO {
     private NotificationType type;
 
     @NotEmpty
-    @Size(min = 5, max = 50)
+    @Size(min = 5, max = 500)
     private String message;
 
     private LocalDateTime createdAt;

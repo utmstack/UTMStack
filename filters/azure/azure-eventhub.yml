@@ -1,11 +1,13 @@
-# Azure Envent-Hub filter, version 2.0.6
-# 
+# Azure Event-Hub filter, version 2.0.7
+#
 # Documentations
 # 1- https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log
 # 2- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log-schema
+# 3- https://learn.microsoft.com/en-us/azure/event-grid/event-schema-subscriptions
+# 4- https://learn.microsoft.com/en-us/azure/event-grid/system-topics
+#
 pipeline:
-  - dataTypes:
-      - azure
+  - dataTypes: azure
     steps:
       - json:
           source: raw
@@ -797,21 +799,272 @@ pipeline:
           from:
             - log.properties.result
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.Properties.Result
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.properties.resultType
           to: actionResult
+          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
 
       - rename:
           from:
             - log.properties.userAgent
           to: log.propertiesUserAgent
+
+      # .......................................................................#
+      # ===== EVENT GRID SCHEMA =====                                            #
+      #                                                                          #
+      # Handles Azure Event Grid System Topic payloads (schema:                  #
+      # https://learn.microsoft.com/en-us/azure/event-grid/event-schema-subscriptions).
+      # .......................................................................#
+
+      - rename:
+          from:
+            - log.data.httpRequest.clientIpAddress
+            - log.data.claims.ipaddr
+          to: origin.ip
+          where: '!exists("origin.ip") && (exists("log.data.httpRequest.clientIpAddress") || exists("log.data.claims.ipaddr"))'
+
+      - rename:
+          from:
+            - log.data.httpRequest.url
+          to: target.url
+          where: '!exists("target.url") && exists("log.data.httpRequest.url")'
+
+      - rename:
+          from:
+            - log.data.httpRequest.method
+          to: log.propertiesRequestMethod
+          where: '!exists("log.propertiesRequestMethod") && exists("log.data.httpRequest.method")'
+
+      - rename:
+          from:
+            - log.data.claims.upn
+          to: origin.user
+          where: '!exists("origin.user") && exists("log.data.claims.upn")'
+
+      - rename:
+          from:
+            - log.data.claims.name
+          to: origin.user
+          where: '!exists("origin.user") && exists("log.data.claims.name")'
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.role
+          to: origin.group
+          where: '!exists("origin.group") && exists("log.data.authorization.evidence.role")'
+
+      - rename:
+          from:
+            - log.data.correlationId
+          to: log.correlationId
+          where: '!exists("log.correlationId") && exists("log.data.correlationId")'
+
+      - rename:
+          from:
+            - log.data.operationName
+          to: log.operationName
+          where: '!exists("log.operationName") && exists("log.data.operationName")'
+
+      - rename:
+          from:
+            - log.data.authorization.action
+          to: log.authorizationAction
+          where: exists("log.data.authorization.action")
+
+      - rename:
+          from:
+            - log.data.authorization.scope
+          to: log.authorizationScope
+          where: exists("log.data.authorization.scope")
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.principalId
+          to: log.principalId
+          where: exists("log.data.authorization.evidence.principalId")
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.principalType
+          to: log.principalType
+          where: exists("log.data.authorization.evidence.principalType")
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.roleAssignmentId
+          to: log.roleAssignmentId
+          where: exists("log.data.authorization.evidence.roleAssignmentId")
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.roleAssignmentScope
+          to: log.roleAssignmentScope
+          where: exists("log.data.authorization.evidence.roleAssignmentScope")
+
+      - rename:
+          from:
+            - log.data.authorization.evidence.roleDefinitionId
+          to: log.roleDefinitionId
+          where: exists("log.data.authorization.evidence.roleDefinitionId")
+
+      - rename:
+          from:
+            - log.data.resourceProvider
+          to: log.resourceProvider
+          where: exists("log.data.resourceProvider")
+
+      - rename:
+          from:
+            - log.data.resourceUri
+          to: log.resourceUri
+          where: exists("log.data.resourceUri")
+
+      - rename:
+          from:
+            - log.data.subscriptionId
+          to: log.subscriptionId
+          where: exists("log.data.subscriptionId")
+
+      - rename:
+          from:
+            - log.data.tenantId
+          to: log.aadTenantId
+          where: '!exists("log.aadTenantId") && exists("log.data.tenantId")'
+
+      - rename:
+          from:
+            - log.data.httpRequest.clientRequestId
+          to: log.clientRequestId
+          where: exists("log.data.httpRequest.clientRequestId")
+
+      - rename:
+          from:
+            - log.eventType
+          to: log.eventGridEventType
+          where: exists("log.eventType")
+
+      - rename:
+          from:
+            - log.subject
+          to: log.eventGridSubject
+          where: exists("log.subject")
+
+      - rename:
+          from:
+            - log.topic
+          to: log.eventGridTopic
+          where: exists("log.topic")
+
+      - rename:
+          from:
+            - log.dataVersion
+          to: log.eventGridDataVersion
+          where: exists("log.dataVersion")
+
+      - rename:
+          from:
+            - log.metadataVersion
+          to: log.eventGridMetadataVersion
+          where: exists("log.metadataVersion")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: '!exists("actionResult") && equalsIgnoreCase("log.data.status", "Succeeded")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: '!exists("actionResult") && equalsIgnoreCase("log.data.status", "Failed")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Success")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Failure")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Cancel")'
+
+      - add:
+          function: 'string'
+          params:
+            key: severity
+            value: 'medium'
+          where: '!exists("severity") && oneOf("actionResult", ["failed", "blocked"])'
+
+      - rename:
+          from:
+            - log.data.status
+          to: log.eventGridStatus
+          where: exists("log.data.status")
+
+      - delete:
+          fields:
+            - log.data.claims.aio
+            - log.data.claims.acrs
+            - log.data.claims.appidacr
+            - log.data.claims.aud
+            - log.data.claims.exp
+            - log.data.claims.iat
+            - log.data.claims.iss
+            - log.data.claims.nbf
+            - log.data.claims.puid
+            - log.data.claims.rh
+            - log.data.claims.uti
+            - log.data.claims.ver
+            - log.data.claims.xms_act_fct
+            - log.data.claims.xms_ftd
+            - log.data.claims.xms_idrel
+            - log.data.claims.xms_sub_fct
+            - log.data.claims.xms_tcdt
+
+      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: regexMatch("log.properties.result", "(?i)\bdenied\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: regexMatch("log.properties.result", "(?i)\bblocked\b")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: regexMatch("log.properties.result", "(?i)\bfailed\b")
 
       # .......................................................................#
       # Adding severity based on log.level
