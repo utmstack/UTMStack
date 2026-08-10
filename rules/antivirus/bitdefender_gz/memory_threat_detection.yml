@@ -1,37 +1,44 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Memory-Based Threat Detection
+name: Bitdefender GravityZone Memory Exploit Detected
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: Defense Evasion, Privilege Escalation
+category: Defense Evasion
 technique: "T1055 - Process Injection"
 adversary: origin
 references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1055/
-  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
 description: |
-  Detects memory-based threats including process injection, memory manipulation, and fileless malware executing in memory based on Bitdefender GravityZone event types.
-  
+  Detects an in-memory exploit or memory-manipulation threat caught by Bitdefender, from two independent signals:
+
+  - Advanced Anti-Exploit (antiexploit) module firing on any exploit technique. The vendor's per-event fields (detection_exploitTechnique, detection_pid, detection_path, detection_cve) name the vulnerability class targeted.
+  - HyperDetect (hd) with attack_type "exploits". HyperDetect's ML flags in-memory exploit chains that pass the on-disk scanners.
+
+  Memory exploitation implies that the attacker got code execution in an existing process. This is more severe than a file-based detection because there is no artefact on disk to quarantine and the caught process may have already touched other systems.
+
   Next Steps:
-  1. Identify the affected process and host using log.hostId and origin.path fields
-  2. Check if the process is legitimate or if it shows signs of compromise
-  3. Review the process tree to identify parent-child relationships
-  4. Look for other suspicious activities on the same host in the last hour
-  5. Collect memory dump if the process is still running
-  6. Analyze network connections from the affected process
-  7. Check for persistence mechanisms on the affected system
-  8. Isolate the host if active malicious behavior is confirmed
+  1. Capture the process memory before reboot. In-memory forensic value is time-critical.
+  2. Read the vendor's classification:
+     - log.BitdefenderGZExploitType or the antiexploit detection_exploitTechnique names the class of exploit (ROP, process creation, obsolete child process, etc.).
+     - log.BitdefenderGZDetectionCve names the vulnerability if known.
+     - target.process and log.BitdefenderGZDetectionPath show the affected process.
+     - log.BitdefenderGZParentPid and log.BitdefenderGZParentPath show the delivery process.
+  3. Patch or isolate the vulnerable software identified by the CVE across the estate. Other endpoints running the same version are exposed even if they have not fired the rule yet.
+  4. Look for post-exploitation on the same target.host: process launches with anomalous ancestry, network connections from unusual processes, credential access artefacts.
+  5. If actionResult is "failed" or the vendor detection_action was "reportOnly", treat the exploit as successful and hunt for the payload it delivered.
+  6. Correlate with New Incident events on the same target.host - the antiexploit hit is often one node in a larger incident graph.
 where: |
-  exists("log.eventType") &&
-  (oneOf("log.eventType", ["aph", "antiexploit", "hd"]) ||
-   (exists("origin.path") && contains("origin.path", "memory"))) &&
-  (oneOf("log.severity", ["critical", "high"]) ||
-   exists("log.malwareName") ||
-   exists("log.threatName"))
+  equals("log.BitdefenderGZModule", "antiexploit") ||
+  (equals("log.BitdefenderGZModule", "hd") &&
+   regexMatch("log.BitdefenderGZAttackType", "(?i)exploits")) ||
+  (equals("log.BitdefenderGZMalwareType", "process") &&
+   oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]))
 groupBy:
-  - lastEvent.log.hostId
-  - adversary.path
+  - target.host
+  - target.process

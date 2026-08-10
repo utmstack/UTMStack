@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Ransomware Behavior Detection
+name: Bitdefender GravityZone Ransomware Detected
 impact:
   confidentiality: 3
   integrity: 3
@@ -12,33 +12,35 @@ technique: "T1486 - Data Encrypted for Impact"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1486/
 description: |
-  Detects ransomware behavior patterns including file encryption attempts, mass file modifications, and ransomware-specific malware types detected by Bitdefender GravityZone.
-  
+  Detects ransomware that Bitdefender classified as such, from any of three independent signals:
+  - An incident whose attack types include Ransomware, which is GravityZone's own classification of the attack chain.
+  - The Ransomware Mitigation module reporting activity, which is the vendor's dedicated anti-ransomware component.
+  - A threat or detection name containing Ransom, which covers signature-based identification.
+
+  There is no severity floor and no correlation threshold on purpose. These events arrive at CEF severity 3 because GravityZone assigns severity by event type, not by how dangerous the threat is, and a single confirmed ransomware classification already justifies the highest-impact response.
+
   Next Steps:
-  1. Immediately isolate the affected system from the network to prevent spread
-  2. Check for recent backup availability and integrity
-  3. Review process execution history on the affected host
-  4. Look for suspicious file modifications or mass encryption activities
-  5. Check for ransomware notes or changed file extensions
-  6. Investigate the source of infection (email attachments, downloads, RDP compromise)
-  7. Scan other systems for similar indicators
-  8. Consider engaging incident response team for containment and recovery
+  1. Isolate the endpoint immediately - before triage, before collecting anything. Every minute of network access is more files encrypted, potentially on shares
+  2. Determine whether encryption already started:
+     - Check the file server and any shares the target.user could reach for recently modified files with unusual extensions
+     - log.BitdefenderGZAttackTypes and log.BitdefenderGZAttCkId show what stage GravityZone attributed
+     - actionResult tells you whether Bitdefender stopped it or only observed it
+  3. Identify the entry point, because ransomware is the last stage of an intrusion, not the first:
+     - origin.url and target.process show how it arrived and what executed it
+     - target.user is the account whose access the malware inherited
+     - Look for credential access or lateral movement on this host in the preceding days
+  4. Check whether Ransomware Mitigation restored anything - the module keeps copies of files it saw being encrypted
+  5. Assume the whole estate is in scope until proven otherwise: hunt target.sha256 and check every host the same account touched
+  6. Preserve evidence before reimaging - the ransom note, the sample and the memory image determine the family and whether a decryptor exists
+  7. Escalate to whoever owns incident response and legal notification. Do not close this alert on a clean scan
 where: |
-  (contains("log.message", ["ransomware", "ransom", "locky", "cerber",
-    "wannacry", "petya", "ryuk", "sodinokibi", "maze"]) ||
-   contains("log.signatureID", "ransomware") ||
-   (equals("log.severity", "10") && contains("log.eventType", "malware"))) &&
-  exists("log.severity")
-afterEvents:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    with:
-      - field: log.hostId
-        operator: filter_term
-        value: '{{.log.hostId}}'
-    within: 10m
-    count: 5
+  regexMatch("log.BitdefenderGZAttackTypes", "(?i)Ransomware") ||
+  equals("log.BitdefenderGZModule", "ransomware-mitigation") ||
+  contains("target.malware", "Ransom") ||
+  contains("log.BitdefenderGZDetectionName", "Ransom")
 groupBy:
-  - lastEvent.log.hostId
-  - lastEvent.log.signatureID
+  - target.host
+  - lastEvent.log.BitdefenderGZIncidentId

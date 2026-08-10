@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
@@ -7,35 +7,46 @@ impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: Command and Control
-technique: "TA0011 - Application Layer Protocol"
+category: Execution
+technique: "T1204.002 - User Execution: Malicious File"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://attack.mitre.org/tactics/TA0011/
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+  - https://attack.mitre.org/techniques/T1204/002/
+  - https://attack.mitre.org/techniques/T1110/
 description: |
-  Detects indicators of Advanced Persistent Threats including targeted attacks, sophisticated malware, and persistent threats detected by Bitdefender GravityZone's HyperDetect module.
-  
+  Detects high-severity threats that Bitdefender itself classifies as targeted or sophisticated, rather than commodity malware. Three independent signals, all requiring CEF severity 8 or above:
+
+  - HyperDetect reporting attack_type "targeted attack". HyperDetect is Bitdefender's machine-learning layer tuned specifically for targeted attacks and advanced threats, and it labels the detection itself.
+  - Sandbox Analyzer detection. A verdict here means an unknown payload was detonated and found malicious after evading signature-based detection, which is characteristic of tooling built for a specific target.
+  - Network Attack Defense reporting attack technique credentialAccess. Credential access is a core phase of a persistent intrusion, and covers Kerberos brute force and password-stealer traffic.
+
+  Per-incident MITRE technique identifiers are carried by the vendor in log.BitdefenderGZAttCkId as an array, and are more precise than this rule's single technique tag.
+
   Next Steps:
-  - Investigate the affected endpoint to determine the scope of compromise
-  - Review process execution history and network connections from the affected system
-  - Check for lateral movement by examining authentication logs from the same source IP
-  - Isolate the affected system if active threat is confirmed
-  - Collect forensic artifacts including memory dumps and event logs
-  - Search for similar malware indicators across the environment
-  - Review user account activities for signs of credential compromise
-  - Contact security operations center if threat actors match known APT groups
+  1. Determine the affected endpoint from target.host and the attacker from log.BitdefenderGZDetectionAttackerIp when the source is Network Attack Defense
+  2. Read the vendor's own classification before assuming scope:
+     - log.BitdefenderGZAttCkId lists the MITRE techniques Bitdefender attributed to the incident
+     - log.BitdefenderGZDetectionName names the detection, for example Attack.Bruteforce.KERBEROS or PrivacyThreat.PasswordStealer
+  3. For credentialAccess detections, treat the credentials as compromised:
+     - Identify the targeted accounts and force a password reset
+     - Review authentication logs from the attacker IP for any successful logon
+     - Check for Kerberos ticket anomalies if the detection names KERBEROS
+  4. Establish persistence and lateral movement:
+     - Review process ancestry via log.BitdefenderGZDetectionName and target.path
+     - Correlate other events from the same target.host in the surrounding hours
+     - Search the environment for the same detection name on other hosts
+  5. Collect forensic artifacts before remediating - memory image and endpoint logs - since a targeted intrusion warrants attribution work
+  6. Isolate the endpoint if the detection action shows the threat was not blocked, then hunt for what ran while it was active
 where: |
-  equals("log.product", "Bitdefender GravityZone") &&
-  greaterOrEqual("log.severity", 8) &&
+  greaterOrEqual("severity", 8) &&
   (
-    contains("log.eventType", ["apt", "targeted", "advanced", "persistent", "hyperdetect"]) ||
-    contains("log.restData", ["apt", "targeted attack", "advanced persistent",
-      "lazarus", "equation", "sofacy", "cozy bear", "fancy bear",
-      "panda", "kitten", "carbanak", "fin7", "fileless"]) ||
-    equals("log.signatureID", "hyperdetect")
-  ) &&
-  exists("log.hostId")
+    (equals("log.BitdefenderGZModule", "hd") &&
+     regexMatch("log.BitdefenderGZAttackTypes", "(?i)targeted attack")) ||
+    equals("log.BitdefenderGZModule", "network-sandboxing") ||
+    equals("log.BitdefenderGZDetectionAttackTechnique", "credentialAccess")
+  )
 groupBy:
-  - lastEvent.log.eventType
-  - lastEvent.log.hostId
+  - target.host
+  - lastEvent.log.BitdefenderGZDetectionName

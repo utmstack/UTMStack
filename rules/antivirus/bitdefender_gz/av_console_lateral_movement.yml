@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Bitdefender Console Used for Lateral Movement
+name: Bitdefender GravityZone Task Burst Across Endpoints
 impact:
   confidentiality: 3
   integrity: 3
@@ -11,32 +11,34 @@ category: Lateral Movement
 technique: "T1072 - Software Deployment Tools"
 adversary: origin
 references:
-  - https://attack.mitre.org/techniques/T1072/
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+  - https://attack.mitre.org/techniques/T1072/
 description: |
-  Detects when the Bitdefender GravityZone management console is potentially being used to push malicious policies, scripts, or tasks to managed endpoints, indicating a compromised admin account being leveraged for lateral movement.
+  Detects a burst of Bitdefender GravityZone task deployments across many endpoints in a short window, which is the observable trace of a compromised admin console being used to push activity to managed machines. Bitdefender's own management console is a first-class software deployment tool by MITRE's definition, so its abuse is T1072.
+
+  A single task event is normal operational activity. Three or more distinct endpoints receiving tasks from the same admin identity within an hour is the shape of console-driven lateral movement.
 
   Next Steps:
-  1. Review all recent task and policy deployments from the console
-  2. Identify the admin account used and verify its legitimacy
-  3. Check for unusual login patterns to the GravityZone console
-  4. Review the content of pushed policies for malicious configurations
-  5. Suspend the admin account if compromise is suspected
-  6. Audit all managed endpoints for signs of compromise
+  1. Identify the admin identity via log.BitdefenderGZUserName or the user object in the task. Correlate with authentication-audit events from the same identity for logon location and browser.
+  2. Read log.BitdefenderGZTaskName and log.BitdefenderGZTaskType. Scan and update tasks are routine; script execution, arbitrary install, and uninstall tasks deserve scrutiny.
+  3. List every target.host that received a task in this window and treat the set as the potentially-affected estate, not each host individually.
+  4. Cross-check against the change control system. A legitimate task burst normally has a ticket; an ad-hoc burst outside a change window is the strongest indicator.
+  5. Suspend the admin account and rotate its credentials before deciding whether it was compromised or misused. Then audit every endpoint that received a task for signs of the tasks having succeeded.
+  6. Review Control Center authentication logs for the source IP behind the admin session. External or unusual geographies for the admin login argue for an account compromise rather than an insider.
 where: |
-  (contains("log.message", ["remote task", "deploy", "push policy", "execute script"]) ||
-   (contains("log.message", "task") && contains("log.message", "created") &&
-    (contains("log.message", "scan") || contains("log.message", "install") ||
-     contains("log.message", "uninstall") || contains("log.message", "execute")))) &&
-  exists("log.severity")
-afterEvents:
+  equals("log.BitdefenderGZModule", "task-status")
+correlation:
   - indexPattern: v11-log-antivirus-bitdefender-gz-*
+    within: 1h
+    count: 3
     with:
-      - field: log.hostId
+      - field: log.BitdefenderGZModule
         operator: filter_term
-        value: '{{.log.hostId}}'
-    within: 30m
-    count: 10
+        value: "task-status"
+      - field: target.host
+        operator: must_not_term
+        value: "{{.target.host}}"
 groupBy:
-  - lastEvent.log.eventType
-  - lastEvent.log.hostId
+  - target.host
+  - lastEvent.log.BitdefenderGZTaskName
