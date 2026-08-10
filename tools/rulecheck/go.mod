@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/threatwinds/go-sdk v1.1.27-0.20260804160110-0dab0e82abf5
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )
 

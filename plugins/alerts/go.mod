@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/threatwinds/go-sdk v1.1.27-0.20260808112451-a0c815800e09
 	github.com/tidwall/gjson v1.19.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
