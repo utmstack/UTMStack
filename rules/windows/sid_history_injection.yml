@@ -27,7 +27,7 @@ description: |
   6. Consider resetting the target account password and removing unauthorized SID History entries
   7. Review domain administrator accounts and privileged group memberships for anomalies
 where: |
-  oneOf("log.eventId", ["4765", "4766"]) &&
+  oneOf("log.eventCode", ["4765", "4766"]) &&
   equals("log.channel", "Security")
 groupBy:
   - origin.host
