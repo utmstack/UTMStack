@@ -1,5 +1,7 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
+import {throwError, timer} from 'rxjs';
+import {mergeMap, retryWhen, tap} from 'rxjs/operators';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {LOG_INDEX_PATTERN, SOC_AI_INDEX_PATTERN} from '../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
@@ -70,6 +72,17 @@ export class AlertSocAiComponent implements OnInit, OnDestroy {
       value: this.alertID
     }];
     this.elasticDataService.search(1, 1, 1, SOC_AI_INDEX_PATTERN, filter)
+      .pipe(
+        tap((res: HttpResponse<any>) => {
+          if (res && res.body && res.body[0] && res.body[0].status === IndexSocAiStatus.Error) {
+            console.log(res)
+            throw new Error('SOC-AI status Error');
+          }
+        }),
+        retryWhen(errors => errors.pipe(
+          mergeMap((err, i) => i < 3 ? timer(500 * Math.pow(2, i)) : throwError(err))
+        ))
+      )
       .subscribe((res: HttpResponse<any>) => {
         if (!res || res.body.length === 0) {
           this.socAiResponse = res.body;

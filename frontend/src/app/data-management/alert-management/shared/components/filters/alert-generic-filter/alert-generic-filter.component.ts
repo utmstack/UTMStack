@@ -1,6 +1,15 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
 import {Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
+import {debounceTime, switchMap, takeUntil} from 'rxjs/operators';
 import {ALERT_TAGS_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ALERT_INDEX_PATTERN} from '../../../../../../shared/constants/main-index-pattern.constant';
 import {ElasticDataTypesEnum} from '../../../../../../shared/enums/elastic-data-types.enum';
@@ -16,12 +25,13 @@ import {AlertUpdateTagBehavior} from '../../../behavior/alert-update-tag.behavio
   templateUrl: './alert-generic-filter.component.html',
   styleUrls: ['./alert-generic-filter.component.scss']
 })
-export class AlertGenericFilterComponent implements OnInit, OnDestroy {
+export class AlertGenericFilterComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() filterGenericChange = new EventEmitter<ElasticFilterType>();
   @Input() fieldFilter: UtmFieldType;
+  @Input() scrollRoot?: HTMLElement;
   activeFilters: ElasticFilterType[] = [];
   fieldValues: object;
-  loading = true;
+  loading = false;
   selected: any[] = [];
   search: string;
   searching = false;
@@ -31,10 +41,15 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   sort: { orderByCount: boolean, sortAsc: boolean } = {orderByCount: true, sortAsc: false};
   destroy$: Subject<void> = new Subject<void>();
   private fetchRequest$ = new Subject<void>();
+  private io?: IntersectionObserver;
+  private inView = false;
+  private stale = true;
+  private filtersReady = false;
 
   constructor(private elasticSearchIndexService: ElasticSearchIndexService,
               private alertFiltersBehavior: AlertFiltersBehavior,
-              private alertUpdateTagBehavior: AlertUpdateTagBehavior) {
+              private alertUpdateTagBehavior: AlertUpdateTagBehavior,
+              private el: ElementRef<HTMLElement>) {
   }
 
   ngOnInit() {
@@ -108,7 +123,6 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
       .subscribe((filters: ElasticFilterType[]) => {
       if (filters) {
         this.activeFilters = filters;
-        this.getFieldValues();
         const index = filters.findIndex(value => value.field
             .replace('.keyword', '') === this.fieldFilter.field
           && value.operator !== ElasticOperatorsEnum.EXIST && value.operator !== ElasticOperatorsEnum.DOES_NOT_EXIST
@@ -126,8 +140,30 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
             }
           }
         }
+        this.filtersReady = true;
+        this.stale = true;
+        if (this.inView) {
+          this.stale = false;
+          this.getFieldValues();
+        }
       }
     });
+  }
+
+  ngAfterViewInit() {
+    this.io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        this.inView = e.isIntersecting;
+        if (this.inView && this.stale && this.filtersReady) {
+          this.stale = false;
+          if (!this.fieldValues) {
+            this.loading = true;
+          }
+          this.getFieldValues();
+        }
+      }
+    }, {root: this.scrollRoot || null, rootMargin: '50px'});
+    this.io.observe(this.el.nativeElement);
   }
 
   getFieldValues() {
@@ -139,7 +175,7 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   }
 
   valueHasData(): boolean {
-    return Object.keys(this.fieldValues).length > 0;
+    return this.fieldValues && Object.keys(this.fieldValues).length > 0;
   }
 
   searchInValues($event: string) {
@@ -180,6 +216,9 @@ export class AlertGenericFilterComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.io) {
+      this.io.disconnect();
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }

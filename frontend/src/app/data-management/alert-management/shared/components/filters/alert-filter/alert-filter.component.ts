@@ -1,4 +1,6 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {
   ADVERSARY_FILTERS_FIELDS,
   ALERT_FILTERS_FIELDS,
@@ -11,8 +13,6 @@ import {ElasticFilterType} from '../../../../../../shared/types/filter/elastic-f
 import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type';
 import {AlertDataTypeBehavior} from '../../../behavior/alert-data-type.behavior';
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
-import {takeUntil} from "rxjs/operators";
-import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-alert-filter',
@@ -39,8 +39,7 @@ export class AlertFilterComponent implements OnInit, OnDestroy {
   };
 
 
-  constructor(private alertDataTypeBehavior: AlertDataTypeBehavior,
-              private cdr: ChangeDetectorRef) {
+  constructor(private alertDataTypeBehavior: AlertDataTypeBehavior) {
   }
 
   ngOnInit() {

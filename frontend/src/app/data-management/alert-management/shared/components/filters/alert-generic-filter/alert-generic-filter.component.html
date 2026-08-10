@@ -1,15 +1,15 @@
-<div *ngIf="fieldValues" class="card p-0 m-0 ">
+<div class="card p-0 m-0 ">
   <div class="card-header header-elements-sm-inline bg-white card-header-title p-2 pb-1 w-100">
         <span class="font-weight-light span-small-icon">
           {{fieldFilter.label ? fieldFilter.label : fieldFilter.field}}
         </span>
     <app-generic-filer-sort (sortChange)="onSortValuesChange($event)"></app-generic-filer-sort>
   </div>
-  <div *ngIf="loading" class="category-list w-100 p-5">
-    <app-utm-spinner [height]="'5px'" [loading]="loading"
+  <div *ngIf="loading || !fieldValues" class="category-list w-100 p-5">
+    <app-utm-spinner [height]="'5px'" [loading]="true"
                      [width]="'5px'"></app-utm-spinner>
   </div>
-  <div *ngIf="!valueHasData() && !loading"
+  <div *ngIf="fieldValues && !valueHasData() && !loading"
        class="d-flex justify-content-center align-items-center mt-3 mb-3 w-100">
     <app-no-data-found [padding]="'p-2'" [size]="'sm'"></app-no-data-found>
   </div>

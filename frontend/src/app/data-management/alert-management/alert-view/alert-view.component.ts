@@ -131,6 +131,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   eventDataTypeEnum = EventDataTypeEnum;
   refreshingAlert = false;
   firstLoad = true;
+  pendingEmitFilters = false;
   tags: AlertTags[];
   showRefresh = false;
   destroy$ = new Subject<void>();
@@ -321,9 +322,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       this.defaultTime = new ElasticFilterDefaultTime('now-7d', 'now');
     }
     this.getCurrentStatus();
+    this.pendingEmitFilters = true;
     this.getAlert('on set default params');
-    // this.updateStatusServiceBehavior.$updateStatus.next(true);
-    this.alertFiltersBehavior.$filters.next(this.filters);
   }
 
   /**
@@ -344,7 +344,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     } else {
       this.filters[timeFilterIndex].value = [$event.timeFrom, $event.timeTo];
     }
-    this.alertFiltersBehavior.$filters.next(this.filters);
+    this.pendingEmitFilters = true;
     this.getAlert('on time filter change');
   }
 
@@ -371,14 +371,23 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.alerts = res.body;
         this.loading = false;
         this.refreshingAlert = false;
+        this.flushPendingFilters();
       },
       (res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
         this.loading = false;
         this.refreshingAlert = false;
+        this.flushPendingFilters();
       }
     );
     },100)
+  }
+
+  private flushPendingFilters() {
+    if (this.pendingEmitFilters) {
+      this.pendingEmitFilters = false;
+      this.alertFiltersBehavior.$filters.next(this.filters);
+    }
   }
 
   saveReport() {
@@ -425,8 +434,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       mergeParams(filterRow, this.filters).then(value => {
         this.filters = value;
         this.page = 1;
+        this.pendingEmitFilters = true;
         this.getAlert('on add row to filter');
-        this.alertFiltersBehavior.$filters.next(this.filters);
       });
     });
   }
@@ -448,7 +457,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         }
       }
     }
-    this.alertFiltersBehavior.$filters.next(this.filters);
+    this.pendingEmitFilters = true;
     this.page = 1;
     this.getAlert('on status filter change');
   }
@@ -480,9 +489,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.processFilters($event).then(filters => {
       this.filters = filters;
       this.page = 1;
+      this.pendingEmitFilters = true;
       this.getAlert('on generic filter change');
-      // this.updateStatusServiceBehavior.$updateStatus.next(true);
-      this.alertFiltersBehavior.$filters.next(this.filters);
     });
   }
 
