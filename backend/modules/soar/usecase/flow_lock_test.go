@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -31,7 +32,7 @@ func TestConcurrentCreatesOfTheSameNameCollideOnce(t *testing.T) {
 			defer wg.Done()
 			// A store each: the index is what a second replica does not share.
 			s := NewFlowStore(filepath.Join(root, "system"), filepath.Join(root, "user"))
-			_, err := s.Create(lockTenant, Flow{Name: "Isolate host"})
+			_, err := s.Create(lockTenant, domain.Flow{Name: "Isolate host"})
 			created <- err == nil
 		}()
 	}
@@ -53,7 +54,7 @@ func TestConcurrentCreatesOfTheSameNameCollideOnce(t *testing.T) {
 func TestADisabledFlowStillCollides(t *testing.T) {
 	s := newStore(t)
 
-	sf, err := s.Create(lockTenant, Flow{Name: "Isolate host"})
+	sf, err := s.Create(lockTenant, domain.Flow{Name: "Isolate host"})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -62,7 +63,7 @@ func TestADisabledFlowStillCollides(t *testing.T) {
 	}
 
 	other := NewFlowStore(s.systemDir, s.userDir)
-	if _, err := other.Create(lockTenant, Flow{Name: "Isolate host"}); err == nil {
+	if _, err := other.Create(lockTenant, domain.Flow{Name: "Isolate host"}); err == nil {
 		t.Error("a second create succeeded over a disabled flow of the same name")
 	}
 }
@@ -71,66 +72,74 @@ func TestADisabledFlowStillCollides(t *testing.T) {
 func TestTwoTenantsMayShareAName(t *testing.T) {
 	s := newStore(t)
 
-	if _, err := s.Create(lockTenant, Flow{Name: "Isolate host"}); err != nil {
+	if _, err := s.Create(lockTenant, domain.Flow{Name: "Isolate host"}); err != nil {
 		t.Fatalf("first tenant: %v", err)
 	}
-	if _, err := s.Create("another-tenant", Flow{Name: "Isolate host"}); err != nil {
+	if _, err := s.Create("another-tenant", domain.Flow{Name: "Isolate host"}); err != nil {
 		t.Errorf("second tenant: %v, want it allowed", err)
 	}
 }
 
 const otherTenantID = "8f1c1b8e-0000-4000-8000-0000000000b0"
 
-// seedShipped puts a flow the product ships into a tenant's own copy of the
-// system set, which is where they live now.
-func seedShipped(t *testing.T, s *FlowStore, tenant, relPath string, flow Flow) {
+// seedShipped writes a flow into the directory the product ships. There is one
+// copy for the whole install — no tenant has their own.
+func seedShipped(t *testing.T, s *FlowStore, relPath string, flow domain.Flow) {
 	t.Helper()
-	target := filepath.Join(s.userDir, tenant, SystemSubdir, relPath)
-	if err := writeFlowFile(target, flow); err != nil {
+	if err := writeFlowFile(filepath.Join(s.systemDir, relPath), flow); err != nil {
 		t.Fatalf("seed: %v", err)
 	}
 }
 
-// Switching off a flow the product ships is a decision for the tenant that made
-// it. Every tenant has its own copy, so the rename touches nobody else.
-func TestDisablingASystemFlowIsPerTenant(t *testing.T) {
+// Nothing runs until a tenant asks for it. These flows shut machines down, so
+// installing the product must not be how that starts.
+func TestAShippedFlowIsOffUntilSwitchedOn(t *testing.T) {
 	s := newStore(t)
-	seedShipped(t, s, lockTenant, "isolate-host.yaml", Flow{Name: "Isolate host"})
-	seedShipped(t, s, otherTenantID, "isolate-host.yaml", Flow{Name: "Isolate host"})
+	seedShipped(t, s, "isolate-host.yaml", domain.Flow{Name: "Isolate host"})
 	if err := s.Load(); err != nil {
 		t.Fatalf("Load: %v", err)
 	}
 
-	if err := s.SetEnabled(otherTenantID, "isolate-host.yaml", false); err != nil {
-		t.Fatalf("SetEnabled: %v", err)
-	}
-
-	if sf := s.Get(otherTenantID, "isolate-host.yaml"); sf == nil || sf.Active() {
-		t.Error("still on for the tenant that switched it off")
-	}
-	if sf := s.Get(lockTenant, "isolate-host.yaml"); sf == nil || !sf.Active() {
-		t.Error("another tenant lost a flow it never touched")
+	if sf := s.Get(lockTenant, "isolate-host.yaml"); sf == nil || sf.Active() {
+		t.Error("a shipped flow is running before anybody switched it on")
 	}
 }
 
-// What a tenant changes about a shipped flow is the suffix, so a release can
-// overwrite the content in place and the tenant stays switched off. This is
-// what having a copy per tenant buys: an update is a write, not a search.
-func TestAnUpdateKeepsTheTenantSwitchedOff(t *testing.T) {
+// Switching one on is a decision for the tenant that made it. The file is
+// shared, so the choice cannot live in the file.
+func TestEnablingASystemFlowIsPerTenant(t *testing.T) {
 	s := newStore(t)
-	seedShipped(t, s, otherTenantID, "isolate-host.yaml", Flow{Name: "Isolate host"})
+	seedShipped(t, s, "isolate-host.yaml", domain.Flow{Name: "Isolate host"})
 	if err := s.Load(); err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	if err := s.SetEnabled(otherTenantID, "isolate-host.yaml", false); err != nil {
+
+	if err := s.SetEnabled(otherTenantID, "isolate-host.yaml", true); err != nil {
 		t.Fatalf("SetEnabled: %v", err)
 	}
 
-	// What the next release does: replace the file that exists.
-	disabled := filepath.Join(s.userDir, otherTenantID, SystemSubdir, "isolate-host.yaml"+DisabledSuffix)
-	if err := writeFlowFile(disabled, Flow{Name: "Isolate host", Description: "v2"}); err != nil {
-		t.Fatalf("update: %v", err)
+	if sf := s.Get(otherTenantID, "isolate-host.yaml"); sf == nil || !sf.Active() {
+		t.Error("off for the tenant that switched it on")
 	}
+	if sf := s.Get(lockTenant, "isolate-host.yaml"); sf == nil || sf.Active() {
+		t.Error("another tenant got it switched on too")
+	}
+}
+
+// A release replaces the one shipped file. The tenant's decision is recorded
+// somewhere else, so it survives an update that knows nothing about it.
+func TestAnUpdateKeepsTheTenantsChoice(t *testing.T) {
+	s := newStore(t)
+	seedShipped(t, s, "isolate-host.yaml", domain.Flow{Name: "Isolate host"})
+	if err := s.Load(); err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := s.SetEnabled(otherTenantID, "isolate-host.yaml", true); err != nil {
+		t.Fatalf("SetEnabled: %v", err)
+	}
+
+	// What the next release does: overwrite what it ships.
+	seedShipped(t, s, "isolate-host.yaml", domain.Flow{Name: "Isolate host", Description: "v2"})
 	if err := s.Load(); err != nil {
 		t.Fatalf("reload: %v", err)
 	}
@@ -139,18 +148,35 @@ func TestAnUpdateKeepsTheTenantSwitchedOff(t *testing.T) {
 	if sf == nil {
 		t.Fatal("the flow disappeared after the update")
 	}
-	if sf.Active() {
-		t.Error("the update switched the flow back on")
+	if !sf.Active() {
+		t.Error("the update switched the flow back off")
 	}
 	if sf.Description != "v2" {
-		t.Errorf("description = %q, want the updated content to have reached a disabled flow", sf.Description)
+		t.Errorf("description = %q, want the updated content", sf.Description)
 	}
 }
 
-func TestDisablingAnUnknownFlowFails(t *testing.T) {
+// A shipped flow is not the tenant's to rewrite or remove: it lives in a
+// directory this store never writes to.
+func TestAShippedFlowIsReadOnly(t *testing.T) {
+	s := newStore(t)
+	seedShipped(t, s, "isolate-host.yaml", domain.Flow{Name: "Isolate host"})
+	if err := s.Load(); err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if _, err := s.Update(otherTenantID, "isolate-host.yaml", domain.Flow{Name: "mine now"}); err == nil {
+		t.Error("a tenant rewrote a shipped flow")
+	}
+	if err := s.Delete(otherTenantID, "isolate-host.yaml"); err == nil {
+		t.Error("a tenant deleted a shipped flow")
+	}
+}
+
+func TestEnablingAnUnknownFlowFails(t *testing.T) {
 	s := newStore(t)
 
-	if err := s.SetEnabled(otherTenantID, "nope.yaml", false); err == nil {
-		t.Error("disabling a flow that does not exist succeeded")
+	if err := s.SetEnabled(otherTenantID, "nope.yaml", true); err == nil {
+		t.Error("switching on a flow that does not exist succeeded")
 	}
 }

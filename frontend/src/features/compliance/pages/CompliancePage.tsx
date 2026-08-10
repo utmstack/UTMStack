@@ -23,7 +23,7 @@ import { scoreTone } from '../components/ReportView'
 import { ScheduleTab } from '../components/ScheduleTab'
 import { ControlsTab } from '../components/ControlsTab'
 import { copyOfFramework } from '../lib/duplicate'
-import { StartFromModal } from '../components/StartFromModal'
+import { StartFromModal } from '@/shared/components/StartFromModal'
 import { FrameworkEditor } from '../components/FrameworkEditor'
 
 type PageTab = 'frameworks' | 'controls' | 'schedule'

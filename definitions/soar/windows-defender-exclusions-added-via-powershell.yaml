@@ -1,12 +1,10 @@
-# UTMStack system SOAR flow
 - name: Windows Defender Exclusions Added via PowerShell
   description: Automatically removes any Windows Defender exclusions added via PowerShell to prevent defense evasion.
   conditions:
   - operator: IS
     field: name
-    value: Windows Defender Exclusions Added via PowerShell
+    value: TODO-set-the-correlation-rule-that-triggers-this
   commands:
-  - 'Remove-MpPreference -ExclusionPath "$(log.message | regex_extract -pattern ''-ExclusionPath\s+(\S+)'')"; Remove-MpPreference -ExclusionProcess "$(log.message | regex_extract -pattern ''-ExclusionProcess\s+(\S+)'')"'
-  - if ("$(log.message)" -match '-ExclusionProcess\s+(\S+)') { Remove-MpPreference -ExclusionProcess $matches[1]}; if ("$(log.message)" -match '-ExclusionPath\s+(\S+)') { Remove-MpPreference -ExclusionPath $matches[1] }
+  - if ("$(lastEvent.log.message)" -match '-ExclusionProcess\s+(\S+)') { Remove-MpPreference -ExclusionProcess $matches[1]}; if ("$(lastEvent.log.message)" -match '-ExclusionPath\s+(\S+)') { Remove-MpPreference -ExclusionPath $matches[1] }
   shell: powershell
   agentPlatform: windows

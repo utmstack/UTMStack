@@ -9,8 +9,9 @@ import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { soarFlowsService } from '../services/soar-flows.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
 import { FlowEditor } from '../components/FlowEditor'
-import { TemplatePicker } from '../components/TemplatePicker'
-import type { ActionTemplate, Flow } from '../types/soar.types'
+import { StartFromModal } from '@/shared/components/StartFromModal'
+import { copyOfFlow } from '../lib/duplicate'
+import type { Flow } from '../types/soar.types'
 
 type ListTab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const LIST_TABS: ListTab[] = ['all', 'active', 'inactive', 'system', 'user']
@@ -52,25 +53,28 @@ export function FlowsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ flow?: Flow; creating: boolean } | null>(null)
-  const [pickingTemplate, setPickingTemplate] = useState(false)
+  const [starting, setStarting] = useState(false)
+  // Every flow, not the page being browsed: what you can copy must not depend
+  // on where you had scrolled to.
+  const [copyable, setCopyable] = useState<Flow[]>([])
+  // Bumped whenever a flow's state changes, so the counters refetch. The total
+  // cannot serve as that signal: switching one on does not change how many
+  // flows exist.
+  const [stateVersion, setStateVersion] = useState(0)
   const [stats, setStats] = useState<Record<string, FlowStat>>({})
 
-  const startFromTemplate = (tpl: ActionTemplate) => {
-    const seed: Flow = {
-      relPath: '',
-      name: tpl.title,
-      description: tpl.description ?? '',
-      conditions: [],
-      commands: [{ command: tpl.command }],
-      active: true,
-      agentPlatform: '',
-      defaultAgent: '',
-      shell: '',
-      excludedAgents: [],
-      systemOwner: false,
-    }
-    setPickingTemplate(false)
-    setEditing({ flow: seed, creating: true })
+  const openStartFrom = () => {
+    setStarting(true)
+    soarFlowsService
+      .list({ page: 0, size: 500 })
+      .then((r) => setCopyable(r.data ?? []))
+      .catch(() => setCopyable([]))
+  }
+
+  const startFromFlow = (relPath: string) => {
+    const src = copyable.find((f) => f.relPath === relPath)
+    setStarting(false)
+    if (src) setEditing({ flow: copyOfFlow(src), creating: true })
   }
 
   useEffect(() => {
@@ -120,10 +124,11 @@ export function FlowsPage() {
         if (cancelled) return
         const map: Record<string, FlowStat> = {}
         for (const e of r.data ?? []) {
+          if (!e.rulePath) continue // a manual run belongs to no flow
           const s = (map[e.rulePath] ??= { runs: 0, failed: 0 })
           s.runs++
-          if (e.executionStatus === 'FAILED') s.failed++
-          if (!s.last || (e.executionDate && e.executionDate > s.last)) s.last = e.executionDate
+          if (e.status === 'FAILED') s.failed++
+          if (!s.last || (e.startedAt && e.startedAt > s.last)) s.last = e.startedAt
         }
         setStats(map)
       })
@@ -140,6 +145,7 @@ export function FlowsPage() {
     setItems((list) => list.map((x) => (x.relPath === f.relPath ? { ...x, active: next } : x)))
     try {
       await soarFlowsService.setEnabled(f.relPath, next)
+      setStateVersion((v) => v + 1)
     } catch {
       setItems((list) => list.map((x) => (x.relPath === f.relPath ? { ...x, active: f.active } : x)))
       toast.error(t('soar.toast.activateError'))
@@ -148,7 +154,7 @@ export function FlowsPage() {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
-      <FlowKpis refreshKey={total} />
+      <FlowKpis refreshKey={total + stateVersion} />
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <div className="relative">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -172,7 +178,7 @@ export function FlowsPage() {
           <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
         </Button>
         <div className="ml-auto">
-          <Button size="sm" onClick={() => setPickingTemplate(true)}>
+          <Button size="sm" onClick={openStartFrom}>
             <Plus size={14} className="mr-1.5" /> {t('soar.new')}
           </Button>
         </div>
@@ -226,14 +232,16 @@ export function FlowsPage() {
         />
       )}
 
-      {pickingTemplate && (
-        <TemplatePicker
-          onPick={startFromTemplate}
+      {starting && (
+        <StartFromModal
+          title={t('soar.new')}
+          options={copyable.map((f) => ({ id: f.relPath, name: f.name }))}
           onScratch={() => {
-            setPickingTemplate(false)
+            setStarting(false)
             setEditing({ creating: true })
           }}
-          onClose={() => setPickingTemplate(false)}
+          onCopy={startFromFlow}
+          onClose={() => setStarting(false)}
         />
       )}
     </div>
@@ -252,8 +260,8 @@ function FlowKpis({ refreshKey }: { refreshKey: number }) {
     Promise.allSettled([
       soarFlowsService.list({ page: 0, size: 1 }),
       soarFlowsService.list({ page: 0, size: 1, active: true }),
-      soarExecutionsService.list({ page: 0, size: 1, executionDateGte: since }),
-      soarExecutionsService.list({ page: 0, size: 1, executionStatus: 'FAILED', executionDateGte: since }),
+      soarExecutionsService.list({ page: 0, size: 1, startedAtFrom: since }),
+      soarExecutionsService.list({ page: 0, size: 1, status: 'FAILED', startedAtFrom: since }),
     ]).then(([f, a, r, x]) => {
       if (cancelled) return
       const tot = (res: PromiseSettledResult<{ total: number }>) => (res.status === 'fulfilled' ? res.value.total : 0)
@@ -334,7 +342,13 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
       type="button"
       role="switch"
       aria-checked={checked}
-      onClick={onChange}
+      // The row opens the editor on click. Without stopping here, switching a
+      // flow on also opens it — two things from one press, and the panel lands
+      // on top of the row you were aiming at.
+      onClick={(e) => {
+        e.stopPropagation()
+        onChange()
+      }}
       className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-muted-foreground/30')}
     >
       <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />

@@ -30,11 +30,6 @@ func (s *FlowStore) withFlowLock(fn func() error) error {
 }
 
 func (s *FlowStore) flowExistsOnDisk(tenant, relPath string) bool {
-	base := filepath.Join(s.userDir, tenant, filepath.FromSlash(relPath))
-	for _, p := range []string{base, base + DisabledSuffix} {
-		if _, err := os.Stat(p); err == nil {
-			return true
-		}
-	}
-	return false
+	_, err := os.Stat(filepath.Join(s.userDir, tenant, filepath.FromSlash(relPath)))
+	return err == nil
 }

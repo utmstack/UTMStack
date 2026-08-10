@@ -6,14 +6,16 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 )
 
-func writeFlowFile(path string, flow Flow) error {
+func writeFlowFile(path string, flow domain.Flow) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal([]Flow{flow})
+	data, err := yaml.Marshal([]domain.Flow{flow})
 	if err != nil {
 		return err
 	}
@@ -39,13 +41,13 @@ func writeFlowFile(path string, flow Flow) error {
 	return nil
 }
 
-func readFlowFile(path string) (Flow, error) {
-	var flow Flow
+func readFlowFile(path string) (domain.Flow, error) {
+	var flow domain.Flow
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return flow, err
 	}
-	var list []Flow
+	var list []domain.Flow
 	if err := yaml.Unmarshal(data, &list); err != nil {
 		return flow, err
 	}

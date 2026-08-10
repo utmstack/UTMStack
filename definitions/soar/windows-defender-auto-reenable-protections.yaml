@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow — migrated from the v11 response-action template catalogue.
+#
+# Inert until completed: the condition below matches no alert, and the platform
+# matches no agent, so nothing runs. Both are placeholders on purpose — a command
+# carries no trigger, and deciding when to run this one is not a format conversion.
+# Derived from the command, for whoever completes it: platform=windows
+- name: 'Windows Defender: Auto Reenable Protections'
+  description: Restore disabled settings
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  commands:
+  - powershell if ("$(lastEvent.log.message)" -match 'DisableRealtimeMonitoring') { Set-MpPreference -DisableRealtimeMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableBehaviorMonitoring') { Set-MpPreference -DisableBehaviorMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableIOAVProtection') { Set-MpPreference -DisableIOAVProtection $false }; if ("$(lastEvent.log.message)" -match 'DisableScriptScanning') { Set-MpPreference -DisableScriptScanning $false }; if ("$(lastEvent.log.message)" -match 'DisableCloudProtection') { Set-MpPreference -EnableNetworkProtection Enabled; Set-MpPreference -MAPSReporting Advanced }; if ("$(lastEvent.log.message)" -match 'Set-MpPreference\s+-ExclusionProcess\s+"?([a-zA-Z0-9\._-]+)"?') { Remove-MpPreference -ExclusionProcess $matches[1] }
+  shell: powershell
+  agentPlatform: windows

@@ -1,10 +1,15 @@
-# UTMStack system SOAR flow
+# UTMStack system SOAR flow.
+#
+# The trigger is a placeholder: this flow named a correlation rule the
+# product does not ship, so it could never fire. Left inert and honest
+# rather than pointed at a near-miss — picking which detection runs these
+# commands is a decision, not a rename.
 - name: 'Windows Defender: Protection Disabled'
   description: Re-enable Windows Defender protection to restore security defenses.
   conditions:
   - operator: IS
     field: name
-    value: 'Windows Defender: Protection Disabled'
+    value: TODO-set-the-correlation-rule-that-triggers-this
   commands:
   - '"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Enable'
   - Set-MpPreference -DisableRealtimeMonitoring $false

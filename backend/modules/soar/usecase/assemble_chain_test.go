@@ -11,7 +11,7 @@ import (
 func TestFlowCommandUnmarshalYAML_LegacyString(t *testing.T) {
 	src := []byte("commands:\n  - net user \"$(x)\" /active:no\n  - {command: \"echo b\", condition: OnSuccess}\n")
 	var wrap struct {
-		Commands []FlowCommand `yaml:"commands"`
+		Commands []domain.FlowCommand `yaml:"commands"`
 	}
 	if err := yaml.Unmarshal(src, &wrap); err != nil {
 		t.Fatalf("unmarshal: %v", err)
@@ -31,21 +31,21 @@ func TestAssembleChain(t *testing.T) {
 
 	cases := []struct {
 		name string
-		in   []FlowCommand
+		in   []domain.FlowCommand
 		want string
 	}{
 		{"empty", nil, ""},
 		{"single command drops leading condition",
-			[]FlowCommand{{Command: "a", Condition: &ok}},
+			[]domain.FlowCommand{{Command: "a", Condition: &ok}},
 			"a"},
 		{"chain uses each entry's condition as the joiner from the previous",
-			[]FlowCommand{{Command: "a"}, {Command: "b", Condition: &ok}, {Command: "c", Condition: &fail}, {Command: "d", Condition: &always}},
+			[]domain.FlowCommand{{Command: "a"}, {Command: "b", Condition: &ok}, {Command: "c", Condition: &fail}, {Command: "d", Condition: &always}},
 			"a && b || c ; d"},
 		{"nil condition on non-first defaults to ;",
-			[]FlowCommand{{Command: "a"}, {Command: "b"}},
+			[]domain.FlowCommand{{Command: "a"}, {Command: "b"}},
 			"a ; b"},
 		{"empty commands are skipped without leaving stray operators",
-			[]FlowCommand{{Command: "a"}, {Command: "", Condition: &ok}, {Command: "c", Condition: &fail}},
+			[]domain.FlowCommand{{Command: "a"}, {Command: "", Condition: &ok}, {Command: "c", Condition: &fail}},
 			"a || c"},
 	}
 	for _, tc := range cases {

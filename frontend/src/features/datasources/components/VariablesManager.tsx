@@ -8,7 +8,7 @@ import { Input } from '@/shared/components/ui/input'
 import { soarVariablesService, type SoarVariable } from '@/features/soar/services/soar-variables.service'
 
 interface FormState {
-  id: number | null // null = creating
+  id: string | null // null = creating
   variableName: string
   variableDescription: string
   variableValue: string
@@ -41,7 +41,7 @@ export function VariablesManager({ onClose, onInsert }: { onClose: () => void; o
   const startEdit = (v: SoarVariable) =>
     setForm({
       id: v.id,
-      variableName: v.variableName ?? '',
+      variableName: v.variableName,
       variableDescription: v.variableDescription ?? '',
       variableValue: '', // never prefill (secrets are masked; mask-preserving on save)
       isSecret: v.isSecret,
@@ -55,14 +55,32 @@ export function VariablesManager({ onClose, onInsert }: { onClose: () => void; o
     }
     setSaving(true)
     try {
-      const payload = {
-        variableName: form.variableName.trim(),
-        variableDescription: form.variableDescription.trim() || undefined,
-        variableValue: form.variableValue, // blank keeps stored secret (mask-preserving)
-        isSecret: form.isSecret,
+      const name = form.variableName.trim()
+      const description = form.variableDescription.trim() || undefined
+      if (form.id == null) {
+        // A value is required on create: the backend refuses an empty one,
+        // because an unresolved $[variables.NAME] reaches the agent verbatim.
+        if (!form.variableValue) {
+          toast.error(t('datasources.console.vars.valueRequired'))
+          return
+        }
+        await soarVariablesService.create({
+          variableName: name,
+          variableValue: form.variableValue,
+          variableDescription: description,
+          isSecret: form.isSecret,
+        })
+      } else {
+        await soarVariablesService.update({
+          id: form.id,
+          variableName: name,
+          // Blank keeps the stored value — the backend recovers it, decrypting
+          // first when the secret flag is being turned off.
+          variableValue: form.variableValue || undefined,
+          variableDescription: description,
+          isSecret: form.isSecret,
+        })
       }
-      if (form.id == null) await soarVariablesService.create(payload)
-      else await soarVariablesService.update({ id: form.id, ...payload })
       toast.success(t('datasources.console.vars.saved'))
       setForm(null)
       load()

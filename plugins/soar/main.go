@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -28,12 +27,12 @@ var (
 )
 
 func main() {
-	flowsDir := filepath.Join(plugins.WorkDir, "soar")
-	loadFlows(flowsDir)
+	systemDir, userRoot := flowDirs()
+	loadFlows(systemDir, userRoot)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go watchFlows(ctx, flowsDir)
+	go watchFlows(ctx, systemDir, userRoot)
 
 	cfg := plugins.PluginCfg("com.utmstack")
 	backendURL = cfg.Get("backend").String()
@@ -103,4 +102,11 @@ func reportMatch(ctx context.Context, tenantID, rulePath string, alert []byte) e
 		return catcher.Error("backend returned error status", nil, map[string]any{"status": resp.StatusCode, "body": string(body)})
 	}
 	return nil
+}
+
+func envOr(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }

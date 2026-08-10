@@ -1,25 +1,17 @@
-# UTMStack system SOAR flow
+# UTMStack system SOAR flow.
+#
+# The trigger is a placeholder: this flow named a correlation rule the
+# product does not ship, so it could never fire. Left inert and honest
+# rather than pointed at a near-miss — picking which detection runs these
+# commands is a decision, not a rename.
 - name: 'Windows: Disabling Windows Defender Security Settings via PowerShell'
-  description: enable Identifies use of the Set-MpPreference PowerShell command to disable or weaken certain Windows Defender
-    settings.
+  description: enable Identifies use of the Set-MpPreference PowerShell command to disable or weaken certain Windows Defender settings.
   conditions:
   - operator: IS
     field: name
-    value: 'Windows: Disabling Windows Defender Security Settings via PowerShell'
+    value: TODO-set-the-correlation-rule-that-triggers-this
   commands:
-  - Set-MpPreference -DisableRealtimeMonitoring $(if ("$(log.message)" -match '-DisableRealtimeMonitoring') { $false
-    } else { $true }) ; Set-MpPreference -DisableBehaviorMonitoring $(if ("$(log.message)" -match '-DisableBehaviorMonitoring')
-    { $false } else { $true }) ; Set-MpPreference -PUAProtection $(if ("$(log.message)" -match '-PUAProtection')
-    { '"Enabled"' } else { '"Disabled"' }) ; Set-MpPreference -MAPSReporting $(if ("$(log.message)" -match '-MAPSReporting')
-    { 1 } else { 0 }) ; Set-MpPreference -CloudProtection $(if ("$(log.message)" -match 'CloudProtection') { 1
-    } else { 0 }) ; Remove-MpPreference -ExclusionProcess $(if ("$(log.message)" -match '-ExclusionProcess') {
-    '"evil.exe"' } else { '"Not A Process"' })
-  - if ("$(log.message)" -match 'DisableRealtimeMonitoring') { Set-MpPreference -DisableRealtimeMonitoring $false
-    }; if ("$(log.message)" -match 'DisableBehaviorMonitoring') { Set-MpPreference -DisableBehaviorMonitoring $false }; if
-    ("$(log.message)" -match 'DisableIOAVProtection') { Set-MpPreference -DisableIOAVProtection $false }; if ("$(log.message)"
-    -match 'DisableScriptScanning') { Set-MpPreference -DisableScriptScanning $false }; if ("$(log.message)" -match 'DisableCloudProtection')
-    { Set-MpPreference -EnableNetworkProtection Enabled; Set-MpPreference -MAPSReporting Advanced }; if ("$(log.message)"
-    -match 'Set-MpPreference\s+-ExclusionProcess\s+"?([a-zA-Z0-9\._-]+)"?') { Remove-MpPreference -ExclusionProcess $matches[1]
-    }
+  - Set-MpPreference -DisableRealtimeMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableRealtimeMonitoring') { $false } else { $true }) ; Set-MpPreference -DisableBehaviorMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableBehaviorMonitoring') { $false } else { $true }) ; Set-MpPreference -PUAProtection $(if ("$(lastEvent.log.message)" -match '-PUAProtection') { '"Enabled"' } else { '"Disabled"' }) ; Set-MpPreference -MAPSReporting $(if ("$(lastEvent.log.message)" -match '-MAPSReporting') { 1 } else { 0 }) ; Set-MpPreference -CloudProtection $(if ("$(lastEvent.log.message)" -match 'CloudProtection') { 1 } else { 0 }) ; Remove-MpPreference -ExclusionProcess $(if ("$(lastEvent.log.message)" -match '-ExclusionProcess') { '"evil.exe"' } else { '"Not A Process"' })
+  - if ("$(lastEvent.log.message)" -match 'DisableRealtimeMonitoring') { Set-MpPreference -DisableRealtimeMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableBehaviorMonitoring') { Set-MpPreference -DisableBehaviorMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableIOAVProtection') { Set-MpPreference -DisableIOAVProtection $false }; if ("$(lastEvent.log.message)" -match 'DisableScriptScanning') { Set-MpPreference -DisableScriptScanning $false }; if ("$(lastEvent.log.message)" -match 'DisableCloudProtection') { Set-MpPreference -EnableNetworkProtection Enabled; Set-MpPreference -MAPSReporting Advanced }; if ("$(lastEvent.log.message)" -match 'Set-MpPreference\s+-ExclusionProcess\s+"?([a-zA-Z0-9\._-]+)"?') { Remove-MpPreference -ExclusionProcess $matches[1] }
   shell: powershell
   agentPlatform: windows

@@ -1,4 +1,9 @@
-# UTMStack system SOAR flow
+# UTMStack system SOAR flow.
+#
+# The trigger is a placeholder: this flow named a correlation rule the
+# product does not ship, so it could never fire. Left inert and honest
+# rather than pointed at a near-miss — picking which detection runs these
+# commands is a decision, not a rename.
 - name: 'Windows: Disable Windows Firewall Rules via Netsh'
   description: 'Re-enables Windows Firewall rules that were disabled by the detected netsh command.
 
@@ -6,7 +11,7 @@
   conditions:
   - operator: IS
     field: name
-    value: 'Windows: Disable Windows Firewall Rules via Netsh'
+    value: TODO-set-the-correlation-rule-that-triggers-this
   commands:
   - netsh advfirewall set allprofiles state on
   - netsh advfirewall firewall set rule name=all new enable=yes

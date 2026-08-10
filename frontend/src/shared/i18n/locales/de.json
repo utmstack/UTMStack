@@ -33,7 +33,19 @@
       "apply": "Übernehmen"
     },
     "loadingMore": "Mehr wird geladen…",
-    "allLoaded": "Alle {{count}} geladen"
+    "allLoaded": "Alle {{count}} geladen",
+    "startFrom": {
+      "scratch": "Von Grund auf",
+      "scratchHint": "Eine leere Definition, die Sie selbst ausfüllen.",
+      "copy": "Von einer vorhandenen",
+      "copyHint": "Alles wird kopiert außer Kennung und Name.",
+      "pickTitle": "Wählen Sie die Vorlage",
+      "back": "Zurück",
+      "count": "{{n}} verfügbar",
+      "search": "Nach Name suchen",
+      "none": "Keine Treffer für diese Suche"
+    },
+    "cancel": "Abbrechen"
   },
   "auth": {
     "login": {
@@ -3767,7 +3779,8 @@
         "loadError": "Variablen konnten nicht geladen werden",
         "saveError": "Variable konnte nicht gespeichert werden",
         "deleteError": "Variable konnte nicht gelöscht werden",
-        "insert": "Einfügen"
+        "insert": "Einfügen",
+        "valueRequired": "Ein Wert ist erforderlich"
       },
       "disabled": "Agent offline — Befehle sind deaktiviert",
       "connError": "Verbindungsfehler",
@@ -4691,7 +4704,9 @@
         "killProcess": "Prozess beenden",
         "logout": "Benutzer abmelden",
         "disableUser": "Benutzer deaktivieren",
-        "blockIp": "IP blockieren"
+        "blockIp": "IP blockieren",
+        "restart": "Maschine neu starten",
+        "uninstall": "Anwendung deinstallieren"
       },
       "connector": {
         "always": "immer",
@@ -4751,7 +4766,8 @@
         "agent": "Agent",
         "date": "Datum",
         "retries": "Versuche"
-      }
+      },
+      "manual": "Interaktive Konsole"
     },
     "executionStatus": {
       "EXECUTED": "Ausgeführt",
@@ -5005,17 +5021,6 @@
       "title": "Notiz",
       "description": "Im Bericht vermerkt. Ändert den Status der Kontrolle nicht.",
       "placeholder": "Behebung läuft — Ticket OPS-4412."
-    },
-    "startFrom": {
-      "scratch": "Von Grund auf",
-      "scratchHint": "Eine leere Definition, die Sie selbst ausfüllen.",
-      "copy": "Von einer vorhandenen",
-      "copyHint": "Alles wird kopiert außer Kennung und Name.",
-      "pickTitle": "Wählen Sie die Vorlage",
-      "back": "Zurück",
-      "count": "{{n}} verfügbar",
-      "search": "Nach Name suchen",
-      "none": "Keine Treffer für diese Suche"
     },
     "history": {
       "title": "Score im Zeitverlauf",

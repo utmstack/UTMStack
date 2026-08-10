@@ -33,7 +33,19 @@
       "apply": "Applica"
     },
     "loadingMore": "Caricamento in corso…",
-    "allLoaded": "{{count}} caricati"
+    "allLoaded": "{{count}} caricati",
+    "startFrom": {
+      "scratch": "Da zero",
+      "scratchHint": "Una definizione vuota che compili tu.",
+      "copy": "Da una esistente",
+      "copyHint": "Viene copiato tutto tranne identificatore e nome.",
+      "pickTitle": "Scegli cosa copiare",
+      "back": "Indietro",
+      "count": "{{n}} disponibili",
+      "search": "Cerca per nome",
+      "none": "Nessun risultato per questa ricerca"
+    },
+    "cancel": "Annulla"
   },
   "auth": {
     "login": {
@@ -3767,7 +3779,8 @@
         "loadError": "Impossibile caricare le variabili",
         "saveError": "Impossibile salvare la variabile",
         "deleteError": "Impossibile eliminare la variabile",
-        "insert": "Inserisci"
+        "insert": "Inserisci",
+        "valueRequired": "Il valore è obbligatorio"
       },
       "disabled": "Agente offline — i comandi sono disabilitati",
       "connError": "Errore di connessione",
@@ -4691,7 +4704,9 @@
         "killProcess": "Termina processo",
         "logout": "Disconnetti utente",
         "disableUser": "Disabilita utente",
-        "blockIp": "Blocca IP"
+        "blockIp": "Blocca IP",
+        "restart": "Riavvia la macchina",
+        "uninstall": "Disinstalla applicazione"
       },
       "connector": {
         "always": "sempre",
@@ -4751,7 +4766,8 @@
         "agent": "Agente",
         "date": "Data",
         "retries": "Tentativi"
-      }
+      },
+      "manual": "Console interattiva"
     },
     "executionStatus": {
       "EXECUTED": "Eseguito",
@@ -5005,17 +5021,6 @@
       "title": "Nota",
       "description": "Registrata nel report. Non cambia lo stato del controllo.",
       "placeholder": "Rimedio in corso — ticket OPS-4412."
-    },
-    "startFrom": {
-      "scratch": "Da zero",
-      "scratchHint": "Una definizione vuota che compili tu.",
-      "copy": "Da una esistente",
-      "copyHint": "Viene copiato tutto tranne identificatore e nome.",
-      "pickTitle": "Scegli cosa copiare",
-      "back": "Indietro",
-      "count": "{{n}} disponibili",
-      "search": "Cerca per nome",
-      "none": "Nessun risultato per questa ricerca"
     },
     "history": {
       "title": "Score nel tempo",
