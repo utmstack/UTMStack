@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
-import type { TenantResponse } from '@/features/integrations/types'
+import type { ConfigGroupResponse } from '@/features/integrations/types'
 
 interface CloudTenantListProps {
-  tenants: TenantResponse[]
+  tenants: ConfigGroupResponse[]
   isDeleting?: boolean
-  onEdit: (tenant: TenantResponse) => void
+  onEdit: (tenant: ConfigGroupResponse) => void
   onDelete: (name: string) => void
 }
 

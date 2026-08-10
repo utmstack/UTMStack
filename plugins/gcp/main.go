@@ -145,12 +145,12 @@ func getModuleConfig(newConf *ModuleGroup) GroupModule {
 }
 
 type GroupModuleManager struct {
-	Groups map[int32]GroupModule
+	Groups map[string]GroupModule
 }
 
 func startGroupModuleManager() {
 	manager := &GroupModuleManager{
-		Groups: make(map[int32]GroupModule),
+		Groups: make(map[string]GroupModule),
 	}
 	go manager.SyncConfigs()
 }
@@ -185,38 +185,42 @@ func (m *GroupModuleManager) handleConfigUpdate(moduleConfig *ConfigurationSecti
 		return
 	}
 
-	currentGroupIDs := make(map[int32]bool)
+	currentKeys := make(map[string]bool)
 	for _, conf := range moduleConfig.ModuleGroups {
-		currentGroupIDs[conf.Id] = true
+		key := conf.Key()
+		currentKeys[key] = true
 
-		if existing, ok := m.Groups[conf.Id]; ok {
+		if existing, ok := m.Groups[key]; ok {
 			newModule := getModuleConfig(conf)
 			if configChanged(existing, newModule) {
 				catcher.Info("Configuration changed for group, restarting", map[string]any{
+					"group":   key,
 					"process": "plugin_com.utmstack.gcp",
 				})
 				existing.Cancel()
-				delete(m.Groups, conf.Id)
-				m.Groups[conf.Id] = newModule
+				delete(m.Groups, key)
+				m.Groups[key] = newModule
 				go newModule.PullLogs()
 			}
 		} else {
 			catcher.Info("Starting new group", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.gcp",
 			})
-			m.Groups[conf.Id] = getModuleConfig(conf)
-			group := m.Groups[conf.Id]
+			m.Groups[key] = getModuleConfig(conf)
+			group := m.Groups[key]
 			go group.PullLogs()
 		}
 	}
 
-	for groupID, group := range m.Groups {
-		if !currentGroupIDs[groupID] {
+	for key, group := range m.Groups {
+		if !currentKeys[key] {
 			catcher.Info("Group removed, stopping", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.gcp",
 			})
 			group.Cancel()
-			delete(m.Groups, groupID)
+			delete(m.Groups, key)
 		}
 	}
 }

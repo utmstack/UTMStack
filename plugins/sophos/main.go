@@ -25,11 +25,11 @@ const (
 )
 
 var (
-	nextKeys   = make(map[int]string)
+	nextKeys   = make(map[string]string)
 	nextKeysMu sync.RWMutex
 
 	activeGroupsMu sync.RWMutex
-	activeGroups   = make(map[int32]*ModuleGroup)
+	activeGroups   = make(map[string]*ModuleGroup)
 )
 
 func main() {
@@ -55,26 +55,28 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
 			"process": "plugin_com.utmstack.sophos",
 		})
-		activeGroups = make(map[int32]*ModuleGroup)
+		activeGroups = make(map[string]*ModuleGroup)
 		return
 	}
 
-	newGroups := make(map[int32]*ModuleGroup)
+	newGroups := make(map[string]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
-		newGroups[grp.Id] = grp
+		newGroups[grp.Key()] = grp
 	}
 
-	for id := range activeGroups {
-		if _, exists := newGroups[id]; !exists {
+	for key := range activeGroups {
+		if _, exists := newGroups[key]; !exists {
 			catcher.Info("Group removed from configuration", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.sophos",
 			})
 		}
 	}
 
-	for id := range newGroups {
-		if _, exists := activeGroups[id]; !exists {
+	for key := range newGroups {
+		if _, exists := activeGroups[key]; !exists {
 			catcher.Info("New group added to configuration", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.sophos",
 			})
 		}
@@ -160,7 +162,7 @@ func watchConfigAndPull() {
 
 func pull(startTime time.Time, group *ModuleGroup) {
 	nextKeysMu.RLock()
-	prevKey := nextKeys[int(group.Id)]
+	prevKey := nextKeys[group.Key()]
 	nextKeysMu.RUnlock()
 
 	agent := getSophosCentralProcessor(group)
@@ -189,7 +191,7 @@ func pull(startTime time.Time, group *ModuleGroup) {
 	}
 
 	nextKeysMu.Lock()
-	nextKeys[int(group.Id)] = newNextKey
+	nextKeys[group.Key()] = newNextKey
 	nextKeysMu.Unlock()
 }
 

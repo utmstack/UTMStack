@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
-import type { Integration, TenantResponse } from '@/features/integrations/types'
+import type { Integration, ConfigGroupResponse } from '@/features/integrations/types'
 import { buildCloudGuide } from './builders/cloudGuideBuilder'
 import { CloudGuideSection } from './CloudGuideSection'
 import { CloudTenantList } from './CloudTenantList'
@@ -15,21 +15,21 @@ interface CloudSetupProps {
 
 export function CloudSetup({ integration }: CloudSetupProps) {
   const { t } = useTranslation()
-  const { tenants: tenantsQuery, deleteTenant } = useIntegrations()
+  const { configGroups: tenantsQuery, deleteConfigGroup } = useIntegrations()
 
   const moduleName = integration.moduleName ?? ''
   const tenantList = tenantsQuery(moduleName)
-  const tenants: TenantResponse[] = tenantList.data ?? []
+  const tenants: ConfigGroupResponse[] = tenantList.data ?? []
 
   const config = useMemo(
     () => buildCloudGuide(integration.name, { tenants }),
     [integration.name, tenants],
   )
 
-  const [editing, setEditing] = useState<TenantResponse | null>(null)
+  const [editing, setEditing] = useState<ConfigGroupResponse | null>(null)
 
   const handleDelete = (name: string) => {
-    deleteTenant.mutate({ moduleName, name })
+    deleteConfigGroup.mutate({ integration: moduleName, name })
     if (editing?.name === name) {
       setEditing(null)
     }
@@ -51,7 +51,7 @@ export function CloudSetup({ integration }: CloudSetupProps) {
           ) : (
             <CloudTenantList
               tenants={config.tenants}
-              isDeleting={deleteTenant.isPending}
+              isDeleting={deleteConfigGroup.isPending}
               onEdit={setEditing}
               onDelete={handleDelete}
             />

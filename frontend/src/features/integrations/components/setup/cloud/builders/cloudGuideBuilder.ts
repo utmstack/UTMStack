@@ -1,4 +1,4 @@
-import type { TenantResponse } from '@/features/integrations/types'
+import type { ConfigGroupResponse } from '@/features/integrations/types'
 import { AWS_SECTIONS, AWS_FIELDS } from './aws'
 
 export interface CloudGuideSection {
@@ -18,13 +18,13 @@ export interface CloudConfigField {
 }
 
 export interface CloudGuideContext {
-  tenants: TenantResponse[]
+  tenants: ConfigGroupResponse[]
 }
 
 export interface CloudGuideConfig {
   sections: CloudGuideSection[]
   fields: CloudConfigField[]
-  tenants: TenantResponse[]
+  tenants: ConfigGroupResponse[]
 }
 
 export function buildCloudGuide(name: string, ctx: CloudGuideContext): CloudGuideConfig {

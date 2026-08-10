@@ -1,43 +1,34 @@
-export interface ModuleActivationRequest {
-  moduleName: string;
-  activationStatus: boolean;
-}
+export type IngestType = 'agent' | 'collector' | 'forwarder' | 'plugin'
 
-export interface CreateModuleRequest {
-  moduleName: string;
+export interface CreateIntegrationRequest {
+  name: string;
   dataType: string;
-  prettyName?: string;
-  moduleDescription?: string;
-  moduleIcon?: string;
-  moduleCategory?: string;
+  ingestType: IngestType;
+  description?: string;
+  icon?: string;
 }
 
-export interface UpdateModuleRequest {
-  prettyName?: string;
-  moduleDescription?: string;
-  moduleIcon?: string;
-  moduleCategory?: string;
+export interface UpdateIntegrationRequest {
+  description?: string;
+  icon?: string;
 }
 
-export interface ModuleResponse {
-  id: number;
+export interface IntegrationResponse {
+  id: string;
+  name: string;
   dataType?: string;
-  moduleName: string;
-  prettyName?: string;
-  moduleDescription?: string;
-  moduleActive: boolean;
-  moduleIcon?: string;
-  moduleCategory?: string;
-  ingestType?: string;
-  isSystem: boolean;
+  ingestType?: IngestType;
+  description?: string;
+  icon?: string;
+  systemOwner: boolean;
+  /** Whether this tenant has any configuration group for it (pullers only). */
+  configured: boolean;
 }
 
 export interface DataTypeOption {
   dataType: string;
   name: string;
-  moduleName: string;
-  active: boolean;
-  isSystem: boolean;
+  systemOwner: boolean;
 }
 
 export type DeployKind = 'agents & syslog' | 'device' | 'antivirus' | 'other' | 'custom' | 'cloud' | 'utmstack modules'
@@ -46,7 +37,9 @@ export type Tab = 'all' | 'agents' | 'collectors' | 'cloud' |'custom'
 
 export interface Integration {
   id: string;
+  /** Display label, translated (i18n integrations.modules.<moduleName>). */
   name: string;
+  /** The catalog identity the API is addressed by, e.g. AWS_IAM_USER. */
   moduleName?: string;
   dataType?: string;
   ingestType?: string;
@@ -56,7 +49,7 @@ export interface Integration {
   category: string;
   logo: string;
   logoDark?: string;      // per-theme icon for system modules (falls back to logo)
-  isSystem?: boolean;     // false → custom (uses the catalog row's icon/description)
+  systemOwner?: boolean;  // false → custom (uses the catalog row's icon/description)
   darkInvert?: boolean;
   defaultPort?: string;
   cloudFields?: { label: string; placeholder: string; secret?: boolean }[];
@@ -64,8 +57,9 @@ export interface Integration {
   rate?: number;
 }
 
-export interface TenantResponse {
+export interface ConfigGroupResponse {
   name: string;
+  description?: string;
   config: Record<string, string>;
 }
 

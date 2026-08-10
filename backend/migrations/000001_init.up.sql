@@ -199,45 +199,49 @@ WHERE NOT EXISTS (
 -- datasource row that owns it.
 
 
-INSERT INTO utm_module (module_name, pretty_name, module_description, module_active, module_icon, module_category, ingest_type, data_type, is_system) VALUES
-    ('WINDOWS_AGENT',   'Windows Agent',                 '',                        true,  '', 'operating-system', 'agent',     'wineventlog',                true),
-    ('LINUX_AGENT',     'Linux Agent',                   '',                          true,  '',   'operating-system', 'agent',     'linux',                      true),
-    ('MACOS',           'macOS Agent',                   '',                  true,  '',         'operating-system', 'agent',     'macos',                      true),
-    ('VMWARE',          'VMware ESXi',                   '',                                    false, '',        'virtualization',   'forwarder', 'vmware-esxi',                true),
-    ('NETFLOW',         'Netflow',                       '',                 false, '',       'network',          'forwarder', 'netflow',                    true),
-    ('AWS_IAM_USER',    'AWS',                           '',                            false, '', 'cloud',           'plugin',    'aws',                        true),
-    ('AZURE',           'Azure',                         '',                            false, '',         'cloud',            'plugin',    'azure',                      true),
-    ('O365',            'Microsoft 365',                 '',            false, '',        'cloud',            'plugin',    'o365',                       true),
-    ('GCP',             'Google Cloud Platform',         '',         false, '',           'cloud',            'plugin',    'google',                     true),
-    ('KASPERSKY',       'Kaspersky Security',            '',           false, '',     'antivirus',        'forwarder', 'antivirus-kaspersky',        true),
-    ('ESET',            'ESET Endpoint Protection',      '',                    false, '',          'antivirus',        'forwarder', 'antivirus-esmc-eset',        true),
-    ('BITDEFENDER',     'Bitdefender',                   '',                            false, '',   'antivirus',        'plugin',    'antivirus-bitdefender-gz',   true),
-    ('SENTINEL_ONE',    'SentinelOne Endpoint Security', '',                              false, '',   'xdr',              'forwarder', 'antivirus-sentinel-one',     true),
-    ('SOPHOS',          'Sophos Central',                '',         false, '',        'xdr',              'plugin',    'sophos-central',             true),
-    ('CROWDSTRIKE',     'CrowdStrike',                   '',                              true,  '',   'xdr',              'plugin',    'crowdstrike',                true),
-    ('CISCO',           'Cisco ASA',                     '',                     false, '',         'firewall',         'forwarder', 'firewall-cisco-asa',         true),
-    ('MERAKI',          'Cisco Meraki',                  '',                                               false, '',        'firewall',         'forwarder', 'firewall-meraki',            true),
-    ('FIRE_POWER',      'Fire Power',                    '',                          false, '',    'firewall',         'forwarder', 'firewall-cisco-firepower',   true),
-    ('CISCO_SWITCH',    'Cisco Switch',                  '',                       false, '',         'network',          'forwarder', 'cisco-switch',               true),
-    ('FORTIGATE',       'FortiGate',                     '',                                           false, '',     'firewall',         'forwarder', 'firewall-fortigate-traffic', true),
-    ('FORTIWEB',        'FortiWeb',                      '',                                              false, '',     'firewall',         'forwarder', 'firewall-fortiweb',          true),
-    ('SOPHOS_XG',       'Sophos Firewall',               '',                       false, '',      'firewall',         'forwarder', 'firewall-sophos-xg',         true),
-    ('PALO_ALTO',       'Palo Alto',                     '',               false, '',     'firewall',         'forwarder', 'firewall-paloalto',          true),
-    ('SONIC_WALL',      'SonicWall',                     '',                                                    false, '',     'firewall',         'forwarder', 'firewall-sonicwall',         true),
-    ('PFSENSE',         'pfSense',                       '',                         false, '',       'firewall',         'forwarder', 'firewall-pfsense',           true),
-    ('MIKROTIK',        'MikroTik',                      '',                          false, '',      'firewall',         'forwarder', 'firewall-mikrotik',          true),
-    ('AIX',             'IBM AIX',                       '',                                 false, '',           'operating-system', 'forwarder', 'ibm-aix',                    true),
-    ('AS_400',          'AS/400',                        '',                                            false, '',    'operating-system', 'collector', 'ibm-as400',                  true),
-    ('ORACLE',          'Oracle',                        '',                                        false, '',        'database',         'forwarder', 'oracle',                     true),
-    ('SURICATA',        'Suricata',                      '',                       false, '',      'ids',              'forwarder', 'suricata',                   true),
-    ('DECEPTIVE_BYTES', 'Deceptive Bytes',               '',                                            false, '',   'deception',        'forwarder', 'deceptive-bytes',            true),
-    ('GITHUB',          'GitHub',                        '',                               false, '',        'devops',           'forwarder', 'github',                     true),
-    ('UTMSTACK',        'Utmstack',                      '',                                              false, '',      'siem',             'collector', 'utmstack',                   true)
-ON CONFLICT (module_name) DO UPDATE SET
-    module_category   = EXCLUDED.module_category,
-    ingest_type       = EXCLUDED.ingest_type,
-    module_description = EXCLUDED.module_description,
-    module_icon       = EXCLUDED.module_icon;
+-- The integrations the release ships. They carry system_owner and the nil
+-- tenant, which is what puts them in every tenant's reads and out of every
+-- tenant's writes: a customer configures them and adds its own beside them, but
+-- cannot edit or delete these. Description and icon are deliberately absent —
+-- the frontend owns them so they can be translated and themed (see
+-- i18n integrations.modules.<NAME> and constants/systemModules.ts).
+INSERT INTO integrations (tenant_id, name, data_type, ingest_type, system_owner) VALUES
+    ('00000000-0000-0000-0000-000000000000', 'WINDOWS_AGENT',      'wineventlog',                'agent', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'LINUX_AGENT',        'linux',                      'agent', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'MACOS',              'macos',                      'agent', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'VMWARE',             'vmware-esxi',                'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'NETFLOW',            'netflow',                    'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'AWS_IAM_USER',       'aws',                        'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'AZURE',              'azure',                      'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'O365',               'o365',                       'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'GCP',                'google',                     'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'KASPERSKY',          'antivirus-kaspersky',        'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'ESET',               'antivirus-esmc-eset',        'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'BITDEFENDER',        'antivirus-bitdefender-gz',   'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'SENTINEL_ONE',       'antivirus-sentinel-one',     'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'SOPHOS',             'sophos-central',             'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'CROWDSTRIKE',        'crowdstrike',                'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'CISCO',              'firewall-cisco-asa',         'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'MERAKI',             'firewall-meraki',            'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'FIRE_POWER',         'firewall-cisco-firepower',   'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'CISCO_SWITCH',       'cisco-switch',               'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'FORTIGATE',          'firewall-fortigate-traffic', 'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'FORTIWEB',           'firewall-fortiweb',          'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'SOPHOS_XG',          'firewall-sophos-xg',         'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'PALO_ALTO',          'firewall-paloalto',          'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'SONIC_WALL',         'firewall-sonicwall',         'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'PFSENSE',            'firewall-pfsense',           'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'MIKROTIK',           'firewall-mikrotik',          'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'AIX',                'ibm-aix',                    'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'AS_400',             'ibm-as400',                  'collector', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'ORACLE',             'oracle',                     'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'SURICATA',           'suricata',                   'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'DECEPTIVE_BYTES',    'deceptive-bytes',            'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'GITHUB',             'github',                     'forwarder', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'UTMSTACK',           'utmstack',                   'collector', TRUE)
+ON CONFLICT (tenant_id, name) DO UPDATE SET
+    data_type   = EXCLUDED.data_type,
+    ingest_type = EXCLUDED.ingest_type;
 
 -- Seed the system index patterns. Uses v11- prefix directly (no UPDATE step).
 

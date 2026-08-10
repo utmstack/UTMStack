@@ -27,11 +27,6 @@ const (
 	reconnectDelay     = 5 * time.Second
 )
 
-type streamKey struct {
-	groupID   int32
-	groupName string
-}
-
 type activeStream struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
@@ -44,7 +39,7 @@ type activeStream struct {
 }
 
 var (
-	activeStreams   = make(map[streamKey]*activeStream)
+	activeStreams   = make(map[string]*activeStream)
 	activeStreamsMu sync.RWMutex
 )
 
@@ -96,17 +91,16 @@ func updateStreams(newConfig *ConfigurationSection) {
 	activeStreamsMu.Lock()
 	defer activeStreamsMu.Unlock()
 
-	newGroups := make(map[streamKey]*ModuleGroup)
+	newGroups := make(map[string]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
-		key := streamKey{groupID: grp.Id, groupName: grp.GroupName}
-		newGroups[key] = grp
+		newGroups[grp.Key()] = grp
 	}
 
 	for key, stream := range activeStreams {
 		if _, exists := newGroups[key]; !exists {
 			stream.cancel()
 
-			go func(s *activeStream, k streamKey) {
+			go func(s *activeStream, k string) {
 				s.wg.Wait()
 				activeStreamsMu.Lock()
 				delete(activeStreams, k)
@@ -127,7 +121,7 @@ func updateStreams(newConfig *ConfigurationSection) {
 			if processorChanged(existingStream.processor, newProcessor) {
 				existingStream.cancel()
 
-				go func(s *activeStream, k streamKey, g *ModuleGroup) {
+				go func(s *activeStream, k string, g *ModuleGroup) {
 					s.wg.Wait()
 					activeStreamsMu.Lock()
 					delete(activeStreams, k)
@@ -141,7 +135,7 @@ func updateStreams(newConfig *ConfigurationSection) {
 	}
 }
 
-func startStream(key streamKey, group *ModuleGroup) {
+func startStream(key string, group *ModuleGroup) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	processor := buildProcessor(group)

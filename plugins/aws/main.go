@@ -34,7 +34,7 @@ type activeGroupStream struct {
 }
 
 var (
-	activeStreams = make(map[int32]*activeGroupStream)
+	activeStreams = make(map[string]*activeGroupStream)
 )
 
 func main() {
@@ -81,45 +81,45 @@ func watchConfigChanges() {
 }
 
 func syncStreams(moduleConfig *ConfigurationSection) {
-	currentGroupIDs := make(map[int32]bool)
+	currentKeys := make(map[string]bool)
 	for _, group := range moduleConfig.ModuleGroups {
 		currentConfig := getAWSProcessor(group)
-		groupID := group.Id
-		currentGroupIDs[groupID] = true
+		groupKey := group.Key()
+		currentKeys[groupKey] = true
 
-		existing := activeStreams[groupID]
+		existing := activeStreams[groupKey]
 
 		if existing == nil {
-			startGroupStream(groupID, group)
+			startGroupStream(groupKey, group)
 		} else if existing.config != currentConfig {
 			catcher.Info("Configuration changed for group, restarting", map[string]any{
 				"group":   group.GroupName,
 				"process": "plugin_com.utmstack.aws",
 			})
 			existing.cancel()
-			delete(activeStreams, groupID)
-			startGroupStream(groupID, group)
+			delete(activeStreams, groupKey)
+			startGroupStream(groupKey, group)
 		}
 	}
 
-	for groupID, stream := range activeStreams {
-		if !currentGroupIDs[groupID] {
+	for groupKey, stream := range activeStreams {
+		if !currentKeys[groupKey] {
 			catcher.Info("Group removed, stopping stream", map[string]any{
-				"groupId": groupID,
+				"group":   groupKey,
 				"process": "plugin_com.utmstack.aws",
 			})
 			stream.cancel()
-			delete(activeStreams, groupID)
+			delete(activeStreams, groupKey)
 		}
 	}
 }
 
-func startGroupStream(groupID int32, group *ModuleGroup) {
+func startGroupStream(groupKey string, group *ModuleGroup) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	groupConfig := getAWSProcessor(group)
 
-	activeStreams[groupID] = &activeGroupStream{
+	activeStreams[groupKey] = &activeGroupStream{
 		cancel: cancel,
 		config: groupConfig,
 	}
@@ -142,9 +142,9 @@ func stopAllStreams() {
 		"process": "plugin_com.utmstack.aws",
 	})
 
-	for groupID, stream := range activeStreams {
+	for groupKey, stream := range activeStreams {
 		stream.cancel()
-		delete(activeStreams, groupID)
+		delete(activeStreams, groupKey)
 	}
 }
 

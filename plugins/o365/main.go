@@ -73,7 +73,7 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 
 var (
 	activeGroupsMu sync.RWMutex
-	activeGroups   = make(map[int32]*ModuleGroup)
+	activeGroups   = make(map[string]*ModuleGroup)
 )
 
 func main() {
@@ -99,26 +99,28 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
 			"process": "plugin_com.utmstack.o365",
 		})
-		activeGroups = make(map[int32]*ModuleGroup)
+		activeGroups = make(map[string]*ModuleGroup)
 		return
 	}
 
-	newGroups := make(map[int32]*ModuleGroup)
+	newGroups := make(map[string]*ModuleGroup)
 	for _, grp := range newConfig.ModuleGroups {
-		newGroups[grp.Id] = grp
+		newGroups[grp.Key()] = grp
 	}
 
-	for id := range activeGroups {
-		if _, exists := newGroups[id]; !exists {
+	for key := range activeGroups {
+		if _, exists := newGroups[key]; !exists {
 			catcher.Info("Group removed from configuration", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.o365",
 			})
 		}
 	}
 
-	for id := range newGroups {
-		if _, exists := activeGroups[id]; !exists {
+	for key := range newGroups {
+		if _, exists := activeGroups[key]; !exists {
 			catcher.Info("New group added to configuration", map[string]any{
+				"group":   key,
 				"process": "plugin_com.utmstack.o365",
 			})
 		}

@@ -36,6 +36,8 @@ type ModuleGroup struct {
 	ModuleGroupConfigurations []*Configuration
 }
 
+func (g *ModuleGroup) Key() string { return g.TenantId + "/" + g.GroupName }
+
 type Configuration struct {
 	ConfKey   string
 	ConfValue string
@@ -158,16 +160,15 @@ func push(sec *ConfigurationSection) {
 	}
 }
 
-// tenantYAML matches the flat YAML format the backend writes. TenantId is
-// UTMStack's own platform tenant this connector instance belongs to — empty
-// for every on-prem/single-tenant install (readConfig falls back to
-// defaultTenant), only ever set for a SaaS tenant's own connector config.
-// Name stays what it always was: a free-form label for this instance, not a
-// tenant identity.
+type configGroupYAML struct {
+	Name        string            `yaml:"name"`
+	Description string            `yaml:"description,omitempty"`
+	Config      map[string]string `yaml:"config"`
+}
+
 type tenantYAML struct {
-	Name     string            `yaml:"name"`
-	TenantId string            `yaml:"tenantId,omitempty"`
-	Config   map[string]string `yaml:",inline"`
+	ID     string            `yaml:"id"`
+	Groups []configGroupYAML `yaml:"groups"`
 }
 
 type pluginsFile struct {
@@ -201,27 +202,31 @@ func readConfig(path, encKey string) *ConfigurationSection {
 	}
 	tenants := pf.Plugins[pluginKey].Tenants
 
-	sec := &ConfigurationSection{
-		ModuleActive: len(tenants) > 0,
-	}
-	for i, t := range tenants {
-		grp := &ModuleGroup{
-			Id:        int32(i + 1),
-			GroupName: t.Name,
-			TenantId:  t.TenantId,
-		}
-		for k, v := range t.Config {
-			conf := &Configuration{ConfKey: k, ConfValue: v}
-			if encKey != "" && sensitiveKeys[conf.ConfKey] {
-				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
-				if err == nil {
-					conf.ConfValue = dec
-				}
+	sec := &ConfigurationSection{}
+	var id int32
+	for _, tc := range tenants {
+		for _, g := range tc.Groups {
+			id++
+			grp := &ModuleGroup{
+				Id:        id,
+				GroupName: g.Name,
+				TenantId:  tc.ID,
 			}
-			grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+			for k, v := range g.Config {
+				conf := &Configuration{ConfKey: k, ConfValue: v}
+				if encKey != "" && sensitiveKeys[conf.ConfKey] {
+					dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
+					if err == nil {
+						conf.ConfValue = dec
+					}
+				}
+				grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+			}
+			sec.ModuleGroups = append(sec.ModuleGroups, grp)
 		}
-		sec.ModuleGroups = append(sec.ModuleGroups, grp)
 	}
+	// A tenant section with no groups must not read as configured.
+	sec.ModuleActive = len(sec.ModuleGroups) > 0
 	return sec
 }
 

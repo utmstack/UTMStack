@@ -7,7 +7,7 @@ import { CloudTenantList } from './CloudTenantList'
 import { CloudTenantForm } from './CloudTenantForm'
 import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
 import { AWS_FIELDS } from './builders/aws'
-import type { Integration, TenantResponse } from '@/features/integrations/types'
+import type { Integration, ConfigGroupResponse } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.cloud.aws'
 const IAM = '/integrations/guides/aws/iam'
@@ -51,16 +51,16 @@ function SectionLabel({ title }: { title: string }) {
 
 export function AWSGuide({ integration }: { integration: Integration }) {
   const { t } = useTranslation()
-  const { tenants: tenantsQuery, deleteTenant } = useIntegrations()
+  const { configGroups: tenantsQuery, deleteConfigGroup } = useIntegrations()
 
   const moduleName = integration.moduleName ?? ''
   const tenantList = tenantsQuery(moduleName)
-  const tenants: TenantResponse[] = tenantList.data ?? []
+  const tenants: ConfigGroupResponse[] = tenantList.data ?? []
 
-  const [editing, setEditing] = useState<TenantResponse | null>(null)
+  const [editing, setEditing] = useState<ConfigGroupResponse | null>(null)
 
   const handleDelete = (name: string) => {
-    deleteTenant.mutate({ moduleName, name })
+    deleteConfigGroup.mutate({ integration: moduleName, name })
     if (editing?.name === name) setEditing(null)
   }
 
@@ -124,7 +124,7 @@ export function AWSGuide({ integration }: { integration: Integration }) {
           ) : (
             <CloudTenantList
               tenants={tenants}
-              isDeleting={deleteTenant.isPending}
+              isDeleting={deleteConfigGroup.isPending}
               onEdit={setEditing}
               onDelete={handleDelete}
             />

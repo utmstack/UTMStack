@@ -56,7 +56,7 @@ func Models() []any {
 		compliance_domain.Report{},
 		compliance_domain.ReportScore{},
 		opensearch_domain.UtmIndexPattern{},
-		integrations_domain.UtmModule{},
+		integrations_domain.Integration{},
 		incidents_domain.Incident{},
 		incidents_domain.IncidentAlert{},
 		incidents_domain.IncidentNote{},

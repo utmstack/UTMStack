@@ -20,12 +20,9 @@ type SetDataTypeConfigRequest struct {
 }
 
 type ConfigKnowledgeResponse struct {
-	Accepted     bool   `json:"accepted"`
-	RequestID    string `json:"requestId,omitempty"`
-	ErrorMessage string `json:"errorMessage,omitempty"`
-	// GeneratedSecret is only populated when a brand-new bearer/hmac token was
-	// generated for the first time; never re-exposed on subsequent enables of
-	// the same integration.
+	Accepted        bool   `json:"accepted"`
+	RequestID       string `json:"requestId,omitempty"`
+	ErrorMessage    string `json:"errorMessage,omitempty"`
 	GeneratedSecret string `json:"generatedSecret,omitempty"`
 }
 

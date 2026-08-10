@@ -1,34 +1,28 @@
 import { createApiClient } from '@/shared/lib/api-client'
 import type {
-  ModuleActivationRequest,
-  CreateModuleRequest,
-  UpdateModuleRequest,
-  ModuleResponse,
+  CreateIntegrationRequest,
+  UpdateIntegrationRequest,
+  IntegrationResponse,
   DataTypeOption,
-  TenantResponse,
+  ConfigGroupResponse,
 } from '@/features/integrations/types'
 
 export interface IntegrationsService {
-  // Module operations
-  listModules(): Promise<ModuleResponse[]>
-  getModule(id: number): Promise<ModuleResponse>
-  createModule(data: CreateModuleRequest): Promise<ModuleResponse>
-  updateModule(id: number, data: UpdateModuleRequest): Promise<ModuleResponse>
-  deleteModule(id: number): Promise<void>
-  activateDeactivateModule(data: ModuleActivationRequest): Promise<ModuleResponse>
-
-  // Module metadata
-  getCategories(): Promise<string[]>
+  // Catalog
+  listIntegrations(): Promise<IntegrationResponse[]>
+  getIntegration(id: string): Promise<IntegrationResponse>
+  createIntegration(data: CreateIntegrationRequest): Promise<IntegrationResponse>
+  updateIntegration(id: string, data: UpdateIntegrationRequest): Promise<IntegrationResponse>
+  deleteIntegration(id: string): Promise<void>
   getDataTypes(): Promise<DataTypeOption[]>
-  isActive(moduleName: string): Promise<{ isActive: boolean }>
 
-  // Tenant operations
-  listTenants(moduleName: string): Promise<TenantResponse[]>
-  saveTenant(moduleName: string, data: TenantResponse): Promise<TenantResponse>
-  deleteTenant(moduleName: string, name: string): Promise<void>
+  // Configuration groups — one connector instance each, scoped to this tenant
+  listConfigGroups(integration: string): Promise<ConfigGroupResponse[]>
+  saveConfigGroup(integration: string, data: ConfigGroupResponse): Promise<void>
+  deleteConfigGroup(integration: string, name: string): Promise<void>
 }
 
-const BASE_INTEGRATIONS_URL='/integrations'
+const BASE = '/integrations'
 
 export function createIntegrationsService(baseUrl?: string): IntegrationsService {
   const api = createApiClient(baseUrl)
@@ -36,45 +30,28 @@ export function createIntegrationsService(baseUrl?: string): IntegrationsService
   return {
     // The integrations page is a full catalog (cards/tabs), not a paginated table.
     // GET /integrations defaults to page size 20 (database.Params), so request the
-    // backend max (MaxPageSize=200) to bring every module in one call.
-    listModules: () => api.get<ModuleResponse[]>(`${BASE_INTEGRATIONS_URL}?size=200`),
+    // backend max (MaxPageSize=200) to bring everything in one call.
+    listIntegrations: () => api.get<IntegrationResponse[]>(`${BASE}?size=200`),
 
-    getModule: (id: number) => api.get<ModuleResponse>(`${BASE_INTEGRATIONS_URL}${id}`),
+    getIntegration: (id) => api.get<IntegrationResponse>(`${BASE}/${id}`),
 
-    createModule: (data: CreateModuleRequest) =>
-      api.post<ModuleResponse>(`${BASE_INTEGRATIONS_URL}`, data),
+    createIntegration: (data) => api.post<IntegrationResponse>(BASE, data),
 
-    updateModule: (id: number, data: UpdateModuleRequest) =>
-      api.put<ModuleResponse>(`${BASE_INTEGRATIONS_URL}/${id}`, data),
+    updateIntegration: (id, data) => api.put<IntegrationResponse>(`${BASE}/${id}`, data),
 
-    deleteModule: (id: number) => api.delete<void>(`${BASE_INTEGRATIONS_URL}/${id}`),
+    deleteIntegration: (id) => api.delete<void>(`${BASE}/${id}`),
 
-    activateDeactivateModule: (data: ModuleActivationRequest) =>
-      api.put<ModuleResponse>(`${BASE_INTEGRATIONS_URL}/activate`, data),
+    getDataTypes: () => api.get<DataTypeOption[]>(`${BASE}/data-types`),
 
-    getCategories: () => api.get<string[]>(`${BASE_INTEGRATIONS_URL}/categories`),
+    listConfigGroups: (integration) =>
+      api.get<ConfigGroupResponse[]>(`${BASE}/config/${encodeURIComponent(integration)}`),
 
-    getDataTypes: () => api.get<DataTypeOption[]>(`${BASE_INTEGRATIONS_URL}/data-types`),
+    saveConfigGroup: (integration, data) =>
+      api.put<void>(`${BASE}/config/${encodeURIComponent(integration)}`, data),
 
-    isActive: (moduleName: string) =>
-      api.get<{ isActive: boolean }>(`${BASE_INTEGRATIONS_URL}/is-active?moduleName=${moduleName}`),
-
-    listTenants: (moduleName: string) =>
-      api.get<TenantResponse[]>(
-        `${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName),
-      ),
-
-    saveTenant: (moduleName: string, data: TenantResponse) =>
-      api.put<TenantResponse>(
-        `${BASE_INTEGRATIONS_URL}/tenants/:module`.replace(':module', moduleName),
-        data,
-      ),
-
-    deleteTenant: (moduleName: string, name: string) =>
+    deleteConfigGroup: (integration, name) =>
       api.delete<void>(
-        `${BASE_INTEGRATIONS_URL}/tenants/:module/:name`
-          .replace(':module', moduleName)
-          .replace(':name', name)
+        `${BASE}/config/${encodeURIComponent(integration)}/${encodeURIComponent(name)}`,
       ),
   }
 }

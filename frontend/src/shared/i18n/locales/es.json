@@ -1849,9 +1849,6 @@
       "connect": "Conectar",
       "configureCustom": "Configurar fuente personalizada",
       "eventsRate": "{{rate}} eventos/s · {{count}} en 24h",
-      "enableToSetup": "Activa esta integración primero — la guía de configuración aparecerá aquí una vez que esté habilitada.",
-      "enable": "Habilitar",
-      "disable": "Deshabilitar",
       "manageRules": "Reglas",
       "manageFilters": "Filtros"
     },
@@ -3412,20 +3409,15 @@
       "namePlaceholder": "p. ej. Acme Firewall",
       "description": "Descripción",
       "descriptionPlaceholder": "Qué ingiere esta integración y por qué (opcional)",
-      "category": "Categoría",
       "identifierHint": "Se almacena como “{{id}}” (derivado del nombre)",
       "nameTaken": "Ese nombre de integración no está disponible — ya existe una integración con ese identificador.",
       "removeIcon": "Eliminar icono",
-      "defaultIconNote": "Icono predeterminado — sube un archivo para usar el tuyo.",
-      "categoryPlaceholder": "Seleccionar una categoría…"
+      "defaultIconNote": "Icono predeterminado — sube un archivo para usar el tuyo."
     },
     "toast": {
       "created": "Integración creada",
       "updated": "Integración actualizada",
-      "updateError": "Error al actualizar la integración",
-      "enabled": "Integración habilitada",
-      "disabled": "Integración deshabilitada",
-      "toggleError": "Error al cambiar el estado de la integración"
+      "updateError": "Error al actualizar la integración"
     },
     "delete": {
       "title": "Eliminar integración",

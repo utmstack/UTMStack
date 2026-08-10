@@ -1849,11 +1849,8 @@
       "connect": "Connetti",
       "configureCustom": "Configura fonte personalizzata",
       "eventsRate": "{{rate}} eventi/s · {{count}} in 24h",
-      "enable": "Abilita",
-      "disable": "Disabilita",
       "manageRules": "Regole",
-      "manageFilters": "Filtri",
-      "enableToSetup": "Abilita prima questa integrazione — la guida alla configurazione apparirà qui una volta attiva."
+      "manageFilters": "Filtri"
     },
     "setup": {
       "agent": {
@@ -3450,20 +3447,15 @@
       "namePlaceholder": "es. Acme Firewall",
       "description": "Descrizione",
       "descriptionPlaceholder": "Cosa acquisisce questa integrazione e perché (facoltativo)",
-      "category": "Categoria",
       "identifierHint": "Salvato come “{{id}}” (derivato dal nome)",
       "nameTaken": "Questo nome di integrazione non può essere utilizzato — esiste già un'integrazione con quell'identificatore.",
       "removeIcon": "Rimuovi icona",
-      "defaultIconNote": "Icona predefinita — carica un file per usare la tua.",
-      "categoryPlaceholder": "Seleziona una categoria…"
+      "defaultIconNote": "Icona predefinita — carica un file per usare la tua."
     },
     "toast": {
       "created": "Integrazione creata",
       "updated": "Integrazione aggiornata",
-      "updateError": "Aggiornamento dell'integrazione non riuscito",
-      "enabled": "Integrazione abilitata",
-      "disabled": "Integrazione disabilitata",
-      "toggleError": "Impossibile modificare lo stato dell'integrazione"
+      "updateError": "Aggiornamento dell'integrazione non riuscito"
     },
     "delete": {
       "title": "Elimina integrazione",

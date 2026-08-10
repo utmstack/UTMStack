@@ -242,7 +242,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
-		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
+		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	incidentsMod := incidents.NewModule(
 		db,
@@ -253,11 +253,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	adauditMod := adaudit.NewModule(db)
 	threatintelMod := threatintel.NewModule(env.String("UPDATES_DIR", "/updates", false))
 
-	//loaded after opensearch has fully loaded
 	integrationsMod := integrations.NewModule(db, cipher,
-		env.String("INTEGRATIONS_TENANT_DIR", "/workdir/pipeline", false),
+		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		dsUC,
-		opensearchMod.GetIndexPatternUsecase(),
 		agentClient,
 	)
 

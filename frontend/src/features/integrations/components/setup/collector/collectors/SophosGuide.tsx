@@ -7,7 +7,7 @@ import { CloudTenantList } from '@/features/integrations/components/setup/cloud/
 import { CloudTenantForm } from '@/features/integrations/components/setup/cloud/CloudTenantForm'
 import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
 import type { CloudConfigField } from '@/features/integrations/components/setup/cloud/builders/cloudGuideBuilder'
-import type { Integration, TenantResponse } from '@/features/integrations/types'
+import type { Integration, ConfigGroupResponse } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.sophos'
 const IMG = '/integrations/guides/collector/sophos'
@@ -46,16 +46,16 @@ function SectionLabel({ title }: { title: string }) {
 
 export function SophosGuide({ module: integration }: { module: Integration }) {
   const { t } = useTranslation()
-  const { tenants: tenantsQuery, deleteTenant } = useIntegrations()
+  const { configGroups: tenantsQuery, deleteConfigGroup } = useIntegrations()
 
   const moduleName = integration.moduleName ?? 'SOPHOS'
   const tenantList = tenantsQuery(moduleName)
-  const tenants: TenantResponse[] = tenantList.data ?? []
+  const tenants: ConfigGroupResponse[] = tenantList.data ?? []
 
-  const [editing, setEditing] = useState<TenantResponse | null>(null)
+  const [editing, setEditing] = useState<ConfigGroupResponse | null>(null)
 
   const handleDelete = (name: string) => {
-    deleteTenant.mutate({ moduleName, name })
+    deleteConfigGroup.mutate({ integration: moduleName, name })
     if (editing?.name === name) setEditing(null)
   }
 
@@ -119,7 +119,7 @@ export function SophosGuide({ module: integration }: { module: Integration }) {
           ) : (
             <CloudTenantList
               tenants={tenants}
-              isDeleting={deleteTenant.isPending}
+              isDeleting={deleteConfigGroup.isPending}
               onEdit={setEditing}
               onDelete={handleDelete}
             />

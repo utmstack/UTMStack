@@ -142,41 +142,41 @@ func (pm *ProcessorManager) syncProcessors() {
 			}
 		}
 		if valid {
-			currentGroups[grp.GroupName] = grp
+			currentGroups[grp.Key()] = grp
 		}
 	}
 
 	pm.processors.Range(func(key, value any) bool {
-		groupName := key.(string)
-		if _, exists := currentGroups[groupName]; !exists {
-			pm.stop(groupName)
+		groupKey := key.(string)
+		if _, exists := currentGroups[groupKey]; !exists {
+			pm.stop(groupKey)
 		}
 		return true
 	})
 
-	for groupName, grp := range currentGroups {
+	for groupKey, grp := range currentGroups {
 		newConfig := getAzureProcessor(grp)
 
-		if existing, ok := pm.processors.Load(groupName); ok {
+		if existing, ok := pm.processors.Load(groupKey); ok {
 			activeProc := existing.(*ActiveProcessor)
 
 			if configChanged(activeProc.config, newConfig) {
-				pm.stop(groupName)
-				pm.start(groupName, newConfig)
+				pm.stop(groupKey)
+				pm.start(groupKey, newConfig)
 			} else {
 				select {
 				case <-activeProc.done:
-					pm.start(groupName, newConfig)
+					pm.start(groupKey, newConfig)
 				default:
 				}
 			}
 		} else {
-			pm.start(groupName, newConfig)
+			pm.start(groupKey, newConfig)
 		}
 	}
 }
 
-func (pm *ProcessorManager) start(groupName string, config AzureConfig) {
+func (pm *ProcessorManager) start(groupKey string, config AzureConfig) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	activeProc := &ActiveProcessor{
@@ -185,7 +185,7 @@ func (pm *ProcessorManager) start(groupName string, config AzureConfig) {
 		done:   make(chan struct{}),
 	}
 
-	pm.processors.Store(groupName, activeProc)
+	pm.processors.Store(groupKey, activeProc)
 
 	go func() {
 		defer close(activeProc.done)
@@ -193,8 +193,8 @@ func (pm *ProcessorManager) start(groupName string, config AzureConfig) {
 	}()
 }
 
-func (pm *ProcessorManager) stop(groupName string) {
-	if value, ok := pm.processors.LoadAndDelete(groupName); ok {
+func (pm *ProcessorManager) stop(groupKey string) {
+	if value, ok := pm.processors.LoadAndDelete(groupKey); ok {
 		activeProc := value.(*ActiveProcessor)
 		activeProc.cancel()
 
@@ -207,8 +207,7 @@ func (pm *ProcessorManager) stop(groupName string) {
 
 func (pm *ProcessorManager) stopAll() {
 	pm.processors.Range(func(key, value any) bool {
-		groupName := key.(string)
-		pm.stop(groupName)
+		pm.stop(key.(string))
 		return true
 	})
 }

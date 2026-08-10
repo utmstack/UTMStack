@@ -3,36 +3,35 @@ package connectors
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
-type TenantRepository interface {
-	Load(module string) ([]domain.Tenant, error)
-	Save(module string, tenants []domain.Tenant) error
-	Upsert(module string, t domain.Tenant) error
-	Delete(module, name, tenantId string) error
-	SetActiveByModule(ctx context.Context, module string, active bool) error
+type ConfigRepository interface {
+	Load(ctx context.Context, integration string) ([]domain.ConfigGroup, error)
+	LoadAllTenants(ctx context.Context, integration string) ([]domain.TenantConfig, error)
+	Save(ctx context.Context, integration string, groups []domain.ConfigGroup) error
+	Upsert(ctx context.Context, integration string, group domain.ConfigGroup) error
+	Delete(ctx context.Context, integration, groupName string) error
 }
 
-type ModuleRepository interface {
-	GetByID(ctx context.Context, id int64) (*domain.UtmModule, error)
-	GetByName(ctx context.Context, moduleName string) (*domain.UtmModule, error)
-	List(ctx context.Context, filter ModuleListFilter) ([]domain.UtmModule, int64, error)
-	Save(ctx context.Context, module *domain.UtmModule) error
-	Delete(ctx context.Context, id int64) error
-	Categories(ctx context.Context) ([]string, error)
-	DataTypes(ctx context.Context) ([]domain.UtmModule, error)
-	CountActiveByName(ctx context.Context, moduleName string) (int64, error)
+type IntegrationRepository interface {
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Integration, error)
+	GetByName(ctx context.Context, name string) (*domain.Integration, error)
+	List(ctx context.Context, filter IntegrationListFilter) ([]domain.Integration, int64, error)
+	Save(ctx context.Context, integration *domain.Integration) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	DataTypes(ctx context.Context) ([]domain.Integration, error)
 }
 
-type ModuleListFilter struct {
-	ModuleCategory *string
-	ModuleActive   *bool
-	NameContains   *string
+type IntegrationListFilter struct {
+	NameContains *string
+	IngestType   *domain.IngestType
 	database.Params
 }
 
 type SchemaProvider interface {
-	Schema(module string) (map[string]string, error)
+	Schema(integration string) (map[string]string, error)
 }

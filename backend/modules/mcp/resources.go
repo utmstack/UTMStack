@@ -25,10 +25,10 @@ func registerCatalogResources(m *Module) {
 	srv.AddResource(&mcp.Resource{
 		URI:         "mcp://utmstack/catalog/integrations",
 		Name:        "Integrations catalog",
-		Description: "Live list of integration modules with data type, pretty name, category, and active flag. Useful before integrations.activate.",
+		Description: "Live list of integrations with data type and ingest type: the ones the release ships plus the ones this tenant added.",
 		MIMEType:    "application/json",
 	}, func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
-		items, total, err := m.deps.Integrations.Modules().List(ctx, connectors.ModuleListFilter{})
+		items, total, err := m.deps.Integrations.Integrations().List(ctx, connectors.IntegrationListFilter{})
 		if err != nil {
 			return nil, err
 		}

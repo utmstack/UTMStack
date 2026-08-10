@@ -1849,11 +1849,8 @@
       "connect": "Verbinden",
       "configureCustom": "Benutzerdefinierte Quelle konfigurieren",
       "eventsRate": "{{rate}} Ereignisse/s · {{count}} in 24h",
-      "enable": "Aktivieren",
-      "disable": "Deaktivieren",
       "manageRules": "Regeln",
-      "manageFilters": "Filter",
-      "enableToSetup": "Aktivieren Sie diese Integration zuerst — der Einrichtungsleitfaden wird hier angezeigt, sobald sie aktiv ist."
+      "manageFilters": "Filter"
     },
     "setup": {
       "agent": {
@@ -3450,20 +3447,15 @@
       "namePlaceholder": "z. B. Acme Firewall",
       "description": "Beschreibung",
       "descriptionPlaceholder": "Was diese Integration erfasst und warum (optional)",
-      "category": "Kategorie",
       "identifierHint": "Gespeichert als „{{id}}“ (abgeleitet vom Namen)",
       "nameTaken": "Dieser Integrationsname kann nicht verwendet werden — eine Integration mit diesem Bezeichner ist bereits vorhanden.",
       "removeIcon": "Symbol entfernen",
-      "defaultIconNote": "Standardsymbol — Datei hochladen, um ein eigenes zu verwenden.",
-      "categoryPlaceholder": "Kategorie auswählen…"
+      "defaultIconNote": "Standardsymbol — Datei hochladen, um ein eigenes zu verwenden."
     },
     "toast": {
       "created": "Integration erstellt",
       "updated": "Integration aktualisiert",
-      "updateError": "Integration konnte nicht aktualisiert werden",
-      "enabled": "Integration aktiviert",
-      "disabled": "Integration deaktiviert",
-      "toggleError": "Integrationsstatus konnte nicht geändert werden"
+      "updateError": "Integration konnte nicht aktualisiert werden"
     },
     "delete": {
       "title": "Integration löschen",

@@ -36,6 +36,8 @@ type ModuleGroup struct {
 	ModuleGroupConfigurations []*Configuration
 }
 
+func (g *ModuleGroup) Key() string { return g.UtmTenantId + "/" + g.GroupName }
+
 type Configuration struct {
 	ConfKey   string
 	ConfValue string
@@ -158,19 +160,15 @@ func push(sec *ConfigurationSection) {
 	}
 }
 
-// tenantYAML matches the flat YAML format the backend writes. UtmTenantId is
-// UTMStack's own platform tenant this connector instance belongs to — empty
-// for every on-prem/single-tenant install (readConfig falls back to
-// DefaultTenant), only ever set for a SaaS tenant's own connector config. It
-// is unrelated to the Microsoft Azure AD tenant ID configured per-instance as
-// "office365_tenant_id" (see OfficeProcessor.TenantId in main.go) — that one
-// identifies the customer's own Microsoft 365 tenant, not ours. Name stays
-// what it always was: a free-form label for this instance, not a tenant
-// identity.
-type tenantYAML struct {
+type configGroupYAML struct {
 	Name        string            `yaml:"name"`
-	UtmTenantId string            `yaml:"tenantId,omitempty"`
-	Config      map[string]string `yaml:",inline"`
+	Description string            `yaml:"description,omitempty"`
+	Config      map[string]string `yaml:"config"`
+}
+
+type tenantYAML struct {
+	ID     string            `yaml:"id"`
+	Groups []configGroupYAML `yaml:"groups"`
 }
 
 type pluginsFile struct {
@@ -204,27 +202,31 @@ func readConfig(path, encKey string) *ConfigurationSection {
 	}
 	tenants := pf.Plugins[pluginKey].Tenants
 
-	sec := &ConfigurationSection{
-		ModuleActive: len(tenants) > 0,
-	}
-	for i, t := range tenants {
-		grp := &ModuleGroup{
-			Id:          int32(i + 1),
-			GroupName:   t.Name,
-			UtmTenantId: t.UtmTenantId,
-		}
-		for k, v := range t.Config {
-			conf := &Configuration{ConfKey: k, ConfValue: v}
-			if sensitiveKeys[k] && encKey != "" {
-				dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
-				if err == nil {
-					conf.ConfValue = dec
-				}
+	sec := &ConfigurationSection{}
+	var id int32
+	for _, tc := range tenants {
+		for _, g := range tc.Groups {
+			id++
+			grp := &ModuleGroup{
+				Id:          id,
+				GroupName:   g.Name,
+				UtmTenantId: tc.ID,
 			}
-			grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+			for k, v := range g.Config {
+				conf := &Configuration{ConfKey: k, ConfValue: v}
+				if sensitiveKeys[k] && encKey != "" {
+					dec, err := NewCipher(encKey).Decrypt(conf.ConfValue)
+					if err == nil {
+						conf.ConfValue = dec
+					}
+				}
+				grp.ModuleGroupConfigurations = append(grp.ModuleGroupConfigurations, conf)
+			}
+			sec.ModuleGroups = append(sec.ModuleGroups, grp)
 		}
-		sec.ModuleGroups = append(sec.ModuleGroups, grp)
 	}
+	// A tenant section with no groups must not read as configured.
+	sec.ModuleActive = len(sec.ModuleGroups) > 0
 	return sec
 }
 

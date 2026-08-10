@@ -4,8 +4,7 @@ import { X, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { useThemeContext } from '@/app/providers/ThemeProvider'
-import { categoryLabel } from '@/features/integrations/constants'
-import type { CreateModuleRequest } from '@/features/integrations/types'
+import type { CreateIntegrationRequest } from '@/features/integrations/types'
 
 // When set, the drawer runs in edit mode (updates prettyName/description/icon/
 // category). moduleName + dataType are identity keys and are NOT recomputed.
@@ -13,22 +12,19 @@ export interface EditTarget {
   id: string
   prettyName: string
   description: string
-  category: string
   currentIcon?: string
 }
 
 interface CreateIntegrationDrawerProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: CreateModuleRequest) => Promise<void>
+  onSubmit: (data: CreateIntegrationRequest) => Promise<void>
   isSubmitting: boolean
   editing?: EditTarget | null
   // Existing identifiers (lowercased) used to reject a name whose derived
   // moduleName/dataType would collide. Excludes the module being edited.
   takenModuleNames: string[]
   takenDataTypes: string[]
-  // Distinct module categories already in use (the selector's options).
-  categories: string[]
 }
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
@@ -56,7 +52,6 @@ export function CreateIntegrationDrawer({
   editing,
   takenModuleNames,
   takenDataTypes,
-  categories,
 }: CreateIntegrationDrawerProps) {
   const { t } = useTranslation()
   const { theme } = useThemeContext()
@@ -64,7 +59,6 @@ export function CreateIntegrationDrawer({
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('')
   const [iconDataUrl, setIconDataUrl] = useState<string | null>(null)
   const [iconRemoved, setIconRemoved] = useState(false)
   const [iconError, setIconError] = useState<string | null>(null)
@@ -74,7 +68,6 @@ export function CreateIntegrationDrawer({
     if (!open) return
     setName(editing?.prettyName ?? '')
     setDescription(editing?.description ?? '')
-    setCategory(editing?.category ?? '')
     setIconDataUrl(null)
     setIconRemoved(false)
     setIconError(null)
@@ -91,7 +84,7 @@ export function CreateIntegrationDrawer({
 
   const isValid = isEdit
     ? !!name.trim()
-    : !!name.trim() && !!slug && !!category && !nameTaken
+    : !!name.trim() && !!slug && !nameTaken
 
   // Icon preview resolution: uploaded > existing (edit, not removed) > default.
   const defaultIcon = theme === 'dark' ? '/integrations/custom-dark.svg' : '/integrations/custom.svg'
@@ -133,12 +126,13 @@ export function CreateIntegrationDrawer({
     const submitIcon = iconDataUrl ? iconDataUrl : iconRemoved ? '' : undefined
     try {
       await onSubmit({
-        moduleName: computedModuleName,
+        name: computedModuleName,
         dataType: slug,
-        prettyName: name.trim(),
-        moduleDescription: description.trim() || undefined,
-        moduleCategory: category,
-        moduleIcon: submitIcon,
+        description: description.trim() || undefined,
+        icon: submitIcon,
+        // Custom integrations are fed by a forwarder; agents, collectors and
+        // pullers all need shipped code that a catalog entry cannot supply.
+        ingestType: 'forwarder',
       })
     } catch {
       // Error handled by parent.
@@ -210,28 +204,6 @@ export function CreateIntegrationDrawer({
                 disabled={isSubmitting}
                 className={fieldCls}
               />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="mb-1 block text-xs uppercase tracking-wider text-muted-foreground">
-                {t('integrations.createDrawer.category')}
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                disabled={isSubmitting}
-                className={`${fieldCls} h-9 py-0`}
-              >
-                <option value="" disabled>
-                  {t('integrations.createDrawer.categoryPlaceholder')}
-                </option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {categoryLabel(c)}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Icon — default shown until the user uploads one; removable */}

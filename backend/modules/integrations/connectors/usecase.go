@@ -3,20 +3,19 @@ package connectors
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
 )
 
-type ModuleUsecase interface {
-	ActivateDeactivate(ctx context.Context, req dto.ModuleActivationRequest) (*dto.ModuleResponse, error)
-	Create(ctx context.Context, req dto.CreateModuleRequest) (*dto.ModuleResponse, error)
-	Update(ctx context.Context, id int64, req dto.UpdateModuleRequest) (*dto.ModuleResponse, error)
-	Delete(ctx context.Context, id int64) error
-	List(ctx context.Context, filter ModuleListFilter) ([]dto.ModuleResponse, int64, error)
-	GetByID(ctx context.Context, id int64) (*dto.ModuleResponse, error)
-	GetByName(ctx context.Context, moduleName string) (*dto.ModuleResponse, error)
-	Categories(ctx context.Context) ([]string, error)
+type IntegrationUsecase interface {
+	Create(ctx context.Context, req dto.CreateIntegrationRequest) (*dto.IntegrationResponse, error)
+	Update(ctx context.Context, id uuid.UUID, req dto.UpdateIntegrationRequest) (*dto.IntegrationResponse, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context, filter IntegrationListFilter) ([]dto.IntegrationResponse, int64, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*dto.IntegrationResponse, error)
+	GetByName(ctx context.Context, name string) (*dto.IntegrationResponse, error)
 	DataTypes(ctx context.Context) ([]dto.DataTypeOption, error)
-	IsActive(ctx context.Context, moduleName string) (bool, error)
 }
 
 type CollectorUsecase interface {

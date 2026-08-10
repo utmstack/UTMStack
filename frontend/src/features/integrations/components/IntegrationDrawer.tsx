@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { ExternalLink, Filter, ListChecks, Power, PowerOff, X } from 'lucide-react'
+import { ExternalLink, Filter, ListChecks, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useThemeContext } from '@/app/providers/ThemeProvider'
 import { Button } from '@/shared/components/ui/button'
@@ -56,16 +56,14 @@ const isAgent = (i: Integration) => (i.ingestType ?? '').toLowerCase() === 'agen
 // Custom integrations are identified by is_system = false (NOT by a category — they
 // carry a real technology category). They always use the Forwarder-based custom
 // guide regardless of which category/group they land in.
-const isCustom = (i: Integration) => i.isSystem === false
+const isCustom = (i: Integration) => i.systemOwner === false
 
 interface IntegrationDrawerProps {
   integration: Integration
   onClose: () => void
-  onToggleActive: (activate: boolean) => void
-  toggling: boolean
 }
 
-export function IntegrationDrawer({ integration: i, onClose, onToggleActive, toggling }: IntegrationDrawerProps) {
+export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
   const { t } = useTranslation()
   const { theme } = useThemeContext()
   const navigate = useNavigate()
@@ -127,23 +125,6 @@ export function IntegrationDrawer({ integration: i, onClose, onToggleActive, tog
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {active ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onToggleActive(false)}
-                disabled={toggling}
-                className="text-red-600 hover:text-red-600 dark:text-red-400"
-              >
-                <PowerOff size={13} className="mr-1.5" />
-                {t('integrations.drawer.disable')}
-              </Button>
-            ) : (
-              <Button size="sm" onClick={() => onToggleActive(true)} disabled={toggling}>
-                <Power size={13} className="mr-1.5" />
-                {t('integrations.drawer.enable')}
-              </Button>
-            )}
             {active && (
               <Button size="sm" variant="outline" onClick={viewEvents} disabled={!i.dataType}>
                 <ExternalLink size={13} className="mr-1.5" />
@@ -170,9 +151,11 @@ export function IntegrationDrawer({ integration: i, onClose, onToggleActive, tog
           </div>
         </header>
 
+        {/* The setup guide is how an integration gets configured, so it cannot be
+            gated on being configured already — that had no way out once the
+            enable switch was removed. */}
         <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
-          {active ? (
-            <>
+          <>
               {isCustom(i) && <CustomSetup integration={i} />}
               {!isCustom(i) && isAgent(i) && <AgentSetup integration={i} />}
               {!isCustom(i) && i.kind === 'cloud' && isAWS(i.name) && <AWSGuide integration={i} />}
@@ -183,17 +166,7 @@ export function IntegrationDrawer({ integration: i, onClose, onToggleActive, tog
               {!isCustom(i) && isCrowdStrike(i) && <CrowdStrikeGuide integration={i} />}
               {!isCustom(i) && isSophos(i) && <SophosGuide module={i} />}
               {!isCustom(i) && isCollectorGroup && !isCrowdStrike(i) && !isSophos(i) && !isAgent(i) && <CollectorSetup integration={i} />}
-            </>
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                <Power size={22} className="text-muted-foreground/50" />
-              </div>
-              <p className="max-w-xs text-sm text-muted-foreground">
-                {t('integrations.drawer.enableToSetup')}
-              </p>
-            </div>
-          )}
+          </>
         </div>
       </div>
     </div>

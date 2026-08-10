@@ -13,7 +13,12 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
-import type { Integration, DeployKind, CreateModuleRequest } from '@/features/integrations/types'
+import type {
+  Integration,
+  DeployKind,
+  CreateIntegrationRequest,
+  IntegrationResponse,
+} from '@/features/integrations/types'
 
 const LOGO = (slug: string) => {
   if(!slug || slug ==''){
@@ -26,19 +31,21 @@ const LOGO = (slug: string) => {
 }
 
 
-function mapModuleToIntegration(module: any, t: TFunction): Integration {
-  const categoryLower = module.moduleCategory?.toLowerCase() || ''
-  // Map the raw category to a known DeployKind; unknown categories fall back to
-  // 'other' (Collector group) so a new module never breaks the grid.
-  const kind: DeployKind = (categoryLower in KIND_META ? categoryLower : 'other') as DeployKind
+function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
+  const isSystem = module.systemOwner
+  // System integrations: icon, description and category are owned by the frontend
+  // (per-theme icons + i18n). Custom ones keep using the catalog row's own icon
+  // and description, and group under 'custom'.
+  const meta = isSystem ? SYSTEM_MODULES[module.name] : undefined
+  const category = meta?.category ?? 'custom'
 
-  const isSystem = !!module.isSystem
-  // System modules: icon + description are owned by the frontend (per-theme icons +
-  // i18n). Custom modules keep using the catalog row's icon/description.
-  const meta = isSystem ? SYSTEM_MODULES[module.moduleName] : undefined
+  // Map the category to a known DeployKind; anything unknown falls back to
+  // 'other' (Collector group) so a new integration never breaks the grid.
+  const kind: DeployKind = (category in KIND_META ? category : 'other') as DeployKind
+
   const description = isSystem
-    ? t(`integrations.modules.${module.moduleName}`, { defaultValue: module.moduleDescription || '' })
-    : module.moduleDescription || ''
+    ? t(`integrations.modules.${module.name}`, { defaultValue: module.description || '' })
+    : module.description || ''
   // Resolve the logo + optional dark variant:
   //  - system module        → frontend-owned per-theme asset,
   //  - custom with an icon   → the user-provided icon (no dark variant),
@@ -48,24 +55,24 @@ function mapModuleToIntegration(module: any, t: TFunction): Integration {
   if (meta) {
     logo = LOGO(meta.icon)
     logoDark = meta.iconDark ? LOGO(meta.iconDark) : undefined
-  } else if (module.moduleIcon) {
-    logo = LOGO(module.moduleIcon)
+  } else if (module.icon) {
+    logo = LOGO(module.icon)
   } else {
     logo = LOGO('custom.svg')
     logoDark = LOGO('custom-dark.svg')
   }
 
   return {
-    id: module.id.toString(),
-    name: module.prettyName || module.moduleName,
-    moduleName: module.moduleName,
+    id: module.id,
+    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: module.name }) : module.name,
+    moduleName: module.name,
     dataType: module.dataType,
     ingestType: module.ingestType,
     kind,
-    isSystem,
-    status: module.moduleActive ? 'configured' : 'available',
+    systemOwner: isSystem,
+    status: module.configured ? 'configured' : 'available',
     description,
-    category: module.moduleCategory || '',
+    category,
     logo,
     logoDark,
     darkInvert: false,
@@ -82,7 +89,7 @@ const AGENT_ORDER = ['WINDOWS_AGENT', 'LINUX_AGENT', 'MACOS']
 function sortRank(i: Integration): number {
   const agentIdx = AGENT_ORDER.indexOf((i.moduleName ?? '').toUpperCase())
   if (agentIdx !== -1) return agentIdx
-  return i.isSystem ? AGENT_ORDER.length : AGENT_ORDER.length + 1
+  return i.systemOwner ? AGENT_ORDER.length : AGENT_ORDER.length + 1
 }
 
 // Delete affordance overlaid on custom integration cards. Sibling of the card
@@ -152,7 +159,7 @@ export function IntegrationsPage() {
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Integration | null>(null)
 
-  const modules = integrations.modules.data || []
+  const modules = integrations.integrations.data || []
   const displayList = useMemo(() => modules.map((m) => mapModuleToIntegration(m, t)), [modules, t])
 
   // The raw catalog row for the module being edited (for its actual stored icon).
@@ -160,20 +167,23 @@ export function IntegrationsPage() {
   // Identifiers already taken (excluding the edited module), to reject name collisions.
   const takenModuleNames = modules
     .filter((m) => String(m.id) !== editing?.id)
-    .map((m) => m.moduleName.toLowerCase())
+    .map((m) => m.name.toLowerCase())
   const takenDataTypes = modules
     .filter((m) => String(m.id) !== editing?.id)
     .map((m) => (m.dataType ?? '').toLowerCase())
     .filter(Boolean)
-  // Distinct categories already in use (the create/edit selector's options).
-  const categories = Array.from(
-    new Set(modules.map((m) => m.moduleCategory).filter((c): c is string => !!c))
-  ).sort()
+
+  // Categories present in the grid; they come from the frontend-owned meta,
+  // not from the catalog row.
+  const categories = useMemo(
+    () => Array.from(new Set(displayList.map((i) => i.category))).sort(),
+    [displayList]
+  )
 
   const filtered = useMemo(() => {
     return displayList
       .filter((i) => (categoryFilter ? i.category === categoryFilter : true))
-      .filter((i) => (customOnly ? !i.isSystem : true))
+      .filter((i) => (customOnly ? !i.systemOwner : true))
       .filter((i) => (showOnlyConfigured ? i.status === 'configured' : true))
       .filter((i) =>
         search
@@ -257,14 +267,14 @@ export function IntegrationsPage() {
         {filtered.map((i) => (
           <div key={i.id} className="group/card relative">
             <IntegrationCard integration={i} onOpen={() => setOpen(i)} />
-            {!i.isSystem && (
+            {!i.systemOwner && (
               <CustomEditButton onClick={() => setEditing(i)} />
             )}
-            {!i.isSystem && (
+            {!i.systemOwner && (
               <CustomDeleteButton
-                pending={integrations.deleteModule.isPending}
+                pending={integrations.deleteIntegration.isPending}
                 onConfirm={() =>
-                  integrations.deleteModule.mutate(Number(i.id), {
+                  integrations.deleteIntegration.mutate(i.id, {
                     onSuccess: () => toast.success(t('integrations.delete.deleted')),
                     onError: () => toast.error(t('integrations.delete.error')),
                   })
@@ -285,20 +295,6 @@ export function IntegrationsPage() {
         <IntegrationDrawer
           integration={openLive}
           onClose={() => setOpen(null)}
-          toggling={integrations.activateDeactivateModule.isPending}
-          onToggleActive={(activate) => {
-            if (!openLive.moduleName) return
-            integrations.activateDeactivateModule.mutate(
-              { moduleName: openLive.moduleName, activationStatus: activate },
-              {
-                onSuccess: () =>
-                  toast.success(
-                    activate ? t('integrations.toast.enabled') : t('integrations.toast.disabled')
-                  ),
-                onError: () => toast.error(t('integrations.toast.toggleError')),
-              }
-            )
-          }}
         />
       )}
 
@@ -310,8 +306,7 @@ export function IntegrationsPage() {
                 id: editing.id,
                 prettyName: editing.name,
                 description: editing.description,
-                category: editing.category,
-                currentIcon: editingModule?.moduleIcon || undefined,
+                currentIcon: editingModule?.icon || undefined,
               }
             : null
         }
@@ -321,23 +316,17 @@ export function IntegrationsPage() {
         }}
         takenModuleNames={takenModuleNames}
         takenDataTypes={takenDataTypes}
-        categories={categories}
-        isSubmitting={editing ? integrations.updateModule.isPending : integrations.createModule.isPending}
-        onSubmit={async (data: CreateModuleRequest) => {
+        isSubmitting={editing ? integrations.updateIntegration.isPending : integrations.createIntegration.isPending}
+        onSubmit={async (data: CreateIntegrationRequest) => {
           if (editing) {
-            await integrations.updateModule.mutateAsync({
-              id: Number(editing.id),
-              data: {
-                prettyName: data.prettyName,
-                moduleDescription: data.moduleDescription,
-                moduleIcon: data.moduleIcon,
-                moduleCategory: data.moduleCategory,
-              },
+            await integrations.updateIntegration.mutateAsync({
+              id: editing.id,
+              data: { description: data.description, icon: data.icon },
             })
             setEditing(null)
             toast.success(t('integrations.toast.updated'))
           } else {
-            await integrations.createModule.mutateAsync(data)
+            await integrations.createIntegration.mutateAsync(data)
             setCreateDrawerOpen(false)
             toast.success(t('integrations.toast.created'))
           }

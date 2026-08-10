@@ -1849,11 +1849,8 @@
       "connect": "Connecter",
       "configureCustom": "Configurer la source personnalisée",
       "eventsRate": "{{rate}} événements/s · {{count}} en 24h",
-      "enable": "Activer",
-      "disable": "Désactiver",
       "manageRules": "Règles",
-      "manageFilters": "Filtres",
-      "enableToSetup": "Activez d'abord cette intégration — le guide de configuration apparaîtra ici une fois qu'elle sera active."
+      "manageFilters": "Filtres"
     },
     "setup": {
       "agent": {
@@ -3450,20 +3447,15 @@
       "namePlaceholder": "ex. Acme Firewall",
       "description": "Description",
       "descriptionPlaceholder": "Ce que cette intégration ingère et pourquoi (facultatif)",
-      "category": "Catégorie",
       "identifierHint": "Stocké sous “{{id}}” (dérivé du nom)",
       "nameTaken": "Ce nom d'intégration ne peut pas être utilisé — une intégration avec cet identifiant existe déjà.",
       "removeIcon": "Supprimer l'icône",
-      "defaultIconNote": "Icône par défaut — importez un fichier pour utiliser la vôtre.",
-      "categoryPlaceholder": "Sélectionner une catégorie…"
+      "defaultIconNote": "Icône par défaut — importez un fichier pour utiliser la vôtre."
     },
     "toast": {
       "created": "Intégration créée",
       "updated": "Intégration mise à jour",
-      "updateError": "Échec de la mise à jour de l'intégration",
-      "enabled": "Intégration activée",
-      "disabled": "Intégration désactivée",
-      "toggleError": "Échec du changement d'état de l'intégration"
+      "updateError": "Échec de la mise à jour de l'intégration"
     },
     "delete": {
       "title": "Supprimer l'intégration",

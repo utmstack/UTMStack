@@ -3,75 +3,69 @@ package mcp
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
+	"github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	"github.com/utmstack/utmstack/backend/modules/integrations/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
 func registerIntegrations(m *Module) {
-	registerIntegrationsModules(m)
-	registerIntegrationsTenants(m)
+	registerIntegrationsCatalog(m)
+	registerIntegrationsConfig(m)
 }
 
 // ---- integrations.* --------------------------------------------------------
 
 type integrationsListInput struct {
-	Category     string `json:"category,omitempty"`
-	Active       *bool  `json:"active,omitempty"`
+	IngestType   string `json:"ingest_type,omitempty"`
 	NameContains string `json:"name_contains,omitempty"`
 	Page         int    `json:"page,omitempty"`
 	Size         int    `json:"size,omitempty"`
 }
 
 type integrationsIDInput struct {
-	ID int64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 type integrationsNameInput struct {
-	ModuleName string `json:"module_name"`
-}
-
-type integrationsActivateInput struct {
-	ModuleName string `json:"module_name"`
-	Active     bool   `json:"active"`
+	Name string `json:"name"`
 }
 
 type integrationsCreateInput struct {
-	ModuleName        string `json:"module_name"`
-	DataType          string `json:"data_type"`
-	PrettyName        string `json:"pretty_name,omitempty"`
-	ModuleDescription string `json:"module_description,omitempty"`
-	ModuleIcon        string `json:"module_icon,omitempty"`
-	ModuleCategory    string `json:"module_category,omitempty"`
+	Name        string `json:"name"`
+	DataType    string `json:"data_type"`
+	IngestType  string `json:"ingest_type"`
+	Description string `json:"description,omitempty"`
+	Icon        string `json:"icon,omitempty"`
 }
 
 type integrationsUpdateInput struct {
-	ID                int64  `json:"id"`
-	PrettyName        string `json:"pretty_name,omitempty"`
-	ModuleDescription string `json:"module_description,omitempty"`
-	ModuleIcon        string `json:"module_icon,omitempty"`
-	ModuleCategory    string `json:"module_category,omitempty"`
+	ID          uuid.UUID `json:"id"`
+	Description string    `json:"description,omitempty"`
+	Icon        string    `json:"icon,omitempty"`
 }
 
-func registerIntegrationsModules(m *Module) {
-	uc := m.deps.Integrations.Modules()
+func registerIntegrationsCatalog(m *Module) {
+	uc := m.deps.Integrations.Integrations()
 
 	Add(m, &mcp.Tool{
 		Name: "integrations.list", Title: "List integrations",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "integrations.read"},
 		func(ctx context.Context, _ *authz.Actor, in integrationsListInput) (any, error) {
-			f := connectors.ModuleListFilter{
+			f := connectors.IntegrationListFilter{
 				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			}
-			if in.Category != "" {
-				c := in.Category
-				f.ModuleCategory = &c
-			}
-			if in.Active != nil {
-				f.ModuleActive = in.Active
+			if in.IngestType != "" {
+				it := domain.IngestType(in.IngestType)
+				if !it.Valid() {
+					return nil, domain.ErrInvalidIngestType
+				}
+				f.IngestType = &it
 			}
 			if in.NameContains != "" {
 				n := in.NameContains
@@ -97,17 +91,19 @@ func registerIntegrationsModules(m *Module) {
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "integrations.read"},
 		func(ctx context.Context, _ *authz.Actor, in integrationsNameInput) (any, error) {
-			return uc.GetByName(ctx, in.ModuleName)
+			return uc.GetByName(ctx, in.Name)
 		})
 
 	Add(m, &mcp.Tool{
 		Name: "integrations.create", Title: "Create integration",
 	}, Gate{Permission: "integrations.write"},
 		func(ctx context.Context, _ *authz.Actor, in integrationsCreateInput) (any, error) {
-			return uc.Create(ctx, dto.CreateModuleRequest{
-				ModuleName: in.ModuleName, DataType: in.DataType,
-				PrettyName: in.PrettyName, ModuleDescription: in.ModuleDescription,
-				ModuleIcon: in.ModuleIcon, ModuleCategory: in.ModuleCategory,
+			return uc.Create(ctx, dto.CreateIntegrationRequest{
+				Name:        in.Name,
+				DataType:    in.DataType,
+				IngestType:  domain.IngestType(in.IngestType),
+				Description: in.Description,
+				Icon:        in.Icon,
 			})
 		})
 
@@ -115,9 +111,9 @@ func registerIntegrationsModules(m *Module) {
 		Name: "integrations.update", Title: "Update integration",
 	}, Gate{Permission: "integrations.write"},
 		func(ctx context.Context, _ *authz.Actor, in integrationsUpdateInput) (any, error) {
-			return uc.Update(ctx, in.ID, dto.UpdateModuleRequest{
-				PrettyName: in.PrettyName, ModuleDescription: in.ModuleDescription,
-				ModuleIcon: in.ModuleIcon, ModuleCategory: in.ModuleCategory,
+			return uc.Update(ctx, in.ID, dto.UpdateIntegrationRequest{
+				Description: in.Description,
+				Icon:        in.Icon,
 			})
 		})
 
@@ -132,37 +128,6 @@ func registerIntegrationsModules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "integrations.activate", Title: "Activate or deactivate integration",
-		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
-	}, Gate{Permission: "integrations.write"},
-		func(ctx context.Context, _ *authz.Actor, in integrationsActivateInput) (any, error) {
-			active := in.Active
-			return uc.ActivateDeactivate(ctx, dto.ModuleActivationRequest{
-				ModuleName: in.ModuleName, ActivationStatus: &active,
-			})
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "integrations.is_active", Title: "Check integration activation",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "integrations.read"},
-		func(ctx context.Context, _ *authz.Actor, in integrationsNameInput) (any, error) {
-			ok, err := uc.IsActive(ctx, in.ModuleName)
-			if err != nil {
-				return nil, err
-			}
-			return map[string]any{"active": ok}, nil
-		})
-
-	Add(m, &mcp.Tool{
-		Name: "integrations.categories", Title: "List categories",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "integrations.read"},
-		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
-			return uc.Categories(ctx)
-		})
-
-	Add(m, &mcp.Tool{
 		Name: "integrations.data_types", Title: "List data type options",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "integrations.read"},
@@ -171,51 +136,53 @@ func registerIntegrationsModules(m *Module) {
 		})
 }
 
-// ---- integrations.tenants.* ------------------------------------------------
+// ---- integrations.config.* -------------------------------------------------
 
-type integrationsTenantListInput struct {
-	Module string `json:"module"`
+type integrationsConfigListInput struct {
+	Integration string `json:"integration"`
 }
 
-type integrationsTenantSaveInput struct {
-	Module string            `json:"module"`
-	Name   string            `json:"name"`
-	Config map[string]string `json:"config,omitempty"`
+type integrationsConfigSaveInput struct {
+	Integration string            `json:"integration"`
+	Name        string            `json:"name"`
+	Description string            `json:"description,omitempty"`
+	Config      map[string]string `json:"config,omitempty"`
 }
 
-type integrationsTenantDeleteInput struct {
-	Module string `json:"module"`
-	Name   string `json:"name"`
+type integrationsConfigDeleteInput struct {
+	Integration string `json:"integration"`
+	Name        string `json:"name"`
 }
 
-func registerIntegrationsTenants(m *Module) {
-	uc := m.deps.Integrations.Tenants()
+func registerIntegrationsConfig(m *Module) {
+	uc := m.deps.Integrations.Groups()
 
 	Add(m, &mcp.Tool{
-		Name: "integrations.tenants.list", Title: "List integration tenant configs",
+		Name: "integrations.config.list", Title: "List integration configuration groups",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "integrations.read"},
-		func(ctx context.Context, _ *authz.Actor, in integrationsTenantListInput) (any, error) {
-			return uc.List(ctx, in.Module)
+		func(ctx context.Context, _ *authz.Actor, in integrationsConfigListInput) (any, error) {
+			return uc.List(ctx, in.Integration)
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "integrations.tenants.save", Title: "Create or update integration tenant",
+		Name: "integrations.config.save", Title: "Create or update a configuration group",
 	}, Gate{Permission: "integrations.write"},
-		func(ctx context.Context, _ *authz.Actor, in integrationsTenantSaveInput) (any, error) {
-			if err := uc.Save(ctx, in.Module, dto.TenantRequest{Name: in.Name, Config: in.Config}); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in integrationsConfigSaveInput) (any, error) {
+			req := dto.ConfigGroupRequest{Name: in.Name, Description: in.Description, Config: in.Config}
+			if err := uc.Save(ctx, in.Integration, req); err != nil {
 				return nil, err
 			}
-			return map[string]any{"module": in.Module, "name": in.Name, "saved": true}, nil
+			return map[string]any{"integration": in.Integration, "name": in.Name, "saved": true}, nil
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "integrations.tenants.delete", Title: "Delete integration tenant",
+		Name: "integrations.config.delete", Title: "Delete a configuration group",
 	}, Gate{Permission: "integrations.write"},
-		func(ctx context.Context, _ *authz.Actor, in integrationsTenantDeleteInput) (any, error) {
-			if err := uc.Delete(ctx, in.Module, in.Name); err != nil {
+		func(ctx context.Context, _ *authz.Actor, in integrationsConfigDeleteInput) (any, error) {
+			if err := uc.Delete(ctx, in.Integration, in.Name); err != nil {
 				return nil, err
 			}
-			return map[string]any{"module": in.Module, "name": in.Name, "deleted": true}, nil
+			return map[string]any{"integration": in.Integration, "name": in.Name, "deleted": true}, nil
 		})
 }

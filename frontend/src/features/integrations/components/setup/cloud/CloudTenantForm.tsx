@@ -5,13 +5,13 @@ import { Upload, FileCheck2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
-import type { TenantResponse } from '@/features/integrations/types'
+import type { ConfigGroupResponse } from '@/features/integrations/types'
 import type { CloudConfigField } from './builders/cloudGuideBuilder'
 
 interface CloudTenantFormProps {
   moduleName: string
   fields: CloudConfigField[]
-  editing?: TenantResponse | null
+  editing?: ConfigGroupResponse | null
   onCancel: () => void
   onSaved: () => void
 }
@@ -31,7 +31,7 @@ export function CloudTenantForm({
   onSaved,
 }: CloudTenantFormProps) {
   const { t } = useTranslation()
-  const { saveTenant } = useIntegrations()
+  const { saveConfigGroup } = useIntegrations()
 
   const initialConfig = useMemo(() => {
     const base = emptyConfig(fields)
@@ -57,8 +57,8 @@ export function CloudTenantForm({
     e.preventDefault()
     if (!name.trim()) return
 
-    saveTenant.mutate(
-      { moduleName, data: { name: name.trim(), config } },
+    saveConfigGroup.mutate(
+      { integration: moduleName, data: { name: name.trim(), config } },
       {
         onSuccess: () => {
           setName('')
@@ -134,7 +134,7 @@ export function CloudTenantForm({
       ))}
 
       <div className="flex items-center gap-2 pt-1">
-        <Button size="sm" type="submit" disabled={saveTenant.isPending}>
+        <Button size="sm" type="submit" disabled={saveConfigGroup.isPending}>
           {isEditing
             ? t('integrations.setup.cloud.tenants.update')
             : t('integrations.setup.cloud.tenants.add')}

@@ -2002,11 +2002,8 @@
       "connect": "Connect",
       "configureCustom": "Configure custom source",
       "eventsRate": "{{rate}} events/sec · {{count}} in 24h",
-      "enable": "Enable",
-      "disable": "Disable",
       "manageRules": "Rules",
-      "manageFilters": "Filters",
-      "enableToSetup": "Enable this integration first — the setup guide will appear here once it is active."
+      "manageFilters": "Filters"
     },
     "setup": {
       "agent": {
@@ -3592,20 +3589,15 @@
       "namePlaceholder": "e.g. Acme Firewall",
       "description": "Description",
       "descriptionPlaceholder": "What this integration ingests and why (optional)",
-      "category": "Category",
       "identifierHint": "Stored as “{{id}}” (derived from the name)",
       "nameTaken": "That integration name can’t be used — an integration with that identifier already exists.",
       "removeIcon": "Remove icon",
-      "defaultIconNote": "Default icon — upload a file to use your own.",
-      "categoryPlaceholder": "Select a category…"
+      "defaultIconNote": "Default icon — upload a file to use your own."
     },
     "toast": {
       "created": "Integration created",
       "updated": "Integration updated",
-      "updateError": "Failed to update integration",
-      "enabled": "Integration enabled",
-      "disabled": "Integration disabled",
-      "toggleError": "Failed to change integration state"
+      "updateError": "Failed to update integration"
     },
     "delete": {
       "title": "Delete integration",
