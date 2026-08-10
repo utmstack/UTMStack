@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input'
 import { complianceService } from '../services/compliance-http.service'
 import type { Control } from '../types/compliance.types'
 import { copyOfControl } from '../lib/duplicate'
-import { StartFromModal } from './StartFromModal'
+import { StartFromModal } from '@/shared/components/StartFromModal'
 import { ControlEditor } from './ControlEditor'
 
 // Same rule as the frameworks grid: the column count follows the card's own

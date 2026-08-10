@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow — migrated from the v11 response-action template catalogue.
+#
+# Inert until completed: the condition below matches no alert, and the platform
+# matches no agent, so nothing runs. Both are placeholders on purpose — a command
+# carries no trigger, and deciding when to run this one is not a format conversion.
+# Derived from the command, for whoever completes it: platform=linux
+- name: 'Linux: Remove all permissions for a user'
+  description: Remove all permissions for a user
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  commands:
+  - for grp in $(id -nG $(adversary.user) | tr ' ' '\n' | grep -v "^$(adversary.user)$"); do gpasswd -d $(adversary.user) "$grp"; done
+  shell: sh
+  agentPlatform: linux

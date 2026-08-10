@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow — migrated from the v11 response-action template catalogue.
+#
+# Inert until completed: the condition below matches no alert, and the platform
+# matches no agent, so nothing runs. Both are placeholders on purpose — a command
+# carries no trigger, and deciding when to run this one is not a format conversion.
+# Derived from the command, for whoever completes it: platform=windows
+- name: Enable Windows Defender
+  description: Enables real-time protection in Windows Defender.
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  commands:
+  - '"powershell.exe -Command \"Set-MpPreference -DisableRealtimeMonitoring $false\""'
+  shell: powershell
+  agentPlatform: windows

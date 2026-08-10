@@ -7,12 +7,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
 )
 
 var variableInterpolationRegex = regexp.MustCompile(`\$\[variables\.([^\]]+)\]`)
+
+const maskedValue = "****"
 
 type variableUsecase struct {
 	repo   connectors.VariableRepository
@@ -25,24 +29,25 @@ func NewVariableUsecase(repo connectors.VariableRepository, cipher connectors.Va
 
 func (u *variableUsecase) Create(ctx context.Context, req dto.CreateVariableRequest, user string) (*dto.VariableResponse, error) {
 	now := time.Now().UTC()
-	v := &domain.UtmIncidentVariable{
-		VariableDescription: req.VariableDescription,
-		IsSecret:            req.IsSecret,
-		CreatedBy:           &user,
-		LastModifiedDate:    &now,
+	v := &domain.SoarVariable{
+		Name:        req.Name,
+		Description: req.Description,
+		IsSecret:    req.IsSecret,
+		CreatedBy:   user,
+		CreatedAt:   now,
+		ModifiedBy:  user,
+		ModifiedAt:  &now,
 	}
-	name := req.VariableName
-	v.VariableName = &name
 
-	if req.IsSecret && req.VariableValue != nil && *req.VariableValue != "" {
-		encrypted, err := u.cipher.Encrypt(*req.VariableValue)
+	value := req.Value
+	if req.IsSecret {
+		encrypted, err := u.cipher.Encrypt(value)
 		if err != nil {
 			return nil, fmt.Errorf("variableUsecase.Create: encrypt: %w", err)
 		}
-		v.VariableValue = &encrypted
-	} else {
-		v.VariableValue = req.VariableValue
+		value = encrypted
 	}
+	v.Value = value
 
 	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, fmt.Errorf("variableUsecase.Create: %w", err)
@@ -55,24 +60,36 @@ func (u *variableUsecase) Update(ctx context.Context, req dto.UpdateVariableRequ
 	if err != nil {
 		return nil, err
 	}
-	now := time.Now().UTC()
-	v.VariableName = req.VariableName
-	v.VariableDescription = req.VariableDescription
-	v.IsSecret = req.IsSecret
-	v.LastModifiedDate = &now
-	v.LastModifiedBy = &user
 
-	if req.IsSecret {
-		if req.VariableValue != nil && *req.VariableValue != "" && *req.VariableValue != "****" {
-			encrypted, encErr := u.cipher.Encrypt(*req.VariableValue)
-			if encErr != nil {
-				return nil, fmt.Errorf("variableUsecase.Update: encrypt: %w", encErr)
-			}
-			v.VariableValue = &encrypted
-		}
-	} else {
-		v.VariableValue = req.VariableValue
+	if req.Name != nil && *req.Name != "" {
+		v.Name = *req.Name
 	}
+	if req.Description != nil {
+		v.Description = req.Description
+	}
+
+	plain, err := u.plainValue(v, req)
+	if err != nil {
+		return nil, err
+	}
+	if plain == "" {
+		return nil, domain.ErrVariableValueRequired
+	}
+
+	v.IsSecret = req.IsSecret
+	if req.IsSecret {
+		encrypted, encErr := u.cipher.Encrypt(plain)
+		if encErr != nil {
+			return nil, fmt.Errorf("variableUsecase.Update: encrypt: %w", encErr)
+		}
+		v.Value = encrypted
+	} else {
+		v.Value = plain
+	}
+
+	now := time.Now().UTC()
+	v.ModifiedBy = user
+	v.ModifiedAt = &now
 
 	if err := u.repo.Save(ctx, v); err != nil {
 		return nil, fmt.Errorf("variableUsecase.Update: %w", err)
@@ -80,7 +97,21 @@ func (u *variableUsecase) Update(ctx context.Context, req dto.UpdateVariableRequ
 	return u.toResponse(v), nil
 }
 
-func (u *variableUsecase) FindByID(ctx context.Context, id int64) (*dto.VariableResponse, error) {
+func (u *variableUsecase) plainValue(v *domain.SoarVariable, req dto.UpdateVariableRequest) (string, error) {
+	if req.Value != nil && *req.Value != "" && *req.Value != maskedValue {
+		return *req.Value, nil
+	}
+	if !v.IsSecret {
+		return v.Value, nil
+	}
+	plain, err := u.cipher.Decrypt(v.Value)
+	if err != nil {
+		return "", fmt.Errorf("variableUsecase.Update: decrypt stored value: %w", err)
+	}
+	return plain, nil
+}
+
+func (u *variableUsecase) FindByID(ctx context.Context, id uuid.UUID) (*dto.VariableResponse, error) {
 	v, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -100,7 +131,7 @@ func (u *variableUsecase) FindAll(ctx context.Context, f dto.VariableFilter) ([]
 	return resp, total, nil
 }
 
-func (u *variableUsecase) Delete(ctx context.Context, id int64) error {
+func (u *variableUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	return u.repo.Delete(ctx, id)
 }
 
@@ -122,24 +153,17 @@ func (u *variableUsecase) InterpolateCommand(ctx context.Context, cmd string) (s
 	if err != nil {
 		return cmd, fmt.Errorf("InterpolateCommand: %w", err)
 	}
-	if len(vars) == 0 {
-		return cmd, nil
-	}
 
 	for _, v := range vars {
-		if v.VariableName == nil || v.VariableValue == nil {
-			continue
-		}
-		value := *v.VariableValue
+		value := v.Value
 		if v.IsSecret {
 			plain, decErr := u.cipher.Decrypt(value)
 			if decErr != nil || plain == "" {
-				continue
+				return cmd, fmt.Errorf("InterpolateCommand: cannot read secret %q", v.Name)
 			}
 			value = plain
 		}
-		placeholder := "$[variables." + *v.VariableName + "]"
-		cmd = strings.ReplaceAll(cmd, placeholder, value)
+		cmd = strings.ReplaceAll(cmd, "$[variables."+v.Name+"]", value)
 	}
 	return cmd, nil
 }
@@ -150,34 +174,32 @@ func (u *variableUsecase) MaskSecrets(ctx context.Context, output string) (strin
 		return output, fmt.Errorf("MaskSecrets: %w", err)
 	}
 	for _, v := range vars {
-		if !v.IsSecret || v.VariableValue == nil || *v.VariableValue == "" {
+		if !v.IsSecret || v.Value == "" {
 			continue
 		}
-		plain, decErr := u.cipher.Decrypt(*v.VariableValue)
+		plain, decErr := u.cipher.Decrypt(v.Value)
 		if decErr != nil || plain == "" {
 			continue
 		}
-		mask := strings.Repeat("*", len(plain))
-		output = strings.ReplaceAll(output, plain, mask)
+		output = strings.ReplaceAll(output, plain, strings.Repeat("*", len(plain)))
 	}
 	return output, nil
 }
 
-func (u *variableUsecase) toResponse(v *domain.UtmIncidentVariable) *dto.VariableResponse {
+func (u *variableUsecase) toResponse(v *domain.SoarVariable) *dto.VariableResponse {
 	resp := &dto.VariableResponse{
-		ID:                  v.ID,
-		VariableName:        v.VariableName,
-		VariableDescription: v.VariableDescription,
-		IsSecret:            v.IsSecret,
-		CreatedBy:           v.CreatedBy,
-		LastModifiedDate:    v.LastModifiedDate,
-		LastModifiedBy:      v.LastModifiedBy,
+		ID:           v.ID,
+		Name:         v.Name,
+		Description:  v.Description,
+		IsSecret:     v.IsSecret,
+		Value:        v.Value,
+		CreatedBy:    v.CreatedBy,
+		CreatedAt:    v.CreatedAt,
+		ModifiedBy:   v.ModifiedBy,
+		ModifiedDate: v.ModifiedAt,
 	}
 	if v.IsSecret {
-		masked := "****"
-		resp.VariableValue = &masked
-	} else {
-		resp.VariableValue = v.VariableValue
+		resp.Value = maskedValue
 	}
 	return resp
 }

@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
-	"gorm.io/gorm"
 )
-
 
 type pgExecutionRepository struct {
 	db *gorm.DB
@@ -18,9 +19,9 @@ func NewExecutionRepository(db *gorm.DB) connectors.ExecutionRepository {
 	return &pgExecutionRepository{db: db}
 }
 
-func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.AlertResponseRuleExecution) (*domain.AlertResponseRuleExecution, error) {
-	if e.TenantID == "" {
-		e.TenantID = tenantFromCtx(ctx)
+func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.SoarExecution) (*domain.SoarExecution, error) {
+	if e.StartedAt.IsZero() {
+		e.StartedAt = time.Now().UTC()
 	}
 	if err := r.db.WithContext(ctx).Create(e).Error; err != nil {
 		return nil, err
@@ -28,41 +29,35 @@ func (r *pgExecutionRepository) Create(ctx context.Context, e *domain.AlertRespo
 	return e, nil
 }
 
-func (r *pgExecutionRepository) List(ctx context.Context, f connectors.ExecutionFilters) ([]domain.AlertResponseRuleExecution, int64, error) {
+func (r *pgExecutionRepository) List(ctx context.Context, f connectors.ExecutionFilters) ([]domain.SoarExecution, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.SoarExecution{})
 
-	q := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{}))
-
-	// id.equals
-	if f.ID != 0 {
-		q = q.Where("id = ?", f.ID)
+	if f.Origin != "" {
+		q = q.Where("origin = ?", f.Origin)
 	}
-	// rulePath.equals
 	if f.RulePath != "" {
 		q = q.Where("rule_path = ?", f.RulePath)
 	}
-	// alertId.contains
 	if f.AlertID != "" {
 		q = q.Where("alert_id ILIKE ?", "%"+f.AlertID+"%")
 	}
-	// agent.contains
 	if f.Agent != "" {
 		q = q.Where("agent ILIKE ?", "%"+f.Agent+"%")
 	}
-	// executionStatus.equals
-	if f.ExecutionStatus != "" {
-		q = q.Where("execution_status = ?", f.ExecutionStatus)
+	if f.TriggeredBy != "" {
+		q = q.Where("triggered_by ILIKE ?", "%"+f.TriggeredBy+"%")
 	}
-	// nonExecutionCause.equals
+	if f.Status != "" {
+		q = q.Where("status = ?", f.Status)
+	}
 	if f.NonExecutionCause != "" {
 		q = q.Where("non_execution_cause = ?", f.NonExecutionCause)
 	}
-	// executionDate.greaterThanOrEqual
-	if f.ExecutionDateGTE != "" {
-		q = q.Where("execution_date >= ?", f.ExecutionDateGTE)
+	if f.StartedAtGTE != "" {
+		q = q.Where("started_at >= ?", f.StartedAtGTE)
 	}
-	// executionDate.lessThanOrEqual
-	if f.ExecutionDateLTE != "" {
-		q = q.Where("execution_date <= ?", f.ExecutionDateLTE)
+	if f.StartedAtLTE != "" {
+		q = q.Where("started_at <= ?", f.StartedAtLTE)
 	}
 
 	var total int64
@@ -70,8 +65,8 @@ func (r *pgExecutionRepository) List(ctx context.Context, f connectors.Execution
 		return nil, 0, err
 	}
 
-	var executions []domain.AlertResponseRuleExecution
-	if err := q.Order("id DESC").
+	var executions []domain.SoarExecution
+	if err := q.Order("started_at DESC, id DESC").
 		Offset(f.Offset()).
 		Limit(f.Limit()).
 		Find(&executions).Error; err != nil {
@@ -80,26 +75,29 @@ func (r *pgExecutionRepository) List(ctx context.Context, f connectors.Execution
 	return executions, total, nil
 }
 
-// Retry bumps are server-side increments so concurrent dispatcher ticks don't lose counts.
-func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id int64, u connectors.ExecutionStatusUpdate) error {
+func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id uuid.UUID, u connectors.ExecutionStatusUpdate) error {
 	updates := map[string]any{}
-	if u.ExecutionStatus != nil {
-		updates["execution_status"] = *u.ExecutionStatus
+	if u.Status != nil {
+		updates["status"] = *u.Status
 	}
-	if u.CommandResult != nil {
-		updates["command_result"] = *u.CommandResult
+	if u.Result != nil {
+		updates["result"] = *u.Result
 	}
 	if u.NonExecutionCause != nil {
 		updates["non_execution_cause"] = *u.NonExecutionCause
 	}
+	if u.FinishedAt != nil {
+		updates["finished_at"] = *u.FinishedAt
+	}
 	if u.IncrementRetries {
-		updates["execution_retries"] = gorm.Expr("COALESCE(execution_retries, 0) + 1")
+		updates["retries"] = gorm.Expr("COALESCE(retries, 0) + 1")
 	}
 	if len(updates) == 0 {
 		return nil
 	}
 
-	res := scopeTenant(ctx, r.db.WithContext(ctx).Model(&domain.AlertResponseRuleExecution{})).
+	res := r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
 		Where("id = ?", id).
 		Updates(updates)
 	if res.Error != nil {
@@ -111,12 +109,12 @@ func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id int64, u co
 	return nil
 }
 
-func (r *pgExecutionRepository) ClaimPending(ctx context.Context, id int64, leaseDuration time.Duration) (bool, error) {
+func (r *pgExecutionRepository) ClaimPending(ctx context.Context, id uuid.UUID, leaseDuration time.Duration) (bool, error) {
 	staleBefore := time.Now().UTC().Add(-leaseDuration)
 	res := r.db.WithContext(ctx).
-		Model(&domain.AlertResponseRuleExecution{}).
-		Where("id = ? AND execution_status = ? AND (claimed_at IS NULL OR claimed_at < ?)",
-			id, domain.ExecutionStatusPending, staleBefore).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND origin = ? AND status = ? AND (claimed_at IS NULL OR claimed_at < ?)",
+			id, domain.ExecutionOriginFlow, domain.ExecutionStatusPending, staleBefore).
 		Update("claimed_at", time.Now().UTC())
 	if res.Error != nil {
 		return false, res.Error

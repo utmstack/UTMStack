@@ -33,7 +33,19 @@
       "apply": "Apply"
     },
     "loadingMore": "Loading more…",
-    "allLoaded": "All {{count}} loaded"
+    "allLoaded": "All {{count}} loaded",
+    "startFrom": {
+      "scratch": "From scratch",
+      "scratchHint": "An empty definition you fill in yourself.",
+      "copy": "From an existing one",
+      "copyHint": "Everything is copied except the identifier and the name.",
+      "pickTitle": "Choose what to copy",
+      "back": "Back",
+      "count": "{{n}} available",
+      "search": "Search by name",
+      "none": "Nothing matches that search"
+    },
+    "cancel": "Cancel"
   },
   "auth": {
     "login": {
@@ -3893,7 +3905,8 @@
         "loadError": "Failed to load variables",
         "saveError": "Failed to save variable",
         "deleteError": "Failed to delete variable",
-        "insert": "Insert"
+        "insert": "Insert",
+        "valueRequired": "A value is required"
       },
       "disabled": "Agent offline — commands are disabled",
       "connError": "Connection error",
@@ -5118,7 +5131,9 @@
         "killProcess": "Kill process",
         "logout": "Log out user",
         "disableUser": "Disable user",
-        "blockIp": "Block IP"
+        "blockIp": "Block IP",
+        "restart": "Restart machine",
+        "uninstall": "Uninstall application"
       },
       "connector": {
         "always": "always",
@@ -5178,7 +5193,8 @@
         "agent": "Agent",
         "date": "Date",
         "retries": "Retries"
-      }
+      },
+      "manual": "Interactive console"
     },
     "executionStatus": {
       "EXECUTED": "Executed",
@@ -5432,17 +5448,6 @@
       "title": "Note",
       "description": "Recorded on the report. It does not change the control’s status.",
       "placeholder": "Remediation in progress — ticket OPS-4412, due end of quarter."
-    },
-    "startFrom": {
-      "scratch": "From scratch",
-      "scratchHint": "An empty definition you fill in yourself.",
-      "copy": "From an existing one",
-      "copyHint": "Everything is copied except the identifier and the name.",
-      "pickTitle": "Choose what to copy",
-      "back": "Back",
-      "count": "{{n}} available",
-      "search": "Search by name",
-      "none": "Nothing matches that search"
     },
     "history": {
       "title": "Score over time",

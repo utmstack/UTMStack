@@ -80,4 +80,25 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
       return 'iptables -A INPUT -s $(adversary.ip) -j DROP'
     },
   },
+  {
+    id: 'restart',
+    command: (shell) => {
+      if (shell === 'powershell') return 'Restart-Computer -Force'
+      if (shell === 'cmd') return 'shutdown /r /f /t 0'
+      return 'shutdown -r now'
+    },
+  },
+  {
+    // No alert field carries an installed-package name, so the target stays a
+    // manual placeholder. On Unix the manager differs per distro; apt is the
+    // starting point a user retargets, not a guess that works everywhere.
+    id: 'uninstall',
+    command: (shell) => {
+      if (shell === 'powershell') {
+        return 'Get-Package -Name "<PACKAGE>" | Uninstall-Package -Force'
+      }
+      if (shell === 'cmd') return 'wmic product where name="<PACKAGE>" call uninstall /nointeractive'
+      return 'apt-get remove -y "<PACKAGE>"'
+    },
+  },
 ]

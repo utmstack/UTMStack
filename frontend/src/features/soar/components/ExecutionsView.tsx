@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { useDateFormat } from '@/shared/lib/datetime'
 import { soarExecutionsService } from '../services/soar-executions.service'
-import type { Execution, ExecutionStatus } from '../types/soar.types'
+import type { Execution, ExecutionStatus, ExecutionListQuery } from '../types/soar.types'
 
 const STATUSES: (ExecutionStatus | 'all')[] = ['all', 'EXECUTED', 'PENDING', 'FAILED']
 const COLS = '90px minmax(160px,1.2fr) minmax(180px,1.6fr) 120px 150px 60px'
@@ -39,10 +39,10 @@ export function ExecutionsView() {
     return () => clearTimeout(h)
   }, [search])
 
-  const query = useMemo(
+  const query = useMemo<ExecutionListQuery>(
     () => ({
       alertId: debounced || undefined,
-      executionStatus: status === 'all' ? undefined : status,
+      status: status === 'all' ? undefined : status,
       page,
       size: pageSize,
     }),
@@ -128,16 +128,20 @@ export function ExecutionsView() {
 }
 
 function ExecutionRow({ e, df, t }: { e: Execution; df: ReturnType<typeof useDateFormat>; t: ReturnType<typeof useTranslation>['t'] }) {
-  const meta = STATUS_META[e.executionStatus]
+  const meta = STATUS_META[e.status]
   const Icon = meta?.icon ?? Clock
-  const flowName = (e.rulePath.split('/').pop() ?? e.rulePath).replace(/\.ya?ml$/i, '')
+  // A manual run has no flow: what identifies it is who typed it.
+  const source =
+    e.origin === 'MANUAL'
+      ? e.triggeredBy || t('soar.executions.manual')
+      : ((e.rulePath ?? '').split('/').pop() ?? '').replace(/\.ya?ml$/i, '') || '—' 
   return (
     <div className="grid items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0" style={{ gridTemplateColumns: COLS }}>
       <div className={cn('inline-flex items-center gap-1.5 text-[11px] font-medium', meta?.cls)}>
-        <Icon size={13} /> {t(`soar.executionStatus.${e.executionStatus}`)}
+        <Icon size={13} /> {t(`soar.executionStatus.${e.status}`)}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-[13px]" title={e.rulePath}>{flowName}</div>
+        <div className="truncate text-[13px]" title={e.rulePath ?? e.triggeredBy}>{source}</div>
         {e.alertId && <div className="truncate font-mono text-[10px] text-muted-foreground" title={e.alertId}>{e.alertId}</div>}
       </div>
       <div className="min-w-0">
@@ -145,8 +149,8 @@ function ExecutionRow({ e, df, t }: { e: Execution; df: ReturnType<typeof useDat
         {e.nonExecutionCause && <div className="text-[10px] text-red-500">{t(`soar.nonExecutionCause.${e.nonExecutionCause}`)}</div>}
       </div>
       <div className="truncate font-mono text-[11px] text-muted-foreground" title={e.agent}>{e.agent || '—'}</div>
-      <div className="text-[11px] text-muted-foreground">{df.formatDateTime(e.executionDate)}</div>
-      <div className="text-center text-[11px] text-muted-foreground">{e.executionRetries || 0}</div>
+      <div className="text-[11px] text-muted-foreground">{df.formatDateTime(e.startedAt)}</div>
+      <div className="text-center text-[11px] text-muted-foreground">{e.retries || 0}</div>
     </div>
   )
 }

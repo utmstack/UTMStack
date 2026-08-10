@@ -13,9 +13,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
 
-// ruleUsecase is the SOAR flow (alert-response rule) control plane, backed by
-// the file store (YAML-direct) rather than Postgres. Execution history stays in
-// the DB and is served by the execution usecase.
 type ruleUsecase struct {
 	store   *FlowStore
 	resolve connectors.ResolveFilterRepository
@@ -52,7 +49,7 @@ func (u *ruleUsecase) Update(ctx context.Context, relPath string, req dto.Update
 func (u *ruleUsecase) Get(ctx context.Context, relPath string) (*dto.RuleResponse, error) {
 	sf := u.store.Get(tenantOf(ctx), relPath)
 	if sf == nil {
-		return nil, domain.ErrRuleNotFound
+		return nil, domain.ErrFlowNotFound
 	}
 	return storedFlowToResponse(sf), nil
 }
@@ -93,27 +90,23 @@ func (u *ruleUsecase) ResolveFilterValues(ctx context.Context) (*dto.ResolveFilt
 	return &dto.ResolveFilterValuesResponse{AgentPlatforms: platforms, Users: users}, nil
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-// mapStoreErr maps file-store sentinel errors onto the domain errors the handler
-// translates into HTTP statuses.
 func mapStoreErr(err error) error {
 	switch {
 	case err == nil:
 		return nil
 	case errors.Is(err, os.ErrExist):
 		return domain.ErrRuleNameTaken
-	case errors.Is(err, ErrFlowNotFound):
-		return domain.ErrRuleNotFound
-	case errors.Is(err, ErrSystemFlowContent):
+	case errors.Is(err, domain.ErrFlowNotFound):
+		return domain.ErrFlowNotFound
+	case errors.Is(err, domain.ErrSystemFlowContent):
 		return domain.ErrSystemRuleReadOnly
 	default:
 		return err
 	}
 }
 
-func requestToFlow(name, description string, conds []dto.FilterVM, commands []dto.FlowCommandVM, shell, agentPlatform, defaultAgent string, excludedAgents []string) Flow {
-	return Flow{
+func requestToFlow(name, description string, conds []dto.FilterVM, commands []dto.FlowCommandVM, shell, agentPlatform, defaultAgent string, excludedAgents []string) domain.Flow {
+	return domain.Flow{
 		Name:           name,
 		Description:    description,
 		Conditions:     toFlowConditions(conds),
@@ -125,23 +118,23 @@ func requestToFlow(name, description string, conds []dto.FilterVM, commands []dt
 	}
 }
 
-func toFlowConditions(vms []dto.FilterVM) []FlowCondition {
-	out := make([]FlowCondition, 0, len(vms))
+func toFlowConditions(vms []dto.FilterVM) []domain.FilterType {
+	out := make([]domain.FilterType, 0, len(vms))
 	for _, v := range vms {
-		out = append(out, FlowCondition{Operator: string(v.Operator), Field: v.Field, Value: v.Value})
+		out = append(out, domain.FilterType{Operator: v.Operator, Field: v.Field, Value: v.Value})
 	}
 	return out
 }
 
-func toFlowCommands(vms []dto.FlowCommandVM) []FlowCommand {
-	out := make([]FlowCommand, 0, len(vms))
+func toFlowCommands(vms []dto.FlowCommandVM) []domain.FlowCommand {
+	out := make([]domain.FlowCommand, 0, len(vms))
 	for _, v := range vms {
-		out = append(out, FlowCommand{Command: v.Command, Condition: v.Condition})
+		out = append(out, domain.FlowCommand{Command: v.Command, Condition: v.Condition})
 	}
 	return out
 }
 
-func flowCommandsToVMs(cmds []FlowCommand) []dto.FlowCommandVM {
+func flowCommandsToVMs(cmds []domain.FlowCommand) []dto.FlowCommandVM {
 	out := make([]dto.FlowCommandVM, 0, len(cmds))
 	for _, c := range cmds {
 		out = append(out, dto.FlowCommandVM{Command: c.Command, Condition: c.Condition})
@@ -149,7 +142,7 @@ func flowCommandsToVMs(cmds []FlowCommand) []dto.FlowCommandVM {
 	return out
 }
 
-func storedFlowToResponse(sf *StoredFlow) *dto.RuleResponse {
+func storedFlowToResponse(sf *domain.StoredFlow) *dto.RuleResponse {
 	if sf == nil {
 		return nil
 	}

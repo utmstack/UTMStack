@@ -23,7 +23,7 @@ const (
 )
 
 type FilterType struct {
-	Operator OperatorType `json:"operator"`
-	Field    string       `json:"field"`
-	Value    any          `json:"value"` // string for IS; []string for IS_ONE_OF / IS_NOT_ONE_OF
+	Operator OperatorType `json:"operator" yaml:"operator"`
+	Field    string       `json:"field"    yaml:"field"`
+	Value    any          `json:"value"    yaml:"value"` // string for IS; []string for IS_ONE_OF / IS_NOT_ONE_OF
 }

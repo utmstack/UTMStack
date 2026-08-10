@@ -1,0 +1,16 @@
+# UTMStack system SOAR flow — migrated from the v11 response-action template catalogue.
+#
+# Inert until completed: the condition below matches no alert, and the platform
+# matches no agent, so nothing runs. Both are placeholders on purpose — a command
+# carries no trigger, and deciding when to run this one is not a format conversion.
+# Derived from the command, for whoever completes it: platform=windows
+- name: 'Windows: Disable RPD'
+  description: Disable RDP
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  commands:
+  - powershell Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Force
+  shell: powershell
+  agentPlatform: windows

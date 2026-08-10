@@ -13,9 +13,6 @@ type FilterVM struct {
 	Value    any                 `json:"value"`
 }
 
-// FlowCommandVM is one step in a flow's command chain. Condition (nil on the
-// first entry) is how this command joins to the previous one when the chain
-// is concatenated into a single shell line at dispatch time.
 type FlowCommandVM struct {
 	Command   string            `json:"command"             binding:"required"`
 	Condition *domain.Condition `json:"condition,omitempty" binding:"omitempty,oneof=OnSuccess OnFailure Always"`
@@ -67,27 +64,16 @@ type RuleResponse struct {
 }
 
 type RuleFilters struct {
-	// id.equals — exact match on rule ID (JHipster: LongFilter)
-	ID int64 `form:"id.equals"`
-	// name.contains — substring match on rule name (JHipster: StringFilter)
-	RuleName string `form:"name.contains"`
-	// active.equals — filter by active flag (JHipster: BooleanFilter)
-	RuleActive *bool `form:"active.equals"`
-	// agentPlatform.equals — exact match on agent platform (JHipster: StringFilter)
-	AgentPlatform string `form:"agentPlatform.equals"`
-	// createdBy.equals — exact match on createdBy (JHipster: StringFilter)
-	CreatedBy string `form:"createdBy.equals"`
-	// lastModifiedBy.equals — exact match on lastModifiedBy (JHipster: StringFilter)
-	LastModifiedBy string `form:"lastModifiedBy.equals"`
-	// createdDate.greaterThanOrEqual — inclusive lower bound (JHipster: InstantFilter, RFC3339)
-	CreatedDateGTE string `form:"createdDate.greaterThanOrEqual"`
-	// createdDate.lessThanOrEqual — inclusive upper bound (JHipster: InstantFilter, RFC3339)
-	CreatedDateLTE string `form:"createdDate.lessThanOrEqual"`
-	// lastModifiedDate.greaterThanOrEqual — inclusive lower bound (JHipster: InstantFilter, RFC3339)
+	ID                  int64  `form:"id.equals"`
+	RuleName            string `form:"name.contains"`
+	RuleActive          *bool  `form:"active.equals"`
+	AgentPlatform       string `form:"agentPlatform.equals"`
+	CreatedBy           string `form:"createdBy.equals"`
+	LastModifiedBy      string `form:"lastModifiedBy.equals"`
+	CreatedDateGTE      string `form:"createdDate.greaterThanOrEqual"`
+	CreatedDateLTE      string `form:"createdDate.lessThanOrEqual"`
 	LastModifiedDateGTE string `form:"lastModifiedDate.greaterThanOrEqual"`
-	// lastModifiedDate.lessThanOrEqual — inclusive upper bound (JHipster: InstantFilter, RFC3339)
 	LastModifiedDateLTE string `form:"lastModifiedDate.lessThanOrEqual"`
-	// systemOwner.equals — filter by system ownership (JHipster: BooleanFilter)
-	SystemOwner *bool `form:"systemOwner.equals"`
+	SystemOwner         *bool  `form:"systemOwner.equals"`
 	database.Params
 }

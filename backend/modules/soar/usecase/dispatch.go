@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -80,8 +81,8 @@ func (d *Dispatcher) drain(ctx context.Context) {
 
 	listCtx, cancel := context.WithTimeout(tenancy.WithAllTenants(ctx), 20*time.Second)
 	pending, _, err := d.repo.List(listCtx, connectors.ExecutionFilters{
-		ExecutionStatus: domain.ExecutionStatusPending,
-		Params:          database.Params{Size: dispatchBatch},
+		Status: domain.ExecutionStatusPending,
+		Params: database.Params{Size: dispatchBatch},
 	})
 	cancel()
 	if err != nil {
@@ -112,14 +113,14 @@ func (d *Dispatcher) drain(ctx context.Context) {
 	wg.Wait()
 }
 
-func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRuleExecution) {
+func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) {
 	defer func() {
 		if r := recover(); r != nil {
 			_ = catcher.Error("recovered from panic in soar dispatch", nil, map[string]any{"panic": r, "execution": exec.ID})
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(authz.WithTenantID(parent, exec.TenantID), dispatchTimeout)
+	ctx, cancel := context.WithTimeout(authz.WithTenantID(parent, exec.TenantID.String()), dispatchTimeout)
 	defer cancel()
 
 	claimed, err := d.repo.ClaimPending(ctx, exec.ID, dispatchTimeout)
@@ -131,7 +132,7 @@ func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRu
 		return
 	}
 
-	flow := d.flows.Get(exec.TenantID, exec.RulePath)
+	flow := d.flows.Get(exec.TenantID.String(), exec.RulePath)
 	if flow == nil {
 		d.fail(ctx, exec.ID, domain.NonExecutionCauseUnknown)
 		return
@@ -189,20 +190,19 @@ func (d *Dispatcher) process(parent context.Context, exec domain.AlertResponseRu
 		result = masked
 	}
 	if err := d.repo.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
-		ExecutionStatus: &executed,
-		CommandResult:   &result,
+		Status: &executed,
+		Result: &result,
 	}); err != nil {
 		_ = catcher.Error("soar dispatch: failed to persist result", err, map[string]any{"execution": exec.ID})
 	}
 }
 
-// handleOffline retries the execution up to dispatchMaxRetries, then fails it.
-func (d *Dispatcher) handleOffline(ctx context.Context, exec domain.AlertResponseRuleExecution) {
+func (d *Dispatcher) handleOffline(ctx context.Context, exec domain.SoarExecution) {
 	cause := domain.NonExecutionCauseAgentOffline
-	if exec.ExecutionRetries+1 >= dispatchMaxRetries {
+	if exec.Retries+1 >= dispatchMaxRetries {
 		failed := domain.ExecutionStatusFailed
 		_ = d.repo.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
-			ExecutionStatus:   &failed,
+			Status:            &failed,
 			NonExecutionCause: &cause,
 		})
 		return
@@ -213,15 +213,14 @@ func (d *Dispatcher) handleOffline(ctx context.Context, exec domain.AlertRespons
 	})
 }
 
-func (d *Dispatcher) fail(ctx context.Context, id int64, cause domain.NonExecutionCause) {
+func (d *Dispatcher) fail(ctx context.Context, id uuid.UUID, cause domain.NonExecutionCause) {
 	failed := domain.ExecutionStatusFailed
 	_ = d.repo.UpdateStatus(ctx, id, connectors.ExecutionStatusUpdate{
-		ExecutionStatus:   &failed,
+		Status:            &failed,
 		NonExecutionCause: &cause,
 	})
 }
 
-// resolveAgent maps an agent hostname to its agent-manager numeric id.
 func (d *Dispatcher) resolveAgent(ctx context.Context, hostname string) (string, bool, error) {
 	if hostname == "" {
 		return "", false, nil
@@ -236,8 +235,6 @@ func (d *Dispatcher) resolveAgent(ctx context.Context, hostname string) (string,
 	return strconv.FormatUint(uint64(rows[0].GetId()), 10), true, nil
 }
 
-// isOfflineError reports whether the agent-manager error means the agent is
-// offline/disconnected (retryable) rather than a hard failure.
 func isOfflineError(err error) bool {
 	if err == nil {
 		return false

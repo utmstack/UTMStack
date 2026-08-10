@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
+
+	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 )
 
 const flowReloadInterval = 2 * time.Second
@@ -23,7 +25,7 @@ type FlowListFilter struct {
 	Search string // case-insensitive partial on flow name
 
 	Active        *bool  // enabled state
-	SystemOwner   *bool  // system overlay membership
+	SystemOwner   *bool  // shipped with the product rather than written here
 	AgentPlatform string // exact match
 }
 
@@ -36,40 +38,70 @@ type FlowStore struct {
 	systemDir string
 	userDir   string
 
-	mu    sync.RWMutex
-	flows []*StoredFlow
-	index map[flowKey]*StoredFlow
+	mu      sync.RWMutex
+	flows   []*domain.StoredFlow
+	index   map[flowKey]*domain.StoredFlow
+	enabled map[string]enabledSet // tenant → the flows they switched on
 }
 
 func NewFlowStore(systemDir, userDir string) *FlowStore {
 	return &FlowStore{
 		systemDir: systemDir,
 		userDir:   userDir,
-		index:     make(map[flowKey]*StoredFlow),
+		index:     make(map[flowKey]*domain.StoredFlow),
+		enabled:   make(map[string]enabledSet),
 	}
 }
 
 func (s *FlowStore) Load() error {
-	flows := make([]*StoredFlow, 0, 64)
-	index := make(map[flowKey]*StoredFlow, 64)
+	flows := make([]*domain.StoredFlow, 0, 128)
+	index := make(map[flowKey]*domain.StoredFlow, 128)
 
-	loaded, err := loadFlowOverlay(s.userDir)
+	system, err := loadFlowDir(s.systemDir, "", true)
 	if err != nil {
 		return err
 	}
-	for _, sf := range loaded {
-		k := flowKey{sf.tenant, sf.RelPath}
-		if prev, ok := index[k]; ok {
-			*prev = *sf
+	for _, sf := range system {
+		k := flowKey{"", sf.RelPath}
+		if _, ok := index[k]; ok {
 			continue
 		}
 		index[k] = sf
 		flows = append(flows, sf)
 	}
 
+	tenants, err := tenantFlowDirs(s.userDir)
+	if err != nil {
+		return err
+	}
+	enabled := make(map[string]enabledSet, len(tenants))
+	for _, tenant := range tenants {
+		dir := filepath.Join(s.userDir, tenant)
+		owned, lerr := loadFlowDir(dir, tenant, false)
+		if lerr != nil {
+			return lerr
+		}
+		for _, sf := range owned {
+			k := flowKey{tenant, sf.RelPath}
+			if _, ok := index[k]; ok {
+				continue
+			}
+			index[k] = sf
+			flows = append(flows, sf)
+		}
+		on, derr := readEnabled(dir)
+		if derr != nil {
+			// Nothing on rather than everything on: an unreadable file must
+			// never be the reason a command runs on somebody's machines.
+			_ = catcher.Error("soar: unreadable enabled list, treating every flow as off", derr,
+				map[string]any{"tenant": tenant})
+			on = enabledSet{}
+		}
+		enabled[tenant] = on
+	}
+
 	s.mu.Lock()
-	s.flows = flows
-	s.index = index
+	s.flows, s.index, s.enabled = flows, index, enabled
 	s.mu.Unlock()
 	return nil
 }
@@ -89,8 +121,25 @@ func (s *FlowStore) Watch(ctx context.Context) {
 	}
 }
 
-func loadFlowOverlay(dir string) ([]*StoredFlow, error) {
-	var out []*StoredFlow
+func tenantFlowDirs(root string) ([]string, error) {
+	entries, err := os.ReadDir(root)
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() {
+			out = append(out, e.Name())
+		}
+	}
+	return out, nil
+}
+
+func loadFlowDir(dir, tenant string, system bool) ([]*domain.StoredFlow, error) {
+	var out []*domain.StoredFlow
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return out, nil
@@ -100,27 +149,20 @@ func loadFlowOverlay(dir string) ([]*StoredFlow, error) {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() {
+		if d.IsDir() || !strings.HasSuffix(path, FlowFileExt) {
 			return nil
 		}
-
-		enabled := true
-		logical := path
-		if strings.HasSuffix(path, DisabledSuffix) {
-			enabled = false
-			logical = strings.TrimSuffix(path, DisabledSuffix)
-		}
-		if !strings.HasSuffix(logical, FlowFileExt) {
+		if filepath.Base(path) == EnabledFileName {
 			return nil
 		}
 
 		flow, ferr := readFlowFile(path)
 		if ferr != nil {
 			_ = catcher.Error("soar: skipping unparsable flow file", ferr, map[string]any{"path": path})
-			return nil // skip unparsable files rather than failing the whole load
+			return nil // skip the file rather than fail the whole load
 		}
 
-		rel, ferr := filepath.Rel(dir, logical)
+		rel, ferr := filepath.Rel(dir, path)
 		if ferr != nil {
 			return nil
 		}
@@ -130,68 +172,61 @@ func loadFlowOverlay(dir string) ([]*StoredFlow, error) {
 			mod = info.ModTime()
 		}
 
-		relSlash := filepath.ToSlash(rel)
-		i := strings.Index(relSlash, "/")
-		if i <= 0 {
-			return nil // a file naming no tenant belongs to nobody
-		}
-		tenant := relSlash[:i]
-		relSlash = relSlash[i+1:]
-
-		system := false
-		if after, ok := strings.CutPrefix(relSlash, SystemSubdir+"/"); ok {
-			system, relSlash = true, after
-		}
-
-		out = append(out, &StoredFlow{
+		out = append(out, &domain.StoredFlow{
 			Flow:     flow,
-			RelPath:  relSlash,
+			RelPath:  filepath.ToSlash(rel),
 			Modified: mod,
-			system:   system,
-			enabled:  enabled,
-			tenant:   tenant,
+			System:   system,
+			Tenant:   tenant,
 		})
 		return nil
 	})
 	return out, err
 }
 
-func (s *FlowStore) Get(tenant, relPath string) *StoredFlow {
+func (s *FlowStore) Get(tenant, relPath string) *domain.StoredFlow {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.lookup(tenant, relPath)
 }
 
-func (s *FlowStore) lookup(tenant, relPath string) *StoredFlow {
-	if sf, ok := s.index[flowKey{tenant, relPath}]; ok {
-		cp := *sf
-		return &cp
+func (s *FlowStore) lookup(tenant, relPath string) *domain.StoredFlow {
+	sf, ok := s.index[flowKey{tenant, relPath}]
+	if !ok {
+		sf, ok = s.index[flowKey{"", relPath}]
 	}
-	if sf, ok := s.index[flowKey{"", relPath}]; ok {
-		cp := *sf
-		return &cp
+	if !ok {
+		return nil
 	}
-	return nil
+	return s.viewFor(tenant, sf)
 }
 
-func (s *FlowStore) List(tenant string, f FlowListFilter) ([]*StoredFlow, int) {
+func (s *FlowStore) viewFor(tenant string, sf *domain.StoredFlow) *domain.StoredFlow {
+	cp := *sf
+	cp.Enabled = s.enabled[tenant][sf.RelPath]
+	return &cp
+}
+
+func (s *FlowStore) List(tenant string, f FlowListFilter) ([]*domain.StoredFlow, int) {
 	s.mu.RLock()
 	seen := make(map[string]bool, len(s.flows))
-	matched := make([]*StoredFlow, 0, len(s.flows))
+	matched := make([]*domain.StoredFlow, 0, len(s.flows))
 	for _, sf := range s.flows {
-		if sf.tenant != "" && sf.tenant != tenant {
+		if sf.Tenant != "" && sf.Tenant != tenant {
 			continue
 		}
-		if sf.tenant == "" && s.index[flowKey{tenant, sf.RelPath}] != nil {
-			continue // the tenant overrode this system flow
+		if sf.Tenant == "" && s.index[flowKey{tenant, sf.RelPath}] != nil {
+			continue // the tenant wrote their own version of this one
 		}
 		if seen[sf.RelPath] {
 			continue
 		}
-		if flowMatches(sf, f) {
+		// The view has to be built before matching: Active filters on a value
+		// that only exists once the tenant's list is applied.
+		cp := s.viewFor(tenant, sf)
+		if flowMatches(cp, f) {
 			seen[sf.RelPath] = true
-			cp := *sf
-			matched = append(matched, &cp)
+			matched = append(matched, cp)
 		}
 	}
 	s.mu.RUnlock()
@@ -206,7 +241,7 @@ func (s *FlowStore) List(tenant string, f FlowListFilter) ([]*StoredFlow, int) {
 	}
 	start := f.Page * f.Size
 	if start >= total {
-		return []*StoredFlow{}, total
+		return []*domain.StoredFlow{}, total
 	}
 	end := start + f.Size
 	if end > total {
@@ -215,17 +250,17 @@ func (s *FlowStore) List(tenant string, f FlowListFilter) ([]*StoredFlow, int) {
 	return matched[start:end], total
 }
 
-func flowMatches(sf *StoredFlow, f FlowListFilter) bool {
+func flowMatches(sf *domain.StoredFlow, f FlowListFilter) bool {
 	if f.Name != "" && !strings.Contains(strings.ToLower(sf.Name), strings.ToLower(f.Name)) {
 		return false
 	}
 	if f.Search != "" && !strings.Contains(strings.ToLower(sf.Name), strings.ToLower(f.Search)) {
 		return false
 	}
-	if f.Active != nil && sf.enabled != *f.Active {
+	if f.Active != nil && sf.Enabled != *f.Active {
 		return false
 	}
-	if f.SystemOwner != nil && sf.system != *f.SystemOwner {
+	if f.SystemOwner != nil && sf.System != *f.SystemOwner {
 		return false
 	}
 	if f.AgentPlatform != "" && sf.AgentPlatform != f.AgentPlatform {
@@ -234,7 +269,7 @@ func flowMatches(sf *StoredFlow, f FlowListFilter) bool {
 	return true
 }
 
-func (s *FlowStore) Create(tenant string, flow Flow) (*StoredFlow, error) {
+func (s *FlowStore) Create(tenant string, flow domain.Flow) (*domain.StoredFlow, error) {
 	relPath := flowSlug(flow.Name) + FlowFileExt
 
 	s.mu.Lock()
@@ -254,31 +289,29 @@ func (s *FlowStore) Create(tenant string, flow Flow) (*StoredFlow, error) {
 		return nil, err
 	}
 
-	sf := &StoredFlow{
+	sf := &domain.StoredFlow{
 		Flow:     flow,
 		RelPath:  relPath,
 		Modified: flowModTime(abs),
-		system:   false,
-		enabled:  true,
-		tenant:   tenant,
+		System:   false,
+		Tenant:   tenant,
 	}
 	s.index[flowKey{tenant, relPath}] = sf
 	s.flows = append(s.flows, sf)
 
-	cp := *sf
-	return &cp, nil
+	return s.viewFor(tenant, sf), nil
 }
 
-func (s *FlowStore) Update(tenant, relPath string, flow Flow) (*StoredFlow, error) {
+func (s *FlowStore) Update(tenant, relPath string, flow domain.Flow) (*domain.StoredFlow, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	sf, ok := s.index[flowKey{tenant, relPath}]
 	if !ok {
-		return nil, ErrFlowNotFound
-	}
-	if sf.system {
-		return nil, ErrSystemFlowContent
+		if _, shipped := s.index[flowKey{"", relPath}]; shipped {
+			return nil, domain.ErrSystemFlowContent
+		}
+		return nil, domain.ErrFlowNotFound
 	}
 
 	abs := s.absPath(sf)
@@ -289,8 +322,7 @@ func (s *FlowStore) Update(tenant, relPath string, flow Flow) (*StoredFlow, erro
 	sf.Flow = flow
 	sf.Modified = flowModTime(abs)
 
-	cp := *sf
-	return &cp, nil
+	return s.viewFor(tenant, sf), nil
 }
 
 func (s *FlowStore) Delete(tenant, relPath string) error {
@@ -299,10 +331,10 @@ func (s *FlowStore) Delete(tenant, relPath string) error {
 
 	sf, ok := s.index[flowKey{tenant, relPath}]
 	if !ok {
-		return ErrFlowNotFound
-	}
-	if sf.system {
-		return ErrSystemFlowContent
+		if _, shipped := s.index[flowKey{"", relPath}]; shipped {
+			return domain.ErrSystemFlowContent
+		}
+		return domain.ErrFlowNotFound
 	}
 
 	if err := removeFlowFile(s.absPath(sf)); err != nil {
@@ -323,37 +355,31 @@ func (s *FlowStore) SetEnabled(tenant, relPath string, enabled bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	sf, ok := s.index[flowKey{tenant, relPath}]
-	if !ok {
-		return ErrFlowNotFound
-	}
-	if sf.enabled == enabled {
-		return nil
+	if s.lookup(tenant, relPath) == nil {
+		return domain.ErrFlowNotFound
 	}
 
-	from := s.absPath(sf)
-	sf.enabled = enabled
-	to := s.absPath(sf)
-	if err := s.withFlowLock(func() error { return renameFlowFile(from, to) }); err != nil {
-		sf.enabled = !enabled
+	next := make(enabledSet, len(s.enabled[tenant])+1)
+	for k, v := range s.enabled[tenant] {
+		next[k] = v
+	}
+	if enabled {
+		next[relPath] = true
+	} else {
+		delete(next, relPath)
+	}
+
+	dir := filepath.Join(s.userDir, tenant)
+	if err := s.withFlowLock(func() error { return writeEnabled(dir, next) }); err != nil {
 		return err
 	}
+	s.enabled[tenant] = next
 	return nil
 }
 
-func (s *FlowStore) absPath(sf *StoredFlow) string {
-	dir := filepath.Join(s.userDir, sf.tenant)
-	if sf.system {
-		dir = filepath.Join(dir, SystemSubdir)
-	}
-	p := filepath.Join(dir, filepath.FromSlash(sf.RelPath))
-	if !sf.enabled {
-		p += DisabledSuffix
-	}
-	return p
+func (s *FlowStore) absPath(sf *domain.StoredFlow) string {
+	return filepath.Join(s.userDir, sf.Tenant, filepath.FromSlash(sf.RelPath))
 }
-
-// ── helpers ─────────────────────────────────────────────────────────────────
 
 var flowSlugNonAlnum = regexp.MustCompile(`[^a-z0-9]+`)
 

@@ -8,10 +8,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
 )
 
-// Create and Update are internal-only (called by the SOAR plugin). They are not
-// audited — high-frequency machine traffic, and the plugin is identified only as
-// "internal" by the auth layer, so an audit row would carry no useful actor.
-
 type ExecutionHandler struct {
 	usecase connectors.ExecutionUsecase
 }

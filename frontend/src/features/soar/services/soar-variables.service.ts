@@ -1,27 +1,37 @@
 import { createApiClient } from '@/shared/lib/api-client'
 
 const api = createApiClient()
-const BASE = '/soar/incident-variables'
+const BASE = '/soar/variables'
 
 /** A SOAR command variable. Secret values come back masked as "****". */
 export interface SoarVariable {
-  id: number
-  variableName?: string | null
-  variableValue?: string | null
+  id: string // uuid
+  variableName: string
+  variableValue: string
   variableDescription?: string | null
   isSecret: boolean
+  createdBy: string
+  createdAt: string
+  lastModifiedBy?: string | null
   lastModifiedDate?: string | null
 }
 
 export interface CreateVariableInput {
   variableName: string
+  /** Required: a variable with no value leaves its $[variables.NAME] unresolved
+   *  in the command that reaches the agent, so the backend refuses it. */
+  variableValue: string
   variableDescription?: string
-  variableValue?: string
   isSecret: boolean
 }
 
-export interface UpdateVariableInput extends CreateVariableInput {
-  id: number
+export interface UpdateVariableInput {
+  id: string
+  variableName?: string
+  /** Omit, or send the "****" mask, to keep the stored value. */
+  variableValue?: string
+  variableDescription?: string
+  isSecret: boolean
 }
 
 export const soarVariablesService = {
@@ -30,5 +40,5 @@ export const soarVariablesService = {
   create: (input: CreateVariableInput) => api.post<SoarVariable>(BASE, input),
   // Secrets are mask-preserving: omit/blank the value to keep the stored one.
   update: (input: UpdateVariableInput) => api.put<SoarVariable>(BASE, input),
-  remove: (id: number) => api.delete<{ message: string }>(`${BASE}/${id}`),
+  remove: (id: string) => api.delete<{ message: string }>(`${BASE}/${id}`),
 }

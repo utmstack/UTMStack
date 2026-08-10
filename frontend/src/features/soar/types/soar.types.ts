@@ -90,45 +90,41 @@ export interface FlowListQuery {
   size?: number
 }
 
-/** Reusable command template served from `/soar/action-templates`. Selecting
- *  one seeds the flow-creation form. */
-export interface ActionTemplate {
-  id: number
-  title: string
-  description?: string
-  command: string
-  systemOwner: boolean
-}
-
-export interface ActionTemplateListQuery {
-  page?: number // 0-based
-  size?: number
-}
-
 export type ExecutionStatus = 'EXECUTED' | 'PENDING' | 'FAILED'
 export type NonExecutionCause = 'AGENT_OFFLINE' | 'AGENT_NOT_FOUND' | 'UNKNOWN'
 
 /** One recorded flow execution (Postgres-backed). */
+/** What raised a command: a flow that matched an alert, or a person at the
+ *  interactive console. It decides which half of the row carries anything. */
+export type ExecutionOrigin = 'FLOW' | 'MANUAL'
+
 export interface Execution {
-  id: number
-  rulePath: string
-  alertId: string
-  command: string
-  commandResult?: string
+  id: string // uuid
+  origin: ExecutionOrigin
+  /** Set when origin is FLOW. */
+  rulePath?: string
+  alertId?: string
+  /** Set when origin is MANUAL: who ran it. */
+  triggeredBy?: string
   agent: string
-  executionDate: string
-  executionStatus: ExecutionStatus
+  command: string
+  result?: string
+  status: ExecutionStatus
+  startedAt: string
+  finishedAt?: string | null
   nonExecutionCause?: NonExecutionCause | null
-  executionRetries: number
+  retries: number
 }
 
 export interface ExecutionListQuery {
+  origin?: ExecutionOrigin
   rulePath?: string
   alertId?: string
   agent?: string
-  executionStatus?: ExecutionStatus
-  executionDateGte?: string
-  executionDateLte?: string
+  triggeredBy?: string
+  status?: ExecutionStatus
+  startedAtFrom?: string
+  startedAtTo?: string
   page?: number // 0-based
   size?: number
 }

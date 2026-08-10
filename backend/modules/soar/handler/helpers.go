@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
 )
@@ -20,10 +21,12 @@ func writePagedArray[T any](c *gin.Context, items []T, total int64) {
 
 func writeARRError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, domain.ErrRuleNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": "alert response rule not found"})
-	case errors.Is(err, domain.ErrTemplateNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": "alert response action template not found"})
+	case errors.Is(err, domain.ErrFlowNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "flow not found"})
+	case errors.Is(err, domain.ErrSystemFlowContent):
+		c.JSON(http.StatusForbidden, gin.H{"error": "a flow the product ships is read-only"})
+	case errors.Is(err, domain.ErrVariableValueRequired):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "a variable must have a value"})
 	case errors.Is(err, domain.ErrRuleNameTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "rule name already in use"})
 	case errors.Is(err, domain.ErrSystemRuleReadOnly):
@@ -42,12 +45,11 @@ func writeARRError(c *gin.Context, err error) {
 	}
 }
 
-func pathInt64(c *gin.Context, name string) (int64, bool) {
-	idStr := c.Param(name)
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || id <= 0 {
+func pathUUID(c *gin.Context, name string) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param(name))
+	if err != nil || id == uuid.Nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid " + name})
-		return 0, false
+		return uuid.Nil, false
 	}
 	return id, true
 }

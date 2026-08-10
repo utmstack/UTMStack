@@ -2,10 +2,14 @@ package usecase
 
 import (
 	"context"
-	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"regexp"
 	"strings"
 
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/tidwall/gjson"
 
@@ -26,7 +30,7 @@ func NewExecutionUsecase(repo connectors.ExecutionRepository, flows *FlowStore, 
 	return &executionUsecase{repo: repo, flows: flows, agents: agents, notify: notify}
 }
 
-var commandPlaceholderRE = regexp.MustCompile(`\$\((.*?)\)`)
+var commandPlaceholderRE = regexp.MustCompile(`\$\(([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)*)\)`)
 
 func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest) error {
 	sf := u.flows.Get(authz.TenantIDFromContext(ctx), req.RulePath)
@@ -49,12 +53,14 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	if command == "" {
 		return nil
 	}
-	if _, err := u.repo.Create(ctx, &domain.AlertResponseRuleExecution{
-		RulePath:        req.RulePath,
-		AlertID:         alertID,
-		Command:         command,
-		Agent:           target,
-		ExecutionStatus: domain.ExecutionStatusPending,
+	if _, err := u.repo.Create(ctx, &domain.SoarExecution{
+		Origin:    domain.ExecutionOriginFlow,
+		RulePath:  req.RulePath,
+		AlertID:   alertID,
+		Command:   command,
+		Agent:     target,
+		Status:    domain.ExecutionStatusPending,
+		StartedAt: time.Now().UTC(),
 	}); err != nil {
 		return catcher.Error("soar: failed to enqueue execution", err, map[string]any{"rule": req.RulePath, "alert": alertID})
 	}
@@ -64,10 +70,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	return nil
 }
 
-// assembleChain joins flow commands into one shell line using each entry's
-// condition as the operator between it and the previous command. The first
-// entry's condition is ignored (there's nothing to join it to).
-func assembleChain(cmds []FlowCommand) string {
+func assembleChain(cmds []domain.FlowCommand) string {
 	var b strings.Builder
 	for i, c := range cmds {
 		if c.Command == "" {
@@ -87,7 +90,7 @@ func assembleChain(cmds []FlowCommand) string {
 	return b.String()
 }
 
-func (u *executionUsecase) resolveAgent(ctx context.Context, flow Flow, alertJSON string) (string, error) {
+func (u *executionUsecase) resolveAgent(ctx context.Context, flow domain.Flow, alertJSON string) (string, error) {
 	src := gjson.Get(alertJSON, "dataSource").String()
 	if agentInList(flow.ExcludedAgents, src) {
 		return "", nil
@@ -105,7 +108,6 @@ func (u *executionUsecase) resolveAgent(ctx context.Context, flow Flow, alertJSO
 	return "", nil
 }
 
-// buildCommand substitutes $(field.path) placeholders with values from the alert.
 func buildCommand(template, alertJSON string) string {
 	return commandPlaceholderRE.ReplaceAllStringFunc(template, func(match string) string {
 		field := strings.TrimSuffix(strings.TrimPrefix(match, "$("), ")")
@@ -131,14 +133,15 @@ func agentInList(list []string, v string) bool {
 
 func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*database.List[dto.ExecutionResponse], error) {
 	executions, total, err := u.repo.List(ctx, connectors.ExecutionFilters{
-		ID:                f.ID,
+		Origin:            f.Origin,
 		RulePath:          f.RulePath,
 		AlertID:           f.AlertID,
 		Agent:             f.Agent,
-		ExecutionStatus:   f.ExecutionStatus,
+		TriggeredBy:       f.TriggeredBy,
+		Status:            f.Status,
 		NonExecutionCause: f.NonExecutionCause,
-		ExecutionDateGTE:  f.ExecutionDateGTE,
-		ExecutionDateLTE:  f.ExecutionDateLTE,
+		StartedAtGTE:      f.StartedAtGTE,
+		StartedAtLTE:      f.StartedAtLTE,
 		Params:            f.Params,
 	})
 	if err != nil {
@@ -149,17 +152,48 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 	for i, e := range executions {
 		items[i] = dto.ExecutionResponse{
 			ID:                e.ID,
+			Origin:            e.Origin,
 			RulePath:          e.RulePath,
 			AlertID:           e.AlertID,
-			Command:           e.Command,
-			CommandResult:     e.CommandResult,
+			TriggeredBy:       e.TriggeredBy,
 			Agent:             e.Agent,
-			ExecutionDate:     e.ExecutionDate,
-			ExecutionStatus:   e.ExecutionStatus,
+			Command:           e.Command,
+			Result:            e.Result,
+			Status:            e.Status,
+			StartedAt:         e.StartedAt,
+			FinishedAt:        e.FinishedAt,
 			NonExecutionCause: e.NonExecutionCause,
-			ExecutionRetries:  e.ExecutionRetries,
+			Retries:           e.Retries,
 		}
 	}
 
 	return &database.List[dto.ExecutionResponse]{Items: items, Total: total}, nil
+}
+
+func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
+	e, err := u.repo.Create(ctx, &domain.SoarExecution{
+		Origin:      domain.ExecutionOriginManual,
+		TriggeredBy: triggeredBy,
+		Agent:       agent,
+		Command:     command,
+		Status:      domain.ExecutionStatusPending,
+		StartedAt:   time.Now().UTC(),
+	})
+	if err != nil {
+		return uuid.Nil, catcher.Error("soar: failed to record a manual execution", err,
+			map[string]any{"agent": agent, "by": triggeredBy})
+	}
+	return e.ID, nil
+}
+
+func (u *executionUsecase) FinishManual(ctx context.Context, id uuid.UUID, status domain.ExecutionStatus, result string) error {
+	now := time.Now().UTC()
+	if err := u.repo.UpdateStatus(ctx, id, connectors.ExecutionStatusUpdate{
+		Status:     &status,
+		Result:     &result,
+		FinishedAt: &now,
+	}); err != nil {
+		return catcher.Error("soar: failed to close a manual execution", err, map[string]any{"execution": id})
+	}
+	return nil
 }

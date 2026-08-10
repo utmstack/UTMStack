@@ -33,7 +33,19 @@
       "apply": "Aplicar"
     },
     "loadingMore": "Cargando más…",
-    "allLoaded": "Cargados los {{count}}"
+    "allLoaded": "Cargados los {{count}}",
+    "startFrom": {
+      "scratch": "Desde cero",
+      "scratchHint": "Una definición vacía que rellenas tú.",
+      "copy": "Desde una existente",
+      "copyHint": "Se copia todo salvo el identificador y el nombre.",
+      "pickTitle": "Elige cuál copiar",
+      "back": "Volver",
+      "count": "{{n}} disponibles",
+      "search": "Buscar por nombre",
+      "none": "Nada coincide con esa búsqueda"
+    },
+    "cancel": "Cancelar"
   },
   "auth": {
     "login": {
@@ -3713,7 +3725,8 @@
         "loadError": "No se pudieron cargar las variables",
         "saveError": "No se pudo guardar la variable",
         "deleteError": "No se pudo eliminar la variable",
-        "insert": "Insertar"
+        "insert": "Insertar",
+        "valueRequired": "El valor es obligatorio"
       },
       "disabled": "Agente offline — los comandos están deshabilitados",
       "connError": "Error de conexión",
@@ -4813,7 +4826,9 @@
         "killProcess": "Matar proceso",
         "logout": "Cerrar sesión",
         "disableUser": "Deshabilitar usuario",
-        "blockIp": "Bloquear IP"
+        "blockIp": "Bloquear IP",
+        "restart": "Reiniciar la máquina",
+        "uninstall": "Desinstalar aplicación"
       },
       "connector": {
         "always": "siempre",
@@ -4873,7 +4888,8 @@
         "agent": "Agente",
         "date": "Fecha",
         "retries": "Reintentos"
-      }
+      },
+      "manual": "Consola interactiva"
     },
     "executionStatus": {
       "EXECUTED": "Ejecutado",
@@ -5127,17 +5143,6 @@
       "title": "Nota",
       "description": "Se guarda en el informe. No cambia el estado del control.",
       "placeholder": "Remediación en curso — ticket OPS-4412, cierre fin de trimestre."
-    },
-    "startFrom": {
-      "scratch": "Desde cero",
-      "scratchHint": "Una definición vacía que rellenas tú.",
-      "copy": "Desde una existente",
-      "copyHint": "Se copia todo salvo el identificador y el nombre.",
-      "pickTitle": "Elige cuál copiar",
-      "back": "Volver",
-      "count": "{{n}} disponibles",
-      "search": "Buscar por nombre",
-      "none": "Nada coincide con esa búsqueda"
     },
     "history": {
       "title": "Score en el tiempo",
