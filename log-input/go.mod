@@ -8,7 +8,7 @@ require (
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/threatwinds/go-sdk v1.1.27-0.20260804160110-0dab0e82abf5
 	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
