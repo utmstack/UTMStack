@@ -226,6 +226,21 @@ pipeline:
 
       - rename:
           from:
+            - log.data.TargetSid
+          to: log.eventDataTargetSid
+
+      - rename:
+          from:
+            - log.data.CallerProcessId
+          to: log.eventDataCallerProcessId
+
+      - rename:
+          from:
+            - log.data.CallerProcessName
+          to: log.eventDataCallerProcessName
+
+      - rename:
+          from:
             - log.data.TransmittedServices
           to: log.eventDataTransmittedServices
 
