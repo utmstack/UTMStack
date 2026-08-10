@@ -24,7 +24,7 @@ description: |
   5. Examine the requesting host for signs of compromise
   6. Consider revoking any suspicious certificates issued
   7. Validate Certificate Authority security configurations and access controls
-where: (equals("log.eventId", "4886") || equals("log.eventId", "4887")) && equals("log.providerName", "Microsoft-Windows-Security-Auditing") && (contains("log.eventDataSubjectUserName", "$") || equals("log.eventDataSubjectUserName", "ANONYMOUS LOGON"))
+where: (equals("log.eventCode", "4886") || equals("log.eventCode", "4887")) && equals("log.providerName", "Microsoft-Windows-Security-Auditing") && (contains("log.eventDataSubjectUserName", "$") || equals("log.eventDataSubjectUserName", "ANONYMOUS LOGON"))
 groupBy:
   - lastEvent.log.eventDataSubjectUserName
   - origin.host
