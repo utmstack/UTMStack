@@ -7,6 +7,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
+	tenantdto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 // registerResources is invoked from buildServer to mount every MCP resource.
@@ -44,6 +46,25 @@ func registerCatalogResources(m *Module) {
 		fs := m.deps.Compliance.GetFrameworkUsecase().ListFrameworks(ctx)
 		return jsonResource(req.Params.URI, fs)
 	})
+
+	if m.deps.Tenant != nil {
+		tenantUC := m.deps.Tenant.GetTenantUsecase()
+		srv.AddResource(&mcp.Resource{
+			URI:         "mcp://utmstack/catalog/tenants",
+			Name:        "Tenants catalog (super admin)",
+			Description: "Live list of tenants on this instance: id, name, domain, status, support-access grant, limits. Read-only. Only the super admin (default-tenant admin) may read it.",
+			MIMEType:    "application/json",
+		}, func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+			if err := authz.RequirePlatform(ActorFromContext(ctx)); err != nil {
+				return nil, err
+			}
+			items, total, err := tenantUC.List(ctx, tenantdto.Filter{})
+			if err != nil {
+				return nil, err
+			}
+			return jsonResource(req.Params.URI, map[string]any{"items": items, "total": total})
+		})
+	}
 
 	srv.AddResource(&mcp.Resource{
 		URI:         "mcp://utmstack/catalog/alert-tags",
