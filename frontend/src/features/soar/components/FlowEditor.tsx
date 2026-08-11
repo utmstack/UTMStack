@@ -159,8 +159,7 @@ export function FlowEditor({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="flex w-full max-w-[820px] flex-col overflow-hidden border-l border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <div className="min-w-0">
             <h2 className="flex items-center gap-2 truncate text-lg font-semibold">
@@ -201,9 +200,9 @@ export function FlowEditor({
             <YamlCodeEditor value={yaml} onChange={setYaml} readOnly={readOnly} />
           </div>
         ) : (
-          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-6 pb-64">
+          <div ref={scrollRef} className="min-h-0 px-8 flex-1 overflow-y-auto bg-muted/10 px-8 py-6">
             {/* Flow identity */}
-            <div className="mx-auto mb-2 max-w-[660px] space-y-3 rounded-xl border border-border bg-card p-4">
+            <div className="mb-2 space-y-3 rounded-xl border border-border bg-card p-4">
               <div className="space-y-1">
                 <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                   {t('soar.editor.nameLabel')}
@@ -233,7 +232,7 @@ export function FlowEditor({
             </div>
 
             {/* Workflow: WHEN → ON → THEN RUN, top to bottom */}
-            <div className="mx-auto max-w-[660px]">
+            <div>
               <Connector />
               <WorkflowNode icon={Zap} tone="amber" badge={t('soar.editor.when')} title={t('soar.editor.whenTitle')}>
                 <ConditionsEditor conditions={form.conditions} readOnly={readOnly} onChange={(c) => set('conditions', c)} t={t} />
@@ -301,7 +300,6 @@ export function FlowEditor({
             </Button>
           )}
         </footer>
-      </div>
     </div>
   )
 }

@@ -154,6 +154,8 @@ export function FlowsPage() {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
+      {!editing &&(
+      <>
       <FlowKpis refreshKey={total + stateVersion} />
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <div className="relative">
@@ -219,6 +221,9 @@ export function FlowsPage() {
           )}
         </div>
       </div>
+
+      </>
+      )}
 
       {editing && (
         <FlowEditor
@@ -359,3 +364,4 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
 function Center({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">{children}</div>
 }
+
