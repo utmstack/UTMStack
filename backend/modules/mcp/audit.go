@@ -60,9 +60,10 @@ func (m *Module) auditDenied(ctx context.Context, actor *authz.Actor, tool strin
 
 func auditEvent(actor *authz.Actor, tool, status, errMsg string) auditcon.Event {
 	var uid, sid *uuid.UUID
-	var login string
+	var login, support string
 	if actor != nil {
 		login = actor.Email
+		support = actor.Support
 		if actor.UserID != uuid.Nil {
 			id := actor.UserID
 			uid = &id
@@ -72,15 +73,19 @@ func auditEvent(actor *authz.Actor, tool, status, errMsg string) auditcon.Event 
 			sid = &s
 		}
 	}
+	// TenantID is populated by the audit service from ctx (authz.TenantIDFromContext),
+	// so we don't stamp it here. That path also correctly captures the tenant a
+	// platform/support session was acting inside via the Utm-Tenant-Id header.
 	return auditcon.Event{
-		Action:       "mcp.tools.call",
-		Status:       status,
-		ResourceType: tool,
-		ErrorMessage: errMsg,
-		Metadata:     map[string]any{"transport": "mcp"},
-		EventType:    auditdom.APP_EVENT_MCP_TOOL_CALL,
-		UserEmail:    login,
-		UserID:       uid,
-		SessionID:    sid,
+		Action:        "mcp.tools.call",
+		Status:        status,
+		ResourceType:  tool,
+		ErrorMessage:  errMsg,
+		Metadata:      map[string]any{"transport": "mcp"},
+		EventType:     auditdom.APP_EVENT_MCP_TOOL_CALL,
+		UserEmail:     login,
+		UserID:        uid,
+		SessionID:     sid,
+		SupportAccess: support,
 	}
 }

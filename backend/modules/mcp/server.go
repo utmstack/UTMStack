@@ -46,6 +46,7 @@ func (m *Module) buildServer() *mcp.Server {
 	registerAppConfig(m)
 	registerBilling(m)
 	registerSOCAI(m)
+	registerTenants(m)
 
 	registerResources(m)
 
@@ -64,6 +65,10 @@ type Gate struct {
 	Role string
 	// Admin enforces the ROLE_ADMIN gate (same as middleware.RequireAdmin).
 	Admin bool
+	// Platform restricts the tool to the super-admin — an admin of the
+	// default tenant (mirrors middleware.RequirePlatform). Use it for
+	// tools that own the fleet: tenant CRUD, cross-tenant maintenance.
+	Platform bool
 	// Enterprise requires the active license to be Enterprise.
 	Enterprise bool
 	// MSSP requires the active license to be MSSP.
@@ -89,6 +94,11 @@ func (g Gate) check(actor *authz.Actor, flags licenseFlags) error {
 	}
 	if g.Admin {
 		if err := authz.RequireAdmin(actor); err != nil {
+			return err
+		}
+	}
+	if g.Platform {
+		if err := authz.RequirePlatform(actor); err != nil {
 			return err
 		}
 	}

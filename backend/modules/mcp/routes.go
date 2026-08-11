@@ -45,6 +45,13 @@ func RegisterRoutes(group *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc)
 		// against by default. We disable that protection because the
 		// outer middleware already enforces JWT/API-key auth.
 		DisableLocalhostProtection: true,
+		// Stateless: every POST runs Connect() with the current request's
+		// context, so authz.WithTenantID and the actor set by userAuth /
+		// liftActorMiddleware reach the tool handler on THIS call — not
+		// only on the one that opened the session. This is what makes
+		// Utm-Tenant-Id switching per-request work for platform / support
+		// callers, and what keeps a tenant JWT scoped to its own data.
+		Stateless: true,
 	})
 
 	// Streamable HTTP needs both POST and GET on the same path.

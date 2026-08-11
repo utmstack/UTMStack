@@ -20,6 +20,7 @@ import (
 	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	"github.com/utmstack/utmstack/backend/modules/tenant"
 )
 
 // Deps holds the other modules the MCP layer borrows usecases from. New
@@ -43,6 +44,7 @@ type Deps struct {
 	SOCAI           *socai.Module
 	Billing         *billing.Module
 	AppConfig       *appconfig.Module
+	Tenant          *tenant.Module
 
 	// ServerName / ServerVersion populate the MCP Implementation block sent
 	// during the initialize handshake; clients display these in their UI.
