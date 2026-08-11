@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils/tests"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
-const customerTenant = "8f1c1b8e-0000-4000-8000-000000000001"
+var customerTenant = uuid.MustParse("8f1c1b8e-0000-4000-8000-000000000001")
 
 func newDB(t *testing.T) *gorm.DB {
 	t.Helper()
@@ -34,11 +35,11 @@ func TestGetByKeyReadsBothTenants(t *testing.T) {
 	db := newDB(t)
 	r := &pgRepo{db: db}
 
-	ctx := authz.WithTenantID(context.Background(), customerTenant)
+	ctx := authz.WithTenantID(context.Background(), customerTenant.String())
 	_, _ = r.GetByKey(ctx, "utmstack.mail.host")
 
 	sql := lastSQL(t, db, func(d *gorm.DB) *gorm.DB {
-		return r.inherited(ctx, customerTenant).Where("conf_param_short = ?", "x")
+		return r.inherited(ctx, customerTenant).Where("key = ?", "x")
 	})
 
 	if !strings.Contains(sql, "tenant_id IN") {
@@ -54,7 +55,7 @@ func TestTheDefaultTenantReadsOnlyItsOwn(t *testing.T) {
 
 	ctx := authz.WithTenantID(context.Background(), authz.DefaultTenantID)
 	sql := lastSQL(t, db, func(d *gorm.DB) *gorm.DB {
-		return r.inherited(ctx, authz.DefaultTenantID).Where("conf_param_short = ?", "x")
+		return r.inherited(ctx, defaultTenant).Where("key = ?", "x")
 	})
 
 	if strings.Contains(sql, "IN") {
@@ -66,19 +67,34 @@ func TestTheDefaultTenantReadsOnlyItsOwn(t *testing.T) {
 }
 
 // GetOwn is what tells an override from something inherited, so it must never
-// fall back.
+// fall back — and it must name the tenant itself, because the read spans all of
+// them.
 func TestGetOwnDoesNotInherit(t *testing.T) {
 	db := newDB(t)
 
-	ctx := authz.WithTenantID(context.Background(), customerTenant)
-	sql := lastSQL(t, db, func(d *gorm.DB) *gorm.DB {
-		return d.WithContext(tenancy.WithAllTenantsRead(ctx)).
-			Where("tenant_id = ? AND conf_param_short = ?", customerTenant, "x")
+	ctx := authz.WithTenantID(context.Background(), customerTenant.String())
+	sql := captureSQL(db, func(d *gorm.DB) {
+		_, _ = (&pgRepo{db: d}).GetOwn(ctx, "branding")
 	})
 
 	if strings.Contains(sql, "IN") {
 		t.Errorf("GetOwn inherited: %s", sql)
 	}
+	if !strings.Contains(sql, "tenant_id") || !strings.Contains(sql, "key") {
+		t.Errorf("GetOwn did not ask for one tenant's key: %s", sql)
+	}
+}
+
+// captureSQL runs whatever the callback does against a dry-run session and
+// returns the statement it built.
+func captureSQL(db *gorm.DB, run func(*gorm.DB)) string {
+	var out string
+	session := db.Session(&gorm.Session{DryRun: true, NewDB: true})
+	session.Callback().Query().After("gorm:query").Register("tests:capture", func(d *gorm.DB) {
+		out = d.Statement.SQL.String()
+	})
+	run(session)
+	return out
 }
 
 func lastSQL(t *testing.T, db *gorm.DB, build func(*gorm.DB) *gorm.DB) string {
@@ -100,18 +116,18 @@ func lastSQL(t *testing.T, db *gorm.DB, build func(*gorm.DB) *gorm.DB) string {
 // symptom was a tenant saving its branding and reading the platform's back.
 func TestPreferOwnPicksTheTenantsRow(t *testing.T) {
 	rows := []domain.Config{
-		{TenantID: authz.DefaultTenantID, ConfParamShort: "branding", ConfParamValue: "platform"},
-		{TenantID: customerTenant, ConfParamShort: "branding", ConfParamValue: "theirs"},
+		{TenantID: defaultTenant, Key: "branding", Value: "platform"},
+		{TenantID: customerTenant, Key: "branding", Value: "theirs"},
 	}
 
 	got := preferOwn(rows, customerTenant)
-	if got == nil || got.ConfParamValue != "theirs" {
+	if got == nil || got.Value != "theirs" {
 		t.Fatalf("picked %v, want the tenant's own row", got)
 	}
 
 	// Order of arrival must not decide it.
 	rows[0], rows[1] = rows[1], rows[0]
-	if got := preferOwn(rows, customerTenant); got == nil || got.ConfParamValue != "theirs" {
+	if got := preferOwn(rows, customerTenant); got == nil || got.Value != "theirs" {
 		t.Fatalf("picked %v after reordering, want the tenant's own row", got)
 	}
 }
@@ -119,10 +135,10 @@ func TestPreferOwnPicksTheTenantsRow(t *testing.T) {
 // With nothing of its own, the tenant reads what the instance set.
 func TestPreferOwnFallsBackToTheDefault(t *testing.T) {
 	rows := []domain.Config{
-		{TenantID: authz.DefaultTenantID, ConfParamShort: "branding", ConfParamValue: "platform"},
+		{TenantID: defaultTenant, Key: "branding", Value: "platform"},
 	}
 	got := preferOwn(rows, customerTenant)
-	if got == nil || got.ConfParamValue != "platform" {
+	if got == nil || got.Value != "platform" {
 		t.Fatalf("picked %v, want the inherited default", got)
 	}
 }

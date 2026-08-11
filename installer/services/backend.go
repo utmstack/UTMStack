@@ -39,7 +39,7 @@ func SetBaseURL(hostname string) error {
 	}
 
 	baseURL := fmt.Sprintf("https://%s.utmstack.com", hostname)
-	query := fmt.Sprintf("UPDATE public.utm_configuration_parameter SET conf_param_value='%s' WHERE conf_param_short='utmstack.mail.baseUrl';", baseURL)
+	query := fmt.Sprintf(`UPDATE app_config SET value='%s', updated_at=now(), updated_by='installer' WHERE key='utmstack.mail.baseUrl';`, baseURL)
 
 	return execPsql(containerID, "utmstack", query)
 }

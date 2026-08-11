@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
@@ -20,22 +21,24 @@ func NewRepository(db *gorm.DB) connectors.Repository {
 	return &pgRepo{db: db}
 }
 
-func actingTenant(ctx context.Context) string {
-	if t := authz.TenantIDFromContext(ctx); t != "" {
+var defaultTenant = uuid.MustParse(authz.DefaultTenantID)
+
+func actingTenant(ctx context.Context) uuid.UUID {
+	if t, err := uuid.Parse(authz.TenantIDFromContext(ctx)); err == nil {
 		return t
 	}
-	return authz.DefaultTenantID
+	return defaultTenant
 }
 
-func (r *pgRepo) inherited(ctx context.Context, tenant string) *gorm.DB {
+func (r *pgRepo) inherited(ctx context.Context, tenant uuid.UUID) *gorm.DB {
 	q := r.db.WithContext(tenancy.WithAllTenantsRead(ctx))
-	if tenant == authz.DefaultTenantID {
+	if tenant == defaultTenant {
 		return q.Where("tenant_id = ?", tenant)
 	}
-	return q.Where("tenant_id IN ?", []string{tenant, authz.DefaultTenantID})
+	return q.Where("tenant_id IN ?", []uuid.UUID{tenant, defaultTenant})
 }
 
-func preferOwn(rows []domain.Config, tenant string) *domain.Config {
+func preferOwn(rows []domain.Config, tenant uuid.UUID) *domain.Config {
 	var inherited *domain.Config
 	for i := range rows {
 		if rows[i].TenantID == tenant {
@@ -50,17 +53,17 @@ func (r *pgRepo) List(ctx context.Context) ([]domain.Config, error) {
 	tenant := actingTenant(ctx)
 
 	var rows []domain.Config
-	if err := r.inherited(ctx, tenant).Order("conf_param_short ASC").Find(&rows).Error; err != nil {
+	if err := r.inherited(ctx, tenant).Order("key ASC").Find(&rows).Error; err != nil {
 		return nil, err
 	}
 
 	byKey := make(map[string][]domain.Config, len(rows))
 	keys := make([]string, 0, len(rows))
 	for _, row := range rows {
-		if _, seen := byKey[row.ConfParamShort]; !seen {
-			keys = append(keys, row.ConfParamShort)
+		if _, seen := byKey[row.Key]; !seen {
+			keys = append(keys, row.Key)
 		}
-		byKey[row.ConfParamShort] = append(byKey[row.ConfParamShort], row)
+		byKey[row.Key] = append(byKey[row.Key], row)
 	}
 
 	items := make([]domain.Config, 0, len(keys))
@@ -76,7 +79,7 @@ func (r *pgRepo) GetByKey(ctx context.Context, key string) (*domain.Config, erro
 	tenant := actingTenant(ctx)
 
 	var rows []domain.Config
-	if err := r.inherited(ctx, tenant).Where("conf_param_short = ?", key).Find(&rows).Error; err != nil {
+	if err := r.inherited(ctx, tenant).Where("key = ?", key).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	return preferOwn(rows, tenant), nil
@@ -85,7 +88,7 @@ func (r *pgRepo) GetByKey(ctx context.Context, key string) (*domain.Config, erro
 func (r *pgRepo) GetOwn(ctx context.Context, key string) (*domain.Config, error) {
 	var c domain.Config
 	err := r.db.WithContext(tenancy.WithAllTenantsRead(ctx)).
-		Where("tenant_id = ? AND conf_param_short = ?", actingTenant(ctx), key).
+		Where("tenant_id = ? AND key = ?", actingTenant(ctx), key).
 		Take(&c).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -99,7 +102,7 @@ func (r *pgRepo) GetOwn(ctx context.Context, key string) (*domain.Config, error)
 func (r *pgRepo) Save(ctx context.Context, c *domain.Config) error {
 	tenant := actingTenant(ctx)
 
-	own, err := r.GetOwn(ctx, c.ConfParamShort)
+	own, err := r.GetOwn(ctx, c.Key)
 	if err != nil {
 		return err
 	}
@@ -111,6 +114,6 @@ func (r *pgRepo) Save(ctx context.Context, c *domain.Config) error {
 		return r.db.WithContext(ctx).Save(&row).Error
 	}
 
-	row.ID = 0
+	row.ID = uuid.Nil
 	return r.db.WithContext(ctx).Create(&row).Error
 }

@@ -58,11 +58,11 @@ func (s *brandingService) read(ctx context.Context) (dto.BrandingResponse, error
 	if err != nil {
 		return resp, err
 	}
-	if row == nil || strings.TrimSpace(row.ConfParamValue) == "" {
+	if row == nil || strings.TrimSpace(row.Value) == "" {
 		return resp, nil
 	}
 	var stored dto.BrandingResponse
-	if err := json.Unmarshal([]byte(row.ConfParamValue), &stored); err != nil {
+	if err := json.Unmarshal([]byte(row.Value), &stored); err != nil {
 		return resp, nil // corrupt value → defaults
 	}
 	if strings.TrimSpace(stored.ProductName) == "" {
@@ -86,9 +86,9 @@ func (s *brandingService) save(ctx context.Context, actor string, resp *dto.Bran
 	if row == nil {
 		return fmt.Errorf("branding config row %q is not seeded", brandingConfigKey)
 	}
-	row.ConfParamValue = string(data)
-	row.ModificationTime = &now
-	row.ModificationUser = actor
+	row.Value = string(data)
+	row.UpdatedAt = &now
+	row.UpdatedBy = actor
 	return s.repo.Save(ctx, row)
 }
 
@@ -186,10 +186,10 @@ func (s *brandingService) GetPublic(ctx context.Context) (*dto.BrandingPublic, e
 // English when unset. Read straight off the config row (not a secret).
 func (s *brandingService) language(ctx context.Context) string {
 	row, err := s.repo.GetByKey(ctx, systemLanguageKey)
-	if err != nil || row == nil || strings.TrimSpace(row.ConfParamValue) == "" {
+	if err != nil || row == nil || strings.TrimSpace(row.Value) == "" {
 		return defaultLanguage
 	}
-	return strings.TrimSpace(row.ConfParamValue)
+	return strings.TrimSpace(row.Value)
 }
 
 // ProductName returns the effective product name for branded output: the

@@ -66,29 +66,29 @@ func (s *service) Update(ctx context.Context, actor, key string, input dto.Upser
 
 	row := *existing
 	now := time.Now().UTC()
-	row.ModificationTime = &now
-	row.ModificationUser = actor
+	row.UpdatedAt = &now
+	row.UpdatedBy = actor
 
 	if input.IsSecret != nil && *input.IsSecret {
-		row.SetIsSecret()
+		row.IsSecret = true
 	}
 	if input.Label != "" {
-		row.ConfParamLarge = input.Label
+		row.Label = input.Label
 	}
 	if input.Description != "" {
-		row.ConfParamDescription = input.Description
+		row.Description = input.Description
 	}
 
 	if input.Value == "" {
-		row.ConfParamValue = ""
-	} else if row.IsSecret() {
+		row.Value = ""
+	} else if row.IsSecret {
 		enc, err := s.cipher.Encrypt(input.Value)
 		if err != nil {
 			return nil, err
 		}
-		row.ConfParamValue = enc
+		row.Value = enc
 	} else {
-		row.ConfParamValue = input.Value
+		row.Value = input.Value
 	}
 
 	if err := s.repo.Save(ctx, &row); err != nil {
@@ -103,17 +103,17 @@ func (s *service) GetString(ctx context.Context, key string) (string, bool, erro
 	if err != nil {
 		return "", false, err
 	}
-	if row == nil || row.ConfParamValue == "" {
+	if row == nil || row.Value == "" {
 		return "", false, nil
 	}
-	if row.IsSecret() {
-		plain, err := s.cipher.Decrypt(row.ConfParamValue)
+	if row.IsSecret {
+		plain, err := s.cipher.Decrypt(row.Value)
 		if err != nil {
 			return "", false, err
 		}
 		return plain, true, nil
 	}
-	return row.ConfParamValue, true, nil
+	return row.Value, true, nil
 }
 
 // SetString persists a value onto an existing seeded parameter (used by the mail
@@ -131,7 +131,7 @@ func (s *service) SetString(ctx context.Context, key, value string, opts connect
 	row := *existing
 	stored := value
 	if opts.IsSecret {
-		row.SetIsSecret()
+		row.IsSecret = true
 		if value != "" {
 			enc, err := s.cipher.Encrypt(value)
 			if err != nil {
@@ -140,16 +140,16 @@ func (s *service) SetString(ctx context.Context, key, value string, opts connect
 			stored = enc
 		}
 	}
-	row.ConfParamValue = stored
+	row.Value = stored
 	if opts.Label != "" {
-		row.ConfParamLarge = opts.Label
+		row.Label = opts.Label
 	}
 	if opts.Description != "" {
-		row.ConfParamDescription = opts.Description
+		row.Description = opts.Description
 	}
 	now := time.Now().UTC()
-	row.ModificationTime = &now
-	row.ModificationUser = "system"
+	row.UpdatedAt = &now
+	row.UpdatedBy = "system"
 	return s.repo.Save(ctx, &row)
 }
 
@@ -216,21 +216,22 @@ func toEmailConfig(c domain.MailConfig) mail_domain.EmailConfig {
 
 func (s *service) toResponse(c domain.Config) dto.ConfigResponse {
 	r := dto.ConfigResponse{
-		Key:         c.ConfParamShort,
-		IsSecret:    c.IsSecret(),
-		IsSet:       c.ConfParamValue != "",
-		Label:       c.ConfParamLarge,
-		Description: c.ConfParamDescription,
-		UpdatedBy:   c.ModificationUser,
+		Key:         c.Key,
+		IsSecret:    c.IsSecret,
+		IsSet:       c.Value != "",
+		Label:       c.Label,
+		Description: c.Description,
+		UpdatedBy:   c.UpdatedBy,
 	}
-	if c.ModificationTime != nil {
-		r.UpdatedAt = *c.ModificationTime
+	if c.UpdatedAt != nil {
+		r.UpdatedAt = *c.UpdatedAt
 	}
-	if c.ConfParamValue == "" {
+	if c.Value == "" {
 		return r
 	}
-	if !c.IsSecret() {
-		r.Value = c.ConfParamValue
+	// A secret is never served back; a client only learns that it is set.
+	if !c.IsSecret {
+		r.Value = c.Value
 	}
 	return r
 }

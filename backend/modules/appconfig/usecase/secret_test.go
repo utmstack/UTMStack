@@ -30,9 +30,9 @@ func TestSecretsAreNeverReturned(t *testing.T) {
 	}
 
 	row := domain.Config{
-		ConfParamShort:    "utmstack.mail.password",
-		ConfParamValue:    enc,
-		ConfParamDatatype: "password",
+		Key:      "utmstack.mail.password",
+		Value:    enc,
+		IsSecret: true,
 	}
 
 	got := s.toResponse(row)
@@ -57,8 +57,8 @@ func TestOrdinaryValuesAreStillReturned(t *testing.T) {
 	s := &service{cipher: newCipher(t)}
 
 	got := s.toResponse(domain.Config{
-		ConfParamShort: "utmstack.time.dateformat",
-		ConfParamValue: "yyyy-MM-dd",
+		Key:   "utmstack.time.dateformat",
+		Value: "yyyy-MM-dd",
 	})
 
 	if got.Value != "yyyy-MM-dd" {
