@@ -396,12 +396,12 @@
       },
       "dataSource": {
         "title": "Какие данные?",
-        "indexPattern": "Набор данных",
-        "noPatternHint": "Выберите набор данных, чтобы включить условия, меру и группировку."
+        "dataset": "Набор данных",
+        "noDatasetHint": "Выберите набор данных, чтобы включить условия и группировку."
       },
-      "indexPattern": {
-        "placeholder": "Выберите шаблон индекса…",
-        "loading": "Загрузка шаблонов индекса…"
+      "dataset": {
+        "placeholder": "Выберите набор данных…",
+        "loading": "Загрузка наборов данных…"
       },
       "filters": {
         "title": "Включать только события, где…",
@@ -432,53 +432,22 @@
         "EXIST": "существует",
         "DOES_NOT_EXIST": "не существует"
       },
-      "aggregations": {
-        "count": "Количество событий",
-        "count_distinct": "Уникальные значения",
-        "sum": "Сумма",
-        "avg": "Среднее",
-        "min": "Минимум",
-        "max": "Максимум"
-      },
-      "metric": {
-        "title": "Что вы хотите измерить?",
-        "aggregation": "Мера",
-        "field": "По полю",
-        "fieldPlaceholder": "Выберите поле…",
-        "fieldNotRequired": "Не требуется при подсчёте событий"
-      },
       "dimension": {
         "title": "Группировать по",
         "field": "Поле",
         "placeholder": "Выберите поле для группировки…"
       },
       "table": {
-        "title": "Свой SELECT (необязательно)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
-        "hint": "Показывает все столбцы подходящих событий. Чтобы выбрать конкретные столбцы или агрегировать, перейдите на вкладку SQL.",
+        "hint": "Показывает все поля записей. Добавьте столбцы, чтобы выбрать нужные.",
         "columnsTitle": "Столбцы",
         "allColumns": "Будут показаны все столбцы. Добавьте поля, чтобы выбрать конкретные.",
         "addColumn": "Добавить столбец…",
         "removeColumn": "Удалить столбец"
       },
-      "sqlPreview": {
-        "title": "Предпросмотр SQL",
-        "empty": "Выберите шаблон индекса, чтобы увидеть сгенерированный SQL.",
-        "toggleRaw": "Переключить в расширенный режим (исходный SQL)",
-        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
-        "hint": "{{timeFilter}}, {{from}} и {{to}} подставляются из выбора времени во время рендеринга."
-      },
       "chartPreview": {
         "title": "Предпросмотр диаграммы",
-        "noQuery": "Заполните источник данных, чтобы увидеть предпросмотр.",
+        "noQuery": "Выберите набор данных, чтобы увидеть предпросмотр.",
         "error": "Запрос предпросмотра завершился ошибкой."
-      },
-      "rawMode": {
-        "label": "Расширенный (исходный SQL)"
-      },
-      "tabs": {
-        "visual": "Визуально",
-        "sql": "SQL"
       },
       "chartTypeChip": {
         "label": "Диаграмма:"
@@ -496,7 +465,17 @@
         "choose": "Выберите поле…"
       },
       "toast": {
-        "notReady": "Перед сохранением выберите шаблон индекса (и добавьте метрику или SQL)."
+        "notReady": "Перед сохранением выберите набор данных и поле для разбивки."
+      },
+      "breakdown": {
+        "title": "Разбивка по",
+        "time": "По времени",
+        "field": "Частые значения",
+        "interval": "Размер интервала",
+        "intervalAuto": "Автоматически",
+        "limit": "Сколько",
+        "limitPlaceholder": "По умолчанию (50)",
+        "splitHint": "Необязательно: по одной линии на каждое значение поля."
       }
     },
     "grid": {
@@ -509,7 +488,6 @@
       "loading": "Загрузка данных…",
       "queryError": "Не удалось загрузить данные виджета.",
       "noData": "Нет данных за выбранный диапазон времени.",
-      "noTimePlaceholderHint": "Совет: добавьте в SQL метку времени, чтобы фильтрация шла по диапазону из выбора времени.",
       "regionMapEmpty": "Нет точек с корректными широтой/долготой.",
       "regionMapShapeHint": "SQL должен возвращать столбцы широты и долготы (или массив value [lat, lon, count]).",
       "regionMapUnnamed": "(без названия)",
@@ -524,7 +502,8 @@
       "widthMedium": "2 стлб",
       "widthLarge": "3 стлб",
       "heightNormal": "Обычная",
-      "heightTall": "Высокая"
+      "heightTall": "Высокая",
+      "incompleteSpec": "В этом виджете не хватает части вопроса."
     },
     "form": {
       "createTitle": "Новая панель",
@@ -1356,119 +1335,53 @@
   },
   "dataRetention": {
     "title": "Хранение данных",
-    "subtitle": "Как долго данные событий хранятся до удаления. Обеспечивается управлением жизненным циклом индексов (ISM) OpenSearch для управляемых индексов.",
-    "loading": "Загрузка политики хранения…",
-    "unavailable": {
-      "title": "Управление жизненным циклом индексов недоступно",
-      "body": "Хранение управляется через ISM OpenSearch. На этом экземпляре OpenSearch не настроен, поэтому здесь нет политики хранения для управления."
-    },
-    "loadFailed": "Не удалось загрузить политику хранения.",
+    "subtitle": "How long each dataset is kept, and when its records stop costing local disk.",
+    "loading": "Загрузка…",
+    "loadFailed": "Could not read the store.",
     "retry": "Повторить",
-    "noPolicyNote": "Политика хранения ещё не настроена. Задайте её ниже и сохраните, чтобы применить.",
-    "deleteAfter": "Удалять данные через",
-    "deleteAfterHint": "Индексы старше этого срока удаляются. Применяется к управляемым индексам событий.",
-    "units": {
-      "days": "дней",
-      "hours": "часов"
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alerts",
+      "statistics": "Ingestion statistics"
     },
-    "positiveNumber": "Введите положительное число",
-    "snapshotTitle": "Снимок перед удалением",
-    "snapshotHint": "Архивирует каждый индекс (только для восстановления) перед удалением, чтобы данные можно было восстановить позже. Если выключено, индексы удаляются сразу.",
-    "save": "Сохранить политику",
+    "holding": "{{documents}} records · {{size}}",
+    "since": "since {{date}}",
+    "diskUsed": "Disk {{pct}}% used",
+    "keep": "Delete after",
+    "keepHint": "A record is deleted this many days after it happened, wherever it is stored by then.",
+    "cold": "Move to cold storage after",
+    "coldHint": "Older records move to object storage and stay queryable. 0 keeps everything on local disk.",
+    "coldUnavailable": "Set up cold storage below to move older records off local disk.",
+    "coldBeforeDelete": "Records have to move before they are deleted: use fewer days than the lifetime, or 0.",
+    "tieredNote": "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here.",
+    "days": "дней",
+    "save": "Сохранить",
     "saving": "Сохранение…",
     "toast": {
-      "saved": "Политика хранения сохранена",
-      "noPermission": "У вас нет прав на изменение хранения",
-      "saveFailed": "Не удалось сохранить политику хранения"
-    }
-  },
-  "indices": {
-    "title": "Индексы и index patterns",
-    "subtitle": "Index patterns группируют индексы для поиска; индексы — это базовое хранилище OpenSearch.",
-    "retry": "Повторить",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Индексы"
+      "saved": "Retention saved",
+      "noPermission": "You do not have permission to change retention",
+      "saveFailed": "Could not save the retention"
     },
-    "dataViews": {
-      "search": "Поиск представлений…",
-      "add": "Добавить index pattern",
-      "colPattern": "Шаблон",
-      "colModule": "Интеграция",
-      "colActive": "Активно",
-      "colActions": "Действия",
-      "loading": "Загрузка представлений…",
-      "loadFailed": "Не удалось загрузить index patterns.",
-      "noSearchMatch": "Нет представлений по вашему запросу.",
-      "none": "Представлений пока нет.",
-      "system": "система",
-      "active": "Активно",
-      "disabled": "Отключено",
-      "edit": "Изменить",
-      "delete": "Удалить",
-      "deleteTitle": "Удалить index pattern данных",
-      "deleteBody": "Удалить {{pattern}}? Это удалит определение index patterns. Базовые индексы не удаляются.",
-      "deleteConfirm": "Удалить",
-      "form": {
-        "addTitle": "Добавить index pattern данных",
-        "editTitle": "Изменить index pattern данных",
-        "pattern": "Шаблон индекса",
-        "patternHint": "Используйте * как подстановочный знак, напр. logs-windows-*",
-        "module": "Интеграция",
-        "moduleHint": "Необязательно — интеграция, которой принадлежит этот pattern (напр. windows, aws). Оставьте пустым для пользовательских patterns.",
-        "activeLabel": "Активно",
-        "systemLabel": "Системное index pattern данных",
-        "saving": "Сохранение…",
-        "save": "Сохранить изменения",
-        "create": "Создать",
-        "matchChecking": "Проверка совпадающих индексов…",
-        "matchNone": "Не совпадает ни с одним индексом — pattern должен совпасть хотя бы с одним.",
-        "duplicate": "Index pattern с таким glob уже существует.",
-        "matchCount_one": "Совпадает с {{count}} индексом",
-        "matchCount_few": "Совпадает с {{count}} индексами",
-        "matchCount_many": "Совпадает с {{count}} индексами",
-        "matchCount_other": "Совпадает с {{count}} индексами"
-      },
+    "coldStorage": {
+      "title": "Cold storage",
+      "hint": "An object store the event store treats as a second, slower disk. Older records move there and are still queried from the same place — it is not an archive and nothing has to be restored.",
+      "active": "In use",
+      "inactive": "Not set up",
+      "writtenNotReady": "The bucket is configured but the store has not picked it up. Check that the deployment shares the store's configuration directory.",
+      "endpoint": "Bucket URL",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it.",
+      "enable": "Enable cold storage",
+      "update": "Update credentials",
       "toast": {
-        "enabled": "Index pattern включено",
-        "disabled": "Index pattern отключено",
-        "created": "Index pattern создано",
-        "updated": "Index pattern обновлено",
-        "deleted": "Index pattern удалено"
-      },
-      "systemLocked": "Системный pattern — управляется автоматически, не редактируется"
-    },
-    "index": {
-      "filter": "Фильтр по имени индекса…",
-      "systemIndices": "Системные индексы",
-      "refresh": "Обновить",
-      "colIndex": "Индекс",
-      "colHealth": "Состояние",
-      "colStatus": "Статус",
-      "colDocs": "Документы",
-      "colSize": "Размер",
-      "colActions": "Действия",
-      "loading": "Загрузка индексов…",
-      "loadFailed": "Не удалось загрузить индексы (OpenSearch может быть недоступен).",
-      "noFilterMatch": "Нет индексов по вашему фильтру.",
-      "none": "Индексы не найдены.",
-      "page": "Страница {{page}}",
-      "deleteTitle": "Удалить индекс",
-      "deleteBody": "Удалить индекс {{name}} навсегда? Все {{docs}} документов в нём будут потеряны. Отменить нельзя.",
-      "deleteConfirm": "Удалить индекс",
-      "toast": {
-        "deleted": "Индекс удалён"
+        "saved": "Cold storage configured",
+        "failed": "Could not configure cold storage"
       }
     },
-    "confirm": {
-      "cancel": "Отмена",
-      "working": "Выполнение…"
-    },
-    "error": {
-      "noPermission": "У вас нет прав на это действие",
-      "notFound": "Не найдено",
-      "invalidRequest": "Неверный запрос",
-      "failed": "Операция не выполнена"
+    "forbidden": {
+      "title": "Эта страница принадлежит платформе",
+      "body": "Хранение относится к таблицам, общим для всех тенантов: читать и менять его может только администратор платформы."
     }
   },
   "about": {

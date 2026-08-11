@@ -16,7 +16,6 @@ import (
 	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
 	loganalyzer_domain "github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
 	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
-	opensearch_domain "github.com/utmstack/utmstack/backend/modules/opensearch/domain"
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	socai_domain "github.com/utmstack/utmstack/backend/modules/socai/domain"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
@@ -55,7 +54,6 @@ func Models() []any {
 		compliance_domain.ReportSchedule{},
 		compliance_domain.Report{},
 		compliance_domain.ReportScore{},
-		opensearch_domain.UtmIndexPattern{},
 		integrations_domain.Integration{},
 		incidents_domain.Incident{},
 		incidents_domain.IncidentAlert{},

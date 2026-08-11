@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
@@ -12,12 +11,10 @@ import (
 	alertdomain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alertscoring/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alertscoring/domain"
-	osdto "github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 const (
-	alertIndex   = "v11-alert-*"
 	baselineDays = 30
 	chainDays    = 7
 	maxRelated   = 50
@@ -102,31 +99,31 @@ func (s *scorer) ScoreAlert(ctx context.Context, alertID string) (*domain.Score,
 }
 
 // ---------------------------------------------------------------------------
-// OpenSearch gathering
+// Alert history
 // ---------------------------------------------------------------------------
 
 func (s *scorer) fetchAlertByID(ctx context.Context, id string) (*alertdomain.UtmAlert, error) {
-	filters := []common_models.FilterType{{Field: "id", Operator: common_models.OpEquals, Value: id}}
-	hits, _, err := s.search.Search(ctx, filters, 1, alertIndex, false, 1, 1, "@timestamp", "desc")
+	a, err := s.search.FetchByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("fetch alert: %w", err)
 	}
-	if len(hits) == 0 {
-		return nil, nil
-	}
-	a := hitToAlert(hits[0])
-	return &a, nil
+	return a, nil
 }
 
 func (s *scorer) alertNameCount(ctx context.Context, name string, start, end time.Time) int64 {
 	if name == "" {
 		return 0
 	}
-	counts, err := s.search.PropertyValuesWithCount(ctx, propValuesReq(start, end))
+	// Counting this one name directly, rather than pulling the top 5000 names
+	// with their counts and picking one out of the result.
+	total, err := s.search.Count(ctx, []common_models.FilterType{
+		{Field: "name", Operator: common_models.OpEquals, Value: name},
+		tsBetween(start, end),
+	})
 	if err != nil {
 		return 0
 	}
-	return counts[name]
+	return total
 }
 
 func (s *scorer) sameAssetCount(ctx context.Context, name, host string, start, end time.Time) int64 {
@@ -138,7 +135,7 @@ func (s *scorer) sameAssetCount(ctx context.Context, name, host string, start, e
 		{Field: "adversary.host", Operator: common_models.OpEquals, Value: host},
 		tsBetween(start, end),
 	}
-	_, total, err := s.search.Search(ctx, filters, 1000, alertIndex, false, 1, 1, "@timestamp", "desc")
+	total, err := s.search.Count(ctx, filters)
 	if err != nil {
 		return 0
 	}
@@ -153,11 +150,11 @@ func (s *scorer) pastAlerts(ctx context.Context, name string, start, end time.Ti
 		{Field: "name", Operator: common_models.OpEquals, Value: name},
 		tsBetween(start, end),
 	}
-	hits, _, err := s.search.Search(ctx, filters, maxRelated, alertIndex, false, 1, maxRelated, "@timestamp", "desc")
+	out, err := s.search.Recent(ctx, filters, maxRelated, false)
 	if err != nil {
 		return nil
 	}
-	return hitsToAlerts(hits)
+	return out
 }
 
 func (s *scorer) relatedAlerts(ctx context.Context, adv *alertdomain.Side, start, end time.Time) []alertdomain.UtmAlert {
@@ -179,11 +176,11 @@ func (s *scorer) relatedAlerts(ctx context.Context, adv *alertdomain.Side, start
 			{Field: p.field, Operator: common_models.OpEquals, Value: p.value},
 			tsBetween(start, end),
 		}
-		hits, _, err := s.search.Search(ctx, filters, maxRelated, alertIndex, false, 1, maxRelated, "@timestamp", "asc")
+		found, err := s.search.Recent(ctx, filters, maxRelated, true)
 		if err != nil {
 			continue
 		}
-		for _, a := range hitsToAlerts(hits) {
+		for _, a := range found {
 			if a.ID != "" && seen[a.ID] {
 				continue
 			}
@@ -192,16 +189,6 @@ func (s *scorer) relatedAlerts(ctx context.Context, adv *alertdomain.Side, start
 		}
 	}
 	return out
-}
-
-func propValuesReq(start, end time.Time) osdto.PropertyValuesWithCountRequest {
-	return osdto.PropertyValuesWithCountRequest{
-		Index:        alertIndex,
-		Field:        "name.keyword",
-		Top:          5000,
-		OrderByCount: true,
-		Filters:      []common_models.FilterType{tsBetween(start, end)},
-	}
 }
 
 // ---------------------------------------------------------------------------
@@ -259,24 +246,6 @@ func tsBetween(start, end time.Time) common_models.FilterType {
 		Operator: common_models.OpIsBetween,
 		Value:    []string{start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339)},
 	}
-}
-
-func hitsToAlerts(hits []map[string]any) []alertdomain.UtmAlert {
-	out := make([]alertdomain.UtmAlert, 0, len(hits))
-	for _, h := range hits {
-		out = append(out, hitToAlert(h))
-	}
-	return out
-}
-
-func hitToAlert(hit map[string]any) alertdomain.UtmAlert {
-	var a alertdomain.UtmAlert
-	raw, err := json.Marshal(hit)
-	if err != nil {
-		return a
-	}
-	_ = json.Unmarshal(raw, &a)
-	return a
 }
 
 func sideHost(s *alertdomain.Side) string {

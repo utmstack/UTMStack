@@ -9,7 +9,7 @@ import (
 )
 
 type alertScoreInput struct {
-	AlertID string `json:"alert_id" jsonschema:"OpenSearch _id of the alert to score"`
+	AlertID string `json:"alert_id" jsonschema:"id of the alert to score"`
 }
 
 func registerAlertScoring(m *Module) {

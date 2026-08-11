@@ -394,12 +394,12 @@
       },
       "dataSource": {
         "title": "Quali dati?",
-        "indexPattern": "Set di dati",
-        "noPatternHint": "Scegli un set di dati per abilitare condizioni, misura e raggruppamento."
+        "dataset": "Set di dati",
+        "noDatasetHint": "Scegli un set di dati per abilitare condizioni e raggruppamento."
       },
-      "indexPattern": {
-        "placeholder": "Seleziona un pattern di indice…",
-        "loading": "Caricamento dei pattern di indice…"
+      "dataset": {
+        "placeholder": "Seleziona un set di dati…",
+        "loading": "Caricamento dei set di dati…"
       },
       "filters": {
         "title": "Includi solo eventi in cui…",
@@ -430,53 +430,22 @@
         "EXIST": "esiste",
         "DOES_NOT_EXIST": "non esiste"
       },
-      "aggregations": {
-        "count": "Numero di eventi",
-        "count_distinct": "Valori univoci",
-        "sum": "Somma",
-        "avg": "Media",
-        "min": "Minimo",
-        "max": "Massimo"
-      },
-      "metric": {
-        "title": "Cosa vuoi misurare?",
-        "aggregation": "Misura",
-        "field": "Del campo",
-        "fieldPlaceholder": "Scegli un campo…",
-        "fieldNotRequired": "Non necessario per il conteggio degli eventi"
-      },
       "dimension": {
         "title": "Raggruppa per",
         "field": "Campo",
         "placeholder": "Scegli un campo per raggruppare…"
       },
       "table": {
-        "title": "SELECT personalizzato (facoltativo)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
-        "hint": "Mostra tutte le colonne degli eventi corrispondenti. Per scegliere colonne specifiche o aggregare, passa alla scheda SQL.",
+        "hint": "Mostra tutti i campi dei record. Aggiungi colonne per sceglierne alcune.",
         "columnsTitle": "Colonne",
         "allColumns": "Verranno mostrate tutte le colonne. Aggiungi campi per sceglierne di specifiche.",
         "addColumn": "Aggiungi una colonna…",
         "removeColumn": "Rimuovi colonna"
       },
-      "sqlPreview": {
-        "title": "Anteprima SQL",
-        "empty": "Scegli un pattern di indice per vedere l'SQL generato.",
-        "toggleRaw": "Passa ad avanzato (SQL grezzo)",
-        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
-        "hint": "{{timeFilter}}, {{from}} e {{to}} vengono sostituiti dal selettore temporale al rendering."
-      },
       "chartPreview": {
         "title": "Anteprima del grafico",
-        "noQuery": "Compila la fonte dati per vedere un'anteprima.",
+        "noQuery": "Scegli un set di dati per vedere l’anteprima.",
         "error": "La query di anteprima non è andata a buon fine."
-      },
-      "rawMode": {
-        "label": "Avanzato (SQL grezzo)"
-      },
-      "tabs": {
-        "visual": "Visivo",
-        "sql": "SQL"
       },
       "chartTypeChip": {
         "label": "Grafico:"
@@ -494,7 +463,17 @@
         "choose": "Scegli un campo…"
       },
       "toast": {
-        "notReady": "Scegli un pattern di indice (e aggiungi una metrica o l'SQL) prima di salvare."
+        "notReady": "Scegli un set di dati e un campo per la suddivisione prima di salvare."
+      },
+      "breakdown": {
+        "title": "Suddividi per",
+        "time": "Nel tempo",
+        "field": "Valori più frequenti",
+        "interval": "Dimensione dell'intervallo",
+        "intervalAuto": "Automatico",
+        "limit": "Quanti",
+        "limitPlaceholder": "Predefinito (50)",
+        "splitHint": "Facoltativo: una linea per ogni valore di questo campo."
       }
     },
     "grid": {
@@ -507,7 +486,6 @@
       "loading": "Caricamento dei dati…",
       "queryError": "Impossibile caricare i dati del widget.",
       "noData": "Nessun dato per l'intervallo di tempo selezionato.",
-      "noTimePlaceholderHint": "Suggerimento: aggiungi un segnaposto temporale all'SQL affinché filtri secondo l'intervallo del selettore.",
       "regionMapEmpty": "Nessun punto con lat/lon validi.",
       "regionMapShapeHint": "L'SQL deve restituire le colonne di latitudine e longitudine (oppure un array value [lat, lon, count]).",
       "regionMapUnnamed": "(senza nome)",
@@ -522,7 +500,8 @@
       "widthMedium": "2 col",
       "widthLarge": "3 col",
       "heightNormal": "Normale",
-      "heightTall": "Alta"
+      "heightTall": "Alta",
+      "incompleteSpec": "A questo widget manca una parte della domanda."
     },
     "form": {
       "createTitle": "Nuova dashboard",
@@ -1344,117 +1323,53 @@
   },
   "dataRetention": {
     "title": "Conservazione dei dati",
-    "subtitle": "Per quanto tempo i dati degli eventi vengono conservati prima di essere eliminati. Applicato dalla gestione del ciclo di vita degli indici (ISM) di OpenSearch sugli indici gestiti.",
-    "loading": "Caricamento della policy di conservazione…",
-    "unavailable": {
-      "title": "La gestione del ciclo di vita degli indici non è disponibile",
-      "body": "La conservazione è gestita tramite l'ISM di OpenSearch. Questa istanza non ha OpenSearch configurato, quindi non c'è alcuna policy di conservazione da gestire qui."
-    },
-    "loadFailed": "Impossibile caricare la policy di conservazione.",
+    "subtitle": "How long each dataset is kept, and when its records stop costing local disk.",
+    "loading": "Caricamento…",
+    "loadFailed": "Could not read the store.",
     "retry": "Riprova",
-    "noPolicyNote": "Nessuna policy di conservazione ancora configurata. Impostane una qui sotto e salva per applicarla.",
-    "deleteAfter": "Elimina i dati dopo",
-    "deleteAfterHint": "Gli indici più vecchi di questo valore vengono rimossi. Si applica agli indici di eventi gestiti.",
-    "units": {
-      "days": "giorni",
-      "hours": "ore"
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alerts",
+      "statistics": "Ingestion statistics"
     },
-    "positiveNumber": "Inserisci un numero positivo",
-    "snapshotTitle": "Snapshot prima dell'eliminazione",
-    "snapshotHint": "Archivia ogni indice (solo ripristino) prima di eliminarlo, così i dati possono essere recuperati in seguito. Se disattivato, gli indici vengono eliminati immediatamente.",
-    "save": "Salva policy",
+    "holding": "{{documents}} records · {{size}}",
+    "since": "since {{date}}",
+    "diskUsed": "Disk {{pct}}% used",
+    "keep": "Delete after",
+    "keepHint": "A record is deleted this many days after it happened, wherever it is stored by then.",
+    "cold": "Move to cold storage after",
+    "coldHint": "Older records move to object storage and stay queryable. 0 keeps everything on local disk.",
+    "coldUnavailable": "Set up cold storage below to move older records off local disk.",
+    "coldBeforeDelete": "Records have to move before they are deleted: use fewer days than the lifetime, or 0.",
+    "tieredNote": "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here.",
+    "days": "giorni",
+    "save": "Salva",
     "saving": "Salvataggio…",
     "toast": {
-      "saved": "Policy di conservazione salvata",
-      "noPermission": "Non hai il permesso di modificare la conservazione",
-      "saveFailed": "Impossibile salvare la policy di conservazione"
-    }
-  },
-  "indices": {
-    "title": "Indici e index patterns",
-    "subtitle": "Gli index patterns raggruppano gli indici per la ricerca; gli indici sono l'archiviazione OpenSearch sottostante.",
-    "retry": "Riprova",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Indici"
+      "saved": "Retention saved",
+      "noPermission": "You do not have permission to change retention",
+      "saveFailed": "Could not save the retention"
     },
-    "dataViews": {
-      "search": "Cerca index patterns…",
-      "add": "Aggiungi index pattern",
-      "colPattern": "Pattern",
-      "colModule": "Integrazione",
-      "colActive": "Attiva",
-      "colActions": "Azioni",
-      "loading": "Caricamento index patterns…",
-      "loadFailed": "Impossibile caricare le index patterns.",
-      "noSearchMatch": "Nessuna index pattern corrisponde alla ricerca.",
-      "none": "Nessuna index pattern ancora.",
-      "system": "sistema",
-      "active": "Attiva",
-      "disabled": "Disattivata",
-      "edit": "Modifica",
-      "delete": "Elimina",
-      "deleteTitle": "Elimina index pattern",
-      "deleteBody": "Eliminare {{pattern}}? Questo rimuove la definizione della index pattern. Gli indici sottostanti non vengono eliminati.",
-      "deleteConfirm": "Elimina",
-      "form": {
-        "addTitle": "Aggiungi index pattern",
-        "editTitle": "Modifica index pattern",
-        "pattern": "Pattern di indice",
-        "patternHint": "Usa * come carattere jolly, es. logs-windows-*",
-        "module": "Integrazione",
-        "moduleHint": "Facoltativo — l'integrazione a cui appartiene questo pattern (es. windows, aws). Lascia vuoto per pattern personalizzati.",
-        "activeLabel": "Attiva",
-        "systemLabel": "Index pattern di sistema",
-        "saving": "Salvataggio…",
-        "save": "Salva modifiche",
-        "create": "Crea",
-        "matchChecking": "Verifica degli indici corrispondenti…",
-        "matchNone": "Non corrisponde ad alcun indice — il pattern deve corrisponderne almeno uno.",
-        "duplicate": "Esiste già un index pattern con questo glob.",
-        "matchCount_one": "Corrisponde a {{count}} indice",
-        "matchCount_other": "Corrisponde a {{count}} indici"
-      },
+    "coldStorage": {
+      "title": "Cold storage",
+      "hint": "An object store the event store treats as a second, slower disk. Older records move there and are still queried from the same place — it is not an archive and nothing has to be restored.",
+      "active": "In use",
+      "inactive": "Not set up",
+      "writtenNotReady": "The bucket is configured but the store has not picked it up. Check that the deployment shares the store's configuration directory.",
+      "endpoint": "Bucket URL",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it.",
+      "enable": "Enable cold storage",
+      "update": "Update credentials",
       "toast": {
-        "enabled": "Index pattern attivata",
-        "disabled": "Index pattern disattivata",
-        "created": "Index pattern creata",
-        "updated": "Index pattern aggiornata",
-        "deleted": "Index pattern eliminata"
-      },
-      "systemLocked": "Pattern di sistema — gestito automaticamente, non modificabile"
-    },
-    "index": {
-      "filter": "Filtra per nome indice…",
-      "systemIndices": "Indici di sistema",
-      "refresh": "Aggiorna",
-      "colIndex": "Indice",
-      "colHealth": "Salute",
-      "colStatus": "Stato",
-      "colDocs": "Docs",
-      "colSize": "Dimensione",
-      "colActions": "Azioni",
-      "loading": "Caricamento indici…",
-      "loadFailed": "Impossibile caricare gli indici (OpenSearch potrebbe non essere disponibile).",
-      "noFilterMatch": "Nessun indice corrisponde al filtro.",
-      "none": "Nessun indice trovato.",
-      "page": "Pagina {{page}}",
-      "deleteTitle": "Elimina indice",
-      "deleteBody": "Eliminare definitivamente l'indice {{name}}? Tutti i {{docs}} documenti che contiene andranno persi. L'operazione è irreversibile.",
-      "deleteConfirm": "Elimina indice",
-      "toast": {
-        "deleted": "Indice eliminato"
+        "saved": "Cold storage configured",
+        "failed": "Could not configure cold storage"
       }
     },
-    "confirm": {
-      "cancel": "Annulla",
-      "working": "In corso…"
-    },
-    "error": {
-      "noPermission": "Non hai il permesso di farlo",
-      "notFound": "Non trovato",
-      "invalidRequest": "Richiesta non valida",
-      "failed": "Operazione non riuscita"
+    "forbidden": {
+      "title": "Questa pagina è della piattaforma",
+      "body": "La conservazione riguarda le tabelle condivise da tutti i tenant: solo un amministratore della piattaforma può leggerla o modificarla."
     }
   },
   "languageSettings": {

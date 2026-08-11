@@ -6,16 +6,17 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alertscoring/usecase"
 	dsconnectors "github.com/utmstack/utmstack/backend/modules/datasources/connectors"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 )
 
 type Module struct {
 	scoringUC connectors.ScoringUsecase
 }
 
-func NewModule(search connectors.AlertSearch, agents *agentmanager.AgentManagerClient, ds dsconnectors.DatasourceUsecase) *Module {
+func NewModule(events *eventstore.Store, agents *agentmanager.AgentManagerClient, ds dsconnectors.DatasourceUsecase) *Module {
 	assets := repository.NewAssetLookup(agents, ds)
 	return &Module{
-		scoringUC: usecase.NewScorer(search, assets),
+		scoringUC: usecase.NewScorer(repository.NewAlertSearch(events), assets),
 	}
 }
 

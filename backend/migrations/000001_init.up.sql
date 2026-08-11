@@ -46,8 +46,8 @@ INSERT INTO permissions (name, description) VALUES
     ('integrations.write',    'Activate integrations and manage their configuration'),
     ('adaudit.read',          'List and view the audited Active Directory user inventory'),
     ('threatintel.read',      'Search threat intelligence and its feeds'),
-    ('opensearch.read',       'Query OpenSearch (search, properties, cluster status)'),
-    ('opensearch.write',      'Destructive OpenSearch ops (delete index)'),
+    ('storage.read',          'Read how long the event store keeps records and what it holds'),
+    ('storage.write',         'Change retention and configure cold storage'),
     -- These spend money against a quota the whole instance shares, so they are
     -- permissions rather than something every authenticated user simply has.
     ('socai.read',            'Use the SOC AI assistant'),

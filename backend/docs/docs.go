@@ -372,7 +372,7 @@ const docTemplate = `{
                 "summary": "List alert tag rules",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by ID",
                         "name": "id",
                         "in": "query"
@@ -580,7 +580,7 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "collectionFormat": "csv",
                         "description": "Rule IDs (repeated param)",
@@ -636,7 +636,7 @@ const docTemplate = `{
                 "summary": "Get alert tag rule by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Rule ID",
                         "name": "id",
                         "in": "path",
@@ -682,7 +682,7 @@ const docTemplate = `{
                 "summary": "Delete alert tag rule",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Rule ID",
                         "name": "id",
                         "in": "path",
@@ -1087,7 +1087,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "filter DSL: field.op.value joined by \u0026 (e.g. status.eq.success\u0026timestamp.gte.2026-06-01). Allowed fields: user_id, user_login, action, status, resource_type, resource_id, event_type, ip, timestamp. Ops: eq,neq,like,nlike,in,nin,gt,gte,lt,lte,null,nnull",
+                        "description": "filter DSL: field.op.value joined by \u0026 (e.g. status.eq.success\u0026timestamp.gte.2026-06-01). Allowed fields: user_id, user_email, action, status, resource_type, resource_id, event_type, ip, timestamp. Ops: eq,neq,like,nlike,in,nin,gt,gte,lt,lte,null,nnull",
                         "name": "search_query",
                         "in": "query"
                     },
@@ -1824,57 +1824,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/tfa/verify-code": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TFA"
-                ],
-                "summary": "Verify TFA at login and exchange the pre-auth token for a JWT",
-                "parameters": [
-                    {
-                        "description": "Pre-auth token + code",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.TfaVerifyCodeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.LoginResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -2705,55 +2654,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/compliance/controls/{id}/enabled": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Toggles the control's enabled state via the .disabled filename suffix.",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Compliance Controls"
-                ],
-                "summary": "Enable/disable a control",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Control id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Enabled flag",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.EnabledRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/compliance/frameworks": {
             "get": {
                 "security": [
@@ -2995,106 +2895,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/compliance/frameworks/{key}/controls/{id}/note": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Upserts a freeform note attached to a (framework, control). Empty body deletes the note.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Compliance Reports"
-                ],
-                "summary": "Set / update a user note on a control",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Framework key",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Control id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Note body ({note: string})",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Compliance Reports"
-                ],
-                "summary": "Delete a user note on a control",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Framework key",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Control id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
         "/compliance/frameworks/{key}/controls/{id}/status": {
             "put": {
                 "security": [
@@ -3102,7 +2902,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Overrides the evaluator's computed status for a (framework, control) pair. Applied on live evaluations only; historical snapshots are unchanged.",
+                "description": "Overrides the engine on one control row. Requirements, sections and the score recompute from it — they are never edited directly. A note is required: an override no one can explain is worth nothing to whoever reads the report later.",
                 "consumes": [
                     "application/json"
                 ],
@@ -3112,7 +2912,7 @@ const docTemplate = `{
                 "tags": [
                     "Compliance Reports"
                 ],
-                "summary": "Set a manual status override for a control",
+                "summary": "Record a human verdict on a control",
                 "parameters": [
                     {
                         "type": "string",
@@ -3129,18 +2929,21 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "New status (COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING) and optional reason",
+                        "description": "Status and justification",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/dto.EditControlRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReportResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -3159,42 +2962,9 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Removes the manual override so the control status falls back to the evaluator's computed value.",
-                "tags": [
-                    "Compliance Reports"
-                ],
-                "summary": "Clear a manual status override",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Framework key",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
                     },
-                    {
-                        "type": "string",
-                        "description": "Control id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -3205,21 +2975,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/compliance/frameworks/{key}/enabled": {
-            "put": {
+        "/compliance/frameworks/{key}/history": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Toggles the framework's enabled state via the .disabled filename suffix.",
-                "consumes": [
+                "description": "One point per day. Total and evaluated travel with the score because the percentage alone cannot tell a fix from a log source going quiet.",
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Compliance Frameworks"
+                    "Compliance Reports"
                 ],
-                "summary": "Enable/disable a framework",
+                "summary": "Score over time for a framework",
                 "parameters": [
                     {
                         "type": "string",
@@ -3229,18 +2999,68 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Enabled flag",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.EnabledRequest"
-                        }
+                        "type": "string",
+                        "description": "RFC3339; defaults to 90 days ago",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RFC3339; defaults to now",
+                        "name": "to",
+                        "in": "query"
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ScorePoint"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/compliance/frameworks/{key}/history.pdf": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Renders that day's stored document. A point whose body has aged past retention returns 404.",
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Download the report behind a point on the chart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "YYYY-MM-DD",
+                        "name": "day",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -3261,14 +3081,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Evaluates the framework now and returns the report JSON (3 dimensions: analysis, coverage, activity). No snapshot is stored.",
+                "description": "Returns the last evaluation, including any human edits made to it. Does not re-run the framework.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Compliance Reports"
                 ],
-                "summary": "Evaluate a framework (live)",
+                "summary": "Get the standing report for a framework",
                 "parameters": [
                     {
                         "type": "string",
@@ -3282,7 +3102,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Report"
+                            "$ref": "#/definitions/dto.ReportResponse"
                         }
                     },
                     "404": {
@@ -3302,14 +3122,67 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Evaluates the framework and persists a snapshot in OpenSearch (history), returning the report JSON.",
+                "description": "Re-evaluates the framework and replaces the standing report, keeping the edits already on it. windowDays defaults to the framework's schedule, then to 30.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Compliance Reports"
                 ],
-                "summary": "Generate + store a report",
+                "summary": "Run a framework evaluation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Framework key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Days the report covers",
+                        "name": "windowDays",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReportResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Discards the report and every annotation on it.",
+                "tags": [
+                    "Compliance Reports"
+                ],
+                "summary": "Delete a framework's report",
                 "parameters": [
                     {
                         "type": "string",
@@ -3320,11 +3193,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Report"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "404": {
                         "description": "Not Found",
@@ -3351,7 +3221,7 @@ const docTemplate = `{
                 "tags": [
                     "Compliance Reports"
                 ],
-                "summary": "Download a framework compliance report as PDF (live evaluation)",
+                "summary": "Download the standing report as PDF",
                 "parameters": [
                     {
                         "type": "string",
@@ -3378,121 +3248,21 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns report snapshot metadata (newest first), optionally filtered by framework.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Compliance Reports"
                 ],
-                "summary": "List stored report snapshots",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter by framework key",
-                        "name": "framework",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Max results (default 50)",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
+                "summary": "List the tenant's standing reports",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.ReportSnapshotMeta"
+                                "$ref": "#/definitions/dto.ReportMeta"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/compliance/reports/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a full stored report snapshot by id.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Compliance Reports"
-                ],
-                "summary": "Get a stored report snapshot",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Snapshot id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ReportSnapshot"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/compliance/reports/{id}/pdf": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/pdf"
-                ],
-                "tags": [
-                    "Compliance Reports"
-                ],
-                "summary": "Download a stored report snapshot as PDF",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Snapshot id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
                         }
                     }
                 }
@@ -4667,512 +4437,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/enrollment/tfa": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TFA"
-                ],
-                "summary": "Unified 3-stage TFA enrollment endpoint",
-                "parameters": [
-                    {
-                        "description": "Stage + method (+ code for VERIFY)",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.TfaEnrollmentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.TfaEnrollmentResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/filters": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns all filters (system + user) with optional filtering.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "List filters",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter by relPath containing value",
-                        "name": "relPath.contains",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by active state",
-                        "name": "isActive.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "true = system only, false = user only",
-                        "name": "system.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size (default 50)",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.FilterResponse"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Replaces the content of a user filter. System filters are read-only.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Update filter",
-                "parameters": [
-                    {
-                        "description": "relPath + new pipeline YAML content",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateFilterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.FilterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new user filter YAML in the user overlay (pipeline: format).",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Create filter",
-                "parameters": [
-                    {
-                        "description": "relPath + pipeline YAML content",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateFilterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.FilterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a user filter. System filters cannot be deleted.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Delete filter",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Relative path",
-                        "name": "relPath",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/filters/activate": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Renames .yaml \u003c-\u003e .yaml.disabled in whichever overlay (system or user) owns the filter.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Activate or deactivate a filter",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Relative path",
-                        "name": "relPath",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "true to activate, false to deactivate",
-                        "name": "active",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/filters/data-types": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns the sorted, distinct dataTypes declared across all filters.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "List filter data types",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/filters/find": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a single filter entry.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Get filter by relPath",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Relative path (e.g. syslog/syslog-generic.yaml)",
-                        "name": "relPath",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.FilterResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/filters/order": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Sets any filter's (system or custom) position in the global pipeline order.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Filters"
-                ],
-                "summary": "Reorder a filter",
-                "parameters": [
-                    {
-                        "description": "relPath + new order",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateFilterOrderRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.FilterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/eventprocessing/ingestion-stats": {
             "get": {
                 "security": [
@@ -5180,7 +4444,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Aggregates v11-statistics-* live (no DB). Counts received events",
+                "description": "Sums the statistics the stats plugin writes: how many events",
                 "produces": [
                     "application/json"
                 ],
@@ -5336,6 +4600,476 @@ const docTemplate = `{
                 }
             }
         },
+        "/eventprocessing/pipelines": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all pipelines (system + user) with optional filtering.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "List pipelines",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by relPath containing value",
+                        "name": "relPath.contains",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active state",
+                        "name": "isActive.equals",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true = system only, false = user only",
+                        "name": "system.equals",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page (1-based)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 50)",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.PipelineResponse"
+                            }
+                        },
+                        "headers": {
+                            "X-Total-Count": {
+                                "type": "string",
+                                "description": "Total records"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replaces the content of a user pipeline. System pipelines are read-only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Update pipeline",
+                "parameters": [
+                    {
+                        "description": "relPath + new pipeline YAML content",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePipelineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PipelineResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new user pipeline YAML in the user overlay.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Create pipeline",
+                "parameters": [
+                    {
+                        "description": "relPath + pipeline YAML content",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePipelineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PipelineResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a user pipeline. System pipelines cannot be deleted.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Delete pipeline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Relative path",
+                        "name": "relPath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/pipelines/activate": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Turns a pipeline on or off for the caller's tenant. The file is shared; the answer is not, so it is recorded against the tenant rather than by renaming the file.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Activate or deactivate a pipeline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Relative path",
+                        "name": "relPath",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true to activate, false to deactivate",
+                        "name": "active",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/pipelines/data-types": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the sorted, distinct dataTypes declared across all pipelines.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "List pipeline data types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/pipelines/find": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a single pipeline entry.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Get pipeline by relPath",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Relative path (e.g. syslog/syslog-generic.yaml)",
+                        "name": "relPath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PipelineResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eventprocessing/pipelines/order": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets a pipeline's position in the caller's tenant's order. Two tenants can run the same pipelines in different orders.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pipelines"
+                ],
+                "summary": "Reorder a pipeline",
+                "parameters": [
+                    {
+                        "description": "relPath + new order",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePipelineOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/eventprocessing/regex-pattern": {
             "get": {
                 "security": [
@@ -5426,294 +5160,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.RegexPatternResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/tenant-config": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "List assets (tenant configs)",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page (0-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Partial match on assetName",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TenantConfigResponse"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Update asset (tenant config)",
-                "parameters": [
-                    {
-                        "description": "assetName + CIA + lists",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateTenantConfigRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.TenantConfigResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Create asset (tenant config)",
-                "parameters": [
-                    {
-                        "description": "assetName + CIA + lists",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateTenantConfigRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.TenantConfigResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/eventprocessing/tenant-config/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Get asset by name",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Asset name",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.TenantConfigResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Event Processing"
-                ],
-                "summary": "Delete asset (tenant config)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Asset name",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
                         }
                     },
                     "404": {
@@ -6054,7 +5500,7 @@ const docTemplate = `{
                 "summary": "List incident alerts",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by incident ID",
                         "name": "incidentId",
                         "in": "query"
@@ -6066,7 +5512,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by alert status",
                         "name": "alertStatus",
                         "in": "query"
@@ -6090,7 +5536,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentAlert"
+                                "$ref": "#/definitions/domain.IncidentAlert"
                             }
                         },
                         "headers": {
@@ -6142,7 +5588,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentAlert"
+                            "$ref": "#/definitions/domain.IncidentAlert"
                         }
                     },
                     "400": {
@@ -6196,7 +5642,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentAlert"
+                            "$ref": "#/definitions/domain.IncidentAlert"
                         }
                     },
                     "400": {
@@ -6286,7 +5732,7 @@ const docTemplate = `{
                 "summary": "Delete incident alert",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Incident alert ID",
                         "name": "id",
                         "in": "path",
@@ -6334,7 +5780,7 @@ const docTemplate = `{
                 "summary": "List incident histories",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by incident ID",
                         "name": "incidentId",
                         "in": "query"
@@ -6364,7 +5810,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentHistory"
+                                "$ref": "#/definitions/domain.IncidentHistory"
                             }
                         },
                         "headers": {
@@ -6402,7 +5848,7 @@ const docTemplate = `{
                 "summary": "Count incident histories",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by incident ID",
                         "name": "incidentId",
                         "in": "query"
@@ -6443,7 +5889,7 @@ const docTemplate = `{
                 "summary": "Get incident history by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "History ID",
                         "name": "id",
                         "in": "path",
@@ -6454,7 +5900,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentHistory"
+                            "$ref": "#/definitions/domain.IncidentHistory"
                         }
                     },
                     "404": {
@@ -6494,7 +5940,7 @@ const docTemplate = `{
                 "summary": "List incident notes",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Filter by incident ID",
                         "name": "incidentId",
                         "in": "query"
@@ -6518,7 +5964,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentNote"
+                                "$ref": "#/definitions/domain.IncidentNote"
                             }
                         },
                         "headers": {
@@ -6570,7 +6016,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentNote"
+                            "$ref": "#/definitions/domain.IncidentNote"
                         }
                     },
                     "400": {
@@ -6646,7 +6092,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UtmIncident"
+                                "$ref": "#/definitions/domain.Incident"
                             }
                         },
                         "headers": {
@@ -6698,7 +6144,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "400": {
@@ -6763,7 +6209,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "400": {
@@ -6838,7 +6284,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "400": {
@@ -6852,6 +6298,42 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/incidents/assignees": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incidents"
+                ],
+                "summary": "List the assignees currently in use",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -6894,7 +6376,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "400": {
@@ -6927,42 +6409,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/incidents/users-assigned": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incidents"
-                ],
-                "summary": "Get users assigned to incidents",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserAssignedDTO"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/incidents/{id}": {
             "get": {
                 "security": [
@@ -6979,7 +6425,7 @@ const docTemplate = `{
                 "summary": "Get incident by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Incident ID",
                         "name": "id",
                         "in": "path",
@@ -6990,7 +6436,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmIncident"
+                            "$ref": "#/definitions/domain.Incident"
                         }
                     },
                     "404": {
@@ -7000,84 +6446,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/index-policy/policy": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Policy"
-                ],
-                "summary": "Get index policy settings (returns empty body if no policy configured)",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.PolicySettings"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Policy"
-                ],
-                "summary": "Update index policy settings",
-                "parameters": [
-                    {
-                        "description": "Policy settings (snapshotActive bool, deleteAfter string)",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.PolicySettings"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UpdateManagedIndexPolicyResponse"
                         }
                     },
                     "500": {
@@ -7105,23 +6473,17 @@ const docTemplate = `{
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "List integration modules",
+                "summary": "List integrations",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Filter by category",
-                        "name": "moduleCategory",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by active status",
-                        "name": "moduleActive",
+                        "description": "Filter by ingest type (agent, collector, forwarder, plugin)",
+                        "name": "ingestType",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Partial match on module name",
+                        "description": "Partial match on name",
                         "name": "nameContains",
                         "in": "query"
                     },
@@ -7144,13 +6506,22 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.ModuleResponse"
+                                "$ref": "#/definitions/dto.IntegrationResponse"
                             }
                         },
                         "headers": {
                             "X-Total-Count": {
                                 "type": "string",
                                 "description": "Total number of records"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -7188,7 +6559,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateModuleRequest"
+                            "$ref": "#/definitions/dto.CreateIntegrationRequest"
                         }
                     }
                 ],
@@ -7196,7 +6567,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.ModuleResponse"
+                            "$ref": "#/definitions/dto.IntegrationResponse"
                         }
                     },
                     "400": {
@@ -7204,107 +6575,6 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/integrations/activate": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integrations"
-                ],
-                "summary": "Activate or deactivate an integration module",
-                "parameters": [
-                    {
-                        "description": "Module name and activation status",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ModuleActivationRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ModuleResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/integrations/categories": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integrations"
-                ],
-                "summary": "List integration module categories",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
                                 "type": "string"
                             }
                         }
@@ -7674,6 +6944,179 @@ const docTemplate = `{
                 }
             }
         },
+        "/integrations/config/{integration}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integration Configuration"
+                ],
+                "summary": "List an integration's configuration groups (secrets masked)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Integration name",
+                        "name": "integration",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ConfigGroupResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integration Configuration"
+                ],
+                "summary": "Create or update a configuration group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Integration name",
+                        "name": "integration",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Group configuration",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ConfigGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/integrations/config/{integration}/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "Integration Configuration"
+                ],
+                "summary": "Delete a configuration group by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Integration name",
+                        "name": "integration",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Group name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/integrations/data-types": {
             "get": {
                 "security": [
@@ -7711,215 +7154,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/integrations/is-active": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integrations"
-                ],
-                "summary": "Report whether an integration module is active",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Module name",
-                        "name": "moduleName",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/integrations/tenants/{module}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integration Tenants"
-                ],
-                "summary": "List a module's tenants (sensitive values masked)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Module name",
-                        "name": "module",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TenantResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integration Tenants"
-                ],
-                "summary": "Create or update a tenant for a module",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Module name",
-                        "name": "module",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Tenant config",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.TenantRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/integrations/tenants/{module}/{name}": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Integration Tenants"
-                ],
-                "summary": "Delete a tenant by name",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Module name",
-                        "name": "module",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/integrations/{id}": {
             "get": {
                 "security": [
@@ -7933,11 +7167,11 @@ const docTemplate = `{
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Get integration module by ID",
+                "summary": "Get an integration by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Module ID",
+                        "type": "string",
+                        "description": "Integration ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -7947,11 +7181,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ModuleResponse"
+                            "$ref": "#/definitions/dto.IntegrationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -7988,8 +7231,8 @@ const docTemplate = `{
                 "summary": "Update a custom integration's metadata",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Module ID",
+                        "type": "string",
+                        "description": "Integration ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -8000,7 +7243,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateModuleRequest"
+                            "$ref": "#/definitions/dto.UpdateIntegrationRequest"
                         }
                     }
                 ],
@@ -8008,7 +7251,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ModuleResponse"
+                            "$ref": "#/definitions/dto.IntegrationResponse"
                         }
                     },
                     "400": {
@@ -8022,6 +7265,15 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -8052,8 +7304,8 @@ const docTemplate = `{
                 "summary": "Delete a custom integration",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Module ID",
+                        "type": "string",
+                        "description": "Integration ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -8074,6 +7326,15 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -8119,6 +7380,51 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/alerts/notify": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Called by the alerts plugin after it writes an alert. Emails the\nconfigured recipients. Echoes of a grouped alert are skipped.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Notify that an alert was raised (internal)",
+                "parameters": [
+                    {
+                        "description": "Alert id",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NotifyAlertRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -8200,6 +7506,42 @@ const docTemplate = `{
                     "Log Analyzer"
                 ],
                 "summary": "What can be explored",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/log-analyzer/datasets/{dataset}/data-types": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log Analyzer"
+                ],
+                "summary": "Data types present in a dataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dataset",
+                        "name": "dataset",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -8305,7 +7647,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                                "$ref": "#/definitions/domain.SavedQuery"
                             }
                         },
                         "headers": {
@@ -8349,7 +7691,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                            "$ref": "#/definitions/domain.SavedQuery"
                         }
                     }
                 ],
@@ -8357,7 +7699,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                            "$ref": "#/definitions/domain.SavedQuery"
                         }
                     },
                     "400": {
@@ -8413,7 +7755,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                            "$ref": "#/definitions/domain.SavedQuery"
                         }
                     }
                 ],
@@ -8421,7 +7763,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                            "$ref": "#/definitions/domain.SavedQuery"
                         }
                     },
                     "400": {
@@ -8472,7 +7814,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.UtmLogAnalyzerQuery"
+                            "$ref": "#/definitions/domain.SavedQuery"
                         }
                     },
                     "404": {
@@ -8520,6 +7862,123 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/log-analyzer/search": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "A page of documents for the explorer, read through the event store rather than the index gateway.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log Analyzer"
+                ],
+                "summary": "Search documents",
+                "parameters": [
+                    {
+                        "description": "Search request",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/log-analyzer/search-sql": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Runs a SELECT over the ` + "`" + `logs` + "`" + ` and ` + "`" + `alerts` + "`" + ` datasets. Both names resolve to the caller's own tenant; naming a real table, another database or a table function is refused.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log Analyzer"
+                ],
+                "summary": "Search with SQL",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 50, max 500)",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "description": "SQL",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.sqlSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -8644,6 +8103,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Filter by exact message",
+                        "name": "message",
+                        "in": "query"
+                    },
+                    {
                         "type": "boolean",
                         "description": "Filter by read flag",
                         "name": "read",
@@ -8747,6 +8212,98 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/grouped": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List notifications grouped by source, type and message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by source",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by type",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by read flag",
+                        "name": "read",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created at \u003e= (RFC3339)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created at \u003c= (RFC3339)",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 20, max 200)",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.NotificationGroup"
+                            }
+                        },
+                        "headers": {
+                            "X-Total-Count": {
+                                "type": "string",
+                                "description": "Total groups"
                             }
                         }
                     },
@@ -9050,1105 +8607,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/opensearch/cluster/status": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns OpenSearch cluster health information (name, status, nodes, shards).",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Get cluster status",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ClusterStatusResponse"
-                        }
-                    },
-                    "204": {
-                        "description": "No cluster information available"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/count": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns true if at least one document in the index pattern matches the given filters.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Check document existence",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Index pattern",
-                        "name": "indexPattern",
-                        "in": "query"
-                    },
-                    {
-                        "description": "List of filters",
-                        "name": "filters",
-                        "in": "body",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/common_models.FilterType"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/generic-search": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Executes a filter-based search against a single named index (no wildcard pattern).",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Generic search",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "description": "Search request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.GenericSearchRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": true
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total matching documents (capped at top)"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index-patterns": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "List index patterns",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by exact id",
-                        "name": "id.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by id greater than",
-                        "name": "id.greaterThan",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by id less than",
-                        "name": "id.lessThan",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by pattern containing value",
-                        "name": "pattern.contains",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by exact pattern",
-                        "name": "pattern.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by patternModule containing value",
-                        "name": "patternModule.contains",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by patternSystem",
-                        "name": "patternSystem.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by isActive",
-                        "name": "isActive.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page (0-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.IndexPatternResponse"
-                            }
-                        },
-                        "headers": {
-                            "Link": {
-                                "type": "string",
-                                "description": "RFC-5988 pagination links"
-                            },
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total items"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "Update index pattern",
-                "parameters": [
-                    {
-                        "description": "Index pattern to update (id required)",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateIndexPatternRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.IndexPatternResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "Create index pattern",
-                "parameters": [
-                    {
-                        "description": "Index pattern to create (id must be absent)",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateIndexPatternRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.IndexPatternResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index-patterns/fields": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "List index patterns with fields",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by exact id",
-                        "name": "id.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by id greater than",
-                        "name": "id.greaterThan",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by id less than",
-                        "name": "id.lessThan",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by pattern containing value",
-                        "name": "pattern.contains",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by exact pattern",
-                        "name": "pattern.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by patternModule containing value",
-                        "name": "patternModule.contains",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by patternSystem",
-                        "name": "patternSystem.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by isActive",
-                        "name": "isActive.equals",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page (0-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.IndexPatternFieldsResponse"
-                            }
-                        },
-                        "headers": {
-                            "Link": {
-                                "type": "string",
-                                "description": "RFC-5988 pagination links"
-                            },
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total items"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index-patterns/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "Get index pattern by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Index pattern ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.IndexPatternResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "Index Patterns"
-                ],
-                "summary": "Delete index pattern",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Index pattern ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deleted"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index/all": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a paginated list of OpenSearch indices, optionally filtered by pattern.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "List all indices",
-                "parameters": [
-                    {
-                        "type": "boolean",
-                        "description": "Include system indices (starting with '.')",
-                        "name": "includeSystemIndex",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by index name pattern",
-                        "name": "pattern",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.IndexInfo"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total number of matching indices"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index/delete-index": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes one or more OpenSearch indices by name.",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Delete indices",
-                "parameters": [
-                    {
-                        "description": "List of index names to delete",
-                        "name": "indices",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deleted"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/index/properties": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a flattened list of field name + type for the given index pattern.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Get index properties",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Index pattern",
-                        "name": "indexPattern",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.IndexPropertyType"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/property/values": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns all distinct values for a keyword field across the given index pattern.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Get field values",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Keyword field name",
-                        "name": "keyword",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Index pattern",
-                        "name": "indexPattern",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/property/values-with-count": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a map of field value → document count for the given index and field.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Get field values with document count",
-                "parameters": [
-                    {
-                        "description": "Request body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.PropertyValuesWithCountRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/search": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Executes a filter-based search against an index pattern with optional pagination and children enrichment.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Search documents",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Maximum number of results (default 500)",
-                        "name": "top",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Index pattern",
-                        "name": "indexPattern",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Enrich each hit with hasChildren, echoes, and last_echo fields",
-                        "name": "includeChildren",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "description": "List of filters",
-                        "name": "filters",
-                        "in": "body",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/common_models.FilterType"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": true
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total matching documents (capped at top)"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/search/csv": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Fetches documents matching the request body filters and streams them as a CSV download.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "text/csv"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Export search results to CSV",
-                "parameters": [
-                    {
-                        "description": "CSV export parameters",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CsvExportingParams"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "CSV file stream",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/opensearch/search/sql": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Executes a validated SQL query against the OpenSearch SQL plugin with automatic pagination.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OpenSearch"
-                ],
-                "summary": "Search using SQL",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "description": "SQL query",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SqlSearchDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": true
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total rows (capped at 10000)"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/roles": {
             "get": {
                 "security": [
@@ -10253,1269 +8711,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/action-templates": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "SOAR Templates"
-                ],
-                "summary": "List alert response action templates",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (0-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TemplateResponse"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "integer",
-                                "description": "Total number of records"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-action-commands": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a paginated list of utm_incident_action_command",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Action Commands"
-                ],
-                "summary": "List incident action commands",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by action ID",
-                        "name": "actionId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by OS platform",
-                        "name": "osPlatform",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by command text",
-                        "name": "command",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentActionCommand"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates an existing utm_incident_action_command record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Action Commands"
-                ],
-                "summary": "Update incident action command",
-                "parameters": [
-                    {
-                        "description": "Action command to update",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateActionCommandRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentActionCommand"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new utm_incident_action_command record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Action Commands"
-                ],
-                "summary": "Create incident action command",
-                "parameters": [
-                    {
-                        "description": "Action command to create",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateActionCommandRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentActionCommand"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-action-commands/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a single utm_incident_action_command record",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Action Commands"
-                ],
-                "summary": "Get incident action command by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Action command ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentActionCommand"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a utm_incident_action_command record by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Action Commands"
-                ],
-                "summary": "Delete incident action command",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Action command ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-actions": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a paginated list of utm_incident_actions filtered to SHUTDOWN_SERVER and RUN_CMD",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "List incident actions",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by action command",
-                        "name": "actionCommand",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by action type",
-                        "name": "actionType",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by editable flag",
-                        "name": "actionEditable",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentAction"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates an existing utm_incident_actions record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "Update incident action",
-                "parameters": [
-                    {
-                        "description": "Action to update",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateActionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentAction"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new utm_incident_actions record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "Create incident action",
-                "parameters": [
-                    {
-                        "description": "Action to create",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateActionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentAction"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-actions/count": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns the count of utm_incident_actions matching filters",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "Count incident actions",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter by action command",
-                        "name": "actionCommand",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by action type",
-                        "name": "actionType",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by editable flag",
-                        "name": "actionEditable",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-actions/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a single utm_incident_actions record",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "Get incident action by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Action ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentAction"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a utm_incident_actions record by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Actions"
-                ],
-                "summary": "Delete incident action",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Action ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-jobs": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a paginated list of utm_incident_jobs",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Jobs"
-                ],
-                "summary": "List incident jobs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by action ID",
-                        "name": "actionId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by agent hostname",
-                        "name": "agent",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by origin ID",
-                        "name": "originId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by origin type",
-                        "name": "originType",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.UtmIncidentJob"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new utm_incident_jobs record (a response run against an agent)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Jobs"
-                ],
-                "summary": "Create incident job",
-                "parameters": [
-                    {
-                        "description": "Job to create",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateJobRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentJob"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-jobs/count": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns the count of utm_incident_jobs matching filters",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Jobs"
-                ],
-                "summary": "Count incident jobs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by action ID",
-                        "name": "actionId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by agent hostname",
-                        "name": "agent",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by origin ID",
-                        "name": "originId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by origin type",
-                        "name": "originType",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-jobs/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a single utm_incident_jobs record",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Jobs"
-                ],
-                "summary": "Get incident job by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.UtmIncidentJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a utm_incident_jobs record by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Jobs"
-                ],
-                "summary": "Delete incident job",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-variables": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a paginated list of utm_incident_variables. Secret values are masked as \"****\".",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Variables"
-                ],
-                "summary": "List incident variables",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by variable name",
-                        "name": "variableName",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.VariableResponse"
-                            }
-                        },
-                        "headers": {
-                            "X-Total-Count": {
-                                "type": "string",
-                                "description": "Total records"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates an existing utm_incident_variables record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Variables"
-                ],
-                "summary": "Update incident variable",
-                "parameters": [
-                    {
-                        "description": "Variable to update",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateVariableRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.VariableResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new utm_incident_variables record. Secret values are encrypted at rest.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Variables"
-                ],
-                "summary": "Create incident variable",
-                "parameters": [
-                    {
-                        "description": "Variable to create",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateVariableRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.VariableResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/soar/incident-variables/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a single utm_incident_variables record. Secret value masked as \"****\".",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Variables"
-                ],
-                "summary": "Get incident variable by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Variable ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.VariableResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a utm_incident_variables record by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Incident Variables"
-                ],
-                "summary": "Delete incident variable",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Variable ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -12091,6 +9286,284 @@ const docTemplate = `{
                 }
             }
         },
+        "/soar/variables": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of utm_incident_variables. Secret values are masked as \"****\".",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incident Variables"
+                ],
+                "summary": "List incident variables",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (1-based)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by variable name",
+                        "name": "variableName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.VariableResponse"
+                            }
+                        },
+                        "headers": {
+                            "X-Total-Count": {
+                                "type": "string",
+                                "description": "Total records"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing utm_incident_variables record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incident Variables"
+                ],
+                "summary": "Update incident variable",
+                "parameters": [
+                    {
+                        "description": "Variable to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateVariableRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VariableResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new utm_incident_variables record. Secret values are encrypted at rest.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incident Variables"
+                ],
+                "summary": "Create incident variable",
+                "parameters": [
+                    {
+                        "description": "Variable to create",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateVariableRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VariableResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/soar/variables/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a single utm_incident_variables record. Secret value masked as \"****\".",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incident Variables"
+                ],
+                "summary": "Get incident variable by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Variable ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VariableResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a utm_incident_variables record by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incident Variables"
+                ],
+                "summary": "Delete incident variable",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Variable ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/soar/ws/command/{agentId}": {
             "get": {
                 "description": "Upgrades to WebSocket. Client sends one JSON command request,",
@@ -12389,9 +9862,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/sso/saml/{name}/acs": {
+        "/sso/{name}/acs": {
             "post": {
-                "description": "Receives the IdP SAMLResponse, validates it, maps the NameID to a local user and redirects to the app with a session token.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -12406,29 +9878,58 @@ const docTemplate = `{
                         "name": "name",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the app with ?token=…"
+                    }
+                }
+            }
+        },
+        "/sso/{name}/callback": {
+            "get": {
+                "tags": [
+                    "SSO"
+                ],
+                "summary": "OpenID Connect callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identity provider name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Base64 SAML response",
-                        "name": "SAMLResponse",
-                        "in": "formData",
+                        "description": "Authorization code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Opaque state",
+                        "name": "state",
+                        "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "302": {
-                        "description": "Redirect to the app with ?error=saml2"
+                        "description": "Redirect to the app with ?token=…"
                     }
                 }
             }
         },
-        "/sso/saml/{name}/login": {
+        "/sso/{name}/login": {
             "get": {
-                "description": "Redirects the browser to the IdP with a signed AuthnRequest for the named provider.",
+                "description": "Redirects the browser to the provider named in the path.",
                 "tags": [
                     "SSO"
                 ],
-                "summary": "Start SAML SSO login",
+                "summary": "Begin single sign-on",
                 "parameters": [
                     {
                         "type": "string",
@@ -12440,7 +9941,230 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "302": {
-                        "description": "Redirect to the app with ?error=saml2"
+                        "description": "Redirect to the provider"
+                    }
+                }
+            }
+        },
+        "/storage/health": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "The state of the disk underneath",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/retention": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Per dataset: the day a record is deleted, and the day it moves to cold storage when the instance has any.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "How long each dataset is kept",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RetentionResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "keepDays is the whole lifetime; coldDays is when records move to object storage and must be shorter. A dataset that already moves records cannot go back to local-only without rebuilding its table.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Set how long a dataset is kept",
+                "parameters": [
+                    {
+                        "description": "Dataset and its days",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RetentionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RetentionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/tiering": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Configured means a bucket is written; ready means the store has picked it up. Only ready allows a dataset to move records there. The credentials are never returned.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Whether this instance has cold storage",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TieringResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Writes the bucket into the event store's configuration and makes it read it again. The bucket cannot be changed once records live in it, because the parts already moved carry it; the credentials can.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Point cold storage at an object store",
+                "parameters": [
+                    {
+                        "description": "Bucket URL and credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ObjectStoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TieringResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/usage": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "What each dataset holds",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.UsageResponse"
+                            }
+                        }
                     }
                 }
             }
@@ -12485,7 +10209,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                                "$ref": "#/definitions/domain.Tenant"
                             }
                         }
                     }
@@ -12523,7 +10247,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                            "$ref": "#/definitions/domain.Tenant"
                         }
                     },
                     "400": {
@@ -12574,7 +10298,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                            "$ref": "#/definitions/domain.Tenant"
                         }
                     },
                     "404": {
@@ -12627,7 +10351,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                            "$ref": "#/definitions/domain.Tenant"
                         }
                     },
                     "400": {
@@ -12685,6 +10409,47 @@ const docTemplate = `{
             }
         },
         "/tenants/{id}/support-access": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Answers for the caller's own tenant only. The platform reads this from the tenant list instead.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "summary": "Read the support access this tenant has granted",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SupportAccessResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -12723,7 +10488,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant"
+                            "$ref": "#/definitions/domain.Tenant"
                         }
                     },
                     "403": {
@@ -12734,66 +10499,6 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/tfa/complete": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TFA"
-                ],
-                "summary": "Complete TFA enrollment and persist the secret",
-                "parameters": [
-                    {
-                        "description": "Method",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.TfaCompleteRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/tfa/disable": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TFA"
-                ],
-                "summary": "Disable TFA for the current user",
-                "parameters": [
-                    {
-                        "description": "Current password",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.TfaDisableRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
                     }
                 }
             }
@@ -12812,12 +10517,12 @@ const docTemplate = `{
                 "summary": "Start TFA enrollment",
                 "parameters": [
                     {
-                        "description": "Method",
+                        "description": "Enrollment stage",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.TfaInitRequest"
+                            "$ref": "#/definitions/dto.TfaEnrollmentRequest"
                         }
                     }
                 ],
@@ -12825,42 +10530,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.TfaInitResponse"
+                            "$ref": "#/definitions/dto.TfaEnrollmentResponse"
                         }
                     }
                 }
             }
         },
-        "/tfa/refresh": {
+        "/threat-intel/feeds/contribution": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Answers whether sending is on and whether the credentials are in place. The credentials themselves are never returned.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "TFA"
+                    "Threat Intel"
                 ],
-                "summary": "Resend the TFA challenge (EMAIL only)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "EMAIL",
-                        "name": "method",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
+                "summary": "Whether this instance contributes to the ThreatWinds feed",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.TfaRefreshResponse"
+                            "$ref": "#/definitions/dto.FeedsStatus"
                         }
                     }
                 }
-            }
-        },
-        "/tfa/verify": {
-            "post": {
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Decides whether this instance's incidents are sent to ThreatWinds. Credentials are kept either way.",
                 "consumes": [
                     "application/json"
                 ],
@@ -12868,23 +10574,57 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "TFA"
+                    "Threat Intel"
                 ],
-                "summary": "Verify the TFA code during setup",
+                "summary": "Turn the ThreatWinds contribution on or off",
                 "parameters": [
                     {
-                        "description": "Code",
+                        "description": "On or off",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.TfaVerifyRequest"
+                            "$ref": "#/definitions/dto.FeedsToggleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.FeedsStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/threat-intel/feeds/credentials": {
+            "put": {
+                "description": "Internal only. The plugin registers itself with ThreatWinds and hands the result here; it is stored encrypted in the file the plugin reads, so the secret never has to be served back.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Threat Intel"
+                ],
+                "summary": "Store the credentials the feeds plugin registered with",
+                "parameters": [
+                    {
+                        "description": "What the registration returned",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.FeedsCredentialsRequest"
                         }
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -13341,7 +11081,7 @@ const docTemplate = `{
                 "summary": "Get alert tag by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Alert tag ID",
                         "name": "id",
                         "in": "path",
@@ -13387,7 +11127,7 @@ const docTemplate = `{
                 "summary": "Delete alert tag",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Alert tag ID",
                         "name": "id",
                         "in": "path",
@@ -14209,7 +11949,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "lastLogon": {
                     "type": "string"
@@ -14233,30 +11973,41 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "uidNumber": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
                 }
             }
         },
+        "domain.Action": {
+            "type": "string",
+            "enum": [
+                "INCIDENT_CREATED",
+                "INCIDENT_ALERT_ADD",
+                "INCIDENT_ALERT_STATUS_CHANGED",
+                "INCIDENT_STATUS_CHANGE",
+                "INCIDENT_NOTE_ADD",
+                "INCIDENT_NOTE_CHANGE",
+                "INCIDENT_ASSIGNED"
+            ],
+            "x-enum-varnames": [
+                "ActionCreated",
+                "ActionAlertAdd",
+                "ActionAlertStatusChanged",
+                "ActionStatusChange",
+                "ActionNoteAdd",
+                "ActionNoteChange",
+                "ActionAssigned"
+            ]
+        },
         "domain.Agg": {
             "type": "string",
             "enum": [
-                "count",
-                "count_distinct",
-                "sum",
-                "avg",
-                "min",
-                "max"
+                "count"
             ],
             "x-enum-varnames": [
-                "AggCount",
-                "AggCountDistinct",
-                "AggSum",
-                "AggAvg",
-                "AggMin",
-                "AggMax"
+                "AggCount"
             ]
         },
         "domain.AlertEvent": {
@@ -14265,7 +12016,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "index": {
+                "timestamp": {
                     "type": "string"
                 }
             }
@@ -14274,9 +12025,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "action": {
-                    "type": "string"
-                },
-                "message": {
                     "type": "string"
                 },
                 "newValue": {
@@ -14291,6 +12039,36 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.AlertSeverity": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ],
+            "x-enum-varnames": [
+                "SeverityLow",
+                "SeverityMedium",
+                "SeverityHigh"
+            ]
+        },
+        "domain.AlertStatus": {
+            "type": "string",
+            "enum": [
+                "Automatic review",
+                "Open",
+                "In review",
+                "Completed",
+                "Merged"
+            ],
+            "x-enum-varnames": [
+                "AlertStatusAutomaticReview",
+                "AlertStatusOpen",
+                "AlertStatusInReview",
+                "AlertStatusCompleted",
+                "AlertStatusMerged"
+            ]
         },
         "domain.Chart": {
             "type": "string",
@@ -14310,16 +12088,18 @@ const docTemplate = `{
         "domain.Check": {
             "type": "object",
             "properties": {
-                "expected": {
-                    "description": "MATCH_FIELD_VALUE",
+                "dataType": {
+                    "description": "wineventlog, o365, aws-cloudtrail… empty means every type in the dataset",
                     "type": "string"
                 },
-                "field": {
-                    "description": "MATCH_FIELD_VALUE",
-                    "type": "string"
+                "dataset": {
+                    "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset"
                 },
-                "indexPattern": {
-                    "type": "string"
+                "filters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/common_models.FilterType"
+                    }
                 },
                 "key": {
                     "type": "string"
@@ -14328,19 +12108,91 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rule": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.CheckRule"
                 },
                 "ruleValue": {
                     "type": "integer"
                 },
-                "sql": {
-                    "type": "string"
-                },
                 "todo": {
-                    "description": "placeholder — not yet evaluated (Pending)",
+                    "description": "placeholder — not yet defined (Pending)",
                     "type": "boolean"
                 }
             }
+        },
+        "domain.CheckOutcome": {
+            "type": "string",
+            "enum": [
+                "PASSED",
+                "FAILED",
+                "NOT_APPLICABLE",
+                "ERROR"
+            ],
+            "x-enum-comments": {
+                "CheckError": "the check could not run, which is not the same as failing it",
+                "CheckNotApplicable": "the tenant receives no data of this type"
+            },
+            "x-enum-varnames": [
+                "CheckPassed",
+                "CheckFailed",
+                "CheckNotApplicable",
+                "CheckError"
+            ]
+        },
+        "domain.CheckRule": {
+            "type": "string",
+            "enum": [
+                "MIN_HITS_REQUIRED",
+                "THRESHOLD_MAX"
+            ],
+            "x-enum-comments": {
+                "RuleMinHitsRequired": "pass if count \u003e= ruleValue",
+                "RuleThresholdMax": "pass if count \u003c= ruleValue; 0 means \"none allowed\""
+            },
+            "x-enum-varnames": [
+                "RuleMinHitsRequired",
+                "RuleThresholdMax"
+            ]
+        },
+        "domain.CheckStrategy": {
+            "type": "string",
+            "enum": [
+                "ALL",
+                "ANY"
+            ],
+            "x-enum-varnames": [
+                "StrategyAll",
+                "StrategyAny"
+            ]
+        },
+        "domain.ComplianceStatus": {
+            "type": "string",
+            "enum": [
+                "COMPLIANT",
+                "NON_COMPLIANT",
+                "AT_RISK",
+                "NOT_COVERED",
+                "NOT_EVALUATED",
+                "PENDING",
+                "OUT_OF_SCOPE"
+            ],
+            "x-enum-comments": {
+                "StatusAtRisk": "passing analysis but weak coverage (or vice-versa)",
+                "StatusCompliant": "evaluated and passing",
+                "StatusNonCompliant": "evaluated and failing",
+                "StatusNotCovered": "nothing is watching this: no checks and no covering rules",
+                "StatusNotEvaluated": "checks exist but the tenant receives no such data",
+                "StatusOutOfScope": "governance control — not provable from logs",
+                "StatusPending": "check declared but not yet written"
+            },
+            "x-enum-varnames": [
+                "StatusCompliant",
+                "StatusNonCompliant",
+                "StatusAtRisk",
+                "StatusNotCovered",
+                "StatusNotEvaluated",
+                "StatusPending",
+                "StatusOutOfScope"
+            ]
         },
         "domain.Condition": {
             "type": "string",
@@ -14369,9 +12221,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.Check"
                     }
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
                 "family": {
                     "type": "string"
                 },
@@ -14381,21 +12230,14 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "locked": {
-                    "type": "boolean"
-                },
                 "name": {
-                    "type": "string"
-                },
-                "relPath": {
                     "type": "string"
                 },
                 "remediation": {
                     "type": "string"
                 },
                 "scope": {
-                    "description": "data | governance (default data)",
-                    "type": "string"
+                    "$ref": "#/definitions/domain.ControlScope"
                 },
                 "source": {
                     "type": "string"
@@ -14404,13 +12246,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "strategy": {
-                    "description": "ALL | ANY (default ALL)",
-                    "type": "string"
-                },
-                "system": {
-                    "type": "boolean"
+                    "$ref": "#/definitions/domain.CheckStrategy"
                 }
             }
+        },
+        "domain.ControlScope": {
+            "type": "string",
+            "enum": [
+                "data",
+                "governance"
+            ],
+            "x-enum-comments": {
+                "ScopeData": "technical — evaluated via checks and/or rule coverage",
+                "ScopeGovernance": "policy/process — not provable from logs; out of scope, excluded from score"
+            },
+            "x-enum-varnames": [
+                "ScopeData",
+                "ScopeGovernance"
+            ]
         },
         "domain.Dashboard": {
             "type": "object",
@@ -14425,7 +12278,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "modifiedDate": {
                     "type": "string"
@@ -14463,6 +12316,17 @@ const docTemplate = `{
                 "EditionEnterprise"
             ]
         },
+        "domain.ExecutionOrigin": {
+            "type": "string",
+            "enum": [
+                "FLOW",
+                "MANUAL"
+            ],
+            "x-enum-varnames": [
+                "ExecutionOriginFlow",
+                "ExecutionOriginManual"
+            ]
+        },
         "domain.ExecutionStatus": {
             "type": "string",
             "enum": [
@@ -14475,20 +12339,6 @@ const docTemplate = `{
                 "ExecutionStatusPending",
                 "ExecutionStatusFailed"
             ]
-        },
-        "domain.FailedIndex": {
-            "type": "object",
-            "properties": {
-                "index_name": {
-                    "type": "string"
-                },
-                "index_uuid": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                }
-            }
         },
         "domain.Filter": {
             "type": "object",
@@ -14508,19 +12358,10 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
                 "key": {
                     "type": "string"
                 },
-                "locked": {
-                    "type": "boolean"
-                },
                 "name": {
-                    "type": "string"
-                },
-                "relPath": {
                     "type": "string"
                 },
                 "sections": {
@@ -14531,9 +12372,6 @@ const docTemplate = `{
                 },
                 "source": {
                     "type": "string"
-                },
-                "system": {
-                    "type": "boolean"
                 }
             }
         },
@@ -14592,40 +12430,91 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "metadataUrl": {
+                "defaultRoleId": {
                     "type": "string"
+                },
+                "groupsAttribute": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "jitProvisioning": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
                 },
                 "providerType": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.ProviderType"
                 },
-                "spAcsUrl": {
-                    "type": "string"
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "spCertificatePem": {
-                    "type": "string"
-                },
-                "spEntityId": {
-                    "type": "string"
+                "syncRolesOnLogin": {
+                    "type": "boolean"
                 },
                 "updatedAt": {
                     "type": "string"
                 }
             }
         },
-        "domain.Impact": {
+        "domain.Incident": {
             "type": "object",
             "properties": {
-                "label": {
+                "alertCount": {
+                    "description": "AlertCount is filled in on list reads; it is not a column. The list shows\nhow big each incident is, and loading every linked row to count them would\nbe the whole table to render one number per line.",
+                    "type": "integer"
+                },
+                "id": {
                     "type": "string"
                 },
-                "score": {
-                    "type": "integer"
+                "incidentAssignedTo": {
+                    "type": "string"
+                },
+                "incidentCreatedDate": {
+                    "type": "string"
+                },
+                "incidentDescription": {
+                    "type": "string"
+                },
+                "incidentName": {
+                    "type": "string"
+                },
+                "incidentSeverity": {
+                    "$ref": "#/definitions/domain.IncidentSeverity"
+                },
+                "incidentSolution": {
+                    "type": "string"
+                },
+                "incidentStatus": {
+                    "$ref": "#/definitions/domain.IncidentStatus"
+                }
+            }
+        },
+        "domain.IncidentAlert": {
+            "type": "object",
+            "properties": {
+                "alertId": {
+                    "type": "string"
+                },
+                "alertName": {
+                    "type": "string"
+                },
+                "alertSeverity": {
+                    "$ref": "#/definitions/domain.IncidentSeverity"
+                },
+                "alertStatus": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "incidentId": {
+                    "type": "string"
                 }
             }
         },
@@ -14638,7 +12527,9 @@ const docTemplate = `{
                 "creationDate": {
                     "type": "string"
                 },
-                "incidentId": {},
+                "incidentId": {
+                    "type": "string"
+                },
                 "incidentName": {
                     "type": "string"
                 },
@@ -14646,6 +12537,89 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.IncidentHistory": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/domain.Action"
+                },
+                "actionCreatedBy": {
+                    "type": "string"
+                },
+                "actionCreatedDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "incidentId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.IncidentNote": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "incidentId": {
+                    "type": "string"
+                },
+                "noteSendBy": {
+                    "type": "string"
+                },
+                "noteSendDate": {
+                    "type": "string"
+                },
+                "noteText": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.IncidentSeverity": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ],
+            "x-enum-varnames": [
+                "SeverityLow",
+                "SeverityMedium",
+                "SeverityHigh"
+            ]
+        },
+        "domain.IncidentStatus": {
+            "type": "string",
+            "enum": [
+                "Open",
+                "In review",
+                "Completed",
+                "Merged"
+            ],
+            "x-enum-varnames": [
+                "StatusOpen",
+                "StatusInReview",
+                "StatusCompleted",
+                "StatusMerged"
+            ]
+        },
+        "domain.IngestType": {
+            "type": "string",
+            "enum": [
+                "agent",
+                "collector",
+                "forwarder",
+                "plugin"
+            ],
+            "x-enum-varnames": [
+                "IngestTypeAgent",
+                "IngestTypeCollector",
+                "IngestTypeForwarder",
+                "IngestTypePlugin"
+            ]
         },
         "domain.Limits": {
             "type": "object",
@@ -14702,6 +12676,29 @@ const docTemplate = `{
                 "NonExecutionCauseAgentNotFound",
                 "NonExecutionCauseUnknown"
             ]
+        },
+        "domain.NotificationGroup": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "lastCreated": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/domain.NotificationSource"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.NotificationType"
+                },
+                "unreadCount": {
+                    "type": "integer"
+                }
+            }
         },
         "domain.NotificationSource": {
             "type": "string",
@@ -14787,159 +12784,18 @@ const docTemplate = `{
                 "OperatorIsNotOneOf"
             ]
         },
-        "domain.PolicySettings": {
-            "type": "object",
-            "properties": {
-                "deleteAfter": {
-                    "type": "string"
-                },
-                "snapshotActive": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "domain.Report": {
-            "type": "object",
-            "properties": {
-                "frameworkKey": {
-                    "type": "string"
-                },
-                "frameworkName": {
-                    "type": "string"
-                },
-                "generatedAt": {
-                    "type": "string"
-                },
-                "sections": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ReportSection"
-                    }
-                },
-                "summary": {
-                    "$ref": "#/definitions/domain.ReportSummary"
-                }
-            }
-        },
-        "domain.ReportControlRow": {
-            "type": "object",
-            "properties": {
-                "activity": {
-                    "description": "# alerts from those rules in the window",
-                    "type": "integer"
-                },
-                "controlId": {
-                    "type": "string"
-                },
-                "coverage": {
-                    "description": "# enabled correlation rules covering this control",
-                    "type": "integer"
-                },
-                "evidence": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "note": {
-                    "description": "user note attached to this (framework, control)",
-                    "type": "string"
-                },
-                "overridden": {
-                    "description": "true when status came from a manual override",
-                    "type": "boolean"
-                },
-                "status": {
-                    "description": "COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE | PENDING",
-                    "type": "string"
-                }
-            }
-        },
-        "domain.ReportSection": {
-            "type": "object",
-            "properties": {
-                "controls": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ReportControlRow"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.ReportSnapshot": {
-            "type": "object",
-            "properties": {
-                "@timestamp": {
-                    "type": "string"
-                },
-                "frameworkKey": {
-                    "type": "string"
-                },
-                "frameworkName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "report": {
-                    "$ref": "#/definitions/domain.Report"
-                },
-                "score": {
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.ReportSnapshotMeta": {
-            "type": "object",
-            "properties": {
-                "@timestamp": {
-                    "type": "string"
-                },
-                "frameworkKey": {
-                    "type": "string"
-                },
-                "frameworkName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "score": {
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.ReportSummary": {
-            "type": "object",
-            "properties": {
-                "atRisk": {
-                    "type": "integer"
-                },
-                "compliant": {
-                    "type": "integer"
-                },
-                "compliantPct": {
-                    "type": "integer"
-                },
-                "nonCompliant": {
-                    "type": "integer"
-                },
-                "notCovered": {
-                    "type": "integer"
-                },
-                "outOfScope": {
-                    "type": "integer"
-                },
-                "pending": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
+        "domain.ProviderType": {
+            "type": "string",
+            "enum": [
+                "saml",
+                "oidc",
+                "ldap"
+            ],
+            "x-enum-varnames": [
+                "ProviderSAML",
+                "ProviderOIDC",
+                "ProviderLDAP"
+            ]
         },
         "domain.Requirement": {
             "type": "object",
@@ -14958,6 +12814,38 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.SavedQuery": {
+            "type": "object",
+            "properties": {
+                "columns": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dataset": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "filters": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.Side": {
             "type": "object",
             "properties": {
@@ -14971,14 +12859,12 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "bytesSent": {
-                    "description": "Network traffic",
                     "type": "number"
                 },
                 "cdhash": {
                     "type": "string"
                 },
                 "certificateFingerprint": {
-                    "description": "Certificate and fingerprint",
                     "type": "string"
                 },
                 "chromeExtension": {
@@ -14991,15 +12877,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "connections": {
-                    "description": "Resources",
                     "type": "integer"
                 },
                 "cookie": {
-                    "description": "Web",
                     "type": "string"
                 },
                 "cpe": {
-                    "description": "Vulnerability",
                     "type": "string"
                 },
                 "cve": {
@@ -15021,7 +12904,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
-                    "description": "Email",
                     "type": "string"
                 },
                 "emailAddress": {
@@ -15043,25 +12925,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "file": {
-                    "description": "File",
                     "type": "string"
                 },
                 "filename": {
                     "type": "string"
                 },
                 "geolocation": {
-                    "description": "Geolocation",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Geolocation"
-                        }
-                    ]
+                    "$ref": "#/definitions/domain.Geolocation"
                 },
                 "group": {
                     "type": "string"
                 },
                 "hash": {
-                    "description": "Hashes",
                     "type": "string"
                 },
                 "hex": {
@@ -15071,7 +12946,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ip": {
-                    "description": "Network identification",
                     "type": "string"
                 },
                 "ja3Fingerprint": {
@@ -15087,7 +12961,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "malware": {
-                    "description": "Malware",
                     "type": "string"
                 },
                 "malwareFamily": {
@@ -15106,11 +12979,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "description": "Legacy field (kept for backward compat — mapped from \"name\" in older docs)",
                     "type": "string"
                 },
                 "operatingSystem": {
-                    "description": "System",
                     "type": "string"
                 },
                 "packagesReceived": {
@@ -15123,7 +12994,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "pgpPrivateKey": {
-                    "description": "PGP keys",
                     "type": "string"
                 },
                 "pgpPublicKey": {
@@ -15133,7 +13003,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "process": {
-                    "description": "Process",
                     "type": "string"
                 },
                 "processState": {
@@ -15200,7 +13069,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "whoisRegistrant": {
-                    "description": "WHOIS",
                     "type": "string"
                 },
                 "whoisRegistrar": {
@@ -15236,7 +13104,6 @@ const docTemplate = `{
                     }
                 },
                 "dataType": {
-                    "description": "DataType narrows to one kind of record inside it — o365, wineventlog,\nsyslog. It is the other half of what an index pattern was: v11-log-o365-*\nnamed a table and a data type at once. Empty means every kind, and\nanything broader than one exact type is a filter.",
                     "type": "string"
                 },
                 "dataset": {
@@ -15289,6 +13156,35 @@ const docTemplate = `{
                 "SupportFull"
             ]
         },
+        "domain.Tenant": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "limits": {
+                    "$ref": "#/definitions/domain.Limits"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.TenantStatus"
+                },
+                "supportAccess": {
+                    "$ref": "#/definitions/domain.SupportAccess"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.TenantStatus": {
             "type": "string",
             "enum": [
@@ -15302,22 +13198,33 @@ const docTemplate = `{
                 "StatusTerminated"
             ]
         },
-        "domain.UpdateManagedIndexPolicyResponse": {
-            "type": "object",
-            "properties": {
-                "failed_indices": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.FailedIndex"
-                    }
-                },
-                "failures": {
-                    "type": "boolean"
-                },
-                "updated_indices": {
-                    "type": "integer"
-                }
-            }
+        "domain.TfaFactorType": {
+            "type": "string",
+            "enum": [
+                "email",
+                "totp",
+                "recovery"
+            ],
+            "x-enum-varnames": [
+                "TfaFactorEmail",
+                "TfaFactorTotp",
+                "TfaFactorRecovery"
+            ]
+        },
+        "domain.UserStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "active",
+                "inactive",
+                "suspended"
+            ],
+            "x-enum-varnames": [
+                "UserStatusPending",
+                "UserStatusActive",
+                "UserStatusInactive",
+                "UserStatusSuspended"
+            ]
         },
         "domain.UtmAlert": {
             "type": "object",
@@ -15327,12 +13234,6 @@ const docTemplate = `{
                 },
                 "adversary": {
                     "$ref": "#/definitions/domain.Side"
-                },
-                "assetGroupId": {
-                    "type": "integer"
-                },
-                "assetGroupName": {
-                    "type": "string"
                 },
                 "assignee": {
                     "type": "string"
@@ -15346,7 +13247,7 @@ const docTemplate = `{
                 "dataType": {
                     "type": "string"
                 },
-                "deduplicatedBy": {
+                "deduplicateBy": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -15355,10 +13256,22 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "events": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.AlertEvent"
+                    }
+                },
+                "groupBy": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
                 "history": {
@@ -15371,7 +13284,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "impact": {
-                    "$ref": "#/definitions/domain.Impact"
+                    "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_alerts_domain.Impact"
                 },
                 "impactScore": {
                     "type": "integer"
@@ -15383,13 +13296,13 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "lastEvent": {
-                    "$ref": "#/definitions/domain.AlertEvent"
-                },
-                "logs": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
+                },
+                "lastUpdate": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -15400,26 +13313,20 @@ const docTemplate = `{
                 "parentId": {
                     "type": "string"
                 },
-                "reference": {
+                "references": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "severity": {
-                    "type": "integer"
-                },
-                "severityLabel": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.AlertSeverity"
                 },
                 "solution": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
-                },
-                "statusLabel": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.AlertStatus"
                 },
                 "statusObservation": {
                     "type": "string"
@@ -15427,7 +13334,7 @@ const docTemplate = `{
                 "tagRulesApplied": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "tags": {
@@ -15441,229 +13348,11 @@ const docTemplate = `{
                 },
                 "technique": {
                     "type": "string"
-                }
-            }
-        },
-        "domain.UtmIncident": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
                 },
-                "incidentAssignedTo": {
+                "tenantId": {
                     "type": "string"
                 },
-                "incidentCreatedDate": {
-                    "type": "string"
-                },
-                "incidentDescription": {
-                    "type": "string"
-                },
-                "incidentName": {
-                    "type": "string"
-                },
-                "incidentSeverity": {
-                    "type": "integer"
-                },
-                "incidentSolution": {
-                    "type": "string"
-                },
-                "incidentStatus": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.UtmIncidentAction": {
-            "type": "object",
-            "properties": {
-                "actionCommand": {
-                    "type": "string"
-                },
-                "actionDescription": {
-                    "type": "string"
-                },
-                "actionEditable": {
-                    "type": "boolean"
-                },
-                "actionParams": {
-                    "type": "string"
-                },
-                "actionType": {
-                    "type": "integer"
-                },
-                "createdDate": {
-                    "type": "string"
-                },
-                "createdUser": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "modifiedDate": {
-                    "type": "string"
-                },
-                "modifiedUser": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.UtmIncidentActionCommand": {
-            "type": "object",
-            "properties": {
-                "actionId": {
-                    "type": "integer"
-                },
-                "command": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "osPlatform": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.UtmIncidentAlert": {
-            "type": "object",
-            "properties": {
-                "alertId": {
-                    "type": "string"
-                },
-                "alertName": {
-                    "type": "string"
-                },
-                "alertSeverity": {
-                    "type": "integer"
-                },
-                "alertStatus": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "incidentId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.UtmIncidentHistory": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "actionCreatedBy": {
-                    "type": "string"
-                },
-                "actionCreatedDate": {
-                    "type": "string"
-                },
-                "actionDetail": {
-                    "type": "string"
-                },
-                "actionType": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "incidentId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.UtmIncidentJob": {
-            "type": "object",
-            "properties": {
-                "actionId": {
-                    "type": "integer"
-                },
-                "agent": {
-                    "type": "string"
-                },
-                "createdDate": {
-                    "type": "string"
-                },
-                "createdUser": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "jobResult": {
-                    "type": "string"
-                },
-                "modifiedDate": {
-                    "type": "string"
-                },
-                "modifiedUser": {
-                    "type": "string"
-                },
-                "originId": {
-                    "type": "string"
-                },
-                "originType": {
-                    "type": "string"
-                },
-                "params": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.UtmIncidentNote": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "incidentId": {
-                    "type": "integer"
-                },
-                "noteSendBy": {
-                    "type": "string"
-                },
-                "noteSendDate": {
-                    "type": "string"
-                },
-                "noteText": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.UtmLogAnalyzerQuery": {
-            "type": "object",
-            "properties": {
-                "columns": {
-                    "type": "string"
-                },
-                "creationDate": {
-                    "type": "string"
-                },
-                "dataset": {
-                    "description": "Dataset is what the query reads: logs or alerts. It replaced a foreign\nkey into the index-pattern registry, which the event store has no need of.",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "filters": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "modificationDate": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
+                "tenantName": {
                     "type": "string"
                 }
             }
@@ -15678,10 +13367,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "dashboardId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "layout": {
                     "type": "string"
@@ -15765,7 +13454,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -15808,13 +13497,12 @@ const docTemplate = `{
                     }
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "tenantId": {
-                    "description": "TenantID keeps a tenant's rules from being applied to another's alerts:\nthe plugin caches every tenant's rules in one process.",
                     "type": "string"
                 }
             }
@@ -15828,13 +13516,14 @@ const docTemplate = `{
             "properties": {
                 "alertList": {
                     "type": "array",
+                    "maxItems": 1000,
                     "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/dto.AlertLinkItem"
                     }
                 },
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -15867,10 +13556,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "alertSeverity": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "alertStatus": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -15878,7 +13567,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "systemOwner": {
                     "type": "boolean"
@@ -15903,12 +13592,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/common_models.FilterType"
                     }
                 },
-                "createdBy": {
-                    "type": "string"
-                },
-                "createdDate": {
-                    "type": "string"
-                },
                 "deleted": {
                     "type": "boolean"
                 },
@@ -15916,12 +13599,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
-                },
-                "lastModifiedBy": {
-                    "type": "string"
-                },
-                "lastModifiedDate": {
                     "type": "string"
                 },
                 "name": {
@@ -15939,7 +13616,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "systemOwner": {
                     "type": "boolean"
@@ -15976,7 +13653,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -16111,7 +13788,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "incidentCreatedDate": {
                     "type": "string"
@@ -16121,9 +13798,6 @@ const docTemplate = `{
                 },
                 "incidentName": {
                     "type": "string"
-                },
-                "incidentSeverity": {
-                    "type": "integer"
                 },
                 "incidentSolution": {
                     "type": "string"
@@ -16190,31 +13864,37 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ClusterHealth": {
+        "dto.CheckResult": {
             "type": "object",
             "properties": {
-                "active_shards": {
-                    "type": "integer"
-                },
-                "cluster_name": {
+                "dataType": {
+                    "description": "why a NOT_APPLICABLE check could not run",
                     "type": "string"
                 },
-                "number_of_data_nodes": {
-                    "type": "integer"
+                "dataset": {
+                    "$ref": "#/definitions/github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset"
                 },
-                "number_of_nodes": {
-                    "type": "integer"
-                },
-                "status": {
+                "error": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.ClusterStatusResponse": {
-            "type": "object",
-            "properties": {
-                "health": {
-                    "$ref": "#/definitions/dto.ClusterHealth"
+                },
+                "hits": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "outcome": {
+                    "$ref": "#/definitions/domain.CheckOutcome"
+                },
+                "required": {
+                    "description": "the rule's threshold, so \"0 of 1 required\" reads on its own",
+                    "type": "integer"
+                },
+                "rule": {
+                    "$ref": "#/definitions/domain.CheckRule"
                 }
             }
         },
@@ -16241,6 +13921,43 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ConfigGroupRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ConfigGroupResponse": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ConfigKnowledgeResponse": {
             "type": "object",
             "properties": {
@@ -16251,7 +13968,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "generatedSecret": {
-                    "description": "GeneratedSecret is only populated when a brand-new bearer/hmac token was\ngenerated for the first time; never re-exposed on subsequent enables of\nthe same integration.",
                     "type": "string"
                 },
                 "requestId": {
@@ -16307,6 +14023,53 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ControlRow": {
+            "type": "object",
+            "properties": {
+                "activity": {
+                    "description": "# alerts from those rules in the window",
+                    "type": "integer"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CheckResult"
+                    }
+                },
+                "controlId": {
+                    "type": "string"
+                },
+                "coverage": {
+                    "description": "# enabled correlation rules covering this control",
+                    "type": "integer"
+                },
+                "editedAt": {
+                    "type": "string"
+                },
+                "editedBy": {
+                    "type": "string"
+                },
+                "engineStatus": {
+                    "$ref": "#/definitions/domain.ComplianceStatus"
+                },
+                "evidence": {
+                    "description": "one-line reason for the table; the detail is in Checks",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "originalStatus": {
+                    "$ref": "#/definitions/domain.ComplianceStatus"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.ComplianceStatus"
+                }
+            }
+        },
         "dto.ConvertToIncidentRequest": {
             "type": "object",
             "required": [
@@ -16316,14 +14079,13 @@ const docTemplate = `{
             ],
             "properties": {
                 "eventIds": {
-                    "description": "AlertIDs maps to Java's ConvertToIncidentRequestBody.eventIds field (not alertIds).",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "incidentName": {
                     "type": "string"
@@ -16394,7 +14156,6 @@ const docTemplate = `{
                     }
                 },
                 "relPath": {
-                    "description": "RelPath is the rule identity (replaces the legacy numeric id).",
                     "type": "string"
                 },
                 "ruleActive": {
@@ -16415,43 +14176,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.CreateActionCommandRequest": {
-            "type": "object",
-            "required": [
-                "actionId"
-            ],
-            "properties": {
-                "actionId": {
-                    "type": "integer"
-                },
-                "command": {
-                    "type": "string"
-                },
-                "osPlatform": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.CreateActionRequest": {
-            "type": "object",
-            "properties": {
-                "actionCommand": {
-                    "type": "string"
-                },
-                "actionDescription": {
-                    "type": "string"
-                },
-                "actionEditable": {
-                    "type": "boolean"
-                },
-                "actionParams": {
-                    "type": "string"
-                },
-                "actionType": {
                     "type": "integer"
                 }
             }
@@ -16551,7 +14275,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
-                    "description": "JSON tags match Java UtmCorrelationRulesDTO field names for wire compatibility.",
                     "type": "string"
                 },
                 "references": {
@@ -16568,21 +14291,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreateFilterRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "relPath"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "relPath": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.CreateIncidentRequest": {
             "type": "object",
             "required": [
@@ -16591,7 +14299,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "alertList": {
+                    "description": "Capped because nothing else caps it: the rows are written in one\ntransaction, and an unbounded list is a request that holds a Postgres\ntransaction open for as long as the caller likes.",
                     "type": "array",
+                    "maxItems": 1000,
                     "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/dto.AlertLinkItem"
@@ -16611,75 +14321,27 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreateIndexPatternRequest": {
-            "type": "object",
-            "required": [
-                "pattern"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "pattern": {
-                    "type": "string"
-                },
-                "patternModule": {
-                    "type": "string"
-                },
-                "patternSystem": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "dto.CreateJobRequest": {
-            "type": "object",
-            "properties": {
-                "actionId": {
-                    "type": "integer"
-                },
-                "agent": {
-                    "type": "string"
-                },
-                "originId": {
-                    "type": "string"
-                },
-                "originType": {
-                    "type": "string"
-                },
-                "params": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.CreateModuleRequest": {
+        "dto.CreateIntegrationRequest": {
             "type": "object",
             "required": [
                 "dataType",
-                "moduleName"
+                "ingestType",
+                "name"
             ],
             "properties": {
                 "dataType": {
                     "type": "string"
                 },
-                "moduleCategory": {
+                "description": {
                     "type": "string"
                 },
-                "moduleDescription": {
+                "icon": {
                     "type": "string"
                 },
-                "moduleIcon": {
-                    "type": "string"
+                "ingestType": {
+                    "$ref": "#/definitions/domain.IngestType"
                 },
-                "moduleName": {
-                    "type": "string"
-                },
-                "prettyName": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -16692,7 +14354,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "noteText": {
                     "type": "string",
@@ -16745,6 +14407,21 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreatePipelineRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "relPath"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "relPath": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateRequest": {
             "type": "object",
             "required": [
@@ -16754,9 +14431,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "adminEmail": {
-                    "type": "string"
-                },
-                "adminLogin": {
                     "type": "string"
                 },
                 "domain": {
@@ -16828,76 +14502,46 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "frameworkKey",
-                "scheduleString"
+                "scheduleString",
+                "to"
             ],
             "properties": {
-                "frameworkKey": {
-                    "type": "string"
+                "cc": {
+                    "type": "string",
+                    "maxLength": 2000
                 },
-                "recipients": {
+                "frameworkKey": {
                     "type": "string"
                 },
                 "scheduleString": {
                     "type": "string",
                     "maxLength": 250
-                }
-            }
-        },
-        "dto.CreateTenantConfigRequest": {
-            "type": "object",
-            "required": [
-                "assetName"
-            ],
-            "properties": {
-                "assetAvailability": {
-                    "type": "integer"
                 },
-                "assetConfidentiality": {
-                    "type": "integer"
+                "to": {
+                    "type": "string",
+                    "maxLength": 2000
                 },
-                "assetHostnameList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetIntegrity": {
-                    "type": "integer"
-                },
-                "assetIpList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetName": {
-                    "type": "string"
+                "windowDays": {
+                    "type": "integer",
+                    "maximum": 3650,
+                    "minimum": 1
                 }
             }
         },
         "dto.CreateUserRequest": {
             "type": "object",
             "required": [
-                "email",
-                "login"
+                "email"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
-                    "type": "string"
-                },
                 "lang_key": {
                     "type": "string"
                 },
-                "last_name": {
+                "name": {
                     "type": "string"
-                },
-                "login": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
                 },
                 "role_names": {
                     "type": "array",
@@ -16910,7 +14554,8 @@ const docTemplate = `{
         "dto.CreateVariableRequest": {
             "type": "object",
             "required": [
-                "variableName"
+                "variableName",
+                "variableValue"
             ],
             "properties": {
                 "isSecret": {
@@ -16927,63 +14572,17 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CsvExportingParams": {
-            "type": "object",
-            "properties": {
-                "columns": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.DataColumn"
-                    }
-                },
-                "filters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/common_models.FilterType"
-                    }
-                },
-                "indexPattern": {
-                    "type": "string"
-                },
-                "top": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.DataColumn": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
         "dto.DataTypeOption": {
             "type": "object",
             "properties": {
-                "active": {
-                    "type": "boolean"
-                },
                 "dataType": {
-                    "type": "string"
-                },
-                "isSystem": {
-                    "type": "boolean"
-                },
-                "moduleName": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
+                },
+                "systemOwner": {
+                    "type": "boolean"
                 }
             }
         },
@@ -17029,11 +14628,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.EnabledRequest": {
+        "dto.EditControlRequest": {
             "type": "object",
+            "required": [
+                "note"
+            ],
             "properties": {
-                "enabled": {
-                    "type": "boolean"
+                "note": {
+                    "type": "string",
+                    "maxLength": 4000
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.ComplianceStatus"
                 }
             }
         },
@@ -17049,25 +14655,34 @@ const docTemplate = `{
                 "command": {
                     "type": "string"
                 },
-                "commandResult": {
+                "finishedAt": {
                     "type": "string"
-                },
-                "executionDate": {
-                    "type": "string"
-                },
-                "executionRetries": {
-                    "type": "integer"
-                },
-                "executionStatus": {
-                    "$ref": "#/definitions/domain.ExecutionStatus"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "nonExecutionCause": {
                     "$ref": "#/definitions/domain.NonExecutionCause"
                 },
+                "origin": {
+                    "$ref": "#/definitions/domain.ExecutionOrigin"
+                },
+                "result": {
+                    "type": "string"
+                },
+                "retries": {
+                    "type": "integer"
+                },
                 "rulePath": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.ExecutionStatus"
+                },
+                "triggeredBy": {
                     "type": "string"
                 }
             }
@@ -17080,6 +14695,40 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.FeedsCredentialsRequest": {
+            "type": "object",
+            "required": [
+                "apiKey",
+                "apiSecret"
+            ],
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                },
+                "apiSecret": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.FeedsStatus": {
+            "type": "object",
+            "properties": {
+                "configured": {
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.FeedsToggleRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
                 }
             }
         },
@@ -17097,32 +14746,6 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.FilterResponse": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "dataTypes": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "relPath": {
-                    "type": "string"
-                },
-                "system": {
-                    "type": "boolean"
                 }
             }
         },
@@ -17161,23 +14784,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GenericSearchRequest": {
-            "type": "object",
-            "properties": {
-                "filters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/common_models.FilterType"
-                    }
-                },
-                "index": {
-                    "type": "string"
-                },
-                "top": {
-                    "type": "integer"
-                }
-            }
-        },
         "dto.GetDataTypeConfigResponse": {
             "type": "object",
             "properties": {
@@ -17213,11 +14819,36 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GroupMapping": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "diskUsedPct": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.IdentityProviderPublic": {
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "loginUrl": {
                     "type": "string"
@@ -17236,11 +14867,23 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "metadataUrl": {
+                "defaultRoleId": {
                     "type": "string"
+                },
+                "groupMappings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.GroupMapping"
+                    }
+                },
+                "groupsAttribute": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "jitProvisioning": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -17248,17 +14891,14 @@ const docTemplate = `{
                 "providerType": {
                     "type": "string"
                 },
-                "spAcsUrl": {
-                    "type": "string"
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "spCertificatePem": {
-                    "type": "string"
-                },
-                "spEntityId": {
-                    "type": "string"
-                },
-                "spPrivateKeyPem": {
-                    "type": "string"
+                "syncRolesOnLogin": {
+                    "type": "boolean"
                 }
             }
         },
@@ -17344,88 +14984,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "alertSeverity": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "alertStatus": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "incidentId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.IndexField": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.IndexInfo": {
-            "type": "object",
-            "properties": {
-                "docs.count": {
-                    "type": "string"
-                },
-                "health": {
-                    "type": "string"
-                },
-                "index": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "store.size": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.IndexPatternFieldsResponse": {
-            "type": "object",
-            "properties": {
-                "fields": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.IndexField"
-                    }
-                },
-                "indexPattern": {
-                    "$ref": "#/definitions/dto.IndexPatternResponse"
-                }
-            }
-        },
-        "dto.IndexPatternResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "pattern": {
-                    "type": "string"
-                },
-                "patternModule": {
-                    "type": "string"
-                },
-                "patternSystem": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "dto.IndexPropertyType": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "type": {
                     "type": "string"
                 }
             }
@@ -17497,6 +15061,9 @@ const docTemplate = `{
         "dto.IngestionStatsBucket": {
             "type": "object",
             "properties": {
+                "bytes": {
+                    "type": "integer"
+                },
                 "count": {
                     "type": "integer"
                 },
@@ -17531,6 +15098,9 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                },
+                "totalBytes": {
+                    "type": "integer"
                 }
             }
         },
@@ -17563,6 +15133,36 @@ const docTemplate = `{
                 },
                 "to": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.IntegrationResponse": {
+            "type": "object",
+            "properties": {
+                "configured": {
+                    "description": "Configured reports whether this tenant has any configuration group for\nthe integration. It replaces the stored active flag, which said only\nthat somebody had pressed a switch.",
+                    "type": "boolean"
+                },
+                "dataType": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ingestType": {
+                    "$ref": "#/definitions/domain.IngestType"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "systemOwner": {
+                    "type": "boolean"
                 }
             }
         },
@@ -17617,7 +15217,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "session_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -17628,10 +15228,10 @@ const docTemplate = `{
                 "user_agent": {
                     "type": "string"
                 },
-                "user_id": {
-                    "type": "integer"
+                "user_email": {
+                    "type": "string"
                 },
-                "user_login": {
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -17650,6 +15250,10 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "changeme"
+                },
+                "provider_id": {
+                    "description": "ProviderID names the directory to bind against when the user picked one.\nAbsent, every active directory of the tenant is tried, which is what a\nsingle-directory install wants.",
+                    "type": "string"
                 }
             }
         },
@@ -17671,11 +15275,16 @@ const docTemplate = `{
                 "refresh_token": {
                     "type": "string"
                 },
-                "tfa_method": {
-                    "type": "string"
-                },
                 "tfa_required": {
                     "type": "boolean"
+                },
+                "tfa_type": {
+                    "description": "Which factor the user must produce, so the screen can say \"check your\nmail\" or \"open your authenticator\" instead of guessing.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TfaFactorType"
+                        }
+                    ]
                 },
                 "token_type": {
                     "type": "string",
@@ -17716,56 +15325,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ModuleActivationRequest": {
-            "type": "object",
-            "required": [
-                "activationStatus",
-                "moduleName"
-            ],
-            "properties": {
-                "activationStatus": {
-                    "type": "boolean"
-                },
-                "moduleName": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ModuleResponse": {
-            "type": "object",
-            "properties": {
-                "dataType": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "ingestType": {
-                    "type": "string"
-                },
-                "isSystem": {
-                    "type": "boolean"
-                },
-                "moduleActive": {
-                    "type": "boolean"
-                },
-                "moduleCategory": {
-                    "type": "string"
-                },
-                "moduleDescription": {
-                    "type": "string"
-                },
-                "moduleIcon": {
-                    "type": "string"
-                },
-                "moduleName": {
-                    "type": "string"
-                },
-                "prettyName": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.NotificationResponse": {
             "type": "object",
             "properties": {
@@ -17791,6 +15350,39 @@ const docTemplate = `{
                     "$ref": "#/definitions/domain.NotificationType"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NotifyAlertRequest": {
+            "type": "object",
+            "required": [
+                "alertId"
+            ],
+            "properties": {
+                "alertId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ObjectStoreRequest": {
+            "type": "object",
+            "required": [
+                "accessKey",
+                "endpoint",
+                "secretKey"
+            ],
+            "properties": {
+                "accessKey": {
+                    "type": "string"
+                },
+                "cacheBytes": {
+                    "type": "integer"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "secretKey": {
                     "type": "string"
                 }
             }
@@ -17821,50 +15413,37 @@ const docTemplate = `{
         "dto.PermissionResponse": {
             "type": "object",
             "properties": {
-                "action": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
-                    "type": "string"
-                },
-                "resource": {
                     "type": "string"
                 }
             }
         },
-        "dto.PropertyValuesWithCountRequest": {
+        "dto.PipelineResponse": {
             "type": "object",
-            "required": [
-                "field",
-                "index"
-            ],
             "properties": {
-                "field": {
+                "active": {
+                    "type": "boolean"
+                },
+                "content": {
                     "type": "string"
                 },
-                "filters": {
+                "dataTypes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/common_models.FilterType"
+                        "type": "string"
                     }
                 },
-                "index": {
+                "order": {
+                    "type": "integer"
+                },
+                "relPath": {
                     "type": "string"
                 },
-                "orderByCount": {
+                "system": {
                     "type": "boolean"
-                },
-                "sortAsc": {
-                    "type": "boolean"
-                },
-                "top": {
-                    "type": "integer"
                 }
             }
         },
@@ -17885,28 +15464,22 @@ const docTemplate = `{
                 "patternDefinition": {
                     "type": "string"
                 },
-                "patternDescription": {
-                    "type": "string"
-                },
                 "patternId": {
                     "type": "string"
-                },
-                "systemOwner": {
-                    "type": "boolean"
                 }
             }
         },
         "dto.RelatedLogsResponse": {
             "type": "object",
             "properties": {
+                "dataType": {
+                    "type": "string"
+                },
                 "ids": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
-                },
-                "indexPattern": {
-                    "type": "string"
                 },
                 "ruleMatched": {
                     "type": "boolean"
@@ -17922,6 +15495,142 @@ const docTemplate = `{
                 },
                 "truncated": {
                     "type": "boolean"
+                }
+            }
+        },
+        "dto.ReportMeta": {
+            "type": "object",
+            "properties": {
+                "frameworkKey": {
+                    "type": "string"
+                },
+                "frameworkName": {
+                    "type": "string"
+                },
+                "generatedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ReportRequirement": {
+            "type": "object",
+            "properties": {
+                "controlIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.ComplianceStatus"
+                }
+            }
+        },
+        "dto.ReportResponse": {
+            "type": "object",
+            "properties": {
+                "controls": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ControlRow"
+                    }
+                },
+                "frameworkKey": {
+                    "type": "string"
+                },
+                "frameworkName": {
+                    "type": "string"
+                },
+                "frameworkSource": {
+                    "type": "string"
+                },
+                "generatedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReportSection"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/dto.ReportSummary"
+                },
+                "windowFrom": {
+                    "type": "string"
+                },
+                "windowTo": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReportSection": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReportRequirement"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/dto.ReportSummary"
+                }
+            }
+        },
+        "dto.ReportSummary": {
+            "type": "object",
+            "properties": {
+                "atRisk": {
+                    "type": "integer"
+                },
+                "compliant": {
+                    "type": "integer"
+                },
+                "compliantPct": {
+                    "type": "integer"
+                },
+                "evaluated": {
+                    "type": "integer"
+                },
+                "nonCompliant": {
+                    "type": "integer"
+                },
+                "notCovered": {
+                    "type": "integer"
+                },
+                "notEvaluated": {
+                    "type": "integer"
+                },
+                "outOfScope": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -17988,6 +15697,40 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RetentionRequest": {
+            "type": "object",
+            "required": [
+                "dataset"
+            ],
+            "properties": {
+                "coldDays": {
+                    "type": "integer"
+                },
+                "dataset": {
+                    "type": "string"
+                },
+                "keepDays": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RetentionResponse": {
+            "type": "object",
+            "properties": {
+                "coldDays": {
+                    "type": "integer"
+                },
+                "dataset": {
+                    "type": "string"
+                },
+                "keepDays": {
+                    "type": "integer"
+                },
+                "tiered": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.RoleDetailResponse": {
             "type": "object",
             "properties": {
@@ -17995,6 +15738,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "display_name": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {
@@ -18005,6 +15751,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/dto.PermissionResponse"
                     }
+                },
+                "system": {
+                    "type": "boolean"
                 }
             }
         },
@@ -18028,8 +15777,14 @@ const docTemplate = `{
                 "display_name": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "system": {
+                    "type": "boolean"
                 }
             }
         },
@@ -18112,22 +15867,106 @@ const docTemplate = `{
         "dto.ScheduleResponse": {
             "type": "object",
             "properties": {
+                "cc": {
+                    "type": "string"
+                },
                 "frameworkKey": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
-                },
-                "lastExecutionDate": {
                     "type": "string"
                 },
-                "recipients": {
+                "lastExecutionDate": {
                     "type": "string"
                 },
                 "scheduleString": {
                     "type": "string"
                 },
+                "to": {
+                    "type": "string"
+                },
                 "userId": {
+                    "type": "string"
+                },
+                "windowDays": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ScorePoint": {
+            "type": "object",
+            "properties": {
+                "compliant": {
+                    "type": "integer"
+                },
+                "day": {
+                    "type": "string"
+                },
+                "evaluated": {
+                    "type": "integer"
+                },
+                "generatedAt": {
+                    "type": "string"
+                },
+                "hasDocument": {
+                    "type": "boolean"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SearchRequest": {
+            "type": "object",
+            "properties": {
+                "dataType": {
+                    "type": "string"
+                },
+                "dataset": {
+                    "type": "string"
+                },
+                "filters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/common_models.FilterType"
+                    }
+                },
+                "from": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "sortBy": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SearchResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "total": {
                     "type": "integer"
                 }
             }
@@ -18145,7 +15984,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "ip": {
                     "type": "string"
@@ -18214,22 +16053,19 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.SqlSearchDto": {
-            "type": "object",
-            "properties": {
-                "fetchSize": {
-                    "type": "integer"
-                },
-                "query": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.SupportAccessRequest": {
             "type": "object",
             "required": [
                 "supportAccess"
             ],
+            "properties": {
+                "supportAccess": {
+                    "$ref": "#/definitions/domain.SupportAccess"
+                }
+            }
+        },
+        "dto.SupportAccessResponse": {
+            "type": "object",
             "properties": {
                 "supportAccess": {
                     "$ref": "#/definitions/domain.SupportAccess"
@@ -18259,128 +16095,15 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.TemplateResponse": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "systemOwner": {
-                    "type": "boolean"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TenantConfigResponse": {
-            "type": "object",
-            "properties": {
-                "assetAvailability": {
-                    "type": "integer"
-                },
-                "assetConfidentiality": {
-                    "type": "integer"
-                },
-                "assetHostnameList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetIntegrity": {
-                    "type": "integer"
-                },
-                "assetIpList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetName": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TenantRequest": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "config": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TenantResponse": {
-            "type": "object",
-            "properties": {
-                "config": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TfaCompleteRequest": {
-            "type": "object",
-            "required": [
-                "method"
-            ],
-            "properties": {
-                "method": {
-                    "type": "string",
-                    "enum": [
-                        "EMAIL",
-                        "TOTP"
-                    ]
-                }
-            }
-        },
-        "dto.TfaDisableRequest": {
-            "type": "object",
-            "required": [
-                "password"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.TfaEnrollmentRequest": {
             "type": "object",
             "required": [
-                "method",
-                "stage"
+                "stage",
+                "type"
             ],
             "properties": {
                 "code": {
                     "type": "string"
-                },
-                "method": {
-                    "type": "string",
-                    "enum": [
-                        "EMAIL",
-                        "TOTP"
-                    ]
                 },
                 "stage": {
                     "type": "string",
@@ -18388,6 +16111,17 @@ const docTemplate = `{
                         "INIT",
                         "VERIFY",
                         "COMPLETE"
+                    ]
+                },
+                "type": {
+                    "enum": [
+                        "email",
+                        "totp"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TfaFactorType"
+                        }
                     ]
                 }
             }
@@ -18409,21 +16143,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.TfaInitRequest": {
-            "type": "object",
-            "required": [
-                "method"
-            ],
-            "properties": {
-                "method": {
-                    "type": "string",
-                    "enum": [
-                        "EMAIL",
-                        "TOTP"
-                    ]
-                }
-            }
-        },
         "dto.TfaInitResponse": {
             "type": "object",
             "properties": {
@@ -18433,7 +16152,7 @@ const docTemplate = `{
                 "expires_at": {
                     "type": "string"
                 },
-                "method": {
+                "factor_id": {
                     "type": "string"
                 },
                 "otp_auth_url": {
@@ -18441,60 +16160,35 @@ const docTemplate = `{
                 },
                 "qr_data_url": {
                     "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.TfaFactorType"
                 }
             }
         },
-        "dto.TfaRefreshResponse": {
+        "dto.TieringResponse": {
             "type": "object",
             "properties": {
-                "cooldown_until": {
-                    "type": "string"
-                },
-                "email_sent": {
+                "configured": {
                     "type": "boolean"
                 },
-                "expires_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TfaVerifyCodeRequest": {
-            "type": "object",
-            "required": [
-                "code",
-                "pre_auth_token"
-            ],
-            "properties": {
-                "code": {
+                "endpoint": {
                     "type": "string"
                 },
-                "pre_auth_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.TfaVerifyRequest": {
-            "type": "object",
-            "required": [
-                "code",
-                "method"
-            ],
-            "properties": {
-                "code": {
+                "policy": {
                     "type": "string"
                 },
-                "method": {
-                    "type": "string",
-                    "enum": [
-                        "EMAIL",
-                        "TOTP"
-                    ]
+                "ready": {
+                    "type": "boolean"
                 }
             }
         },
         "dto.TimelinePoint": {
             "type": "object",
             "properties": {
+                "bytes": {
+                    "type": "integer"
+                },
                 "count": {
                     "type": "integer"
                 },
@@ -18574,53 +16268,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UpdateActionCommandRequest": {
-            "type": "object",
-            "required": [
-                "actionId",
-                "id"
-            ],
-            "properties": {
-                "actionId": {
-                    "type": "integer"
-                },
-                "command": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "osPlatform": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UpdateActionRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "actionCommand": {
-                    "type": "string"
-                },
-                "actionDescription": {
-                    "type": "string"
-                },
-                "actionEditable": {
-                    "type": "boolean"
-                },
-                "actionParams": {
-                    "type": "string"
-                },
-                "actionType": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "dto.UpdateAlertTagRequest": {
             "type": "object",
             "required": [
@@ -18629,7 +16276,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "systemOwner": {
                     "type": "boolean"
@@ -18662,7 +16309,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -18759,43 +16406,12 @@ const docTemplate = `{
                     }
                 },
                 "relPath": {
-                    "description": "RelPath identifies the rule to update (the YAML-direct identity).",
                     "type": "string"
                 },
                 "ruleActive": {
                     "type": "boolean"
                 },
                 "technique": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UpdateFilterOrderRequest": {
-            "type": "object",
-            "required": [
-                "order",
-                "relPath"
-            ],
-            "properties": {
-                "order": {
-                    "type": "integer"
-                },
-                "relPath": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UpdateFilterRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "relPath"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "relPath": {
                     "type": "string"
                 }
             }
@@ -18815,40 +16431,27 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "alertSeverity": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "alertStatus": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
-        "dto.UpdateIndexPatternRequest": {
+        "dto.UpdateIntegrationRequest": {
             "type": "object",
-            "required": [
-                "id",
-                "pattern"
-            ],
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "pattern": {
+                "description": {
                     "type": "string"
                 },
-                "patternModule": {
+                "icon": {
                     "type": "string"
-                },
-                "patternSystem": {
-                    "type": "boolean"
                 }
             }
         },
@@ -18858,30 +16461,36 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
-                    "type": "string"
-                },
                 "lang_key": {
                     "type": "string"
                 },
-                "last_name": {
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "dto.UpdateModuleRequest": {
+        "dto.UpdatePipelineOrderRequest": {
             "type": "object",
             "properties": {
-                "moduleCategory": {
+                "order": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.UpdatePipelineRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "relPath"
+            ],
+            "properties": {
+                "content": {
                     "type": "string"
                 },
-                "moduleDescription": {
-                    "type": "string"
-                },
-                "moduleIcon": {
-                    "type": "string"
-                },
-                "prettyName": {
+                "relPath": {
                     "type": "string"
                 }
             }
@@ -18893,8 +16502,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "maxAIRequests": {
-                    "description": "A limit left out keeps its value; zero lifts it.",
-                    "type": "integer"
+                    "description": "Raw, because the cap is a tri-state and a *int only carries two: a JSON\nnull and an absent field both decode to nil. Read it with AILimit.",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -18966,73 +16578,49 @@ const docTemplate = `{
             "required": [
                 "frameworkKey",
                 "id",
-                "scheduleString"
+                "scheduleString",
+                "to"
             ],
             "properties": {
+                "cc": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
                 "frameworkKey": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
-                },
-                "recipients": {
                     "type": "string"
                 },
                 "scheduleString": {
                     "type": "string",
                     "maxLength": 250
-                }
-            }
-        },
-        "dto.UpdateTenantConfigRequest": {
-            "type": "object",
-            "required": [
-                "assetName"
-            ],
-            "properties": {
-                "assetAvailability": {
-                    "type": "integer"
                 },
-                "assetConfidentiality": {
-                    "type": "integer"
+                "to": {
+                    "type": "string",
+                    "maxLength": 2000
                 },
-                "assetHostnameList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetIntegrity": {
-                    "type": "integer"
-                },
-                "assetIpList": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "assetName": {
-                    "type": "string"
+                "windowDays": {
+                    "type": "integer",
+                    "maximum": 3650,
+                    "minimum": 1
                 }
             }
         },
         "dto.UpdateUserRequest": {
             "type": "object",
             "properties": {
-                "activated": {
-                    "type": "boolean"
-                },
                 "email": {
-                    "type": "string"
-                },
-                "first_name": {
                     "type": "string"
                 },
                 "lang_key": {
                     "type": "string"
                 },
-                "last_name": {
+                "name": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.UserStatus"
                 }
             }
         },
@@ -19043,7 +16631,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "isSecret": {
                     "type": "boolean"
@@ -19076,13 +16664,22 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserAssignedDTO": {
+        "dto.UsageResponse": {
             "type": "object",
             "properties": {
-                "id": {
+                "bytes": {
                     "type": "integer"
                 },
-                "login": {
+                "dataset": {
+                    "type": "string"
+                },
+                "documents": {
+                    "type": "integer"
+                },
+                "newest": {
+                    "type": "string"
+                },
+                "oldest": {
                     "type": "string"
                 }
             }
@@ -19090,26 +16687,17 @@ const docTemplate = `{
         "dto.UserDetailResponse": {
             "type": "object",
             "properties": {
-                "activated": {
-                    "type": "boolean"
-                },
-                "created_by": {
+                "created_at": {
                     "type": "string"
-                },
-                "created_date": {
-                    "type": "string"
-                },
-                "default_password": {
-                    "type": "boolean"
                 },
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
-                    "type": "string"
+                "federated": {
+                    "type": "boolean"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "image_url": {
                     "type": "string"
@@ -19117,16 +16705,7 @@ const docTemplate = `{
                 "lang_key": {
                     "type": "string"
                 },
-                "last_modified_by": {
-                    "type": "string"
-                },
-                "last_modified_date": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "login": {
+                "name": {
                     "type": "string"
                 },
                 "roles": {
@@ -19135,10 +16714,13 @@ const docTemplate = `{
                         "$ref": "#/definitions/dto.RoleDigest"
                     }
                 },
+                "status": {
+                    "$ref": "#/definitions/domain.UserStatus"
+                },
                 "tfa_enabled": {
                     "type": "boolean"
                 },
-                "tfa_method": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -19146,20 +16728,14 @@ const docTemplate = `{
         "dto.UserListItem": {
             "type": "object",
             "properties": {
-                "activated": {
-                    "type": "boolean"
-                },
-                "default_password": {
-                    "type": "boolean"
-                },
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
-                    "type": "string"
+                "federated": {
+                    "type": "boolean"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "image_url": {
                     "type": "string"
@@ -19167,10 +16743,7 @@ const docTemplate = `{
                 "lang_key": {
                     "type": "string"
                 },
-                "last_name": {
-                    "type": "string"
-                },
-                "login": {
+                "name": {
                     "type": "string"
                 },
                 "roles": {
@@ -19179,11 +16752,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/dto.RoleDigest"
                     }
                 },
+                "status": {
+                    "$ref": "#/definitions/domain.UserStatus"
+                },
                 "tfa_enabled": {
                     "type": "boolean"
-                },
-                "tfa_method": {
-                    "type": "string"
                 }
             }
         },
@@ -19204,17 +16777,14 @@ const docTemplate = `{
         "dto.UserResponse": {
             "type": "object",
             "properties": {
-                "activated": {
-                    "type": "boolean"
-                },
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
-                    "type": "string"
+                "federated": {
+                    "type": "boolean"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "image_url": {
                     "type": "string"
@@ -19222,28 +16792,28 @@ const docTemplate = `{
                 "lang_key": {
                     "type": "string"
                 },
-                "last_name": {
+                "name": {
                     "type": "string"
                 },
-                "login": {
-                    "type": "string"
+                "status": {
+                    "$ref": "#/definitions/domain.UserStatus"
                 },
                 "tfa_enabled": {
                     "type": "boolean"
-                },
-                "tfa_method": {
-                    "type": "string"
                 }
             }
         },
         "dto.VariableResponse": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "createdBy": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "isSecret": {
                     "type": "boolean"
@@ -19285,6 +16855,20 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_utmstack_utmstack_backend_modules_alerts_domain.Impact": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "integer"
+                },
+                "confidentiality": {
+                    "type": "integer"
+                },
+                "integrity": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_utmstack_utmstack_backend_modules_alerts_dto.UpdateAlertStatusRequest": {
             "type": "object",
             "required": [
@@ -19302,7 +16886,7 @@ const docTemplate = `{
                     }
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/domain.AlertStatus"
                 },
                 "statusObservation": {
                     "type": "string"
@@ -19338,6 +16922,17 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset": {
+            "type": "string",
+            "enum": [
+                "logs",
+                "alerts"
+            ],
+            "x-enum-varnames": [
+                "DatasetLogs",
+                "DatasetAlerts"
+            ]
+        },
         "github_com_utmstack_utmstack_backend_modules_incidents_dto.UpdateAlertStatusRequest": {
             "type": "object",
             "required": [
@@ -19354,10 +16949,10 @@ const docTemplate = `{
                     }
                 },
                 "incidentId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -19412,32 +17007,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "domain": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "limits": {
-                    "$ref": "#/definitions/domain.Limits"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/domain.TenantStatus"
-                },
-                "supportAccess": {
-                    "$ref": "#/definitions/domain.SupportAccess"
-                }
-            }
-        },
         "handler.chatRequest": {
             "type": "object",
             "required": [
@@ -19483,6 +17052,17 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.sqlSearchRequest": {
+            "type": "object",
+            "required": [
+                "query"
+            ],
+            "properties": {
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.usageResponse": {
             "type": "object",
             "properties": {
@@ -19502,7 +17082,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Bucket": {
+        "usecase.Bucket": {
             "type": "object",
             "properties": {
                 "count": {
@@ -19513,7 +17093,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Point": {
+        "usecase.Point": {
             "type": "object",
             "properties": {
                 "at": {
@@ -19524,33 +17104,19 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Series": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "points": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/store.Point"
-                    }
-                }
-            }
-        },
         "usecase.Result": {
             "type": "object",
             "properties": {
                 "buckets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/store.Bucket"
+                        "$ref": "#/definitions/usecase.Bucket"
                     }
                 },
                 "points": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/store.Point"
+                        "$ref": "#/definitions/usecase.Point"
                     }
                 },
                 "rows": {
@@ -19565,11 +17131,25 @@ const docTemplate = `{
                 "series": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/store.Series"
+                        "$ref": "#/definitions/usecase.Series"
                     }
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "usecase.Series": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/usecase.Point"
+                    }
                 }
             }
         }

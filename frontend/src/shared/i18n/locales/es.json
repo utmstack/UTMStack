@@ -394,12 +394,12 @@
       },
       "dataSource": {
         "title": "¿Qué datos?",
-        "indexPattern": "Conjunto de datos",
-        "noPatternHint": "Elige un conjunto de datos para habilitar condiciones, medida y agrupación."
+        "dataset": "Conjunto de datos",
+        "noDatasetHint": "Elige un conjunto de datos para habilitar condiciones y agrupación."
       },
-      "indexPattern": {
-        "placeholder": "Selecciona un patrón de índice…",
-        "loading": "Cargando patrones de índice…"
+      "dataset": {
+        "placeholder": "Selecciona un conjunto de datos…",
+        "loading": "Cargando conjuntos de datos…"
       },
       "filters": {
         "title": "Incluir solo eventos donde…",
@@ -430,53 +430,22 @@
         "EXIST": "existe",
         "DOES_NOT_EXIST": "no existe"
       },
-      "aggregations": {
-        "count": "Número de eventos",
-        "count_distinct": "Valores únicos",
-        "sum": "Suma",
-        "avg": "Promedio",
-        "min": "Mínimo",
-        "max": "Máximo"
-      },
-      "metric": {
-        "title": "¿Qué quieres medir?",
-        "aggregation": "Medida",
-        "field": "Del campo",
-        "fieldPlaceholder": "Elige un campo…",
-        "fieldNotRequired": "No necesario al contar eventos"
-      },
       "dimension": {
         "title": "Agrupar por",
         "field": "Campo",
         "placeholder": "Elige un campo para agrupar…"
       },
       "table": {
-        "title": "SELECT personalizado (opcional)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
-        "hint": "Muestra todas las columnas de los eventos que coinciden. Para elegir columnas específicas o agregar, cambia a la pestaña SQL.",
+        "hint": "Muestra todos los campos de los registros. Agrega columnas para elegir algunos.",
         "columnsTitle": "Columnas",
         "allColumns": "Se mostrarán todas las columnas. Agrega campos para elegir columnas específicas.",
         "addColumn": "Agregar una columna…",
         "removeColumn": "Quitar columna"
       },
-      "sqlPreview": {
-        "title": "Vista previa de SQL",
-        "empty": "Elige un patrón de índice para ver el SQL generado.",
-        "toggleRaw": "Cambiar a avanzado (SQL crudo)",
-        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
-        "hint": "{{timeFilter}}, {{from}} y {{to}} se sustituyen desde el selector de tiempo al renderizar."
-      },
       "chartPreview": {
         "title": "Vista previa del gráfico",
-        "noQuery": "Completa la fuente de datos para ver una vista previa.",
+        "noQuery": "Elige un conjunto de datos para ver la vista previa.",
         "error": "La consulta de vista previa falló."
-      },
-      "rawMode": {
-        "label": "Avanzado (SQL crudo)"
-      },
-      "tabs": {
-        "visual": "Visual",
-        "sql": "SQL"
       },
       "chartTypeChip": {
         "label": "Gráfico:"
@@ -494,7 +463,17 @@
         "choose": "Elige un campo…"
       },
       "toast": {
-        "notReady": "Elige un patrón de índice (y agrega una métrica o SQL) antes de guardar."
+        "notReady": "Elige un conjunto de datos, y un campo por el que desglosar, antes de guardar."
+      },
+      "breakdown": {
+        "title": "Desglosar por",
+        "time": "En el tiempo",
+        "field": "Valores más frecuentes",
+        "interval": "Tamaño del intervalo",
+        "intervalAuto": "Automático",
+        "limit": "Cuántos",
+        "limitPlaceholder": "Predeterminado (50)",
+        "splitHint": "Opcional: una línea por cada valor de este campo."
       }
     },
     "grid": {
@@ -507,7 +486,6 @@
       "loading": "Cargando datos…",
       "queryError": "No se pudieron cargar los datos del widget.",
       "noData": "Sin datos para el rango de tiempo seleccionado.",
-      "noTimePlaceholderHint": "Consejo: agrega un marcador de tiempo al SQL para que filtre por el rango del selector.",
       "regionMapEmpty": "No hay puntos con lat/lon válidos.",
       "regionMapShapeHint": "El SQL debe devolver columnas de latitud y longitud (o un arreglo value [lat, lon, count]).",
       "regionMapUnnamed": "(sin nombre)",
@@ -522,7 +500,8 @@
       "widthMedium": "2 cols",
       "widthLarge": "3 cols",
       "heightNormal": "Normal",
-      "heightTall": "Alto"
+      "heightTall": "Alto",
+      "incompleteSpec": "A este widget le falta parte de su pregunta."
     },
     "form": {
       "createTitle": "Nuevo panel",
@@ -1344,117 +1323,53 @@
   },
   "dataRetention": {
     "title": "Retención de datos",
-    "subtitle": "Cuánto tiempo se conservan los datos de eventos antes de eliminarse. Lo aplica la gestión del ciclo de vida de índices (ISM) de OpenSearch sobre los índices gestionados.",
-    "loading": "Cargando política de retención…",
-    "unavailable": {
-      "title": "La gestión del ciclo de vida de índices no está disponible",
-      "body": "La retención se gestiona con ISM de OpenSearch. Esta instancia no tiene OpenSearch configurado, así que no hay política de retención que gestionar aquí."
-    },
-    "loadFailed": "No se pudo cargar la política de retención.",
+    "subtitle": "Cuánto se guarda cada conjunto de datos y cuándo sus registros dejan de ocupar disco local.",
+    "loading": "Cargando…",
+    "loadFailed": "No se pudo leer el almacén.",
     "retry": "Reintentar",
-    "noPolicyNote": "Aún no hay política de retención configurada. Define una abajo y guarda para aplicarla.",
-    "deleteAfter": "Eliminar datos después de",
-    "deleteAfterHint": "Los índices más antiguos que esto se eliminan. Aplica a los índices de eventos gestionados.",
-    "units": {
-      "days": "días",
-      "hours": "horas"
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alertas",
+      "statistics": "Estadísticas de ingesta"
     },
-    "positiveNumber": "Introduce un número positivo",
-    "snapshotTitle": "Snapshot antes de eliminar",
-    "snapshotHint": "Archiva cada índice (solo restauración) antes de eliminarlo, para poder recuperar los datos después. Si está desactivado, los índices se eliminan de inmediato.",
-    "save": "Guardar política",
+    "holding": "{{documents}} registros · {{size}}",
+    "since": "desde {{date}}",
+    "diskUsed": "Disco al {{pct}}%",
+    "keep": "Eliminar después de",
+    "keepHint": "Un registro se elimina esos días después de ocurrir, esté donde esté guardado.",
+    "cold": "Mover a almacenamiento frío tras",
+    "coldHint": "Los registros antiguos pasan al object storage y siguen siendo consultables. 0 los deja siempre en disco local.",
+    "coldUnavailable": "Configura el almacenamiento frío abajo para sacar los registros antiguos del disco local.",
+    "coldBeforeDelete": "Los registros deben moverse antes de eliminarse: usa menos días que la vida total, o 0.",
+    "tieredNote": "Este conjunto mueve registros a almacenamiento frío. Volver a solo disco local exige reconstruir la tabla, así que no se puede apagar aquí.",
+    "days": "días",
+    "save": "Guardar",
     "saving": "Guardando…",
     "toast": {
-      "saved": "Política de retención guardada",
+      "saved": "Retención guardada",
       "noPermission": "No tienes permiso para cambiar la retención",
-      "saveFailed": "No se pudo guardar la política de retención"
-    }
-  },
-  "indices": {
-    "title": "Índices e index patterns",
-    "subtitle": "Los index patterns agrupan índices para la búsqueda; los índices son el almacenamiento subyacente de OpenSearch.",
-    "retry": "Reintentar",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Índices"
+      "saveFailed": "No se pudo guardar la retención"
     },
-    "dataViews": {
-      "search": "Buscar index patterns…",
-      "add": "Agregar index pattern",
-      "colPattern": "Patrón",
-      "colModule": "Integración",
-      "colActive": "Activa",
-      "colActions": "Acciones",
-      "loading": "Cargando index patterns…",
-      "loadFailed": "No se pudieron cargar las index patterns.",
-      "noSearchMatch": "Ninguna index pattern coincide con tu búsqueda.",
-      "none": "Aún no hay index patterns.",
-      "system": "sistema",
-      "active": "Activa",
-      "disabled": "Desactivada",
-      "edit": "Editar",
-      "delete": "Eliminar",
-      "deleteTitle": "Eliminar index pattern",
-      "deleteBody": "¿Eliminar {{pattern}}? Esto elimina la definición de la index pattern. Los índices subyacentes no se eliminan.",
-      "deleteConfirm": "Eliminar",
-      "form": {
-        "addTitle": "Agregar index pattern",
-        "editTitle": "Editar index pattern",
-        "pattern": "Patrón de índice",
-        "patternHint": "Usa * como comodín, p. ej. logs-windows-*",
-        "module": "Integración",
-        "moduleHint": "Opcional — la integración a la que pertenece este pattern (p. ej. windows, aws). Déjalo vacío para patterns personalizados.",
-        "activeLabel": "Activa",
-        "systemLabel": "Index pattern del sistema",
-        "saving": "Guardando…",
-        "save": "Guardar cambios",
-        "create": "Crear",
-        "matchChecking": "Comprobando índices que coinciden…",
-        "matchNone": "No coincide con ningún índice — el pattern debe coincidir con al menos uno.",
-        "duplicate": "Ya existe un index pattern con este glob.",
-        "matchCount_one": "Coincide con {{count}} índice",
-        "matchCount_other": "Coincide con {{count}} índices"
-      },
+    "coldStorage": {
+      "title": "Almacenamiento frío",
+      "hint": "Un object storage que el almacén trata como un segundo disco más lento. Los registros antiguos se mueven allí y se consultan desde el mismo sitio: no es un archivo y no hay que restaurar nada.",
+      "active": "En uso",
+      "inactive": "Sin configurar",
+      "writtenNotReady": "El bucket está configurado pero el almacén no lo ha tomado. Comprueba que el despliegue comparte el directorio de configuración del almacén.",
+      "endpoint": "URL del bucket",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "Las credenciales se pueden cambiar cuando quieras. El bucket no, una vez hay registros dentro: las partes ya movidas lo llevan.",
+      "enable": "Activar almacenamiento frío",
+      "update": "Actualizar credenciales",
       "toast": {
-        "enabled": "Index pattern activada",
-        "disabled": "Index pattern desactivada",
-        "created": "Index pattern creada",
-        "updated": "Index pattern actualizada",
-        "deleted": "Index pattern eliminada"
-      },
-      "systemLocked": "Pattern del sistema — gestionado automáticamente, no editable"
-    },
-    "index": {
-      "filter": "Filtrar por nombre de índice…",
-      "systemIndices": "Índices del sistema",
-      "refresh": "Actualizar",
-      "colIndex": "Índice",
-      "colHealth": "Salud",
-      "colStatus": "Estado",
-      "colDocs": "Docs",
-      "colSize": "Tamaño",
-      "colActions": "Acciones",
-      "loading": "Cargando índices…",
-      "loadFailed": "No se pudieron cargar los índices (OpenSearch puede no estar disponible).",
-      "noFilterMatch": "Ningún índice coincide con tu filtro.",
-      "none": "No se encontraron índices.",
-      "page": "Página {{page}}",
-      "deleteTitle": "Eliminar índice",
-      "deleteBody": "¿Eliminar permanentemente el índice {{name}}? Se perderán los {{docs}} documentos que contiene. No se puede deshacer.",
-      "deleteConfirm": "Eliminar índice",
-      "toast": {
-        "deleted": "Índice eliminado"
+        "saved": "Almacenamiento frío configurado",
+        "failed": "No se pudo configurar el almacenamiento frío"
       }
     },
-    "confirm": {
-      "cancel": "Cancelar",
-      "working": "Procesando…"
-    },
-    "error": {
-      "noPermission": "No tienes permiso para hacer eso",
-      "notFound": "No encontrado",
-      "invalidRequest": "Solicitud inválida",
-      "failed": "La operación falló"
+    "forbidden": {
+      "title": "Esta página es de la plataforma",
+      "body": "La retención se aplica a las tablas que comparten todos los tenants, así que solo un administrador de plataforma puede verla o cambiarla. Pídeselo a uno, o entra con una cuenta de plataforma."
     }
   },
   "languageSettings": {

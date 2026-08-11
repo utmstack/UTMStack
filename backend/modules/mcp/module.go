@@ -17,7 +17,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
-	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
@@ -35,7 +34,6 @@ type Deps struct {
 	Audit           *audit.Module
 	Dashboards      *dashboards.Module
 	LogAnalyzer     *loganalyzer.Module
-	OpenSearch      *opensearchgw.Module
 	EventProcessing *eventprocessing.Module
 	Datasources     *datasources.Module
 	Integrations    *integrations.Module

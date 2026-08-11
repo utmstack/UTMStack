@@ -183,7 +183,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/frontend:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"backend",
-			"filebrowser",
 		},
 		Ports: []string{
 			"10001:80",
@@ -226,6 +225,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
 		"PLAYGROUND_BASE_URL=http://event-processor-manager:8091",
 		"UPLOAD_DIR=/uploads",
+		"CLICKHOUSE_CONFIG_DIR=/clickhouse-conf",
 		"UTMSTACK_ADMIN_PASSWORD=" + conf.Password,
 	}
 
@@ -251,6 +251,9 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			// pipeline (tenants/patterns/filters); the EP reads the same host dirs.
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
+			// Where cold storage is declared to ClickHouse, which reads the same
+			// directory read-only.
+			stack.ClickHouseConfigD + ":/clickhouse-conf",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -346,7 +349,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"GIN_MODE=release",
 			"MODE=manager",
 			"NODE_NAME=manager",
-			"LOG_INDEX_PREFIX=v11-log",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -372,6 +374,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			// Run on first boot only; this is what creates the tables.
 			stack.ClickHouseSchema + ":/docker-entrypoint-initdb.d:ro",
 			stack.ClickHouseConf + "/" + settingsFileName + ":/etc/clickhouse-server/users.d/" + settingsFileName + ":ro",
+			// Read-only here and writable in the backend: one writer, one reader.
+			stack.ClickHouseConfigD + ":/etc/clickhouse-server/config.d:ro",
 		},
 		Environment: []string{
 			"CLICKHOUSE_DB=utmstack",

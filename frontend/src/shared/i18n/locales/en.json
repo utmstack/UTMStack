@@ -395,12 +395,12 @@
       },
       "dataSource": {
         "title": "Which data?",
-        "indexPattern": "Data set",
-        "noPatternHint": "Choose a data set to enable conditions, measure and grouping."
+        "dataset": "Data set",
+        "noDatasetHint": "Choose a data set to enable conditions and grouping."
       },
-      "indexPattern": {
-        "placeholder": "Select an index pattern…",
-        "loading": "Loading index patterns…"
+      "dataset": {
+        "placeholder": "Select a data set…",
+        "loading": "Loading data sets…"
       },
       "filters": {
         "title": "Include only events where…",
@@ -431,53 +431,22 @@
         "EXIST": "exists",
         "DOES_NOT_EXIST": "does not exist"
       },
-      "aggregations": {
-        "count": "Number of events",
-        "count_distinct": "Unique values",
-        "sum": "Sum",
-        "avg": "Average",
-        "min": "Minimum",
-        "max": "Maximum"
-      },
-      "metric": {
-        "title": "What do you want to measure?",
-        "aggregation": "Measure",
-        "field": "Of field",
-        "fieldPlaceholder": "Pick a field…",
-        "fieldNotRequired": "Not needed when counting events"
-      },
       "dimension": {
         "title": "Group by",
         "field": "Field",
         "placeholder": "Pick a field to group by…"
       },
       "table": {
-        "title": "Custom SELECT (optional)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
-        "hint": "Shows every column of the matching events. To pick specific columns or aggregate, switch to the SQL tab.",
+        "hint": "Shows every field the records carry. Add columns to pick specific ones.",
         "columnsTitle": "Columns",
         "allColumns": "All columns will be shown. Add fields to pick specific ones.",
         "addColumn": "Add a column…",
         "removeColumn": "Remove column"
       },
-      "sqlPreview": {
-        "title": "SQL preview",
-        "empty": "Pick an index pattern to see the generated SQL.",
-        "toggleRaw": "Switch to advanced (raw SQL)",
-        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
-        "hint": "{{timeFilter}}, {{from}} and {{to}} are substituted from the time picker at render time."
-      },
       "chartPreview": {
         "title": "Chart preview",
-        "noQuery": "Fill in the data source to see a preview.",
+        "noQuery": "Pick a data set to see a preview.",
         "error": "Preview query failed."
-      },
-      "rawMode": {
-        "label": "Advanced (raw SQL)"
-      },
-      "tabs": {
-        "visual": "Visual",
-        "sql": "SQL"
       },
       "chartTypeChip": {
         "label": "Chart:"
@@ -495,7 +464,17 @@
         "choose": "Choose a field…"
       },
       "toast": {
-        "notReady": "Pick an index pattern (and add a metric or SQL) before saving."
+        "notReady": "Pick a data set, and a field to break down by, before saving."
+      },
+      "breakdown": {
+        "title": "Break down by",
+        "time": "Over time",
+        "field": "Top values",
+        "interval": "Bucket size",
+        "intervalAuto": "Auto",
+        "limit": "How many",
+        "limitPlaceholder": "Default (50)",
+        "splitHint": "Optional: one line per value of this field."
       }
     },
     "grid": {
@@ -508,7 +487,6 @@
       "loading": "Loading data…",
       "queryError": "Could not load widget data.",
       "noData": "No data for the selected time range.",
-      "noTimePlaceholderHint": "Tip: add a time placeholder to the SQL so it filters by the picker range.",
       "regionMapEmpty": "No points with valid lat/lon.",
       "regionMapShapeHint": "The SQL must return latitude and longitude columns (or a value array [lat, lon, count]).",
       "regionMapUnnamed": "(unnamed)",
@@ -523,7 +501,8 @@
       "widthMedium": "2 cols",
       "widthLarge": "3 cols",
       "heightNormal": "Normal",
-      "heightTall": "Tall"
+      "heightTall": "Tall",
+      "incompleteSpec": "This widget is missing part of its question."
     },
     "form": {
       "createTitle": "New dashboard",
@@ -580,7 +559,7 @@
       "cancel": "Cancel",
       "save": "Save",
       "field": {
-        "indexPattern": "Index pattern",
+        "dataset": "Data set",
         "field": "Field",
         "chooseField": "Choose a field…",
         "label": "Label",
@@ -1496,117 +1475,53 @@
   },
   "dataRetention": {
     "title": "Data retention",
-    "subtitle": "How long event data is kept before it is deleted. Enforced by OpenSearch index lifecycle management (ISM) across managed indices.",
-    "loading": "Loading retention policy…",
-    "unavailable": {
-      "title": "Index lifecycle management isn’t available",
-      "body": "Retention is managed through OpenSearch ISM. This instance doesn’t have OpenSearch configured, so there’s no retention policy to manage here."
-    },
-    "loadFailed": "Could not load the retention policy.",
+    "subtitle": "How long each dataset is kept, and when its records stop costing local disk.",
+    "loading": "Loading…",
+    "loadFailed": "Could not read the store.",
     "retry": "Retry",
-    "noPolicyNote": "No retention policy is configured yet. Set one below and save to apply it.",
-    "deleteAfter": "Delete data after",
-    "deleteAfterHint": "Indices older than this are removed. Applies to the managed event indices.",
-    "units": {
-      "days": "days",
-      "hours": "hours"
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alerts",
+      "statistics": "Ingestion statistics"
     },
-    "positiveNumber": "Enter a positive number",
-    "snapshotTitle": "Snapshot before deleting",
-    "snapshotHint": "Archive each index (restore-only) before it is deleted, so data can be recovered later. When off, indices are deleted immediately.",
-    "save": "Save policy",
+    "holding": "{{documents}} records · {{size}}",
+    "since": "since {{date}}",
+    "diskUsed": "Disk {{pct}}% used",
+    "keep": "Delete after",
+    "keepHint": "A record is deleted this many days after it happened, wherever it is stored by then.",
+    "cold": "Move to cold storage after",
+    "coldHint": "Older records move to object storage and stay queryable. 0 keeps everything on local disk.",
+    "coldUnavailable": "Set up cold storage below to move older records off local disk.",
+    "coldBeforeDelete": "Records have to move before they are deleted: use fewer days than the lifetime, or 0.",
+    "tieredNote": "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here.",
+    "days": "days",
+    "save": "Save",
     "saving": "Saving…",
     "toast": {
-      "saved": "Retention policy saved",
+      "saved": "Retention saved",
       "noPermission": "You do not have permission to change retention",
-      "saveFailed": "Could not save retention policy"
-    }
-  },
-  "indices": {
-    "title": "Indices & index patterns",
-    "subtitle": "Index patterns group indices for search; indices are the underlying OpenSearch storage.",
-    "retry": "Retry",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Indices"
+      "saveFailed": "Could not save the retention"
     },
-    "dataViews": {
-      "search": "Search index patterns…",
-      "add": "Add index pattern",
-      "colPattern": "Pattern",
-      "colModule": "Integration",
-      "colActive": "Active",
-      "colActions": "Actions",
-      "loading": "Loading index patterns…",
-      "loadFailed": "Could not load index patterns.",
-      "noSearchMatch": "No index patterns match your search.",
-      "none": "No index patterns yet.",
-      "system": "system",
-      "active": "Active",
-      "disabled": "Disabled",
-      "edit": "Edit",
-      "delete": "Delete",
-      "deleteTitle": "Delete index pattern",
-      "deleteBody": "Delete {{pattern}}? This removes the index pattern definition. The underlying indices are not deleted.",
-      "deleteConfirm": "Delete",
-      "form": {
-        "addTitle": "Add index pattern",
-        "editTitle": "Edit index pattern",
-        "pattern": "Index pattern",
-        "patternHint": "Use * as a wildcard, e.g. logs-windows-*",
-        "module": "Integration",
-        "moduleHint": "Optional — the integration this pattern belongs to (e.g. windows, aws). Leave empty for custom patterns.",
-        "activeLabel": "Active",
-        "systemLabel": "System index pattern",
-        "saving": "Saving…",
-        "save": "Save changes",
-        "create": "Create",
-        "matchChecking": "Checking matching indices…",
-        "matchNone": "Matches no indices — the pattern must match at least one.",
-        "duplicate": "An index pattern with this glob already exists.",
-        "matchCount_one": "Matches {{count}} index",
-        "matchCount_other": "Matches {{count}} indices"
-      },
+    "coldStorage": {
+      "title": "Cold storage",
+      "hint": "An object store the event store treats as a second, slower disk. Older records move there and are still queried from the same place — it is not an archive and nothing has to be restored.",
+      "active": "In use",
+      "inactive": "Not set up",
+      "writtenNotReady": "The bucket is configured but the store has not picked it up. Check that the deployment shares the store's configuration directory.",
+      "endpoint": "Bucket URL",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it.",
+      "enable": "Enable cold storage",
+      "update": "Update credentials",
       "toast": {
-        "enabled": "Index pattern enabled",
-        "disabled": "Index pattern disabled",
-        "created": "Index pattern created",
-        "updated": "Index pattern updated",
-        "deleted": "Index pattern deleted"
-      },
-      "systemLocked": "System pattern — managed automatically, not editable"
-    },
-    "index": {
-      "filter": "Filter by index name…",
-      "systemIndices": "System indices",
-      "refresh": "Refresh",
-      "colIndex": "Index",
-      "colHealth": "Health",
-      "colStatus": "Status",
-      "colDocs": "Docs",
-      "colSize": "Size",
-      "colActions": "Actions",
-      "loading": "Loading indices…",
-      "loadFailed": "Could not load indices (OpenSearch may be unavailable).",
-      "noFilterMatch": "No indices match your filter.",
-      "none": "No indices found.",
-      "page": "Page {{page}}",
-      "deleteTitle": "Delete index",
-      "deleteBody": "Permanently delete the index {{name}}? All {{docs}} documents it holds are lost. This cannot be undone.",
-      "deleteConfirm": "Delete index",
-      "toast": {
-        "deleted": "Index deleted"
+        "saved": "Cold storage configured",
+        "failed": "Could not configure cold storage"
       }
     },
-    "confirm": {
-      "cancel": "Cancel",
-      "working": "Working…"
-    },
-    "error": {
-      "noPermission": "You do not have permission to do that",
-      "notFound": "Not found",
-      "invalidRequest": "Invalid request",
-      "failed": "Operation failed"
+    "forbidden": {
+      "title": "This page belongs to the platform",
+      "body": "Retention applies to the tables every tenant shares, so only a platform administrator can read or change it. Ask one, or sign in with a platform account."
     }
   },
   "languageSettings": {

@@ -21,6 +21,7 @@ type StackConfig struct {
 	ClickHouseData      string
 	ClickHouseSchema    string
 	ClickHouseConf      string
+	ClickHouseConfigD   string
 	NATSData            string
 	RedisData           string
 	Cert                string
@@ -62,6 +63,9 @@ func GetStackConfig() *StackConfig {
 		// tables come to exist without anything else having to create them.
 		stackConfig.ClickHouseSchema = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "init")
 		stackConfig.ClickHouseConf = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "conf")
+		// Server configuration the backend writes and ClickHouse reads: today
+		// the cold-storage declaration, which is why both mount it.
+		stackConfig.ClickHouseConfigD = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "config.d")
 		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
 		stackConfig.RedisData = utils.MakeDir(0777, cnf.DataDir, "redis")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")

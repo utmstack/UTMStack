@@ -55,7 +55,7 @@ Most search/filter inputs accept a ` + "`[]FilterType`" + ` array. Each entry ha
 ### Ranges
 - ` + "`IS_BETWEEN`" + ` — value=[from, to], inclusive
 - ` + "`IS_NOT_BETWEEN`" + ` — outside the inclusive range
-- ` + "`IS_GREATER_THAN`" + ` — gt (timestamps use IndexTimestampFormat)
+- ` + "`IS_GREATER_THAN`" + ` — gt (timestamps are RFC3339)
 - ` + "`IS_LESS_THAN_OR_EQUALS`" + ` — lte
 
 ### Existence
@@ -80,7 +80,7 @@ Most search/filter inputs accept a ` + "`[]FilterType`" + ` array. Each entry ha
 ]
 ` + "```" + `
 
-This composes into a single OpenSearch bool query at the gateway.
+The list is ANDed: every filter has to hold.
 `
 
 const eventTypesDoc = `# Audit event-type enum (ApplicationEventType)
@@ -100,7 +100,6 @@ The full enumeration lives in ` + "`modules/audit/domain/event_type.go`" + ` —
 - SOAR: SOAR_RULE_CREATE_*, SOAR_RULE_UPDATE_*
 - Correlation: CORRELATION_RULE_CREATE_*, CORRELATION_RULE_UPDATE_*, CORRELATION_RULE_DELETE_*
 - Logstash filters: LOGSTASH_FILTER_*_ATTEMPT/SUCCESS
-- OpenSearch: OPENSEARCH_INDEX_DELETE_*, INDEX_PATTERN_*, INDEX_POLICY_UPDATE_*
 - Regex / Tenant: REGEX_PATTERN_*, TENANT_CONFIG_*, DATA_TYPE_*
 - Dashboards: DASHBOARD_*, VISUALIZATION_*, DASHBOARD_LAYOUT_*
 - Log analyzer: LOG_ANALYZER_QUERY_*

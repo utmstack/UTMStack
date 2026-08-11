@@ -20,18 +20,6 @@ type config struct {
 	dbPass     string
 	dbLogLevel string
 
-	// Elasticsearch
-	esHost     string
-	esPort     int
-	esUser     string
-	esPassword string
-
-	// OpenSearch disk-space guard
-	diskGuardEnabled     bool
-	diskWarnPercent      float64
-	diskDeletePercent    float64
-	diskGuardIntervalSec int
-
 	// Secrets
 	internalKey   string
 	encryptionKey string
@@ -78,16 +66,6 @@ func loadConfig() *config {
 		dbUser:     env.String("DB_USER", "postgres", false),
 		dbPass:     env.String("DB_PASS", "", false),
 		dbLogLevel: env.String("DB_LOG_LEVEL", "silent", false),
-
-		esHost:     env.String("ELASTICSEARCH_HOST", "localhost", false),
-		esPort:     env.Int("ELASTICSEARCH_PORT", 9200, false),
-		esUser:     env.String("ELASTICSEARCH_USER", "admin", false),
-		esPassword: env.String("ELASTICSEARCH_PASSWORD", "", false),
-
-		diskGuardEnabled:     env.Bool("DISK_GUARD_ENABLED", true),
-		diskWarnPercent:      float64(env.Int("DISK_WARN_PERCENT", 70, false)),
-		diskDeletePercent:    float64(env.Int("DISK_DELETE_PERCENT", 85, false)),
-		diskGuardIntervalSec: env.Int("DISK_GUARD_INTERVAL_SECONDS", 60, false),
 
 		internalKey:   env.String("INTERNAL_KEY", "", false),
 		encryptionKey: env.String("ENCRYPTION_KEY", "", false),

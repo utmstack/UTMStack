@@ -3,8 +3,8 @@ package connectors
 import (
 	"context"
 
+	alertdomain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alertscoring/domain"
-	osdto "github.com/utmstack/utmstack/backend/modules/opensearch/dto"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
@@ -13,8 +13,9 @@ type ScoringUsecase interface {
 }
 
 type AlertSearch interface {
-	Search(ctx context.Context, filters []common_models.FilterType, top int, indexPattern string, includeChildren bool, page, size int, sortBy, sortOrder string) ([]map[string]any, int64, error)
-	PropertyValuesWithCount(ctx context.Context, req osdto.PropertyValuesWithCountRequest) (map[string]int64, error)
+	FetchByID(ctx context.Context, id string) (*alertdomain.UtmAlert, error)
+	Count(ctx context.Context, filters []common_models.FilterType) (int64, error)
+	Recent(ctx context.Context, filters []common_models.FilterType, n int, oldestFirst bool) ([]alertdomain.UtmAlert, error)
 }
 
 type AssetInfo struct {

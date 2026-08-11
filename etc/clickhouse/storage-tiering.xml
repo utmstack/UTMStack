@@ -53,19 +53,22 @@
                     <!-- Named "default" deliberately. See the note above. -->
                     <default>
                         <disk>default</disk>
-
-                        <!-- The safety net beside the TTL: when the local disk
-                             drops below this fraction free, parts start moving
-                             to the cold volume without waiting for their age.
-                             A burst of ingest cannot fill the disk while data
-                             sits waiting for day 90. -->
-                        <move_factor>0.15</move_factor>
                     </default>
 
                     <cold>
                         <disk>cold_disk</disk>
                     </cold>
                 </volumes>
+
+                <!-- The safety net beside the TTL: when the local disk drops
+                     below this fraction free, parts start moving to the cold
+                     volume without waiting for their age. A burst of ingest
+                     cannot fill the disk while data sits waiting for day 90.
+
+                     It belongs to the policy, not to a volume: inside <volumes>
+                     ClickHouse ignores it without a word and the net is simply
+                     not there. -->
+                <move_factor>0.15</move_factor>
             </hot_cold>
         </policies>
     </storage_configuration>

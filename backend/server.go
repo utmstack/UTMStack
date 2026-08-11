@@ -30,9 +30,9 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
-	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
+	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
@@ -172,11 +172,11 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)
 	loganalyzer.RegisterRoutes(api, m.loganalyzer, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
-	opensearchgw.RegisterRoutes(api, m.opensearchGateway, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 	threatintel.RegisterRoutes(api, m.threatIntel, userAuth)
+	storage.RegisterRoutes(api, m.storage, userAuth)
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
 	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
 	if m.mcp != nil {

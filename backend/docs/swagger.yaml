@@ -71,7 +71,7 @@ definitions:
       hostname:
         type: string
       id:
-        type: integer
+        type: string
       lastLogon:
         type: string
       lastSeen:
@@ -87,38 +87,44 @@ definitions:
       tenantId:
         type: string
       uidNumber:
-        type: string
+        type: integer
       username:
         type: string
     type: object
+  domain.Action:
+    enum:
+    - INCIDENT_CREATED
+    - INCIDENT_ALERT_ADD
+    - INCIDENT_ALERT_STATUS_CHANGED
+    - INCIDENT_STATUS_CHANGE
+    - INCIDENT_NOTE_ADD
+    - INCIDENT_NOTE_CHANGE
+    - INCIDENT_ASSIGNED
+    type: string
+    x-enum-varnames:
+    - ActionCreated
+    - ActionAlertAdd
+    - ActionAlertStatusChanged
+    - ActionStatusChange
+    - ActionNoteAdd
+    - ActionNoteChange
+    - ActionAssigned
   domain.Agg:
     enum:
     - count
-    - count_distinct
-    - sum
-    - avg
-    - min
-    - max
     type: string
     x-enum-varnames:
     - AggCount
-    - AggCountDistinct
-    - AggSum
-    - AggAvg
-    - AggMin
-    - AggMax
   domain.AlertEvent:
     properties:
       id:
         type: string
-      index:
+      timestamp:
         type: string
     type: object
   domain.AlertHistory:
     properties:
       action:
-        type: string
-      message:
         type: string
       newValue:
         description: compact JSON of the changed fields
@@ -129,6 +135,30 @@ definitions:
       user:
         type: string
     type: object
+  domain.AlertSeverity:
+    enum:
+    - low
+    - medium
+    - high
+    type: string
+    x-enum-varnames:
+    - SeverityLow
+    - SeverityMedium
+    - SeverityHigh
+  domain.AlertStatus:
+    enum:
+    - Automatic review
+    - Open
+    - In review
+    - Completed
+    - Merged
+    type: string
+    x-enum-varnames:
+    - AlertStatusAutomaticReview
+    - AlertStatusOpen
+    - AlertStatusInReview
+    - AlertStatusCompleted
+    - AlertStatusMerged
   domain.Chart:
     enum:
     - metric
@@ -143,28 +173,88 @@ definitions:
     - ChartTable
   domain.Check:
     properties:
-      expected:
-        description: MATCH_FIELD_VALUE
+      dataType:
+        description: wineventlog, o365, aws-cloudtrail… empty means every type in
+          the dataset
         type: string
-      field:
-        description: MATCH_FIELD_VALUE
-        type: string
-      indexPattern:
-        type: string
+      dataset:
+        $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset'
+      filters:
+        items:
+          $ref: '#/definitions/common_models.FilterType'
+        type: array
       key:
         type: string
       name:
         type: string
       rule:
-        type: string
+        $ref: '#/definitions/domain.CheckRule'
       ruleValue:
         type: integer
-      sql:
-        type: string
       todo:
-        description: placeholder — not yet evaluated (Pending)
+        description: placeholder — not yet defined (Pending)
         type: boolean
     type: object
+  domain.CheckOutcome:
+    enum:
+    - PASSED
+    - FAILED
+    - NOT_APPLICABLE
+    - ERROR
+    type: string
+    x-enum-comments:
+      CheckError: the check could not run, which is not the same as failing it
+      CheckNotApplicable: the tenant receives no data of this type
+    x-enum-varnames:
+    - CheckPassed
+    - CheckFailed
+    - CheckNotApplicable
+    - CheckError
+  domain.CheckRule:
+    enum:
+    - MIN_HITS_REQUIRED
+    - THRESHOLD_MAX
+    type: string
+    x-enum-comments:
+      RuleMinHitsRequired: pass if count >= ruleValue
+      RuleThresholdMax: pass if count <= ruleValue; 0 means "none allowed"
+    x-enum-varnames:
+    - RuleMinHitsRequired
+    - RuleThresholdMax
+  domain.CheckStrategy:
+    enum:
+    - ALL
+    - ANY
+    type: string
+    x-enum-varnames:
+    - StrategyAll
+    - StrategyAny
+  domain.ComplianceStatus:
+    enum:
+    - COMPLIANT
+    - NON_COMPLIANT
+    - AT_RISK
+    - NOT_COVERED
+    - NOT_EVALUATED
+    - PENDING
+    - OUT_OF_SCOPE
+    type: string
+    x-enum-comments:
+      StatusAtRisk: passing analysis but weak coverage (or vice-versa)
+      StatusCompliant: evaluated and passing
+      StatusNonCompliant: evaluated and failing
+      StatusNotCovered: 'nothing is watching this: no checks and no covering rules'
+      StatusNotEvaluated: checks exist but the tenant receives no such data
+      StatusOutOfScope: governance control — not provable from logs
+      StatusPending: check declared but not yet written
+    x-enum-varnames:
+    - StatusCompliant
+    - StatusNonCompliant
+    - StatusAtRisk
+    - StatusNotCovered
+    - StatusNotEvaluated
+    - StatusPending
+    - StatusOutOfScope
   domain.Condition:
     enum:
     - OnSuccess
@@ -185,35 +275,37 @@ definitions:
         items:
           $ref: '#/definitions/domain.Check'
         type: array
-      enabled:
-        type: boolean
       family:
         type: string
       familyName:
         type: string
       id:
         type: string
-      locked:
-        type: boolean
       name:
-        type: string
-      relPath:
         type: string
       remediation:
         type: string
       scope:
-        description: data | governance (default data)
-        type: string
+        $ref: '#/definitions/domain.ControlScope'
       source:
         type: string
       statement:
         type: string
       strategy:
-        description: ALL | ANY (default ALL)
-        type: string
-      system:
-        type: boolean
+        $ref: '#/definitions/domain.CheckStrategy'
     type: object
+  domain.ControlScope:
+    enum:
+    - data
+    - governance
+    type: string
+    x-enum-comments:
+      ScopeData: technical — evaluated via checks and/or rule coverage
+      ScopeGovernance: policy/process — not provable from logs; out of scope, excluded
+        from score
+    x-enum-varnames:
+    - ScopeData
+    - ScopeGovernance
   domain.Dashboard:
     properties:
       config:
@@ -223,7 +315,7 @@ definitions:
       description:
         type: string
       id:
-        type: integer
+        type: string
       modifiedDate:
         type: string
       name:
@@ -248,6 +340,14 @@ definitions:
     x-enum-varnames:
     - EditionCommunity
     - EditionEnterprise
+  domain.ExecutionOrigin:
+    enum:
+    - FLOW
+    - MANUAL
+    type: string
+    x-enum-varnames:
+    - ExecutionOriginFlow
+    - ExecutionOriginManual
   domain.ExecutionStatus:
     enum:
     - EXECUTED
@@ -258,15 +358,6 @@ definitions:
     - ExecutionStatusExecuted
     - ExecutionStatusPending
     - ExecutionStatusFailed
-  domain.FailedIndex:
-    properties:
-      index_name:
-        type: string
-      index_uuid:
-        type: string
-      reason:
-        type: string
-    type: object
   domain.Filter:
     properties:
       field:
@@ -279,15 +370,9 @@ definitions:
     properties:
       description:
         type: string
-      enabled:
-        type: boolean
       key:
         type: string
-      locked:
-        type: boolean
       name:
-        type: string
-      relPath:
         type: string
       sections:
         items:
@@ -295,8 +380,6 @@ definitions:
         type: array
       source:
         type: string
-      system:
-        type: boolean
     type: object
   domain.FrameworkSection:
     properties:
@@ -334,29 +417,66 @@ definitions:
         type: boolean
       createdAt:
         type: string
-      id:
-        type: integer
-      metadataUrl:
+      defaultRoleId:
         type: string
+      groupsAttribute:
+        type: string
+      id:
+        type: string
+      jitProvisioning:
+        type: boolean
       name:
         type: string
       providerType:
-        type: string
-      spAcsUrl:
-        type: string
-      spCertificatePem:
-        type: string
-      spEntityId:
-        type: string
+        $ref: '#/definitions/domain.ProviderType'
+      settings:
+        items:
+          type: integer
+        type: array
+      syncRolesOnLogin:
+        type: boolean
       updatedAt:
         type: string
     type: object
-  domain.Impact:
+  domain.Incident:
     properties:
-      label:
-        type: string
-      score:
+      alertCount:
+        description: |-
+          AlertCount is filled in on list reads; it is not a column. The list shows
+          how big each incident is, and loading every linked row to count them would
+          be the whole table to render one number per line.
         type: integer
+      id:
+        type: string
+      incidentAssignedTo:
+        type: string
+      incidentCreatedDate:
+        type: string
+      incidentDescription:
+        type: string
+      incidentName:
+        type: string
+      incidentSeverity:
+        $ref: '#/definitions/domain.IncidentSeverity'
+      incidentSolution:
+        type: string
+      incidentStatus:
+        $ref: '#/definitions/domain.IncidentStatus'
+    type: object
+  domain.IncidentAlert:
+    properties:
+      alertId:
+        type: string
+      alertName:
+        type: string
+      alertSeverity:
+        $ref: '#/definitions/domain.IncidentSeverity'
+      alertStatus:
+        type: string
+      id:
+        type: string
+      incidentId:
+        type: string
     type: object
   domain.IncidentDetail:
     properties:
@@ -364,12 +484,73 @@ definitions:
         type: string
       creationDate:
         type: string
-      incidentId: {}
+      incidentId:
+        type: string
       incidentName:
         type: string
       source:
         type: string
     type: object
+  domain.IncidentHistory:
+    properties:
+      action:
+        $ref: '#/definitions/domain.Action'
+      actionCreatedBy:
+        type: string
+      actionCreatedDate:
+        type: string
+      id:
+        type: string
+      incidentId:
+        type: string
+    type: object
+  domain.IncidentNote:
+    properties:
+      id:
+        type: string
+      incidentId:
+        type: string
+      noteSendBy:
+        type: string
+      noteSendDate:
+        type: string
+      noteText:
+        type: string
+    type: object
+  domain.IncidentSeverity:
+    enum:
+    - low
+    - medium
+    - high
+    type: string
+    x-enum-varnames:
+    - SeverityLow
+    - SeverityMedium
+    - SeverityHigh
+  domain.IncidentStatus:
+    enum:
+    - Open
+    - In review
+    - Completed
+    - Merged
+    type: string
+    x-enum-varnames:
+    - StatusOpen
+    - StatusInReview
+    - StatusCompleted
+    - StatusMerged
+  domain.IngestType:
+    enum:
+    - agent
+    - collector
+    - forwarder
+    - plugin
+    type: string
+    x-enum-varnames:
+    - IngestTypeAgent
+    - IngestTypeCollector
+    - IngestTypeForwarder
+    - IngestTypePlugin
   domain.Limits:
     properties:
       maxAIRequests:
@@ -408,6 +589,21 @@ definitions:
     - NonExecutionCauseAgentOffline
     - NonExecutionCauseAgentNotFound
     - NonExecutionCauseUnknown
+  domain.NotificationGroup:
+    properties:
+      count:
+        type: integer
+      lastCreated:
+        type: string
+      message:
+        type: string
+      source:
+        $ref: '#/definitions/domain.NotificationSource'
+      type:
+        $ref: '#/definitions/domain.NotificationType'
+      unreadCount:
+        type: integer
+    type: object
   domain.NotificationSource:
     enum:
     - AS400
@@ -480,109 +676,16 @@ definitions:
     - OperatorNotEndsWith
     - OperatorIsOneOf
     - OperatorIsNotOneOf
-  domain.PolicySettings:
-    properties:
-      deleteAfter:
-        type: string
-      snapshotActive:
-        type: boolean
-    type: object
-  domain.Report:
-    properties:
-      frameworkKey:
-        type: string
-      frameworkName:
-        type: string
-      generatedAt:
-        type: string
-      sections:
-        items:
-          $ref: '#/definitions/domain.ReportSection'
-        type: array
-      summary:
-        $ref: '#/definitions/domain.ReportSummary'
-    type: object
-  domain.ReportControlRow:
-    properties:
-      activity:
-        description: '# alerts from those rules in the window'
-        type: integer
-      controlId:
-        type: string
-      coverage:
-        description: '# enabled correlation rules covering this control'
-        type: integer
-      evidence:
-        type: string
-      name:
-        type: string
-      note:
-        description: user note attached to this (framework, control)
-        type: string
-      overridden:
-        description: true when status came from a manual override
-        type: boolean
-      status:
-        description: COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED | OUT_OF_SCOPE
-          | PENDING
-        type: string
-    type: object
-  domain.ReportSection:
-    properties:
-      controls:
-        items:
-          $ref: '#/definitions/domain.ReportControlRow'
-        type: array
-      name:
-        type: string
-    type: object
-  domain.ReportSnapshot:
-    properties:
-      '@timestamp':
-        type: string
-      frameworkKey:
-        type: string
-      frameworkName:
-        type: string
-      id:
-        type: string
-      report:
-        $ref: '#/definitions/domain.Report'
-      score:
-        type: integer
-    type: object
-  domain.ReportSnapshotMeta:
-    properties:
-      '@timestamp':
-        type: string
-      frameworkKey:
-        type: string
-      frameworkName:
-        type: string
-      id:
-        type: string
-      score:
-        type: integer
-    type: object
-  domain.ReportSummary:
-    properties:
-      atRisk:
-        type: integer
-      compliant:
-        type: integer
-      compliantPct:
-        type: integer
-      nonCompliant:
-        type: integer
-      notCovered:
-        type: integer
-      outOfScope:
-        type: integer
-      pending:
-        type: integer
-      total:
-        type: integer
-    type: object
+  domain.ProviderType:
+    enum:
+    - saml
+    - oidc
+    - ldap
+    type: string
+    x-enum-varnames:
+    - ProviderSAML
+    - ProviderOIDC
+    - ProviderLDAP
   domain.Requirement:
     properties:
       id:
@@ -594,6 +697,27 @@ definitions:
           type: string
         type: array
     type: object
+  domain.SavedQuery:
+    properties:
+      columns:
+        type: string
+      createdAt:
+        type: string
+      dataset:
+        type: string
+      description:
+        type: string
+      filters:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   domain.Side:
     properties:
       authentihash:
@@ -603,12 +727,10 @@ definitions:
       bytesReceived:
         type: number
       bytesSent:
-        description: Network traffic
         type: number
       cdhash:
         type: string
       certificateFingerprint:
-        description: Certificate and fingerprint
         type: string
       chromeExtension:
         type: string
@@ -617,13 +739,10 @@ definitions:
       command:
         type: string
       connections:
-        description: Resources
         type: integer
       cookie:
-        description: Web
         type: string
       cpe:
-        description: Vulnerability
         type: string
       cve:
         type: string
@@ -638,7 +757,6 @@ definitions:
       domain:
         type: string
       email:
-        description: Email
         type: string
       emailAddress:
         type: string
@@ -653,25 +771,20 @@ definitions:
       emailXMailer:
         type: string
       file:
-        description: File
         type: string
       filename:
         type: string
       geolocation:
-        allOf:
-        - $ref: '#/definitions/domain.Geolocation'
-        description: Geolocation
+        $ref: '#/definitions/domain.Geolocation'
       group:
         type: string
       hash:
-        description: Hashes
         type: string
       hex:
         type: string
       host:
         type: string
       ip:
-        description: Network identification
         type: string
       ja3Fingerprint:
         type: string
@@ -682,7 +795,6 @@ definitions:
       mac:
         type: string
       malware:
-        description: Malware
         type: string
       malwareFamily:
         type: string
@@ -695,11 +807,8 @@ definitions:
       mobileAppId:
         type: string
       name:
-        description: Legacy field (kept for backward compat — mapped from "name" in
-          older docs)
         type: string
       operatingSystem:
-        description: System
         type: string
       packagesReceived:
         type: integer
@@ -708,14 +817,12 @@ definitions:
       path:
         type: string
       pgpPrivateKey:
-        description: PGP keys
         type: string
       pgpPublicKey:
         type: string
       port:
         type: integer
       process:
-        description: Process
         type: string
       processState:
         type: string
@@ -760,7 +867,6 @@ definitions:
       user:
         type: string
       whoisRegistrant:
-        description: WHOIS
         type: string
       whoisRegistrar:
         type: string
@@ -783,11 +889,6 @@ definitions:
           type: string
         type: array
       dataType:
-        description: |-
-          DataType narrows to one kind of record inside it — o365, wineventlog,
-          syslog. It is the other half of what an index pattern was: v11-log-o365-*
-          named a table and a data type at once. Empty means every kind, and
-          anything broader than one exact type is a filter.
         type: string
       dataset:
         description: logs | alerts
@@ -823,6 +924,25 @@ definitions:
     - SupportNone
     - SupportRead
     - SupportFull
+  domain.Tenant:
+    properties:
+      createdAt:
+        type: string
+      domain:
+        type: string
+      id:
+        type: string
+      limits:
+        $ref: '#/definitions/domain.Limits'
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/domain.TenantStatus'
+      supportAccess:
+        $ref: '#/definitions/domain.SupportAccess'
+      updatedAt:
+        type: string
+    type: object
   domain.TenantStatus:
     enum:
     - ACTIVE
@@ -833,27 +953,34 @@ definitions:
     - StatusActive
     - StatusSuspended
     - StatusTerminated
-  domain.UpdateManagedIndexPolicyResponse:
-    properties:
-      failed_indices:
-        items:
-          $ref: '#/definitions/domain.FailedIndex'
-        type: array
-      failures:
-        type: boolean
-      updated_indices:
-        type: integer
-    type: object
+  domain.TfaFactorType:
+    enum:
+    - email
+    - totp
+    - recovery
+    type: string
+    x-enum-varnames:
+    - TfaFactorEmail
+    - TfaFactorTotp
+    - TfaFactorRecovery
+  domain.UserStatus:
+    enum:
+    - pending
+    - active
+    - inactive
+    - suspended
+    type: string
+    x-enum-varnames:
+    - UserStatusPending
+    - UserStatusActive
+    - UserStatusInactive
+    - UserStatusSuspended
   domain.UtmAlert:
     properties:
       '@timestamp':
         type: string
       adversary:
         $ref: '#/definitions/domain.Side'
-      assetGroupId:
-        type: integer
-      assetGroupName:
-        type: string
       assignee:
         type: string
       category:
@@ -862,15 +989,23 @@ definitions:
         type: string
       dataType:
         type: string
-      deduplicatedBy:
+      deduplicateBy:
         items:
           type: string
         type: array
       description:
         type: string
+      errors:
+        items:
+          type: string
+        type: array
       events:
         items:
           $ref: '#/definitions/domain.AlertEvent'
+        type: array
+      groupBy:
+        items:
+          type: string
         type: array
       history:
         items:
@@ -879,7 +1014,7 @@ definitions:
       id:
         type: string
       impact:
-        $ref: '#/definitions/domain.Impact'
+        $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_alerts_domain.Impact'
       impactScore:
         type: integer
       incidentDetail:
@@ -887,36 +1022,32 @@ definitions:
       isIncident:
         type: boolean
       lastEvent:
-        $ref: '#/definitions/domain.AlertEvent'
-      logs:
         items:
-          type: string
+          type: integer
         type: array
+      lastUpdate:
+        type: string
       name:
         type: string
       notes:
         type: string
       parentId:
         type: string
-      reference:
+      references:
         items:
           type: string
         type: array
       severity:
-        type: integer
-      severityLabel:
-        type: string
+        $ref: '#/definitions/domain.AlertSeverity'
       solution:
         type: string
       status:
-        type: integer
-      statusLabel:
-        type: string
+        $ref: '#/definitions/domain.AlertStatus'
       statusObservation:
         type: string
       tagRulesApplied:
         items:
-          type: integer
+          type: string
         type: array
       tags:
         items:
@@ -926,154 +1057,9 @@ definitions:
         $ref: '#/definitions/domain.Side'
       technique:
         type: string
-    type: object
-  domain.UtmIncident:
-    properties:
-      id:
-        type: integer
-      incidentAssignedTo:
+      tenantId:
         type: string
-      incidentCreatedDate:
-        type: string
-      incidentDescription:
-        type: string
-      incidentName:
-        type: string
-      incidentSeverity:
-        type: integer
-      incidentSolution:
-        type: string
-      incidentStatus:
-        type: string
-    type: object
-  domain.UtmIncidentAction:
-    properties:
-      actionCommand:
-        type: string
-      actionDescription:
-        type: string
-      actionEditable:
-        type: boolean
-      actionParams:
-        type: string
-      actionType:
-        type: integer
-      createdDate:
-        type: string
-      createdUser:
-        type: string
-      id:
-        type: integer
-      modifiedDate:
-        type: string
-      modifiedUser:
-        type: string
-    type: object
-  domain.UtmIncidentActionCommand:
-    properties:
-      actionId:
-        type: integer
-      command:
-        type: string
-      id:
-        type: integer
-      osPlatform:
-        type: string
-    type: object
-  domain.UtmIncidentAlert:
-    properties:
-      alertId:
-        type: string
-      alertName:
-        type: string
-      alertSeverity:
-        type: integer
-      alertStatus:
-        type: integer
-      id:
-        type: integer
-      incidentId:
-        type: integer
-    type: object
-  domain.UtmIncidentHistory:
-    properties:
-      action:
-        type: string
-      actionCreatedBy:
-        type: string
-      actionCreatedDate:
-        type: string
-      actionDetail:
-        type: string
-      actionType:
-        type: string
-      id:
-        type: integer
-      incidentId:
-        type: integer
-    type: object
-  domain.UtmIncidentJob:
-    properties:
-      actionId:
-        type: integer
-      agent:
-        type: string
-      createdDate:
-        type: string
-      createdUser:
-        type: string
-      id:
-        type: integer
-      jobResult:
-        type: string
-      modifiedDate:
-        type: string
-      modifiedUser:
-        type: string
-      originId:
-        type: string
-      originType:
-        type: string
-      params:
-        type: string
-      status:
-        type: integer
-    type: object
-  domain.UtmIncidentNote:
-    properties:
-      id:
-        type: integer
-      incidentId:
-        type: integer
-      noteSendBy:
-        type: string
-      noteSendDate:
-        type: string
-      noteText:
-        type: string
-    type: object
-  domain.UtmLogAnalyzerQuery:
-    properties:
-      columns:
-        type: string
-      creationDate:
-        type: string
-      dataset:
-        description: |-
-          Dataset is what the query reads: logs or alerts. It replaced a foreign
-          key into the index-pattern registry, which the event store has no need of.
-        type: string
-      description:
-        type: string
-      filters:
-        type: string
-      id:
-        type: integer
-      modificationDate:
-        type: string
-      name:
-        type: string
-      owner:
+      tenantName:
         type: string
     type: object
   domain.Visualization:
@@ -1083,9 +1069,9 @@ definitions:
       createdDate:
         type: string
       dashboardId:
-        type: integer
+        type: string
       id:
-        type: integer
+        type: string
       layout:
         type: string
       modifiedDate:
@@ -1140,7 +1126,7 @@ definitions:
       generated_at:
         type: string
       id:
-        type: integer
+        type: string
       name:
         type: string
     type: object
@@ -1168,13 +1154,10 @@ definitions:
           type: integer
         type: array
       id:
-        type: integer
+        type: string
       name:
         type: string
       tenantId:
-        description: |-
-          TenantID keeps a tenant's rules from being applied to another's alerts:
-          the plugin caches every tenant's rules in one process.
         type: string
     type: object
   dto.AddAlertsRequest:
@@ -1182,10 +1165,11 @@ definitions:
       alertList:
         items:
           $ref: '#/definitions/dto.AlertLinkItem'
+        maxItems: 1000
         minItems: 1
         type: array
       incidentId:
-        type: integer
+        type: string
     required:
     - alertList
     - incidentId
@@ -1206,9 +1190,9 @@ definitions:
       alertName:
         type: string
       alertSeverity:
-        type: integer
+        type: string
       alertStatus:
-        type: integer
+        type: string
     required:
     - alertId
     - alertName
@@ -1217,7 +1201,7 @@ definitions:
   dto.AlertTagResponse:
     properties:
       id:
-        type: integer
+        type: string
       systemOwner:
         type: boolean
       tagColor:
@@ -1233,19 +1217,11 @@ definitions:
         items:
           $ref: '#/definitions/common_models.FilterType'
         type: array
-      createdBy:
-        type: string
-      createdDate:
-        type: string
       deleted:
         type: boolean
       description:
         type: string
       id:
-        type: integer
-      lastModifiedBy:
-        type: string
-      lastModifiedDate:
         type: string
       name:
         type: string
@@ -1257,7 +1233,7 @@ definitions:
   dto.AlertTagRuleTagRef:
     properties:
       id:
-        type: integer
+        type: string
       systemOwner:
         type: boolean
       tagColor:
@@ -1279,7 +1255,7 @@ definitions:
       assignedTo:
         type: string
       incidentId:
-        type: integer
+        type: string
     required:
     - incidentId
     type: object
@@ -1368,15 +1344,13 @@ definitions:
   dto.ChangeStatusRequest:
     properties:
       id:
-        type: integer
+        type: string
       incidentCreatedDate:
         type: string
       incidentDescription:
         type: string
       incidentName:
         type: string
-      incidentSeverity:
-        type: integer
       incidentSolution:
         type: string
       incidentStatus:
@@ -1423,23 +1397,28 @@ definitions:
       success:
         type: boolean
     type: object
-  dto.ClusterHealth:
+  dto.CheckResult:
     properties:
-      active_shards:
-        type: integer
-      cluster_name:
+      dataType:
+        description: why a NOT_APPLICABLE check could not run
         type: string
-      number_of_data_nodes:
-        type: integer
-      number_of_nodes:
-        type: integer
-      status:
+      dataset:
+        $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset'
+      error:
         type: string
-    type: object
-  dto.ClusterStatusResponse:
-    properties:
-      health:
-        $ref: '#/definitions/dto.ClusterHealth'
+      hits:
+        type: integer
+      key:
+        type: string
+      name:
+        type: string
+      outcome:
+        $ref: '#/definitions/domain.CheckOutcome'
+      required:
+        description: the rule's threshold, so "0 of 1 required" reads on its own
+        type: integer
+      rule:
+        $ref: '#/definitions/domain.CheckRule'
     type: object
   dto.CollectorResponse:
     properties:
@@ -1456,6 +1435,30 @@ definitions:
       version:
         type: string
     type: object
+  dto.ConfigGroupRequest:
+    properties:
+      config:
+        additionalProperties:
+          type: string
+        type: object
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.ConfigGroupResponse:
+    properties:
+      config:
+        additionalProperties:
+          type: string
+        type: object
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   dto.ConfigKnowledgeResponse:
     properties:
       accepted:
@@ -1463,10 +1466,6 @@ definitions:
       errorMessage:
         type: string
       generatedSecret:
-        description: |-
-          GeneratedSecret is only populated when a brand-new bearer/hmac token was
-          generated for the first time; never re-exposed on subsequent enables of
-          the same integration.
         type: string
       requestId:
         type: string
@@ -1503,16 +1502,46 @@ definitions:
     - model
     - provider
     type: object
+  dto.ControlRow:
+    properties:
+      activity:
+        description: '# alerts from those rules in the window'
+        type: integer
+      checks:
+        items:
+          $ref: '#/definitions/dto.CheckResult'
+        type: array
+      controlId:
+        type: string
+      coverage:
+        description: '# enabled correlation rules covering this control'
+        type: integer
+      editedAt:
+        type: string
+      editedBy:
+        type: string
+      engineStatus:
+        $ref: '#/definitions/domain.ComplianceStatus'
+      evidence:
+        description: one-line reason for the table; the detail is in Checks
+        type: string
+      name:
+        type: string
+      note:
+        type: string
+      originalStatus:
+        $ref: '#/definitions/domain.ComplianceStatus'
+      status:
+        $ref: '#/definitions/domain.ComplianceStatus'
+    type: object
   dto.ConvertToIncidentRequest:
     properties:
       eventIds:
-        description: AlertIDs maps to Java's ConvertToIncidentRequestBody.eventIds
-          field (not alertIds).
         items:
           type: string
         type: array
       incidentId:
-        type: integer
+        type: string
       incidentName:
         type: string
       incidentSource:
@@ -1563,7 +1592,6 @@ definitions:
           type: integer
         type: array
       relPath:
-        description: RelPath is the rule identity (replaces the legacy numeric id).
         type: string
       ruleActive:
         type: boolean
@@ -1577,30 +1605,6 @@ definitions:
   dto.CountResponse:
     properties:
       count:
-        type: integer
-    type: object
-  dto.CreateActionCommandRequest:
-    properties:
-      actionId:
-        type: integer
-      command:
-        type: string
-      osPlatform:
-        type: string
-    required:
-    - actionId
-    type: object
-  dto.CreateActionRequest:
-    properties:
-      actionCommand:
-        type: string
-      actionDescription:
-        type: string
-      actionEditable:
-        type: boolean
-      actionParams:
-        type: string
-      actionType:
         type: integer
     type: object
   dto.CreateAlertTagRequest:
@@ -1667,8 +1671,6 @@ definitions:
       integrity:
         type: integer
       name:
-        description: JSON tags match Java UtmCorrelationRulesDTO field names for wire
-          compatibility.
         type: string
       references:
         items:
@@ -1679,21 +1681,16 @@ definitions:
       technique:
         type: string
     type: object
-  dto.CreateFilterRequest:
-    properties:
-      content:
-        type: string
-      relPath:
-        type: string
-    required:
-    - content
-    - relPath
-    type: object
   dto.CreateIncidentRequest:
     properties:
       alertList:
+        description: |-
+          Capped because nothing else caps it: the rows are written in one
+          transaction, and an unbounded list is a request that holds a Postgres
+          transaction open for as long as the caller likes.
         items:
           $ref: '#/definitions/dto.AlertLinkItem'
+        maxItems: 1000
         minItems: 1
         type: array
       incidentAssignedTo:
@@ -1708,58 +1705,27 @@ definitions:
     - alertList
     - incidentName
     type: object
-  dto.CreateIndexPatternRequest:
-    properties:
-      id:
-        type: integer
-      isActive:
-        type: boolean
-      pattern:
-        type: string
-      patternModule:
-        type: string
-      patternSystem:
-        type: boolean
-    required:
-    - pattern
-    type: object
-  dto.CreateJobRequest:
-    properties:
-      actionId:
-        type: integer
-      agent:
-        type: string
-      originId:
-        type: string
-      originType:
-        type: string
-      params:
-        type: string
-      status:
-        type: integer
-    type: object
-  dto.CreateModuleRequest:
+  dto.CreateIntegrationRequest:
     properties:
       dataType:
         type: string
-      moduleCategory:
+      description:
         type: string
-      moduleDescription:
+      icon:
         type: string
-      moduleIcon:
-        type: string
-      moduleName:
-        type: string
-      prettyName:
+      ingestType:
+        $ref: '#/definitions/domain.IngestType'
+      name:
         type: string
     required:
     - dataType
-    - moduleName
+    - ingestType
+    - name
     type: object
   dto.CreateNoteRequest:
     properties:
       incidentId:
-        type: integer
+        type: string
       noteText:
         maxLength: 1000
         type: string
@@ -1798,11 +1764,19 @@ definitions:
     - source
     - type
     type: object
+  dto.CreatePipelineRequest:
+    properties:
+      content:
+        type: string
+      relPath:
+        type: string
+    required:
+    - content
+    - relPath
+    type: object
   dto.CreateRequest:
     properties:
       adminEmail:
-        type: string
-      adminLogin:
         type: string
       domain:
         type: string
@@ -1856,51 +1830,33 @@ definitions:
     type: object
   dto.CreateScheduleRequest:
     properties:
-      frameworkKey:
+      cc:
+        maxLength: 2000
         type: string
-      recipients:
+      frameworkKey:
         type: string
       scheduleString:
         maxLength: 250
         type: string
+      to:
+        maxLength: 2000
+        type: string
+      windowDays:
+        maximum: 3650
+        minimum: 1
+        type: integer
     required:
     - frameworkKey
     - scheduleString
-    type: object
-  dto.CreateTenantConfigRequest:
-    properties:
-      assetAvailability:
-        type: integer
-      assetConfidentiality:
-        type: integer
-      assetHostnameList:
-        items:
-          type: string
-        type: array
-      assetIntegrity:
-        type: integer
-      assetIpList:
-        items:
-          type: string
-        type: array
-      assetName:
-        type: string
-    required:
-    - assetName
+    - to
     type: object
   dto.CreateUserRequest:
     properties:
       email:
         type: string
-      first_name:
-        type: string
       lang_key:
         type: string
-      last_name:
-        type: string
-      login:
-        maxLength: 50
-        minLength: 3
+      name:
         type: string
       role_names:
         items:
@@ -1908,7 +1864,6 @@ definitions:
         type: array
     required:
     - email
-    - login
     type: object
   dto.CreateVariableRequest:
     properties:
@@ -1922,45 +1877,16 @@ definitions:
         type: string
     required:
     - variableName
-    type: object
-  dto.CsvExportingParams:
-    properties:
-      columns:
-        items:
-          $ref: '#/definitions/dto.DataColumn'
-        type: array
-      filters:
-        items:
-          $ref: '#/definitions/common_models.FilterType'
-        type: array
-      indexPattern:
-        type: string
-      top:
-        type: integer
-    type: object
-  dto.DataColumn:
-    properties:
-      field:
-        type: string
-      label:
-        type: string
-      type:
-        type: string
-      visible:
-        type: boolean
+    - variableValue
     type: object
   dto.DataTypeOption:
     properties:
-      active:
-        type: boolean
       dataType:
-        type: string
-      isSystem:
-        type: boolean
-      moduleName:
         type: string
       name:
         type: string
+      systemOwner:
+        type: boolean
     type: object
   dto.DataTypeRef:
     properties:
@@ -1989,10 +1915,15 @@ definitions:
       domain:
         type: string
     type: object
-  dto.EnabledRequest:
+  dto.EditControlRequest:
     properties:
-      enabled:
-        type: boolean
+      note:
+        maxLength: 4000
+        type: string
+      status:
+        $ref: '#/definitions/domain.ComplianceStatus'
+    required:
+    - note
     type: object
   dto.ExecutionResponse:
     properties:
@@ -2002,19 +1933,25 @@ definitions:
         type: string
       command:
         type: string
-      commandResult:
+      finishedAt:
         type: string
-      executionDate:
-        type: string
-      executionRetries:
-        type: integer
-      executionStatus:
-        $ref: '#/definitions/domain.ExecutionStatus'
       id:
-        type: integer
+        type: string
       nonExecutionCause:
         $ref: '#/definitions/domain.NonExecutionCause'
+      origin:
+        $ref: '#/definitions/domain.ExecutionOrigin'
+      result:
+        type: string
+      retries:
+        type: integer
       rulePath:
+        type: string
+      startedAt:
+        type: string
+      status:
+        $ref: '#/definitions/domain.ExecutionStatus'
+      triggeredBy:
         type: string
     type: object
   dto.ExportCorrelationRulesRequest:
@@ -2023,6 +1960,28 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  dto.FeedsCredentialsRequest:
+    properties:
+      apiKey:
+        type: string
+      apiSecret:
+        type: string
+    required:
+    - apiKey
+    - apiSecret
+    type: object
+  dto.FeedsStatus:
+    properties:
+      configured:
+        type: boolean
+      enabled:
+        type: boolean
+    type: object
+  dto.FeedsToggleRequest:
+    properties:
+      enabled:
+        type: boolean
     type: object
   dto.Field:
     properties:
@@ -2034,23 +1993,6 @@ definitions:
         type: boolean
       type:
         type: string
-    type: object
-  dto.FilterResponse:
-    properties:
-      active:
-        type: boolean
-      content:
-        type: string
-      dataTypes:
-        items:
-          type: string
-        type: array
-      order:
-        type: integer
-      relPath:
-        type: string
-      system:
-        type: boolean
     type: object
   dto.FilterVM:
     properties:
@@ -2073,17 +2015,6 @@ definitions:
         - Always
     required:
     - command
-    type: object
-  dto.GenericSearchRequest:
-    properties:
-      filters:
-        items:
-          $ref: '#/definitions/common_models.FilterType'
-        type: array
-      index:
-        type: string
-      top:
-        type: integer
     type: object
   dto.GetDataTypeConfigResponse:
     properties:
@@ -2108,10 +2039,26 @@ definitions:
       tls:
         type: boolean
     type: object
+  dto.GroupMapping:
+    properties:
+      group:
+        type: string
+      roleId:
+        type: string
+    type: object
+  dto.HealthResponse:
+    properties:
+      diskUsedPct:
+        type: number
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   dto.IdentityProviderPublic:
     properties:
       id:
-        type: integer
+        type: string
       loginUrl:
         type: string
       name:
@@ -2123,22 +2070,28 @@ definitions:
     properties:
       active:
         type: boolean
-      id:
-        type: integer
-      metadataUrl:
+      defaultRoleId:
         type: string
+      groupMappings:
+        items:
+          $ref: '#/definitions/dto.GroupMapping'
+        type: array
+      groupsAttribute:
+        type: string
+      id:
+        type: string
+      jitProvisioning:
+        type: boolean
       name:
         type: string
       providerType:
         type: string
-      spAcsUrl:
-        type: string
-      spCertificatePem:
-        type: string
-      spEntityId:
-        type: string
-      spPrivateKeyPem:
-        type: string
+      settings:
+        items:
+          type: integer
+        type: array
+      syncRolesOnLogin:
+        type: boolean
     type: object
   dto.ImportCorrelationRulesRequest:
     properties:
@@ -2191,65 +2144,16 @@ definitions:
       alertName:
         type: string
       alertSeverity:
-        type: integer
+        type: string
       alertStatus:
-        type: integer
+        type: string
       incidentId:
-        type: integer
+        type: string
     required:
     - alertId
     - alertName
     - alertSeverity
     - incidentId
-    type: object
-  dto.IndexField:
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-    type: object
-  dto.IndexInfo:
-    properties:
-      docs.count:
-        type: string
-      health:
-        type: string
-      index:
-        type: string
-      status:
-        type: string
-      store.size:
-        type: string
-    type: object
-  dto.IndexPatternFieldsResponse:
-    properties:
-      fields:
-        items:
-          $ref: '#/definitions/dto.IndexField'
-        type: array
-      indexPattern:
-        $ref: '#/definitions/dto.IndexPatternResponse'
-    type: object
-  dto.IndexPatternResponse:
-    properties:
-      id:
-        type: integer
-      isActive:
-        type: boolean
-      pattern:
-        type: string
-      patternModule:
-        type: string
-      patternSystem:
-        type: boolean
-    type: object
-  dto.IndexPropertyType:
-    properties:
-      name:
-        type: string
-      type:
-        type: string
     type: object
   dto.IngestRequest:
     properties:
@@ -2296,6 +2200,8 @@ definitions:
     type: object
   dto.IngestionStatsBucket:
     properties:
+      bytes:
+        type: integer
       count:
         type: integer
       key:
@@ -2319,6 +2225,8 @@ definitions:
         type: string
       total:
         type: integer
+      totalBytes:
+        type: integer
     type: object
   dto.IngestionTimelineResponse:
     properties:
@@ -2340,6 +2248,29 @@ definitions:
         type: string
       to:
         type: string
+    type: object
+  dto.IntegrationResponse:
+    properties:
+      configured:
+        description: |-
+          Configured reports whether this tenant has any configuration group for
+          the integration. It replaces the stored active flag, which said only
+          that somebody had pressed a switch.
+        type: boolean
+      dataType:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      ingestType:
+        $ref: '#/definitions/domain.IngestType'
+      name:
+        type: string
+      systemOwner:
+        type: boolean
     type: object
   dto.ListResponse:
     properties:
@@ -2375,16 +2306,16 @@ definitions:
       resource_type:
         type: string
       session_id:
-        type: integer
+        type: string
       status:
         type: string
       timestamp:
         type: string
       user_agent:
         type: string
+      user_email:
+        type: string
       user_id:
-        type: integer
-      user_login:
         type: string
     type: object
   dto.LoginRequest:
@@ -2394,6 +2325,12 @@ definitions:
         type: string
       password:
         example: changeme
+        type: string
+      provider_id:
+        description: |-
+          ProviderID names the directory to bind against when the user picked one.
+          Absent, every active directory of the tenant is tried, which is what a
+          single-directory install wants.
         type: string
     required:
     - login
@@ -2411,10 +2348,14 @@ definitions:
         type: string
       refresh_token:
         type: string
-      tfa_method:
-        type: string
       tfa_required:
         type: boolean
+      tfa_type:
+        allOf:
+        - $ref: '#/definitions/domain.TfaFactorType'
+        description: |-
+          Which factor the user must produce, so the screen can say "check your
+          mail" or "open your authenticator" instead of guessing.
       token_type:
         example: Bearer
         type: string
@@ -2441,39 +2382,6 @@ definitions:
     - alert
     - rulePath
     type: object
-  dto.ModuleActivationRequest:
-    properties:
-      activationStatus:
-        type: boolean
-      moduleName:
-        type: string
-    required:
-    - activationStatus
-    - moduleName
-    type: object
-  dto.ModuleResponse:
-    properties:
-      dataType:
-        type: string
-      id:
-        type: integer
-      ingestType:
-        type: string
-      isSystem:
-        type: boolean
-      moduleActive:
-        type: boolean
-      moduleCategory:
-        type: string
-      moduleDescription:
-        type: string
-      moduleIcon:
-        type: string
-      moduleName:
-        type: string
-      prettyName:
-        type: string
-    type: object
   dto.NotificationResponse:
     properties:
       createdAt:
@@ -2493,6 +2401,28 @@ definitions:
       updatedAt:
         type: string
     type: object
+  dto.NotifyAlertRequest:
+    properties:
+      alertId:
+        type: string
+    required:
+    - alertId
+    type: object
+  dto.ObjectStoreRequest:
+    properties:
+      accessKey:
+        type: string
+      cacheBytes:
+        type: integer
+      endpoint:
+        type: string
+      secretKey:
+        type: string
+    required:
+    - accessKey
+    - endpoint
+    - secretKey
+    type: object
   dto.PageInfo:
     properties:
       has_next:
@@ -2510,36 +2440,27 @@ definitions:
     type: object
   dto.PermissionResponse:
     properties:
-      action:
-        type: string
       description:
         type: string
-      id:
-        type: integer
       name:
         type: string
-      resource:
-        type: string
     type: object
-  dto.PropertyValuesWithCountRequest:
+  dto.PipelineResponse:
     properties:
-      field:
+      active:
+        type: boolean
+      content:
         type: string
-      filters:
+      dataTypes:
         items:
-          $ref: '#/definitions/common_models.FilterType'
+          type: string
         type: array
-      index:
-        type: string
-      orderByCount:
-        type: boolean
-      sortAsc:
-        type: boolean
-      top:
+      order:
         type: integer
-    required:
-    - field
-    - index
+      relPath:
+        type: string
+      system:
+        type: boolean
     type: object
   dto.RefreshRequest:
     properties:
@@ -2552,21 +2473,17 @@ definitions:
     properties:
       patternDefinition:
         type: string
-      patternDescription:
-        type: string
       patternId:
         type: string
-      systemOwner:
-        type: boolean
     type: object
   dto.RelatedLogsResponse:
     properties:
+      dataType:
+        type: string
       ids:
         items:
           type: string
         type: array
-      indexPattern:
-        type: string
       ruleMatched:
         type: boolean
       timeFrom:
@@ -2577,6 +2494,95 @@ definitions:
         type: integer
       truncated:
         type: boolean
+    type: object
+  dto.ReportMeta:
+    properties:
+      frameworkKey:
+        type: string
+      frameworkName:
+        type: string
+      generatedAt:
+        type: string
+      id:
+        type: string
+      score:
+        type: integer
+    type: object
+  dto.ReportRequirement:
+    properties:
+      controlIds:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/domain.ComplianceStatus'
+    type: object
+  dto.ReportResponse:
+    properties:
+      controls:
+        items:
+          $ref: '#/definitions/dto.ControlRow'
+        type: array
+      frameworkKey:
+        type: string
+      frameworkName:
+        type: string
+      frameworkSource:
+        type: string
+      generatedAt:
+        type: string
+      id:
+        type: string
+      sections:
+        items:
+          $ref: '#/definitions/dto.ReportSection'
+        type: array
+      summary:
+        $ref: '#/definitions/dto.ReportSummary'
+      windowFrom:
+        type: string
+      windowTo:
+        type: string
+    type: object
+  dto.ReportSection:
+    properties:
+      key:
+        type: string
+      name:
+        type: string
+      requirements:
+        items:
+          $ref: '#/definitions/dto.ReportRequirement'
+        type: array
+      summary:
+        $ref: '#/definitions/dto.ReportSummary'
+    type: object
+  dto.ReportSummary:
+    properties:
+      atRisk:
+        type: integer
+      compliant:
+        type: integer
+      compliantPct:
+        type: integer
+      evaluated:
+        type: integer
+      nonCompliant:
+        type: integer
+      notCovered:
+        type: integer
+      notEvaluated:
+        type: integer
+      outOfScope:
+        type: integer
+      pending:
+        type: integer
+      total:
+        type: integer
     type: object
   dto.ResetPasswordFinishRequest:
     properties:
@@ -2620,11 +2626,35 @@ definitions:
     - machine_id
     - tenant_id
     type: object
+  dto.RetentionRequest:
+    properties:
+      coldDays:
+        type: integer
+      dataset:
+        type: string
+      keepDays:
+        type: integer
+    required:
+    - dataset
+    type: object
+  dto.RetentionResponse:
+    properties:
+      coldDays:
+        type: integer
+      dataset:
+        type: string
+      keepDays:
+        type: integer
+      tiered:
+        type: boolean
+    type: object
   dto.RoleDetailResponse:
     properties:
       description:
         type: string
       display_name:
+        type: string
+      id:
         type: string
       name:
         type: string
@@ -2632,6 +2662,8 @@ definitions:
         items:
           $ref: '#/definitions/dto.PermissionResponse'
         type: array
+      system:
+        type: boolean
     type: object
   dto.RoleDigest:
     properties:
@@ -2646,8 +2678,12 @@ definitions:
         type: string
       display_name:
         type: string
+      id:
+        type: string
       name:
         type: string
+      system:
+        type: boolean
     type: object
   dto.RuleDataTypeResponse:
     properties:
@@ -2701,17 +2737,72 @@ definitions:
     type: object
   dto.ScheduleResponse:
     properties:
+      cc:
+        type: string
       frameworkKey:
         type: string
       id:
-        type: integer
-      lastExecutionDate:
         type: string
-      recipients:
+      lastExecutionDate:
         type: string
       scheduleString:
         type: string
+      to:
+        type: string
       userId:
+        type: string
+      windowDays:
+        type: integer
+    type: object
+  dto.ScorePoint:
+    properties:
+      compliant:
+        type: integer
+      day:
+        type: string
+      evaluated:
+        type: integer
+      generatedAt:
+        type: string
+      hasDocument:
+        type: boolean
+      score:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.SearchRequest:
+    properties:
+      dataType:
+        type: string
+      dataset:
+        type: string
+      filters:
+        items:
+          $ref: '#/definitions/common_models.FilterType'
+        type: array
+      from:
+        type: string
+      order:
+        type: string
+      page:
+        type: integer
+      size:
+        type: integer
+      sortBy:
+        type: string
+      to:
+        type: string
+    type: object
+  dto.SearchResponse:
+    properties:
+      data:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+      total:
         type: integer
     type: object
   dto.SessionResponse:
@@ -2723,7 +2814,7 @@ definitions:
       expires_at:
         type: string
       id:
-        type: integer
+        type: string
       ip:
         type: string
       user_agent:
@@ -2768,19 +2859,17 @@ definitions:
       windows:
         type: integer
     type: object
-  dto.SqlSearchDto:
-    properties:
-      fetchSize:
-        type: integer
-      query:
-        type: string
-    type: object
   dto.SupportAccessRequest:
     properties:
       supportAccess:
         $ref: '#/definitions/domain.SupportAccess'
     required:
     - supportAccess
+    type: object
+  dto.SupportAccessResponse:
+    properties:
+      supportAccess:
+        $ref: '#/definitions/domain.SupportAccess'
     type: object
   dto.TLSStatusResponse:
     properties:
@@ -2797,83 +2886,9 @@ definitions:
       valid:
         type: boolean
     type: object
-  dto.TemplateResponse:
-    properties:
-      command:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      systemOwner:
-        type: boolean
-      title:
-        type: string
-    type: object
-  dto.TenantConfigResponse:
-    properties:
-      assetAvailability:
-        type: integer
-      assetConfidentiality:
-        type: integer
-      assetHostnameList:
-        items:
-          type: string
-        type: array
-      assetIntegrity:
-        type: integer
-      assetIpList:
-        items:
-          type: string
-        type: array
-      assetName:
-        type: string
-    type: object
-  dto.TenantRequest:
-    properties:
-      config:
-        additionalProperties:
-          type: string
-        type: object
-      name:
-        type: string
-    required:
-    - name
-    type: object
-  dto.TenantResponse:
-    properties:
-      config:
-        additionalProperties:
-          type: string
-        type: object
-      name:
-        type: string
-    type: object
-  dto.TfaCompleteRequest:
-    properties:
-      method:
-        enum:
-        - EMAIL
-        - TOTP
-        type: string
-    required:
-    - method
-    type: object
-  dto.TfaDisableRequest:
-    properties:
-      password:
-        type: string
-    required:
-    - password
-    type: object
   dto.TfaEnrollmentRequest:
     properties:
       code:
-        type: string
-      method:
-        enum:
-        - EMAIL
-        - TOTP
         type: string
       stage:
         enum:
@@ -2881,9 +2896,15 @@ definitions:
         - VERIFY
         - COMPLETE
         type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.TfaFactorType'
+        enum:
+        - email
+        - totp
     required:
-    - method
     - stage
+    - type
     type: object
   dto.TfaEnrollmentResponse:
     properties:
@@ -2896,63 +2917,36 @@ definitions:
       verified:
         type: boolean
     type: object
-  dto.TfaInitRequest:
-    properties:
-      method:
-        enum:
-        - EMAIL
-        - TOTP
-        type: string
-    required:
-    - method
-    type: object
   dto.TfaInitResponse:
     properties:
       email_sent:
         type: boolean
       expires_at:
         type: string
-      method:
+      factor_id:
         type: string
       otp_auth_url:
         type: string
       qr_data_url:
         type: string
+      type:
+        $ref: '#/definitions/domain.TfaFactorType'
     type: object
-  dto.TfaRefreshResponse:
+  dto.TieringResponse:
     properties:
-      cooldown_until:
-        type: string
-      email_sent:
+      configured:
         type: boolean
-      expires_at:
+      endpoint:
         type: string
-    type: object
-  dto.TfaVerifyCodeRequest:
-    properties:
-      code:
+      policy:
         type: string
-      pre_auth_token:
-        type: string
-    required:
-    - code
-    - pre_auth_token
-    type: object
-  dto.TfaVerifyRequest:
-    properties:
-      code:
-        type: string
-      method:
-        enum:
-        - EMAIL
-        - TOTP
-        type: string
-    required:
-    - code
-    - method
+      ready:
+        type: boolean
     type: object
   dto.TimelinePoint:
     properties:
+      bytes:
+        type: integer
       count:
         type: integer
       timestamp:
@@ -3004,41 +2998,10 @@ definitions:
       total:
         type: integer
     type: object
-  dto.UpdateActionCommandRequest:
-    properties:
-      actionId:
-        type: integer
-      command:
-        type: string
-      id:
-        type: integer
-      osPlatform:
-        type: string
-    required:
-    - actionId
-    - id
-    type: object
-  dto.UpdateActionRequest:
-    properties:
-      actionCommand:
-        type: string
-      actionDescription:
-        type: string
-      actionEditable:
-        type: boolean
-      actionParams:
-        type: string
-      actionType:
-        type: integer
-      id:
-        type: integer
-    required:
-    - id
-    type: object
   dto.UpdateAlertTagRequest:
     properties:
       id:
-        type: integer
+        type: string
       systemOwner:
         type: boolean
       tagColor:
@@ -3058,7 +3021,7 @@ definitions:
       description:
         type: string
       id:
-        type: integer
+        type: string
       name:
         type: string
       tags:
@@ -3128,24 +3091,55 @@ definitions:
           type: integer
         type: array
       relPath:
-        description: RelPath identifies the rule to update (the YAML-direct identity).
         type: string
       ruleActive:
         type: boolean
       technique:
         type: string
     type: object
-  dto.UpdateFilterOrderRequest:
+  dto.UpdateIncidentAlertRequest:
     properties:
-      order:
-        type: integer
-      relPath:
+      alertId:
+        type: string
+      alertName:
+        type: string
+      alertSeverity:
+        type: string
+      alertStatus:
+        type: string
+      id:
+        type: string
+      incidentId:
         type: string
     required:
-    - order
-    - relPath
+    - alertId
+    - id
+    - incidentId
     type: object
-  dto.UpdateFilterRequest:
+  dto.UpdateIntegrationRequest:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+    type: object
+  dto.UpdateMeRequest:
+    properties:
+      email:
+        type: string
+      lang_key:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.UpdatePipelineOrderRequest:
+    properties:
+      order:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.UpdatePipelineRequest:
     properties:
       content:
         type: string
@@ -3155,70 +3149,17 @@ definitions:
     - content
     - relPath
     type: object
-  dto.UpdateIncidentAlertRequest:
-    properties:
-      alertId:
-        type: string
-      alertName:
-        type: string
-      alertSeverity:
-        type: integer
-      alertStatus:
-        type: integer
-      id:
-        type: integer
-      incidentId:
-        type: integer
-    required:
-    - alertId
-    - id
-    - incidentId
-    type: object
-  dto.UpdateIndexPatternRequest:
-    properties:
-      id:
-        type: integer
-      isActive:
-        type: boolean
-      pattern:
-        type: string
-      patternModule:
-        type: string
-      patternSystem:
-        type: boolean
-    required:
-    - id
-    - pattern
-    type: object
-  dto.UpdateMeRequest:
-    properties:
-      email:
-        type: string
-      first_name:
-        type: string
-      lang_key:
-        type: string
-      last_name:
-        type: string
-    type: object
-  dto.UpdateModuleRequest:
-    properties:
-      moduleCategory:
-        type: string
-      moduleDescription:
-        type: string
-      moduleIcon:
-        type: string
-      prettyName:
-        type: string
-    type: object
   dto.UpdateRequest:
     properties:
       domain:
         type: string
       maxAIRequests:
-        description: A limit left out keeps its value; zero lifts it.
-        type: integer
+        description: |-
+          Raw, because the cap is a tri-state and a *int only carries two: a JSON
+          null and an absent field both decode to nil. Read it with AILimit.
+        items:
+          type: integer
+        type: array
       name:
         type: string
       status:
@@ -3267,58 +3208,44 @@ definitions:
     type: object
   dto.UpdateScheduleRequest:
     properties:
+      cc:
+        maxLength: 2000
+        type: string
       frameworkKey:
         type: string
       id:
-        type: integer
-      recipients:
         type: string
       scheduleString:
         maxLength: 250
         type: string
+      to:
+        maxLength: 2000
+        type: string
+      windowDays:
+        maximum: 3650
+        minimum: 1
+        type: integer
     required:
     - frameworkKey
     - id
     - scheduleString
-    type: object
-  dto.UpdateTenantConfigRequest:
-    properties:
-      assetAvailability:
-        type: integer
-      assetConfidentiality:
-        type: integer
-      assetHostnameList:
-        items:
-          type: string
-        type: array
-      assetIntegrity:
-        type: integer
-      assetIpList:
-        items:
-          type: string
-        type: array
-      assetName:
-        type: string
-    required:
-    - assetName
+    - to
     type: object
   dto.UpdateUserRequest:
     properties:
-      activated:
-        type: boolean
       email:
-        type: string
-      first_name:
         type: string
       lang_key:
         type: string
-      last_name:
+      name:
         type: string
+      status:
+        $ref: '#/definitions/domain.UserStatus'
     type: object
   dto.UpdateVariableRequest:
     properties:
       id:
-        type: integer
+        type: string
       isSecret:
         type: boolean
       variableDescription:
@@ -3341,78 +3268,68 @@ definitions:
       value:
         type: string
     type: object
-  dto.UserAssignedDTO:
+  dto.UsageResponse:
     properties:
-      id:
+      bytes:
         type: integer
-      login:
+      dataset:
+        type: string
+      documents:
+        type: integer
+      newest:
+        type: string
+      oldest:
         type: string
     type: object
   dto.UserDetailResponse:
     properties:
-      activated:
-        type: boolean
-      created_by:
+      created_at:
         type: string
-      created_date:
-        type: string
-      default_password:
-        type: boolean
       email:
         type: string
-      first_name:
-        type: string
+      federated:
+        type: boolean
       id:
-        type: integer
+        type: string
       image_url:
         type: string
       lang_key:
         type: string
-      last_modified_by:
-        type: string
-      last_modified_date:
-        type: string
-      last_name:
-        type: string
-      login:
+      name:
         type: string
       roles:
         items:
           $ref: '#/definitions/dto.RoleDigest'
         type: array
+      status:
+        $ref: '#/definitions/domain.UserStatus'
       tfa_enabled:
         type: boolean
-      tfa_method:
+      updated_at:
         type: string
     type: object
   dto.UserListItem:
     properties:
-      activated:
-        type: boolean
-      default_password:
-        type: boolean
       email:
         type: string
-      first_name:
-        type: string
+      federated:
+        type: boolean
       id:
-        type: integer
+        type: string
       image_url:
         type: string
       lang_key:
         type: string
-      last_name:
-        type: string
-      login:
+      name:
         type: string
       roles:
         items:
           $ref: '#/definitions/dto.RoleDigest'
         type: array
+      status:
+        $ref: '#/definitions/domain.UserStatus'
       tfa_enabled:
         type: boolean
-      tfa_method:
-        type: string
     type: object
   dto.UserListResponse:
     properties:
@@ -3425,33 +3342,31 @@ definitions:
     type: object
   dto.UserResponse:
     properties:
-      activated:
-        type: boolean
       email:
         type: string
-      first_name:
-        type: string
+      federated:
+        type: boolean
       id:
-        type: integer
+        type: string
       image_url:
         type: string
       lang_key:
         type: string
-      last_name:
+      name:
         type: string
-      login:
-        type: string
+      status:
+        $ref: '#/definitions/domain.UserStatus'
       tfa_enabled:
         type: boolean
-      tfa_method:
-        type: string
     type: object
   dto.VariableResponse:
     properties:
+      createdAt:
+        type: string
       createdBy:
         type: string
       id:
-        type: integer
+        type: string
       isSecret:
         type: boolean
       lastModifiedBy:
@@ -3478,6 +3393,15 @@ definitions:
       version:
         type: string
     type: object
+  github_com_utmstack_utmstack_backend_modules_alerts_domain.Impact:
+    properties:
+      availability:
+        type: integer
+      confidentiality:
+        type: integer
+      integrity:
+        type: integer
+    type: object
   github_com_utmstack_utmstack_backend_modules_alerts_dto.UpdateAlertStatusRequest:
     properties:
       addFalsePositiveTag:
@@ -3487,7 +3411,7 @@ definitions:
           type: string
         type: array
       status:
-        type: integer
+        $ref: '#/definitions/domain.AlertStatus'
       statusObservation:
         type: string
     required:
@@ -3513,6 +3437,14 @@ definitions:
       value:
         type: string
     type: object
+  github_com_utmstack_utmstack_backend_modules_compliance_domain.Dataset:
+    enum:
+    - logs
+    - alerts
+    type: string
+    x-enum-varnames:
+    - DatasetLogs
+    - DatasetAlerts
   github_com_utmstack_utmstack_backend_modules_incidents_dto.UpdateAlertStatusRequest:
     properties:
       alertIds:
@@ -3521,9 +3453,9 @@ definitions:
         minItems: 1
         type: array
       incidentId:
-        type: integer
+        type: string
       status:
-        type: integer
+        type: string
     required:
     - alertIds
     - incidentId
@@ -3566,23 +3498,6 @@ definitions:
       url:
         type: string
     type: object
-  github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant:
-    properties:
-      createdAt:
-        type: string
-      domain:
-        type: string
-      id:
-        type: string
-      limits:
-        $ref: '#/definitions/domain.Limits'
-      name:
-        type: string
-      status:
-        $ref: '#/definitions/domain.TenantStatus'
-      supportAccess:
-        $ref: '#/definitions/domain.SupportAccess'
-    type: object
   handler.chatRequest:
     properties:
       lang:
@@ -3612,6 +3527,13 @@ definitions:
       type:
         type: string
     type: object
+  handler.sqlSearchRequest:
+    properties:
+      query:
+        type: string
+    required:
+    - query
+    type: object
   handler.usageResponse:
     properties:
       limit:
@@ -3625,38 +3547,29 @@ definitions:
       used:
         type: integer
     type: object
-  store.Bucket:
+  usecase.Bucket:
     properties:
       count:
         type: integer
       key:
         type: string
     type: object
-  store.Point:
+  usecase.Point:
     properties:
       at:
         type: string
       count:
         type: integer
     type: object
-  store.Series:
-    properties:
-      key:
-        type: string
-      points:
-        items:
-          $ref: '#/definitions/store.Point'
-        type: array
-    type: object
   usecase.Result:
     properties:
       buckets:
         items:
-          $ref: '#/definitions/store.Bucket'
+          $ref: '#/definitions/usecase.Bucket'
         type: array
       points:
         items:
-          $ref: '#/definitions/store.Point'
+          $ref: '#/definitions/usecase.Point'
         type: array
       rows:
         items:
@@ -3666,10 +3579,19 @@ definitions:
         type: array
       series:
         items:
-          $ref: '#/definitions/store.Series'
+          $ref: '#/definitions/usecase.Series'
         type: array
       total:
         type: integer
+    type: object
+  usecase.Series:
+    properties:
+      key:
+        type: string
+      points:
+        items:
+          $ref: '#/definitions/usecase.Point'
+        type: array
     type: object
 info:
   contact: {}
@@ -3911,7 +3833,7 @@ paths:
       - description: Filter by ID
         in: query
         name: id
-        type: integer
+        type: string
       - description: Filter by name
         in: query
         name: name
@@ -4043,7 +3965,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: Deleted
@@ -4070,7 +3992,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -4102,7 +4024,7 @@ paths:
         description: Rule IDs (repeated param)
         in: query
         items:
-          type: integer
+          type: string
         name: ids
         required: true
         type: array
@@ -4363,7 +4285,7 @@ paths:
     get:
       parameters:
       - description: 'filter DSL: field.op.value joined by & (e.g. status.eq.success&timestamp.gte.2026-06-01).
-          Allowed fields: user_id, user_login, action, status, resource_type, resource_id,
+          Allowed fields: user_id, user_email, action, status, resource_type, resource_id,
           event_type, ip, timestamp. Ops: eq,neq,like,nlike,in,nin,gt,gte,lt,lte,null,nnull'
         in: query
         name: search_query
@@ -4845,39 +4767,6 @@ paths:
       summary: Revoke a specific session
       tags:
       - Auth
-  /auth/tfa/verify-code:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Pre-auth token + code
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.TfaVerifyCodeRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.LoginResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Verify TFA at login and exchange the pre-auth token for a JWT
-      tags:
-      - TFA
   /billing/license:
     get:
       description: |-
@@ -5415,38 +5304,6 @@ paths:
       summary: Update a control (copy-on-write)
       tags:
       - Compliance Controls
-  /compliance/controls/{id}/enabled:
-    put:
-      consumes:
-      - application/json
-      description: Toggles the control's enabled state via the .disabled filename
-        suffix.
-      parameters:
-      - description: Control id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Enabled flag
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.EnabledRequest'
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Enable/disable a control
-      tags:
-      - Compliance Controls
   /compliance/frameworks:
     get:
       description: Returns the framework checklists (HIPAA, PCI, CMMC, …) that reference
@@ -5604,105 +5461,14 @@ paths:
       summary: Update a framework (copy-on-write)
       tags:
       - Compliance Frameworks
-  /compliance/frameworks/{key}/controls/{id}/note:
-    delete:
-      parameters:
-      - description: Framework key
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: Control id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: Delete a user note on a control
-      tags:
-      - Compliance Reports
-    put:
-      consumes:
-      - application/json
-      description: Upserts a freeform note attached to a (framework, control). Empty
-        body deletes the note.
-      parameters:
-      - description: Framework key
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: Control id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 'Note body ({note: string})'
-        in: body
-        name: body
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Set / update a user note on a control
-      tags:
-      - Compliance Reports
   /compliance/frameworks/{key}/controls/{id}/status:
-    delete:
-      description: Removes the manual override so the control status falls back to
-        the evaluator's computed value.
-      parameters:
-      - description: Framework key
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: Control id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Clear a manual status override
-      tags:
-      - Compliance Reports
     put:
       consumes:
       - application/json
-      description: Overrides the evaluator's computed status for a (framework, control)
-        pair. Applied on live evaluations only; historical snapshots are unchanged.
+      description: 'Overrides the engine on one control row. Requirements, sections
+        and the score recompute from it — they are never edited directly. A note is
+        required: an override no one can explain is worth nothing to whoever reads
+        the report later.'
       parameters:
       - description: Framework key
         in: path
@@ -5714,18 +5480,19 @@ paths:
         name: id
         required: true
         type: string
-      - description: New status (COMPLIANT | NON_COMPLIANT | AT_RISK | NOT_COVERED
-          | OUT_OF_SCOPE | PENDING) and optional reason
+      - description: Status and justification
         in: body
         name: body
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/dto.EditControlRequest'
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReportResponse'
         "400":
           description: Bad Request
           schema:
@@ -5738,29 +5505,91 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       security:
       - BearerAuth: []
-      summary: Set a manual status override for a control
+      summary: Record a human verdict on a control
       tags:
       - Compliance Reports
-  /compliance/frameworks/{key}/enabled:
-    put:
-      consumes:
-      - application/json
-      description: Toggles the framework's enabled state via the .disabled filename
-        suffix.
+  /compliance/frameworks/{key}/history:
+    get:
+      description: One point per day. Total and evaluated travel with the score because
+        the percentage alone cannot tell a fix from a log source going quiet.
       parameters:
       - description: Framework key
         in: path
         name: key
         required: true
         type: string
-      - description: Enabled flag
-        in: body
-        name: body
+      - description: RFC3339; defaults to 90 days ago
+        in: query
+        name: from
+        type: string
+      - description: RFC3339; defaults to now
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ScorePoint'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Score over time for a framework
+      tags:
+      - Compliance Reports
+  /compliance/frameworks/{key}/history.pdf:
+    get:
+      description: Renders that day's stored document. A point whose body has aged
+        past retention returns 404.
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
         required: true
-        schema:
-          $ref: '#/definitions/dto.EnabledRequest'
+        type: string
+      - description: YYYY-MM-DD
+        in: query
+        name: day
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Download the report behind a point on the chart
+      tags:
+      - Compliance Reports
+  /compliance/frameworks/{key}/report:
+    delete:
+      description: Discards the report and every annotation on it.
+      parameters:
+      - description: Framework key
+        in: path
+        name: key
+        required: true
+        type: string
       responses:
         "204":
           description: No Content
@@ -5772,13 +5601,12 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Enable/disable a framework
+      summary: Delete a framework's report
       tags:
-      - Compliance Frameworks
-  /compliance/frameworks/{key}/report:
+      - Compliance Reports
     get:
-      description: 'Evaluates the framework now and returns the report JSON (3 dimensions:
-        analysis, coverage, activity). No snapshot is stored.'
+      description: Returns the last evaluation, including any human edits made to
+        it. Does not re-run the framework.
       parameters:
       - description: Framework key
         in: path
@@ -5791,7 +5619,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Report'
+            $ref: '#/definitions/dto.ReportResponse'
         "404":
           description: Not Found
           schema:
@@ -5800,25 +5628,36 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Evaluate a framework (live)
+      summary: Get the standing report for a framework
       tags:
       - Compliance Reports
     post:
-      description: Evaluates the framework and persists a snapshot in OpenSearch (history),
-        returning the report JSON.
+      description: Re-evaluates the framework and replaces the standing report, keeping
+        the edits already on it. windowDays defaults to the framework's schedule,
+        then to 30.
       parameters:
       - description: Framework key
         in: path
         name: key
         required: true
         type: string
+      - description: Days the report covers
+        in: query
+        name: windowDays
+        type: integer
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/domain.Report'
+            $ref: '#/definitions/dto.ReportResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Not Found
           schema:
@@ -5827,7 +5666,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Generate + store a report
+      summary: Run a framework evaluation
       tags:
       - Compliance Reports
   /compliance/frameworks/{key}/report.pdf:
@@ -5847,22 +5686,11 @@ paths:
             type: file
       security:
       - BearerAuth: []
-      summary: Download a framework compliance report as PDF (live evaluation)
+      summary: Download the standing report as PDF
       tags:
       - Compliance Reports
   /compliance/reports:
     get:
-      description: Returns report snapshot metadata (newest first), optionally filtered
-        by framework.
-      parameters:
-      - description: Filter by framework key
-        in: query
-        name: framework
-        type: string
-      - description: Max results (default 50)
-        in: query
-        name: limit
-        type: integer
       produces:
       - application/json
       responses:
@@ -5870,64 +5698,11 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.ReportSnapshotMeta'
+              $ref: '#/definitions/dto.ReportMeta'
             type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
-      summary: List stored report snapshots
-      tags:
-      - Compliance Reports
-  /compliance/reports/{id}:
-    get:
-      description: Returns a full stored report snapshot by id.
-      parameters:
-      - description: Snapshot id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.ReportSnapshot'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get a stored report snapshot
-      tags:
-      - Compliance Reports
-  /compliance/reports/{id}/pdf:
-    get:
-      parameters:
-      - description: Snapshot id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/pdf
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-      security:
-      - BearerAuth: []
-      summary: Download a stored report snapshot as PDF
+      summary: List the tenant's standing reports
       tags:
       - Compliance Reports
   /config:
@@ -6684,335 +6459,9 @@ paths:
       summary: Get the org-wide timestamp display preference
       tags:
       - Config
-  /enrollment/tfa:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Stage + method (+ code for VERIFY)
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.TfaEnrollmentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.TfaEnrollmentResponse'
-      summary: Unified 3-stage TFA enrollment endpoint
-      tags:
-      - TFA
-  /eventprocessing/filters:
-    delete:
-      description: Deletes a user filter. System filters cannot be deleted.
-      parameters:
-      - description: Relative path
-        in: query
-        name: relPath
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete filter
-      tags:
-      - Filters
-    get:
-      description: Returns all filters (system + user) with optional filtering.
-      parameters:
-      - description: Filter by relPath containing value
-        in: query
-        name: relPath.contains
-        type: string
-      - description: Filter by active state
-        in: query
-        name: isActive.equals
-        type: boolean
-      - description: true = system only, false = user only
-        in: query
-        name: system.equals
-        type: boolean
-      - description: Page (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size (default 50)
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.FilterResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List filters
-      tags:
-      - Filters
-    post:
-      consumes:
-      - application/json
-      description: 'Creates a new user filter YAML in the user overlay (pipeline:
-        format).'
-      parameters:
-      - description: relPath + pipeline YAML content
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateFilterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.FilterResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "409":
-          description: Conflict
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create filter
-      tags:
-      - Filters
-    put:
-      consumes:
-      - application/json
-      description: Replaces the content of a user filter. System filters are read-only.
-      parameters:
-      - description: relPath + new pipeline YAML content
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateFilterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.FilterResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update filter
-      tags:
-      - Filters
-  /eventprocessing/filters/activate:
-    put:
-      description: Renames .yaml <-> .yaml.disabled in whichever overlay (system or
-        user) owns the filter.
-      parameters:
-      - description: Relative path
-        in: query
-        name: relPath
-        required: true
-        type: string
-      - description: true to activate, false to deactivate
-        in: query
-        name: active
-        required: true
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Activate or deactivate a filter
-      tags:
-      - Filters
-  /eventprocessing/filters/data-types:
-    get:
-      description: Returns the sorted, distinct dataTypes declared across all filters.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-      security:
-      - BearerAuth: []
-      summary: List filter data types
-      tags:
-      - Filters
-  /eventprocessing/filters/find:
-    get:
-      description: Returns a single filter entry.
-      parameters:
-      - description: Relative path (e.g. syslog/syslog-generic.yaml)
-        in: query
-        name: relPath
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.FilterResponse'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get filter by relPath
-      tags:
-      - Filters
-  /eventprocessing/filters/order:
-    put:
-      consumes:
-      - application/json
-      description: Sets any filter's (system or custom) position in the global pipeline
-        order.
-      parameters:
-      - description: relPath + new order
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateFilterOrderRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.FilterResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Reorder a filter
-      tags:
-      - Filters
   /eventprocessing/ingestion-stats:
     get:
-      description: Aggregates v11-statistics-* live (no DB). Counts received events
+      description: 'Sums the statistics the stats plugin writes: how many events'
       parameters:
       - description: dataSource | dataType
         in: query
@@ -7116,6 +6565,309 @@ paths:
       summary: Ingestion time series
       tags:
       - Event Processing Stats
+  /eventprocessing/pipelines:
+    delete:
+      description: Deletes a user pipeline. System pipelines cannot be deleted.
+      parameters:
+      - description: Relative path
+        in: query
+        name: relPath
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete pipeline
+      tags:
+      - Pipelines
+    get:
+      description: Returns all pipelines (system + user) with optional filtering.
+      parameters:
+      - description: Filter by relPath containing value
+        in: query
+        name: relPath.contains
+        type: string
+      - description: Filter by active state
+        in: query
+        name: isActive.equals
+        type: boolean
+      - description: true = system only, false = user only
+        in: query
+        name: system.equals
+        type: boolean
+      - description: Page (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 50)
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Total records
+              type: string
+          schema:
+            items:
+              $ref: '#/definitions/dto.PipelineResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List pipelines
+      tags:
+      - Pipelines
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user pipeline YAML in the user overlay.
+      parameters:
+      - description: relPath + pipeline YAML content
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePipelineRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PipelineResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create pipeline
+      tags:
+      - Pipelines
+    put:
+      consumes:
+      - application/json
+      description: Replaces the content of a user pipeline. System pipelines are read-only.
+      parameters:
+      - description: relPath + new pipeline YAML content
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePipelineRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PipelineResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update pipeline
+      tags:
+      - Pipelines
+  /eventprocessing/pipelines/activate:
+    put:
+      description: Turns a pipeline on or off for the caller's tenant. The file is
+        shared; the answer is not, so it is recorded against the tenant rather than
+        by renaming the file.
+      parameters:
+      - description: Relative path
+        in: query
+        name: relPath
+        required: true
+        type: string
+      - description: true to activate, false to deactivate
+        in: query
+        name: active
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Activate or deactivate a pipeline
+      tags:
+      - Pipelines
+  /eventprocessing/pipelines/data-types:
+    get:
+      description: Returns the sorted, distinct dataTypes declared across all pipelines.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List pipeline data types
+      tags:
+      - Pipelines
+  /eventprocessing/pipelines/find:
+    get:
+      description: Returns a single pipeline entry.
+      parameters:
+      - description: Relative path (e.g. syslog/syslog-generic.yaml)
+        in: query
+        name: relPath
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PipelineResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get pipeline by relPath
+      tags:
+      - Pipelines
+  /eventprocessing/pipelines/order:
+    put:
+      consumes:
+      - application/json
+      description: Sets a pipeline's position in the caller's tenant's order. Two
+        tenants can run the same pipelines in different orders.
+      parameters:
+      - description: relPath + new order
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePipelineOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reorder a pipeline
+      tags:
+      - Pipelines
   /eventprocessing/regex-pattern:
     get:
       parameters:
@@ -7185,188 +6937,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get regex pattern by patternId
-      tags:
-      - Event Processing
-  /eventprocessing/tenant-config:
-    get:
-      parameters:
-      - description: Page (0-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Partial match on assetName
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.TenantConfigResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List assets (tenant configs)
-      tags:
-      - Event Processing
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: assetName + CIA + lists
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateTenantConfigRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.TenantConfigResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "409":
-          description: Conflict
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create asset (tenant config)
-      tags:
-      - Event Processing
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: assetName + CIA + lists
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateTenantConfigRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.TenantConfigResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update asset (tenant config)
-      tags:
-      - Event Processing
-  /eventprocessing/tenant-config/{id}:
-    delete:
-      parameters:
-      - description: Asset name
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete asset (tenant config)
-      tags:
-      - Event Processing
-    get:
-      parameters:
-      - description: Asset name
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.TenantConfigResponse'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get asset by name
       tags:
       - Event Processing
   /identity-providers:
@@ -7569,7 +7139,7 @@ paths:
       - description: Filter by incident ID
         in: query
         name: incidentId
-        type: integer
+        type: string
       - description: Filter by alert ID
         in: query
         name: alertId
@@ -7577,7 +7147,7 @@ paths:
       - description: Filter by alert status
         in: query
         name: alertStatus
-        type: integer
+        type: string
       - description: Page (default 1)
         in: query
         name: page
@@ -7597,7 +7167,7 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/domain.UtmIncidentAlert'
+              $ref: '#/definitions/domain.IncidentAlert'
             type: array
         "500":
           description: Internal Server Error
@@ -7626,7 +7196,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/domain.UtmIncidentAlert'
+            $ref: '#/definitions/domain.IncidentAlert'
         "400":
           description: Bad Request
           schema:
@@ -7660,7 +7230,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncidentAlert'
+            $ref: '#/definitions/domain.IncidentAlert'
         "400":
           description: Bad Request
           schema:
@@ -7685,7 +7255,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: Deleted
@@ -7745,7 +7315,7 @@ paths:
       - description: Filter by incident ID
         in: query
         name: incidentId
-        type: integer
+        type: string
       - description: Page (default 1)
         in: query
         name: page
@@ -7769,7 +7339,7 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/domain.UtmIncidentHistory'
+              $ref: '#/definitions/domain.IncidentHistory'
             type: array
         "500":
           description: Internal Server Error
@@ -7789,14 +7359,14 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncidentHistory'
+            $ref: '#/definitions/domain.IncidentHistory'
         "404":
           description: Not Found
           schema:
@@ -7820,7 +7390,7 @@ paths:
       - description: Filter by incident ID
         in: query
         name: incidentId
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -7845,7 +7415,7 @@ paths:
       - description: Filter by incident ID
         in: query
         name: incidentId
-        type: integer
+        type: string
       - description: Page (default 1)
         in: query
         name: page
@@ -7865,7 +7435,7 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/domain.UtmIncidentNote'
+              $ref: '#/definitions/domain.IncidentNote'
             type: array
         "500":
           description: Internal Server Error
@@ -7894,7 +7464,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/domain.UtmIncidentNote'
+            $ref: '#/definitions/domain.IncidentNote'
         "400":
           description: Bad Request
           schema:
@@ -7946,7 +7516,7 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/domain.UtmIncident'
+              $ref: '#/definitions/domain.Incident'
             type: array
         "500":
           description: Internal Server Error
@@ -7975,7 +7545,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncident'
+            $ref: '#/definitions/domain.Incident'
         "400":
           description: Bad Request
           schema:
@@ -8006,14 +7576,14 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncident'
+            $ref: '#/definitions/domain.Incident'
         "404":
           description: Not Found
           schema:
@@ -8048,7 +7618,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/domain.UtmIncident'
+            $ref: '#/definitions/domain.Incident'
         "400":
           description: Bad Request
           schema:
@@ -8096,7 +7666,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncident'
+            $ref: '#/definitions/domain.Incident'
         "400":
           description: Bad Request
           schema:
@@ -8112,6 +7682,28 @@ paths:
       security:
       - BearerAuth: []
       summary: Assign incident
+      tags:
+      - Incidents
+  /incidents/assignees:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List the assignees currently in use
       tags:
       - Incidents
   /incidents/change-status:
@@ -8131,7 +7723,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmIncident'
+            $ref: '#/definitions/domain.Incident'
         "400":
           description: Bad Request
           schema:
@@ -8155,88 +7747,14 @@ paths:
       summary: Change incident status
       tags:
       - Incidents
-  /incidents/users-assigned:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.UserAssignedDTO'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get users assigned to incidents
-      tags:
-      - Incidents
-  /index-policy/policy:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.PolicySettings'
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get index policy settings (returns empty body if no policy configured)
-      tags:
-      - Index Policy
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Policy settings (snapshotActive bool, deleteAfter string)
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.PolicySettings'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UpdateManagedIndexPolicyResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update index policy settings
-      tags:
-      - Index Policy
   /integrations:
     get:
       parameters:
-      - description: Filter by category
+      - description: Filter by ingest type (agent, collector, forwarder, plugin)
         in: query
-        name: moduleCategory
+        name: ingestType
         type: string
-      - description: Filter by active status
-        in: query
-        name: moduleActive
-        type: boolean
-      - description: Partial match on module name
+      - description: Partial match on name
         in: query
         name: nameContains
         type: string
@@ -8259,8 +7777,14 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/dto.ModuleResponse'
+              $ref: '#/definitions/dto.IntegrationResponse'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -8269,7 +7793,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: List integration modules
+      summary: List integrations
       tags:
       - Integrations
     post:
@@ -8281,22 +7805,16 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateModuleRequest'
+          $ref: '#/definitions/dto.CreateIntegrationRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.ModuleResponse'
+            $ref: '#/definitions/dto.IntegrationResponse'
         "400":
           description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Forbidden
           schema:
             additionalProperties:
               type: string
@@ -8315,11 +7833,11 @@ paths:
   /integrations/{id}:
     delete:
       parameters:
-      - description: Module ID
+      - description: Integration ID
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: No content
@@ -8331,6 +7849,12 @@ paths:
             type: object
         "403":
           description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string
@@ -8348,20 +7872,26 @@ paths:
       - Integrations
     get:
       parameters:
-      - description: Module ID
+      - description: Integration ID
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ModuleResponse'
+            $ref: '#/definitions/dto.IntegrationResponse'
         "400":
           description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string
@@ -8374,31 +7904,31 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Get integration module by ID
+      summary: Get an integration by ID
       tags:
       - Integrations
     put:
       consumes:
       - application/json
       parameters:
-      - description: Module ID
+      - description: Integration ID
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Metadata
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateModuleRequest'
+          $ref: '#/definitions/dto.UpdateIntegrationRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ModuleResponse'
+            $ref: '#/definitions/dto.IntegrationResponse'
         "400":
           description: Bad Request
           schema:
@@ -8407,6 +7937,12 @@ paths:
             type: object
         "403":
           description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string
@@ -8420,63 +7956,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a custom integration's metadata
-      tags:
-      - Integrations
-  /integrations/activate:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Module name and activation status
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ModuleActivationRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ModuleResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Activate or deactivate an integration module
-      tags:
-      - Integrations
-  /integrations/categories:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List integration module categories
       tags:
       - Integrations
   /integrations/collectors:
@@ -8726,6 +8205,116 @@ paths:
       summary: Get a forwarder collector's current TLS certificate status
       tags:
       - Integrations
+  /integrations/config/{integration}:
+    get:
+      parameters:
+      - description: Integration name
+        in: path
+        name: integration
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ConfigGroupResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List an integration's configuration groups (secrets masked)
+      tags:
+      - Integration Configuration
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Integration name
+        in: path
+        name: integration
+        required: true
+        type: string
+      - description: Group configuration
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ConfigGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create or update a configuration group
+      tags:
+      - Integration Configuration
+  /integrations/config/{integration}/{name}:
+    delete:
+      parameters:
+      - description: Integration name
+        in: path
+        name: integration
+        required: true
+        type: string
+      - description: Group name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a configuration group by name
+      tags:
+      - Integration Configuration
   /integrations/data-types:
     get:
       description: |-
@@ -8751,138 +8340,6 @@ paths:
       summary: List the data-type catalog
       tags:
       - Integrations
-  /integrations/is-active:
-    get:
-      parameters:
-      - description: Module name
-        in: query
-        name: moduleName
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: boolean
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Report whether an integration module is active
-      tags:
-      - Integrations
-  /integrations/tenants/{module}:
-    get:
-      parameters:
-      - description: Module name
-        in: path
-        name: module
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.TenantResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List a module's tenants (sensitive values masked)
-      tags:
-      - Integration Tenants
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Module name
-        in: path
-        name: module
-        required: true
-        type: string
-      - description: Tenant config
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.TenantRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No content
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create or update a tenant for a module
-      tags:
-      - Integration Tenants
-  /integrations/tenants/{module}/{name}:
-    delete:
-      parameters:
-      - description: Module name
-        in: path
-        name: module
-        required: true
-        type: string
-      - description: Tenant name
-        in: path
-        name: name
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No content
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete a tenant by name
-      tags:
-      - Integration Tenants
   /internal/alert-tag-rules/active:
     get:
       produces:
@@ -8905,6 +8362,36 @@ paths:
       summary: List active alert tag rules (internal)
       tags:
       - Alert Tag Rules
+  /internal/alerts/notify:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Called by the alerts plugin after it writes an alert. Emails the
+        configured recipients. Echoes of a grouped alert are skipped.
+      parameters:
+      - description: Alert id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NotifyAlertRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Notify that an alert was raised (internal)
+      tags:
+      - Alerts
   /log-analyzer/chart-view:
     post:
       consumes:
@@ -8956,6 +8443,28 @@ paths:
       security:
       - BearerAuth: []
       summary: What can be explored
+      tags:
+      - Log Analyzer
+  /log-analyzer/datasets/{dataset}/data-types:
+    get:
+      parameters:
+      - description: Dataset
+        in: path
+        name: dataset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Data types present in a dataset
       tags:
       - Log Analyzer
   /log-analyzer/datasets/{dataset}/fields:
@@ -9018,7 +8527,7 @@ paths:
               type: string
           schema:
             items:
-              $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+              $ref: '#/definitions/domain.SavedQuery'
             type: array
         "500":
           description: Internal Server Error
@@ -9042,14 +8551,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+          $ref: '#/definitions/domain.SavedQuery'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+            $ref: '#/definitions/domain.SavedQuery'
         "400":
           description: Bad Request
           schema:
@@ -9076,14 +8585,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+          $ref: '#/definitions/domain.SavedQuery'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+            $ref: '#/definitions/domain.SavedQuery'
         "400":
           description: Bad Request
           schema:
@@ -9142,7 +8651,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.UtmLogAnalyzerQuery'
+            $ref: '#/definitions/domain.SavedQuery'
         "404":
           description: Not Found
           schema:
@@ -9158,6 +8667,83 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a saved log-analyzer query by id
+      tags:
+      - Log Analyzer
+  /log-analyzer/search:
+    post:
+      consumes:
+      - application/json
+      description: A page of documents for the explorer, read through the event store
+        rather than the index gateway.
+      parameters:
+      - description: Search request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Search documents
+      tags:
+      - Log Analyzer
+  /log-analyzer/search-sql:
+    post:
+      consumes:
+      - application/json
+      description: Runs a SELECT over the `logs` and `alerts` datasets. Both names
+        resolve to the caller's own tenant; naming a real table, another database
+        or a table function is refused.
+      parameters:
+      - description: Page (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 50, max 500)
+        in: query
+        name: size
+        type: integer
+      - description: SQL
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.sqlSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Search with SQL
       tags:
       - Log Analyzer
   /log-analyzer/top-x-values/{dataset}/{field}/{top}:
@@ -9227,6 +8813,10 @@ paths:
       - description: Filter by status
         in: query
         name: status
+        type: string
+      - description: Filter by exact message
+        in: query
+        name: message
         type: string
       - description: Filter by read flag
         in: query
@@ -9455,6 +9045,65 @@ paths:
       summary: Update status
       tags:
       - Notifications
+  /notifications/grouped:
+    get:
+      parameters:
+      - description: Filter by source
+        in: query
+        name: source
+        type: string
+      - description: Filter by type
+        in: query
+        name: type
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by read flag
+        in: query
+        name: read
+        type: boolean
+      - description: Created at >= (RFC3339)
+        in: query
+        name: from
+        type: string
+      - description: Created at <= (RFC3339)
+        in: query
+        name: to
+        type: string
+      - description: Page (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 20, max 200)
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Total groups
+              type: string
+          schema:
+            items:
+              $ref: '#/definitions/domain.NotificationGroup'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List notifications grouped by source, type and message
+      tags:
+      - Notifications
   /notifications/read-all:
     put:
       responses:
@@ -9491,717 +9140,6 @@ paths:
       summary: Count of unread active notifications
       tags:
       - Notifications
-  /opensearch/cluster/status:
-    get:
-      description: Returns OpenSearch cluster health information (name, status, nodes,
-        shards).
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ClusterStatusResponse'
-        "204":
-          description: No cluster information available
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get cluster status
-      tags:
-      - OpenSearch
-  /opensearch/count:
-    post:
-      consumes:
-      - application/json
-      description: Returns true if at least one document in the index pattern matches
-        the given filters.
-      parameters:
-      - description: Index pattern
-        in: query
-        name: indexPattern
-        type: string
-      - description: List of filters
-        in: body
-        name: filters
-        schema:
-          items:
-            $ref: '#/definitions/common_models.FilterType'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: boolean
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Check document existence
-      tags:
-      - OpenSearch
-  /opensearch/generic-search:
-    post:
-      consumes:
-      - application/json
-      description: Executes a filter-based search against a single named index (no
-        wildcard pattern).
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Search request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.GenericSearchRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total matching documents (capped at top)
-              type: string
-          schema:
-            items:
-              additionalProperties: true
-              type: object
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Generic search
-      tags:
-      - OpenSearch
-  /opensearch/index-patterns:
-    get:
-      parameters:
-      - description: Filter by exact id
-        in: query
-        name: id.equals
-        type: integer
-      - description: Filter by id greater than
-        in: query
-        name: id.greaterThan
-        type: integer
-      - description: Filter by id less than
-        in: query
-        name: id.lessThan
-        type: integer
-      - description: Filter by pattern containing value
-        in: query
-        name: pattern.contains
-        type: string
-      - description: Filter by exact pattern
-        in: query
-        name: pattern.equals
-        type: string
-      - description: Filter by patternModule containing value
-        in: query
-        name: patternModule.contains
-        type: string
-      - description: Filter by patternSystem
-        in: query
-        name: patternSystem.equals
-        type: boolean
-      - description: Filter by isActive
-        in: query
-        name: isActive.equals
-        type: boolean
-      - description: Page (0-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            Link:
-              description: RFC-5988 pagination links
-              type: string
-            X-Total-Count:
-              description: Total items
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.IndexPatternResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List index patterns
-      tags:
-      - Index Patterns
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Index pattern to create (id must be absent)
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateIndexPatternRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.IndexPatternResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create index pattern
-      tags:
-      - Index Patterns
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Index pattern to update (id required)
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateIndexPatternRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.IndexPatternResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update index pattern
-      tags:
-      - Index Patterns
-  /opensearch/index-patterns/{id}:
-    delete:
-      parameters:
-      - description: Index pattern ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Deleted
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete index pattern
-      tags:
-      - Index Patterns
-    get:
-      parameters:
-      - description: Index pattern ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.IndexPatternResponse'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get index pattern by ID
-      tags:
-      - Index Patterns
-  /opensearch/index-patterns/fields:
-    get:
-      parameters:
-      - description: Filter by exact id
-        in: query
-        name: id.equals
-        type: integer
-      - description: Filter by id greater than
-        in: query
-        name: id.greaterThan
-        type: integer
-      - description: Filter by id less than
-        in: query
-        name: id.lessThan
-        type: integer
-      - description: Filter by pattern containing value
-        in: query
-        name: pattern.contains
-        type: string
-      - description: Filter by exact pattern
-        in: query
-        name: pattern.equals
-        type: string
-      - description: Filter by patternModule containing value
-        in: query
-        name: patternModule.contains
-        type: string
-      - description: Filter by patternSystem
-        in: query
-        name: patternSystem.equals
-        type: boolean
-      - description: Filter by isActive
-        in: query
-        name: isActive.equals
-        type: boolean
-      - description: Page (0-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            Link:
-              description: RFC-5988 pagination links
-              type: string
-            X-Total-Count:
-              description: Total items
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.IndexPatternFieldsResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List index patterns with fields
-      tags:
-      - Index Patterns
-  /opensearch/index/all:
-    get:
-      description: Returns a paginated list of OpenSearch indices, optionally filtered
-        by pattern.
-      parameters:
-      - description: Include system indices (starting with '.')
-        in: query
-        name: includeSystemIndex
-        type: boolean
-      - description: Filter by index name pattern
-        in: query
-        name: pattern
-        type: string
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total number of matching indices
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.IndexInfo'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List all indices
-      tags:
-      - OpenSearch
-  /opensearch/index/delete-index:
-    post:
-      consumes:
-      - application/json
-      description: Deletes one or more OpenSearch indices by name.
-      parameters:
-      - description: List of index names to delete
-        in: body
-        name: indices
-        required: true
-        schema:
-          items:
-            type: string
-          type: array
-      responses:
-        "200":
-          description: Deleted
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete indices
-      tags:
-      - OpenSearch
-  /opensearch/index/properties:
-    get:
-      description: Returns a flattened list of field name + type for the given index
-        pattern.
-      parameters:
-      - description: Index pattern
-        in: query
-        name: indexPattern
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.IndexPropertyType'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get index properties
-      tags:
-      - OpenSearch
-  /opensearch/property/values:
-    get:
-      description: Returns all distinct values for a keyword field across the given
-        index pattern.
-      parameters:
-      - description: Keyword field name
-        in: query
-        name: keyword
-        required: true
-        type: string
-      - description: Index pattern
-        in: query
-        name: indexPattern
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get field values
-      tags:
-      - OpenSearch
-  /opensearch/property/values-with-count:
-    post:
-      consumes:
-      - application/json
-      description: Returns a map of field value → document count for the given index
-        and field.
-      parameters:
-      - description: Request body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.PropertyValuesWithCountRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: integer
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get field values with document count
-      tags:
-      - OpenSearch
-  /opensearch/search:
-    post:
-      consumes:
-      - application/json
-      description: Executes a filter-based search against an index pattern with optional
-        pagination and children enrichment.
-      parameters:
-      - description: Maximum number of results (default 500)
-        in: query
-        name: top
-        type: integer
-      - description: Index pattern
-        in: query
-        name: indexPattern
-        required: true
-        type: string
-      - description: Enrich each hit with hasChildren, echoes, and last_echo fields
-        in: query
-        name: includeChildren
-        type: boolean
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: List of filters
-        in: body
-        name: filters
-        schema:
-          items:
-            $ref: '#/definitions/common_models.FilterType'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total matching documents (capped at top)
-              type: string
-          schema:
-            items:
-              additionalProperties: true
-              type: object
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Search documents
-      tags:
-      - OpenSearch
-  /opensearch/search/csv:
-    post:
-      consumes:
-      - application/json
-      description: Fetches documents matching the request body filters and streams
-        them as a CSV download.
-      parameters:
-      - description: CSV export parameters
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CsvExportingParams'
-      produces:
-      - text/csv
-      responses:
-        "200":
-          description: CSV file stream
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Export search results to CSV
-      tags:
-      - OpenSearch
-  /opensearch/search/sql:
-    post:
-      consumes:
-      - application/json
-      description: Executes a validated SQL query against the OpenSearch SQL plugin
-        with automatic pagination.
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: SQL query
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SqlSearchDto'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total rows (capped at 10000)
-              type: string
-          schema:
-            items:
-              additionalProperties: true
-              type: object
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Search using SQL
-      tags:
-      - OpenSearch
   /roles:
     get:
       produces:
@@ -10274,815 +9212,6 @@ paths:
       summary: Get role
       tags:
       - Roles
-  /soar/action-templates:
-    get:
-      parameters:
-      - description: Page number (0-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total number of records
-              type: integer
-          schema:
-            items:
-              $ref: '#/definitions/dto.TemplateResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List alert response action templates
-      tags:
-      - SOAR Templates
-  /soar/incident-action-commands:
-    get:
-      description: Returns a paginated list of utm_incident_action_command
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Filter by action ID
-        in: query
-        name: actionId
-        type: integer
-      - description: Filter by OS platform
-        in: query
-        name: osPlatform
-        type: string
-      - description: Filter by command text
-        in: query
-        name: command
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/domain.UtmIncidentActionCommand'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List incident action commands
-      tags:
-      - Incident Action Commands
-    post:
-      consumes:
-      - application/json
-      description: Creates a new utm_incident_action_command record
-      parameters:
-      - description: Action command to create
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateActionCommandRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentActionCommand'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create incident action command
-      tags:
-      - Incident Action Commands
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing utm_incident_action_command record
-      parameters:
-      - description: Action command to update
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateActionCommandRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentActionCommand'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update incident action command
-      tags:
-      - Incident Action Commands
-  /soar/incident-action-commands/{id}:
-    delete:
-      description: Deletes a utm_incident_action_command record by ID
-      parameters:
-      - description: Action command ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete incident action command
-      tags:
-      - Incident Action Commands
-    get:
-      description: Returns a single utm_incident_action_command record
-      parameters:
-      - description: Action command ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentActionCommand'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get incident action command by ID
-      tags:
-      - Incident Action Commands
-  /soar/incident-actions:
-    get:
-      description: Returns a paginated list of utm_incident_actions filtered to SHUTDOWN_SERVER
-        and RUN_CMD
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Filter by action command
-        in: query
-        name: actionCommand
-        type: string
-      - description: Filter by action type
-        in: query
-        name: actionType
-        type: integer
-      - description: Filter by editable flag
-        in: query
-        name: actionEditable
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/domain.UtmIncidentAction'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List incident actions
-      tags:
-      - Incident Actions
-    post:
-      consumes:
-      - application/json
-      description: Creates a new utm_incident_actions record
-      parameters:
-      - description: Action to create
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateActionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentAction'
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create incident action
-      tags:
-      - Incident Actions
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing utm_incident_actions record
-      parameters:
-      - description: Action to update
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateActionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentAction'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update incident action
-      tags:
-      - Incident Actions
-  /soar/incident-actions/{id}:
-    delete:
-      description: Deletes a utm_incident_actions record by ID
-      parameters:
-      - description: Action ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete incident action
-      tags:
-      - Incident Actions
-    get:
-      description: Returns a single utm_incident_actions record
-      parameters:
-      - description: Action ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentAction'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get incident action by ID
-      tags:
-      - Incident Actions
-  /soar/incident-actions/count:
-    get:
-      description: Returns the count of utm_incident_actions matching filters
-      parameters:
-      - description: Filter by action command
-        in: query
-        name: actionCommand
-        type: string
-      - description: Filter by action type
-        in: query
-        name: actionType
-        type: integer
-      - description: Filter by editable flag
-        in: query
-        name: actionEditable
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: integer
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Count incident actions
-      tags:
-      - Incident Actions
-  /soar/incident-jobs:
-    get:
-      description: Returns a paginated list of utm_incident_jobs
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Filter by action ID
-        in: query
-        name: actionId
-        type: integer
-      - description: Filter by agent hostname
-        in: query
-        name: agent
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: integer
-      - description: Filter by origin ID
-        in: query
-        name: originId
-        type: integer
-      - description: Filter by origin type
-        in: query
-        name: originType
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/domain.UtmIncidentJob'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List incident jobs
-      tags:
-      - Incident Jobs
-    post:
-      consumes:
-      - application/json
-      description: Creates a new utm_incident_jobs record (a response run against
-        an agent)
-      parameters:
-      - description: Job to create
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateJobRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentJob'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create incident job
-      tags:
-      - Incident Jobs
-  /soar/incident-jobs/{id}:
-    delete:
-      description: Deletes a utm_incident_jobs record by ID
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete incident job
-      tags:
-      - Incident Jobs
-    get:
-      description: Returns a single utm_incident_jobs record
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.UtmIncidentJob'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get incident job by ID
-      tags:
-      - Incident Jobs
-  /soar/incident-jobs/count:
-    get:
-      description: Returns the count of utm_incident_jobs matching filters
-      parameters:
-      - description: Filter by action ID
-        in: query
-        name: actionId
-        type: integer
-      - description: Filter by agent hostname
-        in: query
-        name: agent
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: integer
-      - description: Filter by origin ID
-        in: query
-        name: originId
-        type: integer
-      - description: Filter by origin type
-        in: query
-        name: originType
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: integer
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Count incident jobs
-      tags:
-      - Incident Jobs
-  /soar/incident-variables:
-    get:
-      description: Returns a paginated list of utm_incident_variables. Secret values
-        are masked as "****".
-      parameters:
-      - description: Page number (1-based)
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: size
-        type: integer
-      - description: Filter by variable name
-        in: query
-        name: variableName
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            X-Total-Count:
-              description: Total records
-              type: string
-          schema:
-            items:
-              $ref: '#/definitions/dto.VariableResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: List incident variables
-      tags:
-      - Incident Variables
-    post:
-      consumes:
-      - application/json
-      description: Creates a new utm_incident_variables record. Secret values are
-        encrypted at rest.
-      parameters:
-      - description: Variable to create
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateVariableRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VariableResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create incident variable
-      tags:
-      - Incident Variables
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing utm_incident_variables record
-      parameters:
-      - description: Variable to update
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateVariableRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VariableResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Update incident variable
-      tags:
-      - Incident Variables
-  /soar/incident-variables/{id}:
-    delete:
-      description: Deletes a utm_incident_variables record by ID
-      parameters:
-      - description: Variable ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Delete incident variable
-      tags:
-      - Incident Variables
-    get:
-      description: Returns a single utm_incident_variables record. Secret value masked
-        as "****".
-      parameters:
-      - description: Variable ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VariableResponse'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get incident variable by ID
-      tags:
-      - Incident Variables
   /soar/rule-executions:
     get:
       parameters:
@@ -11448,6 +9577,186 @@ paths:
       summary: Resolve filter values for alert response rules
       tags:
       - SOAR Rules
+  /soar/variables:
+    get:
+      description: Returns a paginated list of utm_incident_variables. Secret values
+        are masked as "****".
+      parameters:
+      - description: Page number (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: size
+        type: integer
+      - description: Filter by variable name
+        in: query
+        name: variableName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Total records
+              type: string
+          schema:
+            items:
+              $ref: '#/definitions/dto.VariableResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List incident variables
+      tags:
+      - Incident Variables
+    post:
+      consumes:
+      - application/json
+      description: Creates a new utm_incident_variables record. Secret values are
+        encrypted at rest.
+      parameters:
+      - description: Variable to create
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVariableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VariableResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create incident variable
+      tags:
+      - Incident Variables
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing utm_incident_variables record
+      parameters:
+      - description: Variable to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateVariableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VariableResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update incident variable
+      tags:
+      - Incident Variables
+  /soar/variables/{id}:
+    delete:
+      description: Deletes a utm_incident_variables record by ID
+      parameters:
+      - description: Variable ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete incident variable
+      tags:
+      - Incident Variables
+    get:
+      description: Returns a single utm_incident_variables record. Secret value masked
+        as "****".
+      parameters:
+      - description: Variable ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VariableResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get incident variable by ID
+      tags:
+      - Incident Variables
   /soar/ws/command/{agentId}:
     get:
       description: Upgrades to WebSocket. Client sends one JSON command request,
@@ -11648,33 +9957,49 @@ paths:
       summary: What this tenant has spent on AI today
       tags:
       - SOC AI
-  /sso/saml/{name}/acs:
+  /sso/{name}/acs:
     post:
       consumes:
       - application/x-www-form-urlencoded
-      description: Receives the IdP SAMLResponse, validates it, maps the NameID to
-        a local user and redirects to the app with a session token.
       parameters:
       - description: Identity provider name
         in: path
         name: name
         required: true
         type: string
-      - description: Base64 SAML response
-        in: formData
-        name: SAMLResponse
-        required: true
-        type: string
       responses:
         "302":
-          description: Redirect to the app with ?error=saml2
+          description: Redirect to the app with ?token=…
       summary: SAML assertion consumer service
       tags:
       - SSO
-  /sso/saml/{name}/login:
+  /sso/{name}/callback:
     get:
-      description: Redirects the browser to the IdP with a signed AuthnRequest for
-        the named provider.
+      parameters:
+      - description: Identity provider name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Authorization code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Opaque state
+        in: query
+        name: state
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Redirect to the app with ?token=…
+      summary: OpenID Connect callback
+      tags:
+      - SSO
+  /sso/{name}/login:
+    get:
+      description: Redirects the browser to the provider named in the path.
       parameters:
       - description: Identity provider name
         in: path
@@ -11683,10 +10008,155 @@ paths:
         type: string
       responses:
         "302":
-          description: Redirect to the app with ?error=saml2
-      summary: Start SAML SSO login
+          description: Redirect to the provider
+      summary: Begin single sign-on
       tags:
       - SSO
+  /storage/health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HealthResponse'
+      security:
+      - BearerAuth: []
+      summary: The state of the disk underneath
+      tags:
+      - Storage
+  /storage/retention:
+    get:
+      description: 'Per dataset: the day a record is deleted, and the day it moves
+        to cold storage when the instance has any.'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.RetentionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: How long each dataset is kept
+      tags:
+      - Storage
+    put:
+      consumes:
+      - application/json
+      description: keepDays is the whole lifetime; coldDays is when records move to
+        object storage and must be shorter. A dataset that already moves records cannot
+        go back to local-only without rebuilding its table.
+      parameters:
+      - description: Dataset and its days
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RetentionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RetentionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Set how long a dataset is kept
+      tags:
+      - Storage
+  /storage/tiering:
+    get:
+      description: Configured means a bucket is written; ready means the store has
+        picked it up. Only ready allows a dataset to move records there. The credentials
+        are never returned.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TieringResponse'
+      security:
+      - BearerAuth: []
+      summary: Whether this instance has cold storage
+      tags:
+      - Storage
+    put:
+      consumes:
+      - application/json
+      description: Writes the bucket into the event store's configuration and makes
+        it read it again. The bucket cannot be changed once records live in it, because
+        the parts already moved carry it; the credentials can.
+      parameters:
+      - description: Bucket URL and credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ObjectStoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TieringResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Point cold storage at an object store
+      tags:
+      - Storage
+  /storage/usage:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UsageResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: What each dataset holds
+      tags:
+      - Storage
   /tenants:
     get:
       parameters:
@@ -11709,7 +10179,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+              $ref: '#/definitions/domain.Tenant'
             type: array
       security:
       - BearerAuth: []
@@ -11734,7 +10204,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+            $ref: '#/definitions/domain.Tenant'
         "400":
           description: Bad Request
           schema:
@@ -11789,7 +10259,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+            $ref: '#/definitions/domain.Tenant'
         "404":
           description: Not Found
           schema:
@@ -11824,7 +10294,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+            $ref: '#/definitions/domain.Tenant'
         "400":
           description: Bad Request
           schema:
@@ -11843,6 +10313,33 @@ paths:
       tags:
       - Tenants
   /tenants/{id}/support-access:
+    get:
+      description: Answers for the caller's own tenant only. The platform reads this
+        from the tenant list instead.
+      parameters:
+      - description: Tenant id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SupportAccessResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Read the support access this tenant has granted
+      tags:
+      - Tenants
     put:
       consumes:
       - application/json
@@ -11864,7 +10361,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_utmstack_utmstack_backend_modules_tenant_domain.Tenant'
+            $ref: '#/definitions/domain.Tenant'
         "403":
           description: Forbidden
           schema:
@@ -11876,102 +10373,89 @@ paths:
       summary: Grant or revoke platform support access to this tenant
       tags:
       - Tenants
-  /tfa/complete:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Method
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.TfaCompleteRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-      summary: Complete TFA enrollment and persist the secret
-      tags:
-      - TFA
-  /tfa/disable:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Current password
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/dto.TfaDisableRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-      summary: Disable TFA for the current user
-      tags:
-      - TFA
   /tfa/init:
     post:
       consumes:
       - application/json
       parameters:
-      - description: Method
+      - description: Enrollment stage
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.TfaInitRequest'
+          $ref: '#/definitions/dto.TfaEnrollmentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.TfaInitResponse'
+            $ref: '#/definitions/dto.TfaEnrollmentResponse'
       summary: Start TFA enrollment
       tags:
       - TFA
-  /tfa/refresh:
+  /threat-intel/feeds/contribution:
     get:
-      parameters:
-      - description: EMAIL
-        in: query
-        name: method
-        required: true
-        type: string
+      description: Answers whether sending is on and whether the credentials are in
+        place. The credentials themselves are never returned.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.TfaRefreshResponse'
-      summary: Resend the TFA challenge (EMAIL only)
+            $ref: '#/definitions/dto.FeedsStatus'
+      security:
+      - BearerAuth: []
+      summary: Whether this instance contributes to the ThreatWinds feed
       tags:
-      - TFA
-  /tfa/verify:
-    post:
+      - Threat Intel
+    put:
       consumes:
       - application/json
+      description: Decides whether this instance's incidents are sent to ThreatWinds.
+        Credentials are kept either way.
       parameters:
-      - description: Code
+      - description: On or off
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.TfaVerifyRequest'
+          $ref: '#/definitions/dto.FeedsToggleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.FeedsStatus'
+      security:
+      - BearerAuth: []
+      summary: Turn the ThreatWinds contribution on or off
+      tags:
+      - Threat Intel
+  /threat-intel/feeds/credentials:
+    put:
+      consumes:
+      - application/json
+      description: Internal only. The plugin registers itself with ThreatWinds and
+        hands the result here; it is stored encrypted in the file the plugin reads,
+        so the secret never has to be served back.
+      parameters:
+      - description: What the registration returned
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.FeedsCredentialsRequest'
       produces:
       - application/json
       responses:
         "204":
-          description: ""
-      summary: Verify the TFA code during setup
+          description: No Content
+      summary: Store the credentials the feeds plugin registered with
       tags:
-      - TFA
+      - Threat Intel
   /users:
     get:
       parameters:
@@ -12252,7 +10736,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: Deleted
@@ -12279,7 +10763,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

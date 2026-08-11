@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
 	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
@@ -15,7 +14,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
@@ -40,11 +38,10 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
-	notifications_domain "github.com/utmstack/utmstack/backend/modules/notifications/domain"
-	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
+	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
@@ -67,28 +64,28 @@ const (
 )
 
 type modules struct {
-	iam               *iam.Module
-	audit             *audit.Module
-	appconfig         *appconfig.Module
-	billing           *billing.Module
-	mail              *mail.Module
-	compliance        *compliance.Module
-	dashboards        *dashboards.Module
-	loganalyzer       *loganalyzer.Module
-	tenant            *tenant.Module
-	alerts            *alerts.Module
-	soar              *soar.Module
-	datasources       *datasources.Module
-	eventProcessing   *eventprocessing.Module
-	integrations      *integrations.Module
-	opensearchGateway *opensearchgw.Module
-	incidents         *incidents.Module
-	notifications     *notifications.Module
-	socAI             *socai.Module
-	adaudit           *adaudit.Module
-	threatIntel       *threatintel.Module
-	mcp               *mcpmod.Module
-	signer            *jwtpkg.Signer
+	iam             *iam.Module
+	audit           *audit.Module
+	appconfig       *appconfig.Module
+	billing         *billing.Module
+	mail            *mail.Module
+	compliance      *compliance.Module
+	dashboards      *dashboards.Module
+	loganalyzer     *loganalyzer.Module
+	tenant          *tenant.Module
+	alerts          *alerts.Module
+	soar            *soar.Module
+	datasources     *datasources.Module
+	eventProcessing *eventprocessing.Module
+	integrations    *integrations.Module
+	incidents       *incidents.Module
+	notifications   *notifications.Module
+	socAI           *socai.Module
+	adaudit         *adaudit.Module
+	threatIntel     *threatintel.Module
+	storage         *storage.Module
+	mcp             *mcpmod.Module
+	signer          *jwtpkg.Signer
 }
 
 func initModules(db *gorm.DB, cfg *config) *modules {
@@ -170,12 +167,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	apiKeyUsecase := iam_usecase.NewAPIKeyUsecase(apiKeyRepo, userRepo)
 	idpUsecase := iam_usecase.NewIdentityProviderUsecase(idpRepo, rbacRepo, cipher)
 
-	// Configure the go-sdk OpenSearch global client used by all modules.
-	osURL := fmt.Sprintf("https://%s:%d", cfg.esHost, cfg.esPort)
-	if err := sdkos.Connect([]string{osURL}, cfg.esUser, cfg.esPassword); err != nil {
-		_ = catcher.Error("opensearch SDK connect failed", err, nil)
-	}
-
 	alertsMod := alerts.NewModule(db, events, alerts.NewAlertMailer(mailMod.Service(), configMod.Store()))
 
 	agentClient, agentErr := agentmanager.NewClient()
@@ -199,24 +190,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 	datasourcesMod := datasources.NewModule(dsUC, dsReconciler, agentClient)
 
-	opensearchMod := opensearchgw.NewModule(db, cfg.esHost != "")
 	notificationsMod := notifications.NewModule(db, auditMod.Logger(), joblease.New(db),
 		env.Int("NOTIFICATIONS_READ_RETENTION_DAYS", 30, false),
 		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
-
-	if cfg.esHost != "" && cfg.diskGuardEnabled {
-		opensearchMod.SetSpaceGuard(
-			func(ctx context.Context, critical bool, msg string) error {
-				ntype := notifications_domain.TypeWarning
-				if critical {
-					ntype = notifications_domain.TypeError
-				}
-				return notificationsMod.Producer().Notify(ctx, notifications_domain.SourceSystem, ntype, msg)
-			},
-			cfg.diskWarnPercent, cfg.diskDeletePercent,
-			time.Duration(cfg.diskGuardIntervalSec)*time.Second,
-		)
-	}
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir)
@@ -251,6 +227,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		auditMod.Logger(),
 	)
 	adauditMod := adaudit.NewModule(db)
+	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false))
 	threatintelMod := threatintel.NewModule(env.String("UPDATES_DIR", "/updates", false))
 
 	integrationsMod := integrations.NewModule(db, cipher,
@@ -264,14 +241,13 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		mcpModule = mcpmod.NewModule(&mcpmod.Deps{
 			IAM:             iamMod,
 			Alerts:          alertsMod,
-			AlertScoring:    alertscoring.NewModule(opensearchMod.Gateway(), agentClient, datasourcesMod.GetDatasourceUsecase()),
+			AlertScoring:    alertscoring.NewModule(events, agentClient, datasourcesMod.GetDatasourceUsecase()),
 			Incidents:       incidentsMod,
 			SOAR:            soarMod,
 			Compliance:      complianceMod,
 			Audit:           auditMod,
 			Dashboards:      dashboardsMod,
 			LogAnalyzer:     loganalyzerMod,
-			OpenSearch:      opensearchMod,
 			EventProcessing: eventProcessingMod,
 			Datasources:     datasourcesMod,
 			Integrations:    integrationsMod,
@@ -286,28 +262,28 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	}
 
 	return &modules{
-		iam:               iamMod,
-		audit:             auditMod,
-		appconfig:         configMod,
-		billing:           billingMod,
-		mail:              mailMod,
-		compliance:        complianceMod,
-		dashboards:        dashboardsMod,
-		loganalyzer:       loganalyzerMod,
-		tenant:            tenantMod,
-		alerts:            alertsMod,
-		soar:              soarMod,
-		datasources:       datasourcesMod,
-		eventProcessing:   eventProcessingMod,
-		opensearchGateway: opensearchMod,
-		integrations:      integrationsMod,
-		socAI:             socAIMod,
-		incidents:         incidentsMod,
-		notifications:     notificationsMod,
-		adaudit:           adauditMod,
-		threatIntel:       threatintelMod,
-		mcp:               mcpModule,
-		signer:            signer,
+		iam:             iamMod,
+		audit:           auditMod,
+		appconfig:       configMod,
+		billing:         billingMod,
+		mail:            mailMod,
+		compliance:      complianceMod,
+		dashboards:      dashboardsMod,
+		loganalyzer:     loganalyzerMod,
+		tenant:          tenantMod,
+		alerts:          alertsMod,
+		soar:            soarMod,
+		datasources:     datasourcesMod,
+		eventProcessing: eventProcessingMod,
+		integrations:    integrationsMod,
+		socAI:           socAIMod,
+		incidents:       incidentsMod,
+		notifications:   notificationsMod,
+		adaudit:         adauditMod,
+		threatIntel:     threatintelMod,
+		storage:         storageMod,
+		mcp:             mcpModule,
+		signer:          signer,
 	}
 }
 

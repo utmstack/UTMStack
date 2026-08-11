@@ -394,12 +394,12 @@
       },
       "dataSource": {
         "title": "Quelles données ?",
-        "indexPattern": "Jeu de données",
-        "noPatternHint": "Choisissez un jeu de données pour activer les conditions, la mesure et le regroupement."
+        "dataset": "Jeu de données",
+        "noDatasetHint": "Choisissez un jeu de données pour activer les conditions et le regroupement."
       },
-      "indexPattern": {
-        "placeholder": "Sélectionnez un modèle d'index…",
-        "loading": "Chargement des modèles d'index…"
+      "dataset": {
+        "placeholder": "Sélectionnez un jeu de données…",
+        "loading": "Chargement des jeux de données…"
       },
       "filters": {
         "title": "Inclure uniquement les événements où…",
@@ -430,53 +430,22 @@
         "EXIST": "existe",
         "DOES_NOT_EXIST": "n'existe pas"
       },
-      "aggregations": {
-        "count": "Nombre d’événements",
-        "count_distinct": "Valeurs uniques",
-        "sum": "Somme",
-        "avg": "Moyenne",
-        "min": "Minimum",
-        "max": "Maximum"
-      },
-      "metric": {
-        "title": "Que voulez-vous mesurer ?",
-        "aggregation": "Mesure",
-        "field": "Du champ",
-        "fieldPlaceholder": "Choisissez un champ…",
-        "fieldNotRequired": "Inutile pour le comptage d’événements"
-      },
       "dimension": {
         "title": "Regrouper par",
         "field": "Champ",
         "placeholder": "Choisissez un champ à regrouper…"
       },
       "table": {
-        "title": "SELECT personnalisé (facultatif)",
-        "placeholder": "SELECT host, status, COUNT(*) FROM logs-* GROUP BY host, status",
-        "hint": "Affiche toutes les colonnes des événements correspondants. Pour choisir des colonnes précises ou agréger, passez à l’onglet SQL.",
+        "hint": "Affiche tous les champs des enregistrements. Ajoutez des colonnes pour en choisir.",
         "columnsTitle": "Colonnes",
         "allColumns": "Toutes les colonnes seront affichées. Ajoutez des champs pour en choisir certaines.",
         "addColumn": "Ajouter une colonne…",
         "removeColumn": "Retirer la colonne"
       },
-      "sqlPreview": {
-        "title": "Aperçu SQL",
-        "empty": "Choisissez un modèle d'index pour voir le SQL généré.",
-        "toggleRaw": "Passer en mode avancé (SQL brut)",
-        "rawPlaceholder": "SELECT … FROM … WHERE {{timeFilter}}",
-        "hint": "{{timeFilter}}, {{from}} et {{to}} sont remplacés au rendu depuis le sélecteur de plage de temps."
-      },
       "chartPreview": {
         "title": "Aperçu du graphique",
-        "noQuery": "Renseignez la source de données pour afficher un aperçu.",
+        "noQuery": "Choisissez un jeu de données pour voir un aperçu.",
         "error": "La requête d'aperçu a échoué."
-      },
-      "rawMode": {
-        "label": "Avancé (SQL brut)"
-      },
-      "tabs": {
-        "visual": "Visuel",
-        "sql": "SQL"
       },
       "chartTypeChip": {
         "label": "Graphique :"
@@ -494,7 +463,17 @@
         "choose": "Choisissez un champ…"
       },
       "toast": {
-        "notReady": "Choisissez un modèle d'index (et ajoutez une métrique ou du SQL) avant d'enregistrer."
+        "notReady": "Choisissez un jeu de données et un champ de répartition avant d’enregistrer."
+      },
+      "breakdown": {
+        "title": "Répartir par",
+        "time": "Dans le temps",
+        "field": "Valeurs les plus fréquentes",
+        "interval": "Taille de l'intervalle",
+        "intervalAuto": "Automatique",
+        "limit": "Combien",
+        "limitPlaceholder": "Par défaut (50)",
+        "splitHint": "Facultatif : une ligne par valeur de ce champ."
       }
     },
     "grid": {
@@ -507,7 +486,6 @@
       "loading": "Chargement des données…",
       "queryError": "Impossible de charger les données du widget.",
       "noData": "Aucune donnée pour la plage de temps sélectionnée.",
-      "noTimePlaceholderHint": "Astuce : ajoutez un marqueur de temps au SQL afin qu'il filtre selon la plage du sélecteur.",
       "regionMapEmpty": "Aucun point avec lat/lon valides.",
       "regionMapShapeHint": "Le SQL doit renvoyer des colonnes de latitude et de longitude (ou un tableau value [lat, lon, count]).",
       "regionMapUnnamed": "(sans nom)",
@@ -522,7 +500,8 @@
       "widthMedium": "2 cols",
       "widthLarge": "3 cols",
       "heightNormal": "Normale",
-      "heightTall": "Haute"
+      "heightTall": "Haute",
+      "incompleteSpec": "Il manque une partie de la question de ce widget."
     },
     "form": {
       "createTitle": "Nouveau tableau de bord",
@@ -1344,117 +1323,53 @@
   },
   "dataRetention": {
     "title": "Rétention des données",
-    "subtitle": "Durée de conservation des données d'événements avant leur suppression. Appliquée par la gestion du cycle de vie des index (ISM) d'OpenSearch sur les index gérés.",
-    "loading": "Chargement de la politique de rétention…",
-    "unavailable": {
-      "title": "La gestion du cycle de vie des index n'est pas disponible",
-      "body": "La rétention est gérée via l'ISM d'OpenSearch. Cette instance n'a pas OpenSearch configuré, il n'y a donc pas de politique de rétention à gérer ici."
-    },
-    "loadFailed": "Impossible de charger la politique de rétention.",
+    "subtitle": "How long each dataset is kept, and when its records stop costing local disk.",
+    "loading": "Chargement…",
+    "loadFailed": "Could not read the store.",
     "retry": "Réessayer",
-    "noPolicyNote": "Aucune politique de rétention n'est encore configurée. Définissez-en une ci-dessous et enregistrez pour l'appliquer.",
-    "deleteAfter": "Supprimer les données après",
-    "deleteAfterHint": "Les index plus anciens que cela sont supprimés. S'applique aux index d'événements gérés.",
-    "units": {
-      "days": "jours",
-      "hours": "heures"
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alerts",
+      "statistics": "Ingestion statistics"
     },
-    "positiveNumber": "Saisissez un nombre positif",
-    "snapshotTitle": "Snapshot avant suppression",
-    "snapshotHint": "Archive chaque index (restauration seule) avant sa suppression, afin de pouvoir récupérer les données plus tard. Si désactivé, les index sont supprimés immédiatement.",
-    "save": "Enregistrer la politique",
+    "holding": "{{documents}} records · {{size}}",
+    "since": "since {{date}}",
+    "diskUsed": "Disk {{pct}}% used",
+    "keep": "Delete after",
+    "keepHint": "A record is deleted this many days after it happened, wherever it is stored by then.",
+    "cold": "Move to cold storage after",
+    "coldHint": "Older records move to object storage and stay queryable. 0 keeps everything on local disk.",
+    "coldUnavailable": "Set up cold storage below to move older records off local disk.",
+    "coldBeforeDelete": "Records have to move before they are deleted: use fewer days than the lifetime, or 0.",
+    "tieredNote": "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here.",
+    "days": "jours",
+    "save": "Enregistrer",
     "saving": "Enregistrement…",
     "toast": {
-      "saved": "Politique de rétention enregistrée",
-      "noPermission": "Vous n'avez pas la permission de modifier la rétention",
-      "saveFailed": "Impossible d'enregistrer la politique de rétention"
-    }
-  },
-  "indices": {
-    "title": "Index et index patterns",
-    "subtitle": "Les index patterns regroupent les index pour la recherche ; les index sont le stockage OpenSearch sous-jacent.",
-    "retry": "Réessayer",
-    "tabs": {
-      "dataViews": "Index patterns",
-      "indices": "Index"
+      "saved": "Retention saved",
+      "noPermission": "You do not have permission to change retention",
+      "saveFailed": "Could not save the retention"
     },
-    "dataViews": {
-      "search": "Rechercher des index patterns…",
-      "add": "Ajouter une index pattern",
-      "colPattern": "Modèle",
-      "colModule": "Intégration",
-      "colActive": "Active",
-      "colActions": "Actions",
-      "loading": "Chargement des index patterns…",
-      "loadFailed": "Impossible de charger les index patterns.",
-      "noSearchMatch": "Aucune index pattern ne correspond à votre recherche.",
-      "none": "Aucune index pattern pour le moment.",
-      "system": "système",
-      "active": "Active",
-      "disabled": "Désactivée",
-      "edit": "Modifier",
-      "delete": "Supprimer",
-      "deleteTitle": "Supprimer la index pattern",
-      "deleteBody": "Supprimer {{pattern}} ? Cela supprime la définition de la index pattern. Les index sous-jacents ne sont pas supprimés.",
-      "deleteConfirm": "Supprimer",
-      "form": {
-        "addTitle": "Ajouter une index pattern",
-        "editTitle": "Modifier la index pattern",
-        "pattern": "Modèle d'index",
-        "patternHint": "Utilisez * comme caractère générique, p. ex. logs-windows-*",
-        "module": "Intégration",
-        "moduleHint": "Facultatif — l'intégration à laquelle appartient ce pattern (p. ex. windows, aws). Laissez vide pour les patterns personnalisés.",
-        "activeLabel": "Active",
-        "systemLabel": "Index pattern système",
-        "saving": "Enregistrement…",
-        "save": "Enregistrer les modifications",
-        "create": "Créer",
-        "matchChecking": "Vérification des index correspondants…",
-        "matchNone": "Ne correspond à aucun index — le pattern doit correspondre à au moins un.",
-        "duplicate": "Un index pattern avec ce glob existe déjà.",
-        "matchCount_one": "Correspond à {{count}} index",
-        "matchCount_other": "Correspond à {{count}} index"
-      },
+    "coldStorage": {
+      "title": "Cold storage",
+      "hint": "An object store the event store treats as a second, slower disk. Older records move there and are still queried from the same place — it is not an archive and nothing has to be restored.",
+      "active": "In use",
+      "inactive": "Not set up",
+      "writtenNotReady": "The bucket is configured but the store has not picked it up. Check that the deployment shares the store's configuration directory.",
+      "endpoint": "Bucket URL",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it.",
+      "enable": "Enable cold storage",
+      "update": "Update credentials",
       "toast": {
-        "enabled": "Index pattern activée",
-        "disabled": "Index pattern désactivée",
-        "created": "Index pattern créée",
-        "updated": "Index pattern mise à jour",
-        "deleted": "Index pattern supprimée"
-      },
-      "systemLocked": "Pattern système — géré automatiquement, non modifiable"
-    },
-    "index": {
-      "filter": "Filtrer par nom d'index…",
-      "systemIndices": "Index système",
-      "refresh": "Actualiser",
-      "colIndex": "Index",
-      "colHealth": "Santé",
-      "colStatus": "Statut",
-      "colDocs": "Docs",
-      "colSize": "Taille",
-      "colActions": "Actions",
-      "loading": "Chargement des index…",
-      "loadFailed": "Impossible de charger les index (OpenSearch est peut-être indisponible).",
-      "noFilterMatch": "Aucun index ne correspond à votre filtre.",
-      "none": "Aucun index trouvé.",
-      "page": "Page {{page}}",
-      "deleteTitle": "Supprimer l'index",
-      "deleteBody": "Supprimer définitivement l'index {{name}} ? Tous les {{docs}} documents qu'il contient seront perdus. Cette action est irréversible.",
-      "deleteConfirm": "Supprimer l'index",
-      "toast": {
-        "deleted": "Index supprimé"
+        "saved": "Cold storage configured",
+        "failed": "Could not configure cold storage"
       }
     },
-    "confirm": {
-      "cancel": "Annuler",
-      "working": "Traitement…"
-    },
-    "error": {
-      "noPermission": "Vous n'avez pas la permission de faire cela",
-      "notFound": "Introuvable",
-      "invalidRequest": "Requête invalide",
-      "failed": "L'opération a échoué"
+    "forbidden": {
+      "title": "Cette page appartient à la plateforme",
+      "body": "La rétention s'applique aux tables partagées par tous les locataires : seul un administrateur de la plateforme peut la lire ou la modifier."
     }
   },
   "languageSettings": {

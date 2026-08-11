@@ -68,11 +68,6 @@ func main() {
 	// Cache reloads (filter_store, rule_store, flow_store, reloadCoverage) are
 	// the exception: they rebuild in-process state and every replica has to run
 	// them.
-	if err := modules.opensearchGateway.Start(appCtx); err != nil {
-		_ = catcher.Error("opensearch module failed to start", err, nil)
-		panic(err)
-	}
-
 	modules.audit.Start(appCtx)
 	modules.notifications.Start(appCtx)
 	modules.iam.Start(appCtx)
