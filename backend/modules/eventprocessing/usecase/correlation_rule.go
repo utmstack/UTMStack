@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -18,10 +17,10 @@ import (
 // correlationRuleUsecase serves the rule CRUD/search from the file-backed
 // RuleStore (YAML-direct). Identity is the rule's relative path.
 type correlationRuleUsecase struct {
-	store *RuleStore
+	store connectors.RuleRepository
 }
 
-func NewCorrelationRuleUsecase(store *RuleStore) connectors.CorrelationRuleUsecase {
+func NewCorrelationRuleUsecase(store connectors.RuleRepository) connectors.CorrelationRuleUsecase {
 	return &correlationRuleUsecase{store: store}
 }
 
@@ -42,10 +41,10 @@ func (u *correlationRuleUsecase) Create(ctx context.Context, req dto.CreateCorre
 
 	created, err := u.store.Create(rule, authz.TenantIDFromContext(ctx))
 	if err != nil {
-		return mapStoreErr(err)
+		return err
 	}
 	if !req.RuleActive {
-		_, _ = u.store.SetEnabled(created.RelPath, false)
+		_, _ = u.store.SetEnabled(authz.TenantIDFromContext(ctx), created.RelPath, false)
 	}
 	return nil
 }
@@ -70,7 +69,7 @@ func (u *correlationRuleUsecase) ImportRules(ctx context.Context, files []dto.Im
 		}
 		created, err := u.store.Create(rule, tenantID)
 		if err != nil {
-			res.Error = mapStoreErr(err).Error()
+			res.Error = err.Error()
 			results = append(results, res)
 			continue
 		}
@@ -84,24 +83,24 @@ func (u *correlationRuleUsecase) ImportRules(ctx context.Context, files []dto.Im
 // parseRuleYAML accepts both a bare mapping (the canonical on-disk shape,
 // `dataTypes: ...`) and the legacy single-element list form (`- dataTypes:
 // ...`), so importing an older exported rule file still works.
-func parseRuleYAML(data []byte) (Rule, error) {
+func parseRuleYAML(data []byte) (domain.Rule, error) {
 	if strings.TrimSpace(string(data)) == "" {
-		return Rule{}, fmt.Errorf("%w: file is empty", domain.ErrCorrelationRuleInvalidContent)
+		return domain.Rule{}, fmt.Errorf("%w: file is empty", domain.ErrCorrelationRuleInvalidContent)
 	}
-	var list []Rule
+	var list []domain.Rule
 	if err := yaml.Unmarshal(data, &list); err == nil && len(list) > 0 {
 		return list[0], nil
 	}
-	var single Rule
+	var single domain.Rule
 	if err := yaml.Unmarshal(data, &single); err != nil {
-		return Rule{}, fmt.Errorf("%w: not valid rule YAML: %v", domain.ErrCorrelationRuleInvalidContent, err)
+		return domain.Rule{}, fmt.Errorf("%w: not valid rule YAML: %v", domain.ErrCorrelationRuleInvalidContent, err)
 	}
 	return single, nil
 }
 
 // validateImportedRule checks a parsed rule has the fields the Event Processor
 // needs, reusing the same afterEvents step-shape validation as create/update.
-func validateImportedRule(r Rule) error {
+func validateImportedRule(r domain.Rule) error {
 	if strings.TrimSpace(r.Name) == "" {
 		return fmt.Errorf("%w: missing rule name", domain.ErrCorrelationRuleInvalidContent)
 	}
@@ -130,9 +129,12 @@ func validateImportedRule(r Rule) error {
 	return nil
 }
 
-func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrelationRuleRequest) error {
+func (u *correlationRuleUsecase) Update(ctx context.Context, req dto.UpdateCorrelationRuleRequest) error {
 	if req.RelPath == "" {
 		return domain.ErrIDRequired
+	}
+	if err := u.writable(ctx, req.RelPath); err != nil {
+		return err
 	}
 	if len(req.DataTypes) == 0 {
 		return domain.ErrDataTypesRequired
@@ -149,23 +151,59 @@ func (u *correlationRuleUsecase) Update(_ context.Context, req dto.UpdateCorrela
 		req.DeduplicateByDef, req.DataTypes)
 
 	if _, err := u.store.Update(req.RelPath, rule); err != nil {
-		return mapStoreErr(err)
+		return err
 	}
 	// Reconcile the active state (the store keeps it in the filename).
-	_, err := u.store.SetEnabled(req.RelPath, req.RuleActive)
-	return mapStoreErr(err)
+	_, err := u.store.SetEnabled(authz.TenantIDFromContext(ctx), req.RelPath, req.RuleActive)
+	return err
 }
 
-func (u *correlationRuleUsecase) GetByRelPath(_ context.Context, relPath string) (*dto.CorrelationRuleResponse, error) {
-	sr := u.store.findByRelPath(relPath)
-	if sr == nil {
+// visible reports whether the caller may see this rule at all: the release's
+// rules and the global ones belong to everybody, a tenant's belong to it alone.
+func visible(sr *domain.StoredRule, tenant string) bool {
+	return tenant == "" || sr.TenantId == "" || sr.TenantId == tenant
+}
+
+// readable resolves a rule the caller is allowed to see. A rule belonging to
+// another tenant answers "not found" rather than "forbidden": the relPath is
+// the identity, and confirming one exists would tell a customer what another
+// has written.
+func (u *correlationRuleUsecase) readable(ctx context.Context, relPath string) (*domain.StoredRule, error) {
+	sr := u.store.FindByRelPath(relPath)
+	if sr == nil || !visible(sr, authz.TenantIDFromContext(ctx)) {
 		return nil, domain.ErrCorrelationRuleNotFound
+	}
+	return sr, nil
+}
+
+// writable additionally requires the rule to be the caller's own. The store
+// already refuses to rewrite a system rule; this is what stops one tenant
+// editing another's.
+func (u *correlationRuleUsecase) writable(ctx context.Context, relPath string) error {
+	sr, err := u.readable(ctx, relPath)
+	if err != nil {
+		return err
+	}
+	if sr.System {
+		return domain.ErrCorrelationRuleSystemOwner
+	}
+	if tenant := authz.TenantIDFromContext(ctx); tenant != "" && sr.TenantId != tenant {
+		return domain.ErrCorrelationRuleNotFound
+	}
+	return nil
+}
+
+func (u *correlationRuleUsecase) GetByRelPath(ctx context.Context, relPath string) (*dto.CorrelationRuleResponse, error) {
+	sr, err := u.readable(ctx, relPath)
+	if err != nil {
+		return nil, err
 	}
 	return storedToResponse(sr), nil
 }
 
-func (u *correlationRuleUsecase) List(_ context.Context, f dto.CorrelationRuleFilters) (*connectors.ListResult[dto.CorrelationRuleResponse], error) {
-	rules, total := u.store.List(RuleListFilter{
+func (u *correlationRuleUsecase) List(ctx context.Context, f dto.CorrelationRuleFilters) (*connectors.ListResult[dto.CorrelationRuleResponse], error) {
+	rules, total := u.store.List(connectors.RuleListFilter{
+		TenantId:        authz.TenantIDFromContext(ctx),
 		Page:            f.Page,
 		Size:            f.Size,
 		Name:            f.RuleName,
@@ -173,7 +211,7 @@ func (u *correlationRuleUsecase) List(_ context.Context, f dto.CorrelationRuleFi
 		Active:          f.RuleActive,
 		SystemOwner:     f.SystemOwner,
 		Categories:      f.RuleCategory,
-		Adversaries:     f.RuleAdversary,
+		Adversaries:     toAdversaries(f.RuleAdversary),
 		Techniques:      f.RuleTechnique,
 		Confidentiality: f.RuleConfidentiality,
 		Integrity:       f.RuleIntegrity,
@@ -190,28 +228,45 @@ func (u *correlationRuleUsecase) List(_ context.Context, f dto.CorrelationRuleFi
 	return &connectors.ListResult[dto.CorrelationRuleResponse]{Items: items, Total: int64(total)}, nil
 }
 
-func (u *correlationRuleUsecase) Delete(_ context.Context, relPath string) error {
-	return mapStoreErr(u.store.Delete(relPath))
+func (u *correlationRuleUsecase) Delete(ctx context.Context, relPath string) error {
+	if err := u.writable(ctx, relPath); err != nil {
+		return err
+	}
+	return u.store.Delete(relPath)
 }
 
-func (u *correlationRuleUsecase) SetActive(_ context.Context, relPath string, active bool) (bool, error) {
-	changed, err := u.store.SetEnabled(relPath, active)
-	return changed, mapStoreErr(err)
+// SetActive is deliberately checked against readable, not writable: a tenant
+// may switch a shipped rule off for itself without being able to rewrite it.
+func (u *correlationRuleUsecase) SetActive(ctx context.Context, relPath string, active bool) (bool, error) {
+	if _, err := u.readable(ctx, relPath); err != nil {
+		return false, err
+	}
+	return u.store.SetEnabled(authz.TenantIDFromContext(ctx), relPath, active)
 }
 
-func (u *correlationRuleUsecase) FindDistinctPropertyValues(_ context.Context, prop, value string) ([]string, error) {
-	return u.store.DistinctValues(prop, value), nil
+func (u *correlationRuleUsecase) FindDistinctPropertyValues(ctx context.Context, prop, value string) ([]string, error) {
+	return u.store.DistinctValues(prop, value, authz.TenantIDFromContext(ctx)), nil
 }
 
-func (u *correlationRuleUsecase) ExportRules(_ context.Context, relPaths []string) ([]dto.ExportedRuleFile, error) {
+// An empty relPaths means "everything I can see", not everything on disk —
+// exporting without arguments used to hand back every tenant's rule files.
+func (u *correlationRuleUsecase) ExportRules(ctx context.Context, relPaths []string) ([]dto.ExportedRuleFile, error) {
 	if len(relPaths) == 0 {
 		relPaths = u.store.AllRelPaths()
 	}
 	out := make([]dto.ExportedRuleFile, 0, len(relPaths))
 	for _, rel := range relPaths {
+		if _, err := u.readable(ctx, rel); err != nil {
+			// A path the caller may not see is skipped when exporting in bulk and
+			// reported when they asked for it by name.
+			if len(relPaths) == 1 {
+				return nil, err
+			}
+			continue
+		}
 		data, err := u.store.ReadRuleBytes(rel)
 		if err != nil {
-			return nil, mapStoreErr(err)
+			return nil, err
 		}
 		out = append(out, dto.ExportedRuleFile{Filename: rel, Content: data})
 	}
@@ -221,19 +276,19 @@ func (u *correlationRuleUsecase) ExportRules(_ context.Context, relPaths []strin
 // ── mappers ───────────────────────────────────────────────────────────────────
 
 func buildRule(name, adversary string, conf, integ, avail int, category, technique, description string,
-	refs, def, after, groupBy, dedup json.RawMessage, dataTypes []dto.DataTypeRef) Rule {
+	refs, def, after, groupBy, dedup json.RawMessage, dataTypes []dto.DataTypeRef) domain.Rule {
 	names := make([]string, 0, len(dataTypes))
 	for _, d := range dataTypes {
 		names = append(names, d.DataType)
 	}
-	return Rule{
+	return domain.Rule{
 		Name:          name,
-		Adversary:     adversary,
+		Adversary:     domain.AdversaryType(adversary),
 		Category:      category,
 		Technique:     technique,
 		Description:   description,
 		DataTypes:     names,
-		Impact:        Impact{Confidentiality: conf, Integrity: integ, Availability: avail},
+		Impact:        domain.Impact{Confidentiality: conf, Integrity: integ, Availability: avail},
 		Where:         rawToWhere(def),
 		References:    rawToAnySlice(refs),
 		Correlation:   rawToAny(after),
@@ -242,7 +297,7 @@ func buildRule(name, adversary string, conf, integ, avail int, category, techniq
 	}
 }
 
-func storedToResponse(sr *StoredRule) *dto.CorrelationRuleResponse {
+func storedToResponse(sr *domain.StoredRule) *dto.CorrelationRuleResponse {
 	mod := sr.Modified
 	dataTypes := make([]dto.RuleDataTypeResponse, 0, len(sr.DataTypes))
 	for _, name := range sr.DataTypes {
@@ -254,7 +309,7 @@ func storedToResponse(sr *StoredRule) *dto.CorrelationRuleResponse {
 	return &dto.CorrelationRuleResponse{
 		RelPath:             sr.RelPath,
 		RuleName:            sr.Name,
-		RuleAdversary:       sr.Adversary,
+		RuleAdversary:       string(sr.Adversary),
 		RuleConfidentiality: sr.Impact.Confidentiality,
 		RuleIntegrity:       sr.Impact.Integrity,
 		RuleAvailability:    sr.Impact.Availability,
@@ -267,22 +322,9 @@ func storedToResponse(sr *StoredRule) *dto.CorrelationRuleResponse {
 		RuleGroupByDef:      anyToRaw(sr.GroupBy),
 		DeduplicateByDef:    anyToRaw(sr.DeduplicateBy),
 		RuleLastUpdate:      &mod,
-		RuleActive:          sr.Active(),
-		SystemOwner:         sr.SystemOwned(),
+		RuleActive:          sr.Enabled,
+		SystemOwner:         sr.System,
 		DataTypes:           dataTypes,
-	}
-}
-
-func mapStoreErr(err error) error {
-	switch {
-	case err == nil:
-		return nil
-	case errors.Is(err, ErrRuleNotFound):
-		return domain.ErrCorrelationRuleNotFound
-	case errors.Is(err, ErrSystemRuleContent):
-		return domain.ErrCorrelationRuleSystemOwner
-	default:
-		return err
 	}
 }
 
@@ -411,4 +453,17 @@ func parseISO(s string) time.Time {
 		return time.Time{}
 	}
 	return t
+}
+
+// toAdversaries drops values the vocabulary does not know instead of passing
+// them through: an unrecognised adversary can never match a stored rule, and
+// silently returning nothing reads as "no results" rather than "bad filter".
+func toAdversaries(in []string) []domain.AdversaryType {
+	out := make([]domain.AdversaryType, 0, len(in))
+	for _, v := range in {
+		if a := domain.AdversaryType(v); a.Valid() {
+			out = append(out, a)
+		}
+	}
+	return out
 }

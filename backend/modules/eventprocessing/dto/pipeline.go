@@ -1,21 +1,22 @@
 package dto
 
-// CreateFilterRequest creates a new user filter. RelPath is the relative path
-// under the user overlay (e.g. "myorg/custom-fw.yaml"). Content must be a
-// valid pipeline: YAML as the go-sdk Config proto expects.
-type CreateFilterRequest struct {
+type CreatePipelineRequest struct {
 	RelPath string `json:"relPath" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
-// UpdateFilterRequest replaces the content of an existing user filter.
-type UpdateFilterRequest struct {
+type UpdatePipelineRequest struct {
 	RelPath string `json:"relPath" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
-// FilterResponse is the API representation of a filter overlay entry.
-type FilterResponse struct {
+// Order is the full sequence of pipeline names this tenant wants, not one
+// position: it is stored as a list and a partial update could not be resolved.
+type UpdatePipelineOrderRequest struct {
+	Order []string `json:"order"`
+}
+
+type PipelineResponse struct {
 	RelPath   string   `json:"relPath"`
 	Content   string   `json:"content"`
 	System    bool     `json:"system"`
@@ -24,13 +25,7 @@ type FilterResponse struct {
 	Order     int32    `json:"order"`
 }
 
-type UpdateFilterOrderRequest struct {
-	RelPath string `json:"relPath" binding:"required"`
-	Order   int32  `json:"order" binding:"required"`
-}
-
-// FilterFilters are query parameters for the list endpoint.
-type FilterFilters struct {
+type PipelineFilters struct {
 	RelPathContains *string `form:"relPath.contains"`
 	IsActiveEq      *bool   `form:"isActive.equals"`
 	SystemEq        *bool   `form:"system.equals"`

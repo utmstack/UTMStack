@@ -7,9 +7,9 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-// ErrInvalidStatsParam is returned for an unknown groupBy/status value.
 var ErrInvalidStatsParam = errors.New("invalid ingestion-stats parameter")
 
 const (
@@ -18,7 +18,6 @@ const (
 	maxTop             = 1000
 )
 
-// statusToType maps the public `status` to the doc `type` value. "all" → "".
 var statusToType = map[string]string{
 	"received":            "enqueue_success",
 	"parsing_dropped":     "parsing_dropped",
@@ -47,7 +46,7 @@ func (u *ingestionStatsUsecase) Totals(ctx context.Context, groupBy, status, fro
 	from, to = resolveWindow(from, to)
 	top = clampTop(top)
 
-	buckets, total, err := u.repo.TotalsByField(ctx, field, statusType, from, to, top)
+	buckets, total, err := u.repo.TotalsByField(ctx, field, statsFilters(statusType, from, to, ""), top)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 	}
 
 	if field == "" {
-		points, err := u.repo.Timeline(ctx, statusType, interval, from, to, dataSource)
+		points, err := u.repo.Timeline(ctx, statsFilters(statusType, from, to, dataSource), interval)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +91,7 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 		return resp, nil
 	}
 
-	series, err := u.repo.TimelineByField(ctx, field, statusType, interval, from, to, top, dataSource)
+	series, err := u.repo.TimelineByField(ctx, field, statsFilters(statusType, from, to, dataSource), interval, top)
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +99,6 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 	return resp, nil
 }
 
-// resolveGroupBy validates groupBy and returns the base OpenSearch field. When
-// required is false an empty groupBy is allowed (returns "").
 func resolveGroupBy(groupBy string, required bool) (string, error) {
 	switch groupBy {
 	case "dataSource", "dataType":
@@ -116,8 +113,6 @@ func resolveGroupBy(groupBy string, required bool) (string, error) {
 	}
 }
 
-// resolveStatus normalizes the status (defaulting to received) and returns the
-// canonical status plus the doc `type` filter ("" for all).
 func resolveStatus(status string) (string, string, error) {
 	if status == "" {
 		status = "received"
@@ -129,7 +124,6 @@ func resolveStatus(status string) (string, string, error) {
 	return status, t, nil
 }
 
-// resolveWindow defaults to the last 24h when from/to are absent (RFC3339).
 func resolveWindow(from, to string) (string, string) {
 	if to == "" {
 		to = "now"
@@ -140,8 +134,6 @@ func resolveWindow(from, to string) (string, string) {
 	return from, to
 }
 
-// resolveInterval picks a date_histogram interval. An explicit value wins;
-// otherwise it is derived from the window so a chart has a sane bucket count.
 func resolveInterval(interval, from, to string) string {
 	if interval != "" && interval != "auto" {
 		return interval
@@ -171,4 +163,22 @@ func clampTop(top int) int {
 		return maxTop
 	}
 	return top
+}
+func statsFilters(statusType, from, to, dataSource string) []common_models.FilterType {
+	filters := []common_models.FilterType{{
+		Field:    "@timestamp",
+		Operator: common_models.OpIsBetween,
+		Value:    []any{from, to},
+	}}
+	if statusType != "" {
+		filters = append(filters, common_models.FilterType{
+			Field: "type", Operator: common_models.OpEquals, Value: statusType,
+		})
+	}
+	if dataSource != "" {
+		filters = append(filters, common_models.FilterType{
+			Field: "dataSource", Operator: common_models.OpEquals, Value: dataSource,
+		})
+	}
+	return filters
 }

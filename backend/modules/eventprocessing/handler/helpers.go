@@ -63,17 +63,17 @@ func logHandlerError(operation, msg string) {
 	_ = catcher.Error(operation+": "+msg, nil, nil)
 }
 
-func writeFilterError(c *gin.Context, err error) {
-	if errors.Is(err, domain.ErrFilterNotFound) {
+func writePipelineError(c *gin.Context, err error) {
+	if errors.Is(err, domain.ErrPipelineNotFound) {
 		logHandlerError("logstash filter", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "filter not found"})
 		return
 	}
-	if errors.Is(err, domain.ErrFilterInvalidContent) {
+	if errors.Is(err, domain.ErrPipelineInvalidContent) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if errors.Is(err, domain.ErrFilterSystemOwner) {
+	if errors.Is(err, domain.ErrPipelineSystemOwner) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "system filter is read-only"})
 		return
 	}

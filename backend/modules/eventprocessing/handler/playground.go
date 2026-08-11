@@ -21,10 +21,10 @@ func NewPlaygroundHandler(uc connectors.PlaygroundUsecase) *PlaygroundHandler {
 	return &PlaygroundHandler{usecase: uc}
 }
 
-func (h *PlaygroundHandler) TestFilter(c *gin.Context) {
+func (h *PlaygroundHandler) TestPipeline(c *gin.Context) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, usecase.MaxPlaygroundBodyBytes)
 
-	var req dto.TestFilterRequest
+	var req dto.TestPipelineRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		var maxErr *http.MaxBytesError
 		if errors.As(err, &maxErr) {
@@ -35,11 +35,11 @@ func (h *PlaygroundHandler) TestFilter(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.usecase.TestFilter(c.Request.Context(), req)
+	resp, err := h.usecase.TestPipeline(c.Request.Context(), req)
 	audit.Record(c, audit_connectors.Event{
-		Action:       "eventprocessing.playground.test_filter",
+		Action:       "eventprocessing.playground.test_pipeline",
 		ResourceType: "playground",
-		Metadata:     map[string]any{"had_custom_content": req.Filter != nil},
+		Metadata:     map[string]any{"had_custom_content": req.Pipeline != nil},
 	}, audit_domain.PLAYGROUND_TEST_FILTER_ATTEMPT, audit_domain.PLAYGROUND_TEST_FILTER_SUCCESS, err)
 
 	if err != nil {

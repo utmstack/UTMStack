@@ -4,7 +4,7 @@ import { AlertTriangle, Info, Loader2, PlayCircle, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { PlaygroundHttpError, playgroundHttpService } from '../services/playground-http.service'
-import type { PlaygroundMode, TestFilterResponse } from '../types'
+import type { PlaygroundMode, TestPipelineResponse } from '../types'
 import { ParsedEventView } from './ParsedEventView'
 import { AlertsListView } from './AlertsListView'
 
@@ -30,7 +30,7 @@ export function TestPlaygroundModal({ mode, titleKey, dataTypeOptions, draftCont
   const [selectedDataType, setSelectedDataType] = useState(dataTypeOptions[0] ?? '')
   const [rawLog, setRawLog] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<TestFilterResponse | null>(null)
+  const [result, setResult] = useState<TestPipelineResponse | null>(null)
   const [errorKind, setErrorKind] = useState<ErrorKind>(null)
   const [elapsedMs, setElapsedMs] = useState<number | null>(null)
 
@@ -55,7 +55,7 @@ export function TestPlaygroundModal({ mode, titleKey, dataTypeOptions, draftCont
       const response =
         mode === 'rule'
           ? await playgroundHttpService.testRule({ log, rule: draftContent !== undefined ? { content: draftContent } : undefined })
-          : await playgroundHttpService.testFilter({ log, filter: draftContent !== undefined ? { content: draftContent } : undefined })
+          : await playgroundHttpService.testPipeline({ log, pipeline: draftContent !== undefined ? { content: draftContent } : undefined })
       setElapsedMs(performance.now() - start)
       if (response.timedOut) {
         setErrorKind('timeout')

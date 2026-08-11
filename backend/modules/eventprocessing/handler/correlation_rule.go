@@ -15,7 +15,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
-// TODO(module-33): re-evaluate if network-scan property values are needed here.
 var allowedPropertyColumns = map[string]bool{
 	"rule_name":      true,
 	"rule_category":  true,

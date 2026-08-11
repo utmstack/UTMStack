@@ -8,7 +8,7 @@ import (
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	rph := m.GetRegexPatternHandler()
 	crh := m.GetCorrelationRuleHandler()
-	fh := m.GetFilterHandler()
+	fh := m.GetPipelineHandler()
 	sh := m.GetIngestionStatsHandler()
 
 	read := middleware.RequirePermission("eventprocessing.read")
@@ -16,14 +16,9 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 
 	g := api.Group("/eventprocessing", userAuth)
 
-	// Regex patterns are read-only. They are a shared vocabulary referenced from
-	// filter YAMLs as {{.name}}, seeded by the pipeline bootstrap and identical
-	// for every tenant — consumed here, never authored.
 	rg := g.Group("/regex-pattern")
 	rg.GET("", read, rph.List)
 	rg.GET("/:id", read, rph.GetByID)
-
-	// Asset CIA lives on datasources, which projects it into tenants.yaml.
 
 	// Correlation rules — audit is recorded handler-side via audit.Record.
 	cr := g.Group("/correlation-rule")
@@ -37,24 +32,24 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	cr.GET("/find", read, crh.GetByID)
 	cr.DELETE("", write, crh.Delete)
 
-	// Filters (file-backed, pipeline: YAML). Identity = relPath query param.
-	f := g.Group("/filters")
+	// Pipelines (file-backed YAML). Identity = relPath query param.
+	f := g.Group("/pipelines")
 	f.POST("", write, fh.Create)
 	f.PUT("", write, fh.Update)
 	f.PUT("/activate", write, fh.ActivateDeactivate) // BEFORE /find
-	f.PUT("/order", write, fh.SetOrder)              // reorder a custom filter in the global pipeline order
+	f.PUT("/order", write, fh.SetOrder)              // reorder a pipeline against the others matching its data type
 	f.GET("", read, fh.List)
-	f.GET("/data-types", read, fh.DataTypes) // distinct dataTypes for the UI filter
+	f.GET("/data-types", read, fh.DataTypes) // distinct dataTypes for the UI selector
 	f.GET("/find", read, fh.GetByRelPath)    // BEFORE potential /:id
 	f.DELETE("", write, fh.Delete)
 
-	// Live ingestion stats (read from v11-statistics-*; no DB/sync).
+	// Live ingestion stats, read from the event store.
 	st := g.Group("/ingestion-stats")
 	st.GET("", read, sh.Totals)
 	st.GET("/timeline", read, sh.Timeline)
 
 	ph := m.GetPlaygroundHandler()
 	pg := g.Group("/playground")
-	pg.POST("/test-filter", write, ph.TestFilter)
+	pg.POST("/test-pipeline", write, ph.TestPipeline)
 	pg.POST("/test-rule", write, ph.TestRule)
 }

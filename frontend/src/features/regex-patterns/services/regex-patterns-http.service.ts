@@ -7,19 +7,17 @@ export { ApiError as RegexPatternsHttpError }
 /* ─── Types (mirror backend modules/eventprocessing/dto regex_pattern) ── */
 
 /**
- * A reusable regular expression referenced from parsing filters. Identity is
- * `patternId` (the name used to reference it). System patterns are read-only.
+ * A reusable regular expression referenced from parsing pipelines. Identity is
+ * `patternId`, the name used to reference it. The whole vocabulary ships with
+ * the release and is read-only, so there is no ownership to report.
  */
 export interface RegexPattern {
   patternId: string
-  patternDescription: string
   patternDefinition: string
-  systemOwner: boolean
 }
 
 export interface RegexPatternListQuery {
   search?: string
-  system?: boolean // nil = both; true = system only; false = user only
   page?: number // 0-based
   size?: number
 }
@@ -27,7 +25,6 @@ export interface RegexPatternListQuery {
 function listQuery(q: RegexPatternListQuery): string {
   const p = new URLSearchParams()
   if (q.search) p.set('search', q.search)
-  if (q.system != null) p.set('system', String(q.system))
   p.set('page', String(q.page ?? 0))
   p.set('size', String(q.size ?? 20))
   return p.toString()
@@ -35,9 +32,8 @@ function listQuery(q: RegexPatternListQuery): string {
 
 const BASE = '/eventprocessing/regex-pattern'
 
-// Read-only. Patterns are a shared vocabulary seeded by the backend's pipeline
-// bootstrap and referenced from filter YAMLs as {{.name}}; the API exposes no
-// create, update or delete.
+// Read-only. A shared vocabulary referenced from pipeline YAMLs as {{.name}};
+// the API exposes no create, update or delete.
 export const regexPatternsHttpService = {
   // Returns { data: RegexPattern[], total } — total comes from X-Total-Count.
   list: (q: RegexPatternListQuery = {}) => api.getPaged<RegexPattern[]>(`${BASE}?${listQuery(q)}`),

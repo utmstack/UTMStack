@@ -7,8 +7,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { filtersHttpService } from '@/features/data-processing/services/data-processing-http.service'
-import type { Filter } from '@/features/data-processing/types/data-processing.types'
+import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
+import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
 import { FilterFormDrawer } from '../components/FilterFormDrawer'
 import { displayName } from '../lib/filter-model'
@@ -17,6 +17,12 @@ type Tab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 
 const COLS = 'minmax(180px,1fr) minmax(160px,1.3fr) 100px 80px 60px 64px'
+
+// The name the engine matches on: the file's base name without its extension.
+function pipelineIdentity(relPath: string): string {
+  const base = relPath.split('/').pop() ?? relPath
+  return base.replace(/\.disabled$/, '').replace(/\.[^.]+$/, '')
+}
 
 export function ParsingFiltersPage() {
   const { t } = useTranslation()
@@ -27,13 +33,13 @@ export function ParsingFiltersPage() {
   // (avoids a race where the unfiltered request resolves last and wins).
   const [dataType, setDataType] = useState(() => new URLSearchParams(window.location.search).get('dataType') ?? '')
   const [dataTypeOptions, setDataTypeOptions] = useState<string[]>([])
-  const [items, setItems] = useState<Filter[]>([])
+  const [items, setItems] = useState<Pipeline[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0) // 0-based
   const [pageSize] = useState(50)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [editing, setEditing] = useState<{ filter: Filter; creating: boolean } | null>(null)
+  const [editing, setEditing] = useState<{ filter: Pipeline; creating: boolean } | null>(null)
   const [preparingNew, setPreparingNew] = useState(false)
   const [showTestModal, setShowTestModal] = useState(false)
 
@@ -58,7 +64,7 @@ export function ParsingFiltersPage() {
 
   // Distinct dataTypes for the filter dropdown (loaded once).
   useEffect(() => {
-    filtersHttpService
+    pipelinesHttpService
       .dataTypes()
       .then((d) => setDataTypeOptions(d ?? []))
       .catch(() => setDataTypeOptions([]))
@@ -88,7 +94,7 @@ export function ParsingFiltersPage() {
   const load = useCallback(() => {
     setLoading(true)
     setError(false)
-    filtersHttpService
+    pipelinesHttpService
       .list(query)
       .then((r) => {
         setItems((prev) => (page === 0 ? (r.data ?? []) : [...prev, ...(r.data ?? [])]))
@@ -101,11 +107,11 @@ export function ParsingFiltersPage() {
     load()
   }, [load])
 
-  const toggleActive = async (f: Filter) => {
+  const toggleActive = async (f: Pipeline) => {
     const next = !f.active
     setItems((list) => list.map((x) => (x.relPath === f.relPath ? { ...x, active: next } : x)))
     try {
-      await filtersHttpService.activate(f.relPath, next)
+      await pipelinesHttpService.activate(f.relPath, next)
     } catch {
       setItems((list) => list.map((x) => (x.relPath === f.relPath ? { ...x, active: f.active } : x)))
       toast.error(t('parsingFilters.toast.activateError'))
@@ -118,7 +124,7 @@ export function ParsingFiltersPage() {
     setPreparingNew(true)
     let order = 100
     try {
-      const r = await filtersHttpService.list({ page: 1, size: 1000 })
+      const r = await pipelinesHttpService.list({ page: 1, size: 1000 })
       const orders = (r.data ?? []).map((f) => f.order ?? 0)
       if (orders.length) order = Math.max(...orders) + 1
     } catch {
@@ -134,27 +140,19 @@ export function ParsingFiltersPage() {
   const moveOrder = async (index: number, direction: -1 | 1) => {
     const otherIndex = index + direction
     if (reordering || otherIndex < 0 || otherIndex >= items.length) return
-    const current = items[index]
-    const other = items[otherIndex]
+
+    const previous = items
+    const next = [...items]
+    ;[next[index], next[otherIndex]] = [next[otherIndex], next[index]]
+
     setReordering(true)
-    setItems((list) => {
-      const next = [...list]
-      next[index] = { ...other, order: current.order }
-      next[otherIndex] = { ...current, order: other.order }
-      return next
-    })
+    setItems(next)
     try {
-      await Promise.all([
-        filtersHttpService.setOrder(current.relPath, other.order),
-        filtersHttpService.setOrder(other.relPath, current.order),
-      ])
+      // The order is saved as the whole sequence for this tenant, so the list
+      // is sent as it now reads on screen.
+      await pipelinesHttpService.setOrder(next.map((p) => pipelineIdentity(p.relPath)))
     } catch {
-      setItems((list) => {
-        const next = [...list]
-        next[index] = current
-        next[otherIndex] = other
-        return next
-      })
+      setItems(previous)
       toast.error(t('parsingFilters.toast.orderError'))
     } finally {
       setReordering(false)
@@ -292,7 +290,7 @@ export function ParsingFiltersPage() {
       )}
 
       {showTestModal && (
-        <TestPlaygroundModal mode="filter" titleKey="playground.titleFilter" dataTypeOptions={dataTypeOptions} onClose={() => setShowTestModal(false)} />
+        <TestPlaygroundModal mode="pipeline" titleKey="playground.titleFilter" dataTypeOptions={dataTypeOptions} onClose={() => setShowTestModal(false)} />
       )}
     </div>
   )
@@ -325,7 +323,7 @@ function Row({
   canMoveDown,
   reordering,
 }: {
-  f: Filter
+  f: Pipeline
   onOpen: () => void
   onToggle: () => void
   onMoveUp: () => void

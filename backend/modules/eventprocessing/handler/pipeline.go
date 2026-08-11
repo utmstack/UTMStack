@@ -11,12 +11,12 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
-type FilterHandler struct {
-	usecase connectors.FilterUsecase
+type PipelineHandler struct {
+	usecase connectors.PipelineUsecase
 }
 
-func NewFilterHandler(uc connectors.FilterUsecase) *FilterHandler {
-	return &FilterHandler{usecase: uc}
+func NewPipelineHandler(uc connectors.PipelineUsecase) *PipelineHandler {
+	return &PipelineHandler{usecase: uc}
 }
 
 // @Summary     Create filter
@@ -25,14 +25,14 @@ func NewFilterHandler(uc connectors.FilterUsecase) *FilterHandler {
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.CreateFilterRequest true "relPath + pipeline YAML content"
-// @Success     200 {object} dto.FilterResponse
+// @Param       input body dto.CreatePipelineRequest true "relPath + pipeline YAML content"
+// @Success     200 {object} dto.PipelineResponse
 // @Failure     400 {object} map[string]string
 // @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters [post]
-func (h *FilterHandler) Create(c *gin.Context) {
-	var req dto.CreateFilterRequest
+func (h *PipelineHandler) Create(c *gin.Context) {
+	var req dto.CreatePipelineRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -41,7 +41,7 @@ func (h *FilterHandler) Create(c *gin.Context) {
 	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.create", ResourceType: "filter", ResourceID: req.RelPath},
 		audit_domain.LOGSTASH_FILTER_CREATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_CREATE_SUCCESS, err)
 	if err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, resp)
@@ -53,15 +53,15 @@ func (h *FilterHandler) Create(c *gin.Context) {
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.UpdateFilterRequest true "relPath + new pipeline YAML content"
-// @Success     200 {object} dto.FilterResponse
+// @Param       input body dto.UpdatePipelineRequest true "relPath + new pipeline YAML content"
+// @Success     200 {object} dto.PipelineResponse
 // @Failure     400 {object} map[string]string
 // @Failure     403 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters [put]
-func (h *FilterHandler) Update(c *gin.Context) {
-	var req dto.UpdateFilterRequest
+func (h *PipelineHandler) Update(c *gin.Context) {
+	var req dto.UpdatePipelineRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -70,7 +70,7 @@ func (h *FilterHandler) Update(c *gin.Context) {
 	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.update", ResourceType: "filter", ResourceID: req.RelPath},
 		audit_domain.LOGSTASH_FILTER_UPDATE_ATTEMPT, audit_domain.LOGSTASH_FILTER_UPDATE_SUCCESS, err)
 	if err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, resp)
@@ -86,22 +86,22 @@ func (h *FilterHandler) Update(c *gin.Context) {
 // @Param       system.equals    query bool   false "true = system only, false = user only"
 // @Param       page             query int    false "Page (1-based)"
 // @Param       size             query int    false "Page size (default 50)"
-// @Success     200 {array}  dto.FilterResponse
+// @Success     200 {array}  dto.PipelineResponse
 // @Header      200 {string} X-Total-Count "Total records"
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters [get]
-func (h *FilterHandler) List(c *gin.Context) {
-	var f dto.FilterFilters
+func (h *PipelineHandler) List(c *gin.Context) {
+	var f dto.PipelineFilters
 	if err := c.ShouldBindQuery(&f); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	items, total, err := h.usecase.List(c.Request.Context(), f)
+	res, err := h.usecase.List(c.Request.Context(), f)
 	if err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
-	writePagedArray(c, items, total)
+	writePagedArray(c, res.Items, res.Total)
 }
 
 // @Summary     List filter data types
@@ -111,7 +111,7 @@ func (h *FilterHandler) List(c *gin.Context) {
 // @Produce     json
 // @Success     200 {array} string
 // @Router      /eventprocessing/filters/data-types [get]
-func (h *FilterHandler) DataTypes(c *gin.Context) {
+func (h *PipelineHandler) DataTypes(c *gin.Context) {
 	dts := h.usecase.DataTypes(c.Request.Context())
 	if dts == nil {
 		dts = []string{}
@@ -125,11 +125,11 @@ func (h *FilterHandler) DataTypes(c *gin.Context) {
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath query string true "Relative path (e.g. syslog/syslog-generic.yaml)"
-// @Success     200 {object} dto.FilterResponse
+// @Success     200 {object} dto.PipelineResponse
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters/find [get]
-func (h *FilterHandler) GetByRelPath(c *gin.Context) {
+func (h *PipelineHandler) GetByRelPath(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
@@ -137,7 +137,7 @@ func (h *FilterHandler) GetByRelPath(c *gin.Context) {
 	}
 	resp, err := h.usecase.GetByRelPath(c.Request.Context(), relPath)
 	if err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, resp)
@@ -154,7 +154,7 @@ func (h *FilterHandler) GetByRelPath(c *gin.Context) {
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters [delete]
-func (h *FilterHandler) Delete(c *gin.Context) {
+func (h *PipelineHandler) Delete(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
@@ -164,7 +164,7 @@ func (h *FilterHandler) Delete(c *gin.Context) {
 	audit.Record(c, audit_connectors.Event{Action: "eventprocessing.filter.delete", ResourceType: "filter", ResourceID: relPath},
 		audit_domain.LOGSTASH_FILTER_DELETE_ATTEMPT, audit_domain.LOGSTASH_FILTER_DELETE_SUCCESS, err)
 	if err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
@@ -181,7 +181,7 @@ func (h *FilterHandler) Delete(c *gin.Context) {
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
 // @Router      /eventprocessing/filters/activate [put]
-func (h *FilterHandler) ActivateDeactivate(c *gin.Context) {
+func (h *PipelineHandler) ActivateDeactivate(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
@@ -189,7 +189,7 @@ func (h *FilterHandler) ActivateDeactivate(c *gin.Context) {
 	}
 	active := c.Query("active") == "true"
 	if err := h.usecase.SetActive(c.Request.Context(), relPath, active); err != nil {
-		writeFilterError(c, err)
+		writePipelineError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
@@ -201,21 +201,20 @@ func (h *FilterHandler) ActivateDeactivate(c *gin.Context) {
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.UpdateFilterOrderRequest true "relPath + new order"
-// @Success     200 {object} dto.FilterResponse
+// @Param       input body dto.UpdatePipelineOrderRequest true "relPath + new order"
+// @Success     204 "No content"
 // @Failure     400 {object} map[string]string
 // @Failure     404 {object} map[string]string
-// @Router      /eventprocessing/filters/order [put]
-func (h *FilterHandler) SetOrder(c *gin.Context) {
-	var req dto.UpdateFilterOrderRequest
+// @Router      /eventprocessing/pipelines/order [put]
+func (h *PipelineHandler) SetOrder(c *gin.Context) {
+	var req dto.UpdatePipelineOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.SetOrder(c.Request.Context(), req.RelPath, req.Order)
-	if err != nil {
-		writeFilterError(c, err)
+	if err := h.usecase.SetOrder(c.Request.Context(), req.Order); err != nil {
+		writePipelineError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, resp)
+	c.Status(http.StatusNoContent)
 }

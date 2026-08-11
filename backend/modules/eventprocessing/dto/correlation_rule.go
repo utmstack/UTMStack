@@ -24,88 +24,66 @@ type RuleDataTypeResponse struct {
 }
 
 type CreateCorrelationRuleRequest struct {
-	// JSON tags match Java UtmCorrelationRulesDTO field names for wire compatibility.
-	RuleName      string `json:"name"`
-	RuleAdversary string `json:"adversary"`
-
-	RuleConfidentiality int `json:"confidentiality"`
-	RuleIntegrity       int `json:"integrity"`
-	RuleAvailability    int `json:"availability"`
-
-	RuleCategory    string `json:"category"`
-	RuleTechnique   string `json:"technique"`
-	RuleDescription string `json:"description"`
-
-	RuleReferencesDef json.RawMessage `json:"references"`
-	RuleDefinitionDef json.RawMessage `json:"definition"`
-	RuleGroupByDef    json.RawMessage `json:"groupBy"`
-	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
-
-	RuleActive     bool            `json:"ruleActive"`
-	CorrelationDef json.RawMessage `json:"correlation"`
-
-	DataTypes []DataTypeRef `json:"dataTypes"`
+	RuleName            string          `json:"name"`
+	RuleAdversary       string          `json:"adversary"`
+	RuleConfidentiality int             `json:"confidentiality"`
+	RuleIntegrity       int             `json:"integrity"`
+	RuleAvailability    int             `json:"availability"`
+	RuleCategory        string          `json:"category"`
+	RuleTechnique       string          `json:"technique"`
+	RuleDescription     string          `json:"description"`
+	RuleReferencesDef   json.RawMessage `json:"references"`
+	RuleDefinitionDef   json.RawMessage `json:"definition"`
+	RuleGroupByDef      json.RawMessage `json:"groupBy"`
+	DeduplicateByDef    json.RawMessage `json:"deduplicateBy"`
+	RuleActive          bool            `json:"ruleActive"`
+	CorrelationDef      json.RawMessage `json:"correlation"`
+	DataTypes           []DataTypeRef   `json:"dataTypes"`
 }
 
 type UpdateCorrelationRuleRequest struct {
-	// RelPath identifies the rule to update (the YAML-direct identity).
-	RelPath string `json:"relPath"`
-
-	RuleName      string `json:"name"`
-	RuleAdversary string `json:"adversary"`
-
-	RuleConfidentiality int `json:"confidentiality"`
-	RuleIntegrity       int `json:"integrity"`
-	RuleAvailability    int `json:"availability"`
-
-	RuleCategory    string `json:"category"`
-	RuleTechnique   string `json:"technique"`
-	RuleDescription string `json:"description"`
-
-	RuleReferencesDef json.RawMessage `json:"references"`
-	RuleDefinitionDef json.RawMessage `json:"definition"`
-	RuleGroupByDef    json.RawMessage `json:"groupBy"`
-	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
-
-	RuleActive     bool            `json:"ruleActive"`
-	CorrelationDef json.RawMessage `json:"correlation"`
-
-	DataTypes []DataTypeRef `json:"dataTypes"`
+	RelPath             string          `json:"relPath"`
+	RuleName            string          `json:"name"`
+	RuleAdversary       string          `json:"adversary"`
+	RuleConfidentiality int             `json:"confidentiality"`
+	RuleIntegrity       int             `json:"integrity"`
+	RuleAvailability    int             `json:"availability"`
+	RuleCategory        string          `json:"category"`
+	RuleTechnique       string          `json:"technique"`
+	RuleDescription     string          `json:"description"`
+	RuleReferencesDef   json.RawMessage `json:"references"`
+	RuleDefinitionDef   json.RawMessage `json:"definition"`
+	RuleGroupByDef      json.RawMessage `json:"groupBy"`
+	DeduplicateByDef    json.RawMessage `json:"deduplicateBy"`
+	RuleActive          bool            `json:"ruleActive"`
+	CorrelationDef      json.RawMessage `json:"correlation"`
+	DataTypes           []DataTypeRef   `json:"dataTypes"`
 }
 
 type CorrelationRuleResponse struct {
-	// RelPath is the rule identity (replaces the legacy numeric id).
-	RelPath string `json:"relPath"`
-
-	RuleName      string `json:"name"`
-	RuleAdversary string `json:"adversary"`
-
-	RuleConfidentiality int `json:"confidentiality"`
-	RuleIntegrity       int `json:"integrity"`
-	RuleAvailability    int `json:"availability"`
-
-	RuleCategory    string `json:"category"`
-	RuleTechnique   string `json:"technique"`
-	RuleDescription string `json:"description"`
-
-	RuleReferencesDef json.RawMessage `json:"references"`
-	RuleDefinitionDef json.RawMessage `json:"definition"`
-	CorrelationDef    json.RawMessage `json:"correlation"`
-	RuleGroupByDef    json.RawMessage `json:"groupBy"`
-	DeduplicateByDef  json.RawMessage `json:"deduplicateBy"`
-
-	RuleLastUpdate *time.Time `json:"ruleLastUpdate"`
-	RuleActive     bool       `json:"ruleActive"`
-	SystemOwner    bool       `json:"systemOwner"`
-
-	DataTypes []RuleDataTypeResponse `json:"dataTypes"`
+	RelPath             string                 `json:"relPath"`
+	RuleName            string                 `json:"name"`
+	RuleAdversary       string                 `json:"adversary"`
+	RuleConfidentiality int                    `json:"confidentiality"`
+	RuleIntegrity       int                    `json:"integrity"`
+	RuleAvailability    int                    `json:"availability"`
+	RuleCategory        string                 `json:"category"`
+	RuleTechnique       string                 `json:"technique"`
+	RuleDescription     string                 `json:"description"`
+	RuleReferencesDef   json.RawMessage        `json:"references"`
+	RuleDefinitionDef   json.RawMessage        `json:"definition"`
+	CorrelationDef      json.RawMessage        `json:"correlation"`
+	RuleGroupByDef      json.RawMessage        `json:"groupBy"`
+	DeduplicateByDef    json.RawMessage        `json:"deduplicateBy"`
+	RuleLastUpdate      *time.Time             `json:"ruleLastUpdate"`
+	RuleActive          bool                   `json:"ruleActive"`
+	SystemOwner         bool                   `json:"systemOwner"`
+	DataTypes           []RuleDataTypeResponse `json:"dataTypes"`
 }
 
 type CorrelationRuleFilters struct {
-	// Page is 0-based (matches Java Spring Pageable).
-	Page int `form:"page"`
-	Size int `form:"size"`
-
+	Page                int      `form:"page"`
+	Size                int      `form:"size"`
 	RuleName            string   `form:"ruleName"`            // case-insensitive partial
 	RuleActive          *bool    `form:"ruleActive"`          // optional boolean
 	RuleCategory        []string `form:"ruleCategory"`        // in
@@ -121,20 +99,15 @@ type CorrelationRuleFilters struct {
 	Search              string   `form:"search"` // general text against the name
 }
 
-// ── Bulk YAML import ──────────────────────────────────────────────────────
-
-// ImportRuleFile is one uploaded rule YAML file (raw text + its filename).
 type ImportRuleFile struct {
 	Filename string `json:"filename"`
 	Content  string `json:"content"`
 }
 
-// ImportCorrelationRulesRequest carries one or more rule YAML files to import.
 type ImportCorrelationRulesRequest struct {
 	Files []ImportRuleFile `json:"files" binding:"required,min=1"`
 }
 
-// ImportRuleResult is the per-file verdict returned by the import endpoint.
 type ImportRuleResult struct {
 	Filename string `json:"filename"`
 	Approved bool   `json:"approved"`
@@ -143,20 +116,16 @@ type ImportRuleResult struct {
 	Error    string `json:"error,omitempty"`   // reason when rejected
 }
 
-// ImportCorrelationRulesResponse reports which files were approved vs rejected.
 type ImportCorrelationRulesResponse struct {
 	Results  []ImportRuleResult `json:"results"`
 	Approved int                `json:"approved"`
 	Rejected int                `json:"rejected"`
 }
 
-// ExportCorrelationRulesRequest carries the identifiers (relPaths) of the rules
-// to bundle into a zip. Empty list means "all rules".
 type ExportCorrelationRulesRequest struct {
 	RelPaths []string `json:"relPaths"`
 }
 
-// ExportedRuleFile is one rule YAML resolved from a relPath.
 type ExportedRuleFile struct {
 	Filename string
 	Content  []byte

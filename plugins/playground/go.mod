@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.27-0.20260808112451-a0c815800e09
+	github.com/threatwinds/go-sdk v1.1.27-0.20260811073440-251cb9d842cd
 	google.golang.org/protobuf v1.36.11
 )
 

@@ -13,6 +13,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/env"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 	"gorm.io/gorm"
 )
 
@@ -23,53 +24,52 @@ type Module struct {
 	regexPatternUsecase    connectors.RegexPatternUsecase
 	assetProjectionUsecase connectors.AssetProjectionUsecase
 	correlationRuleUsecase connectors.CorrelationRuleUsecase
-	filterUsecase          connectors.FilterUsecase
+	pipelineUsecase        connectors.PipelineUsecase
 	ingestionStatsUsecase  connectors.IngestionStatsUsecase
 
-	ruleStore         *usecase.RuleStore
-	ruleBootstrap     *usecase.RuleBootstrap
-	filterStore       *usecase.FilterStore
-	filterBootstrap   *usecase.FilterBootstrap
-	pipelineBootstrap *usecase.PipelineBootstrap
+	ruleStore             *repository.RuleStore
+	ruleBootstrap         *repository.RuleBootstrap
+	pipelineStore         *repository.PipelineStore
+	pipelineBootstrap     *repository.PipelineBootstrap
+	engineConfigBootstrap *repository.EngineConfigBootstrap
 
-	filterHandler         *handler.FilterHandler
+	pipelineHandler       *handler.PipelineHandler
 	ingestionStatsHandler *handler.IngestionStatsHandler
 	playgroundHandler     *handler.PlaygroundHandler
 	playgroundUsecase     connectors.PlaygroundUsecase
 }
 
-func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseURL, internalKey string) *Module {
-	// Pipeline writer — writes tenants.yaml and patterns.yaml on every mutation
-	// and on bootstrap (migration from DB).
-	pipelineDir := env.String(usecase.PipelineDirEnv, usecase.DefaultPipelineDir, false)
-	pipelineWriter := usecase.NewPipelineWriter(pipelineDir)
-	pipelineBootstrap := usecase.NewPipelineBootstrap(pipelineWriter)
+func NewModule(db *gorm.DB, events *eventstore.Store, auditLogger audit_connectors.Logger, playgroundBaseURL, internalKey string) *Module {
+	pipelineDir := env.String(repository.PipelineDirEnv, repository.DefaultPipelineDir, false)
+	engineConfig := repository.NewEngineConfig(pipelineDir)
+	engineConfigBootstrap := repository.NewEngineConfigBootstrap(engineConfig)
 
 	// Rule store — YAML-direct overlays.
-	rulesRoot := env.String(usecase.RulesDirEnv, usecase.DefaultRulesDir, false)
-	ruleStore := usecase.NewRuleStore(
-		filepath.Join(rulesRoot, usecase.SystemSubdir),
-		filepath.Join(rulesRoot, usecase.UserSubdir),
-		pipelineWriter,
+	rulesRoot := env.String(repository.RulesDirEnv, repository.DefaultRulesDir, false)
+	ruleStore := repository.NewRuleStore(
+		filepath.Join(rulesRoot, repository.SystemSubdir),
+		filepath.Join(rulesRoot, repository.UserSubdir),
+		engineConfig,
 	)
 	_ = ruleStore.Load()
-	ruleBootstrap := usecase.NewRuleBootstrap(usecase.SystemRulesSrcDir, ruleStore, db)
+	ruleBootstrap := repository.NewRuleBootstrap(env.String(repository.RulesSrcDirEnv, repository.DefaultSystemRulesSrcDir, false), ruleStore, db)
 
 	// Filter store — YAML-direct overlays (pipeline: format).
-	filtersRoot := env.String(usecase.FiltersDirEnv, usecase.DefaultFiltersDir, false)
-	filterStore := usecase.NewFilterStore(
-		filepath.Join(filtersRoot, usecase.SystemSubdir),
-		filepath.Join(filtersRoot, usecase.UserSubdir),
+	filtersRoot := env.String(repository.PipelinesDirEnv, repository.DefaultPipelinesDir, false)
+	pipelineStore := repository.NewPipelineStore(
+		filepath.Join(filtersRoot, repository.SystemSubdir),
+		filepath.Join(filtersRoot, repository.UserSubdir),
+		engineConfig,
 	)
-	_ = filterStore.Load()
-	filterBootstrap := usecase.NewFilterBootstrap(usecase.SystemFiltersSrcDir, filterStore, db)
+	_ = pipelineStore.Load()
+	pipelineBootstrap := repository.NewPipelineBootstrap(env.String(repository.PipelinesSrcDirEnv, repository.DefaultSystemPipelinesSrcDir, false), pipelineStore, db)
 
-	regexPatternUC := usecase.NewRegexPatternUsecase(pipelineWriter)
-	assetProjectionUC := usecase.NewAssetProjection(pipelineWriter)
+	regexPatternUC := usecase.NewRegexPatternUsecase(engineConfig)
+	assetProjectionUC := usecase.NewAssetProjection(engineConfig)
 	correlationRuleUC := usecase.NewCorrelationRuleUsecase(ruleStore)
-	filterUC := usecase.NewFilterUsecase(filterStore)
+	pipelineUC := usecase.NewPipelineUsecase(pipelineStore, engineConfig)
 
-	ingestionStatsUC := usecase.NewIngestionStatsUsecase(repository.NewIngestionStatsRepository())
+	ingestionStatsUC := usecase.NewIngestionStatsUsecase(repository.NewIngestionStatsRepository(events))
 
 	_ = auditLogger // used by routes.go
 
@@ -83,14 +83,14 @@ func NewModule(db *gorm.DB, auditLogger audit_connectors.Logger, playgroundBaseU
 		regexPatternUsecase:    regexPatternUC,
 		assetProjectionUsecase: assetProjectionUC,
 		correlationRuleUsecase: correlationRuleUC,
-		filterUsecase:          filterUC,
+		pipelineUsecase:        pipelineUC,
 		ingestionStatsUsecase:  ingestionStatsUC,
 		ruleStore:              ruleStore,
 		ruleBootstrap:          ruleBootstrap,
-		filterStore:            filterStore,
-		filterBootstrap:        filterBootstrap,
+		pipelineStore:          pipelineStore,
 		pipelineBootstrap:      pipelineBootstrap,
-		filterHandler:          handler.NewFilterHandler(filterUC),
+		engineConfigBootstrap:  engineConfigBootstrap,
+		pipelineHandler:        handler.NewPipelineHandler(pipelineUC),
 		ingestionStatsHandler:  handler.NewIngestionStatsHandler(ingestionStatsUC),
 		playgroundHandler:      playgroundH,
 		playgroundUsecase:      playgroundUC,
@@ -101,22 +101,22 @@ func (m *Module) Start(ctx context.Context) {
 	if err := m.ruleBootstrap.Run(ctx); err != nil {
 		_ = catcher.Error("rule bootstrap failed", err, nil)
 	}
-	if err := m.filterBootstrap.Run(ctx); err != nil {
-		_ = catcher.Error("filter bootstrap failed", err, nil)
-	}
 	if err := m.pipelineBootstrap.Run(ctx); err != nil {
-		_ = catcher.Error("pipeline bootstrap (tenant/patterns) failed", err, nil)
+		_ = catcher.Error("pipeline bootstrap failed", err, nil)
+	}
+	if err := m.engineConfigBootstrap.Run(ctx); err != nil {
+		_ = catcher.Error("engine config bootstrap (tenants/patterns) failed", err, nil)
 	}
 
 	go m.ruleStore.Watch(ctx)
-	go m.filterStore.Watch(ctx)
+	go m.pipelineStore.Watch(ctx)
 }
 
 func (m *Module) GetRegexPatternHandler() *handler.RegexPatternHandler { return m.regexPatternHandler }
 func (m *Module) GetCorrelationRuleHandler() *handler.CorrelationRuleHandler {
 	return m.correlationRuleHandler
 }
-func (m *Module) GetFilterHandler() *handler.FilterHandler { return m.filterHandler }
+func (m *Module) GetPipelineHandler() *handler.PipelineHandler { return m.pipelineHandler }
 func (m *Module) GetIngestionStatsHandler() *handler.IngestionStatsHandler {
 	return m.ingestionStatsHandler
 }
@@ -130,7 +130,7 @@ func (m *Module) GetAssetProjectionUsecase() connectors.AssetProjectionUsecase {
 func (m *Module) GetCorrelationRuleUsecase() connectors.CorrelationRuleUsecase {
 	return m.correlationRuleUsecase
 }
-func (m *Module) GetFilterUsecase() connectors.FilterUsecase { return m.filterUsecase }
+func (m *Module) GetPipelineUsecase() connectors.PipelineUsecase { return m.pipelineUsecase }
 func (m *Module) GetIngestionStatsUsecase() connectors.IngestionStatsUsecase {
 	return m.ingestionStatsUsecase
 }

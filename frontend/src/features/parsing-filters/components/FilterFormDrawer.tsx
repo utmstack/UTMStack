@@ -8,9 +8,9 @@ import { Input } from '@/shared/components/ui/input'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import {
   DataProcessingHttpError,
-  filtersHttpService,
+  pipelinesHttpService,
 } from '@/features/data-processing/services/data-processing-http.service'
-import type { DataTypeOption, Filter } from '@/features/data-processing/types/data-processing.types'
+import type { DataTypeOption, Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { regexPatternsHttpService, type RegexPattern } from '@/features/regex-patterns/services/regex-patterns-http.service'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
 import { displayName, emptyModel, parseFilter, sanitizeFileName, serializeFilter, type FilterModel } from '../lib/filter-model'
@@ -19,7 +19,7 @@ import { PatternInsertButton } from './PatternInsertButton'
 import { DataTypeMultiSelect } from './DataTypeMultiSelect'
 
 interface Props {
-  filter: Filter
+  filter: Pipeline
   creating: boolean
   onClose: () => void
   onSaved: () => void
@@ -54,7 +54,7 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
 
   // Catalog of known dataTypes to pick from in the visual editor.
   useEffect(() => {
-    filtersHttpService
+    pipelinesHttpService
       .dataTypeCatalog()
       .then((d) => setDataTypeOptions(d ?? []))
       .catch(() => setDataTypeOptions([]))
@@ -108,8 +108,8 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
     }
     setSaving(true)
     try {
-      if (creating) await filtersHttpService.create({ relPath: newRelPath, content })
-      else await filtersHttpService.update({ relPath: filter.relPath, content })
+      if (creating) await pipelinesHttpService.create({ relPath: newRelPath, content })
+      else await pipelinesHttpService.update({ relPath: filter.relPath, content })
       toast.success(t('parsingFilters.toast.saved'))
       onSaved()
     } catch (err) {
@@ -122,7 +122,7 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
   const remove = async () => {
     setSaving(true)
     try {
-      await filtersHttpService.remove(filter.relPath)
+      await pipelinesHttpService.remove(filter.relPath)
       toast.success(t('parsingFilters.toast.deleted'))
       onSaved()
     } catch {
@@ -278,7 +278,7 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
 
       {showTestModal && (
         <TestPlaygroundModal
-          mode="filter"
+          mode="pipeline"
           titleKey="playground.titleFilter"
           dataTypeOptions={model.dataTypes}
           draftContent={content}

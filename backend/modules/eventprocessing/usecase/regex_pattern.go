@@ -11,36 +11,20 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 )
 
-// regexPatternUsecase serves the shared regex vocabulary read-only. patterns.yaml
-// is the engine's source of truth — it is what loadCfg merges into Config.Patterns
-// and what RegexpCache expands {{.name}} references from — so this type reads that
-// file and never writes it.
 type regexPatternUsecase struct {
-	writer *pipelineWriter // read-only use: ReadPatterns
+	writer connectors.EngineConfigRepository // read-only use: ReadPatterns
 }
 
-func NewRegexPatternUsecase(writer *pipelineWriter) connectors.RegexPatternUsecase {
+func NewRegexPatternUsecase(writer connectors.EngineConfigRepository) connectors.RegexPatternUsecase {
 	return &regexPatternUsecase{writer: writer}
 }
 
-// definitions returns the patterns the engine will actually resolve: the built-in
-// vocabulary overlaid with whatever patterns.yaml holds on disk.
-//
-// Read per call rather than cached at construction, for two reasons. The pipeline
-// bootstrap writes patterns.yaml during Module.Start, which runs after this type
-// is built — a constructor-time read would see a fresh install's missing file and
-// serve the built-ins forever. And an operator replacing the file underneath a
-// running process should be reflected here rather than silently ignored. The file
-// holds a few dozen entries and these endpoints are admin-frequency, so the read
-// costs nothing worth caching.
-//
-// A read failure degrades to the built-ins instead of failing the request: those
-// are always present in the engine too, so a partial answer beats none.
+// definitions is the vocabulary the engine will actually resolve: the built-ins
+// overlaid with whatever patterns.yaml holds. A read failure degrades to the
+// built-ins rather than failing the request — those are always present in the
+// engine too, so a partial answer beats none.
 func (u *regexPatternUsecase) definitions() map[string]string {
-	defs := make(map[string]string, len(systemPatterns))
-	for id, def := range systemPatterns {
-		defs[id] = def
-	}
+	defs := u.writer.BuiltInPatterns()
 
 	onDisk, err := u.writer.ReadPatterns()
 	if err != nil {
@@ -53,16 +37,8 @@ func (u *regexPatternUsecase) definitions() map[string]string {
 	return defs
 }
 
-// response builds the API shape for one pattern. PatternDescription is always
-// empty: patterns.yaml carries only name → definition, since that is all the
-// engine needs, and there is no longer a write path that could supply more.
 func response(patternID, definition string) dto.RegexPatternResponse {
-	_, system := systemPatterns[patternID]
-	return dto.RegexPatternResponse{
-		PatternID:         patternID,
-		PatternDefinition: definition,
-		SystemOwner:       system,
-	}
+	return dto.RegexPatternResponse{PatternID: patternID, PatternDefinition: definition}
 }
 
 func (u *regexPatternUsecase) GetByID(_ context.Context, patternID string) (*dto.RegexPatternResponse, error) {
@@ -83,20 +59,10 @@ func (u *regexPatternUsecase) List(_ context.Context, f dto.RegexPatternFilters)
 		if search != "" && !strings.Contains(strings.ToLower(id), search) {
 			continue
 		}
-		e := response(id, def)
-		if f.System != nil && e.SystemOwner != *f.System {
-			continue
-		}
-		out = append(out, e)
+		out = append(out, response(id, def))
 	}
 
-	// Stable order: system first, then alphabetical by patternId.
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].SystemOwner != out[j].SystemOwner {
-			return out[i].SystemOwner
-		}
-		return out[i].PatternID < out[j].PatternID
-	})
+	sort.Slice(out, func(i, j int) bool { return out[i].PatternID < out[j].PatternID })
 
 	total := int64(len(out))
 	page, size := normPage(f.Page, f.Size)

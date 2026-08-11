@@ -1,4 +1,4 @@
-package usecase
+package repository
 
 import (
 	"context"
@@ -10,32 +10,29 @@ import (
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
 )
 
-// FilterBootstrap seeds/refreshes the filter overlays at startup and, on the
-// overlay before dropping the table.
-type FilterBootstrap struct {
+type PipelineBootstrap struct {
 	srcDir string
-	store  *FilterStore
+	store  *PipelineStore
 	db     *gorm.DB
 }
 
-func NewFilterBootstrap(srcDir string, store *FilterStore, db *gorm.DB) *FilterBootstrap {
-	return &FilterBootstrap{srcDir: srcDir, store: store, db: db}
+func NewPipelineBootstrap(srcDir string, store *PipelineStore, db *gorm.DB) *PipelineBootstrap {
+	return &PipelineBootstrap{srcDir: srcDir, store: store, db: db}
 }
 
-// Run is idempotent and safe to call on every boot.
-func (b *FilterBootstrap) Run(ctx context.Context) error {
+func (b *PipelineBootstrap) Run(ctx context.Context) error {
 	if err := b.seedSystemOverlay(); err != nil {
 		_ = catcher.Error("eventprocessing: seeding system filters failed", err, nil)
 	}
 	return b.store.Load()
 }
 
-// seedSystemOverlay mirrors /utmstack/filters → system/ and prunes deleted ones.
-func (b *FilterBootstrap) seedSystemOverlay() error {
+func (b *PipelineBootstrap) seedSystemOverlay() error {
 	if _, err := os.Stat(b.srcDir); os.IsNotExist(err) {
 		return nil
 	}
@@ -46,7 +43,7 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 		if err != nil || d.IsDir() {
 			return err
 		}
-		if filepath.Ext(path) != FilterFileExt {
+		if filepath.Ext(path) != PipelineFileExt {
 			return nil
 		}
 		rel, err := filepath.Rel(b.srcDir, path)
@@ -80,23 +77,14 @@ func (b *FilterBootstrap) seedSystemOverlay() error {
 	return b.pruneSystemOverlay(expected)
 }
 
-// orderLinePattern matches a pipeline entry's `order:` line, with an optional
-// trailing comment, so preserveDestOrder can substitute just the number and
-// leave everything else (comments, formatting) byte-for-byte untouched.
 var orderLinePattern = regexp.MustCompile(`(?m)^(\s*order:\s*)\d+(\s*#.*)?$`)
 
-// preserveDestOrder keeps whatever `order` already exists on disk at destPath
-// (a customer/operator customization — including for system filters, whose
-// order is editable even though their content isn't) instead of letting the
-// freshly-shipped content clobber it on every boot. A destination that
-// doesn't exist yet, or whose order is still the unset default (0), takes
-// the shipped order as-is.
 func preserveDestOrder(destPath string, newContent []byte) []byte {
 	existing, err := os.ReadFile(destPath)
 	if err != nil {
 		return newContent
 	}
-	var existingCfg filterConfig
+	var existingCfg domain.PipelineSpec
 	if err := yaml.Unmarshal(existing, &existingCfg); err != nil || len(existingCfg.Pipeline) == 0 {
 		return newContent
 	}
@@ -107,7 +95,7 @@ func preserveDestOrder(destPath string, newContent []byte) []byte {
 	return orderLinePattern.ReplaceAll(newContent, []byte(fmt.Sprintf("${1}%d$2", order)))
 }
 
-func (b *FilterBootstrap) pruneSystemOverlay(expected map[string]bool) error {
+func (b *PipelineBootstrap) pruneSystemOverlay(expected map[string]bool) error {
 	if _, err := os.Stat(b.store.systemDir); os.IsNotExist(err) {
 		return nil
 	}

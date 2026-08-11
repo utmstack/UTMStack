@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"gopkg.in/yaml.v3"
+	"path/filepath"
 )
 
 type procSpec struct {
@@ -63,14 +64,6 @@ func validateProcessor(name string, raw any) error {
 	return nil
 }
 
-type filterConfig struct {
-	Pipeline []struct {
-		DataTypes []string         `yaml:"dataTypes"`
-		Order     int32            `yaml:"order"`
-		Steps     []map[string]any `yaml:"steps"`
-	} `yaml:"pipeline"`
-}
-
 func extractDataTypes(content []byte) []string {
 	seen := map[string]bool{}
 	var out []string
@@ -82,7 +75,7 @@ func collectDataTypes(content []byte, depth int, seen map[string]bool, out *[]st
 	if depth > 4 {
 		return
 	}
-	var cfg filterConfig
+	var cfg domain.PipelineSpec
 	if err := yaml.Unmarshal(content, &cfg); err != nil {
 		return
 	}
@@ -105,10 +98,8 @@ func collectDataTypes(content []byte, depth int, seen map[string]bool, out *[]st
 	}
 }
 
-// firstPipelineOrder extracts the order from a filter's first (and, in
-// practice, only) pipeline entry.
 func firstPipelineOrder(content []byte) int32 {
-	var cfg filterConfig
+	var cfg domain.PipelineSpec
 	if err := yaml.Unmarshal(content, &cfg); err != nil || len(cfg.Pipeline) == 0 {
 		return 0
 	}
@@ -124,36 +115,33 @@ func hasDataType(dts []string, want string) bool {
 	return false
 }
 
-// customFilterDefaultOrder seeds a sensible starting position for brand-new
-// custom filters that don't specify an order — order itself is a single,
-// free-form global space now (see SetOrder), not a reserved band.
 const customFilterDefaultOrder = 100
 
 func validateFilterContent(content string) error {
 	if strings.TrimSpace(content) == "" {
-		return fmt.Errorf("%w: content is empty", domain.ErrFilterInvalidContent)
+		return fmt.Errorf("%w: content is empty", domain.ErrPipelineInvalidContent)
 	}
-	var cfg filterConfig
+	var cfg domain.PipelineSpec
 	if err := yaml.Unmarshal([]byte(content), &cfg); err != nil {
-		return fmt.Errorf("%w: not valid YAML / wrong shape: %v", domain.ErrFilterInvalidContent, err)
+		return fmt.Errorf("%w: not valid YAML / wrong shape: %v", domain.ErrPipelineInvalidContent, err)
 	}
 	if len(cfg.Pipeline) == 0 {
-		return fmt.Errorf("%w: must define at least one pipeline entry", domain.ErrFilterInvalidContent)
+		return fmt.Errorf("%w: must define at least one pipeline entry", domain.ErrPipelineInvalidContent)
 	}
 	for i, p := range cfg.Pipeline {
 		if len(p.DataTypes) == 0 {
-			return fmt.Errorf("%w: pipeline[%d] needs at least one dataType", domain.ErrFilterInvalidContent, i)
+			return fmt.Errorf("%w: pipeline[%d] needs at least one dataType", domain.ErrPipelineInvalidContent, i)
 		}
 		if len(p.Steps) == 0 {
-			return fmt.Errorf("%w: pipeline[%d] needs at least one step", domain.ErrFilterInvalidContent, i)
+			return fmt.Errorf("%w: pipeline[%d] needs at least one step", domain.ErrPipelineInvalidContent, i)
 		}
 		for j, step := range p.Steps {
 			if len(step) != 1 {
-				return fmt.Errorf("%w: pipeline[%d].steps[%d] must have exactly one processor (found %d)", domain.ErrFilterInvalidContent, i, j, len(step))
+				return fmt.Errorf("%w: pipeline[%d].steps[%d] must have exactly one processor (found %d)", domain.ErrPipelineInvalidContent, i, j, len(step))
 			}
 			for name, body := range step {
 				if err := validateProcessor(name, body); err != nil {
-					return fmt.Errorf("%w: pipeline[%d].steps[%d]: %v", domain.ErrFilterInvalidContent, i, j, err)
+					return fmt.Errorf("%w: pipeline[%d].steps[%d]: %v", domain.ErrPipelineInvalidContent, i, j, err)
 				}
 			}
 		}
@@ -162,7 +150,7 @@ func validateFilterContent(content string) error {
 }
 
 func normalizeFilterOrder(content string) (string, error) {
-	var cfg filterConfig
+	var cfg domain.PipelineSpec
 	if err := yaml.Unmarshal([]byte(content), &cfg); err != nil {
 		return content, err
 	}
@@ -183,61 +171,102 @@ func normalizeFilterOrder(content string) (string, error) {
 	return string(out), nil
 }
 
-type filterUsecase struct {
-	store *FilterStore
+type pipelineUsecase struct {
+	store  connectors.PipelineRepository
+	config connectors.EngineConfigRepository
 }
 
-func NewFilterUsecase(store *FilterStore) connectors.FilterUsecase {
-	return &filterUsecase{store: store}
+func NewPipelineUsecase(store connectors.PipelineRepository, config connectors.EngineConfigRepository) connectors.PipelineUsecase {
+	return &pipelineUsecase{store: store, config: config}
 }
 
-func (u *filterUsecase) Create(ctx context.Context, req dto.CreateFilterRequest) (*dto.FilterResponse, error) {
+func (u *pipelineUsecase) Create(ctx context.Context, req dto.CreatePipelineRequest) (*dto.PipelineResponse, error) {
 	if err := validateFilterContent(req.Content); err != nil {
 		return nil, err
 	}
 	content, err := normalizeFilterOrder(req.Content)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+		return nil, fmt.Errorf("%w: %v", domain.ErrPipelineInvalidContent, err)
 	}
 	// Empty for every on-prem/single-tenant install — only the shared SaaS
 	// deployment's auth middleware ever populates this.
 	entry, err := u.store.Create(req.RelPath, []byte(content), authz.TenantIDFromContext(ctx))
 	if err != nil {
-		return nil, mapStoreFilterErr(err)
+		return nil, err
 	}
 	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) Update(_ context.Context, req dto.UpdateFilterRequest) (*dto.FilterResponse, error) {
+// visiblePipeline reports whether the caller may see this pipeline: the ones
+// the release ships and the global ones belong to everybody, a tenant's belong
+// to it alone.
+func visiblePipeline(p *domain.Pipeline, tenant string) bool {
+	return tenant == "" || p.TenantID == "" || p.TenantID == tenant
+}
+
+// readable resolves a pipeline the caller may see. Another tenant's answers
+// "not found" rather than "forbidden": relPath is the identity, and confirming
+// one exists would tell a customer what another has written.
+func (u *pipelineUsecase) readable(ctx context.Context, relPath string) (*domain.Pipeline, error) {
+	p := u.store.GetByRelPath(relPath)
+	if p == nil || !visiblePipeline(p, authz.TenantIDFromContext(ctx)) {
+		return nil, domain.ErrPipelineNotFound
+	}
+	return p, nil
+}
+
+// writable additionally requires the pipeline to be the caller's own.
+func (u *pipelineUsecase) writable(ctx context.Context, relPath string) error {
+	p, err := u.readable(ctx, relPath)
+	if err != nil {
+		return err
+	}
+	if p.System {
+		return domain.ErrPipelineSystemOwner
+	}
+	if tenant := authz.TenantIDFromContext(ctx); tenant != "" && p.TenantID != tenant {
+		return domain.ErrPipelineNotFound
+	}
+	return nil
+}
+
+func (u *pipelineUsecase) Update(ctx context.Context, req dto.UpdatePipelineRequest) (*dto.PipelineResponse, error) {
 	if err := validateFilterContent(req.Content); err != nil {
+		return nil, err
+	}
+	if err := u.writable(ctx, req.RelPath); err != nil {
 		return nil, err
 	}
 	content, err := normalizeFilterOrder(req.Content)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+		return nil, fmt.Errorf("%w: %v", domain.ErrPipelineInvalidContent, err)
 	}
 	entry, err := u.store.Update(req.RelPath, []byte(content))
 	if err != nil {
-		return nil, mapStoreFilterErr(err)
+		return nil, err
 	}
 	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) GetByRelPath(_ context.Context, relPath string) (*dto.FilterResponse, error) {
-	entry := u.store.GetByRelPath(relPath)
-	if entry == nil {
-		return nil, domain.ErrFilterNotFound
+func (u *pipelineUsecase) GetByRelPath(ctx context.Context, relPath string) (*dto.PipelineResponse, error) {
+	entry, err := u.readable(ctx, relPath)
+	if err != nil {
+		return nil, err
 	}
 	return toFilterResponse(entry), nil
 }
 
-func (u *filterUsecase) List(_ context.Context, f dto.FilterFilters) ([]dto.FilterResponse, int64, error) {
-	all := u.store.List()
+func (u *pipelineUsecase) List(ctx context.Context, f dto.PipelineFilters) (*connectors.ListResult[dto.PipelineResponse], error) {
+	all := u.store.List(authz.TenantIDFromContext(ctx))
+	tenant := authz.TenantIDFromContext(ctx)
 
 	// Apply in-memory filters.
-	out := make([]dto.FilterResponse, 0, len(all))
+	out := make([]dto.PipelineResponse, 0, len(all))
 	for i := range all {
 		e := &all[i]
+		if !visiblePipeline(e, tenant) {
+			continue
+		}
 		if f.IsActiveEq != nil && e.Active != *f.IsActiveEq {
 			continue
 		}
@@ -273,56 +302,73 @@ func (u *filterUsecase) List(_ context.Context, f dto.FilterFilters) ([]dto.Filt
 	}
 	start := (page - 1) * size
 	if start >= len(out) {
-		return []dto.FilterResponse{}, total, nil
+		return &connectors.ListResult[dto.PipelineResponse]{Items: []dto.PipelineResponse{}, Total: total}, nil
 	}
 	end := start + size
 	if end > len(out) {
 		end = len(out)
 	}
-	return out[start:end], total, nil
+	return &connectors.ListResult[dto.PipelineResponse]{Items: out[start:end], Total: total}, nil
 }
 
-func (u *filterUsecase) Delete(_ context.Context, relPath string) error {
-	return mapStoreFilterErr(u.store.Delete(relPath))
+func (u *pipelineUsecase) Delete(ctx context.Context, relPath string) error {
+	if err := u.writable(ctx, relPath); err != nil {
+		return err
+	}
+	return u.store.Delete(relPath)
 }
 
-func (u *filterUsecase) SetActive(_ context.Context, relPath string, active bool) error {
-	return mapStoreFilterErr(u.store.SetEnabled(relPath, active))
+// SetActive is checked against readable, not writable: a tenant may switch a
+// shipped pipeline off for itself without being able to rewrite it.
+func (u *pipelineUsecase) SetActive(ctx context.Context, relPath string, active bool) error {
+	if _, err := u.readable(ctx, relPath); err != nil {
+		return err
+	}
+	return u.store.SetEnabled(authz.TenantIDFromContext(ctx), relPath, active)
 }
 
-// SetOrder moves any filter — system or custom — to a new position in the
-// pipeline order (shared across every dataType it applies to). A system
-// filter's steps/content stay read-only via Create/Update/Delete, but its
-// order is customer-controlled, same as a custom filter's.
-func (u *filterUsecase) SetOrder(_ context.Context, relPath string, order int32) (*dto.FilterResponse, error) {
-	entry := u.store.GetByRelPath(relPath)
-	if entry == nil {
-		return nil, domain.ErrFilterNotFound
+// SetOrder is checked against readable, not writable: which pipeline runs first
+// for a data type is operator configuration, like switching one off, and the
+// store writes the order back into the shipped file on purpose.
+// SetOrder records the whole sequence this tenant wants, in tenants.yaml.
+//
+// It used to rewrite the order inside the pipeline file, which for a shipped
+// pipeline meant reordering it for every tenant at once — the file is one copy
+// shared by all of them. The engine reads the per-tenant list and falls back to
+// the file order for anyone who never set one.
+//
+// Names the caller cannot see are refused rather than dropped: silently
+// omitting them would save an order the tenant did not ask for.
+func (u *pipelineUsecase) SetOrder(ctx context.Context, order []string) error {
+	byName := make(map[string]bool, len(order))
+	for _, p := range u.store.List(authz.TenantIDFromContext(ctx)) {
+		if visiblePipeline(&p, authz.TenantIDFromContext(ctx)) {
+			byName[pipelineIdentity(p.RelPath)] = true
+		}
 	}
-
-	var cfg filterConfig
-	if err := yaml.Unmarshal(entry.Content, &cfg); err != nil {
-		return nil, fmt.Errorf("%w: %v", domain.ErrFilterInvalidContent, err)
+	for _, name := range order {
+		if !byName[name] {
+			return fmt.Errorf("%w: %s", domain.ErrPipelineNotFound, name)
+		}
 	}
-	for i := range cfg.Pipeline {
-		cfg.Pipeline[i].Order = order
-	}
-	out, err := yaml.Marshal(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	updated, err := u.store.UpdateOrder(relPath, out)
-	if err != nil {
-		return nil, mapStoreFilterErr(err)
-	}
-	return toFilterResponse(updated), nil
+	return u.config.SetPipelineOrder(authz.TenantIDFromContext(ctx), order)
 }
 
-func (u *filterUsecase) DataTypes(_ context.Context) []string {
+// pipelineIdentity is the name the engine matches on: the file's base name
+// without its extension, the same identity used in the disabled list.
+func pipelineIdentity(relPath string) string {
+	base := filepath.Base(relPath)
+	return strings.TrimSuffix(base, filepath.Ext(base))
+}
+
+func (u *pipelineUsecase) DataTypes(ctx context.Context) []string {
 	seen := map[string]bool{}
+	tenant := authz.TenantIDFromContext(ctx)
 	var out []string
-	for _, e := range u.store.List() {
+	for _, e := range u.store.List(authz.TenantIDFromContext(ctx)) {
+		if !visiblePipeline(&e, tenant) {
+			continue
+		}
 		for _, dt := range extractDataTypes(e.Content) {
 			if !seen[dt] {
 				seen[dt] = true
@@ -334,8 +380,8 @@ func (u *filterUsecase) DataTypes(_ context.Context) []string {
 	return out
 }
 
-func toFilterResponse(e *FilterEntry) *dto.FilterResponse {
-	return &dto.FilterResponse{
+func toFilterResponse(e *domain.Pipeline) *dto.PipelineResponse {
+	return &dto.PipelineResponse{
 		RelPath:   e.RelPath,
 		Content:   string(e.Content),
 		System:    e.System,
@@ -343,17 +389,4 @@ func toFilterResponse(e *FilterEntry) *dto.FilterResponse {
 		DataTypes: extractDataTypes(e.Content),
 		Order:     firstPipelineOrder(e.Content),
 	}
-}
-
-func mapStoreFilterErr(err error) error {
-	if err == nil {
-		return nil
-	}
-	switch err.(type) {
-	case errFilterNotFound:
-		return domain.ErrFilterNotFound
-	case errFilterSystemOwner:
-		return domain.ErrFilterSystemOwner
-	}
-	return err
 }

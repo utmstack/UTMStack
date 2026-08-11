@@ -241,12 +241,12 @@ func registerEPCorrelationRules(m *Module) {
 
 // ---- filter.* --------------------------------------------------------------
 
-type epFilterUpsertInput struct {
+type epPipelineUpsertInput struct {
 	RelPath string `json:"rel_path"`
 	Content string `json:"content"`
 }
 
-type epFilterListInput struct {
+type epPipelineListInput struct {
 	RelPathContains *string `json:"rel_path_contains,omitempty"`
 	Active          *bool   `json:"active,omitempty"`
 	System          *bool   `json:"system,omitempty"`
@@ -255,39 +255,39 @@ type epFilterListInput struct {
 }
 
 func registerEPFilters(m *Module) {
-	uc := m.deps.EventProcessing.GetFilterUsecase()
+	uc := m.deps.EventProcessing.GetPipelineUsecase()
 
 	Add(m, &mcp.Tool{
-		Name: "filter.create", Title: "Create logstash filter",
+		Name: "pipeline.create", Title: "Create pipeline",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in epFilterUpsertInput) (any, error) {
-			return uc.Create(ctx, dto.CreateFilterRequest{RelPath: in.RelPath, Content: in.Content})
+		func(ctx context.Context, _ *authz.Actor, in epPipelineUpsertInput) (any, error) {
+			return uc.Create(ctx, dto.CreatePipelineRequest{RelPath: in.RelPath, Content: in.Content})
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "filter.update", Title: "Update logstash filter",
+		Name: "pipeline.update", Title: "Update pipeline",
 	}, Gate{Permission: "eventprocessing.write"},
-		func(ctx context.Context, _ *authz.Actor, in epFilterUpsertInput) (any, error) {
-			return uc.Update(ctx, dto.UpdateFilterRequest{RelPath: in.RelPath, Content: in.Content})
+		func(ctx context.Context, _ *authz.Actor, in epPipelineUpsertInput) (any, error) {
+			return uc.Update(ctx, dto.UpdatePipelineRequest{RelPath: in.RelPath, Content: in.Content})
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "filter.list", Title: "List logstash filters",
+		Name: "pipeline.list", Title: "List pipelines",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "eventprocessing.read"},
-		func(ctx context.Context, _ *authz.Actor, in epFilterListInput) (any, error) {
-			items, total, err := uc.List(ctx, dto.FilterFilters{
+		func(ctx context.Context, _ *authz.Actor, in epPipelineListInput) (any, error) {
+			res, err := uc.List(ctx, dto.PipelineFilters{
 				RelPathContains: in.RelPathContains, IsActiveEq: in.Active, SystemEq: in.System,
 				Page: in.Page, Size: clampPageSize(in.Size),
 			})
 			if err != nil {
 				return nil, err
 			}
-			return map[string]any{"items": items, "total": total}, nil
+			return map[string]any{"items": res.Items, "total": res.Total}, nil
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "filter.get", Title: "Get logstash filter",
+		Name: "pipeline.get", Title: "Get pipeline",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "eventprocessing.read"},
 		func(ctx context.Context, _ *authz.Actor, in epRuleRelPathInput) (any, error) {
@@ -295,7 +295,7 @@ func registerEPFilters(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "filter.delete", Title: "Delete logstash filter",
+		Name: "pipeline.delete", Title: "Delete pipeline",
 	}, Gate{Permission: "eventprocessing.write"},
 		func(ctx context.Context, _ *authz.Actor, in epRuleRelPathInput) (any, error) {
 			if err := uc.Delete(ctx, in.RelPath); err != nil {

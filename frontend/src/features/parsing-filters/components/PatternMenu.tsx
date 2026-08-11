@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Lock } from 'lucide-react'
 import { Input } from '@/shared/components/ui/input'
 import type { RegexPattern } from '@/features/regex-patterns/services/regex-patterns-http.service'
 
@@ -60,16 +59,7 @@ export function PatternMenu({
             >
               <span className="flex items-center gap-1.5">
                 <span className="font-mono text-[12px] text-foreground">{`{{.${p.patternId}}}`}</span>
-                {p.systemOwner ? (
-                  <span className="inline-flex items-center gap-0.5 rounded bg-violet-500/15 px-1 py-0 text-[9px] font-medium text-violet-500">
-                    <Lock size={8} />
-                    {t('parsingFilters.system')}
-                  </span>
-                ) : (
-                  <span className="rounded bg-sky-500/15 px-1 py-0 text-[9px] font-medium text-sky-500">
-                    {t('parsingFilters.user')}
-                  </span>
-                )}
+
               </span>
               {p.patternDefinition && (
                 <span className="truncate font-mono text-[10px] text-muted-foreground">{p.patternDefinition}</span>

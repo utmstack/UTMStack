@@ -41,7 +41,7 @@ func (uc *PlaygroundUsecase) acquire(ctx context.Context) error {
 
 func (uc *PlaygroundUsecase) release() { uc.sem <- struct{}{} }
 
-func (uc *PlaygroundUsecase) TestFilter(ctx context.Context, req dto.TestFilterRequest) (*dto.PlaygroundResponse, error) {
+func (uc *PlaygroundUsecase) TestPipeline(ctx context.Context, req dto.TestPipelineRequest) (*dto.PlaygroundResponse, error) {
 	if err := uc.acquire(ctx); err != nil {
 		return nil, err
 	}
@@ -55,12 +55,12 @@ func (uc *PlaygroundUsecase) TestFilter(ctx context.Context, req dto.TestFilterR
 		return nil, mapPluginError(status, body, err)
 	}
 
-	if req.Filter == nil {
+	if req.Pipeline == nil {
 		if status, body, err := uc.client.CopyFilters(ctx); err != nil || status >= 400 {
 			return nil, mapPluginError(status, body, err)
 		}
 	} else {
-		if status, body, err := uc.client.WriteFilter(ctx, PlaygroundUserFilename, req.Filter.Content); err != nil || status >= 400 {
+		if status, body, err := uc.client.WriteFilter(ctx, PlaygroundUserFilename, req.Pipeline.Content); err != nil || status >= 400 {
 			return nil, mapPluginError(status, body, err)
 		}
 	}

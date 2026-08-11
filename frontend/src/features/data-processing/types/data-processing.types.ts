@@ -1,18 +1,18 @@
 /* Mirrors backend eventprocessing DTOs (modules/eventprocessing/dto). */
 
-/** A YAML event-processing filter file. Identity = relPath. */
-export interface Filter {
+/** A YAML parsing pipeline file. Identity = relPath; these files have no id. */
+export interface Pipeline {
   relPath: string
   content: string
   system: boolean
   active: boolean
-  /** The dataTypes this filter's (single) pipeline entry applies to — reusable across several. */
+  /** The dataTypes this pipeline applies to. */
   dataTypes: string[]
-  /** Position in the global pipeline order (system band no longer enforced). */
+  /** Which pipeline runs first when several match the same data type. */
   order: number
 }
 
-export interface FilterListQuery {
+export interface PipelineListQuery {
   relPathContains?: string
   isActive?: boolean
   system?: boolean
@@ -25,12 +25,10 @@ export interface FilterListQuery {
 export interface DataTypeOption {
   dataType: string
   name: string
-  moduleName: string
-  active: boolean
-  isSystem: boolean
+  systemOwner: boolean
 }
 
-export interface SaveFilterRequest {
+export interface SavePipelineRequest {
   relPath: string
   content: string
 }

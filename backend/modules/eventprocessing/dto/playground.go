@@ -2,9 +2,9 @@ package dto
 
 import "encoding/json"
 
-type TestFilterRequest struct {
-	Log    json.RawMessage `json:"log"    binding:"required"`
-	Filter *CustomContent  `json:"filter"`
+type TestPipelineRequest struct {
+	Log      json.RawMessage `json:"log"      binding:"required"`
+	Pipeline *CustomContent  `json:"pipeline"`
 }
 
 type TestRuleRequest struct {

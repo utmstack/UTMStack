@@ -23,25 +23,25 @@ type AssetProjectionUsecase interface {
 
 type CorrelationRuleUsecase interface {
 	Create(ctx context.Context, req dto.CreateCorrelationRuleRequest) error
-	ImportRules(ctx context.Context, files []dto.ImportRuleFile) []dto.ImportRuleResult
 	Update(ctx context.Context, req dto.UpdateCorrelationRuleRequest) error
+	Delete(ctx context.Context, relPath string) error
 	GetByRelPath(ctx context.Context, relPath string) (*dto.CorrelationRuleResponse, error)
 	List(ctx context.Context, filters dto.CorrelationRuleFilters) (*ListResult[dto.CorrelationRuleResponse], error)
-	Delete(ctx context.Context, relPath string) error
 	SetActive(ctx context.Context, relPath string, active bool) (bool, error)
 	FindDistinctPropertyValues(ctx context.Context, prop, value string) ([]string, error)
+	ImportRules(ctx context.Context, files []dto.ImportRuleFile) []dto.ImportRuleResult
 	ExportRules(ctx context.Context, relPaths []string) ([]dto.ExportedRuleFile, error)
 }
 
-type FilterUsecase interface {
-	Create(ctx context.Context, req dto.CreateFilterRequest) (*dto.FilterResponse, error)
-	Update(ctx context.Context, req dto.UpdateFilterRequest) (*dto.FilterResponse, error)
-	GetByRelPath(ctx context.Context, relPath string) (*dto.FilterResponse, error)
-	List(ctx context.Context, f dto.FilterFilters) ([]dto.FilterResponse, int64, error)
-	DataTypes(ctx context.Context) []string
+type PipelineUsecase interface {
+	Create(ctx context.Context, req dto.CreatePipelineRequest) (*dto.PipelineResponse, error)
+	Update(ctx context.Context, req dto.UpdatePipelineRequest) (*dto.PipelineResponse, error)
 	Delete(ctx context.Context, relPath string) error
+	GetByRelPath(ctx context.Context, relPath string) (*dto.PipelineResponse, error)
+	List(ctx context.Context, f dto.PipelineFilters) (*ListResult[dto.PipelineResponse], error)
 	SetActive(ctx context.Context, relPath string, active bool) error
-	SetOrder(ctx context.Context, relPath string, order int32) (*dto.FilterResponse, error)
+	SetOrder(ctx context.Context, order []string) error
+	DataTypes(ctx context.Context) []string
 }
 
 type IngestionStatsUsecase interface {
@@ -50,6 +50,6 @@ type IngestionStatsUsecase interface {
 }
 
 type PlaygroundUsecase interface {
-	TestFilter(ctx context.Context, req dto.TestFilterRequest) (*dto.PlaygroundResponse, error)
+	TestPipeline(ctx context.Context, req dto.TestPipelineRequest) (*dto.PlaygroundResponse, error)
 	TestRule(ctx context.Context, req dto.TestRuleRequest) (*dto.PlaygroundResponse, error)
 }

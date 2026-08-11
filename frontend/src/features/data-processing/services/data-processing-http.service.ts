@@ -1,19 +1,19 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type {
   DataTypeOption,
-  Filter,
-  FilterListQuery,
+  Pipeline,
+  PipelineListQuery,
   IngestionQuery,
   IngestionStats,
   IngestionTimeline,
-  SaveFilterRequest,
+  SavePipelineRequest,
 } from '../types/data-processing.types'
 
 const api = createApiClient()
 
 export { ApiError as DataProcessingHttpError }
 
-function filterQuery(q: FilterListQuery): string {
+function pipelineQuery(q: PipelineListQuery): string {
   const p = new URLSearchParams()
   if (q.relPathContains) p.set('relPath.contains', q.relPathContains)
   if (q.isActive != null) p.set('isActive.equals', String(q.isActive))
@@ -36,24 +36,26 @@ function ingestionQuery(q: IngestionQuery): string {
   return s ? `?${s}` : ''
 }
 
-export const filtersHttpService = {
-  // Returns { data: Filter[], total } — total comes from X-Total-Count.
-  list: (q: FilterListQuery = {}) => api.getPaged<Filter[]>(`/eventprocessing/filters${filterQuery(q)}`),
-  dataTypes: () => api.get<string[]>('/eventprocessing/filters/data-types'),
+export const pipelinesHttpService = {
+  // Returns { data: Pipeline[], total } — total comes from X-Total-Count.
+  list: (q: PipelineListQuery = {}) => api.getPaged<Pipeline[]>(`/eventprocessing/pipelines${pipelineQuery(q)}`),
+  dataTypes: () => api.get<string[]>('/eventprocessing/pipelines/data-types'),
   // Catalog of known dataTypes (from integrations) to pick from while authoring.
   dataTypeCatalog: () => api.get<DataTypeOption[]>('/integrations/data-types'),
   find: (relPath: string) =>
-    api.get<Filter>(`/eventprocessing/filters/find?relPath=${encodeURIComponent(relPath)}`),
-  create: (input: SaveFilterRequest) => api.post<Filter>('/eventprocessing/filters', input),
-  update: (input: SaveFilterRequest) => api.put<Filter>('/eventprocessing/filters', input),
+    api.get<Pipeline>(`/eventprocessing/pipelines/find?relPath=${encodeURIComponent(relPath)}`),
+  create: (input: SavePipelineRequest) => api.post<Pipeline>('/eventprocessing/pipelines', input),
+  update: (input: SavePipelineRequest) => api.put<Pipeline>('/eventprocessing/pipelines', input),
   remove: (relPath: string) =>
-    api.delete<{ message: string }>(`/eventprocessing/filters?relPath=${encodeURIComponent(relPath)}`),
+    api.delete<{ message: string }>(`/eventprocessing/pipelines?relPath=${encodeURIComponent(relPath)}`),
   activate: (relPath: string, active: boolean) =>
     api.put<{ message: string }>(
-      `/eventprocessing/filters/activate?relPath=${encodeURIComponent(relPath)}&active=${active}`,
+      `/eventprocessing/pipelines/activate?relPath=${encodeURIComponent(relPath)}&active=${active}`,
     ),
-  setOrder: (relPath: string, order: number) =>
-    api.put<Filter>('/eventprocessing/filters/order', { relPath, order }),
+  // The whole sequence, not one position: the backend stores it as an ordered
+  // list of pipeline names in the tenant's own config, so a partial update
+  // could not be resolved.
+  setOrder: (order: string[]) => api.put<void>('/eventprocessing/pipelines/order', { order }),
 }
 
 export const ingestionHttpService = {
