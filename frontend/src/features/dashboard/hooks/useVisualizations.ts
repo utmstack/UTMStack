@@ -13,7 +13,7 @@ export const VISUALIZATIONS_QUERY_KEYS = {
   all: ['visualizations'] as const,
   list: (params: VisualizationListParams) =>
     [...VISUALIZATIONS_QUERY_KEYS.all, 'list', params] as const,
-  one: (id: number) => [...VISUALIZATIONS_QUERY_KEYS.all, 'one', id] as const,
+  one: (id: string) => [...VISUALIZATIONS_QUERY_KEYS.all, 'one', id] as const,
 }
 
 export function useVisualizations(params: VisualizationListParams = {}) {
@@ -22,16 +22,16 @@ export function useVisualizations(params: VisualizationListParams = {}) {
     queryKey: VISUALIZATIONS_QUERY_KEYS.list(params),
     queryFn: () => service.listVisualizations(params),
     // When scoping by dashboard, don't fire until a dashboard is actually selected.
-    enabled: params.dashboardId == null || params.dashboardId > 0,
+    enabled: params.dashboardId == null || !!params.dashboardId,
   })
 }
 
-export function useVisualization(id: number | null) {
+export function useVisualization(id: string | null) {
   const service = useMemo(() => createVisualizationsService(), [])
   return useQuery<Visualization>({
-    queryKey: VISUALIZATIONS_QUERY_KEYS.one(id ?? 0),
-    queryFn: () => service.getVisualization(id as number),
-    enabled: id != null && id > 0,
+    queryKey: VISUALIZATIONS_QUERY_KEYS.one(id ?? ''),
+    queryFn: () => service.getVisualization(id as string),
+    enabled: !!id,
   })
 }
 
@@ -54,7 +54,7 @@ export function useVisualizationMutations() {
     },
   })
 
-  const deleteVisualization = useMutation<void, Error, number>({
+  const deleteVisualization = useMutation<void, Error, string>({
     mutationFn: (id) => service.deleteVisualization(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: VISUALIZATIONS_QUERY_KEYS.all })

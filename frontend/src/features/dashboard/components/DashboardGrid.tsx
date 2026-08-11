@@ -28,15 +28,15 @@ export function DashboardGrid({
   refreshMs?: number | null
   editing: boolean
   onLayoutChange?: (items: GridLayoutItem[]) => void
-  onEditItem?: (id: number) => void
-  onRemoveItem?: (id: number) => void
+  onEditItem?: (id: string) => void
+  onRemoveItem?: (id: string) => void
 }) {
   const { t } = useTranslation()
   // v2 has no WidthProvider — it measures the container via this hook.
   const { width, containerRef } = useContainerWidth()
 
   const visualizationsById = useMemo(() => {
-    const map = new Map<number, Visualization>()
+    const map = new Map<string, Visualization>()
     for (const v of visualizations) map.set(v.id, v)
     return map
   }, [visualizations])
@@ -76,7 +76,7 @@ export function DashboardGrid({
           }
         >
           {items.map((item) => {
-            const viz = visualizationsById.get(Number(item.i))
+            const viz = visualizationsById.get(item.i)
             const chartType = viz ? parseBuilderConfig(viz.config).builder?.chartType : undefined
             const title = chartType
               ? t(`dashboards.editor.chartTypes.${chartType}.label`)

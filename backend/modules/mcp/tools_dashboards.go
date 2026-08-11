@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
@@ -18,10 +19,10 @@ func registerDashboards(m *Module) {
 // ---- dashboards.* ----------------------------------------------------------
 
 type dashboardUpsertInput struct {
-	ID          uint64 `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Config      string `json:"config,omitempty"`
+	ID          uuid.UUID `json:"id,omitempty"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Config      string    `json:"config,omitempty"`
 }
 
 type dashboardListInput struct {
@@ -31,7 +32,7 @@ type dashboardListInput struct {
 }
 
 type dashboardIDInput struct {
-	ID uint64 `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
 func registerDashboardDashboards(m *Module) {
@@ -90,8 +91,8 @@ func registerDashboardDashboards(m *Module) {
 // ---- visualizations.* ------------------------------------------------------
 
 type visualizationUpsertInput struct {
-	ID          uint64 `json:"id,omitempty"`
-	DashboardID uint64 `json:"dashboard_id"`
+	ID          uuid.UUID `json:"id,omitempty"`
+	DashboardID uuid.UUID `json:"dashboard_id"`
 	// Spec is the question the widget asks, as JSON: dataset, chart,
 	// aggregation, breakdown, filters. It replaced the SQL a visualization used
 	// to carry.
@@ -101,9 +102,9 @@ type visualizationUpsertInput struct {
 }
 
 type visualizationListInput struct {
-	DashboardID *uint64 `json:"dashboard_id,omitempty"`
-	Page        int     `json:"page,omitempty"`
-	Size        int     `json:"size,omitempty"`
+	DashboardID *uuid.UUID `json:"dashboard_id,omitempty"`
+	Page        int        `json:"page,omitempty"`
+	Size        int        `json:"size,omitempty"`
 }
 
 func registerDashboardVisualizations(m *Module) {

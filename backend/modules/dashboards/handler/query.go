@@ -58,7 +58,7 @@ func (h *QueryHandler) Run(c *gin.Context) {
 func isSpecError(err error) bool {
 	for _, e := range []error{
 		domain.ErrDatasetRequired, domain.ErrUnknownDataset, domain.ErrUnknownChart,
-		domain.ErrDimensionRequired, domain.ErrFieldRequired, domain.ErrUnknownAgg,
+		domain.ErrDimensionRequired, domain.ErrUnknownAgg,
 		domain.ErrUnknownOp,
 	} {
 		if errors.Is(err, e) {

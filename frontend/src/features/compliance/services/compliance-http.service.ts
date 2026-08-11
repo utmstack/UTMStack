@@ -33,7 +33,7 @@ export const complianceService = {
 
   /** Data types a check can target, read from what the store actually holds. */
   listDataTypes: (dataset: 'logs' | 'alerts' = 'logs') =>
-    api.get<string[]>(`/log-analyzer/data-types?dataset=${dataset}`),
+    api.get<string[]>(`/log-analyzer/datasets/${encodeURIComponent(dataset)}/data-types`),
 
   // ── Report ──────────────────────────────────────────────────────────────
   /** The standing report. Does not re-run the framework. */

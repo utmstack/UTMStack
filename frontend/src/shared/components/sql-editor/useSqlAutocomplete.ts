@@ -12,10 +12,8 @@ export interface SqlAutocompleteField {
   name: string
 }
 
-/** Minimal shape needed for index-pattern completion. */
-export interface SqlAutocompletePattern {
-  pattern: string
-}
+/** The datasets a statement can read from. */
+export type SqlAutocompleteTable = string
 
 interface UseSqlAutocompleteResult {
   suggest: (prefix: string, limit?: number) => Suggestion[]
@@ -23,7 +21,7 @@ interface UseSqlAutocompleteResult {
 
 export function useSqlAutocomplete(
   fields: SqlAutocompleteField[],
-  patterns: SqlAutocompletePattern[],
+  tables: SqlAutocompleteTable[],
 ): UseSqlAutocompleteResult {
   const trie = useMemo<AutocompleteTrie>(() => {
     const t = createAutocompleteTrie()
@@ -45,12 +43,12 @@ export function useSqlAutocomplete(
   useEffect(() => {
     trie.clearTag('index')
     const seen = new Set<string>()
-    for (const p of patterns) {
-      if (!p.pattern || seen.has(p.pattern)) continue
-      seen.add(p.pattern)
-      trie.insert(p.pattern, 'index')
+    for (const table of tables) {
+      if (!table || seen.has(table)) continue
+      seen.add(table)
+      trie.insert(table, 'index')
     }
-  }, [patterns, trie])
+  }, [tables, trie])
 
   const suggest = useCallback(
     (prefix: string, limit = 20) => trie.suggest(prefix, limit),

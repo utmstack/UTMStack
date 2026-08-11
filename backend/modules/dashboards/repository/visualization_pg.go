@@ -8,6 +8,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
 	"gorm.io/gorm"
+
+	"github.com/google/uuid"
 )
 
 type pgVisualizationRepository struct{ db *gorm.DB }
@@ -20,7 +22,7 @@ func (r *pgVisualizationRepository) Save(ctx context.Context, v *domain.Visualiz
 	return r.db.WithContext(ctx).Save(v).Error
 }
 
-func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uint64) (*domain.Visualization, error) {
+func (r *pgVisualizationRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Visualization, error) {
 	var v domain.Visualization
 	err := r.db.WithContext(ctx).First(&v, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -48,6 +50,6 @@ func (r *pgVisualizationRepository) List(ctx context.Context, f dto.Visualizatio
 	return items, total, nil
 }
 
-func (r *pgVisualizationRepository) Delete(ctx context.Context, id uint64) error {
+func (r *pgVisualizationRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&domain.Visualization{}, id).Error
 }

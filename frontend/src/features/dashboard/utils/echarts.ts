@@ -1,4 +1,4 @@
-import type { Row } from '@/features/dashboard/service/opensearch.service'
+import type { Row } from '@/features/dashboard/types'
 
 export interface ParsedChartConfig {
   option: Record<string, unknown> | null
@@ -56,7 +56,7 @@ export function mergeRowsIntoOption(
     option.grid ??
     (hasAxes ? { ...DEFAULT_GRID, bottom: addLegend ? 40 : DEFAULT_GRID.bottom } : undefined)
 
-  const series = normalizeSeries(option.series)
+  const series = normalizeSeries(expandSeries(option.series, rows))
   // Pie charts have no axes, so the only way to read a slice is on hover.
   const tooltip = option.tooltip ?? (seriesHasType(series, 'pie') ? { trigger: 'item' } : undefined)
 
@@ -71,6 +71,30 @@ export function mergeRowsIntoOption(
       source: rows,
     },
   }
+}
+
+/**
+ * A split-by-field answer arrives as one column per series (`at`, "windows",
+ * "linux"…), while a saved config carries a single series drawn from the second
+ * column. Repeat that series once per value column so every line is drawn; the
+ * column name becomes the series name, which is what the legend shows.
+ */
+function expandSeries(series: unknown, rows: Row[]): unknown {
+  if (rows.length === 0) return series
+  const columns = Object.keys(rows[0])
+  if (columns.length <= 2) return series
+
+  const template = Array.isArray(series) ? series[0] : series
+  if (!isRecord(template) || Array.isArray(series) && series.length > 1) return series
+  if (!isRecord(template.encode) || !('x' in (template.encode as Record<string, unknown>))) {
+    return series
+  }
+
+  return columns.slice(1).map((name, i) => ({
+    ...template,
+    name,
+    encode: { ...(template.encode as Record<string, unknown>), y: i + 1 },
+  }))
 }
 
 // Pie slices get cluttered, overlapping leader-line labels by default (one per

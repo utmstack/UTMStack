@@ -132,7 +132,7 @@ export function toGridItems(rows: Visualization[]): GridLayoutItem[] {
 
   const loose = parsed
     .filter((r) => !r.p.positioned)
-    .sort((a, b) => a.p.order - b.p.order || a.dv.id - b.dv.id)
+    .sort((a, b) => a.p.order - b.p.order || a.dv.id.localeCompare(b.dv.id))
     .map((r) => ({ i: String(r.dv.id), w: r.p.w, h: r.p.h }))
 
   const startY = positioned.reduce((max, it) => Math.max(max, it.y + it.h), 0)

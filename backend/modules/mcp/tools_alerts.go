@@ -26,18 +26,18 @@ func registerAlerts(m *Module) {
 }
 
 // ------------------------------------------------------------------
-// alerts.* — operate on individual alert documents (live in OpenSearch).
+// alerts.* — operate on individual alert records in the event store.
 // ------------------------------------------------------------------
 
 type alertsUpdateStatusInput struct {
-	AlertIDs            []string `json:"alert_ids" jsonschema:"OpenSearch _id values of the alerts to update"`
+	AlertIDs            []string `json:"alert_ids" jsonschema:"ids of the alerts to update"`
 	Status              string   `json:"status" jsonschema:"Target status, one of: Automatic review, Open, In review, Completed, Merged"`
 	StatusObservation   string   `json:"status_observation,omitempty" jsonschema:"Optional analyst note attached to the status change"`
 	AddFalsePositiveTag bool     `json:"add_false_positive_tag,omitempty" jsonschema:"If true, also apply the FALSE_POSITIVE tag (used when closing as FP)"`
 }
 
 type alertsUpdateNotesInput struct {
-	AlertID string `json:"alert_id" jsonschema:"OpenSearch _id of the alert"`
+	AlertID string `json:"alert_id" jsonschema:"id of the alert"`
 	Notes   string `json:"notes" jsonschema:"Analyst notes to attach (replaces existing notes)"`
 }
 

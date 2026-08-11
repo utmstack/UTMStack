@@ -38,6 +38,8 @@ export interface DatasourceCount {
 export interface IngestionBucket {
   key: string // dataSource name
   count: number
+  /** Ingested volume for this source, in bytes. */
+  bytes?: number
   lastSeen?: string
 }
 export interface IngestionTotals {
@@ -46,6 +48,7 @@ export interface IngestionTotals {
   from: string
   to: string
   total: number
+  totalBytes?: number
   buckets: IngestionBucket[]
 }
 
@@ -53,6 +56,7 @@ export interface IngestionTotals {
 export interface TimelinePoint {
   timestamp: string
   count: number
+  bytes?: number
 }
 export interface IngestionTimeline {
   status: string

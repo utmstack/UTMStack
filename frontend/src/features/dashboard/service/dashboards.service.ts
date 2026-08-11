@@ -19,10 +19,10 @@ function buildQuery(params: DashboardListParams): string {
 
 export interface DashboardsService {
   listDashboards(params?: DashboardListParams): Promise<Paged<Dashboard[]>>
-  getDashboard(id: number): Promise<Dashboard>
+  getDashboard(id: string): Promise<Dashboard>
   createDashboard(data: DashboardCreateInput): Promise<Dashboard>
   updateDashboard(data: DashboardUpdateInput): Promise<Dashboard>
-  deleteDashboard(id: number): Promise<void>
+  deleteDashboard(id: string): Promise<void>
 }
 
 export function createDashboardsService(baseUrl?: string): DashboardsService {
@@ -32,7 +32,7 @@ export function createDashboardsService(baseUrl?: string): DashboardsService {
     listDashboards: (params = {}) =>
       api.getPaged<Dashboard[]>(`${BASE_URL}${buildQuery(params)}`),
 
-    getDashboard: (id: number) => api.get<Dashboard>(`${BASE_URL}/${id}`),
+    getDashboard: (id: string) => api.get<Dashboard>(`${BASE_URL}/${id}`),
 
     createDashboard: (data: DashboardCreateInput) =>
       api.post<Dashboard>(BASE_URL, data),
@@ -40,6 +40,6 @@ export function createDashboardsService(baseUrl?: string): DashboardsService {
     updateDashboard: (data: DashboardUpdateInput) =>
       api.put<Dashboard>(BASE_URL, data),
 
-    deleteDashboard: (id: number) => api.delete<void>(`${BASE_URL}/${id}`),
+    deleteDashboard: (id: string) => api.delete<void>(`${BASE_URL}/${id}`),
   }
 }

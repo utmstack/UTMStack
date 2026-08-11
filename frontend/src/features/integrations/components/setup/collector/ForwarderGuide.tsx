@@ -150,7 +150,7 @@ interface ForwarderGuideProps {
   source: string
   /** Forwarder port for this data type, e.g. "7016" (illustrative default shown in the diagram). */
   port: string
-  /** OpenSearch source_type / dataType shown in the connection details, e.g. "ibm-aix". */
+  /** The dataType shown in the connection details, e.g. "ibm-aix". */
   sourceType: string
   /** Initial protocol, when the device needs something other than the catalog's first entry (e.g. ESXi/SentinelOne are TCP-only in practice). */
   defaultProto?: Proto

@@ -8,7 +8,7 @@ import { SELECT_CLS, TS } from './log-explorer.constants'
 import { TermsChart } from './TermsChart'
 import { TimeChart } from './TimeChart'
 
-// Valid OpenSearch calendar_interval tokens (lowercase) for the date histogram.
+// Bucket sizes the date histogram accepts.
 const CALENDAR_INTERVALS = [
   { id: 'minute', label: 'Minute' },
   { id: 'hour', label: 'Hour' },

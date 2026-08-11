@@ -19,10 +19,10 @@ function buildQuery(params: VisualizationListParams): string {
 
 export interface VisualizationsService {
   listVisualizations(params?: VisualizationListParams): Promise<Paged<Visualization[]>>
-  getVisualization(id: number): Promise<Visualization>
+  getVisualization(id: string): Promise<Visualization>
   createVisualization(data: VisualizationCreateInput): Promise<Visualization>
   updateVisualization(data: VisualizationUpdateInput): Promise<Visualization>
-  deleteVisualization(id: number): Promise<void>
+  deleteVisualization(id: string): Promise<void>
 }
 
 export function createVisualizationsService(baseUrl?: string): VisualizationsService {
@@ -32,7 +32,7 @@ export function createVisualizationsService(baseUrl?: string): VisualizationsSer
     listVisualizations: (params = {}) =>
       api.getPaged<Visualization[]>(`${BASE_URL}${buildQuery(params)}`),
 
-    getVisualization: (id: number) => api.get<Visualization>(`${BASE_URL}/${id}`),
+    getVisualization: (id: string) => api.get<Visualization>(`${BASE_URL}/${id}`),
 
     createVisualization: (data: VisualizationCreateInput) =>
       api.post<Visualization>(BASE_URL, data),
@@ -40,6 +40,6 @@ export function createVisualizationsService(baseUrl?: string): VisualizationsSer
     updateVisualization: (data: VisualizationUpdateInput) =>
       api.put<Visualization>(BASE_URL, data),
 
-    deleteVisualization: (id: number) => api.delete<void>(`${BASE_URL}/${id}`),
+    deleteVisualization: (id: string) => api.delete<void>(`${BASE_URL}/${id}`),
   }
 }

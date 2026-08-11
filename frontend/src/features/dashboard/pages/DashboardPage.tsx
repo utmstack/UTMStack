@@ -26,7 +26,7 @@ import type { Dashboard, DashboardFilterChip, FilterType, GridLayoutItem } from 
 
 export function DashboardPage() {
   const { t } = useTranslation()
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
   const [refreshMs, setRefreshMs] = useState<number | null>(null)
@@ -62,7 +62,7 @@ export function DashboardPage() {
   // and resume editing (the only way to reach that editor is from edit mode,
   // so returning should never silently drop back to view mode).
   useEffect(() => {
-    const state = location.state as { selectDashboardId?: number } | null
+    const state = location.state as { selectDashboardId?: string } | null
     if (state?.selectDashboardId != null) {
       setSelectedId(state.selectDashboardId)
       pendingEditRef.current = true
@@ -79,7 +79,7 @@ export function DashboardPage() {
   const vizMutations = useVisualizationMutations()
 
   const vizById = useMemo(() => {
-    const m = new Map<number, (typeof vizItems)[number]>()
+    const m = new Map<string, (typeof vizItems)[number]>()
     for (const v of vizItems) m.set(v.id, v)
     return m
   }, [vizItems])
@@ -177,7 +177,7 @@ export function DashboardPage() {
     navigate(`/dashboards/${selectedId}/visualizations/new`, { state: { layout } })
   }
 
-  const handleEditWidget = (id: number) => {
+  const handleEditWidget = (id: string) => {
     if (selectedId == null) return
     navigate(`/dashboards/${selectedId}/visualizations/${id}`)
   }
@@ -196,12 +196,12 @@ export function DashboardPage() {
           base.w !== item.w ||
           base.h !== item.h
         if (!changed) continue
-        const viz = vizById.get(Number(item.i))
+        const viz = vizById.get(item.i)
         if (!viz) continue
         await vizMutations.updateVisualization.mutateAsync({
           id: viz.id,
           dashboardId: viz.dashboardId,
-          sqlQuery: viz.sqlQuery,
+          spec: viz.spec,
           config: viz.config,
           layout: serializeLayout({ x: item.x, y: item.y, w: item.w, h: item.h }),
         })
@@ -230,7 +230,7 @@ export function DashboardPage() {
     void doSave()
   }
 
-  const openFromTable = (id: number, options?: { edit?: boolean }) => {
+  const openFromTable = (id: string, options?: { edit?: boolean }) => {
     pendingEditRef.current = !!options?.edit
     setSelectedId(id)
   }

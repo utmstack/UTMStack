@@ -10,6 +10,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/connectors"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
+
+	"github.com/google/uuid"
 )
 
 type visualizationUsecase struct {
@@ -21,10 +23,10 @@ func NewVisualizationUsecase(repo connectors.VisualizationRepository) connectors
 }
 
 func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualization, user string) (*domain.Visualization, error) {
-	if v.ID != 0 {
+	if v.ID != uuid.Nil {
 		return nil, domain.ErrIDForbidden
 	}
-	if v.DashboardID == 0 {
+	if v.DashboardID == uuid.Nil {
 		return nil, domain.ErrDashboardIDRequired
 	}
 	if err := sanitizeVisualization(v); err != nil {
@@ -40,7 +42,7 @@ func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualizati
 }
 
 func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualization, user string) (*domain.Visualization, error) {
-	if v.ID == 0 {
+	if v.ID == uuid.Nil {
 		return nil, domain.ErrIDRequired
 	}
 	existing, err := u.repo.FindByID(ctx, v.ID)
@@ -67,7 +69,7 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualizati
 	return v, nil
 }
 
-func (u *visualizationUsecase) GetByID(ctx context.Context, id uint64) (*domain.Visualization, error) {
+func (u *visualizationUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Visualization, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
@@ -75,7 +77,7 @@ func (u *visualizationUsecase) List(ctx context.Context, f dto.VisualizationFilt
 	return u.repo.List(ctx, f)
 }
 
-func (u *visualizationUsecase) Delete(ctx context.Context, id uint64) error {
+func (u *visualizationUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	existing, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return err

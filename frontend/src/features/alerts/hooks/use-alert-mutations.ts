@@ -25,7 +25,7 @@ export interface UseAlertMutationsResult {
  *   - clear the bulk-selection,
  *   - patch `openAlert` locally for instant feedback, then
  *   - re-fetch the updated doc so status/tags/history reflect the change
- *     (1.2s delay lets OpenSearch make the new version searchable).
+ *     (1.2s delay lets the store make the new version readable).
  */
 export function useAlertMutations({
   refresh,

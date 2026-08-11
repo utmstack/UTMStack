@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronDown, Filter, Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
-import { usePropertyValues } from '@/features/dashboard/hooks/usePropertyValues'
+import { useFieldValues } from '@/features/dashboard/hooks/useDatasets'
 import { DashboardFilterChipEditor } from '@/features/dashboard/components/DashboardFilterChipEditor'
 import type { DashboardFilterChip } from '@/features/dashboard/types'
 
@@ -266,7 +266,7 @@ function FilterChip({
   const [search, setSearch] = useState('')
   const rootRef = useRef<HTMLDivElement | null>(null)
 
-  const query = usePropertyValues(chip.indexPattern, chip.field, open)
+  const query = useFieldValues(chip.dataset, chip.field, open)
 
   useEffect(() => {
     if (!open) return

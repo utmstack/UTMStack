@@ -22,7 +22,7 @@ export function DashboardGallery({
   loading: boolean
   search: string
   onSearchChange: (value: string) => void
-  onSelect: (id: number) => void
+  onSelect: (id: string) => void
   onCreate: () => void
 }) {
   const { t } = useTranslation()
@@ -75,7 +75,7 @@ export function DashboardGallery({
 
 // Editing/deleting a dashboard only happens from inside it (DashboardPreviewHeader)
 // — the gallery is browse-only, so a card is just its preview + metadata, no actions.
-function DashboardCard({ dashboard: d, onSelect }: { dashboard: Dashboard; onSelect: (id: number) => void }) {
+function DashboardCard({ dashboard: d, onSelect }: { dashboard: Dashboard; onSelect: (id: string) => void }) {
   const modified = d.modifiedDate ? new Date(d.modifiedDate).toLocaleString() : '—'
   // Just enough to draw the mini layout skeleton — no query execution, so this
   // stays cheap even with many dashboards on screen at once.
@@ -144,7 +144,7 @@ function MiniLayoutPreview({ visualizations, loading }: { visualizations: Visual
             }}
             className="absolute overflow-hidden rounded-[3px] border border-primary/20 bg-primary/10 text-primary"
           >
-            <MiniChartMock chartType={it.chartType} seed={it.id} />
+            <MiniChartMock chartType={it.chartType} seed={seedOf(it.id)} />
           </div>
         ))
       )}
@@ -154,6 +154,15 @@ function MiniLayoutPreview({ visualizations, loading }: { visualizations: Visual
 
 // Deterministic pseudo-random sequence (same widget always draws the same
 // mock) — a real PRNG would be overkill for a decorative sketch.
+// The seed only has to be stable per item so the mock preview does not
+// reshuffle on every render; the id is a uuid now, so it is folded into a
+// number rather than used directly.
+function seedOf(id: string): number {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
 function seededValues(seed: number, count: number, min: number, max: number): number[] {
   let s = seed || 1
   const out: number[] = []

@@ -2,27 +2,11 @@
  * Turning a stored document into the flat field/value pairs the explorer works
  * in. The table renders them, the CSV export writes them, and both have to
  * agree — a download that disagrees with the screen is worse than no download.
+ * The flattening itself is shared: a dashboard table widget shows the same
+ * records.
  */
 
-// An array of tags reads as "a, b"; an array of objects — an alert's events or
-// its history — has to be rendered as what it is. join() would call String() on
-// each element and print [object Object].
-function joinArray(v: unknown[]): string {
-  return v
-    .map((e) => (e !== null && typeof e === 'object' ? JSON.stringify(e) : String(e)))
-    .join(', ')
-}
-
-export function flattenDoc(obj: unknown, prefix = '', out: Record<string, unknown> = {}): Record<string, unknown> {
-  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-      const key = prefix ? `${prefix}.${k}` : k
-      if (v && typeof v === 'object' && !Array.isArray(v)) flattenDoc(v, key, out)
-      else out[key] = Array.isArray(v) ? joinArray(v) : v
-    }
-  }
-  return out
-}
+export { flattenDoc } from '@/shared/lib/flatten'
 
 /** The first candidate the document actually carries. */
 export function pick(flat: Record<string, unknown>, fields: string[]): string | undefined {

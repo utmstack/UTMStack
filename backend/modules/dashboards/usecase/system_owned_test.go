@@ -8,6 +8,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/connectors"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
+
+	"github.com/google/uuid"
 )
 
 type fakeDashboardRepo struct {
@@ -20,13 +22,13 @@ func (f *fakeDashboardRepo) Save(context.Context, *domain.Dashboard) error {
 	f.saved = true
 	return nil
 }
-func (f *fakeDashboardRepo) FindByID(context.Context, uint64) (*domain.Dashboard, error) {
+func (f *fakeDashboardRepo) FindByID(context.Context, uuid.UUID) (*domain.Dashboard, error) {
 	return f.row, nil
 }
 func (f *fakeDashboardRepo) List(context.Context, dto.DashboardFilter) ([]domain.Dashboard, int64, error) {
 	return nil, 0, nil
 }
-func (f *fakeDashboardRepo) Delete(context.Context, uint64) error { f.del = true; return nil }
+func (f *fakeDashboardRepo) Delete(context.Context, uuid.UUID) error { f.del = true; return nil }
 
 var _ connectors.DashboardRepository = (*fakeDashboardRepo)(nil)
 
@@ -34,10 +36,10 @@ var _ connectors.DashboardRepository = (*fakeDashboardRepo)(nil)
 // The tenancy callbacks already filter the write out — which is the problem:
 // the update reported success and changed nothing.
 func TestUpdatingASystemDashboardIsRefused(t *testing.T) {
-	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: 1, SystemOwner: true, Name: "Overview"}}
+	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, SystemOwner: true, Name: "Overview"}}
 	uc := NewDashboardUsecase(repo)
 
-	_, err := uc.Update(context.Background(), &domain.Dashboard{ID: 1, Name: "Mine"}, "someone")
+	_, err := uc.Update(context.Background(), &domain.Dashboard{ID: someID, Name: "Mine"}, "someone")
 	if !errors.Is(err, domain.ErrSystemOwned) {
 		t.Errorf("err = %v, want ErrSystemOwned", err)
 	}
@@ -47,10 +49,10 @@ func TestUpdatingASystemDashboardIsRefused(t *testing.T) {
 }
 
 func TestDeletingASystemDashboardIsRefused(t *testing.T) {
-	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: 1, SystemOwner: true}}
+	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, SystemOwner: true}}
 	uc := NewDashboardUsecase(repo)
 
-	if err := uc.Delete(context.Background(), 1); !errors.Is(err, domain.ErrSystemOwned) {
+	if err := uc.Delete(context.Background(), someID); !errors.Is(err, domain.ErrSystemOwned) {
 		t.Errorf("err = %v, want ErrSystemOwned", err)
 	}
 	if repo.del {
@@ -60,10 +62,10 @@ func TestDeletingASystemDashboardIsRefused(t *testing.T) {
 
 // A tenant's own dashboard is still editable.
 func TestUpdatingAnOwnDashboardWorks(t *testing.T) {
-	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: 1, SystemOwner: false, Name: "Mine"}}
+	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, SystemOwner: false, Name: "Mine"}}
 	uc := NewDashboardUsecase(repo)
 
-	if _, err := uc.Update(context.Background(), &domain.Dashboard{ID: 1, Name: "Renamed"}, "someone"); err != nil {
+	if _, err := uc.Update(context.Background(), &domain.Dashboard{ID: someID, Name: "Renamed"}, "someone"); err != nil {
 		t.Fatalf("Update: %v", err)
 	}
 	if !repo.saved {

@@ -8,8 +8,11 @@ import (
 
 	"github.com/threatwinds/go-sdk/store"
 
+	"errors"
+
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
 const (
@@ -29,12 +32,57 @@ type QueryService struct{ store Reader }
 
 func NewQueryService(r Reader) *QueryService { return &QueryService{store: r} }
 
+// Result is one answer, in the shape the chart that asked for it reads. The
+// store's own types are remapped rather than returned: they carry no JSON tags,
+// so serving them would put Go field names on the wire.
 type Result struct {
 	Total   *int64            `json:"total,omitempty"`
-	Buckets []store.Bucket    `json:"buckets,omitempty"`
-	Points  []store.Point     `json:"points,omitempty"`
-	Series  []store.Series    `json:"series,omitempty"`
+	Buckets []Bucket          `json:"buckets,omitempty"`
+	Points  []Point           `json:"points,omitempty"`
+	Series  []Series          `json:"series,omitempty"`
 	Rows    []json.RawMessage `json:"rows,omitempty"`
+}
+
+// Bucket is one value of the field a chart breaks down by.
+type Bucket struct {
+	Key   string `json:"key"`
+	Count int64  `json:"count"`
+}
+
+// Point is one time bucket.
+type Point struct {
+	At    time.Time `json:"at"`
+	Count int64     `json:"count"`
+}
+
+// Series is one line: a value of the split field and its points.
+type Series struct {
+	Key    string  `json:"key"`
+	Points []Point `json:"points"`
+}
+
+func toBuckets(in []store.Bucket) []Bucket {
+	out := make([]Bucket, 0, len(in))
+	for _, b := range in {
+		out = append(out, Bucket{Key: b.Key, Count: b.Count})
+	}
+	return out
+}
+
+func toPoints(in []store.Point) []Point {
+	out := make([]Point, 0, len(in))
+	for _, p := range in {
+		out = append(out, Point{At: p.At, Count: p.Count})
+	}
+	return out
+}
+
+func toSeries(in []store.Series) []Series {
+	out := make([]Series, 0, len(in))
+	for _, s := range in {
+		out = append(out, Series{Key: s.Key, Points: toPoints(s.Points)})
+	}
+	return out
 }
 
 func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, error) {
@@ -42,8 +90,12 @@ func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, erro
 		return nil, err
 	}
 
+	tenant, err := scopeTenant(ctx)
+	if err != nil {
+		return nil, err
+	}
 	scope := store.Scope{
-		Tenant:   authz.TenantIDFromContext(ctx),
+		Tenant:   tenant,
 		Dataset:  store.Dataset(spec.Dataset),
 		DataType: spec.DataType,
 	}
@@ -80,7 +132,7 @@ func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, erro
 		if err != nil {
 			return nil, err
 		}
-		return &Result{Buckets: buckets}, nil
+		return &Result{Buckets: toBuckets(buckets)}, nil
 
 	case domain.ChartTime:
 		interval, err := toInterval(spec.Interval)
@@ -92,13 +144,13 @@ func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, erro
 			if err != nil {
 				return nil, err
 			}
-			return &Result{Points: points}, nil
+			return &Result{Points: toPoints(points)}, nil
 		}
 		series, err := s.store.TimelineByField(ctx, scope, spec.Dimension, filters, interval, limit)
 		if err != nil {
 			return nil, err
 		}
-		return &Result{Series: series}, nil
+		return &Result{Series: toSeries(series)}, nil
 
 	case domain.ChartTable:
 		rows, total, err := s.store.FetchPage(ctx, scope, filters, store.Page{
@@ -115,14 +167,18 @@ func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, erro
 	return nil, domain.ErrUnknownChart
 }
 
+// The operators a widget filter may use. Every one of them is a store operator
+// spelled the same way, so a spec reads like what the store will be asked.
 var ops = map[string]store.Op{
 	"eq": store.OpEq, "not_eq": store.OpNotEq,
 	"in": store.OpIn, "not_in": store.OpNotIn,
 	"gt": store.OpGt, "gte": store.OpGte,
 	"lt": store.OpLt, "lte": store.OpLte,
-	"between":  store.OpBetween,
+	"between": store.OpBetween, "not_between": store.OpNotBetween,
 	"contains": store.OpContains, "not_contains": store.OpNotContains,
-	"exists": store.OpExists,
+	"starts_with": store.OpStartsWith, "not_starts_with": store.OpNotStartsWith,
+	"ends_with": store.OpEndsWith, "not_ends_with": store.OpNotEndsWith,
+	"exists": store.OpExists, "not_exists": store.OpNotExists,
 }
 
 func toFilters(in []domain.Filter) ([]store.Filter, error) {
@@ -158,4 +214,17 @@ func toInterval(s string) (store.Interval, error) {
 		return store.Interval{Calendar: store.CalendarWeek}, nil
 	}
 	return store.Interval{}, fmt.Errorf("unknown interval: %s", s)
+}
+
+var ErrNoTenantScope = errors.New("dashboards: no tenant in scope")
+
+func scopeTenant(ctx context.Context) (string, error) {
+	tenant := authz.TenantIDFromContext(ctx)
+	if tenant == "" {
+		if tenancy.Enabled() {
+			return "", ErrNoTenantScope
+		}
+		return store.AllTenants, nil
+	}
+	return tenant, nil
 }

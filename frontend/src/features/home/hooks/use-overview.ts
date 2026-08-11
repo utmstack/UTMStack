@@ -194,7 +194,7 @@ export function useComplianceScores(): { items: ComplianceScore[]; isLoading: bo
   return { items, isLoading: frameworks.isLoading || reports.isLoading }
 }
 
-/* ─── System health (real backend / OpenSearch / SOC-AI status) ─────────────── */
+/* ─── System health (backend / event store / SOC-AI status) ─────────────────── */
 
 // Mirrors the Settings → About health model: a neutral `unknown` distinct from a
 // real problem, so we never raise a false alarm.

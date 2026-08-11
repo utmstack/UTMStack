@@ -8,8 +8,8 @@ import { RegionMapRenderer } from '@/features/dashboard/components/renderers/Reg
 import { TextRenderer } from '@/features/dashboard/components/renderers/TextRenderer'
 import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
 import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
-import { hasTimePlaceholder } from '@/features/dashboard/utils/sql-template'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
+import { parseSpec, specIsComplete } from '@/features/dashboard/utils/spec'
 import { getChartTypeMeta, type ChartRenderer } from '@/features/dashboard/constants'
 import type { FilterType, Visualization } from '@/features/dashboard/types'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
@@ -36,8 +36,9 @@ export function WidgetRenderer({
     ? getChartTypeMeta(builderParsed.builder.chartType).renderer
     : 'echarts'
 
-  const hasSql = !!visualization.sqlQuery?.trim()
-  const query = useVisualizationData(hasSql ? visualization : null, time, filters, refreshMs ?? null)
+  const spec = useMemo(() => parseSpec(visualization.spec), [visualization.spec])
+  const answerable = spec != null && specIsComplete(spec)
+  const query = useVisualizationData(answerable ? visualization : null, time, filters, refreshMs ?? null)
 
   if (renderer === 'echarts' && (parsed.error || !parsed.option)) {
     return (
@@ -48,7 +49,7 @@ export function WidgetRenderer({
     )
   }
 
-  if (hasSql && query.isLoading) {
+  if (answerable && query.isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center gap-2 text-xs text-muted-foreground">
         <Loader2 size={14} className="animate-spin" />
@@ -57,7 +58,7 @@ export function WidgetRenderer({
     )
   }
 
-  if (hasSql && query.isError) {
+  if (answerable && query.isError) {
     return (
       <ErrorPanel
         message={t('dashboards.widget.queryError')}
@@ -68,15 +69,14 @@ export function WidgetRenderer({
 
   const rows = query.data?.rows ?? []
 
-  if (hasSql && rows.length === 0 && !query.isLoading) {
+  if (!answerable) {
+    return <ErrorPanel message={t('dashboards.widget.incompleteSpec')} />
+  }
+
+  if (rows.length === 0 && !query.isLoading) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
-        <span>{t('dashboards.widget.noData')}</span>
-        {!hasTimePlaceholder(visualization.sqlQuery) && (
-          <span className="text-[10px] text-muted-foreground/70">
-            {t('dashboards.widget.noTimePlaceholderHint')}
-          </span>
-        )}
+      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+        {t('dashboards.widget.noData')}
       </div>
     )
   }
@@ -94,7 +94,7 @@ export function WidgetRenderer({
     return <TextRenderer rows={rows} />
   }
 
-  const option = hasSql && parsed.option ? mergeRowsIntoOption(parsed.option, rows) : parsed.option!
+  const option = parsed.option ? mergeRowsIntoOption(parsed.option, rows) : parsed.option!
   return <EChartsRenderer option={option} />
 }
 

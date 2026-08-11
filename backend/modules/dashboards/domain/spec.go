@@ -6,14 +6,8 @@ import (
 )
 
 type Spec struct {
-	Dataset string `json:"dataset"` // logs | alerts
-
-	// DataType narrows to one kind of record inside it — o365, wineventlog,
-	// syslog. It is the other half of what an index pattern was: v11-log-o365-*
-	// named a table and a data type at once. Empty means every kind, and
-	// anything broader than one exact type is a filter.
-	DataType string `json:"dataType,omitempty"`
-
+	Dataset   string     `json:"dataset"` // logs | alerts
+	DataType  string     `json:"dataType,omitempty"`
 	Chart     Chart      `json:"chart"`               // decides which aggregation answers it
 	Metric    Metric     `json:"metric"`              // what is counted or summed
 	Dimension string     `json:"dimension,omitempty"` // what it is broken down by
@@ -34,6 +28,10 @@ const (
 	ChartTable    Chart = "table"
 )
 
+// Metric is what the chart measures. The event store counts records and does
+// nothing else — it has no sum, average or cardinality — so count is the only
+// answer there is, and a spec asking for another one is refused rather than
+// answered with a count that looks right.
 type Metric struct {
 	Agg   Agg    `json:"agg"`
 	Field string `json:"field,omitempty"`
@@ -41,14 +39,7 @@ type Metric struct {
 
 type Agg string
 
-const (
-	AggCount         Agg = "count"
-	AggCountDistinct Agg = "count_distinct"
-	AggSum           Agg = "sum"
-	AggAvg           Agg = "avg"
-	AggMin           Agg = "min"
-	AggMax           Agg = "max"
-)
+const AggCount Agg = "count"
 
 type Filter struct {
 	Field string `json:"field"`
@@ -61,8 +52,7 @@ var (
 	ErrUnknownDataset    = errors.New("unknown dataset")
 	ErrUnknownChart      = errors.New("unknown chart")
 	ErrDimensionRequired = errors.New("this chart needs a dimension")
-	ErrFieldRequired     = errors.New("this aggregation needs a field")
-	ErrUnknownAgg        = errors.New("unknown aggregation")
+	ErrUnknownAgg        = errors.New("the event store only counts records: agg must be count")
 	ErrUnknownOp         = errors.New("unknown filter operator")
 )
 
@@ -87,13 +77,7 @@ func (s Spec) Validate() error {
 		return ErrUnknownChart
 	}
 
-	switch s.Metric.Agg {
-	case "", AggCount:
-	case AggCountDistinct, AggSum, AggAvg, AggMin, AggMax:
-		if s.Metric.Field == "" {
-			return ErrFieldRequired
-		}
-	default:
+	if s.Metric.Agg != "" && s.Metric.Agg != AggCount {
 		return ErrUnknownAgg
 	}
 

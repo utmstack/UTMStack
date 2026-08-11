@@ -5,14 +5,14 @@ export interface EditorState {
   editing: boolean
   working: GridLayoutItem[]
   dirty: boolean
-  pendingRemovals: number[]
+  pendingRemovals: string[]
 }
 
 export function useDashboardEditor(initialItems: GridLayoutItem[]) {
   const [editing, setEditing] = useState(false)
   const [working, setWorking] = useState<GridLayoutItem[]>(initialItems)
   const [baseline, setBaseline] = useState<GridLayoutItem[]>(initialItems)
-  const [pendingRemovals, setPendingRemovals] = useState<number[]>([])
+  const [pendingRemovals, setPendingRemovals] = useState<string[]>([])
 
   // Keep working/baseline in sync with the latest data while NOT editing — the
   // layout rows arrive asynchronously. We must NOT depend on the `initialItems`
@@ -80,7 +80,7 @@ export function useDashboardEditor(initialItems: GridLayoutItem[]) {
     setWorking(items)
   }, [])
 
-  const remove = useCallback((id: number) => {
+  const remove = useCallback((id: string) => {
     setWorking((curr) => curr.filter((it) => it.i !== String(id)))
     setPendingRemovals((curr) => (curr.includes(id) ? curr : [...curr, id]))
   }, [])

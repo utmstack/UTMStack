@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/threatwinds/go-sdk/store"
 
@@ -106,9 +108,11 @@ func TestOnlyTheKnownDatasetsAreReachable(t *testing.T) {
 func TestASpecThatMakesNoSenseIsRefused(t *testing.T) {
 	cases := map[string]domain.Spec{
 		"a breakdown with nothing to break down by": {Dataset: "logs", Chart: domain.ChartCategory},
-		"an average with no field":                  {Dataset: "logs", Chart: domain.ChartMetric, Metric: domain.Metric{Agg: domain.AggAvg}},
 		"a chart that does not exist":               {Dataset: "logs", Chart: "sankey"},
 		"an aggregation that does not exist":        {Dataset: "logs", Chart: domain.ChartMetric, Metric: domain.Metric{Agg: "median"}},
+		// The store counts records and nothing else. Answering an average with
+		// a count would look perfectly reasonable on the screen.
+		"an average, which the store cannot answer": {Dataset: "logs", Chart: domain.ChartMetric, Metric: domain.Metric{Agg: "avg", Field: "bytes"}},
 	}
 
 	for name, spec := range cases {
@@ -127,5 +131,37 @@ func TestAnUnknownFilterOperatorIsRefused(t *testing.T) {
 	})
 	if !errors.Is(err, domain.ErrUnknownOp) {
 		t.Errorf("err = %v, want ErrUnknownOp", err)
+	}
+}
+
+// The answer crosses the wire to a browser, so its field names are a contract.
+// The store's own types carry no JSON tags: returning them directly would put
+// Go field names ("Key", "Count", "At") on the wire and the widget would draw
+// nothing.
+func TestTheAnswerIsSpelledTheWayTheClientReadsIt(t *testing.T) {
+	total := int64(7)
+	at := time.Date(2026, 8, 11, 0, 0, 0, 0, time.UTC)
+	res := Result{
+		Total:   &total,
+		Buckets: []Bucket{{Key: "syslog", Count: 3}},
+		Points:  []Point{{At: at, Count: 4}},
+		Series:  []Series{{Key: "windows", Points: []Point{{At: at, Count: 5}}}},
+	}
+
+	b, err := json.Marshal(res)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	got := string(b)
+	for _, want := range []string{
+		`"total":7`,
+		`"buckets":[{"key":"syslog","count":3}]`,
+		`"points":[{"at":"2026-08-11T00:00:00Z","count":4}]`,
+		`"series":[{"key":"windows","points":[{"at":"2026-08-11T00:00:00Z","count":5}]}]`,
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %s in %s", want, got)
+		}
 	}
 }

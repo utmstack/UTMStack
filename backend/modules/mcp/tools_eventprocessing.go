@@ -20,7 +20,7 @@ func toRaw(v any) json.RawMessage {
 func registerEventProcessing(m *Module) {
 	registerEPRegexPatterns(m)
 	registerEPCorrelationRules(m)
-	registerEPFilters(m)
+	registerEPPipelines(m)
 	registerEPIngestionStats(m)
 }
 
@@ -63,7 +63,6 @@ func registerEPRegexPatterns(m *Module) {
 type epAssetNameInput struct {
 	AssetName string `json:"asset_name"`
 }
-
 
 // ---- correlation_rule.* ----------------------------------------------------
 
@@ -239,7 +238,7 @@ func registerEPCorrelationRules(m *Module) {
 		})
 }
 
-// ---- filter.* --------------------------------------------------------------
+// ---- pipeline.* ------------------------------------------------------------
 
 type epPipelineUpsertInput struct {
 	RelPath string `json:"rel_path"`
@@ -254,7 +253,7 @@ type epPipelineListInput struct {
 	Size            int     `json:"size,omitempty"`
 }
 
-func registerEPFilters(m *Module) {
+func registerEPPipelines(m *Module) {
 	uc := m.deps.EventProcessing.GetPipelineUsecase()
 
 	Add(m, &mcp.Tool{
@@ -305,7 +304,7 @@ func registerEPFilters(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "filter.set_active", Title: "Activate or deactivate filter",
+		Name: "pipeline.set_active", Title: "Activate or deactivate pipeline",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "eventprocessing.write"},
 		func(ctx context.Context, _ *authz.Actor, in epRuleSetActiveInput) (any, error) {

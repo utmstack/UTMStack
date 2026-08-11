@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { IndexPatternSelect } from '@/features/dashboard/components/editor/IndexPatternSelect'
+import { DatasetSelect } from '@/features/dashboard/components/editor/DatasetSelect'
 import { FieldSelect } from '@/features/dashboard/components/editor/FieldSelect'
 import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatableFields'
 import type { DashboardFilterChip } from '@/features/dashboard/types'
@@ -30,19 +30,19 @@ export function DashboardFilterChipEditor({
       id: crypto.randomUUID(),
       field: '',
       label: '',
-      indexPattern: '',
+      dataset: '',
       multiple: false,
       searchable: true,
     }
   )
 
-  const { fields, isLoading } = useAggregatableFields(chip.indexPattern || null)
+  const { fields, isLoading } = useAggregatableFields(chip.dataset || null)
 
   const update = (patch: Partial<DashboardFilterChip>) =>
     setChip((c) => ({ ...c, ...patch }))
 
   const valid =
-    chip.field.trim() !== '' && chip.label.trim() !== '' && chip.indexPattern.trim() !== ''
+    chip.field.trim() !== '' && chip.label.trim() !== '' && chip.dataset.trim() !== ''
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl">
@@ -54,10 +54,10 @@ export function DashboardFilterChipEditor({
 
       <div className="max-h-[70vh] overflow-auto px-4 py-4">
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t('dashboards.filters.field.indexPattern')}>
-            <IndexPatternSelect
-              value={chip.indexPattern}
-              onChange={(pattern) => update({ indexPattern: pattern, field: '' })}
+          <Field label={t('dashboards.filters.field.dataset')}>
+            <DatasetSelect
+              value={chip.dataset}
+              onChange={(dataset) => update({ dataset, field: '' })}
             />
           </Field>
           <Field label={t('dashboards.filters.field.field')}>
@@ -66,7 +66,7 @@ export function DashboardFilterChipEditor({
               onChange={(next) => update({ field: next })}
               fields={fields}
               loading={isLoading}
-              disabled={!chip.indexPattern}
+              disabled={!chip.dataset}
               placeholder={t('dashboards.filters.field.chooseField') ?? ''}
             />
           </Field>

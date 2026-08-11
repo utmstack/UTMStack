@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { normalizeType } from '@/features/dashboard/utils/field-types'
 import type { IndexProperty } from '@/features/dashboard/types'
 
 export function FieldSelect({
@@ -35,7 +36,7 @@ export function FieldSelect({
       )}
       {fields.map((f) => (
         <option key={f.name} value={f.name}>
-          {f.name} {f.type ? `(${f.type})` : ''}
+          {f.name} {f.type ? `(${normalizeType(f.type)})` : ''}
         </option>
       ))}
     </select>

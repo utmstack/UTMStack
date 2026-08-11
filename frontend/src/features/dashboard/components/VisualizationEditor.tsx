@@ -4,21 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { Loader2, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
-import { cn } from '@/shared/lib/utils'
-import { IndexPatternSelect } from '@/features/dashboard/components/editor/IndexPatternSelect'
+import { DatasetSelect } from '@/features/dashboard/components/editor/DatasetSelect'
 import { FilterBuilder } from '@/features/dashboard/components/editor/FilterBuilder'
-import { MetricPicker } from '@/features/dashboard/components/editor/MetricPicker'
 import { DimensionPicker } from '@/features/dashboard/components/editor/DimensionPicker'
 import { ColumnsPicker } from '@/features/dashboard/components/editor/ColumnsPicker'
 import { ChartPreviewPanel } from '@/features/dashboard/components/editor/ChartPreviewPanel'
 import { ChartTypeModal } from '@/features/dashboard/components/editor/ChartTypeModal'
 import { useAggregatableFields } from '@/features/dashboard/hooks/useAggregatableFields'
-import { useIndexPatterns } from '@/features/dashboard/hooks/useIndexPatterns'
 import { useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
-import { SqlQueryEditor } from '@/shared/components/sql-editor'
-import { DEFAULT_WIDGET_LAYOUT, getChartTypeMeta } from '@/features/dashboard/constants'
+import { DEFAULT_WIDGET_LAYOUT, INTERVALS, getChartTypeMeta } from '@/features/dashboard/constants'
 import { serializeLayout } from '@/features/dashboard/utils/layout'
-import { composeSql, parseSqlToBuilder } from '@/features/dashboard/utils/sql-builder'
+import { builderToSpec, parseSpec, specChartFor, specToBuilder } from '@/features/dashboard/utils/spec'
 import {
   makeInitialBuilder,
   parseBuilderConfig,
@@ -28,6 +24,7 @@ import type {
   BuilderState,
   ChartTypeId,
   IndexProperty,
+  IntervalId,
   Visualization,
 } from '@/features/dashboard/types'
 
@@ -36,14 +33,12 @@ export interface VisualizationEditorProps {
   initialChartType?: ChartTypeId
   // The dashboard this visualization belongs to. For edits this always matches
   // `initial.dashboardId`; for a brand-new visualization it comes from the route.
-  dashboardId: number
+  dashboardId: string
   // Grid position/size for a new widget (from DashboardPage's "Add widget"
   // seeding). Ignored on edit — the existing layout is preserved untouched;
   // repositioning happens by dragging on the dashboard grid, not here.
   initialLayout?: string
 }
-
-type EditorTab = 'visual' | 'sql'
 
 export function VisualizationEditor({
   initial,
@@ -69,83 +64,44 @@ export function VisualizationEditor({
     return getChartTypeMeta(startChartType).defaultConfig
   })
 
+  // The widget's saved spec is the question; the builder is how it is edited.
+  // The chart type lives in the config next to it, because which chart draws an
+  // answer is not part of the question.
   const [builder, setBuilder] = useState<BuilderState>(() => {
-    // Seed rawSql so the SQL tab and the visual tab start out synchronised —
-    // legacy widgets stored just `sqlQuery`, newer ones round-trip via composeSql.
-    const seedRawSql = (b: BuilderState) => ({
-      ...b,
-      rawSql: b.rawSql && b.rawSql.trim() ? b.rawSql : composeSql({ ...b, rawMode: false }),
-    })
-    if (initialParsed.builder) return seedRawSql(initialParsed.builder)
-    if (initial) {
-      return seedRawSql({
-        ...makeInitialBuilder(),
-        chartType: initialChartType ?? 'bar',
-        rawSql: initial.sqlQuery ?? null,
-      })
-    }
-    return seedRawSql({ ...makeInitialBuilder(), chartType: initialChartType ?? 'bar' })
+    const chartType = initialParsed.builder?.chartType ?? initialChartType ?? 'bar'
+    const base = { ...makeInitialBuilder(), ...(initialParsed.builder ?? {}), chartType }
+    const spec = parseSpec(initial?.spec)
+    return spec ? { ...base, ...specToBuilder(spec) } : base
   })
 
-  // Open on whichever tab the widget was last saved from: legacy widgets
-  // (no builder config) land on SQL because we only have raw SQL for them.
-  const [tab, setTab] = useState<EditorTab>(() => {
-    if (initialParsed.builder?.rawMode) return 'sql'
-    if (initial && !initialParsed.builder) return 'sql'
-    return 'visual'
-  })
   const [chartTypeOpen, setChartTypeOpen] = useState(false)
 
   const {
     fields,
     groupableFields: groupable,
     isLoading: fieldsLoading,
-  } = useAggregatableFields(builder.indexPattern)
-  const indexPatterns = useIndexPatterns()
-  const patternList = useMemo(
-    () => indexPatterns.data?.data ?? [],
-    [indexPatterns.data?.data]
-  )
+  } = useAggregatableFields(builder.dataset)
 
-  // Visual edits regenerate rawSql so the SQL tab reflects the change on switch,
-  // and SQL edits reverse-parse into the builder so the visual tab reflects it
-  // on switch. See parseSqlToBuilder for the exact fields that round-trip
-  // (filters and chartType are intentionally NOT parsed back from SQL).
-  const applyVisualEdit = (updater: (b: BuilderState) => BuilderState) => {
-    setBuilder((b) => {
-      const next = updater(b)
-      return {
-        ...next,
-        rawMode: false,
-        rawSql: composeSql({ ...next, rawMode: false }),
-      }
-    })
-  }
-
-  const applySqlEdit = (nextSql: string) => {
-    setBuilder((b) => {
-      const patch = parseSqlToBuilder(nextSql) ?? {}
-      return { ...b, ...patch, rawSql: nextSql, rawMode: true }
-    })
-  }
+  const update = (updater: (b: BuilderState) => BuilderState) => setBuilder(updater)
 
   const setChartType = (chartType: ChartTypeId) => {
-    applyVisualEdit((b) => ({ ...b, chartType }))
+    update((b) => ({ ...b, chartType }))
     if (!builder.configTouched) {
       setOption(getChartTypeMeta(chartType).defaultConfig)
     }
   }
 
   const meta = getChartTypeMeta(builder.chartType)
-  const showDimension = builder.chartType !== 'metric' && builder.chartType !== 'table'
-  const showMetric = builder.chartType !== 'table'
+  const chart = specChartFor(builder.chartType, builder.breakdown)
+  const spec = useMemo(() => builderToSpec(builder), [builder])
 
   const { createVisualization, updateVisualization } = useVisualizationMutations()
   const busy = createVisualization.isPending || updateVisualization.isPending
 
-  const sqlForSave = (builder.rawSql ?? '').trim()
-
-  const ready = builder.indexPattern.trim().length > 0 && sqlForSave.length > 0
+  // What the backend will refuse: a widget with no dataset, or a breakdown
+  // chart with nothing to break down by.
+  const ready =
+    builder.dataset.trim().length > 0 && (chart !== 'category' || !!builder.dimension)
 
   const handleSave = () => {
     if (!ready) {
@@ -154,6 +110,7 @@ export function VisualizationEditor({
     }
     if (busy) return
 
+    const specJson = JSON.stringify(spec)
     const configJson = serializeBuilderConfig(option, builder)
     const backToDashboard = () => navigate('/dashboards/list', { state: { selectDashboardId: dashboardId } })
 
@@ -162,7 +119,7 @@ export function VisualizationEditor({
         {
           id: initial.id,
           dashboardId: initial.dashboardId,
-          sqlQuery: sqlForSave,
+          spec: specJson,
           config: configJson,
           layout: initial.layout,
         },
@@ -179,7 +136,7 @@ export function VisualizationEditor({
       createVisualization.mutate(
         {
           dashboardId,
-          sqlQuery: sqlForSave,
+          spec: specJson,
           config: configJson,
           layout: initialLayout ?? serializeLayout({ x: 0, y: 0, w: DEFAULT_WIDGET_LAYOUT.w, h: DEFAULT_WIDGET_LAYOUT.h }),
         },
@@ -226,34 +183,22 @@ export function VisualizationEditor({
         </div>
       </header>
 
-      <ModeTabs tab={tab} onChange={setTab} />
-
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
-          {tab === 'visual' ? (
-            <VisualTab
-              builder={builder}
-              fields={fields}
-              groupableFields={groupable}
-              fieldsLoading={fieldsLoading}
-              showMetric={showMetric}
-              showDimension={showDimension}
-              onBuilderChange={applyVisualEdit}
-            />
-          ) : (
-            <SqlTab
-              rawSql={builder.rawSql ?? ''}
-              onChange={applySqlEdit}
-              fields={fields}
-              patterns={patternList}
-            />
-          )}
+          <QuestionPanel
+            builder={builder}
+            chart={chart}
+            fields={fields}
+            groupableFields={groupable}
+            fieldsLoading={fieldsLoading}
+            onChange={update}
+          />
         </div>
 
         <div className="lg:sticky lg:top-4 lg:self-start">
           <section className="rounded-lg border border-border bg-card p-4">
             <ChartPreviewPanel
-              sql={sqlForSave}
+              spec={ready ? spec : null}
               option={option}
               renderer={meta.renderer}
             />
@@ -301,86 +246,43 @@ function ChartTypeChip({
   )
 }
 
-function ModeTabs({
-  tab,
-  onChange,
-}: {
-  tab: EditorTab
-  onChange: (next: EditorTab) => void
-}) {
-  const { t } = useTranslation()
-  return (
-    <div className="flex items-center gap-1 border-b border-border">
-      <TabButton active={tab === 'visual'} onClick={() => onChange('visual')}>
-        {t('dashboards.editor.tabs.visual')}
-      </TabButton>
-      <TabButton active={tab === 'sql'} onClick={() => onChange('sql')}>
-        {t('dashboards.editor.tabs.sql')}
-      </TabButton>
-    </div>
-  )
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        '-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors',
-        active
-          ? 'border-primary text-foreground'
-          : 'border-transparent text-muted-foreground hover:text-foreground'
-      )}
-    >
-      {children}
-    </button>
-  )
-}
-
-function VisualTab({
+/**
+ * The question the widget asks: which records, narrowed how, counted over what.
+ * There is no measure to pick — the store counts records and nothing else.
+ */
+function QuestionPanel({
   builder,
+  chart,
   fields,
   groupableFields,
   fieldsLoading,
-  showMetric,
-  showDimension,
-  onBuilderChange,
+  onChange,
 }: {
   builder: BuilderState
+  chart: ReturnType<typeof specChartFor>
   fields: IndexProperty[]
   groupableFields: IndexProperty[]
   fieldsLoading: boolean
-  showMetric: boolean
-  showDimension: boolean
-  onBuilderChange: (updater: (b: BuilderState) => BuilderState) => void
+  onChange: (updater: (b: BuilderState) => BuilderState) => void
 }) {
   const { t } = useTranslation()
+  const plots = chart === 'time' || chart === 'category'
+
   return (
     <>
       <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
         <SectionTitle>{t('dashboards.editor.dataSource.title')}</SectionTitle>
         <div>
           <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            {t('dashboards.editor.dataSource.indexPattern')}
+            {t('dashboards.editor.dataSource.dataset')}
           </label>
-          <IndexPatternSelect
-            value={builder.indexPattern}
-            onChange={(pattern) =>
-              onBuilderChange((b) => ({ ...b, indexPattern: pattern }))
-            }
+          <DatasetSelect
+            value={builder.dataset}
+            onChange={(dataset) => onChange((b) => ({ ...b, dataset }))}
           />
-          {!builder.indexPattern && (
+          {!builder.dataset && (
             <p className="mt-1 text-[10px] text-muted-foreground">
-              {t('dashboards.editor.dataSource.noPatternHint')}
+              {t('dashboards.editor.dataSource.noDatasetHint')}
             </p>
           )}
         </div>
@@ -392,83 +294,153 @@ function VisualTab({
           filters={builder.filters}
           fields={fields ?? []}
           loading={fieldsLoading}
-          onChange={(next) => onBuilderChange((b) => ({ ...b, filters: next }))}
+          onChange={(next) => onChange((b) => ({ ...b, filters: next }))}
         />
       </section>
 
-      {(showMetric || showDimension) && (
+      {plots && (
         <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-          {showMetric && (
+          <SectionTitle>{t('dashboards.editor.breakdown.title')}</SectionTitle>
+          <BreakdownToggle
+            value={builder.breakdown}
+            onChange={(breakdown) => onChange((b) => ({ ...b, breakdown }))}
+          />
+
+          {chart === 'time' ? (
             <>
-              <SectionTitle>{t('dashboards.editor.metric.title')}</SectionTitle>
-              <MetricPicker
-                value={builder.metric}
-                fields={groupableFields ?? []}
-                loading={fieldsLoading}
-                onChange={(next) => onBuilderChange((b) => ({ ...b, metric: next }))}
+              <IntervalSelect
+                value={builder.interval}
+                onChange={(interval) => onChange((b) => ({ ...b, interval }))}
               />
-            </>
-          )}
-          {showDimension && (
-            <>
-              <SectionTitle>{t('dashboards.editor.dimension.title')}</SectionTitle>
               <DimensionPicker
                 value={builder.dimension}
                 fields={groupableFields ?? []}
                 loading={fieldsLoading}
-                onChange={(next) => onBuilderChange((b) => ({ ...b, dimension: next }))}
+                onChange={(next) => onChange((b) => ({ ...b, dimension: next }))}
               />
+              <p className="text-[11px] text-muted-foreground">
+                {t('dashboards.editor.breakdown.splitHint')}
+              </p>
             </>
+          ) : (
+            <DimensionPicker
+              value={builder.dimension}
+              fields={groupableFields ?? []}
+              loading={fieldsLoading}
+              onChange={(next) => onChange((b) => ({ ...b, dimension: next }))}
+            />
           )}
+
+          <LimitInput
+            value={builder.limit}
+            onChange={(limit) => onChange((b) => ({ ...b, limit }))}
+          />
         </section>
       )}
 
-      {builder.chartType === 'table' && (
+      {chart === 'table' && (
         <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
           <SectionTitle>{t('dashboards.editor.table.columnsTitle')}</SectionTitle>
           <ColumnsPicker
             value={builder.columns}
             fields={fields ?? []}
             loading={fieldsLoading}
-            onChange={(next) => onBuilderChange((b) => ({ ...b, columns: next }))}
+            onChange={(next) => onChange((b) => ({ ...b, columns: next }))}
           />
           <p className="text-[11px] text-muted-foreground">{t('dashboards.editor.table.hint')}</p>
+          <LimitInput
+            value={builder.limit}
+            onChange={(limit) => onChange((b) => ({ ...b, limit }))}
+          />
         </section>
       )}
     </>
   )
 }
 
-function SqlTab({
-  rawSql,
+function BreakdownToggle({
+  value,
   onChange,
-  fields,
-  patterns,
 }: {
-  rawSql: string
-  onChange: (next: string) => void
-  fields: IndexProperty[]
-  patterns: { pattern: string }[]
+  value: BuilderState['breakdown']
+  onChange: (next: BuilderState['breakdown']) => void
 }) {
   const { t } = useTranslation()
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-      <SectionTitle>{t('dashboards.editor.tabs.sql')}</SectionTitle>
-      <div className="rounded-md border border-input bg-background shadow-sm">
-        <SqlQueryEditor
-          value={rawSql}
-          onChange={onChange}
-          fields={fields}
-          patterns={patterns}
-          placeholder={t('dashboards.editor.sqlPreview.rawPlaceholder') ?? undefined}
-          minRows={10}
-          maxRows={20}
-        />
-      </div>
-      <p className="text-[10px] text-muted-foreground">
-        {t('dashboards.editor.sqlPreview.hint')}
-      </p>
-    </section>
+    <div className="inline-flex w-full overflow-hidden rounded-md border border-input">
+      {(['time', 'field'] as const).map((mode) => (
+        <button
+          key={mode}
+          type="button"
+          onClick={() => onChange(mode)}
+          className={
+            'flex-1 px-3 py-1.5 text-xs font-medium transition-colors ' +
+            (value === mode
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-background text-muted-foreground hover:bg-muted')
+          }
+        >
+          {t(`dashboards.editor.breakdown.${mode}`)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function IntervalSelect({
+  value,
+  onChange,
+}: {
+  value: IntervalId
+  onChange: (next: IntervalId) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div>
+      <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        {t('dashboards.editor.breakdown.interval')}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as IntervalId)}
+        className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      >
+        {INTERVALS.map((id) => (
+          <option key={id || 'auto'} value={id}>
+            {id === '' ? t('dashboards.editor.breakdown.intervalAuto') : id}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function LimitInput({
+  value,
+  onChange,
+}: {
+  value: number | null
+  onChange: (next: number | null) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div>
+      <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        {t('dashboards.editor.breakdown.limit')}
+      </label>
+      <input
+        type="number"
+        min={1}
+        max={10000}
+        value={value ?? ''}
+        placeholder={t('dashboards.editor.breakdown.limitPlaceholder') ?? undefined}
+        onChange={(e) => {
+          const n = Number(e.target.value)
+          onChange(e.target.value === '' || Number.isNaN(n) ? null : n)
+        }}
+        className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      />
+    </div>
   )
 }
 

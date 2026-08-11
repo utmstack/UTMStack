@@ -42,6 +42,8 @@ export interface IngestionBucket {
   key: string
   count: number
   lastSeen?: string
+  /** Ingested volume for the bucket, in bytes. */
+  bytes?: number
 }
 
 export interface IngestionStats {
@@ -50,12 +52,15 @@ export interface IngestionStats {
   from: string
   to: string
   total: number
+  /** Ingested volume over the whole window, in bytes. */
+  totalBytes?: number
   buckets: IngestionBucket[]
 }
 
 export interface TimelinePoint {
   timestamp: string
   count: number
+  bytes?: number
 }
 
 export interface TimelineSeries {

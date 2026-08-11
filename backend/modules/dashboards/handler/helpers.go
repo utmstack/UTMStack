@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
+	"github.com/utmstack/utmstack/backend/modules/dashboards/usecase"
 )
 
 func writeError(c *gin.Context, err error) {
@@ -17,16 +19,18 @@ func writeError(c *gin.Context, err error) {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired), errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrSpecRequired), errors.Is(err, domain.ErrInvalidSpec):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	case errors.Is(err, usecase.ErrNoTenantScope):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }
 
-func pathID(c *gin.Context) (uint64, bool) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+func pathID(c *gin.Context) (uuid.UUID, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		return 0, false
+		return uuid.Nil, false
 	}
 	return id, true
 }

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -69,7 +68,7 @@ func (h *DashboardHandler) Update(c *gin.Context) {
 		return
 	}
 	res, err := h.uc.Update(c.Request.Context(), &d, currentUser(c))
-	audit.Record(c, audit_connectors.Event{Action: "dashboard.update", ResourceType: "dashboard", ResourceID: strconv.FormatUint(d.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "dashboard.update", ResourceType: "dashboard", ResourceID: d.ID.String()},
 		audit_domain.DASHBOARD_UPDATE_ATTEMPT, audit_domain.DASHBOARD_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
@@ -149,7 +148,7 @@ func (h *DashboardHandler) Delete(c *gin.Context) {
 		return
 	}
 	err := h.uc.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "dashboard.delete", ResourceType: "dashboard", ResourceID: strconv.FormatUint(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "dashboard.delete", ResourceType: "dashboard", ResourceID: id.String()},
 		audit_domain.DASHBOARD_DELETE_ATTEMPT, audit_domain.DASHBOARD_DELETE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)

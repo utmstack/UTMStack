@@ -1,60 +1,54 @@
-import { AGGREGATIONS, OPERATORS, type OperatorMeta } from '@/features/dashboard/constants'
-import type { AggregationId, FilterOperatorId, IndexProperty } from '@/features/dashboard/types'
+import { OPERATORS, type OperatorMeta } from '@/features/dashboard/constants'
+import type { FilterOperatorId } from '@/features/dashboard/types'
 
-// OpenSearch numeric mapping types.
-const NUMERIC_TYPES = new Set([
-  'long',
-  'integer',
-  'short',
-  'byte',
-  'double',
-  'float',
-  'half_float',
-  'scaled_float',
-  'unsigned_long',
-])
+/**
+ * Field types as the event store reports them — ClickHouse column types, with
+ * `Nullable(…)` and `LowCardinality(…)` wrapped around them. Everything here
+ * unwraps first, so `LowCardinality(String)` is a string like any other.
+ */
+export function normalizeType(type: string | undefined | null): string {
+  let t = (type ?? '').trim()
+  for (;;) {
+    const m = /^(Nullable|LowCardinality|SimpleAggregateFunction)\((.*)\)$/i.exec(t)
+    if (!m) break
+    t = m[2].trim()
+  }
+  return t
+}
 
-const DATE_TYPES = new Set(['date', 'date_nanos'])
-
-const norm = (type: string | undefined | null) => (type ?? '').trim().toLowerCase()
+const NUMERIC = /^(U?Int\d+|Float\d+|Decimal|Bool)/i
+const DATE = /^(Date|DateTime)/i
+const TEXT = /^(String|FixedString|Enum|UUID|IPv[46])/i
 
 export function isNumericType(type: string | undefined | null): boolean {
-  return NUMERIC_TYPES.has(norm(type))
+  return NUMERIC.test(normalizeType(type))
 }
 
 export function isDateType(type: string | undefined | null): boolean {
-  return DATE_TYPES.has(norm(type))
+  return DATE.test(normalizeType(type))
+}
+
+export function isTextType(type: string | undefined | null): boolean {
+  return TEXT.test(normalizeType(type))
+}
+
+/** A list column: `errors`, `references`. One record holds several values. */
+export function isArrayType(type: string | undefined | null): boolean {
+  return /^Array\(/i.test(normalizeType(type))
 }
 
 /**
- * Fields valid for a given aggregation in the visual builder.
- *
- * The builder is dropdown-driven and we own the generated SQL, so we must never
- * offer a combination that produces a broken/meaningless query — e.g. SUM/AVG
- * over a `text` field. This narrows the field list to the types each aggregation
- * actually supports.
+ * A whole sub-document (`origin`, `log`), not a value. Its own paths are
+ * reported next to it — `origin.geolocation.country` — and those are what a
+ * widget can group by or filter on.
  */
-export function fieldsForAggregation(
-  fields: IndexProperty[],
-  agg: AggregationId
-): IndexProperty[] {
-  const kind = AGGREGATIONS.find((a) => a.id === agg)?.fieldKind ?? 'any'
-  switch (kind) {
-    case 'none':
-      return []
-    case 'numeric':
-      return fields.filter((f) => isNumericType(f.type))
-    case 'orderable':
-      return fields.filter((f) => isNumericType(f.type) || isDateType(f.type))
-    case 'any':
-    default:
-      return fields
-  }
+export function isContainerType(type: string | undefined | null): boolean {
+  const t = normalizeType(type)
+  return t === '' || /^(JSON|Tuple|Map|Object)/i.test(t)
 }
 
-// Operators that need a LIKE-style string comparison — OpenSearch SQL's `LIKE`
-// only accepts string operands, so pointing one at a date/numeric field errors
-// (e.g. `like function expected {[STRING,STRING]}, but get [TIMESTAMP,STRING]`).
+// Operators that match text against text. Pointing one at a date or a number
+// asks a question with no answer.
 const STRING_MATCH_OPERATORS = new Set<FilterOperatorId>([
   'CONTAIN',
   'DOES_NOT_CONTAIN',
@@ -76,22 +70,19 @@ const UNIVERSAL_OPERATORS = new Set<FilterOperatorId>(['IS', 'IS_NOT', 'EXIST', 
 /**
  * Operators valid for a given field type in the filter builder.
  *
- * Mirrors {@link fieldsForAggregation}'s guardrail: the builder is
- * dropdown-driven and owns the generated SQL, so it must never offer a
- * field/operator combination OpenSearch will reject — e.g. `CONTAIN` (LIKE) on
- * a `date` field, or `IS_BETWEEN` on plain text.
+ * The builder is dropdown-driven, so it must never offer a field/operator pair
+ * that cannot be answered — `CONTAIN` on a date, `IS_BETWEEN` on plain text.
  *
  * `type` is `undefined` while the field list is still loading or for a field
- * that isn't in the current index pattern — don't over-restrict in that case,
- * the field-staleness check elsewhere handles the latter.
+ * the current dataset does not carry — don't over-restrict in that case, the
+ * field-staleness check elsewhere handles the latter.
  */
 export function operatorsForFieldType(type: string | undefined | null): OperatorMeta[] {
-  const t = norm(type)
+  const t = normalizeType(type)
   if (!t) return OPERATORS
   return OPERATORS.filter((o) => {
     if (UNIVERSAL_OPERATORS.has(o.id)) return true
-    if (o.id === 'IS_ONE_OF_TERMS') return t !== 'text'
-    if (STRING_MATCH_OPERATORS.has(o.id)) return t === 'text' || t === 'keyword'
+    if (STRING_MATCH_OPERATORS.has(o.id)) return isTextType(t) || isArrayType(t)
     if (ORDERABLE_OPERATORS.has(o.id)) return isNumericType(t) || isDateType(t)
     return true
   })

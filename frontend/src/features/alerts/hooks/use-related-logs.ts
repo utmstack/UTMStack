@@ -32,7 +32,7 @@ export function useRelatedLogs(): UseRelatedLogsResult {
           state: {
             relatedLogs: {
               ids: r.ids,
-              indexPattern: r.indexPattern,
+              dataType: r.dataType,
               timeFrom: r.timeFrom,
               timeTo: r.timeTo,
               alertName: alert.name,

@@ -17,7 +17,7 @@ interface DataSourceSelectorProps {
   onSelect: (dataset: string, dataType: string | null) => void
 }
 
-export function IndexPatternSelector({ sources, dataset, dataType, onSelect }: DataSourceSelectorProps) {
+export function DatasetSelector({ sources, dataset, dataType, onSelect }: DataSourceSelectorProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')

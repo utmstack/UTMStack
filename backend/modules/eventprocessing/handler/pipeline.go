@@ -19,9 +19,9 @@ func NewPipelineHandler(uc connectors.PipelineUsecase) *PipelineHandler {
 	return &PipelineHandler{usecase: uc}
 }
 
-// @Summary     Create filter
-// @Description Creates a new user filter YAML in the user overlay (pipeline: format).
-// @Tags        Filters
+// @Summary     Create pipeline
+// @Description Creates a new user pipeline YAML in the user overlay.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
@@ -30,7 +30,7 @@ func NewPipelineHandler(uc connectors.PipelineUsecase) *PipelineHandler {
 // @Failure     400 {object} map[string]string
 // @Failure     409 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters [post]
+// @Router      /eventprocessing/pipelines [post]
 func (h *PipelineHandler) Create(c *gin.Context) {
 	var req dto.CreatePipelineRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -47,9 +47,9 @@ func (h *PipelineHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary     Update filter
-// @Description Replaces the content of a user filter. System filters are read-only.
-// @Tags        Filters
+// @Summary     Update pipeline
+// @Description Replaces the content of a user pipeline. System pipelines are read-only.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json
@@ -59,7 +59,7 @@ func (h *PipelineHandler) Create(c *gin.Context) {
 // @Failure     403 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters [put]
+// @Router      /eventprocessing/pipelines [put]
 func (h *PipelineHandler) Update(c *gin.Context) {
 	var req dto.UpdatePipelineRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -76,9 +76,9 @@ func (h *PipelineHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary     List filters
-// @Description Returns all filters (system + user) with optional filtering.
-// @Tags        Filters
+// @Summary     List pipelines
+// @Description Returns all pipelines (system + user) with optional filtering.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath.contains query string false "Filter by relPath containing value"
@@ -89,7 +89,7 @@ func (h *PipelineHandler) Update(c *gin.Context) {
 // @Success     200 {array}  dto.PipelineResponse
 // @Header      200 {string} X-Total-Count "Total records"
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters [get]
+// @Router      /eventprocessing/pipelines [get]
 func (h *PipelineHandler) List(c *gin.Context) {
 	var f dto.PipelineFilters
 	if err := c.ShouldBindQuery(&f); err != nil {
@@ -104,13 +104,13 @@ func (h *PipelineHandler) List(c *gin.Context) {
 	writePagedArray(c, res.Items, res.Total)
 }
 
-// @Summary     List filter data types
-// @Description Returns the sorted, distinct dataTypes declared across all filters.
-// @Tags        Filters
+// @Summary     List pipeline data types
+// @Description Returns the sorted, distinct dataTypes declared across all pipelines.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Produce     json
 // @Success     200 {array} string
-// @Router      /eventprocessing/filters/data-types [get]
+// @Router      /eventprocessing/pipelines/data-types [get]
 func (h *PipelineHandler) DataTypes(c *gin.Context) {
 	dts := h.usecase.DataTypes(c.Request.Context())
 	if dts == nil {
@@ -119,16 +119,16 @@ func (h *PipelineHandler) DataTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, dts)
 }
 
-// @Summary     Get filter by relPath
-// @Description Returns a single filter entry.
-// @Tags        Filters
+// @Summary     Get pipeline by relPath
+// @Description Returns a single pipeline entry.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath query string true "Relative path (e.g. syslog/syslog-generic.yaml)"
 // @Success     200 {object} dto.PipelineResponse
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters/find [get]
+// @Router      /eventprocessing/pipelines/find [get]
 func (h *PipelineHandler) GetByRelPath(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
@@ -143,9 +143,9 @@ func (h *PipelineHandler) GetByRelPath(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary     Delete filter
-// @Description Deletes a user filter. System filters cannot be deleted.
-// @Tags        Filters
+// @Summary     Delete pipeline
+// @Description Deletes a user pipeline. System pipelines cannot be deleted.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath query string true "Relative path"
@@ -153,7 +153,7 @@ func (h *PipelineHandler) GetByRelPath(c *gin.Context) {
 // @Failure     403 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters [delete]
+// @Router      /eventprocessing/pipelines [delete]
 func (h *PipelineHandler) Delete(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
@@ -170,9 +170,9 @@ func (h *PipelineHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
 
-// @Summary     Activate or deactivate a filter
-// @Description Renames .yaml <-> .yaml.disabled in whichever overlay (system or user) owns the filter.
-// @Tags        Filters
+// @Summary     Activate or deactivate a pipeline
+// @Description Turns a pipeline on or off for the caller's tenant. The file is shared; the answer is not, so it is recorded against the tenant rather than by renaming the file.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Produce     json
 // @Param       relPath query string true  "Relative path"
@@ -180,7 +180,7 @@ func (h *PipelineHandler) Delete(c *gin.Context) {
 // @Success     200 {object} map[string]string
 // @Failure     404 {object} map[string]string
 // @Failure     500 {object} map[string]string
-// @Router      /eventprocessing/filters/activate [put]
+// @Router      /eventprocessing/pipelines/activate [put]
 func (h *PipelineHandler) ActivateDeactivate(c *gin.Context) {
 	relPath := c.Query("relPath")
 	if relPath == "" {
@@ -195,9 +195,9 @@ func (h *PipelineHandler) ActivateDeactivate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-// @Summary     Reorder a filter
-// @Description Sets any filter's (system or custom) position in the global pipeline order.
-// @Tags        Filters
+// @Summary     Reorder a pipeline
+// @Description Sets a pipeline's position in the caller's tenant's order. Two tenants can run the same pipelines in different orders.
+// @Tags        Pipelines
 // @Security    BearerAuth
 // @Accept      json
 // @Produce     json

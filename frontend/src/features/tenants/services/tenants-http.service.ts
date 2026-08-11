@@ -42,7 +42,7 @@ export const tenantsHttpService = {
  * is a no-op: the middleware returns early when the target is where we already
  * are.
  *
- * Each count is settled on its own — an OpenSearch that is down must not blank
+ * Each count is settled on its own — an event store that is down must not blank
  * the user count sitting next to it in Postgres.
  */
 export async function fetchTenantStats(tenantId: string): Promise<TenantStats> {

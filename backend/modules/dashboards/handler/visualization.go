@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -43,7 +42,7 @@ func (h *VisualizationHandler) Create(c *gin.Context) {
 	res, err := h.uc.Create(c.Request.Context(), &v, currentUser(c))
 	resID := ""
 	if res != nil {
-		resID = strconv.FormatUint(res.ID, 10)
+		resID = res.ID.String()
 	}
 	audit.Record(c, audit_connectors.Event{Action: "visualization.create", ResourceType: "visualization", ResourceID: resID},
 		audit_domain.VISUALIZATION_CREATE_ATTEMPT, audit_domain.VISUALIZATION_CREATE_SUCCESS, err)
@@ -75,7 +74,7 @@ func (h *VisualizationHandler) Update(c *gin.Context) {
 		return
 	}
 	res, err := h.uc.Update(c.Request.Context(), &v, currentUser(c))
-	audit.Record(c, audit_connectors.Event{Action: "visualization.update", ResourceType: "visualization", ResourceID: strconv.FormatUint(v.ID, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "visualization.update", ResourceType: "visualization", ResourceID: v.ID.String()},
 		audit_domain.VISUALIZATION_UPDATE_ATTEMPT, audit_domain.VISUALIZATION_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)
@@ -99,9 +98,14 @@ func (h *VisualizationHandler) Update(c *gin.Context) {
 //	@Failure		500			{object}	map[string]string
 //	@Router			/visualizations [get]
 func (h *VisualizationHandler) List(c *gin.Context) {
-	var f dto.VisualizationFilter
-	if err := c.ShouldBindQuery(&f); err != nil {
+	var q dto.VisualizationQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	f, err := q.Filter()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "dashboardId must be a uuid"})
 		return
 	}
 	items, total, err := h.uc.List(c.Request.Context(), f)
@@ -155,7 +159,7 @@ func (h *VisualizationHandler) Delete(c *gin.Context) {
 		return
 	}
 	err := h.uc.Delete(c.Request.Context(), id)
-	audit.Record(c, audit_connectors.Event{Action: "visualization.delete", ResourceType: "visualization", ResourceID: strconv.FormatUint(id, 10)},
+	audit.Record(c, audit_connectors.Event{Action: "visualization.delete", ResourceType: "visualization", ResourceID: id.String()},
 		audit_domain.VISUALIZATION_DELETE_ATTEMPT, audit_domain.VISUALIZATION_DELETE_SUCCESS, err)
 	if err != nil {
 		writeError(c, err)

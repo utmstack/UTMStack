@@ -1,7 +1,7 @@
 import type {
-  AggregationId,
   ChartTypeId,
   FilterOperatorId,
+  IntervalId,
   WidgetLayout,
 } from '@/features/dashboard/types'
 
@@ -136,27 +136,9 @@ export function getChartTypeMeta(id: ChartTypeId): ChartTypeMeta {
   return CHART_TYPES.find((c) => c.id === id) ?? CHART_TYPES[0]
 }
 
-// Which field types an aggregation accepts in the visual builder:
-//  - 'none'      → no field (COUNT(*))
-//  - 'any'       → any field (COUNT DISTINCT works on text/keyword/numbers/…)
-//  - 'numeric'   → numeric only (SUM/AVG on text is meaningless / breaks)
-//  - 'orderable' → numeric or date (MIN/MAX)
-export type AggregationFieldKind = 'none' | 'any' | 'numeric' | 'orderable'
-
-export interface AggregationMeta {
-  id: AggregationId
-  requiresField: boolean
-  fieldKind: AggregationFieldKind
-}
-
-export const AGGREGATIONS: AggregationMeta[] = [
-  { id: 'count', requiresField: false, fieldKind: 'none' },
-  { id: 'count_distinct', requiresField: true, fieldKind: 'any' },
-  { id: 'sum', requiresField: true, fieldKind: 'numeric' },
-  { id: 'avg', requiresField: true, fieldKind: 'numeric' },
-  { id: 'min', requiresField: true, fieldKind: 'orderable' },
-  { id: 'max', requiresField: true, fieldKind: 'orderable' },
-]
+// The bucket sizes a time chart offers, in the words the backend maps to a
+// store interval. Empty is auto.
+export const INTERVALS: IntervalId[] = ['', '1m', '5m', '15m', '1h', '1d', '1w']
 
 export interface OperatorMeta {
   id: FilterOperatorId
@@ -182,4 +164,3 @@ export function getOperatorMeta(id: FilterOperatorId): OperatorMeta {
   return OPERATORS.find((o) => o.id === id) ?? OPERATORS[0]
 }
 
-export const DEFAULT_BUILDER_METRIC = { agg: 'count' as AggregationId, field: null }

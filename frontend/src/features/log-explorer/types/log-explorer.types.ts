@@ -1,4 +1,4 @@
-/* Mirrors the backend opensearch + log-analyzer search contract. */
+/* Mirrors the backend log-analyzer search contract. */
 
 /** Subset of backend FilterType operators the UI actually produces. */
 export type FilterOperator =
@@ -10,29 +10,20 @@ export type FilterOperator =
   | 'CONTAIN'
   | 'EXIST'
 
-/** A single search filter (POST /opensearch/search body is FilterType[]). */
+/** A single search filter; a search body carries FilterType[]. */
 export interface FilterType {
   field: string
   operator: FilterOperator
   value?: unknown
 }
 
-/** GET /opensearch/index-patterns row. */
-export interface IndexPattern {
-  id: number
-  pattern: string
-  patternModule: string | null
-  patternSystem: boolean | null
-  isActive: boolean | null
-}
-
-/** GET /opensearch/index/properties row. */
+/** GET /log-analyzer/datasets/:dataset/fields row. */
 export interface IndexField {
   name: string
   type: string // date | keyword | text | ip | long | integer | boolean | ...
 }
 
-/** A raw OpenSearch _source document (arbitrary fields). */
+/** A stored record, with whatever fields it carries. */
 export type LogDocument = Record<string, unknown>
 
 /** POST /log-analyzer/chart-view response. */

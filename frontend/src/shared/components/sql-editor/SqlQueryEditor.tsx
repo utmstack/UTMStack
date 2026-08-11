@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { useSqlAutocomplete } from './useSqlAutocomplete'
 import type {
   SqlAutocompleteField,
-  SqlAutocompletePattern,
+  SqlAutocompleteTable,
 } from './useSqlAutocomplete'
 import { SqlAutocompleteDropdown } from './SqlAutocompleteDropdown'
 import type { Suggestion } from './autocomplete-trie.service'
@@ -15,7 +15,7 @@ interface Props {
   onChange: (v: string) => void
   onRun?: () => void
   fields: SqlAutocompleteField[]
-  patterns: SqlAutocompletePattern[]
+  tables: SqlAutocompleteTable[]
   placeholder?: string
   /** Minimum visible rows. Defaults to 4. */
   minRows?: number
@@ -85,7 +85,7 @@ export function SqlQueryEditor({
   onChange,
   onRun,
   fields,
-  patterns,
+  tables,
   placeholder,
   minRows = DEFAULT_MIN_ROWS,
   maxRows = DEFAULT_MAX_ROWS,
@@ -102,7 +102,7 @@ export function SqlQueryEditor({
   const [anchor, setAnchor] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const tokenRef = useRef<TokenSpan | null>(null)
 
-  const { suggest } = useSqlAutocomplete(fields, patterns)
+  const { suggest } = useSqlAutocomplete(fields, tables)
 
   const highlighted = useMemo(() => {
     const grammar = Prism.languages.sql

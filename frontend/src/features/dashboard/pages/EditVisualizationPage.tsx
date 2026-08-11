@@ -7,9 +7,9 @@ import { useVisualization } from '@/features/dashboard/hooks/useVisualizations'
 export function EditVisualizationPage() {
   const { t } = useTranslation()
   const params = useParams<{ id: string; dashboardId: string }>()
-  const id = Number(params.id)
-  const dashboardId = Number(params.dashboardId)
-  const query = useVisualization(Number.isFinite(id) && id > 0 ? id : null)
+  const id = params.id ?? ''
+  const dashboardId = params.dashboardId ?? ''
+  const query = useVisualization(id || null)
 
   if (query.isLoading) {
     return (

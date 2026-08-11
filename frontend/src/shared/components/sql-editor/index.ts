@@ -1,7 +1,7 @@
 export { SqlQueryEditor } from './SqlQueryEditor'
 export { SqlAutocompleteDropdown } from './SqlAutocompleteDropdown'
 export { useSqlAutocomplete } from './useSqlAutocomplete'
-export type { SqlAutocompleteField, SqlAutocompletePattern } from './useSqlAutocomplete'
+export type { SqlAutocompleteField, SqlAutocompleteTable } from './useSqlAutocomplete'
 export { SQL_KEYWORDS } from './sql-keywords'
 export {
   AutocompleteTrie,

@@ -7,13 +7,27 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/domain"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
-	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
+// IngestionStatsQuery is one question about ingestion.
+//
+// The statistics dataset is not events: the stats plugin writes one row per
+// (tenant, topic, source, data type) every cycle, carrying how many events and
+// how many bytes that cycle saw. Every answer is therefore a sum of those
+// counters — counting the rows would report how often the plugin wrote, which
+// is a number that looks plausible and means nothing.
+type IngestionStatsQuery struct {
+	From, To time.Time
+	// Type is the pipeline topic: enqueue_success, parsing_dropped,
+	// analysis_dropped, correlation_dropped. Empty means every topic.
+	Type       string
+	DataSource string
+}
+
 type IngestionStatsRepository interface {
-	TotalsByField(ctx context.Context, field string, filters []common_models.FilterType, top int) ([]dto.IngestionStatsBucket, int64, error)
-	Timeline(ctx context.Context, filters []common_models.FilterType, interval string) ([]dto.TimelinePoint, error)
-	TimelineByField(ctx context.Context, field string, filters []common_models.FilterType, interval string, top int) ([]dto.TimelineSeries, error)
+	TotalsByField(ctx context.Context, field string, q IngestionStatsQuery, top int) ([]dto.IngestionStatsBucket, dto.IngestionTotals, error)
+	Timeline(ctx context.Context, q IngestionStatsQuery, interval string) ([]dto.TimelinePoint, error)
+	TimelineByField(ctx context.Context, field string, q IngestionStatsQuery, interval string, top int) ([]dto.TimelineSeries, error)
 }
 
 type RuleRepository interface {

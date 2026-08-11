@@ -1,4 +1,4 @@
-import { CHART_TYPES, DEFAULT_BUILDER_METRIC } from '@/features/dashboard/constants'
+import { CHART_TYPES, INTERVALS } from '@/features/dashboard/constants'
 import type { BuilderState, ChartTypeId } from '@/features/dashboard/types'
 
 export interface ParsedBuilderConfig {
@@ -55,26 +55,21 @@ function sanitizeBuilder(raw: Record<string, unknown>): BuilderState {
       operator: (typeof f.operator === 'string' ? f.operator : 'IS') as BuilderState['filters'][number]['operator'],
       value: (f.value ?? null) as BuilderState['filters'][number]['value'],
     }))
-  const metricRaw = isRecord(raw.metric) ? raw.metric : null
-  const metric = metricRaw
-    ? {
-        agg: (metricRaw.agg as BuilderState['metric']['agg']) ?? 'count',
-        field: typeof metricRaw.field === 'string' ? metricRaw.field : null,
-      }
-    : { ...DEFAULT_BUILDER_METRIC }
+  const interval = INTERVALS.includes(raw.interval as BuilderState['interval'])
+    ? (raw.interval as BuilderState['interval'])
+    : ''
 
   return {
     chartType: validChart as ChartTypeId,
-    indexPattern: typeof raw.indexPattern === 'string' ? raw.indexPattern : '',
-    rawMode: !!raw.rawMode,
-    filters,
-    metric,
+    dataset: typeof raw.dataset === 'string' ? raw.dataset : '',
+    breakdown: raw.breakdown === 'field' ? 'field' : 'time',
     dimension: typeof raw.dimension === 'string' ? raw.dimension : null,
+    interval,
+    limit: typeof raw.limit === 'number' ? raw.limit : null,
+    filters,
     columns: Array.isArray(raw.columns)
       ? raw.columns.filter((c): c is string => typeof c === 'string')
       : [],
-    advancedSelect: typeof raw.advancedSelect === 'string' ? raw.advancedSelect : null,
-    rawSql: typeof raw.rawSql === 'string' ? raw.rawSql : null,
     configTouched: !!raw.configTouched,
   }
 }
@@ -82,14 +77,13 @@ function sanitizeBuilder(raw: Record<string, unknown>): BuilderState {
 export function makeInitialBuilder(): BuilderState {
   return {
     chartType: 'bar',
-    indexPattern: '',
-    rawMode: false,
-    filters: [],
-    metric: { ...DEFAULT_BUILDER_METRIC },
+    dataset: '',
+    breakdown: 'time',
     dimension: null,
+    interval: '',
+    limit: null,
+    filters: [],
     columns: [],
-    advancedSelect: null,
-    rawSql: null,
     configTouched: false,
   }
 }

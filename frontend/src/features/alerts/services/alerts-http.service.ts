@@ -133,8 +133,6 @@ export const alertsHttpService = {
   deleteTag: (id: string) => api.delete<void>(`/utm-alert-tags/${id}`),
 
   // CSV export of the current alert list (honours the active scope filters).
-  // Mirrors the Log Explorer downloader: hits /opensearch/search/csv and triggers
-  // a browser download.
   // CSV of the current alert list. Built here rather than server-side: the
   // event store has no CSV endpoint, and the export is the page's own view of
   // the data — the same rows, the same columns, in the order shown.

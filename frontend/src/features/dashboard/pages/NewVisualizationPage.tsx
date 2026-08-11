@@ -7,8 +7,8 @@ import type { ChartTypeId } from '@/features/dashboard/types'
 export function NewVisualizationPage() {
   const navigate = useNavigate()
   const { dashboardId: dashboardIdParam } = useParams<{ dashboardId: string }>()
-  const dashboardId = Number(dashboardIdParam)
-  const validDashboardId = Number.isFinite(dashboardId) && dashboardId > 0
+  const dashboardId = dashboardIdParam ?? ''
+  const validDashboardId = dashboardId !== ''
   const location = useLocation()
   const initialLayout = (location.state as { layout?: string } | null)?.layout
   const [chartType, setChartType] = useState<ChartTypeId | null>(null)

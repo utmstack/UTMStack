@@ -10,6 +10,7 @@ import { useStagedVisualizationData } from '@/features/dashboard/hooks/useStaged
 import { mergeRowsIntoOption } from '@/features/dashboard/utils/echarts'
 import { presetRange, TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import type { ChartRenderer } from '@/features/dashboard/constants'
+import type { VizSpec } from '@/features/dashboard/types'
 
 function useDebouncedValue<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -21,20 +22,20 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 export function ChartPreviewPanel({
-  sql,
+  spec,
   option,
   renderer,
 }: {
-  sql: string
+  spec: VizSpec | null
   option: Record<string, unknown>
   renderer: ChartRenderer
 }) {
   const { t } = useTranslation()
   const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
-  const debouncedSql = useDebouncedValue(sql, 600)
+  const debouncedSpec = useDebouncedValue(spec, 600)
   const debouncedOption = useDebouncedValue(option, 600)
 
-  const query = useStagedVisualizationData(debouncedSql, time)
+  const query = useStagedVisualizationData(debouncedSpec, time)
   const rows = query.data?.rows ?? []
 
   const echartsOption = useMemo(
@@ -52,7 +53,7 @@ export function ChartPreviewPanel({
       </div>
       <div className="h-[420px] rounded-md border border-border bg-background/30 p-2">
         <Body
-          sql={debouncedSql}
+          spec={debouncedSpec}
           renderer={renderer}
           option={echartsOption}
           rows={rows}
@@ -66,7 +67,7 @@ export function ChartPreviewPanel({
 }
 
 function Body({
-  sql,
+  spec,
   renderer,
   option,
   rows,
@@ -74,7 +75,7 @@ function Body({
   isError,
   errorMessage,
 }: {
-  sql: string
+  spec: VizSpec | null
   renderer: ChartRenderer
   option: Record<string, unknown>
   rows: Array<Record<string, unknown>>
@@ -84,7 +85,7 @@ function Body({
 }) {
   const { t } = useTranslation()
 
-  if (!sql.trim()) {
+  if (!spec) {
     return (
       <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
         {t('dashboards.editor.chartPreview.noQuery')}

@@ -43,7 +43,7 @@ export function FilterRowEditor({
   // fits its type (e.g. a raw-SQL round trip left `CONTAIN` on a date field),
   // fall back to the first operator that does. Otherwise the operator select
   // keeps showing an option that isn't even in its own list, and the query
-  // composer keeps emitting a combination OpenSearch will reject.
+  // composer keeps emitting a combination the store will reject.
   useEffect(() => {
     if (loading) return
     if (!row.field) return

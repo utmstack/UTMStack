@@ -3,17 +3,18 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
-	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 var ErrInvalidStatsParam = errors.New("invalid ingestion-stats parameter")
 
 const (
-	defaultStatsWindow = "24h"
+	defaultStatsWindow = 24 * time.Hour
 	defaultTop         = 100
 	maxTop             = 1000
 )
@@ -43,20 +44,23 @@ func (u *ingestionStatsUsecase) Totals(ctx context.Context, groupBy, status, fro
 	if err != nil {
 		return nil, err
 	}
-	from, to = resolveWindow(from, to)
+	fromT, toT := resolveWindow(from, to)
 	top = clampTop(top)
 
-	buckets, total, err := u.repo.TotalsByField(ctx, field, statsFilters(statusType, from, to, ""), top)
+	buckets, totals, err := u.repo.TotalsByField(ctx, field, connectors.IngestionStatsQuery{
+		From: fromT, To: toT, Type: statusType,
+	}, top)
 	if err != nil {
 		return nil, err
 	}
 	return &dto.IngestionStatsResponse{
-		GroupBy: groupBy,
-		Status:  status,
-		From:    from,
-		To:      to,
-		Total:   total,
-		Buckets: buckets,
+		GroupBy:    groupBy,
+		Status:     status,
+		From:       fromT.Format(time.RFC3339),
+		To:         toT.Format(time.RFC3339),
+		Total:      totals.Events,
+		TotalBytes: totals.Bytes,
+		Buckets:    buckets,
 	}, nil
 }
 
@@ -70,20 +74,24 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 	if err != nil {
 		return nil, err
 	}
-	from, to = resolveWindow(from, to)
-	interval = resolveInterval(interval, from, to)
+	fromT, toT := resolveWindow(from, to)
+	interval = resolveInterval(interval, fromT, toT)
 	top = clampTop(top)
 
 	resp := &dto.IngestionTimelineResponse{
 		Status:   status,
 		GroupBy:  groupBy,
 		Interval: interval,
-		From:     from,
-		To:       to,
+		From:     fromT.Format(time.RFC3339),
+		To:       toT.Format(time.RFC3339),
+	}
+
+	q := connectors.IngestionStatsQuery{
+		From: fromT, To: toT, Type: statusType, DataSource: dataSource,
 	}
 
 	if field == "" {
-		points, err := u.repo.Timeline(ctx, statsFilters(statusType, from, to, dataSource), interval)
+		points, err := u.repo.Timeline(ctx, q, interval)
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +99,7 @@ func (u *ingestionStatsUsecase) Timeline(ctx context.Context, groupBy, status, i
 		return resp, nil
 	}
 
-	series, err := u.repo.TimelineByField(ctx, field, statsFilters(statusType, from, to, dataSource), interval, top)
+	series, err := u.repo.TimelineByField(ctx, field, q, interval, top)
 	if err != nil {
 		return nil, err
 	}
@@ -124,26 +132,74 @@ func resolveStatus(status string) (string, string, error) {
 	return status, t, nil
 }
 
-func resolveWindow(from, to string) (string, string) {
-	if to == "" {
-		to = "now"
+// resolveWindow turns what the request asked for into real bounds. Both ends
+// accept RFC3339 or the relative form the defaults use ("now", "now-24h"): a
+// window nobody resolved is a window nobody applied, and the panel would then
+// answer about all of history while its label said 24 hours.
+func resolveWindow(from, to string) (time.Time, time.Time) {
+	now := time.Now().UTC()
+
+	toT, ok := parseWhen(to, now)
+	if !ok {
+		toT = now
 	}
-	if from == "" {
-		from = "now-" + defaultStatsWindow
+	fromT, ok := parseWhen(from, now)
+	if !ok {
+		fromT = toT.Add(-defaultStatsWindow)
 	}
-	return from, to
+	if fromT.After(toT) {
+		fromT, toT = toT, fromT
+	}
+	return fromT, toT
 }
 
-func resolveInterval(interval, from, to string) string {
+// parseWhen understands an absolute instant and the "now-<duration>" form.
+func parseWhen(s string, now time.Time) (time.Time, bool) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return time.Time{}, false
+	}
+	if s == "now" {
+		return now, true
+	}
+	if rest, found := strings.CutPrefix(s, "now-"); found {
+		if d, err := parseWindow(rest); err == nil {
+			return now.Add(-d), true
+		}
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05", "2006-01-02"} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t.UTC(), true
+		}
+	}
+	return time.Time{}, false
+}
+
+// parseWindow extends time.ParseDuration with the units a window is written in.
+func parseWindow(s string) (time.Duration, error) {
+	if len(s) > 1 {
+		switch s[len(s)-1] {
+		case 'd', 'D':
+			n, err := strconv.Atoi(s[:len(s)-1])
+			if err == nil && n > 0 {
+				return time.Duration(n) * 24 * time.Hour, nil
+			}
+		case 'w', 'W':
+			n, err := strconv.Atoi(s[:len(s)-1])
+			if err == nil && n > 0 {
+				return time.Duration(n) * 7 * 24 * time.Hour, nil
+			}
+		}
+	}
+	return time.ParseDuration(s)
+}
+
+func resolveInterval(interval string, from, to time.Time) string {
 	if interval != "" && interval != "auto" {
 		return interval
 	}
-	fromT, err1 := time.Parse(time.RFC3339, from)
-	toT, err2 := time.Parse(time.RFC3339, to)
-	if err1 != nil || err2 != nil {
-		return "1h"
-	}
-	switch d := toT.Sub(fromT); {
+	switch d := to.Sub(from); {
 	case d <= 2*time.Hour:
 		return "5m"
 	case d <= 48*time.Hour:
@@ -163,22 +219,4 @@ func clampTop(top int) int {
 		return maxTop
 	}
 	return top
-}
-func statsFilters(statusType, from, to, dataSource string) []common_models.FilterType {
-	filters := []common_models.FilterType{{
-		Field:    "@timestamp",
-		Operator: common_models.OpIsBetween,
-		Value:    []any{from, to},
-	}}
-	if statusType != "" {
-		filters = append(filters, common_models.FilterType{
-			Field: "type", Operator: common_models.OpEquals, Value: statusType,
-		})
-	}
-	if dataSource != "" {
-		filters = append(filters, common_models.FilterType{
-			Field: "dataSource", Operator: common_models.OpEquals, Value: dataSource,
-		})
-	}
-	return filters
 }

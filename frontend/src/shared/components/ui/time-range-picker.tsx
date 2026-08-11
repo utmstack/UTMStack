@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from './button'
 
 /**
- * Time window for OpenSearch-backed pages. `from`/`to` are values the backend's
+ * Time window for the pages that read the event store. `from`/`to` are values the backend's
  * IS_BETWEEN accepts: date-math (`now-7d`, `now`) or absolute ISO. `interval` is
  * the histogram bucket token. Ported from the legacy elastic-filter-time: quick
  * presets + a relative "last N <unit>" builder + an absolute from/to range.

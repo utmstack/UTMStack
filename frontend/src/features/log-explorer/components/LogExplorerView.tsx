@@ -24,7 +24,7 @@ import {
   DEFAULT_DATASET,
   type ExportColumn,
 } from '../services/log-explorer-http.service'
-import type { DatasetTypes } from './IndexPatternSelector'
+import type { DatasetTypes } from './DatasetSelector'
 import type {
   FilterOperator,
   FilterType,
@@ -71,7 +71,7 @@ const MAX_AUTO_COLUMNS = 5
 /** Router state passed by an alert's "view all related logs" action. */
 interface RelatedLogsSeed {
   ids: string[]
-  indexPattern: string
+  dataType: string
   timeFrom: string
   timeTo: string
   alertName?: string
@@ -214,7 +214,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         const seed = state?.relatedLogs
         if (seed?.ids?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p === seed.indexPattern) ?? null)
+          setPattern(ps.find((p) => p === seed.dataType) ?? null)
           setFilters([{ field: 'id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
           setRange({ from: seed.timeFrom, to: seed.timeTo, interval: 'hour' })
           if (seed.truncated) {
@@ -235,7 +235,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           setReadyToPersist(true)
           return
         }
-        // Default: resolve the tab's saved patternStr to a live IndexPattern.
+        // Default: resolve the tab's saved data type against the live ones.
         const target = initial.patternStr
         // A saved tab keeps its data type; anything else starts on all of them.
         setPattern(target ? (ps.find((p) => p === target) ?? null) : null)

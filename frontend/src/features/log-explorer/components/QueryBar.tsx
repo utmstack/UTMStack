@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { IndexPatternSelector, type DatasetTypes } from './IndexPatternSelector'
+import { DatasetSelector, type DatasetTypes } from './DatasetSelector'
 import { SqlQueryEditor } from '@/shared/components/sql-editor'
 import type { IndexField } from '../types/log-explorer.types'
 
@@ -51,7 +51,7 @@ export function QueryBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
-      <IndexPatternSelector sources={sources} dataset={dataset} dataType={dataType} onSelect={onSelect} />
+      <DatasetSelector sources={sources} dataset={dataset} dataType={dataType} onSelect={onSelect} />
 
       <div className="h-5 w-px bg-border" />
 
@@ -63,7 +63,7 @@ export function QueryBar({
             onChange={onSqlInput}
             onRun={onRun}
             fields={fields}
-            patterns={sources.flatMap((s) => s.dataTypes).map((p) => ({ pattern: p }))}
+            tables={sources.map((s) => s.dataset)}
             placeholder={'SELECT * FROM logs ORDER BY `@timestamp` DESC   —   Enter runs, Shift+Enter for a new line'}
           />
         ) : (

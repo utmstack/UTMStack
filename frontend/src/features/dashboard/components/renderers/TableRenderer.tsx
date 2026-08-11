@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Row } from '@/features/dashboard/service/opensearch.service'
+import type { Row } from '@/features/dashboard/types'
 
 export function TableRenderer({ rows }: { rows: Row[] }) {
   const { t } = useTranslation()

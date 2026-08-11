@@ -8,6 +8,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
 	"gorm.io/gorm"
+
+	"github.com/google/uuid"
 )
 
 type pgDashboardRepository struct{ db *gorm.DB }
@@ -20,7 +22,7 @@ func (r *pgDashboardRepository) Save(ctx context.Context, d *domain.Dashboard) e
 	return r.db.WithContext(ctx).Save(d).Error
 }
 
-func (r *pgDashboardRepository) FindByID(ctx context.Context, id uint64) (*domain.Dashboard, error) {
+func (r *pgDashboardRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Dashboard, error) {
 	var d domain.Dashboard
 	err := r.db.WithContext(ctx).First(&d, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -50,7 +52,7 @@ func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter)
 
 // Delete removes the dashboard and its visualizations together — a
 // visualization can't outlive (or be reused outside of) its dashboard.
-func (r *pgDashboardRepository) Delete(ctx context.Context, id uint64) error {
+func (r *pgDashboardRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("dashboard_id = ?", id).Delete(&domain.Visualization{}).Error; err != nil {
 			return err

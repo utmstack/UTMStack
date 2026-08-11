@@ -1,5 +1,5 @@
 export interface Dashboard {
-  id: number
+  id: string
   name: string
   description?: string
   config?: string
@@ -10,10 +10,11 @@ export interface Dashboard {
 }
 
 export interface Visualization {
-  id: number
+  id: string
   // The one dashboard this visualization belongs to — not reusable elsewhere.
-  dashboardId: number
-  sqlQuery: string
+  dashboardId: string
+  /** The question the widget asks, as a JSON {@link VizSpec}. */
+  spec: string
   config: string
   // Grid position/size (JSON) on its dashboard.
   layout: string
@@ -30,7 +31,7 @@ export interface DashboardCreateInput {
 }
 
 export interface DashboardUpdateInput {
-  id: number
+  id: string
   name: string
   description?: string
   config?: string
@@ -38,16 +39,16 @@ export interface DashboardUpdateInput {
 }
 
 export interface VisualizationCreateInput {
-  dashboardId: number
-  sqlQuery: string
+  dashboardId: string
+  spec: string
   config: string
   layout: string
 }
 
 export interface VisualizationUpdateInput {
-  id: number
-  dashboardId: number
-  sqlQuery: string
+  id: string
+  dashboardId: string
+  spec: string
   config: string
   layout: string
 }
@@ -59,7 +60,7 @@ export interface DashboardListParams {
 }
 
 export interface VisualizationListParams {
-  dashboardId?: number
+  dashboardId?: string
   page?: number
   size?: number
 }
@@ -96,8 +97,6 @@ export interface IndexProperty {
   type: string
 }
 
-export type AggregationId = 'count' | 'count_distinct' | 'sum' | 'avg' | 'min' | 'max'
-
 export type FilterOperatorId =
   | 'IS'
   | 'IS_NOT'
@@ -119,7 +118,7 @@ export interface FilterRow {
   value: string | string[] | [string, string] | null
 }
 
-// Runtime shape sent to the backend on /opensearch/search/sql. Mirrors the Go
+// Runtime shape sent to the backend with a query. Mirrors the Go
 // common_models.FilterType — field + operator + value.
 export interface FilterType {
   field: string
@@ -135,41 +134,103 @@ export interface DashboardFilterChip {
   field: string
   label: string
   placeholder?: string
-  indexPattern: string
+  dataset: string
   multiple: boolean
   searchable: boolean
 }
 
-export interface BuilderMetric {
-  agg: AggregationId
-  field: string | null
-}
-
+/**
+ * What the editor holds while a widget is being built. It is the spec plus the
+ * things only the editor cares about — which chart draws it, and whether the
+ * ECharts config has been hand-edited — and it is stored alongside the chart
+ * config so reopening the editor starts where it left off.
+ */
 export interface BuilderState {
   chartType: ChartTypeId
-  indexPattern: string
-  rawMode: boolean
-  filters: FilterRow[]
-  metric: BuilderMetric
+  dataset: string
+  /** What the x axis is: buckets of time, or the top values of a field. */
+  breakdown: BreakdownMode
+  /** Category charts: the field broken down by. Time charts: the optional split. */
   dimension: string | null
-  /** Table chart: explicit columns to SELECT. Empty → all columns (SELECT *). */
+  /** Time charts: bucket size. Empty means auto. */
+  interval: IntervalId
+  /** How many buckets, series or rows to ask for. */
+  limit: number | null
+  filters: FilterRow[]
+  /** Table charts: the columns shown. Empty → whatever the records carry. */
   columns: string[]
-  advancedSelect: string | null
-  rawSql: string | null
   configTouched: boolean
 }
 
-export interface IndexPattern {
-  id: number
-  pattern: string
-  patternModule?: string | null
-  patternSystem?: boolean | null
-  isActive?: boolean | null
+export type BreakdownMode = 'time' | 'field'
+
+export type IntervalId = '' | '1m' | '5m' | '15m' | '1h' | '1d' | '1w'
+
+/** One row of an answer, as the renderers and the ECharts dataset read it. */
+export type Row = Record<string, unknown>
+
+/**
+ * The question a widget asks, sent to POST /visualizations/query and stored on
+ * the visualization. Mirrors the Go dashboards domain.Spec — the tenant is
+ * never part of it, it comes from the session.
+ */
+export interface VizSpec {
+  dataset: string
+  dataType?: string
+  chart: SpecChart
+  metric: SpecMetric
+  dimension?: string
+  columns?: string[]
+  filters?: SpecFilter[]
+  interval?: string
+  limit?: number
+  from?: string
+  to?: string
 }
 
-export interface IndexPatternListParams {
-  isActive?: boolean
-  page?: number
-  size?: number
-  sort?: string
+export type SpecChart = 'metric' | 'category' | 'time' | 'table'
+
+/**
+ * The event store counts records and does nothing else — no sum, average or
+ * cardinality — so count is the only measure there is. The backend refuses any
+ * other rather than answering it with a count.
+ */
+export interface SpecMetric {
+  agg: 'count'
 }
+
+export type SpecOp =
+  | 'eq'
+  | 'not_eq'
+  | 'in'
+  | 'not_in'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'between'
+  | 'not_between'
+  | 'contains'
+  | 'not_contains'
+  | 'starts_with'
+  | 'not_starts_with'
+  | 'ends_with'
+  | 'not_ends_with'
+  | 'exists'
+  | 'not_exists'
+
+export interface SpecFilter {
+  field: string
+  op: SpecOp
+  value?: unknown
+}
+
+/** What POST /visualizations/query answers, one field per chart shape. */
+export interface QueryResult {
+  total?: number
+  buckets?: { key: string; count: number }[]
+  points?: { at: string; count: number }[]
+  series?: { key: string; points: { at: string; count: number }[] }[]
+  rows?: Record<string, unknown>[]
+}
+

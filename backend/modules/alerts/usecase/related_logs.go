@@ -13,8 +13,6 @@ import (
 
 const relatedMaxSize = 1000
 
-const logsPattern = "v11-log-*"
-
 func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.RelatedLogsResponse, error) {
 	raw, err := u.repo.GetRawByID(ctx, alertID)
 	if err != nil {
@@ -62,9 +60,9 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 	span(eventTime(lastEvent))
 
 	resp := &dto.RelatedLogsResponse{
-		IndexPattern: logsPattern,
-		TimeTo:       latest.Add(5 * time.Minute).UTC().Format(time.RFC3339),
-		TimeFrom:     earliest.Add(-time.Hour).UTC().Format(time.RFC3339),
+		DataType: gjson.GetBytes(raw, "lastEvent.dataType").String(),
+		TimeTo:   latest.Add(5 * time.Minute).UTC().Format(time.RFC3339),
+		TimeFrom: earliest.Add(-time.Hour).UTC().Format(time.RFC3339),
 	}
 
 	var afterRaw json.RawMessage

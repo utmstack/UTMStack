@@ -22,9 +22,9 @@ func NewIngestionStatsHandler(uc connectors.IngestionStatsUsecase) *IngestionSta
 // Totals godoc
 //
 //	@Summary     Ingestion totals by dataSource or dataType
-//	@Description Aggregates v11-statistics-* live (no DB). Counts received events
-//	             (status=received) grouped by dataSource or dataType over a window
-//	             (default last 24h).
+//	@Description Sums the statistics the stats plugin writes: how many events
+//	             arrived and how many bytes they weighed, grouped by dataSource
+//	             or dataType over a window (default the last 24 hours).
 //	@Tags        Event Processing Stats
 //	@Security    BearerAuth
 //	@Produce     json

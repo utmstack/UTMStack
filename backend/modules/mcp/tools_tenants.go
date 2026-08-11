@@ -148,8 +148,8 @@ func registerTenants(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name:  "tenants.set_support_access",
-		Title: "Set support-access grant for a tenant (super admin)",
+		Name:        "tenants.set_support_access",
+		Title:       "Set support-access grant for a tenant (super admin)",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "tenant.write", Platform: true},
 		func(ctx context.Context, _ *authz.Actor, in tenantSupportInput) (any, error) {

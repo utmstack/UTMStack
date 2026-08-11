@@ -99,7 +99,7 @@ export interface AlertEventItem {
  */
 export interface RelatedLogsResponse {
   ruleMatched: boolean
-  indexPattern: string
+  dataType: string
   ids: string[]
   total: number
   truncated: boolean

@@ -8,6 +8,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/dashboards/connectors"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
+
+	"github.com/google/uuid"
 )
 
 type dashboardUsecase struct {
@@ -19,7 +21,7 @@ func NewDashboardUsecase(repo connectors.DashboardRepository) connectors.Dashboa
 }
 
 func (u *dashboardUsecase) Create(ctx context.Context, d *domain.Dashboard, user string) (*domain.Dashboard, error) {
-	if d.ID != 0 {
+	if d.ID != uuid.Nil {
 		return nil, domain.ErrIDForbidden
 	}
 	if strings.TrimSpace(d.Name) == "" {
@@ -35,7 +37,7 @@ func (u *dashboardUsecase) Create(ctx context.Context, d *domain.Dashboard, user
 }
 
 func (u *dashboardUsecase) Update(ctx context.Context, d *domain.Dashboard, user string) (*domain.Dashboard, error) {
-	if d.ID == 0 {
+	if d.ID == uuid.Nil {
 		return nil, domain.ErrIDRequired
 	}
 	existing, err := u.repo.FindByID(ctx, d.ID)
@@ -58,7 +60,7 @@ func (u *dashboardUsecase) Update(ctx context.Context, d *domain.Dashboard, user
 	return d, nil
 }
 
-func (u *dashboardUsecase) GetByID(ctx context.Context, id uint64) (*domain.Dashboard, error) {
+func (u *dashboardUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Dashboard, error) {
 	return u.repo.FindByID(ctx, id)
 }
 
@@ -66,7 +68,7 @@ func (u *dashboardUsecase) List(ctx context.Context, f dto.DashboardFilter) ([]d
 	return u.repo.List(ctx, f)
 }
 
-func (u *dashboardUsecase) Delete(ctx context.Context, id uint64) error {
+func (u *dashboardUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	existing, err := u.repo.FindByID(ctx, id)
 	if err != nil {
 		return err

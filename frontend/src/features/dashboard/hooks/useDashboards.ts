@@ -12,7 +12,7 @@ import type { Paged } from '@/shared/lib/api-client'
 export const DASHBOARDS_QUERY_KEYS = {
   all: ['dashboards'] as const,
   list: (params: DashboardListParams) => [...DASHBOARDS_QUERY_KEYS.all, 'list', params] as const,
-  one: (id: number) => [...DASHBOARDS_QUERY_KEYS.all, 'one', id] as const,
+  one: (id: string) => [...DASHBOARDS_QUERY_KEYS.all, 'one', id] as const,
 }
 
 export function useDashboards(params: DashboardListParams = {}) {
@@ -43,7 +43,7 @@ export function useDashboards(params: DashboardListParams = {}) {
   })
 
   const deleteDashboard = useMutation({
-    mutationFn: (id: number) => service.deleteDashboard(id),
+    mutationFn: (id: string) => service.deleteDashboard(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DASHBOARDS_QUERY_KEYS.all })
     },
@@ -52,11 +52,11 @@ export function useDashboards(params: DashboardListParams = {}) {
   return { list, createDashboard, updateDashboard, deleteDashboard }
 }
 
-export function useDashboard(id: number | null) {
+export function useDashboard(id: string | null) {
   const service = useMemo(() => createDashboardsService(), [])
   return useQuery<Dashboard>({
-    queryKey: DASHBOARDS_QUERY_KEYS.one(id ?? 0),
-    queryFn: () => service.getDashboard(id as number),
-    enabled: id != null && id > 0,
+    queryKey: DASHBOARDS_QUERY_KEYS.one(id ?? ''),
+    queryFn: () => service.getDashboard(id as string),
+    enabled: !!id,
   })
 }
