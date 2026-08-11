@@ -68,46 +68,46 @@ func storeScope(ctx context.Context, dataset, dataType string) (store.Scope, err
 
 type storeSearchInput struct {
 	Dataset   string                     `json:"dataset" jsonschema:"logs | alerts | statistics"`
-	DataType  string                     `json:"data_type,omitempty" jsonschema:"e.g. wineventlog, o365 — filters by the dataType column"`
-	Filters   []common_models.FilterType `json:"filters,omitempty" jsonschema:"FilterType DSL predicates (AND'd)"`
-	Page      int                        `json:"page,omitempty" jsonschema:"1-based page"`
-	Size      int                        `json:"size,omitempty"`
-	SortBy    string                     `json:"sort_by,omitempty"`
-	SortOrder string                     `json:"sort_order,omitempty" jsonschema:"asc | desc"`
+	DataType  string                     `json:"data_type,omitempty" jsonschema:"filter by dataType (e.g. wineventlog, o365)"`
+	Filters   []common_models.FilterType `json:"filters,omitempty" jsonschema:"AND'd FilterType predicates"`
+	Page      int                        `json:"page,omitempty" jsonschema:"1-based; default 1"`
+	Size      int                        `json:"size,omitempty" jsonschema:"rows per page; default 50, max 500"`
+	SortBy    string                     `json:"sort_by,omitempty" jsonschema:"field name; default @timestamp"`
+	SortOrder string                     `json:"sort_order,omitempty" jsonschema:"asc | desc; default desc"`
 }
 
 type storeCountInput struct {
-	Dataset  string                     `json:"dataset"`
-	DataType string                     `json:"data_type,omitempty"`
+	Dataset  string                     `json:"dataset" jsonschema:"logs | alerts | statistics"`
+	DataType string                     `json:"data_type,omitempty" jsonschema:"filter by dataType"`
 	Filters  []common_models.FilterType `json:"filters,omitempty"`
 }
 
 type storePropertyValuesInput struct {
-	Dataset  string                     `json:"dataset"`
-	DataType string                     `json:"data_type,omitempty"`
-	Field    string                     `json:"field" jsonschema:"Field name to bucket by"`
+	Dataset  string                     `json:"dataset" jsonschema:"logs | alerts | statistics"`
+	DataType string                     `json:"data_type,omitempty" jsonschema:"filter by dataType"`
+	Field    string                     `json:"field" jsonschema:"field to group by"`
 	Filters  []common_models.FilterType `json:"filters,omitempty"`
-	Top      int                        `json:"top,omitempty"`
+	Top      int                        `json:"top,omitempty" jsonschema:"default 100"`
 }
 
 type storeSearchSQLInput struct {
-	Query string `json:"query" jsonschema:"SELECT-only ClickHouse SQL. The tenant scope is injected as WITH logs/alerts CTEs; do not read the physical tables directly."`
-	Page  int    `json:"page,omitempty"`
-	Size  int    `json:"size,omitempty"`
+	Query string `json:"query" jsonschema:"SELECT-only. Use the tenant-scoped CTEs 'logs' and 'alerts' as FROM tables."`
+	Page  int    `json:"page,omitempty" jsonschema:"1-based; default 1"`
+	Size  int    `json:"size,omitempty" jsonschema:"default 50, max 500"`
 }
 
 type storeSearchCSVInput struct {
-	Dataset  string                     `json:"dataset"`
-	DataType string                     `json:"data_type,omitempty"`
+	Dataset  string                     `json:"dataset" jsonschema:"logs | alerts | statistics"`
+	DataType string                     `json:"data_type,omitempty" jsonschema:"filter by dataType"`
 	Filters  []common_models.FilterType `json:"filters,omitempty"`
-	Columns  []string                   `json:"columns" jsonschema:"Field names to project"`
-	Top      int                        `json:"top,omitempty"`
+	Columns  []string                   `json:"columns" jsonschema:"fields to project"`
+	Top      int                        `json:"top,omitempty" jsonschema:"default 500, max 500"`
 }
 
 func registerStoreQueries(m *Module, events *eventstore.Store) {
 	Add(m, &mcp.Tool{
-		Name: "store.search", Title: "Structured search",
-		Description: "Run a structured search over a store dataset (logs | alerts | statistics) using the FilterType DSL. See mcp://utmstack/docs/filter-operators.",
+		Name: "store.search", Title: "Search a dataset",
+		Description: "Return paged hits from logs | alerts | statistics matching the FilterType predicates. See mcp://utmstack/docs/filter-operators.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storeSearchInput) (any, error) {
@@ -149,6 +149,7 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 
 	Add(m, &mcp.Tool{
 		Name: "store.count", Title: "Count matching docs",
+		Description: "Return the total number of docs in the dataset that match the filters.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storeCountInput) (any, error) {
@@ -170,7 +171,7 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 
 	Add(m, &mcp.Tool{
 		Name: "store.property_values", Title: "Top values for a field",
-		Description: "Return the top-N distinct values of a field with their document counts.",
+		Description: "Top-N distinct values of a field with their counts.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storePropertyValuesInput) (any, error) {
@@ -202,8 +203,8 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "store.search_sql", Title: "SQL search",
-		Description: "Run a read-only ClickHouse SQL query. The FROM clause must reference the logs / alerts CTEs (already tenant-scoped) rather than the physical tables.",
+		Name: "store.search_sql", Title: "SQL query",
+		Description: "Run a SELECT-only ClickHouse query against the tenant-scoped 'logs' and 'alerts' CTEs.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storeSearchSQLInput) (any, error) {
@@ -262,8 +263,8 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "store.search_csv", Title: "Search and project rows to columns",
-		Description: "Same as store.search but returns rows projected to the requested column list — cheaper for the model to consume when only a few fields matter.",
+		Name: "store.search_csv", Title: "Search, project to columns",
+		Description: "Like store.search but each row is trimmed to the requested columns.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storeSearchCSVInput) (any, error) {
@@ -309,13 +310,13 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 // ---- store.datasets / store.dataset.fields ---------------------------------
 
 type storeDatasetFieldsInput struct {
-	Dataset string `json:"dataset"`
+	Dataset string `json:"dataset" jsonschema:"logs | alerts | statistics"`
 }
 
 func registerStoreIntrospection(m *Module, events *eventstore.Store) {
 	Add(m, &mcp.Tool{
 		Name: "store.datasets", Title: "List datasets",
-		Description: "Return the datasets the store exposes (logs, alerts, statistics). These are the values callers pass as `dataset` on the other store.* tools.",
+		Description: "The dataset names accepted by every store.* tool: logs, alerts, statistics.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(_ context.Context, _ *authz.Actor, _ struct{}) (any, error) {
@@ -323,8 +324,8 @@ func registerStoreIntrospection(m *Module, events *eventstore.Store) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "store.dataset.fields", Title: "List fields for a dataset",
-		Description: "Describe the queryable fields of a dataset (name, type, filterable, searchable).",
+		Name: "store.dataset.fields", Title: "Dataset fields",
+		Description: "Queryable fields of a dataset: name, type, filterable, searchable.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "opensearch.read"},
 		func(ctx context.Context, _ *authz.Actor, in storeDatasetFieldsInput) (any, error) {
