@@ -62,18 +62,14 @@ func (s *IngestionScheduler) runIngestionCycle(ctx context.Context) {
 	cycleCtx, cancel := context.WithTimeout(ctx, cycleTimeout)
 	defer cancel()
 
-	twConfig, err := s.backendClient.GetThreadWindsConfig(cycleCtx)
-	if err != nil {
-		catcher.Error("failed to get ThreadWinds configuration", err, nil)
+	twConfig := config.GetPluginConfig()
+
+	if !twConfig.Enabled {
+		catcher.Info("the ThreadWinds contribution is off, skipping the ingestion cycle", nil)
 		return
 	}
 
-	if twConfig.Enabled != "true" {
-		catcher.Info("ThreadWinds is disabled, skipping ingestion cycle", nil)
-		return
-	}
-
-	if twConfig.APIKey != "" && twConfig.APISecret != "" {
+	if twConfig.Configured() {
 		s.threadwindsClient.UpdateCredentials(twConfig.APIKey, twConfig.APISecret)
 	}
 

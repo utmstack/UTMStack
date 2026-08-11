@@ -22,8 +22,8 @@ func NewTfaHandler(tfa connectors.TfaUsecase) *TfaHandler {
 // @Tags        TFA
 // @Accept      json
 // @Produce     json
-// @Param       input body dto.TfaInitRequest true "Method"
-// @Success     200 {object} dto.TfaInitResponse
+// @Param       input body dto.TfaEnrollmentRequest true "Enrollment stage"
+// @Success     200 {object} dto.TfaEnrollmentResponse
 // @Router      /tfa/init [post]
 func (h *TfaHandler) Enroll(c *gin.Context) {
 	uid, ok := userIDFromCtx(c)

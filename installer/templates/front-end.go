@@ -16,22 +16,6 @@ const FrontEnd string = `server {
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
 
-	location /saml2/ {
-    	proxy_pass http://backend:8080/saml2/;
-    	proxy_set_header Host $host;
-    	proxy_set_header X-Real-IP $remote_addr;
-    	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    	proxy_set_header X-Forwarded-Proto $scheme;
-	}
-
-	location /login/saml2/ {
-    	proxy_pass http://backend:8080/login/saml2/;
-    	proxy_set_header Host $host;
-    	proxy_set_header X-Real-IP $remote_addr;
-    	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    	proxy_set_header X-Forwarded-Proto $scheme;
-	}
-
     location ~ ^/api/v1/soar/ws/ {
         proxy_pass $utmstack_backend;
         proxy_http_version 1.1;
@@ -78,26 +62,8 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
-    location /ws {
-        proxy_pass $utmstack_backend;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
 
-   location /management {
-        proxy_pass  $utmstack_backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 900;
-    }
-
-    location /swagger-ui {
+    location /swagger {
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -115,14 +81,6 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
-    location /v3 {
-        proxy_pass  $utmstack_backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 900;
-    }
 
     client_max_body_size 200M;
     client_body_buffer_size 200M;

@@ -10,6 +10,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/feeds/config"
 	"github.com/utmstack/UTMStack/plugins/feeds/internal/initializer"
 	"github.com/utmstack/UTMStack/plugins/feeds/utils"
 )
@@ -25,6 +26,10 @@ func main() {
 	}
 
 	catcher.Info("Starting ThreadWinds Ingestion Service", nil)
+
+	// What the backend decided for this plugin — read before anything asks for
+	// it, and kept current from there on.
+	config.StartConfigurationSystem()
 
 	for {
 		if err := utils.ConnectionChecker(urlCheckConnection); err != nil {

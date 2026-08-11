@@ -80,7 +80,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		InternalKey:   conf.InternalKey,
 		EncryptionKey: conf.InternalKey,
 		Env:           conf.Branch,
-		AgentManager:  "10.21.199.3:9000",
+		AgentManager:  "agentmanager:9000",
 		Backend:       "http://backend:8080",
 		CertsFolder:   "/cert",
 	}

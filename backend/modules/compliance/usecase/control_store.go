@@ -145,7 +145,9 @@ func (s *ControlStore) writeUser(ctx context.Context, c domain.Control) (*domain
 	if err != nil {
 		return nil, err
 	}
-	if err := atomicWrite(filepath.Join(s.userRoot, tid, c.ID+fileExt), data); err != nil {
+	if err := withTenantLock(filepath.Join(s.userRoot, tid), func() error {
+		return atomicWrite(filepath.Join(s.userRoot, tid, c.ID+fileExt), data)
+	}); err != nil {
 		return nil, err
 	}
 	if err := s.reloadTenant(tid); err != nil {
@@ -167,10 +169,12 @@ func (s *ControlStore) Delete(ctx context.Context, id string) error {
 		return domain.ErrControlNotFound
 	}
 	path := filepath.Join(s.userRoot, tid, id+fileExt)
-	if _, err := os.Stat(path); err != nil {
-		return domain.ErrSystemOwner
-	}
-	if err := os.Remove(path); err != nil {
+	if err := withTenantLock(filepath.Join(s.userRoot, tid), func() error {
+		if _, err := os.Stat(path); err != nil {
+			return domain.ErrSystemOwner
+		}
+		return os.Remove(path)
+	}); err != nil {
 		return err
 	}
 	return s.reloadTenant(tid)

@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/plugins/feeds/config"
 	"github.com/utmstack/UTMStack/plugins/feeds/utils"
 )
 
-func ConfigureThreadWindsCredentials(ctx context.Context, deps *ClientDependencies, twConfig *ThreadWindsConfig) error {
-	if twConfig.APIKey == "" || twConfig.APISecret == "" {
+func ConfigureThreadWindsCredentials(ctx context.Context, deps *ClientDependencies, twConfig config.PluginConfig) error {
+	if !twConfig.Configured() {
 		catcher.Info("ThreadWinds not configured, will attempt registration with retry...", nil)
 
 		if err := deps.CM.LoadInstanceConfig(); err != nil {

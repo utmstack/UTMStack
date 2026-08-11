@@ -228,7 +228,11 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	)
 	adauditMod := adaudit.NewModule(db)
 	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false))
-	threatintelMod := threatintel.NewModule(env.String("UPDATES_DIR", "/updates", false))
+	threatintelMod := threatintel.NewModule(
+		env.String("UPDATES_DIR", "/updates", false),
+		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
+		cipher,
+	)
 
 	integrationsMod := integrations.NewModule(db, cipher,
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),

@@ -65,6 +65,15 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	// allowance is a different number, and they read it from /soc-ai/usage.
 	usageHandler := handler.NewReverseProxyHandler("/proxy/usage")
 	g.GET("/usage", middleware.RequirePlatform(), usageHandler.HandleUsageEndpoint)
+
+	// Contributing this instance's incidents back to ThreatWinds. The switch is
+	// the platform's — it decides what leaves the install — and the credentials
+	// are written by the plugin that registered them, never read back out.
+	if fh := m.FeedsHandler(); fh != nil {
+		g.GET("/feeds/contribution", middleware.RequirePlatform(), fh.Status)
+		g.PUT("/feeds/contribution", middleware.RequirePlatform(), middleware.RequireAdmin(), fh.SetEnabled)
+		g.PUT("/feeds/credentials", middleware.RequireInternal(), fh.SaveCredentials)
+	}
 }
 
 func sanitizeId(id string) string {

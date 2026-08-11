@@ -42,8 +42,6 @@ export const configHttpService = {
   get: (key: string) => api.get<ConfigEntry>(`/config/${encodeURIComponent(key)}`),
   set: (key: string, input: UpsertConfig) =>
     api.put<ConfigEntry>(`/config/${encodeURIComponent(key)}`, input),
-  rotate: (key: string) => api.post<ConfigEntry>(`/config/${encodeURIComponent(key)}/rotate`),
-  remove: (key: string) => api.delete<void>(`/config/${encodeURIComponent(key)}`),
   // Sends a test email with the supplied SMTP config (an empty password reuses
   // the stored one server-side). The test message goes to each config's `from`.
   checkMail: (configs: MailCheckConfig[]) =>

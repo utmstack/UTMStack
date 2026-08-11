@@ -148,7 +148,9 @@ func (s *FrameworkStore) writeUser(ctx context.Context, f domain.Framework) (*do
 	if err != nil {
 		return nil, err
 	}
-	if err := atomicWrite(filepath.Join(s.userRoot, tid, f.Key+fileExt), data); err != nil {
+	if err := withTenantLock(filepath.Join(s.userRoot, tid), func() error {
+		return atomicWrite(filepath.Join(s.userRoot, tid, f.Key+fileExt), data)
+	}); err != nil {
 		return nil, err
 	}
 	if err := s.reloadTenant(tid); err != nil {
@@ -170,10 +172,12 @@ func (s *FrameworkStore) Delete(ctx context.Context, key string) error {
 		return domain.ErrFrameworkNotFound
 	}
 	path := filepath.Join(s.userRoot, tid, key+fileExt)
-	if _, err := os.Stat(path); err != nil {
-		return domain.ErrSystemOwner
-	}
-	if err := os.Remove(path); err != nil {
+	if err := withTenantLock(filepath.Join(s.userRoot, tid), func() error {
+		if _, err := os.Stat(path); err != nil {
+			return domain.ErrSystemOwner
+		}
+		return os.Remove(path)
+	}); err != nil {
 		return err
 	}
 	return s.reloadTenant(tid)

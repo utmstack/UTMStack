@@ -16,13 +16,6 @@ import (
 
 const internalKeyHeader = "X-Internal-Key"
 
-// ThreatWinds config keys in the appconfig store (utm_configuration_parameter).
-const (
-	twEnabledKey   = "utmstack.tw.enabled"
-	twAPIKeyKey    = "utmstack.tw.apiKey"
-	twAPISecretKey = "utmstack.tw.apiSecret"
-)
-
 type BackendClient struct {
 	baseURL     string
 	internalKey string
@@ -89,49 +82,11 @@ func (c *BackendClient) GetIncidentAlerts(ctx context.Context, incidentID int64)
 	}
 	return alerts, nil
 }
-
-type ThreadWindsConfig struct {
-	APIKey    string
-	APISecret string
-	Enabled   string
-}
-
-// getConfigValue reads a single appconfig parameter. Secrets are returned already
-// decrypted by the per-key endpoint.
-func (c *BackendClient) getConfigValue(ctx context.Context, key string) (string, error) {
-	url := fmt.Sprintf("%s/api/v1/config/%s", c.baseURL, key)
-	var resp struct {
-		Value string `json:"value"`
-	}
-	if err := c.getJSON(ctx, url, &resp); err != nil {
-		return "", err
-	}
-	return resp.Value, nil
-}
-
-func (c *BackendClient) GetThreadWindsConfig(ctx context.Context) (*ThreadWindsConfig, error) {
-	enabled, err := c.getConfigValue(ctx, twEnabledKey)
+func (c *BackendClient) SaveThreadWindsCredentials(ctx context.Context, apiKey, apiSecret string) error {
+	url := fmt.Sprintf("%s/api/v1/threat-intel/feeds/credentials", c.baseURL)
+	payload, err := json.Marshal(map[string]string{"apiKey": apiKey, "apiSecret": apiSecret})
 	if err != nil {
-		return nil, err
-	}
-	apiKey, err := c.getConfigValue(ctx, twAPIKeyKey)
-	if err != nil {
-		return nil, err
-	}
-	apiSecret, err := c.getConfigValue(ctx, twAPISecretKey)
-	if err != nil {
-		return nil, err
-	}
-	return &ThreadWindsConfig{Enabled: enabled, APIKey: apiKey, APISecret: apiSecret}, nil
-}
-
-// putConfigValue updates a single appconfig parameter (the key must be seeded;
-// the backend encrypts it when the parameter is a secret).
-func (c *BackendClient) putConfigValue(ctx context.Context, key, value string) error {
-	url := fmt.Sprintf("%s/api/v1/config/%s", c.baseURL, key)
-	payload, err := json.Marshal(map[string]string{"value": value})
-	if err != nil {
-		return catcher.Error("failed to marshal config value", err, nil)
+		return catcher.Error("failed to marshal the credentials", err, nil)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(payload))
@@ -147,22 +102,13 @@ func (c *BackendClient) putConfigValue(ctx context.Context, key, value string) e
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		return catcher.Error("unexpected status from backend", nil, map[string]any{
-			"key": key, "status": resp.StatusCode, "body": string(body),
+			"status": resp.StatusCode, "body": string(body),
 		})
 	}
-	return nil
-}
 
-func (c *BackendClient) SaveThreadWindsCredentials(ctx context.Context, apiKey, apiSecret string) error {
-	if err := c.putConfigValue(ctx, twAPIKeyKey, apiKey); err != nil {
-		return err
-	}
-	if err := c.putConfigValue(ctx, twAPISecretKey, apiSecret); err != nil {
-		return err
-	}
 	catcher.Info("ThreadWinds credentials saved successfully", nil)
 	return nil
 }
