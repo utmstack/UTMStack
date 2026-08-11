@@ -5,7 +5,7 @@
     "name": "utmstack",
     "title": "UTMStack",
     "version": "v1",
-    "description": "UTMStack backend exposed over MCP. Lets MCP-aware AI tools drive the same SOC operations a user would over REST — search alerts, run SOAR rules, query OpenSearch, manage incidents, generate compliance reports — under the same auth, permissions, license gates, and audit log.",
+    "description": "UTMStack backend exposed over MCP. Lets MCP-aware AI tools drive the same SOC operations a user would over REST — search alerts, run SOAR rules, query the event store (ClickHouse), manage incidents, generate compliance reports — under the same auth, permissions, license gates, and audit log.",
     "transport": "streamable-http",
     "endpoint": "/api/v1/mcp",
     "health_endpoint": "/api/v1/mcp/health",
@@ -53,7 +53,7 @@
     "readOnlyHint": "true when the tool does not mutate any state.",
     "idempotentHint": "true when repeated identical calls have the same effect as one call.",
     "destructiveHint": "true when the tool may perform irrecoverable changes (deletes, dispatched commands).",
-    "openWorldHint": "true when the tool may interact with external systems (OpenSearch, agents, mail, SOC-AI service)."
+    "openWorldHint": "true when the tool may interact with external systems (event store, agents, mail, SOC-AI service)."
   },
 
   "tools": [
@@ -68,7 +68,7 @@
       "input": {
         "type": "object",
         "properties": {
-          "alert_ids": {"type": "array", "items": {"type": "string"}, "description": "OpenSearch _id values of the alerts to update"},
+          "alert_ids": {"type": "array", "items": {"type": "string"}, "description": "Alert id values of the alerts to update"},
           "status": {"type": "integer", "description": "0=open, 1=in-review, 2=closed"},
           "status_observation": {"type": "string", "description": "Optional analyst note"},
           "add_false_positive_tag": {"type": "boolean"}
@@ -451,7 +451,14 @@
     {"name": "tenants.create", "status": "implemented", "module": "tenant", "title": "Create tenant (super admin)", "permission": "tenant.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "domain": {"type": "string"}, "admin_email": {"type": "string"}}, "required": ["name", "domain", "admin_email"]}, "output": "TenantResponse", "maps_to": "tenant.TenantUsecase.Create", "rest_equivalent": "POST /api/v1/tenants"},
     {"name": "tenants.update", "status": "implemented", "module": "tenant", "title": "Update tenant (super admin)", "permission": "tenant.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string", "format": "uuid"}, "name": {"type": "string"}, "domain": {"type": "string"}, "status": {"type": "string", "enum": ["ACTIVE", "SUSPENDED", "TERMINATED"]}, "max_ai_requests": {"type": "integer"}}, "required": ["id"]}, "output": "TenantResponse", "maps_to": "tenant.TenantUsecase.Update", "rest_equivalent": "PUT /api/v1/tenants/:id"},
     {"name": "tenants.terminate", "status": "implemented", "module": "tenant", "title": "Terminate tenant (super admin)", "permission": "tenant.write", "annotations": {"idempotentHint": true, "destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string", "format": "uuid"}}, "required": ["id"]}, "output": "{ id: uuid, terminated: true }", "maps_to": "tenant.TenantUsecase.Terminate", "rest_equivalent": "DELETE /api/v1/tenants/:id"},
-    {"name": "tenants.set_support_access", "status": "implemented", "module": "tenant", "title": "Set support-access grant for a tenant (super admin)", "permission": "tenant.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string", "format": "uuid"}, "support_access": {"type": "string", "enum": ["NONE", "READ", "FULL"]}}, "required": ["id", "support_access"]}, "output": "TenantResponse", "maps_to": "tenant.TenantUsecase.SetSupportAccess", "rest_equivalent": "PUT /api/v1/tenants/:id/support-access"}
+    {"name": "tenants.set_support_access", "status": "implemented", "module": "tenant", "title": "Set support-access grant for a tenant (super admin)", "permission": "tenant.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"id": {"type": "string", "format": "uuid"}, "support_access": {"type": "string", "enum": ["NONE", "READ", "FULL"]}}, "required": ["id", "support_access"]}, "output": "TenantResponse", "maps_to": "tenant.TenantUsecase.SetSupportAccess", "rest_equivalent": "PUT /api/v1/tenants/:id/support-access"},
+    {"name": "store.search", "status": "implemented", "module": "store", "title": "Structured search", "description": "Run a structured search over a store dataset (logs | alerts | statistics) using the FilterType DSL. Returns paged hits scoped to the caller's tenant.", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string", "enum": ["logs", "alerts", "statistics"]}, "data_type": {"type": "string"}, "filters": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}}, "page": {"type": "integer"}, "size": {"type": "integer"}, "sort_by": {"type": "string"}, "sort_order": {"type": "string", "enum": ["asc", "desc"]}}, "required": ["dataset"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "eventstore.Store.FetchPage"},
+    {"name": "store.count", "status": "implemented", "module": "store", "title": "Count matching docs", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string", "enum": ["logs", "alerts", "statistics"]}, "data_type": {"type": "string"}, "filters": {"type": "array"}}, "required": ["dataset"]}, "output": "{ total: int64, hasResults: bool }", "maps_to": "eventstore.Store.Count"},
+    {"name": "store.property_values", "status": "implemented", "module": "store", "title": "Top values for a field", "description": "Return the top-N distinct values of a field with their document counts.", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}, "data_type": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["dataset", "field"]}, "output": "[{value: string, count: int64}]", "maps_to": "eventstore.Store.TopValues"},
+    {"name": "store.search_sql", "status": "implemented", "module": "store", "title": "SQL search", "description": "Run a read-only ClickHouse SQL query. The FROM clause must reference the logs / alerts CTEs (already tenant-scoped).", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"query": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["query"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "eventstore.Store.Conn.Query"},
+    {"name": "store.search_csv", "status": "implemented", "module": "store", "title": "Search and project rows to columns", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}, "data_type": {"type": "string"}, "filters": {"type": "array"}, "columns": {"type": "array", "items": {"type": "string"}}, "top": {"type": "integer"}}, "required": ["dataset", "columns"]}, "output": "object[] — rows projected to the requested columns", "maps_to": "eventstore.Store.FetchPage"},
+    {"name": "store.datasets", "status": "implemented", "module": "store", "title": "List datasets", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "string[]", "maps_to": "static: logs | alerts | statistics"},
+    {"name": "store.dataset.fields", "status": "implemented", "module": "store", "title": "List fields for a dataset", "description": "Describe the queryable fields of a dataset (name, type, filterable, searchable).", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"]}, "output": "[{name, type, filterable, searchable}]", "maps_to": "eventstore.Store.DescribeFields"}
   ],
 
   "resources": [
@@ -482,7 +489,7 @@
     {
       "uri": "mcp://utmstack/docs/filter-operators",
       "name": "FilterType operator reference",
-      "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by opensearch.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
+      "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by store.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
       "mime_type": "text/markdown",
       "status": "planned",
       "backed_by": "pkg/common_models/filter.go (FilterOperator constants)"
@@ -517,14 +524,14 @@
     {
       "name": "soc.investigate-alert",
       "title": "Investigate alert",
-      "description": "Given an alert ID, pulls the alert, related events from OpenSearch, and any similar past incidents; the model then drafts an incident-creation payload for human approval.",
+      "description": "Given an alert ID, pulls the alert, related events from the event store, and any similar past incidents; the model then drafts an incident-creation payload for human approval.",
       "status": "planned",
       "arguments": [
-        {"name": "alert_id", "description": "OpenSearch _id of the alert to investigate", "required": true}
+        {"name": "alert_id", "description": "Alert id to investigate", "required": true}
       ],
       "tool_sequence": [
-        "opensearch.search",
-        "opensearch.search_sql",
+        "store.search",
+        "store.search_sql",
         "incidents.list",
         "(model drafts)",
         "incidents.create"
@@ -565,7 +572,7 @@
   "definitions": {
     "FilterType": {
       "type": "object",
-      "description": "Structured query condition used across opensearch.*, alerts.*, loganalyzer.*, dashboards, eventprocessing.* tools.",
+      "description": "Structured query condition used across store.*, alerts.*, loganalyzer.*, dashboards, eventprocessing.* tools.",
       "properties": {
         "field": {"type": "string"},
         "operator": {
@@ -593,8 +600,8 @@
   },
 
   "summary": {
-      "tool_count_total": 165,
-      "tool_count_implemented": 165,
+      "tool_count_total": 172,
+      "tool_count_implemented": 172,
       "tool_count_planned": 0,
       "resource_count": 5,
       "prompt_count": 4,
@@ -616,6 +623,7 @@
           "notifications",
           "soar",
           "socai",
+          "store",
           "tenant"
       ],
       "tool_count_by_module": {
@@ -630,6 +638,7 @@
           "appconfig": 7,
           "loganalyzer": 7,
           "notifications": 7,
+          "store": 7,
           "tenant": 6,
           "datasources": 5,
           "audit": 2,

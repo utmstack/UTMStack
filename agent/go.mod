@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
 	github.com/spf13/cobra v1.10.2
-	github.com/threatwinds/go-sdk v1.1.27-0.20260803192250-f951ab337482
+	github.com/threatwinds/go-sdk v1.1.28
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
 	golang.org/x/sys v0.47.0
@@ -52,6 +52,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
+	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect

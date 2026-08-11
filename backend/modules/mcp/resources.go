@@ -90,7 +90,7 @@ func registerDocResources(m *Module) {
 	srv.AddResource(&mcp.Resource{
 		URI:         "mcp://utmstack/docs/filter-operators",
 		Name:        "FilterType operator reference",
-		Description: "The structured filter DSL operators used by alerts.search_adversary, loganalyzer.*, dashboards, alert_tag_rules, and event-processing tools.",
+		Description: "The structured filter DSL operators used by store.search, alerts.search_adversary, loganalyzer.*, dashboards, alert_tag_rules, and event-processing tools.",
 		MIMEType:    "text/markdown",
 	}, func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		return textResource(req.Params.URI, "text/markdown", filterOperatorsDoc)

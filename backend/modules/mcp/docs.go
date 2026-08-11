@@ -36,39 +36,49 @@ Most search/filter inputs accept a ` + "`[]FilterType`" + ` array. Each entry ha
 ## Operators
 
 ### Equality
-- ` + "`IS`" + ` — exact match (match_phrase)
+- ` + "`IS`" + ` — exact match (` + "`field = value`" + `)
 - ` + "`IS_NOT`" + ` — inverse exact match
 
 ### Containment
-- ` + "`CONTAIN`" + ` — substring (query_string ` + "`*v*`" + `)
+- ` + "`CONTAIN`" + ` — substring (` + "`field LIKE '%value%'`" + `)
 - ` + "`DOES_NOT_CONTAIN`" + ` — inverse substring
 - ` + "`NOT_CONTAINS`" + ` — legacy alias of DOES_NOT_CONTAIN
-- ` + "`CONTAIN_ONE_OF`" + ` — substring matches any of value[]
-- ` + "`DOES_NOT_CONTAIN_ONE_OF`" + ` — none of value[] are substrings
+- ` + "`CONTAIN_ONE_OF`" + ` — matches any of value[] as a substring
+- ` + "`DOES_NOT_CONTAIN_ONE_OF`" + ` — none of value[] appear as substrings
 
 ### Sets
-- ` + "`IS_ONE_OF_TERMS`" + ` — value[] terms filter
-- ` + "`IS_ONE_OF_TERMS_OR`" + ` — value[] terms (OR'd)
-- ` + "`IS_ONE_OF`" + ` — value[] match_phrase (any)
+- ` + "`IS_ONE_OF_TERMS`" + ` — ` + "`field IN (...)`" + ` on value[]
+- ` + "`IS_ONE_OF_TERMS_OR`" + ` — same as IS_ONE_OF_TERMS
+- ` + "`IS_ONE_OF`" + ` — matches any of value[] exactly
 - ` + "`IS_NOT_ONE_OF`" + ` — none of value[] match
 
 ### Ranges
-- ` + "`IS_BETWEEN`" + ` — value=[from, to], inclusive
+- ` + "`IS_BETWEEN`" + ` — ` + "`field BETWEEN from AND to`" + ` (inclusive)
 - ` + "`IS_NOT_BETWEEN`" + ` — outside the inclusive range
-- ` + "`IS_GREATER_THAN`" + ` — gt (timestamps are RFC3339)
-- ` + "`IS_LESS_THAN_OR_EQUALS`" + ` — lte
+- ` + "`IS_GREATER_THAN`" + ` — ` + "`field > value`" + ` (timestamps in RFC3339)
+- ` + "`IS_LESS_THAN_OR_EQUALS`" + ` — ` + "`field <= value`" + `
 
 ### Existence
-- ` + "`EXIST`" + ` — field is present
-- ` + "`DOES_NOT_EXIST`" + ` — field is missing
+- ` + "`EXIST`" + ` — ` + "`field IS NOT NULL`" + `
+- ` + "`DOES_NOT_EXIST`" + ` — ` + "`field IS NULL`" + `
 
 ### String boundaries
 - ` + "`START_WITH`" + ` / ` + "`NOT_START_WITH`" + ` — prefix
 - ` + "`ENDS_WITH`" + ` / ` + "`NOT_ENDS_WITH`" + ` — suffix
 
-### Cross-field
-- ` + "`IS_IN_FIELDS`" + ` — value matches any of the listed fields (query_string)
-- ` + "`IS_NOT_IN_FIELDS`" + ` — value matches none of the listed fields
+### Cross-field (text search)
+- ` + "`IS_IN_FIELDS`" + ` — value matches anywhere in the record's raw text
+- ` + "`IS_NOT_IN_FIELDS`" + ` — value does not appear in the raw text
+
+Text search is only supported on datasets that carry raw text (currently ` + "`logs`" + `);
+running it against ` + "`alerts`" + ` or ` + "`statistics`" + ` returns an error rather than an empty set.
+
+## Time bounds
+
+` + "`@timestamp`" + ` range predicates (IS_BETWEEN, IS_GREATER_THAN, IS_LESS_THAN_OR_EQUALS)
+are lifted out of the filter list and pushed into the store scope before any
+other predicate runs — the store prunes by time first, then by tenant, then by
+the remaining filters.
 
 ## Example
 
@@ -80,7 +90,7 @@ Most search/filter inputs accept a ` + "`[]FilterType`" + ` array. Each entry ha
 ]
 ` + "```" + `
 
-The list is ANDed: every filter has to hold.
+This composes into a tenant-scoped ClickHouse SELECT at the event store driver.
 `
 
 const eventTypesDoc = `# Audit event-type enum (ApplicationEventType)

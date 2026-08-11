@@ -26,23 +26,23 @@ func registerAlerts(m *Module) {
 }
 
 // ------------------------------------------------------------------
-// alerts.* — operate on individual alert records in the event store.
+// alerts.* — operate on individual alert documents (stored in the event store).
 // ------------------------------------------------------------------
 
 type alertsUpdateStatusInput struct {
-	AlertIDs            []string `json:"alert_ids" jsonschema:"ids of the alerts to update"`
+	AlertIDs            []string `json:"alert_ids" jsonschema:"Alert id values of the alerts to update"`
 	Status              string   `json:"status" jsonschema:"Target status, one of: Automatic review, Open, In review, Completed, Merged"`
 	StatusObservation   string   `json:"status_observation,omitempty" jsonschema:"Optional analyst note attached to the status change"`
 	AddFalsePositiveTag bool     `json:"add_false_positive_tag,omitempty" jsonschema:"If true, also apply the FALSE_POSITIVE tag (used when closing as FP)"`
 }
 
 type alertsUpdateNotesInput struct {
-	AlertID string `json:"alert_id" jsonschema:"id of the alert"`
+	AlertID string `json:"alert_id" jsonschema:"Alert id"`
 	Notes   string `json:"notes" jsonschema:"Analyst notes to attach (replaces existing notes)"`
 }
 
 type alertsUpdateTagsInput struct {
-	AlertIDs   []string `json:"alert_ids" jsonschema:"Alert _id values to tag"`
+	AlertIDs   []string `json:"alert_ids" jsonschema:"Alert id values to tag"`
 	Tags       []string `json:"tags" jsonschema:"Tag names to apply"`
 	CreateRule bool     `json:"create_rule,omitempty" jsonschema:"If true, also persist a tag rule so future matching alerts are auto-tagged"`
 }
