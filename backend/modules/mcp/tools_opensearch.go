@@ -19,7 +19,7 @@ func registerOpenSearch(m *Module) {
 // ---- opensearch search / index gateway -------------------------------------
 
 type osSearchInput struct {
-	IndexPattern    string                     `json:"index_pattern" jsonschema:"Required. Resolved index pattern (e.g. alert-*, log-*)."`
+	IndexPattern    string                     `json:"index_pattern" jsonschema:"Required. Resolved index pattern with syntax v11-[name]-* (e.g. v11-alert-*, v11-log-*)."`
 	Filters         []common_models.FilterType `json:"filters,omitempty" jsonschema:"FilterType DSL conditions"`
 	Top             int                        `json:"top,omitempty" jsonschema:"Max total hits to return (default 500)"`
 	Page            int                        `json:"page,omitempty" jsonschema:"1-based page"`
