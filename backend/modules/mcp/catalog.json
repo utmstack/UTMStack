@@ -5,7 +5,7 @@
     "name": "utmstack",
     "title": "UTMStack",
     "version": "v1",
-    "description": "UTMStack backend exposed over MCP. Lets MCP-aware AI tools drive the same SOC operations a user would over REST — search alerts, run SOAR rules, query OpenSearch, manage incidents, generate compliance reports — under the same auth, permissions, license gates, and audit log.",
+    "description": "UTMStack backend exposed over MCP. Lets MCP-aware AI tools drive the same SOC operations a user would over REST — search alerts, run SOAR rules, query the event store (ClickHouse), manage incidents, generate compliance reports — under the same auth, permissions, license gates, and audit log.",
     "transport": "streamable-http",
     "endpoint": "/api/v1/mcp",
     "health_endpoint": "/api/v1/mcp/health",
@@ -19,8 +19,7 @@
     "incidents.write": "Create/modify incidents and their alert links/notes.",
     "soar.read": "Read SOAR rules, templates, executions, variables, actions, jobs.",
     "soar.write": "Mutate SOAR rules and run actions/jobs (may dispatch commands to agents).",
-    "opensearch.read": "Search OpenSearch via the FilterType DSL or SQL; read indices and policy.",
-    "opensearch.write": "Delete indices, manage index patterns, update ISM policy.",
+    "opensearch.read": "Search the event store (ClickHouse) via the FilterType DSL or SQL; introspect dataset fields.",
     "loganalyzer.read": "Run analyzer queries and load saved queries.",
     "loganalyzer.write": "Create/update/delete saved analyzer queries.",
     "dashboards.read": "List/get dashboards, visualizations, and layouts.",
@@ -51,7 +50,7 @@
     "readOnlyHint": "true when the tool does not mutate any state.",
     "idempotentHint": "true when repeated identical calls have the same effect as one call.",
     "destructiveHint": "true when the tool may perform irrecoverable changes (deletes, dispatched commands).",
-    "openWorldHint": "true when the tool may interact with external systems (OpenSearch, agents, mail, SOC-AI service)."
+    "openWorldHint": "true when the tool may interact with external systems (event store, agents, mail, SOC-AI service)."
   },
 
   "tools": [
@@ -66,7 +65,7 @@
       "input": {
         "type": "object",
         "properties": {
-          "alert_ids": {"type": "array", "items": {"type": "string"}, "description": "OpenSearch _id values of the alerts to update"},
+          "alert_ids": {"type": "array", "items": {"type": "string"}, "description": "Alert id values of the alerts to update"},
           "status": {"type": "integer", "description": "0=open, 1=in-review, 2=closed"},
           "status_observation": {"type": "string", "description": "Optional analyst note"},
           "add_false_positive_tag": {"type": "boolean"}
@@ -336,25 +335,13 @@
     {"name": "soar.variable.delete", "status": "planned", "module": "soar", "title": "Delete incident variable", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "soar.VariableUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/incident-variables/:id"},
     {"name": "soar.agent.list_by_platform", "status": "planned", "module": "soar", "title": "List agents on a platform", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"platform": {"type": "string", "enum": ["windows", "linux", "macos"]}}, "required": ["platform"]}, "output": "string[]", "maps_to": "soar.AgentUsecase.ListByPlatform"},
 
-    {"name": "opensearch.search", "status": "planned", "module": "opensearch", "title": "Structured search", "description": "Run a search against the configured index pattern using the FilterType DSL (see mcp://utmstack/docs/filter-operators). Returns paged hits.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}}, "top": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}, "sort_by": {"type": "string"}, "sort_order": {"type": "string", "enum": ["asc", "desc"]}, "include_children": {"type": "boolean"}}, "required": ["index_pattern"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.Search", "rest_equivalent": "POST /api/v1/opensearch/search"},
-    {"name": "opensearch.search_sql", "status": "planned", "module": "opensearch", "title": "SQL search", "description": "Run a sanitized SQL query against the OpenSearch SQL plugin.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true, "openWorldHint": true}, "input": {"type": "object", "properties": {"sql": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["sql"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.SearchSQL", "rest_equivalent": "POST /api/v1/opensearch/search/sql"},
-    {"name": "opensearch.search_csv", "status": "planned", "module": "opensearch", "title": "Search and project to CSV columns", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array"}, "columns": {"type": "array", "items": {"$ref": "#/definitions/DataColumn"}}, "top": {"type": "integer"}}, "required": ["index_pattern", "columns"]}, "output": "object[] — rows projected to the requested columns", "maps_to": "opensearch.Gateway.SearchCSV", "rest_equivalent": "POST /api/v1/opensearch/search/csv"},
-    {"name": "opensearch.generic_search", "status": "planned", "module": "opensearch", "title": "Generic search against any index", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["index"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "opensearch.Gateway.GenericSearch", "rest_equivalent": "POST /api/v1/opensearch/generic-search"},
-    {"name": "opensearch.count", "status": "planned", "module": "opensearch", "title": "Count matching documents", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "filters": {"type": "array"}}, "required": ["index_pattern"]}, "output": "{ hasResults: bool }", "maps_to": "opensearch.Gateway.Count", "rest_equivalent": "POST /api/v1/opensearch/count"},
-    {"name": "opensearch.property_values", "status": "planned", "module": "opensearch", "title": "Distinct values for a property", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "prefix": {"type": "string"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field"]}, "output": "string[]", "maps_to": "opensearch.Gateway.PropertyValues", "rest_equivalent": "GET /api/v1/opensearch/property/values"},
-    {"name": "opensearch.property_values_with_count", "status": "planned", "module": "opensearch", "title": "Distinct values with counts", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field"]}, "output": "map[string]int64", "maps_to": "opensearch.Gateway.PropertyValuesWithCount", "rest_equivalent": "POST /api/v1/opensearch/property/values-with-count"},
-    {"name": "opensearch.index.properties", "status": "planned", "module": "opensearch", "title": "List index fields", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern": {"type": "string"}}, "required": ["pattern"]}, "output": "IndexPropertyType[]", "maps_to": "opensearch.Gateway.IndexProperties", "rest_equivalent": "GET /api/v1/opensearch/index/properties"},
-    {"name": "opensearch.index.list", "status": "planned", "module": "opensearch", "title": "List indices matching a pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern": {"type": "string"}, "include_system": {"type": "boolean"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IndexInfo[], total: int64 }", "maps_to": "opensearch.Gateway.IndexAll", "rest_equivalent": "GET /api/v1/opensearch/index/all"},
-    {"name": "opensearch.index.delete", "status": "planned", "module": "opensearch", "title": "Delete indices", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"indices": {"type": "array", "items": {"type": "string"}}}, "required": ["indices"]}, "output": "{ deleted: int }", "maps_to": "opensearch.Gateway.DeleteIndex", "rest_equivalent": "POST /api/v1/opensearch/index/delete-index"},
-    {"name": "opensearch.cluster_status", "status": "planned", "module": "opensearch", "title": "Cluster status", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "ClusterStatusResponse", "maps_to": "opensearch.Gateway.ClusterStatus", "rest_equivalent": "GET /api/v1/opensearch/cluster/status"},
-    {"name": "opensearch.index_pattern.create", "status": "planned", "module": "opensearch", "title": "Create index pattern", "permission": "opensearch.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "pattern": {"type": "string"}, "time_field": {"type": "string"}}, "required": ["name", "pattern"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.Create", "rest_equivalent": "POST /api/v1/opensearch/index-patterns"},
-    {"name": "opensearch.index_pattern.update", "status": "planned", "module": "opensearch", "title": "Update index pattern", "permission": "opensearch.write", "input": {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "pattern": {"type": "string"}, "time_field": {"type": "string"}}, "required": ["id"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.Update", "rest_equivalent": "PUT /api/v1/opensearch/index-patterns"},
-    {"name": "opensearch.index_pattern.list", "status": "planned", "module": "opensearch", "title": "List index patterns", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"name": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}}, "output": "{ items: IndexPatternResponse[], total: int64 }", "maps_to": "opensearch.IndexPatternUsecase.List", "rest_equivalent": "GET /api/v1/opensearch/index-patterns"},
-    {"name": "opensearch.index_pattern.get", "status": "planned", "module": "opensearch", "title": "Get index pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "IndexPatternResponse", "maps_to": "opensearch.IndexPatternUsecase.GetByID", "rest_equivalent": "GET /api/v1/opensearch/index-patterns/:id"},
-    {"name": "opensearch.index_pattern.fields", "status": "planned", "module": "opensearch", "title": "Fields for an index pattern", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"pattern_id": {"type": "integer"}}, "required": ["pattern_id"]}, "output": "IndexPatternFieldsResponse[]", "maps_to": "opensearch.IndexPatternUsecase.Fields", "rest_equivalent": "GET /api/v1/opensearch/index-patterns/fields"},
-    {"name": "opensearch.index_pattern.delete", "status": "planned", "module": "opensearch", "title": "Delete index pattern", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "{ id: int, deleted: true }", "maps_to": "opensearch.IndexPatternUsecase.Delete", "rest_equivalent": "DELETE /api/v1/opensearch/index-patterns/:id"},
-    {"name": "opensearch.policy.get", "status": "planned", "module": "opensearch", "title": "Get ISM policy", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "PolicySettings", "maps_to": "opensearch.PolicyUsecase.GetPolicy", "rest_equivalent": "GET /api/v1/opensearch/index-policy/policy"},
-    {"name": "opensearch.policy.update", "status": "planned", "module": "opensearch", "title": "Update ISM policy", "permission": "opensearch.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"hot_days": {"type": "integer"}, "warm_days": {"type": "integer"}, "delete_days": {"type": "integer"}}, "required": ["hot_days", "warm_days", "delete_days"]}, "output": "UpdateManagedIndexPolicyResponse", "maps_to": "opensearch.PolicyUsecase.UpdatePolicy", "rest_equivalent": "PUT /api/v1/opensearch/index-policy/policy"},
+    {"name": "store.search", "status": "implemented", "module": "store", "title": "Structured search", "description": "Run a structured search over a store dataset (logs | alerts | statistics) using the FilterType DSL. Returns paged hits scoped to the caller's tenant.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string", "enum": ["logs", "alerts", "statistics"]}, "data_type": {"type": "string"}, "filters": {"type": "array", "items": {"$ref": "#/definitions/FilterType"}}, "page": {"type": "integer"}, "size": {"type": "integer"}, "sort_by": {"type": "string"}, "sort_order": {"type": "string", "enum": ["asc", "desc"]}}, "required": ["dataset"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "eventstore.Store.FetchPage"},
+    {"name": "store.count", "status": "implemented", "module": "store", "title": "Count matching docs", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string", "enum": ["logs", "alerts", "statistics"]}, "data_type": {"type": "string"}, "filters": {"type": "array"}}, "required": ["dataset"]}, "output": "{ total: int64, hasResults: bool }", "maps_to": "eventstore.Store.Count"},
+    {"name": "store.property_values", "status": "implemented", "module": "store", "title": "Top values for a field", "description": "Return the top-N distinct values of a field with their document counts.", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}, "data_type": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["dataset", "field"]}, "output": "[{value: string, count: int64}]", "maps_to": "eventstore.Store.TopValues"},
+    {"name": "store.search_sql", "status": "implemented", "module": "store", "title": "SQL search", "description": "Run a read-only ClickHouse SQL query. The FROM clause must reference the logs / alerts CTEs (already tenant-scoped).", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"query": {"type": "string"}, "page": {"type": "integer"}, "size": {"type": "integer"}}, "required": ["query"]}, "output": "{ hits: object[], total: int64 }", "maps_to": "eventstore.Store.Conn.Query"},
+    {"name": "store.search_csv", "status": "implemented", "module": "store", "title": "Search and project rows to columns", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}, "data_type": {"type": "string"}, "filters": {"type": "array"}, "columns": {"type": "array", "items": {"type": "string"}}, "top": {"type": "integer"}}, "required": ["dataset", "columns"]}, "output": "object[] — rows projected to the requested columns", "maps_to": "eventstore.Store.FetchPage"},
+    {"name": "store.datasets", "status": "implemented", "module": "store", "title": "List datasets", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "string[]", "maps_to": "static: logs | alerts | statistics"},
+    {"name": "store.dataset.fields", "status": "implemented", "module": "store", "title": "List fields for a dataset", "description": "Describe the queryable fields of a dataset (name, type, filterable, searchable).", "permission": "opensearch.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"]}, "output": "[{name, type, filterable, searchable}]", "maps_to": "eventstore.Store.DescribeFields"},
 
     {"name": "loganalyzer.top_values", "status": "planned", "module": "loganalyzer", "title": "Top-N values for a field", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "field": {"type": "string"}, "filters": {"type": "array"}, "top": {"type": "integer"}}, "required": ["index_pattern", "field", "top"]}, "output": "TopValuesResponse", "maps_to": "loganalyzer.AnalyzerUsecase.TopValues", "rest_equivalent": "POST /api/v1/log-analyzer/top-x-values/:indexPattern/:field/:top"},
     {"name": "loganalyzer.chart_view", "status": "planned", "module": "loganalyzer", "title": "Chart view aggregation", "permission": "loganalyzer.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"index_pattern": {"type": "string"}, "interval": {"type": "string"}, "metric": {"type": "string"}, "filters": {"type": "array"}, "from": {"type": "string"}, "to": {"type": "string"}}, "required": ["index_pattern"]}, "output": "ChartViewResponse", "maps_to": "loganalyzer.AnalyzerUsecase.ChartView", "rest_equivalent": "POST /api/v1/log-analyzer/chart-view"},
@@ -524,7 +511,7 @@
     {
       "uri": "mcp://utmstack/docs/filter-operators",
       "name": "FilterType operator reference",
-      "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by opensearch.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
+      "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by store.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
       "mime_type": "text/markdown",
       "status": "planned",
       "backed_by": "pkg/common_models/filter.go (FilterOperator constants)"
@@ -559,14 +546,14 @@
     {
       "name": "soc.investigate-alert",
       "title": "Investigate alert",
-      "description": "Given an alert ID, pulls the alert, related events from OpenSearch, and any similar past incidents; the model then drafts an incident-creation payload for human approval.",
+      "description": "Given an alert ID, pulls the alert, related events from the event store, and any similar past incidents; the model then drafts an incident-creation payload for human approval.",
       "status": "planned",
       "arguments": [
-        {"name": "alert_id", "description": "OpenSearch _id of the alert to investigate", "required": true}
+        {"name": "alert_id", "description": "Alert id to investigate", "required": true}
       ],
       "tool_sequence": [
-        "opensearch.search",
-        "opensearch.search_sql",
+        "store.search",
+        "store.search_sql",
         "incidents.list",
         "(model drafts)",
         "incidents.create"
@@ -607,7 +594,7 @@
   "definitions": {
     "FilterType": {
       "type": "object",
-      "description": "Structured query condition used across opensearch.*, alerts.*, loganalyzer.*, dashboards, eventprocessing.* tools.",
+      "description": "Structured query condition used across store.*, alerts.*, loganalyzer.*, dashboards, eventprocessing.* tools.",
       "properties": {
         "field": {"type": "string"},
         "operator": {
@@ -635,18 +622,18 @@
   },
 
   "summary": {
-    "tool_count_total": 218,
-    "tool_count_implemented": 16,
-    "tool_count_planned": 202,
+    "tool_count_total": 206,
+    "tool_count_implemented": 23,
+    "tool_count_planned": 183,
     "resource_count": 5,
     "prompt_count": 4,
-    "modules_covered": ["alerts", "incidents", "soar", "opensearch", "loganalyzer", "dashboards", "eventprocessing", "datasources", "integrations", "compliance", "audit", "adaudit", "notifications", "iam", "appconfig", "billing", "socai"],
+    "modules_covered": ["alerts", "incidents", "soar", "store", "loganalyzer", "dashboards", "eventprocessing", "datasources", "integrations", "compliance", "audit", "adaudit", "notifications", "iam", "appconfig", "billing", "socai"],
     "tool_count_by_module": {
       "soar": 30,
       "eventprocessing": 25,
       "iam": 25,
       "compliance": 21,
-      "opensearch": 19,
+      "store": 7,
       "alerts": 16,
       "incidents": 16,
       "dashboards": 15,

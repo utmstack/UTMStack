@@ -17,10 +17,10 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/integrations"
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
-	opensearchgw "github.com/utmstack/utmstack/backend/modules/opensearch"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 )
 
 // Deps holds the other modules the MCP layer borrows usecases from. New
@@ -35,7 +35,7 @@ type Deps struct {
 	Audit           *audit.Module
 	Dashboards      *dashboards.Module
 	LogAnalyzer     *loganalyzer.Module
-	OpenSearch      *opensearchgw.Module
+	Events          *eventstore.Store
 	EventProcessing *eventprocessing.Module
 	Datasources     *datasources.Module
 	Integrations    *integrations.Module

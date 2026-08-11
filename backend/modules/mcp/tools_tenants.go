@@ -13,10 +13,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
-// parseID keeps the schema readable ("id: string") and the handler tolerant.
-// Every id-carrying tool below routes through it. ponytail: uuid.UUID is a
-// [16]byte and infers to array-of-bytes in the SDK schema — not a shape any
-// client can produce. String in, uuid out, parse errors surfaced as-is.
 func parseID(s string) (uuid.UUID, error) {
 	id, err := uuid.Parse(s)
 	if err != nil {
@@ -52,9 +48,6 @@ type tenantUpdateInput struct {
 	Name   string `json:"name,omitempty"`
 	Domain string `json:"domain,omitempty"`
 	Status string `json:"status,omitempty" jsonschema:"ACTIVE | SUSPENDED | TERMINATED"`
-	// MaxAIRequests: nil = leave alone, non-nil = set. Clearing the cap needs
-	// the REST tri-state (absent / null / number); MCP tools can add that flag
-	// when someone actually needs it. ponytail: single case, YAGNI on the rest.
 	MaxAIRequests *int `json:"max_ai_requests,omitempty"`
 }
 

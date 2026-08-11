@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/feeds
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.27-0.20260808112451-a0c815800e09
+	// github.com/threatwinds/go-sdk v1.1.28
 	golang.org/x/sync v0.22.0
 	gopkg.in/yaml.v2 v2.4.0
 )
