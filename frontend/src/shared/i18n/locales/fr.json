@@ -20,7 +20,8 @@
       "retry": "Réessayer",
       "refresh": "Actualiser",
       "delete": "Supprimer",
-      "remove": "Retirer"
+      "remove": "Retirer",
+      "close": "Fermer"
     },
     "confirm": {
       "delete": "Supprimer",
@@ -5461,5 +5462,46 @@
     "readOnly": "lecture seule — les écritures sont refusées",
     "full": "accès complet — les changements ici sont réels",
     "leave": "Quitter"
+  },
+  "platformBroadcast": {
+    "button": "Appliquer aux locataires…",
+    "action": {
+      "create": "Diffuser la création de {{resource}}",
+      "update": "Diffuser la mise à jour de {{resource}}",
+      "delete": "Diffuser la suppression de {{resource}}",
+      "toggle": "Diffuser le basculement de {{resource}}",
+      "enable": "Diffuser l'activation de {{resource}}",
+      "activate": "Diffuser l'activation de {{resource}}",
+      "test": "Diffuser le test {{resource}}",
+      "upload": "Diffuser l'actif {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "règle de corrélation",
+      "soarFlow": "flux SOAR",
+      "framework": "cadre",
+      "control": "contrôle",
+      "smtp": "SMTP",
+      "idp": "fournisseur d'identité",
+      "branding": "marque"
+    },
+    "warning": {
+      "title": "Cette action s'exécutera sur chaque locataire sélectionné.",
+      "body": "Les échecs par locataire sont signalés après l'exécution et ne sont pas annulés."
+    },
+    "allTenants": "Appliquer à tous les locataires",
+    "excludesDefault": "Le locataire de la plateforme est exclu de cette action.",
+    "searchPlaceholder": "Rechercher des locataires…",
+    "loading": "Chargement des locataires…",
+    "empty": "Aucun locataire ne correspond.",
+    "targetCount": "Ciblera {{count}} locataire(s).",
+    "platformTenant": "plateforme",
+    "confirm": "Appliquer à {{count}} locataire(s)",
+    "result": {
+      "succeeded": "Réussi",
+      "noneSucceeded": "Aucun locataire n'a réussi.",
+      "failed": "Échoué",
+      "noneFailed": "Aucun échec."
+    }
   }
 }

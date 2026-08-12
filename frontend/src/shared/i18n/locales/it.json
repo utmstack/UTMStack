@@ -20,7 +20,8 @@
       "retry": "Riprova",
       "refresh": "Aggiorna",
       "delete": "Elimina",
-      "remove": "Rimuovi"
+      "remove": "Rimuovi",
+      "close": "Chiudi"
     },
     "confirm": {
       "delete": "Elimina",
@@ -5461,5 +5462,46 @@
     "readOnly": "sola lettura — le scritture vengono rifiutate",
     "full": "accesso completo — le modifiche qui sono reali",
     "leave": "Esci"
+  },
+  "platformBroadcast": {
+    "button": "Applica ai tenant…",
+    "action": {
+      "create": "Trasmetti creazione {{resource}}",
+      "update": "Trasmetti aggiornamento {{resource}}",
+      "delete": "Trasmetti eliminazione {{resource}}",
+      "toggle": "Trasmetti commutazione {{resource}}",
+      "enable": "Trasmetti abilitazione {{resource}}",
+      "activate": "Trasmetti attivazione {{resource}}",
+      "test": "Trasmetti test {{resource}}",
+      "upload": "Trasmetti risorsa {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "regola di correlazione",
+      "soarFlow": "flusso SOAR",
+      "framework": "framework",
+      "control": "controllo",
+      "smtp": "SMTP",
+      "idp": "provider di identità",
+      "branding": "branding"
+    },
+    "warning": {
+      "title": "Questa azione verrà eseguita su ogni tenant selezionato.",
+      "body": "Gli errori per tenant vengono segnalati dopo l'esecuzione e non vengono annullati."
+    },
+    "allTenants": "Applica a tutti i tenant",
+    "excludesDefault": "Il tenant della piattaforma è escluso da questa azione.",
+    "searchPlaceholder": "Cerca tenant…",
+    "loading": "Caricamento tenant…",
+    "empty": "Nessun tenant corrispondente.",
+    "targetCount": "Sarà applicato a {{count}} tenant.",
+    "platformTenant": "piattaforma",
+    "confirm": "Applica a {{count}} tenant",
+    "result": {
+      "succeeded": "Riusciti",
+      "noneSucceeded": "Nessun tenant riuscito.",
+      "failed": "Falliti",
+      "noneFailed": "Nessun errore."
+    }
   }
 }

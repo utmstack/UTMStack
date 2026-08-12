@@ -20,7 +20,8 @@
       "retry": "Tentar novamente",
       "refresh": "Atualizar",
       "delete": "Excluir",
-      "remove": "Remover"
+      "remove": "Remover",
+      "close": "Fechar"
     },
     "confirm": {
       "delete": "Excluir",
@@ -5423,5 +5424,46 @@
     "readOnly": "somente leitura — as escritas são recusadas",
     "full": "acesso total — o que mudar aqui é real",
     "leave": "Sair"
+  },
+  "platformBroadcast": {
+    "button": "Aplicar aos inquilinos…",
+    "action": {
+      "create": "Transmitir criação de {{resource}}",
+      "update": "Transmitir atualização de {{resource}}",
+      "delete": "Transmitir exclusão de {{resource}}",
+      "toggle": "Transmitir alternância de {{resource}}",
+      "enable": "Transmitir habilitação de {{resource}}",
+      "activate": "Transmitir ativação de {{resource}}",
+      "test": "Transmitir teste de {{resource}}",
+      "upload": "Transmitir ativo {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "regra de correlação",
+      "soarFlow": "fluxo SOAR",
+      "framework": "estrutura",
+      "control": "controle",
+      "smtp": "SMTP",
+      "idp": "provedor de identidade",
+      "branding": "marca"
+    },
+    "warning": {
+      "title": "Esta ação será executada em cada inquilino selecionado.",
+      "body": "Falhas por inquilino são relatadas após a execução e não são revertidas."
+    },
+    "allTenants": "Aplicar a todos os inquilinos",
+    "excludesDefault": "O inquilino da plataforma é excluído desta ação.",
+    "searchPlaceholder": "Buscar inquilinos…",
+    "loading": "Carregando inquilinos…",
+    "empty": "Nenhum inquilino corresponde.",
+    "targetCount": "Alvo: {{count}} inquilino(s).",
+    "platformTenant": "plataforma",
+    "confirm": "Aplicar a {{count}} inquilino(s)",
+    "result": {
+      "succeeded": "Bem-sucedidos",
+      "noneSucceeded": "Nenhum inquilino teve sucesso.",
+      "failed": "Falhados",
+      "noneFailed": "Sem falhas."
+    }
   }
 }
