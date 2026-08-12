@@ -43,6 +43,8 @@ import (
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
+	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -129,7 +131,24 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("failed to register tenancy callbacks", err, nil)
 		panic(err)
 	}
-	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
+	// ponytail: late-bound lister so configMod can be constructed before tenantMod exists;
+	// tenantMod is always set before the first HTTP request reaches the handler.
+	var tenantMod *tenant.Module
+	tenantLister := func(ctx context.Context) ([]string, error) {
+		tenants, _, err := tenantMod.GetTenantUsecase().List(ctx, tenant_dto.Filter{Size: 10000, Status: tenant_domain.StatusActive})
+		if err != nil {
+			return nil, err
+		}
+		ids := make([]string, 0, len(tenants))
+		for _, t := range tenants {
+			ids = append(ids, t.ID.String())
+		}
+		return ids, nil
+	}
+	var tenantListerForConfig func(context.Context) ([]string, error)
+	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir, func(ctx context.Context) ([]string, error) {
+		return tenantListerForConfig(ctx)
+	})
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
 	// White-labeling renders only under an Enterprise license (resolved from billing).
@@ -142,7 +161,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		complianceEventReader = events
 	}
 	complianceMod := compliance.NewModule(db, complianceEventReader, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
-		func() bool { return billingMod.License().Current().IsEnterprise() })
+		func() bool { return billingMod.License().Current().IsEnterprise() }, tenantLister)
 	var eventReader dash_usecase.Reader
 	if events != nil {
 		eventReader = events
@@ -175,7 +194,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		agentClient = nil
 	}
 
-	soarMod := soar.NewModule(db, agentClient, signer, cipher)
+	soarMod := soar.NewModule(db, agentClient, signer, cipher, tenantLister)
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
@@ -195,10 +214,10 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
-	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir)
+	tenantMod = tenant.NewModule(db, userUsecase)
+	tenantListerForConfig = tenantLister
+	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir, tenantLister)
 	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))
-
-	tenantMod := tenant.NewModule(db, userUsecase)
 
 	aiUsage := socai_repository.NewUsageRepo(db)
 	aiQuota := &socai.AIQuota{
