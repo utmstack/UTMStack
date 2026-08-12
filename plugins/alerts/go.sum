@@ -110,8 +110,6 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/threatwinds/go-sdk v1.1.27-0.20260811073440-251cb9d842cd h1:u5x6DfEkBErQurxPjtFYnd2xfW1ruD6kPxnYzGaHQCc=
 github.com/threatwinds/go-sdk v1.1.27-0.20260811073440-251cb9d842cd/go.mod h1:Mr5r+NTTe8k28gVS7EgEorn76VPtf0vPSaUCD2bWRSU=
-github.com/threatwinds/go-sdk v1.1.28 h1:dnYIAVC5jQgr7jm1VGMS7dQcl/08GVODDJp3dhV6D9U=
-github.com/threatwinds/go-sdk v1.1.28/go.mod h1:aN6Oe3zJop9ngS83oZcKFXDLKWzrny2XhkYm7uoyDbQ=
 github.com/tidwall/gjson v1.19.0 h1:xwxm7n691Uf3u5OFjzngavjGTh55KX5q/9w9xHW88JU=
 github.com/tidwall/gjson v1.19.0/go.mod h1:V37/opeE/JbLUOfH0QTXiNez2l0RUjYUhpT4szFQAfc=
 github.com/tidwall/match v1.2.0 h1:0pt8FlkOwjN2fPt4bIl4BoNxb98gGHN2ObFEDkrfZnM=
