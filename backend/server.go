@@ -34,6 +34,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
+	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
@@ -160,15 +162,27 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		},
 	))
 
-	iam.RegisterRoutes(api, m.iam, userAuth, enterprise, enterpriseLicense)
+	tenantLister := func(ctx context.Context) ([]string, error) {
+		tenants, _, err := m.tenant.GetTenantUsecase().List(ctx, tenant_dto.Filter{Size: 10000, Status: tenant_domain.StatusActive})
+		if err != nil {
+			return nil, err
+		}
+		ids := make([]string, 0, len(tenants))
+		for _, t := range tenants {
+			ids = append(ids, t.ID.String())
+		}
+		return ids, nil
+	}
+
+	iam.RegisterRoutes(api, m.iam, userAuth, enterprise, enterpriseLicense, platform)
 	tenant.RegisterRoutes(api, m.tenant, userAuth, mssp, platform)
 	audit.RegisterRoutes(api, m.audit, userAuth)
-	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise)
+	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise, platform)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
-	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth)
-	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth)
-	compliance.RegisterRoutes(api, m.compliance, userAuth)
+	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth, platform)
+	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth, platform, tenantLister)
+	compliance.RegisterRoutes(api, m.compliance, userAuth, platform)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)
 	loganalyzer.RegisterRoutes(api, m.loganalyzer, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
