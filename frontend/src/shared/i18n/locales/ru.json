@@ -1688,7 +1688,7 @@
         "step3Body": "Через несколько минут вы должны увидеть события {{name}} в source: {{source}} в Log Explorer и новую запись в Источниках данных.",
         "endpoint": {
           "title": "Параметры подключения",
-          "hint": "Настройте {{name}} для пересылки журналов на Forwarder, используя хост и порт ниже."
+          "hint": "Настройте {{name}} для пересылки журналов на Collector, используя хост и порт ниже."
         },
         "syslog": {
           "sections": {
@@ -1709,79 +1709,79 @@
         "netflow": {
           "source": "Сетевое устройство",
           "step1": {
-            "title": "Включить слушатель NetFlow на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть коллектор NetFlow на порту 2055:",
+            "title": "Включить слушатель NetFlow на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть коллектор NetFlow на порту 2055:",
             "note": "NetFlow использует только UDP — TCP и TLS не поддерживаются для этого протокола."
           },
           "step2": {
             "title": "Настройте устройство для экспорта NetFlow",
-            "body": "Направьте экспорт NetFlow с вашего маршрутизатора или межсетевого экрана на Forwarder-хост, порт <hl>{{port}} UDP</hl>. Пример ниже предназначен для Cisco IOS — для других платформ обратитесь к документации производителя:",
+            "body": "Направьте экспорт NetFlow с вашего маршрутизатора или межсетевого экрана на Collector-хост, порт <hl>{{port}} UDP</hl>. Пример ниже предназначен для Cisco IOS — для других платформ обратитесь к документации производителя:",
             "note": "Замените <interface> на имя интерфейса, на котором должен отслеживаться трафик (например, GigabitEthernet0/0). Примените ingress/egress для каждого нужного интерфейса."
           }
         },
         "cisco": {
           "source": "Cisco ASA",
           "step1": {
-            "title": "Включить слушатель Cisco ASA на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco ASA:",
+            "title": "Включить слушатель Cisco ASA на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть слушатель журналов Cisco ASA:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "step2": {
             "title": "Настроить Cisco ASA для пересылки журналов",
-            "body": "На вашем Cisco ASA включите <hl>syslog</hl> и направьте его на Forwarder-хост, порт {{port}}. Выполните эти команды в привилегированном режиме EXEC (замените <interface> на имя внутреннего или управляющего интерфейса):"
+            "body": "На вашем Cisco ASA включите <hl>syslog</hl> и направьте его на Collector-хост, порт {{port}}. Выполните эти команды в привилегированном режиме EXEC (замените <interface> на имя внутреннего или управляющего интерфейса):"
           }
         },
         "ciscoSwitch": {
           "source": "Cisco Switch",
           "step1": {
-            "title": "Включить слушатель Cisco Switch на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Switch:",
+            "title": "Включить слушатель Cisco Switch на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть слушатель журналов Cisco Switch:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "step2": {
             "title": "Настроить коммутатор для пересылки журналов",
-            "body": "В привилегированном режиме EXEC на вашем коммутаторе Cisco включите <hl>syslog</hl> и направьте его на Forwarder-хост, порт {{port}}:"
+            "body": "В привилегированном режиме EXEC на вашем коммутаторе Cisco включите <hl>syslog</hl> и направьте его на Collector-хост, порт {{port}}:"
           }
         },
         "ciscoMeraki": {
           "source": "Cisco Meraki",
           "step1": {
-            "title": "Включить слушатель Cisco Meraki на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Meraki:",
+            "title": "Включить слушатель Cisco Meraki на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть слушатель журналов Cisco Meraki:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "step2": {
             "title": "Настроить Meraki для пересылки журналов",
-            "body": "В Meraki Dashboard перейдите в <hl>Network-wide → Configure → General</hl>, прокрутите до раздела Reporting и добавьте syslog-сервер с IP Forwarder и портом {{port}}. Выберите все роли, которые нужно пересылать."
+            "body": "В Meraki Dashboard перейдите в <hl>Network-wide → Configure → General</hl>, прокрутите до раздела Reporting и добавьте syslog-сервер с IP Collector и портом {{port}}. Выберите все роли, которые нужно пересылать."
           }
         },
         "ciscoFirepower": {
           "source": "Cisco Firepower",
           "step1": {
-            "title": "Включить слушатель Cisco Firepower на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть слушатель журналов Cisco Firepower:",
+            "title": "Включить слушатель Cisco Firepower на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть слушатель журналов Cisco Firepower:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "step2": {
             "title": "Настроить Firepower для пересылки журналов",
-            "body": "В Firepower Management Center (FMC) перейдите в <hl>Devices → Platform Settings</hl>, отредактируйте или создайте политику и перейдите в <hl>Syslog → Syslog Servers</hl>. Добавьте IP Forwarder с портом {{port}} (UDP), затем назначьте политику вашим устройствам и выполните развёртывание."
+            "body": "В Firepower Management Center (FMC) перейдите в <hl>Devices → Platform Settings</hl>, отредактируйте или создайте политику и перейдите в <hl>Syslog → Syslog Servers</hl>. Добавьте IP Collector с портом {{port}} (UDP), затем назначьте политику вашим устройствам и выполните развёртывание."
           }
         },
         "vmware": {
           "source": "VMware ESXi",
           "step1": {
-            "title": "Включить слушатель VMware на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть syslog-слушатель VMware ESXi. ESXi передаёт данные по TCP:",
-            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Forwarder)."
+            "title": "Включить слушатель VMware на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть syslog-слушатель VMware ESXi. ESXi передаёт данные по TCP:",
+            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Collector)."
           },
           "step2": {
-            "title": "Направить syslog ESXi на Forwarder",
+            "title": "Направить syslog ESXi на Collector",
             "body": "Откройте сессию SSH/ESXi Shell на хосте (или используйте vSphere Client: Host → Configure → Advanced System Settings → Syslog.global.logHost). Задайте удалённый loghost как <hl>{{host}}:{{port}}</hl> и перезагрузите конфигурацию:",
             "note": "В vSphere можно вместо этого задать Syslog.global.logHost с тем же значением tcp://host:port, не выполняя esxcli."
           },
           "step3": {
             "title": "Открыть порт syslog в брандмауэре ESXi",
-            "body": "Разрешите исходящий syslog через брандмауэр ESXi, чтобы хост мог достичь Forwarder:"
+            "body": "Разрешите исходящий syslog через брандмауэр ESXi, чтобы хост мог достичь Collector:"
           }
         },
         "as400": {
@@ -1881,8 +1881,8 @@
         "eset": {
           "source": "ESET Protect",
           "step1": {
-            "title": "Включите обработчик ESET на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика ESET:",
+            "title": "Включите обработчик ESET на Collector",
+            "body": "На хосте, где установлен Collector, выполните следующую команду для запуска syslog-обработчика ESET:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "console": {
@@ -1900,15 +1900,15 @@
             },
             "syslog": {
               "title": "Настройте Syslog-сервер",
-              "body": "Прокрутите до <hl>Syslog server</hl>, включите <hl>Export logs to Syslog</hl> и укажите в качестве назначения хост Forwarder на порту {{port}} (UDP). ESET отправляет LEEF/syslog, который Forwarder принимает как тип данных antivirus-esmc-eset."
+              "body": "Прокрутите до <hl>Syslog server</hl>, включите <hl>Export logs to Syslog</hl> и укажите в качестве назначения хост Collector на порту {{port}} (UDP). ESET отправляет LEEF/syslog, который Collector принимает как тип данных antivirus-esmc-eset."
             }
           }
         },
         "kaspersky": {
           "source": "Kaspersky Security",
           "step1": {
-            "title": "Включите обработчик Kaspersky на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика Kaspersky:",
+            "title": "Включите обработчик Kaspersky на Collector",
+            "body": "На хосте, где установлен Collector, выполните следующую команду для запуска syslog-обработчика Kaspersky:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "console": {
@@ -1922,14 +1922,14 @@
             },
             "configure": {
               "title": "Настройте экспорт SIEM",
-              "body": "Включите экспорт и настройте Kaspersky для отправки событий в формате <hl>Splunk (CEF)</hl> на хост Forwarder через порт {{port}} (UDP). Forwarder принимает их как тип данных antivirus-kaspersky."
+              "body": "Включите экспорт и настройте Kaspersky для отправки событий в формате <hl>Splunk (CEF)</hl> на хост Collector через порт {{port}} (UDP). Collector принимает их как тип данных antivirus-kaspersky."
             }
           }
         },
         "sophos": {
           "intro": {
             "title": "Sophos Central — API Plugin",
-            "body": "Sophos Central предоставляет защищённые API для получения данных о событиях и предупреждениях. UTMStack подключается к этим API для централизованного мониторинга и повышения видимости безопасности — агент или Forwarder не требуется.",
+            "body": "Sophos Central предоставляет защищённые API для получения данных о событиях и предупреждениях. UTMStack подключается к этим API для централизованного мониторинга и повышения видимости безопасности — агент или Collector не требуется.",
             "diagram": {
               "source": "Sophos Central API",
               "edge": "HTTPS API",
@@ -2002,9 +2002,9 @@
         "sentinelOne": {
           "source": "SentinelOne",
           "step1": {
-            "title": "Включите обработчик SentinelOne на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните следующую команду для запуска syslog-обработчика SentinelOne. SentinelOne передаёт CEF по TCP:",
-            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Forwarder)."
+            "title": "Включите обработчик SentinelOne на Collector",
+            "body": "На хосте, где установлен Collector, выполните следующую команду для запуска syslog-обработчика SentinelOne. SentinelOne передаёт CEF по TCP:",
+            "note": "Для зашифрованного канала используйте tls вместо tcp (предварительно загрузите сертификаты на Collector)."
           },
           "console": {
             "settings": {
@@ -2096,13 +2096,13 @@
         "github": {
           "source": "GitHub",
           "step1": {
-            "title": "Включить прослушиватель webhook GitHub на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните эту команду, чтобы открыть прослушиватель webhook HTTPS для GitHub:",
+            "title": "Включить прослушиватель webhook GitHub на Collector",
+            "body": "На хосте, где установлен Collector, выполните эту команду, чтобы открыть прослушиватель webhook HTTPS для GitHub:",
             "tokenNote": "Терминал выведет секретный токен — скопируйте его немедленно. Он больше не будет показан."
           },
           "certWarning": {
             "title": "GitHub требует TLS-сертификат, подписанный центром сертификации",
-            "body": "GitHub доставляет вебхуки только на конечные точки HTTPS с сертификатом, выданным публичным центром сертификации (самоподписанные сертификаты отклоняются). Убедитесь, что хост Forwarder имеет действующий доменный сертификат до регистрации вебхука."
+            "body": "GitHub доставляет вебхуки только на конечные точки HTTPS с сертификатом, выданным публичным центром сертификации (самоподписанные сертификаты отклоняются). Убедитесь, что хост Collector имеет действующий доменный сертификат до регистрации вебхука."
           },
           "step2": {
             "title": "Зарегистрировать вебхук в GitHub",
@@ -2110,7 +2110,7 @@
             "payloadUrl": "URL полезной нагрузки",
             "contentType": "Тип содержимого",
             "secret": "Секрет",
-            "secretHint": "Вставьте <hl>токен</hl>, выведенный Forwarder на предыдущем шаге.",
+            "secretHint": "Вставьте <hl>токен</hl>, выведенный Collector на предыдущем шаге.",
             "events": "Какие события",
             "eventsHint": "Отправлять всё — или выбрать определённые типы событий."
           }
@@ -2258,15 +2258,15 @@
         "oracle": {
           "source": "Сервер Oracle DB",
           "step1": {
-            "title": "Включить интеграцию Oracle на Forwarder",
-            "body": "На сервере, где установлен Forwarder, выполните следующую команду, чтобы начать прослушивание журналов Oracle:",
-            "note": "Forwarder начнёт получать события syslog от Oracle на порту 7021."
+            "title": "Включить интеграцию Oracle на Collector",
+            "body": "На сервере, где установлен Collector, выполните следующую команду, чтобы начать прослушивание журналов Oracle:",
+            "note": "Collector начнёт получать события syslog от Oracle на порту 7021."
           },
           "step2": {
             "title": "Настроить rsyslog на сервере Oracle",
             "body": "Создайте файл конфигурации rsyslog:",
-            "editBody": "Откройте файл в предпочтительном редакторе и добавьте следующую конфигурацию. Замените BASEDIR путём установки Oracle (например, /u01/app/oracle), а <forwarder-ip> — IP-адресом или именем хоста Forwarder:",
-            "note": "Используйте @@<forwarder-ip>:7021 вместо @, если предпочитаете доставку по TCP."
+            "editBody": "Откройте файл в предпочтительном редакторе и добавьте следующую конфигурацию. Замените BASEDIR путём установки Oracle (например, /u01/app/oracle), а <collector-ip> — IP-адресом или именем хоста Collector:",
+            "note": "Используйте @@<collector-ip>:7021 вместо @, если предпочитаете доставку по TCP."
           },
           "step3": {
             "title": "Перезапустить rsyslog",
@@ -2587,107 +2587,107 @@
         "forwarder": {
           "intro": {
             "title": "Принцип работы",
-            "body": "Журналы передаются от {{source}} в UTMStack Forwarder, который безопасно пересылает их в UTMStack для корреляции и оповещений. На {{source}} ничего не устанавливается — Forwarder достаточно запустить на одном из хостов вашей сети."
+            "body": "Журналы передаются от {{source}} в UTMStack Collector, который безопасно пересылает их в UTMStack для корреляции и оповещений. На {{source}} ничего не устанавливается — Collector достаточно запустить на одном из хостов вашей сети."
           },
           "diagram": {
             "sourceSub": "ваши журналы",
-            "forwarder": "Forwarder",
+            "forwarder": "Collector",
             "forwarderSub": "слушает на {{port}}",
             "utmstack": "UTMStack",
             "utmstackSub": "оповещения и корреляция",
             "flow1": "журналы",
             "flow2": "защищённо"
           },
-          "noInstall": "На {{source}} ничего не устанавливается — нужно лишь перенаправить его журналы в Forwarder.",
+          "noInstall": "На {{source}} ничего не устанавливается — нужно лишь перенаправить его журналы в Collector.",
           "install": {
-            "title": "Установить UTMStack Forwarder",
-            "body": "Forwarder — это Linux-служба, которая принимает журналы с ваших устройств и отправляет их в UTMStack. Один Forwarder обрабатывает несколько интеграций одновременно.",
-            "reuse": "Forwarder уже запущен? Пропустите этот шаг — укажите {{source}} хост и порт существующего Forwarder, как показано ниже."
+            "title": "Установить UTMStack Collector",
+            "body": "Collector — это Linux-служба, которая принимает журналы с ваших устройств и отправляет их в UTMStack. Один Collector обрабатывает несколько интеграций одновременно.",
+            "reuse": "Collector уже запущен? Пропустите этот шаг — укажите {{source}} хост и порт существующего Collector, как показано ниже."
           },
           "tls": {
             "title": "Дополнительно — Включить шифрование TLS",
             "intro": "По умолчанию прослушиватель принимает нешифрованный TCP/UDP. Чтобы зашифровать трафик syslog при передаче, сначала загрузите файлы сертификатов, затем повторно включите прослушиватель с протоколом tls.",
-            "step1": "1 · Загрузить сертификат и ключ (один раз на Forwarder)",
+            "step1": "1 · Загрузить сертификат и ключ (один раз на Collector)",
             "step1Note": "Дополнительный сертификат CA можно передать третьим аргументом. Если его опустить, в роли CA будет использован конечный сертификат.",
             "step2": "2 · Повторно включить прослушиватель с TLS"
           },
           "httpsCerts": {
-            "title": "Загрузите TLS-сертификат на Forwarder",
-            "body": "Эта интеграция использует HTTPS-прослушиватель на порту {{port}}, поэтому перед её включением на Forwarder необходимо загрузить сертификат и ключ:"
+            "title": "Загрузите TLS-сертификат на Collector",
+            "body": "Эта интеграция использует HTTPS-прослушиватель на порту {{port}}, поэтому перед её включением на Collector необходимо загрузить сертификат и ключ:"
           },
           "uninstall": {
-            "title": "Дополнительно — Удалить Forwarder",
-            "body": "Выполните эту команду на хосте, где установлен Forwarder, чтобы остановить службу и удалить все её файлы."
+            "title": "Дополнительно — Удалить Collector",
+            "body": "Выполните эту команду на хосте, где установлен Collector, чтобы остановить службу и удалить все её файлы."
           }
         },
         "aix": {
           "source": "Сервер AIX",
           "step1": {
-            "title": "Включить прослушиватель AIX на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель журналов AIX:",
+            "title": "Включить прослушиватель AIX на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель журналов AIX:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
             "title": "Настроить AIX для пересылки журналов",
-            "body": "На вашей системе AIX настройте службу <hl>syslog</hl> для перенаправления журналов на хост Forwarder через порт {{port}}. Обратитесь к документации IBM за точным синтаксисом — он различается в зависимости от версии AIX."
+            "body": "На вашей системе AIX настройте службу <hl>syslog</hl> для перенаправления журналов на хост Collector через порт {{port}}. Обратитесь к документации IBM за точным синтаксисом — он различается в зависимости от версии AIX."
           }
         },
         "deceptivebytes": {
           "source": "Deceptive Bytes",
           "step1": {
-            "title": "Включить прослушиватель Deceptive Bytes на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Deceptive Bytes:",
+            "title": "Включить прослушиватель Deceptive Bytes на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog Deceptive Bytes:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
             "title": "Настроить Deceptive Bytes для пересылки журналов",
-            "body": "В консоли управления Deceptive Bytes настройте пересылку <hl>syslog</hl> для отправки событий на хост Forwarder через порт {{port}} (UDP). Deceptive Bytes генерирует syslog в формате CEF, который Forwarder принимает как тип данных <hl>deceptive-bytes</hl>."
+            "body": "В консоли управления Deceptive Bytes настройте пересылку <hl>syslog</hl> для отправки событий на хост Collector через порт {{port}} (UDP). Deceptive Bytes генерирует syslog в формате CEF, который Collector принимает как тип данных <hl>deceptive-bytes</hl>."
           }
         },
         "mikrotik": {
           "source": "Маршрутизатор MikroTik",
           "step1": {
-            "title": "Включить прослушиватель MikroTik на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog MikroTik:",
+            "title": "Включить прослушиватель MikroTik на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog MikroTik:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
             "title": "Настроить MikroTik для пересылки журналов",
-            "body": "На маршрутизаторе MikroTik создайте удалённое <hl>действие журналирования</hl> (logging action), указывающее на хост Forwarder через порт {{port}}, и привяжите его к нужным темам журнала. Выполните следующее из CLI RouterOS (Terminal в Winbox):",
+            "body": "На маршрутизаторе MikroTik создайте удалённое <hl>действие журналирования</hl> (logging action), указывающее на хост Collector через порт {{port}}, и привяжите его к нужным темам журнала. Выполните следующее из CLI RouterOS (Terminal в Winbox):",
             "note": "Также можно настроить через Winbox: System → Logging → вкладка Actions (добавить удалённое действие) → затем вкладка Rules (добавить правила, указывающие на новое действие)."
           }
         },
         "fortigate": {
           "source": "Межсетевой экран FortiGate",
           "step1": {
-            "title": "Включить прослушиватель FortiGate на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog FortiGate:",
+            "title": "Включить прослушиватель FortiGate на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog FortiGate:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
             "title": "Настроить FortiGate для пересылки журналов",
-            "body": "На FortiGate направьте syslog на хост Forwarder через порт {{port}}. Выполните следующее из CLI FortiOS (или используйте Log & Report → Log Settings → Syslog в GUI):",
-            "note": "Замените адрес сервера, если Forwarder запущен на другом хосте. Для нескольких коллекторов syslog используйте syslogd2/syslogd3/syslogd4."
+            "body": "На FortiGate направьте syslog на хост Collector через порт {{port}}. Выполните следующее из CLI FortiOS (или используйте Log & Report → Log Settings → Syslog в GUI):",
+            "note": "Замените адрес сервера, если Collector запущен на другом хосте. Для нескольких коллекторов syslog используйте syslogd2/syslogd3/syslogd4."
           }
         },
         "fortiweb": {
           "source": "FortiWeb WAF",
           "step1": {
-            "title": "Включить прослушиватель FortiWeb на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog FortiWeb:",
+            "title": "Включить прослушиватель FortiWeb на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog FortiWeb:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
             "title": "Настроить FortiWeb для пересылки журналов",
-            "body": "На FortiWeb создайте политику syslog, указывающую на хост Forwarder через порт {{port}}, и включите журналирование syslog. Выполните следующее из CLI FortiWeb (или используйте Log & Report → Log Policy → Syslog Policy в GUI):",
+            "body": "На FortiWeb создайте политику syslog, указывающую на хост Collector через порт {{port}}, и включите журналирование syslog. Выполните следующее из CLI FortiWeb (или используйте Log & Report → Log Policy → Syslog Policy в GUI):",
             "note": "Убедитесь, что в настройках Log & Report включена отправка нужных типов журналов (Attack, Event, Traffic) в syslog."
           }
         },
         "paloalto": {
           "source": "Межсетевой экран Palo Alto",
           "step1": {
-            "title": "Включить прослушиватель Palo Alto на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Palo Alto:",
+            "title": "Включить прослушиватель Palo Alto на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog Palo Alto:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
@@ -2702,8 +2702,8 @@
         "pfsense": {
           "source": "Межсетевой экран pfSense",
           "step1": {
-            "title": "Включить прослушиватель pfSense на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog pfSense:",
+            "title": "Включить прослушиватель pfSense на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog pfSense:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
@@ -2714,8 +2714,8 @@
         "sonicwall": {
           "source": "Межсетевой экран SonicWall",
           "step1": {
-            "title": "Включить прослушиватель SonicWall на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog SonicWall:",
+            "title": "Включить прослушиватель SonicWall на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog SonicWall:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
@@ -2726,8 +2726,8 @@
         "sophosxg": {
           "source": "Sophos Firewall",
           "step1": {
-            "title": "Включить прослушиватель Sophos Firewall на Forwarder",
-            "body": "На хосте с установленным Forwarder выполните эту команду, чтобы открыть прослушиватель syslog Sophos Firewall:",
+            "title": "Включить прослушиватель Sophos Firewall на Collector",
+            "body": "На хосте с установленным Collector выполните эту команду, чтобы открыть прослушиватель syslog Sophos Firewall:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в команде выше."
           },
           "step2": {
@@ -2738,8 +2738,8 @@
         "suricata": {
           "source": "Suricata IDS",
           "step1": {
-            "title": "Включить прослушиватель Suricata на Forwarder",
-            "body": "На хосте, где установлен Forwarder, выполните следующую команду для открытия прослушивателя Suricata:",
+            "title": "Включить прослушиватель Suricata на Collector",
+            "body": "На хосте, где установлен Collector, выполните следующую команду для открытия прослушивателя Suricata:",
             "note": "Чтобы использовать TCP вместо UDP, замените udp на tcp в приведённой выше команде."
           },
           "step2": {
@@ -2748,8 +2748,8 @@
             "note": "Затем перезапустите Suricata: sudo systemctl restart suricata"
           },
           "step3": {
-            "title": "Пересылать syslog на Forwarder",
-            "body": "Направьте объект <hl>local5</hl> (куда теперь пишет Suricata) на Forwarder. Добавьте это правило в <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> на хосте Suricata:",
+            "title": "Пересылать syslog на Collector",
+            "body": "Направьте объект <hl>local5</hl> (куда теперь пишет Suricata) на Collector. Добавьте это правило в <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> на хосте Suricata:",
             "note": "Используйте @@ вместо @ для TCP. Затем перезапустите rsyslog: sudo systemctl restart rsyslog"
           }
         }
@@ -3188,29 +3188,29 @@
         "exampleLabel": "Пример целевого syslog на {{name}}:",
         "intro": {
           "title": "Как это работает",
-          "body": "Пользовательская интеграция принимает журналы из любого источника, не охваченного встроенными модулями. Вы устанавливаете UTMStack Forwarder, регистрируете слушатель для ваших данных с выбранным протоколом и указываете источник на него.",
-          "note": "Выберите протокол, который может использовать ваш источник (syslog UDP/TCP/TLS или HTTP/HTTPS для JSON) ниже — Forwarder автоматически создаст тип данных."
+          "body": "Пользовательская интеграция принимает журналы из любого источника, не охваченного встроенными модулями. Вы устанавливаете UTMStack Collector, регистрируете слушатель для ваших данных с выбранным протоколом и указываете источник на него.",
+          "note": "Выберите протокол, который может использовать ваш источник (syslog UDP/TCP/TLS или HTTP/HTTPS для JSON) ниже — Collector автоматически создаст тип данных."
         },
         "diagram": {
           "source": "Ваш источник",
           "sourceSub": "любое приложение или устройство",
-          "forwarder": "Forwarder",
+          "forwarder": "Collector",
           "ingests": "принимает",
           "utmstackSub": "оповещения и корреляция"
         },
         "choose": {
           "title": "Выберите протокол и порт",
-          "body": "Выберите способ отправки данных источником и порт, на котором должен слушать Forwarder, затем выполните команду активации на хосте Forwarder.",
+          "body": "Выберите способ отправки данных источником и порт, на котором должен слушать Collector, затем выполните команду активации на хосте Collector.",
           "portLabel": "Порт прослушивания",
-          "tlsFirst": "Сначала загрузите ваш TLS-сертификат и ключ на Forwarder:",
+          "tlsFirst": "Сначала загрузите ваш TLS-сертификат и ключ на Collector:",
           "enableLabel": "Затем включите интеграцию:",
-          "authNote": "Для включения аутентификации добавьте <code>--auth bearer</code> (токен) или <code>--auth hmac</code> — Forwarder выведет токен для использования в заголовке Authorization."
+          "authNote": "Для включения аутентификации добавьте <code>--auth bearer</code> (токен) или <code>--auth hmac</code> — Collector выведет токен для использования в заголовке Authorization."
         },
         "send": {
-          "title": "Направьте ваш источник на Forwarder",
+          "title": "Направьте ваш источник на Collector",
           "bodyNetwork": "Настройте ваш источник для отправки syslog <hl>{{proto}}</hl> на <hl>{{host}}:{{port}}</hl>. На большинстве устройств для этого есть параметр удалённого syslog или пересылки журналов.",
           "bodyHttp": "Отправляйте события в формате JSON через HTTP POST на <hl>{{endpoint}}</hl>. Тело каждого запроса — одно событие JSON:",
-          "httpBindNote": "По умолчанию слушатель HTTP/HTTPS привязывается к 127.0.0.1 (хосту Forwarder), поэтому отправляйте запросы из приложения, работающего на этом хосте, или используйте обратный прокси. Для удалённых источников используйте syslog (UDP/TCP/TLS)."
+          "httpBindNote": "По умолчанию слушатель HTTP/HTTPS привязывается к 127.0.0.1 (хосту Collector), поэтому отправляйте запросы из приложения, работающего на этом хосте, или используйте обратный прокси. Для удалённых источников используйте syslog (UDP/TCP/TLS)."
         }
       }
     },
