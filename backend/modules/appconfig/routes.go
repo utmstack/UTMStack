@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, enterprise gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, enterprise gin.HandlerFunc, platform gin.HandlerFunc) {
 	// Public, read-only display preference (timezone + date format). Non-sensitive,
 	// consumed app-wide (incl. pre-login) to render timestamps consistently.
 	api.GET("/date-format", m.Handler().DateFormat)
@@ -22,4 +22,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, e
 	b.POST("/assets/:slot", userAuth, enterprise, middleware.RequirePermission("config.write"), m.BrandingHandler().UploadAsset)
 	b.GET("/public", m.BrandingHandler().Public)
 	b.POST("/seed", userAuth, middleware.RequireInternal(), m.BrandingHandler().Seed)
+
+	pb := api.Group("/platform/branding", userAuth, platform, middleware.RequirePermission("config.write"), enterprise)
+	pb.POST("/bulk/update", m.BulkBrandingHandler().Update)
+	pb.POST("/bulk/upload-asset/:slot", m.BulkBrandingHandler().UploadAsset)
+
+	ps := api.Group("/platform/config/smtp", userAuth, platform, middleware.RequirePermission("config.write"))
+	ps.POST("/bulk/update", m.BulkSMTPHandler().Update)
+	ps.POST("/bulk/test", m.BulkSMTPHandler().Test)
 }

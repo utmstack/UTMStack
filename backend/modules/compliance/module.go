@@ -24,6 +24,7 @@ type Module struct {
 	bodyRetention time.Duration
 
 	frameworkH *handler.FrameworkHandler
+	bulkH      *handler.BulkComplianceHandler
 	reportH    *handler.ReportHandler
 	scheduleH  *handler.ScheduleHandler
 	scheduler  *usecase.ReportScheduler
@@ -34,11 +35,12 @@ type Module struct {
 	scheduleUC  connectors.ScheduleUsecase
 }
 
-func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase { return m.frameworkUC }
-func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase { return m.evaluatorUC }
-func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase   { return m.scheduleUC }
+func (m *Module) GetFrameworkUsecase() connectors.FrameworkUsecase   { return m.frameworkUC }
+func (m *Module) GetEvaluatorUsecase() connectors.EvaluatorUsecase   { return m.evaluatorUC }
+func (m *Module) GetScheduleUsecase() connectors.ScheduleUsecase     { return m.scheduleUC }
+func (m *Module) GetBulkHandler() *handler.BulkComplianceHandler     { return m.bulkH }
 
-func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, isEnterprise func() bool) *Module {
+func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.MailService, brand connectors.BrandingProvider, isEnterprise func() bool, tenantLister func(context.Context) ([]string, error)) *Module {
 	src := env.String("COMPLIANCE_SRC_DIR", "/utmstack/compliance", false)
 	root := env.String("COMPLIANCE_DIR", "/workdir/compliance", false)
 
@@ -86,6 +88,7 @@ func NewModule(db *gorm.DB, events repository.Reader, mailSvc mail_connectors.Ma
 		bodyRetention: time.Duration(retentionDays) * 24 * time.Hour,
 
 		frameworkH:  handler.NewFrameworkHandler(frameworkUC),
+		bulkH:       handler.NewBulkComplianceHandler(frameworkUC, tenantLister),
 		reportH:     handler.NewReportHandler(evaluatorUC),
 		scheduleH:   handler.NewScheduleHandler(scheduleUC),
 		scheduler:   scheduler,

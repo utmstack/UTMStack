@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS, type BulkSelector } from '@/features/platform-broadcast'
 import { complianceService, ComplianceHttpError } from '../services/compliance-http.service'
 import {
   frameworkToForm,
@@ -179,7 +180,7 @@ export function FrameworkEditor({
         )}
 
         <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
-          <div>
+          <div className="flex flex-wrap items-center gap-2">
             {!creating && !readOnly &&
               (confirmDelete ? (
                 <div className="flex items-center gap-2">
@@ -189,6 +190,53 @@ export function FrameworkEditor({
               ) : (
                 <button onClick={() => setConfirmDelete(true)} className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/10 dark:text-red-300">{t('compliance.frameworks.delete')}</button>
               ))}
+            {creating && (
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.framework') })}
+                intro={form.name || 'New Framework'}
+                disabled={busy || !form.key || !form.name}
+                onBroadcast={async (selector: BulkSelector) => {
+                  let f = form
+                  if (mode === 'code') {
+                    const r = yamlToFrameworkForm(yaml)
+                    if (!r.ok) throw new Error(r.error)
+                    f = r.form
+                  }
+                  const payload = formToFramework(f)
+                  return broadcast(BULK_PATHS.compliance.frameworkCreate, selector, payload)
+                }}
+              />
+            )}
+            {!creating && !readOnly && (
+              <>
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.framework') })}
+                  intro={framework?.name}
+                  disabled={busy}
+                  onBroadcast={async (selector: BulkSelector) => {
+                    let f = form
+                    if (mode === 'code') {
+                      const r = yamlToFrameworkForm(yaml)
+                      if (!r.ok) throw new Error(r.error)
+                      f = r.form
+                    }
+                    const payload = formToFramework(f)
+                    return broadcast(BULK_PATHS.compliance.frameworkUpdate, selector, payload)
+                  }}
+                />
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.framework') })}
+                  intro={framework?.name}
+                  disabled={busy}
+                  onBroadcast={async (selector: BulkSelector) => {
+                    return broadcast(BULK_PATHS.compliance.frameworkDelete, selector, { key: framework!.key })
+                  }}
+                />
+              </>
+            )}
           </div>
           {!readOnly && (
             <Button size="sm" disabled={busy} onClick={() => void save()}>

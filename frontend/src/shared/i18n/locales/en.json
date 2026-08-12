@@ -20,7 +20,8 @@
       "retry": "Retry",
       "refresh": "Refresh",
       "delete": "Delete",
-      "remove": "Remove"
+      "remove": "Remove",
+      "close": "Close"
     },
     "confirm": {
       "delete": "Delete",
@@ -5482,5 +5483,46 @@
     "readOnly": "read only — writes are refused",
     "full": "full access — changes here are real",
     "leave": "Leave"
+  },
+  "platformBroadcast": {
+    "button": "Apply to tenants…",
+    "action": {
+      "create": "Broadcast {{resource}} create",
+      "update": "Broadcast {{resource}} update",
+      "delete": "Broadcast {{resource}} delete",
+      "toggle": "Broadcast {{resource}} toggle",
+      "enable": "Broadcast {{resource}} enable",
+      "activate": "Broadcast {{resource}} activate",
+      "test": "Broadcast {{resource}} test",
+      "upload": "Broadcast {{resource}} asset"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "correlation rule",
+      "soarFlow": "SOAR flow",
+      "framework": "framework",
+      "control": "control",
+      "smtp": "SMTP",
+      "idp": "identity provider",
+      "branding": "branding"
+    },
+    "warning": {
+      "title": "This action will run on every selected tenant.",
+      "body": "Per-tenant failures are reported after the run and are not rolled back."
+    },
+    "allTenants": "Apply to all tenants",
+    "excludesDefault": "The platform-plane tenant is excluded from this action.",
+    "searchPlaceholder": "Search tenants…",
+    "loading": "Loading tenants…",
+    "empty": "No tenants match.",
+    "targetCount": "Will target {{count}} tenant(s).",
+    "platformTenant": "platform",
+    "confirm": "Apply to {{count}} tenant(s)",
+    "result": {
+      "succeeded": "Succeeded",
+      "noneSucceeded": "No tenants succeeded.",
+      "failed": "Failed",
+      "noneFailed": "No failures."
+    }
   }
 }

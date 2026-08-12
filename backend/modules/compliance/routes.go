@@ -6,7 +6,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, platform gin.HandlerFunc) {
 	read := middleware.RequirePermission("compliance.read")
 	write := middleware.RequirePermission("compliance.write")
 
@@ -41,4 +41,14 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	sched.GET("/by-user", read, m.scheduleH.ListByUser)
 	sched.GET("/by-id/:id", read, m.scheduleH.GetByID)
 	sched.DELETE("/:id", write, m.scheduleH.Delete)
+
+	// Platform-admin bulk operations (cross-tenant).
+	bh := m.GetBulkHandler()
+	pg := api.Group("/platform/compliance", userAuth, platform, write)
+	pg.POST("/frameworks/bulk/create", bh.CreateFramework)
+	pg.POST("/frameworks/bulk/update", bh.UpdateFramework)
+	pg.POST("/frameworks/bulk/delete", bh.DeleteFramework)
+	pg.POST("/controls/bulk/create", bh.CreateControl)
+	pg.POST("/controls/bulk/update", bh.UpdateControl)
+	pg.POST("/controls/bulk/delete", bh.DeleteControl)
 }

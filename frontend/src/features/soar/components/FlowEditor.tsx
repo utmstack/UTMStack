@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { datasourcesHttpService } from '@/features/datasources/services/datasources-http.service'
 import { VariablesManager } from '@/features/datasources/components/VariablesManager'
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
@@ -158,6 +159,34 @@ export function FlowEditor({
     }
   }
 
+  const broadcastCreate = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
+    let f = form
+    if (mode === 'code') {
+      const r = yamlToFlowForm(yaml)
+      if (!r.ok) throw new Error(r.error)
+      f = { ...r.form, active: form.active }
+    }
+    const input = formToInput(f)
+    return broadcast(BULK_PATHS.soarRules.create, selector, input)
+  }
+
+  const broadcastUpdate = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
+    if (!flow) throw new Error('No flow to update')
+    let f = form
+    if (mode === 'code') {
+      const r = yamlToFlowForm(yaml)
+      if (!r.ok) throw new Error(r.error)
+      f = { ...r.form, active: form.active }
+    }
+    const input = formToInput(f)
+    return broadcast(BULK_PATHS.soarRules.update, selector, { relPath: flow.relPath, ...input })
+  }
+
+  const broadcastDelete = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
+    if (!flow) throw new Error('No flow to delete')
+    return broadcast(BULK_PATHS.soarRules.delete, selector, { relPath: flow.relPath })
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
@@ -286,6 +315,14 @@ export function FlowEditor({
                   <Button size="sm" variant="destructive" onClick={() => void remove()} disabled={busy}>
                     <Trash2 size={13} className="mr-1.5" /> {t('soar.editor.confirmDelete')}
                   </Button>
+                  <PlatformBroadcastButton
+                    label={t('platformBroadcast.button')}
+                    title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.soarFlow') })}
+                    onBroadcast={broadcastDelete}
+                    disabled={busy}
+                    size="sm"
+                    variant="destructive"
+                  />
                   <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)} disabled={busy}>{t('soar.editor.cancel')}</Button>
                 </div>
               ) : (
@@ -295,9 +332,29 @@ export function FlowEditor({
               ))}
           </div>
           {!readOnly && (
-            <Button size="sm" disabled={busy} onClick={() => void save()}>
-              {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('soar.editor.save')}
-            </Button>
+            <div className="flex items-center gap-2">
+              {!creating && (
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.soarFlow') })}
+                  onBroadcast={broadcastUpdate}
+                  disabled={busy}
+                  size="sm"
+                />
+              )}
+              {creating && (
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.soarFlow') })}
+                  onBroadcast={broadcastCreate}
+                  disabled={busy}
+                  size="sm"
+                />
+              )}
+              <Button size="sm" disabled={busy} onClick={() => void save()}>
+                {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('soar.editor.save')}
+              </Button>
+            </div>
           )}
         </footer>
     </div>

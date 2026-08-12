@@ -1,11 +1,14 @@
 package eventprocessing
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
+	"github.com/utmstack/utmstack/backend/modules/eventprocessing/handler"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, platform gin.HandlerFunc, tenantLister func(context.Context) ([]string, error)) {
 	rph := m.GetRegexPatternHandler()
 	crh := m.GetCorrelationRuleHandler()
 	fh := m.GetPipelineHandler()
@@ -52,4 +55,19 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	pg := g.Group("/playground")
 	pg.POST("/test-pipeline", write, ph.TestPipeline)
 	pg.POST("/test-rule", write, ph.TestRule)
+
+	// Platform-admin bulk endpoints (default-tenant admins only).
+	bh := handler.NewBulkPipelineHandler(m.GetPipelineUsecase(), tenantLister)
+	bp := api.Group("/platform/eventprocessing/pipelines/bulk", userAuth, platform, write)
+	bp.POST("/create", bh.Create)
+	bp.POST("/update", bh.Update)
+	bp.POST("/delete", bh.Delete)
+	bp.POST("/activate", bh.Activate)
+
+	bcr := handler.NewBulkCorrelationRuleHandler(m.GetCorrelationRuleUsecase(), tenantLister)
+	bcg := api.Group("/platform/eventprocessing/correlation-rule/bulk", userAuth, platform, write)
+	bcg.POST("/create", bcr.Create)
+	bcg.POST("/update", bcr.Update)
+	bcg.POST("/delete", bcr.Delete)
+	bcg.POST("/activate", bcr.Activate)
 }

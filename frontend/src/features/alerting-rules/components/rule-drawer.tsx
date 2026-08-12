@@ -17,6 +17,12 @@ import { ruleFormToYaml, yamlToRuleForm } from '../lib/rule-yaml'
 import { RuleForm, ruleToForm, formToInput, type RuleFormState } from './rule-form'
 import { RuleView } from './rule-view'
 import { Toggle } from './toggle'
+import {
+  PlatformBroadcastButton,
+  broadcast,
+  BULK_PATHS,
+  type BulkSelector,
+} from '@/features/platform-broadcast'
 
 export function RuleDrawer({
   rule,
@@ -95,6 +101,36 @@ export function RuleDrawer({
 
   const showForm = editing || !!create
 
+  const buildBroadcastInput = () => {
+    let f = form
+    if (mode === 'code') {
+      const r = yamlToRuleForm(yaml)
+      if (!r.ok) throw new Error(t('alertingRules.editor.yamlError', { error: r.error }))
+      f = { ...r.form, ruleActive: form.ruleActive }
+    }
+    if (!f.name.trim()) throw new Error(t('alertingRules.editor.nameRequired'))
+    if (!f.definition.trim()) throw new Error(t('alertingRules.editor.definitionRequired'))
+    return formToInput(f, create ? undefined : rule?.relPath)
+  }
+
+  const onBroadcastCreate = async (selector: BulkSelector) => {
+    return broadcast(BULK_PATHS.correlationRules.create, selector, buildBroadcastInput())
+  }
+  const onBroadcastUpdate = async (selector: BulkSelector) => {
+    return broadcast(BULK_PATHS.correlationRules.update, selector, buildBroadcastInput())
+  }
+  const onBroadcastDelete = async (selector: BulkSelector) => {
+    if (!rule) throw new Error('No rule to delete')
+    return broadcast(BULK_PATHS.correlationRules.delete, selector, { relPath: rule.relPath })
+  }
+  const onBroadcastActivate = async (selector: BulkSelector) => {
+    if (!rule) throw new Error('No rule to activate')
+    return broadcast(BULK_PATHS.correlationRules.activate, selector, {
+      relPath: rule.relPath,
+      active: !rule.ruleActive,
+    })
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div className="flex w-full max-w-[780px] flex-col overflow-hidden border-l border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
@@ -110,7 +146,25 @@ export function RuleDrawer({
             {rule && !readOnly && !showForm && <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil size={13} className="mr-1.5" /> {t('alertingRules.editor.edit')}</Button>}
             {rule && <Button size="sm" variant="outline" onClick={() => downloadRuleYaml(rule)}><Download size={13} className="mr-1.5" /> {t('alertingRules.editor.export')}</Button>}
             {rule && !readOnly && onDelete && <button onClick={() => onDelete(rule)} title={t('alertingRules.editor.delete')} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500"><Trash2 size={15} /></button>}
+            {rule && !readOnly && (
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.correlationRule') })}
+                onBroadcast={onBroadcastDelete}
+                variant="outline"
+                size="sm"
+              />
+            )}
             {rule && onToggle && <Toggle on={rule.ruleActive} onChange={(v) => onToggle(rule, v)} />}
+            {rule && (
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.correlationRule') })}
+                onBroadcast={onBroadcastActivate}
+                variant="outline"
+                size="sm"
+              />
+            )}
             <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"><X size={16} /></button>
           </div>
         </header>
@@ -163,6 +217,25 @@ export function RuleDrawer({
             {showForm && (
               <div className="flex items-center gap-2">
                 {!create && <Button size="sm" variant="outline" onClick={cancelEdit} disabled={busy}>{t('alertingRules.editor.cancel')}</Button>}
+                {create ? (
+                  <PlatformBroadcastButton
+                    label={t('platformBroadcast.button')}
+                    title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.correlationRule') })}
+                    onBroadcast={onBroadcastCreate}
+                    disabled={busy}
+                    size="sm"
+                  />
+                ) : (
+                  !readOnly && (
+                    <PlatformBroadcastButton
+                      label={t('platformBroadcast.button')}
+                      title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.correlationRule') })}
+                      onBroadcast={onBroadcastUpdate}
+                      disabled={busy}
+                      size="sm"
+                    />
+                  )
+                )}
                 <Button size="sm" onClick={() => void save()} disabled={busy}>
                   {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('alertingRules.editor.save')}
                 </Button>

@@ -90,8 +90,8 @@ func NewModule(db *gorm.DB, events *eventstore.Store, auditLogger audit_connecto
 		pipelineStore:          pipelineStore,
 		pipelineBootstrap:      pipelineBootstrap,
 		engineConfigBootstrap:  engineConfigBootstrap,
-		pipelineHandler:        handler.NewPipelineHandler(pipelineUC),
-		ingestionStatsHandler:  handler.NewIngestionStatsHandler(ingestionStatsUC),
+		pipelineHandler:       handler.NewPipelineHandler(pipelineUC),
+		ingestionStatsHandler: handler.NewIngestionStatsHandler(ingestionStatsUC),
 		playgroundHandler:      playgroundH,
 		playgroundUsecase:      playgroundUC,
 	}

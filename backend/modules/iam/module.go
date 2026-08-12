@@ -16,6 +16,7 @@ type Module struct {
 	tfaHandler        *handler.TfaHandler
 	apiKeyHandler     *handler.APIKeyHandler
 	idpHandler        *handler.IdentityProviderHandler
+	bulkIDPHandler    *handler.BulkIDPHandler
 	federationHandler *handler.FederationHandler
 
 	authUsecase   connectors.AuthUsecase
@@ -36,6 +37,7 @@ func NewModule(
 	idpUsecase connectors.IdentityProviderUsecase,
 	federationUC connectors.FederationUsecase,
 	uploadDir string,
+	tenantLister func(context.Context) ([]string, error),
 ) *Module {
 	return &Module{
 		authHandler:       handler.NewAuthHandler(authUsecase, uploadDir),
@@ -44,6 +46,7 @@ func NewModule(
 		tfaHandler:        handler.NewTfaHandler(tfaUsecase),
 		apiKeyHandler:     handler.NewAPIKeyHandler(apiKeyUsecase),
 		idpHandler:        handler.NewIdentityProviderHandler(idpUsecase),
+		bulkIDPHandler:    handler.NewBulkIDPHandler(idpUsecase, tenantLister),
 		federationHandler: handler.NewFederationHandler(federationUC),
 		authUsecase:       authUsecase,
 		userUsecase:       userUsecase,
@@ -60,7 +63,8 @@ func (m *Module) GetUserHandler() *handler.UserHandler             { return m.us
 func (m *Module) GetRoleHandler() *handler.RoleHandler             { return m.roleHandler }
 func (m *Module) GetTfaHandler() *handler.TfaHandler               { return m.tfaHandler }
 func (m *Module) GetAPIKeyHandler() *handler.APIKeyHandler         { return m.apiKeyHandler }
-func (m *Module) GetIDPHandler() *handler.IdentityProviderHandler  { return m.idpHandler }
+func (m *Module) GetIDPHandler() *handler.IdentityProviderHandler     { return m.idpHandler }
+func (m *Module) GetBulkIDPHandler() *handler.BulkIDPHandler          { return m.bulkIDPHandler }
 func (m *Module) GetFederationHandler() *handler.FederationHandler { return m.federationHandler }
 func (m *Module) GetAuthUsecase() connectors.AuthUsecase           { return m.authUsecase }
 func (m *Module) GetTfaUsecase() connectors.TfaUsecase             { return m.tfaUsecase }

@@ -20,7 +20,8 @@
       "retry": "Wiederholen",
       "refresh": "Aktualisieren",
       "delete": "Löschen",
-      "remove": "Entfernen"
+      "remove": "Entfernen",
+      "close": "Schließen"
     },
     "confirm": {
       "delete": "Löschen",
@@ -5461,5 +5462,46 @@
     "readOnly": "nur lesen — Schreibzugriffe werden abgelehnt",
     "full": "voller Zugriff — Änderungen hier sind echt",
     "leave": "Verlassen"
+  },
+  "platformBroadcast": {
+    "button": "Auf Mandanten anwenden…",
+    "action": {
+      "create": "{{resource}} verteilt erstellen",
+      "update": "{{resource}} verteilt aktualisieren",
+      "delete": "{{resource}} verteilt löschen",
+      "toggle": "{{resource}} verteilt umschalten",
+      "enable": "{{resource}} verteilt aktivieren",
+      "activate": "{{resource}} verteilt aktivieren",
+      "test": "{{resource}} verteilt testen",
+      "upload": "Asset {{resource}} verteilen"
+    },
+    "resource": {
+      "pipeline": "Pipeline",
+      "correlationRule": "Korrelationsregel",
+      "soarFlow": "SOAR-Flow",
+      "framework": "Framework",
+      "control": "Kontrolle",
+      "smtp": "SMTP",
+      "idp": "Identitätsanbieter",
+      "branding": "Branding"
+    },
+    "warning": {
+      "title": "Diese Aktion wird auf jeden ausgewählten Mandanten ausgeführt.",
+      "body": "Fehler pro Mandant werden nach der Ausführung gemeldet und nicht zurückgesetzt."
+    },
+    "allTenants": "Auf alle Mandanten anwenden",
+    "excludesDefault": "Der Plattform-Mandant ist von dieser Aktion ausgeschlossen.",
+    "searchPlaceholder": "Mandanten suchen…",
+    "loading": "Mandanten werden geladen…",
+    "empty": "Keine Mandanten gefunden.",
+    "targetCount": "Wird auf {{count}} Mandant(en) angewendet.",
+    "platformTenant": "Plattform",
+    "confirm": "Auf {{count}} Mandant(en) anwenden",
+    "result": {
+      "succeeded": "Erfolgreich",
+      "noneSucceeded": "Kein Mandant war erfolgreich.",
+      "failed": "Fehlgeschlagen",
+      "noneFailed": "Keine Fehler."
+    }
   }
 }

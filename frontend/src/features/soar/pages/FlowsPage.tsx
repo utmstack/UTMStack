@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { soarFlowsService } from '../services/soar-flows.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
 import { FlowEditor } from '../components/FlowEditor'
@@ -331,7 +332,7 @@ function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; o
         )}
       </div>
       <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-        <Toggle checked={f.active} onChange={onToggle} />
+        <Toggle checked={f.active} onChange={onToggle} flow={f} />
       </div>
       <div className="flex items-center justify-end gap-1.5">
         {f.systemOwner && <Lock size={11} className="text-muted-foreground/60" />}
@@ -341,23 +342,32 @@ function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; o
   )
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+function Toggle({ checked, onChange, flow }: { checked: boolean; onChange: () => void; flow: Flow }) {
+  const { t } = useTranslation()
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      // The row opens the editor on click. Without stopping here, switching a
-      // flow on also opens it — two things from one press, and the panel lands
-      // on top of the row you were aiming at.
-      onClick={(e) => {
-        e.stopPropagation()
-        onChange()
-      }}
-      className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-muted-foreground/30')}
-    >
-      <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
+    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        // The row opens the editor on click. Without stopping here, switching a
+        // flow on also opens it — two things from one press, and the panel lands
+        // on top of the row you were aiming at.
+        onClick={(e) => {
+          e.stopPropagation()
+          onChange()
+        }}
+        className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-muted-foreground/30')}
+      >
+        <span className={cn('inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
+      </button>
+      <PlatformBroadcastButton
+        label={t('platformBroadcast.button')}
+        title={t('platformBroadcast.action.enable', { resource: t('platformBroadcast.resource.soarFlow') })}
+        onBroadcast={(selector) => broadcast(BULK_PATHS.soarRules.enable, selector, { relPath: flow.relPath, enabled: !checked })}
+        size="sm"
+      />
+    </div>
   )
 }
 
