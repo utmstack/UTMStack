@@ -18,6 +18,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { useBilling } from '@/features/billing'
 import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { IdpHttpError, idpHttpService } from '../services/idp-http.service'
 import type { GroupMapping, IdentityProvider, IdentityProviderRequest, ProviderType } from '../types/idp.types'
 import { EMPTY_SETTINGS, PROVIDER_TYPES, REDIRECTING_PROVIDER_TYPES } from '../types/idp.types'
@@ -625,13 +626,37 @@ function UpsertDialog({
           {t('idp.form.active')}
         </label>
       </div>
-      <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
-        <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
-          {t('idp.form.cancel')}
-        </Button>
-        <Button size="sm" disabled={!valid || busy} onClick={() => void submit()}>
-          {busy ? t('idp.form.saving') : editing ? t('idp.form.save') : t('idp.form.create')}
-        </Button>
+      <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
+            {t('idp.form.cancel')}
+          </Button>
+          <Button size="sm" disabled={!valid || busy} onClick={() => void submit()}>
+            {busy ? t('idp.form.saving') : editing ? t('idp.form.save') : t('idp.form.create')}
+          </Button>
+        </div>
+        {valid && (
+          <PlatformBroadcastButton
+            label={t('platformBroadcast.button')}
+            title={t(editing ? 'platformBroadcast.action.update' : 'platformBroadcast.action.create', { resource: t('platformBroadcast.resource.idp') })}
+            disabled={busy}
+            onBroadcast={async (selector) => {
+              const payload: IdentityProviderRequest = {
+                id: existing?.id,
+                name: name.trim(),
+                providerType,
+                active,
+                settings: { ...settings, [SECRET_FIELD[providerType]]: secret.trim() || undefined } as never,
+                jitProvisioning: jit,
+                defaultRoleId: defaultRoleId || null,
+                groupsAttribute: groupsAttribute.trim(),
+                syncRolesOnLogin: syncRoles,
+                groupMappings: mappings.filter((m) => m.group.trim() && m.roleId),
+              }
+              return broadcast(editing ? BULK_PATHS.idp.update : BULK_PATHS.idp.create, selector, payload)
+            }}
+          />
+        )}
       </footer>
     </Modal>
   )
@@ -667,13 +692,23 @@ function ConfirmDeleteDialog({
       <div className="px-6 py-5 text-sm text-muted-foreground">
         {t('idp.delete.body', { name: idp.name })}
       </div>
-      <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
-        <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
-          {t('idp.delete.cancel')}
-        </Button>
-        <Button size="sm" variant="destructive" disabled={busy} onClick={() => void run()}>
-          {busy ? t('idp.delete.deleting') : t('idp.delete.confirm')}
-        </Button>
+      <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
+            {t('idp.delete.cancel')}
+          </Button>
+          <Button size="sm" variant="destructive" disabled={busy} onClick={() => void run()}>
+            {busy ? t('idp.delete.deleting') : t('idp.delete.confirm')}
+          </Button>
+        </div>
+        <PlatformBroadcastButton
+          label={t('platformBroadcast.button')}
+          title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.idp') })}
+          disabled={busy}
+          onBroadcast={async (selector) => {
+            return broadcast(BULK_PATHS.idp.delete, selector, { id: idp.id })
+          }}
+        />
       </footer>
     </Modal>
   )

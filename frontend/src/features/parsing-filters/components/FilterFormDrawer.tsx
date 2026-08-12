@@ -13,6 +13,7 @@ import {
 import type { DataTypeOption, Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { regexPatternsHttpService, type RegexPattern } from '@/features/regex-patterns/services/regex-patterns-http.service'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS, type BulkSelector } from '@/features/platform-broadcast'
 import { displayName, emptyModel, parseFilter, sanitizeFileName, serializeFilter, type FilterModel } from '../lib/filter-model'
 import { VisualFilterEditor } from './VisualFilterEditor'
 import { PatternInsertButton } from './PatternInsertButton'
@@ -117,6 +118,26 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
     } finally {
       setSaving(false)
     }
+  }
+
+  const onBroadcastCreate = async (selector: BulkSelector) => {
+    if (!newRelPath || !content.trim()) {
+      toast.error(t('parsingFilters.toast.nameRequired'))
+      return { succeeded: [], failed: [] }
+    }
+    return broadcast(BULK_PATHS.pipelines.create, selector, { relPath: newRelPath, content })
+  }
+
+  const onBroadcastUpdate = async (selector: BulkSelector) => {
+    if (!content.trim()) {
+      toast.error(t('parsingFilters.toast.contentRequired'))
+      return { succeeded: [], failed: [] }
+    }
+    return broadcast(BULK_PATHS.pipelines.update, selector, { relPath: filter.relPath, content })
+  }
+
+  const onBroadcastDelete = async (selector: BulkSelector) => {
+    return broadcast(BULK_PATHS.pipelines.delete, selector, { relPath: filter.relPath })
   }
 
   const remove = async () => {
@@ -249,6 +270,14 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
                   <Button size="sm" variant="destructive" onClick={() => void remove()} disabled={saving}>
                     <Trash2 size={13} className="mr-1.5" /> {t('parsingFilters.editor.confirmDelete')}
                   </Button>
+                  <PlatformBroadcastButton
+                    label={t('platformBroadcast.button')}
+                    title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+                    disabled={false}
+                    onBroadcast={onBroadcastDelete}
+                    variant="outline"
+                    size="sm"
+                  />
                   <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)} disabled={saving}>
                     {t('parsingFilters.editor.cancel')}
                   </Button>
@@ -267,10 +296,29 @@ export function FilterFormDrawer({ filter, creating, onClose, onSaved }: Props) 
               <FlaskConical size={13} className="mr-1.5" /> {t('parsingFilters.editor.test')}
             </Button>
             {!readOnly && (
-              <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
-                {saving ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null}
-                {saving ? t('parsingFilters.editor.saving') : t('parsingFilters.editor.save')}
-              </Button>
+              <>
+                {creating ? (
+                  <PlatformBroadcastButton
+                    label={t('platformBroadcast.button')}
+                    title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.pipeline') })}
+                    disabled={!dirty}
+                    onBroadcast={onBroadcastCreate}
+                    size="sm"
+                  />
+                ) : (
+                  <PlatformBroadcastButton
+                    label={t('platformBroadcast.button')}
+                    title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.pipeline') })}
+                    disabled={!dirty}
+                    onBroadcast={onBroadcastUpdate}
+                    size="sm"
+                  />
+                )}
+                <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
+                  {saving ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null}
+                  {saving ? t('parsingFilters.editor.saving') : t('parsingFilters.editor.save')}
+                </Button>
+              </>
             )}
           </div>
         </footer>

@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { EmailChipInput } from '@/shared/components/ui/email-chip-input'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { configHttpService } from '../services/config-http.service'
 
 /* Backend config keys (utm_configuration_parameter), read/written via /config/:key. */
@@ -206,6 +207,29 @@ export function EmailConfigurationPage() {
     }
   }
 
+  const smtpPayload = {
+    host: form.host,
+    port: form.port,
+    username: form.username,
+    password: form.password,
+    from: form.from,
+    authType: form.encryption,
+    orgname: form.organization,
+    baseUrl: form.baseUrl,
+  }
+
+  const onBroadcastUpdate = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
+    return broadcast(BULK_PATHS.smtp.update, selector, smtpPayload)
+  }
+
+  const onBroadcastTest = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
+    if (!form.from) {
+      toast.error(t('emailConfig.test.fromRequired'))
+      throw new Error('from is required')
+    }
+    return broadcast(BULK_PATHS.smtp.test, selector, smtpPayload)
+  }
+
   return (
     <div className="w-full px-6 pb-6 pt-3">
       <header>
@@ -329,13 +353,28 @@ export function EmailConfigurationPage() {
                 )}
                 {test === 'sending' ? t('emailConfig.test.sending') : t('emailConfig.test.button')}
               </Button>
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.test', { resource: t('platformBroadcast.resource.smtp') })}
+                disabled={!form.from}
+                excludeDefaultTenant={true}
+                onBroadcast={onBroadcastTest}
+              />
               {form.from && (
                 <span className="text-[11px] text-muted-foreground">{t('emailConfig.test.sentTo', { email: form.from })}</span>
               )}
             </div>
-            <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
-              {saving ? t('emailConfig.saving') : t('emailConfig.save')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.smtp') })}
+                excludeDefaultTenant={true}
+                onBroadcast={onBroadcastUpdate}
+              />
+              <Button size="sm" disabled={!dirty || saving} onClick={() => void save()}>
+                {saving ? t('emailConfig.saving') : t('emailConfig.save')}
+              </Button>
+            </div>
           </div>
 
         </div>

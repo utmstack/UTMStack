@@ -10,6 +10,7 @@ import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
+import { PlatformBroadcastButton, broadcast, BULK_PATHS, type BulkSelector } from '@/features/platform-broadcast'
 import { FilterFormDrawer } from '../components/FilterFormDrawer'
 import { displayName } from '../lib/filter-model'
 
@@ -159,6 +160,14 @@ export function ParsingFiltersPage() {
     }
   }
 
+  const onBroadcastDelete = async (f: Pipeline, selector: BulkSelector) => {
+    return broadcast(BULK_PATHS.pipelines.delete, selector, { relPath: f.relPath })
+  }
+
+  const onBroadcastActivate = async (f: Pipeline, active: boolean, selector: BulkSelector) => {
+    return broadcast(BULK_PATHS.pipelines.activate, selector, { relPath: f.relPath, active })
+  }
+
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -264,6 +273,8 @@ export function ParsingFiltersPage() {
                   canMoveUp={i > 0}
                   canMoveDown={i < items.length - 1}
                   reordering={reordering}
+                  onBroadcastDelete={(selector) => onBroadcastDelete(f, selector)}
+                  onBroadcastActivate={(active, selector) => onBroadcastActivate(f, active, selector)}
                 />
               ))}
               <InfiniteScrollSentinel
@@ -322,6 +333,8 @@ function Row({
   canMoveUp,
   canMoveDown,
   reordering,
+  onBroadcastDelete,
+  onBroadcastActivate,
 }: {
   f: Pipeline
   onOpen: () => void
@@ -331,6 +344,8 @@ function Row({
   canMoveUp: boolean
   canMoveDown: boolean
   reordering: boolean
+  onBroadcastDelete: (selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
+  onBroadcastActivate: (active: boolean, selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
 }) {
   const { t } = useTranslation()
   return (
@@ -361,10 +376,30 @@ function Row({
           {t(f.system ? 'parsingFilters.system' : 'parsingFilters.user')}
         </span>
       </div>
-      <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
         <Toggle checked={f.active} onChange={onToggle} />
+        <PlatformBroadcastButton
+          label={t('platformBroadcast.button')}
+          title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.pipeline') })}
+          disabled={false}
+          onBroadcast={(selector) => onBroadcastActivate(f.active, selector)}
+          variant="ghost"
+          size="sm"
+        />
       </div>
-      <div className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</div>
+      <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+        <span className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</span>
+        {!f.system && (
+          <PlatformBroadcastButton
+            label={t('platformBroadcast.button')}
+            title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+            disabled={false}
+            onBroadcast={onBroadcastDelete}
+            variant="ghost"
+            size="sm"
+          />
+        )}
+      </div>
       <div className="flex items-center justify-center gap-0.5" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
