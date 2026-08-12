@@ -1806,85 +1806,85 @@
         "forwarder": {
           "intro": {
             "title": "Como funciona",
-            "body": "Os registros fluem de {{source}} para o UTMStack Forwarder, que os transmite com segurança ao UTMStack para correlação e alertas. Nada é instalado em {{source}} — apenas o Forwarder precisa ser executado em um host na sua rede."
+            "body": "Os registros fluem de {{source}} para o UTMStack Collector, que os transmite com segurança ao UTMStack para correlação e alertas. Nada é instalado em {{source}} — apenas o Collector precisa ser executado em um host na sua rede."
           },
           "diagram": {
             "sourceSub": "seus registros",
-            "forwarder": "Forwarder",
+            "forwarder": "Collector",
             "forwarderSub": "escuta na porta {{port}}",
             "utmstack": "UTMStack",
             "utmstackSub": "alertas e correlação",
             "flow1": "registros",
             "flow2": "seguro"
           },
-          "noInstall": "Nada é instalado em {{source}} — você apenas redireciona seus registros para o Forwarder.",
+          "noInstall": "Nada é instalado em {{source}} — você apenas redireciona seus registros para o Collector.",
           "install": {
-            "title": "Instalar o UTMStack Forwarder",
-            "body": "O Forwarder é um serviço Linux que recebe registros dos seus dispositivos e os envia ao UTMStack. Um único Forwarder gerencia múltiplas integrações ao mesmo tempo.",
-            "reuse": "Já tem um Forwarder em execução? Pule esta etapa — aponte {{source}} para o existente usando o host e a porta abaixo."
+            "title": "Instalar o UTMStack Collector",
+            "body": "O Collector é um serviço Linux que recebe registros dos seus dispositivos e os envia ao UTMStack. Um único Collector gerencia múltiplas integrações ao mesmo tempo.",
+            "reuse": "Já tem um Collector em execução? Pule esta etapa — aponte {{source}} para o existente usando o host e a porta abaixo."
           },
           "tls": {
             "title": "Opcional — Habilitar criptografia TLS",
             "intro": "Por padrão o listener aceita TCP/UDP simples. Para criptografar o tráfego syslog em trânsito, carregue os certificados primeiro e depois reative o listener com o protocolo tls.",
-            "step1": "1 · Carregar seu certificado e chave (uma vez por Forwarder)",
+            "step1": "1 · Carregar seu certificado e chave (uma vez por Collector)",
             "step1Note": "Um certificado CA opcional pode ser adicionado como terceiro argumento. Se omitido, o certificado folha é usado como CA.",
             "step2": "2 · Reativar o listener com TLS"
           },
           "httpsCerts": {
-            "title": "Carregue o certificado TLS no Forwarder",
-            "body": "Esta integração usa um listener HTTPS na porta {{port}}, então o Forwarder precisa de um certificado e uma chave carregados antes de habilitá-la:"
+            "title": "Carregue o certificado TLS no Collector",
+            "body": "Esta integração usa um listener HTTPS na porta {{port}}, então o Collector precisa de um certificado e uma chave carregados antes de habilitá-la:"
           },
           "uninstall": {
-            "title": "Opcional — Desinstalar o Forwarder",
-            "body": "Execute este comando no host onde o Forwarder está instalado para parar o serviço e remover todos os seus arquivos."
+            "title": "Opcional — Desinstalar o Collector",
+            "body": "Execute este comando no host onde o Collector está instalado para parar o serviço e remover todos os seus arquivos."
           }
         },
         "cisco": {
           "source": "Cisco ASA",
           "step1": {
-            "title": "Ativar o listener Cisco ASA no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener de registros Cisco ASA:",
+            "title": "Ativar o listener Cisco ASA no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener de registros Cisco ASA:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o Cisco ASA para encaminhar registros",
-            "body": "No seu Cisco ASA, habilite o <hl>syslog</hl> e aponte-o para o host do Forwarder na porta {{port}}. Execute estes comandos no modo EXEC privilegiado (substitua <interface> pelo nome da sua interface interna ou de gerenciamento):"
+            "body": "No seu Cisco ASA, habilite o <hl>syslog</hl> e aponte-o para o host do Collector na porta {{port}}. Execute estes comandos no modo EXEC privilegiado (substitua <interface> pelo nome da sua interface interna ou de gerenciamento):"
           }
         },
         "ciscoSwitch": {
           "source": "Cisco Switch",
           "step1": {
-            "title": "Ativar o listener Cisco Switch no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener de registros Cisco Switch:",
+            "title": "Ativar o listener Cisco Switch no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener de registros Cisco Switch:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o switch para encaminhar registros",
-            "body": "No modo EXEC privilegiado do seu Cisco switch, habilite o <hl>syslog</hl> e aponte-o para o host do Forwarder na porta {{port}}:"
+            "body": "No modo EXEC privilegiado do seu Cisco switch, habilite o <hl>syslog</hl> e aponte-o para o host do Collector na porta {{port}}:"
           }
         },
         "ciscoMeraki": {
           "source": "Cisco Meraki",
           "step1": {
-            "title": "Ativar o listener Cisco Meraki no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener de registros Cisco Meraki:",
+            "title": "Ativar o listener Cisco Meraki no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener de registros Cisco Meraki:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o Meraki para encaminhar registros",
-            "body": "No Meraki Dashboard, vá para <hl>Network-wide → Configure → General</hl>, role até a seção Reporting e adicione um servidor syslog com o IP do Forwarder e a porta {{port}}. Selecione todos os papéis que deseja encaminhar."
+            "body": "No Meraki Dashboard, vá para <hl>Network-wide → Configure → General</hl>, role até a seção Reporting e adicione um servidor syslog com o IP do Collector e a porta {{port}}. Selecione todos os papéis que deseja encaminhar."
           }
         },
         "ciscoFirepower": {
           "source": "Cisco Firepower",
           "step1": {
-            "title": "Ativar o listener Cisco Firepower no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener de registros Cisco Firepower:",
+            "title": "Ativar o listener Cisco Firepower no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener de registros Cisco Firepower:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o Firepower para encaminhar registros",
-            "body": "No Firepower Management Center (FMC), vá para <hl>Devices → Platform Settings</hl>, edite ou crie uma política e navegue até <hl>Syslog → Syslog Servers</hl>. Adicione o IP do Forwarder com a porta {{port}} (UDP), atribua a política aos seus dispositivos e implante."
+            "body": "No Firepower Management Center (FMC), vá para <hl>Devices → Platform Settings</hl>, edite ou crie uma política e navegue até <hl>Syslog → Syslog Servers</hl>. Adicione o IP do Collector com a porta {{port}} (UDP), atribua a política aos seus dispositivos e implante."
           }
         },
         "office365": {
@@ -1966,13 +1966,13 @@
         "github": {
           "source": "GitHub",
           "step1": {
-            "title": "Ativar o listener de webhook do GitHub no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener HTTPS de webhook para o GitHub:",
+            "title": "Ativar o listener de webhook do GitHub no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener HTTPS de webhook para o GitHub:",
             "tokenNote": "O terminal exibirá um token secreto — copie-o imediatamente. Ele não será exibido novamente."
           },
           "certWarning": {
             "title": "GitHub requer um certificado TLS assinado por uma CA",
-            "body": "O GitHub só entrega webhooks para endpoints HTTPS com um certificado emitido por uma CA pública (certificados auto-assinados são rejeitados). Certifique-se de que o host do Forwarder tenha um certificado de domínio válido antes de registrar o webhook."
+            "body": "O GitHub só entrega webhooks para endpoints HTTPS com um certificado emitido por uma CA pública (certificados auto-assinados são rejeitados). Certifique-se de que o host do Collector tenha um certificado de domínio válido antes de registrar o webhook."
           },
           "step2": {
             "title": "Registrar o webhook no GitHub",
@@ -1980,7 +1980,7 @@
             "payloadUrl": "Payload URL",
             "contentType": "Content type",
             "secret": "Secret",
-            "secretHint": "Cole o <hl>token</hl> impresso pelo Forwarder na etapa anterior.",
+            "secretHint": "Cole o <hl>token</hl> impresso pelo Collector na etapa anterior.",
             "events": "Which events",
             "eventsHint": "Send me everything — ou selecione tipos de eventos específicos."
           }
@@ -1988,13 +1988,13 @@
         "aix": {
           "source": "Servidor AIX",
           "step1": {
-            "title": "Ativar o listener AIX no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener de registros AIX:",
+            "title": "Ativar o listener AIX no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener de registros AIX:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o AIX para encaminhar registros",
-            "body": "No seu sistema AIX, configure o serviço <hl>syslog</hl> para redirecionar seus registros ao host do Forwarder na porta {{port}}. Consulte a documentação da IBM para a sintaxe exata — ela varia entre versões do AIX."
+            "body": "No seu sistema AIX, configure o serviço <hl>syslog</hl> para redirecionar seus registros ao host do Collector na porta {{port}}. Consulte a documentação da IBM para a sintaxe exata — ela varia entre versões do AIX."
           }
         },
         "as400": {
@@ -2094,20 +2094,20 @@
         "netflow": {
           "source": "Dispositivo de rede",
           "step1": {
-            "title": "Ativar o listener de NetFlow no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o coletor NetFlow na porta 2055:",
+            "title": "Ativar o listener de NetFlow no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o coletor NetFlow na porta 2055:",
             "note": "NetFlow usa apenas UDP — TCP e TLS não são suportados para este protocolo."
           },
           "step2": {
             "title": "Configurar o dispositivo para exportar NetFlow",
-            "body": "Aponte a exportação de NetFlow no seu roteador ou firewall para o host do Forwarder na porta <hl>{{port}} UDP</hl>. O exemplo abaixo é para Cisco IOS — consulte a documentação do seu fabricante para outras plataformas:",
+            "body": "Aponte a exportação de NetFlow no seu roteador ou firewall para o host do Collector na porta <hl>{{port}} UDP</hl>. O exemplo abaixo é para Cisco IOS — consulte a documentação do seu fabricante para outras plataformas:",
             "note": "Substitua <interface> pelo nome da interface onde o tráfego deve ser monitorado (ex: GigabitEthernet0/0). Aplique ingress/egress em cada interface relevante."
           }
         },
         "sophos": {
           "intro": {
             "title": "Sophos Central — Plugin de API",
-            "body": "O Sophos Central fornece APIs seguras para recuperar dados de eventos e alertas. O UTMStack conecta-se a essas APIs para centralizar o monitoramento e aprimorar a visibilidade de segurança — sem agente ou forwarder.",
+            "body": "O Sophos Central fornece APIs seguras para recuperar dados de eventos e alertas. O UTMStack conecta-se a essas APIs para centralizar o monitoramento e aprimorar a visibilidade de segurança — sem agente ou collector.",
             "diagram": {
               "source": "API do Sophos Central",
               "edge": "HTTPS API",
@@ -2148,28 +2148,28 @@
         "mikrotik": {
           "source": "Roteador MikroTik",
           "step1": {
-            "title": "Ativar o listener do MikroTik no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do MikroTik:",
+            "title": "Ativar o listener do MikroTik no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do MikroTik:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o MikroTik para encaminhar registros",
-            "body": "No roteador MikroTik, crie uma <hl>ação de logging</hl> remota apontando para o host do Forwarder na porta {{port}} e atribua-a aos tópicos relevantes. Execute o seguinte na CLI do RouterOS (Terminal no Winbox):",
+            "body": "No roteador MikroTik, crie uma <hl>ação de logging</hl> remota apontando para o host do Collector na porta {{port}} e atribua-a aos tópicos relevantes. Execute o seguinte na CLI do RouterOS (Terminal no Winbox):",
             "note": "Você também pode configurar pelo Winbox: System → Logging → aba Actions (adicione uma ação Remote) → depois aba Rules (adicione regras apontando para a nova ação)."
           }
         },
         "oracle": {
           "source": "Servidor Oracle DB",
           "step1": {
-            "title": "Ativar a integração Oracle no Forwarder",
-            "body": "No servidor onde o Forwarder está instalado, execute o seguinte comando para começar a receber logs do Oracle:",
-            "note": "O Forwarder começará a receber eventos syslog do Oracle na porta 7021."
+            "title": "Ativar a integração Oracle no Collector",
+            "body": "No servidor onde o Collector está instalado, execute o seguinte comando para começar a receber logs do Oracle:",
+            "note": "O Collector começará a receber eventos syslog do Oracle na porta 7021."
           },
           "step2": {
             "title": "Configurar rsyslog no servidor Oracle",
             "body": "Crie o arquivo de configuração do rsyslog:",
-            "editBody": "Abra o arquivo com seu editor preferido e adicione a seguinte configuração. Substitua BASEDIR pelo caminho de instalação do Oracle (ex.: /u01/app/oracle) e <forwarder-ip> pelo endereço IP ou nome do host do Forwarder:",
-            "note": "Use @@<forwarder-ip>:7021 em vez de @ se preferir entrega via TCP."
+            "editBody": "Abra o arquivo com seu editor preferido e adicione a seguinte configuração. Substitua BASEDIR pelo caminho de instalação do Oracle (ex.: /u01/app/oracle) e <collector-ip> pelo endereço IP ou nome do host do Collector:",
+            "note": "Use @@<collector-ip>:7021 em vez de @ se preferir entrega via TCP."
           },
           "step3": {
             "title": "Reiniciar o rsyslog",
@@ -2217,7 +2217,7 @@
         },
         "endpoint": {
           "title": "Detalhes de conexão",
-          "hint": "Configure o {{name}} para encaminhar seus logs ao Forwarder usando o host e a porta abaixo."
+          "hint": "Configure o {{name}} para encaminhar seus logs ao Collector usando o host e a porta abaixo."
         },
         "syslog": {
           "sections": {
@@ -2238,25 +2238,25 @@
         "vmware": {
           "source": "VMware ESXi",
           "step1": {
-            "title": "Ativar o listener VMware no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do VMware ESXi. O ESXi transmite via TCP:",
-            "note": "Para um canal criptografado, use tls em vez de tcp (carregue os certificados no Forwarder primeiro)."
+            "title": "Ativar o listener VMware no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do VMware ESXi. O ESXi transmite via TCP:",
+            "note": "Para um canal criptografado, use tls em vez de tcp (carregue os certificados no Collector primeiro)."
           },
           "step2": {
-            "title": "Apontar o syslog do ESXi para o Forwarder",
+            "title": "Apontar o syslog do ESXi para o Collector",
             "body": "Abra uma sessão SSH/ESXi Shell no host (ou use o vSphere Client: Host → Configure → Advanced System Settings → Syslog.global.logHost). Defina o loghost remoto como <hl>{{host}}:{{port}}</hl> e recarregue a configuração:",
             "note": "No vSphere, você pode definir Syslog.global.logHost com o mesmo valor tcp://host:port em vez de executar esxcli."
           },
           "step3": {
             "title": "Abrir o firewall do ESXi para syslog",
-            "body": "Permita o tráfego syslog de saída pelo firewall do ESXi para que o host alcance o Forwarder:"
+            "body": "Permita o tráfego syslog de saída pelo firewall do ESXi para que o host alcance o Collector:"
           }
         },
         "eset": {
           "source": "ESET Protect",
           "step1": {
-            "title": "Ativar o listener ESET no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do ESET:",
+            "title": "Ativar o listener ESET no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do ESET:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "console": {
@@ -2274,15 +2274,15 @@
             },
             "syslog": {
               "title": "Configurar o servidor Syslog",
-              "body": "Role até <hl>Syslog server</hl>, ative <hl>Export logs to Syslog</hl> e defina o destino como o host do Forwarder na porta {{port}} (UDP). O ESET envia LEEF/syslog, que o Forwarder ingere como o tipo de dado antivirus-esmc-eset."
+              "body": "Role até <hl>Syslog server</hl>, ative <hl>Export logs to Syslog</hl> e defina o destino como o host do Collector na porta {{port}} (UDP). O ESET envia LEEF/syslog, que o Collector ingere como o tipo de dado antivirus-esmc-eset."
             }
           }
         },
         "kaspersky": {
           "source": "Kaspersky Security",
           "step1": {
-            "title": "Ativar o listener Kaspersky no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do Kaspersky:",
+            "title": "Ativar o listener Kaspersky no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do Kaspersky:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "console": {
@@ -2296,7 +2296,7 @@
             },
             "configure": {
               "title": "Configurar a exportação SIEM",
-              "body": "Ative a exportação e configure o Kaspersky para enviar eventos no formato <hl>Splunk (CEF)</hl> ao host do Forwarder na porta {{port}} (UDP). O Forwarder os ingere como o tipo de dado antivirus-kaspersky."
+              "body": "Ative a exportação e configure o Kaspersky para enviar eventos no formato <hl>Splunk (CEF)</hl> ao host do Collector na porta {{port}} (UDP). O Collector os ingere como o tipo de dado antivirus-kaspersky."
             }
           }
         },
@@ -2335,9 +2335,9 @@
         "sentinelOne": {
           "source": "SentinelOne",
           "step1": {
-            "title": "Ativar o listener SentinelOne no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do SentinelOne. O SentinelOne transmite CEF via TCP:",
-            "note": "Para um canal criptografado, use tls em vez de tcp (carregue os certificados no Forwarder primeiro)."
+            "title": "Ativar o listener SentinelOne no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do SentinelOne. O SentinelOne transmite CEF via TCP:",
+            "note": "Para um canal criptografado, use tls em vez de tcp (carregue os certificados no Collector primeiro)."
           },
           "console": {
             "settings": {
@@ -2765,46 +2765,46 @@
         "deceptivebytes": {
           "source": "Deceptive Bytes",
           "step1": {
-            "title": "Habilitar o listener do Deceptive Bytes no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do Deceptive Bytes:",
+            "title": "Habilitar o listener do Deceptive Bytes no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do Deceptive Bytes:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o Deceptive Bytes para encaminhar logs",
-            "body": "No console de gerenciamento do Deceptive Bytes, configure o encaminhamento <hl>syslog</hl> para enviar eventos ao host do Forwarder na porta {{port}} (UDP). O Deceptive Bytes emite syslog no formato CEF, que o Forwarder ingere como o tipo de dados <hl>deceptive-bytes</hl>."
+            "body": "No console de gerenciamento do Deceptive Bytes, configure o encaminhamento <hl>syslog</hl> para enviar eventos ao host do Collector na porta {{port}} (UDP). O Deceptive Bytes emite syslog no formato CEF, que o Collector ingere como o tipo de dados <hl>deceptive-bytes</hl>."
           }
         },
         "fortigate": {
           "source": "FortiGate firewall",
           "step1": {
-            "title": "Habilitar o listener do FortiGate no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do FortiGate:",
+            "title": "Habilitar o listener do FortiGate no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do FortiGate:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o FortiGate para encaminhar logs",
-            "body": "No FortiGate, aponte o syslog para o host do Forwarder na porta {{port}}. Execute o seguinte na CLI do FortiOS (ou use Log & Report → Log Settings → Syslog na interface gráfica):",
-            "note": "Substitua o endereço do servidor se o Forwarder estiver em outro host. Para múltiplos coletores syslog, use syslogd2/syslogd3/syslogd4."
+            "body": "No FortiGate, aponte o syslog para o host do Collector na porta {{port}}. Execute o seguinte na CLI do FortiOS (ou use Log & Report → Log Settings → Syslog na interface gráfica):",
+            "note": "Substitua o endereço do servidor se o Collector estiver em outro host. Para múltiplos coletores syslog, use syslogd2/syslogd3/syslogd4."
           }
         },
         "fortiweb": {
           "source": "FortiWeb WAF",
           "step1": {
-            "title": "Habilitar o listener do FortiWeb no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do FortiWeb:",
+            "title": "Habilitar o listener do FortiWeb no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do FortiWeb:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
             "title": "Configurar o FortiWeb para encaminhar logs",
-            "body": "No FortiWeb, crie uma política de syslog apontando para o host do Forwarder na porta {{port}} e habilite o registro via syslog. Execute o seguinte na CLI do FortiWeb (ou use Log & Report → Log Policy → Syslog Policy na interface gráfica):",
+            "body": "No FortiWeb, crie uma política de syslog apontando para o host do Collector na porta {{port}} e habilite o registro via syslog. Execute o seguinte na CLI do FortiWeb (ou use Log & Report → Log Policy → Syslog Policy na interface gráfica):",
             "note": "Certifique-se de que os tipos de log relevantes (Attack, Event, Traffic) estejam habilitados para envio via syslog nas configurações de Log & Report."
           }
         },
         "paloalto": {
           "source": "Palo Alto firewall",
           "step1": {
-            "title": "Habilitar o listener do Palo Alto no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do Palo Alto:",
+            "title": "Habilitar o listener do Palo Alto no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do Palo Alto:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
@@ -2819,8 +2819,8 @@
         "pfsense": {
           "source": "pfSense firewall",
           "step1": {
-            "title": "Habilitar o listener do pfSense no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do pfSense:",
+            "title": "Habilitar o listener do pfSense no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do pfSense:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
@@ -2831,8 +2831,8 @@
         "sonicwall": {
           "source": "SonicWall firewall",
           "step1": {
-            "title": "Habilitar o listener do SonicWall no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do SonicWall:",
+            "title": "Habilitar o listener do SonicWall no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do SonicWall:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
@@ -2843,8 +2843,8 @@
         "sophosxg": {
           "source": "Sophos Firewall",
           "step1": {
-            "title": "Habilitar o listener do Sophos Firewall no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener syslog do Sophos Firewall:",
+            "title": "Habilitar o listener do Sophos Firewall no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener syslog do Sophos Firewall:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
@@ -2855,8 +2855,8 @@
         "suricata": {
           "source": "Suricata IDS",
           "step1": {
-            "title": "Habilitar o listener do Suricata no Forwarder",
-            "body": "No host onde o Forwarder está instalado, execute este comando para abrir o listener do Suricata:",
+            "title": "Habilitar o listener do Suricata no Collector",
+            "body": "No host onde o Collector está instalado, execute este comando para abrir o listener do Suricata:",
             "note": "Para usar TCP em vez de UDP, substitua udp por tcp no comando acima."
           },
           "step2": {
@@ -2865,8 +2865,8 @@
             "note": "Em seguida, reinicie o Suricata: sudo systemctl restart suricata"
           },
           "step3": {
-            "title": "Encaminhar syslog para o Forwarder",
-            "body": "Aponte a facilidade <hl>local5</hl> (para onde o Suricata agora grava) para o Forwarder. Adicione esta regra em <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> no host do Suricata:",
+            "title": "Encaminhar syslog para o Collector",
+            "body": "Aponte a facilidade <hl>local5</hl> (para onde o Suricata agora grava) para o Collector. Adicione esta regra em <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> no host do Suricata:",
             "note": "Use @@ em vez de @ para TCP. Em seguida, reinicie o rsyslog: sudo systemctl restart rsyslog"
           }
         }
@@ -3267,29 +3267,29 @@
         "exampleLabel": "Exemplo de destino syslog em {{name}}:",
         "intro": {
           "title": "Como funciona",
-          "body": "Uma integração personalizada ingere logs de qualquer fonte não coberta pelos módulos integrados. Você instala o UTMStack Forwarder, registra um listener para seus dados com o protocolo de sua escolha e aponta sua fonte para ele.",
-          "note": "Escolha abaixo o protocolo que sua fonte pode enviar (syslog UDP/TCP/TLS, ou HTTP/HTTPS para JSON) — o Forwarder cria o tipo de dado automaticamente."
+          "body": "Uma integração personalizada ingere logs de qualquer fonte não coberta pelos módulos integrados. Você instala o UTMStack Collector, registra um listener para seus dados com o protocolo de sua escolha e aponta sua fonte para ele.",
+          "note": "Escolha abaixo o protocolo que sua fonte pode enviar (syslog UDP/TCP/TLS, ou HTTP/HTTPS para JSON) — o Collector cria o tipo de dado automaticamente."
         },
         "diagram": {
           "source": "Sua fonte",
           "sourceSub": "qualquer app ou dispositivo",
-          "forwarder": "Forwarder",
+          "forwarder": "Collector",
           "ingests": "ingere",
           "utmstackSub": "alertas e correlação"
         },
         "choose": {
           "title": "Escolher protocolo e porta",
-          "body": "Selecione como sua fonte envia dados e a porta que o Forwarder deve escutar, depois execute o comando de ativação no host do Forwarder.",
+          "body": "Selecione como sua fonte envia dados e a porta que o Collector deve escutar, depois execute o comando de ativação no host do Collector.",
           "portLabel": "Porta de escuta",
-          "tlsFirst": "Primeiro, carregue seu certificado e chave TLS no Forwarder:",
+          "tlsFirst": "Primeiro, carregue seu certificado e chave TLS no Collector:",
           "enableLabel": "Em seguida, ative a integração:",
-          "authNote": "Para exigir autenticação, adicione <code>--auth bearer</code> (token) ou <code>--auth hmac</code> — o Forwarder imprime um token para usar no cabeçalho Authorization."
+          "authNote": "Para exigir autenticação, adicione <code>--auth bearer</code> (token) ou <code>--auth hmac</code> — o Collector imprime um token para usar no cabeçalho Authorization."
         },
         "send": {
-          "title": "Apontar sua fonte para o Forwarder",
+          "title": "Apontar sua fonte para o Collector",
           "bodyNetwork": "Configure sua fonte para enviar syslog <hl>{{proto}}</hl> para <hl>{{host}}:{{port}}</hl>. A maioria dos dispositivos possui uma configuração de syslog remoto ou encaminhamento de logs para isso.",
           "bodyHttp": "Envie seus eventos como JSON via HTTP POST para <hl>{{endpoint}}</hl>. O corpo de cada requisição é um evento JSON:",
-          "httpBindNote": "O listener HTTP/HTTPS vincula-se a 127.0.0.1 (o host do Forwarder) por padrão, portanto envie requisições de um app em execução nesse host — ou coloque um proxy reverso à frente. Para fontes remotas, use syslog (UDP/TCP/TLS)."
+          "httpBindNote": "O listener HTTP/HTTPS vincula-se a 127.0.0.1 (o host do Collector) por padrão, portanto envie requisições de um app em execução nesse host — ou coloque um proxy reverso à frente. Para fontes remotas, use syslog (UDP/TCP/TLS)."
         }
       }
     },
