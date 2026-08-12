@@ -28,7 +28,7 @@ export function categoryLabel(c: string): string {
 // reaches UTMStack (agent / forwarder / plugin / collector).
 export const INGEST_META: Record<string, { label: string; pill: string }> = {
   agent: { label: 'Agent', pill: 'bg-sky-500/15 text-sky-600 ring-sky-500/25 dark:text-sky-300' },
-  forwarder: { label: 'Forwarder', pill: 'bg-violet-500/15 text-violet-600 ring-violet-500/25 dark:text-violet-300' },
+  forwarder: { label: 'Collector', pill: 'bg-violet-500/15 text-violet-600 ring-violet-500/25 dark:text-violet-300' },
   plugin: { label: 'Plugin', pill: 'bg-amber-500/15 text-amber-600 ring-amber-500/25 dark:text-amber-300' },
   collector: { label: 'Collector', pill: 'bg-fuchsia-500/15 text-fuchsia-600 ring-fuchsia-500/25 dark:text-fuchsia-300' },
 }
