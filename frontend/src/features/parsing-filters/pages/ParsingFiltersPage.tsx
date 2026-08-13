@@ -17,7 +17,8 @@ import { displayName } from '../lib/filter-model'
 type Tab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 
-const COLS = 'minmax(180px,1fr) minmax(160px,1.3fr) 100px 80px 60px 64px'
+const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
 // The name the engine matches on: the file's base name without its extension.
 function pipelineIdentity(relPath: string): string {
@@ -235,55 +236,58 @@ export function ParsingFiltersPage() {
       </div>
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div
-          className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-          style={{ gridTemplateColumns: COLS }}
-        >
-          <div>{t('parsingFilters.cols.filter')}</div>
-          <div>{t('parsingFilters.cols.dataTypes')}</div>
-          <div>{t('parsingFilters.cols.type')}</div>
-          <div className="text-center">{t('parsingFilters.cols.active')}</div>
-          <div />
-          <div />
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {loading && items.length === 0 ? (
-            <Center>
-              <Loader2 className="h-4 w-4 animate-spin" /> {t('parsingFilters.loading')}
-            </Center>
-          ) : error ? (
-            <Center>
-              <AlertTriangle size={16} className="text-amber-500" /> {t('parsingFilters.loadError')}
-              <Button variant="outline" size="sm" className="ml-2" onClick={load}>
-                {t('parsingFilters.retry')}
-              </Button>
-            </Center>
-          ) : items.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</div>
-          ) : (
-            <>
-              {items.map((f, i) => (
-                <Row
-                  key={f.relPath}
-                  f={f}
-                  onOpen={() => setEditing({ filter: f, creating: false })}
-                  onToggle={() => toggleActive(f)}
-                  onMoveUp={() => moveOrder(i, -1)}
-                  onMoveDown={() => moveOrder(i, 1)}
-                  canMoveUp={i > 0}
-                  canMoveDown={i < items.length - 1}
-                  reordering={reordering}
-                  onBroadcastDelete={(selector) => onBroadcastDelete(f, selector)}
-                  onBroadcastActivate={(active, selector) => onBroadcastActivate(f, active, selector)}
-                />
-              ))}
-              <InfiniteScrollSentinel
-                onReach={() => setPage((p) => p + 1)}
-                hasMore={items.length < total}
-                loading={loading}
-                endLabel={t('common.allLoaded', { count: total })}
-              />
-            </>
+        <div className="min-h-0 flex-1 overflow-auto">
+          <table className="min-w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-muted/90 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <tr className="border-b border-border">
+                <th className={TH}>{t('parsingFilters.cols.filter')}</th>
+                <th className={TH}>{t('parsingFilters.cols.dataTypes')}</th>
+                <th className={TH}>{t('parsingFilters.cols.type')}</th>
+                <th className={`${TH} text-center`}>{t('parsingFilters.cols.active')}</th>
+                <th className={TH} />
+                <th className={TH} />
+              </tr>
+            </thead>
+            <tbody>
+              {loading && items.length === 0 ? (
+                <tr><td colSpan={6}><Center>
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t('parsingFilters.loading')}
+                </Center></td></tr>
+              ) : error ? (
+                <tr><td colSpan={6}><Center>
+                  <AlertTriangle size={16} className="text-amber-500" /> {t('parsingFilters.loadError')}
+                  <Button variant="outline" size="sm" className="ml-2" onClick={load}>
+                    {t('parsingFilters.retry')}
+                  </Button>
+                </Center></td></tr>
+              ) : items.length === 0 ? (
+                <tr><td colSpan={6} className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</td></tr>
+              ) : (
+                items.map((f, i) => (
+                  <Row
+                    key={f.relPath}
+                    f={f}
+                    onOpen={() => setEditing({ filter: f, creating: false })}
+                    onToggle={() => toggleActive(f)}
+                    onMoveUp={() => moveOrder(i, -1)}
+                    onMoveDown={() => moveOrder(i, 1)}
+                    canMoveUp={i > 0}
+                    canMoveDown={i < items.length - 1}
+                    reordering={reordering}
+                    onBroadcastDelete={(selector) => onBroadcastDelete(f, selector)}
+                    onBroadcastActivate={(active, selector) => onBroadcastActivate(f, active, selector)}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+          {items.length > 0 && (
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={items.length < total}
+              loading={loading}
+              endLabel={t('common.allLoaded', { count: total })}
+            />
           )}
         </div>
       </div>
@@ -349,23 +353,26 @@ function Row({
 }) {
   const { t } = useTranslation()
   return (
-    <div
-      className="grid cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-sm transition-colors last:border-0 hover:bg-muted/40"
-      style={{ gridTemplateColumns: COLS }}
+    <tr
+      className="cursor-pointer border-b border-border text-sm transition-colors last:border-0 hover:bg-muted/40"
       onClick={onOpen}
     >
-      <div className="flex min-w-0 items-center gap-2" title={f.relPath}>
-        <span
-          className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
-          title={t('parsingFilters.cols.order')}
-        >
-          {f.order}
-        </span>
-        <FileCode size={14} className="shrink-0 text-muted-foreground" />
-        <span className="truncate text-[13px]">{displayName(f.relPath)}</span>
-      </div>
-      <DataTypeCells dataTypes={f.dataTypes} />
-      <div>
+      <td className={`${TD} max-w-[360px]`} title={f.relPath}>
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
+            title={t('parsingFilters.cols.order')}
+          >
+            {f.order}
+          </span>
+          <FileCode size={14} className="shrink-0 text-muted-foreground" />
+          <span className="truncate text-[13px]">{displayName(f.relPath)}</span>
+        </div>
+      </td>
+      <td className={TD}>
+        <DataTypeCells dataTypes={f.dataTypes} />
+      </td>
+      <td className={TD}>
         <span
           className={cn(
             'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium',
@@ -375,52 +382,58 @@ function Row({
           {f.system && <Lock size={9} />}
           {t(f.system ? 'parsingFilters.system' : 'parsingFilters.user')}
         </span>
-      </div>
-      <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-        <Toggle checked={f.active} onChange={onToggle} />
-        <PlatformBroadcastButton
-          label={t('platformBroadcast.button')}
-          title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.pipeline') })}
-          disabled={false}
-          onBroadcast={(selector) => onBroadcastActivate(f.active, selector)}
-          variant="ghost"
-          size="sm"
-        />
-      </div>
-      <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-        <span className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</span>
-        {!f.system && (
+      </td>
+      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-center gap-2">
+          <Toggle checked={f.active} onChange={onToggle} />
           <PlatformBroadcastButton
             label={t('platformBroadcast.button')}
-            title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+            title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.pipeline') })}
             disabled={false}
-            onBroadcast={onBroadcastDelete}
+            onBroadcast={(selector) => onBroadcastActivate(f.active, selector)}
             variant="ghost"
             size="sm"
           />
-        )}
-      </div>
-      <div className="flex items-center justify-center gap-0.5" onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          onClick={onMoveUp}
-          disabled={!canMoveUp || reordering}
-          title={t('parsingFilters.cols.moveUp')}
-          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-        >
-          <ChevronUp size={13} />
-        </button>
-        <button
-          type="button"
-          onClick={onMoveDown}
-          disabled={!canMoveDown || reordering}
-          title={t('parsingFilters.cols.moveDown')}
-          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-        >
-          <ChevronDown size={13} />
-        </button>
-      </div>
-    </div>
+        </div>
+      </td>
+      <td className={TD} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-end gap-2">
+          <span className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</span>
+          {!f.system && (
+            <PlatformBroadcastButton
+              label={t('platformBroadcast.button')}
+              title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+              disabled={false}
+              onBroadcast={onBroadcastDelete}
+              variant="ghost"
+              size="sm"
+            />
+          )}
+        </div>
+      </td>
+      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-center gap-0.5">
+          <button
+            type="button"
+            onClick={onMoveUp}
+            disabled={!canMoveUp || reordering}
+            title={t('parsingFilters.cols.moveUp')}
+            className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronUp size={13} />
+          </button>
+          <button
+            type="button"
+            onClick={onMoveDown}
+            disabled={!canMoveDown || reordering}
+            title={t('parsingFilters.cols.moveDown')}
+            className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronDown size={13} />
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }
 

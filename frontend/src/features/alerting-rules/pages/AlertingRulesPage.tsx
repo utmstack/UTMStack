@@ -281,15 +281,23 @@ export function AlertingRulesPage() {
       ) : rules.length === 0 ? (
         <Center>{t('alertingRules.empty')}</Center>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <Table rules={rules} selected={selected} onToggleSelected={toggleSelected} onSelectAll={(v) => setSelected(v ? new Set(rules.map((r) => r.relPath)) : new Set())} onOpen={setOpen} onToggle={toggleActive} t={t} />
-          <InfiniteScrollSentinel
-            onReach={() => setPage((p) => p + 1)}
-            hasMore={rules.length < total}
-            loading={loading}
-            endLabel={t('common.allLoaded', { count: total })}
-          />
-        </div>
+        <Table
+          rules={rules}
+          selected={selected}
+          onToggleSelected={toggleSelected}
+          onSelectAll={(v) => setSelected(v ? new Set(rules.map((r) => r.relPath)) : new Set())}
+          onOpen={setOpen}
+          onToggle={toggleActive}
+          t={t}
+          footer={
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={rules.length < total}
+              loading={loading}
+              endLabel={t('common.allLoaded', { count: total })}
+            />
+          }
+        />
       )}
 
       {open && <RuleDrawer rule={open} dataTypeOptions={dataTypeOptions} onClose={() => setOpen(null)} onToggle={toggleActive} onDelete={remove} onSaved={() => { setOpen(null); refresh() }} t={t} />}
