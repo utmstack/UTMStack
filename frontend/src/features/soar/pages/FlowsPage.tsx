@@ -16,7 +16,8 @@ import type { Flow } from '../types/soar.types'
 
 type ListTab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const LIST_TABS: ListTab[] = ['all', 'active', 'inactive', 'system', 'user']
-const COLS = 'minmax(200px,1fr) 110px 78px 84px 130px 72px 52px'
+const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
 function flowName(relPath: string): string {
   return (relPath.split('/').pop() ?? relPath).replace(/\.ya?ml$/i, '')
@@ -189,39 +190,43 @@ export function FlowsPage() {
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-auto">
-          <div className="min-w-[900px]">
-            <div className="sticky top-0 z-10 grid items-center gap-3 border-b border-border bg-muted px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
-              <div>{t('soar.cols.flow')}</div>
-              <div>{t('soar.cols.platform')}</div>
-              <div className="text-center">{t('soar.cols.conditions')}</div>
-              <div className="text-center">{t('soar.cols.commands')}</div>
-              <div>{t('soar.cols.lastRun')}</div>
-              <div className="text-center">{t('soar.cols.active')}</div>
-              <div />
-            </div>
-            {loading && items.length === 0 ? (
-              <Center><Loader2 className="h-4 w-4 animate-spin" /> {t('soar.loading')}</Center>
-            ) : error ? (
-              <Center>
-                <AlertTriangle size={16} className="text-amber-500" /> {t('soar.loadError')}
-                <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('soar.retry')}</Button>
-              </Center>
-            ) : items.length === 0 ? (
-              <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.empty')}</div>
-            ) : (
-              <>
-                {items.map((f) => (
+          <table className="min-w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-muted text-[10px] uppercase tracking-wider text-muted-foreground">
+              <tr className="border-b border-border">
+                <th className={TH}>{t('soar.cols.flow')}</th>
+                <th className={TH}>{t('soar.cols.platform')}</th>
+                <th className={`${TH} text-center`}>{t('soar.cols.conditions')}</th>
+                <th className={`${TH} text-center`}>{t('soar.cols.commands')}</th>
+                <th className={TH}>{t('soar.cols.lastRun')}</th>
+                <th className={`${TH} text-center`}>{t('soar.cols.active')}</th>
+                <th className={TH} />
+              </tr>
+            </thead>
+            <tbody>
+              {loading && items.length === 0 ? (
+                <tr><td colSpan={7}><Center><Loader2 className="h-4 w-4 animate-spin" /> {t('soar.loading')}</Center></td></tr>
+              ) : error ? (
+                <tr><td colSpan={7}><Center>
+                  <AlertTriangle size={16} className="text-amber-500" /> {t('soar.loadError')}
+                  <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('soar.retry')}</Button>
+                </Center></td></tr>
+              ) : items.length === 0 ? (
+                <tr><td colSpan={7} className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.empty')}</td></tr>
+              ) : (
+                items.map((f) => (
                   <FlowRow key={f.relPath} f={f} stat={stats[f.relPath]} onOpen={() => setEditing({ flow: f, creating: false })} onToggle={() => toggleActive(f)} t={t} />
-                ))}
-                <InfiniteScrollSentinel
-                  onReach={() => setPage((p) => p + 1)}
-                  hasMore={items.length < total}
-                  loading={loading}
-                  endLabel={t('common.allLoaded', { count: total })}
-                />
-              </>
-            )}
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
+          {items.length > 0 && (
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={items.length < total}
+              loading={loading}
+              endLabel={t('common.allLoaded', { count: total })}
+            />
+          )}
         </div>
       </div>
 
@@ -302,24 +307,26 @@ function FlowKpis({ refreshKey }: { refreshKey: number }) {
 
 function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; onOpen: () => void; onToggle: () => void; t: ReturnType<typeof useTranslation>['t'] }) {
   return (
-    <div className="grid cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-sm transition-colors last:border-0 hover:bg-muted/40" style={{ gridTemplateColumns: COLS }} onClick={onOpen}>
-      <div className="flex min-w-0 items-center gap-2" title={f.relPath}>
-        <Terminal size={14} className="shrink-0 text-muted-foreground" />
-        <div className="min-w-0">
-          <div className="truncate text-[13px]">{f.name || flowName(f.relPath)}</div>
-          {f.description && <div className="truncate text-[11px] text-muted-foreground">{f.description}</div>}
+    <tr className="cursor-pointer border-b border-border text-sm transition-colors last:border-0 hover:bg-muted/40" onClick={onOpen}>
+      <td className={`${TD} max-w-[360px]`} title={f.relPath}>
+        <div className="flex min-w-0 items-center gap-2">
+          <Terminal size={14} className="shrink-0 text-muted-foreground" />
+          <div className="min-w-0">
+            <div className="truncate text-[13px]">{f.name || flowName(f.relPath)}</div>
+            {f.description && <div className="truncate text-[11px] text-muted-foreground">{f.description}</div>}
+          </div>
         </div>
-      </div>
-      <div>
+      </td>
+      <td className={TD}>
         {f.agentPlatform ? (
           <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{f.agentPlatform}</span>
         ) : (
           <span className="text-[11px] text-muted-foreground">—</span>
         )}
-      </div>
-      <div className="text-center font-mono text-[11px] text-muted-foreground">{f.conditions?.length ?? 0}</div>
-      <div className="text-center font-mono text-[11px] text-muted-foreground">{f.commands?.length ?? 0}</div>
-      <div className="min-w-0 text-[11px]" title={stat?.last ? new Date(stat.last).toLocaleString() : undefined}>
+      </td>
+      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}>{f.conditions?.length ?? 0}</td>
+      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}>{f.commands?.length ?? 0}</td>
+      <td className={`${TD} text-[11px]`} title={stat?.last ? new Date(stat.last).toLocaleString() : undefined}>
         {stat?.last ? (
           <div className="flex items-center gap-1.5">
             <span className="font-mono text-muted-foreground">{relativeTime(stat.last)}</span>
@@ -332,15 +339,19 @@ function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; o
         ) : (
           <span className="text-muted-foreground/50">{t('soar.neverRun')}</span>
         )}
-      </div>
-      <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-        <Toggle checked={f.active} onChange={onToggle} flow={f} />
-      </div>
-      <div className="flex items-center justify-end gap-1.5">
-        {f.systemOwner && <Lock size={11} className="text-muted-foreground/60" />}
-        <span className="text-[11px] text-muted-foreground">{t('soar.view')}</span>
-      </div>
-    </div>
+      </td>
+      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-center">
+          <Toggle checked={f.active} onChange={onToggle} flow={f} />
+        </div>
+      </td>
+      <td className={`${TD} text-right`}>
+        <div className="flex items-center justify-end gap-1.5">
+          {f.systemOwner && <Lock size={11} className="text-muted-foreground/60" />}
+          <span className="text-[11px] text-muted-foreground">{t('soar.view')}</span>
+        </div>
+      </td>
+    </tr>
   )
 }
 
