@@ -32,12 +32,17 @@ function withSelector<T extends object>(selector: BulkSelector, resource: T) {
   return { selector, ...resource }
 }
 
+// Go's nil slices marshal to JSON null; normalize so consumers can safely read `.length`.
+function normalize(r: BulkResult | null | undefined): BulkResult {
+  return { succeeded: r?.succeeded ?? [], failed: r?.failed ?? [] }
+}
+
 async function post<Resource extends object>(
   path: string,
   selector: BulkSelector,
   resource: Resource,
 ): Promise<BulkResult> {
-  return api.post<BulkResult>(path, withSelector(selector, resource))
+  return normalize(await api.post<BulkResult>(path, withSelector(selector, resource)))
 }
 
 /** Send `resource` to every selected tenant against `path` (a full `/platform/**\/bulk/**` route). */
@@ -108,5 +113,5 @@ export async function broadcastBrandingAsset(
   const form = new FormData()
   form.append('file', file)
   form.append('selector', JSON.stringify(selector))
-  return api.post<BulkResult>(BULK_PATHS.branding.uploadAsset(slot), form)
+  return normalize(await api.post<BulkResult>(BULK_PATHS.branding.uploadAsset(slot), form))
 }
