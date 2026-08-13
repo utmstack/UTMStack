@@ -188,38 +188,40 @@ export function FlowsPage() {
       </div>
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
-          <div>{t('soar.cols.flow')}</div>
-          <div>{t('soar.cols.platform')}</div>
-          <div className="text-center">{t('soar.cols.conditions')}</div>
-          <div className="text-center">{t('soar.cols.commands')}</div>
-          <div>{t('soar.cols.lastRun')}</div>
-          <div className="text-center">{t('soar.cols.active')}</div>
-          <div />
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {loading && items.length === 0 ? (
-            <Center><Loader2 className="h-4 w-4 animate-spin" /> {t('soar.loading')}</Center>
-          ) : error ? (
-            <Center>
-              <AlertTriangle size={16} className="text-amber-500" /> {t('soar.loadError')}
-              <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('soar.retry')}</Button>
-            </Center>
-          ) : items.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.empty')}</div>
-          ) : (
-            <>
-              {items.map((f) => (
-                <FlowRow key={f.relPath} f={f} stat={stats[f.relPath]} onOpen={() => setEditing({ flow: f, creating: false })} onToggle={() => toggleActive(f)} t={t} />
-              ))}
-              <InfiniteScrollSentinel
-                onReach={() => setPage((p) => p + 1)}
-                hasMore={items.length < total}
-                loading={loading}
-                endLabel={t('common.allLoaded', { count: total })}
-              />
-            </>
-          )}
+        <div className="min-h-0 flex-1 overflow-auto">
+          <div className="min-w-[900px]">
+            <div className="sticky top-0 z-10 grid items-center gap-3 border-b border-border bg-muted px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground" style={{ gridTemplateColumns: COLS }}>
+              <div>{t('soar.cols.flow')}</div>
+              <div>{t('soar.cols.platform')}</div>
+              <div className="text-center">{t('soar.cols.conditions')}</div>
+              <div className="text-center">{t('soar.cols.commands')}</div>
+              <div>{t('soar.cols.lastRun')}</div>
+              <div className="text-center">{t('soar.cols.active')}</div>
+              <div />
+            </div>
+            {loading && items.length === 0 ? (
+              <Center><Loader2 className="h-4 w-4 animate-spin" /> {t('soar.loading')}</Center>
+            ) : error ? (
+              <Center>
+                <AlertTriangle size={16} className="text-amber-500" /> {t('soar.loadError')}
+                <Button variant="outline" size="sm" className="ml-2" onClick={load}>{t('soar.retry')}</Button>
+              </Center>
+            ) : items.length === 0 ? (
+              <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('soar.empty')}</div>
+            ) : (
+              <>
+                {items.map((f) => (
+                  <FlowRow key={f.relPath} f={f} stat={stats[f.relPath]} onOpen={() => setEditing({ flow: f, creating: false })} onToggle={() => toggleActive(f)} t={t} />
+                ))}
+                <InfiniteScrollSentinel
+                  onReach={() => setPage((p) => p + 1)}
+                  hasMore={items.length < total}
+                  loading={loading}
+                  endLabel={t('common.allLoaded', { count: total })}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 
