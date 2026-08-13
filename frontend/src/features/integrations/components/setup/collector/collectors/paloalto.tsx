@@ -13,7 +13,7 @@ function PaloAltoGuide({ module: _module }: { module: Integration }) {
 
   return (
     <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="firewall-paloalto">
-      <Section title={t(`${ROOT}.step2.title`)} step={3}>
+      <Section title={t(`${ROOT}.step2.title`)} step={2}>
         <p className="text-sm text-foreground/90">
           <Trans
             i18nKey={`${ROOT}.step2.body`}
