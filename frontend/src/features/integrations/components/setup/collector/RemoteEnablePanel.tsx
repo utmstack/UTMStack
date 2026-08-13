@@ -287,11 +287,11 @@ export function RemoteEnablePanel({
       {forwarders.isLoading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t(`${ROOT}.loadingForwarders`)}
+          {t(`${ROOT}.loadingCollectors`)}
         </div>
       ) : allForwarders.length === 0 ? (
         <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-          {t(`${ROOT}.noForwarders`)}
+          {t(`${ROOT}.noCollectors`)}
         </p>
       ) : (
         <div className="space-y-3">
