@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Check, ChevronDown, Copy, KeySquare, Loader2, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Check, ChevronDown, Copy, Loader2, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Section } from '@/features/integrations/components/ui/Section'
@@ -11,6 +11,8 @@ import { useBilling } from '@/features/billing/services/billing.context'
 import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
 import type { ForwarderCollector } from '@/features/integrations/types'
 import { defaultPortFor, httpDefaultsFor, type HttpAuth, type Proto } from './protoCatalog'
+import { useApiKeysList } from '@/features/api-keys/hooks/useApiKeysList'
+import { ApiKeyPicker } from './ApiKeyPicker'
 
 const ROOT = 'integrations.setup.remoteEnable'
 const MASTER_ID = -1
@@ -19,6 +21,8 @@ const ADD_COLLECTOR_ID = -2
 export interface RemoteEnableSelection {
   proto: Proto
   port: string
+  isMaster: boolean
+  apiKey: { id: number; name: string } | null
 }
 
 interface RemoteEnablePanelProps {
@@ -144,11 +148,13 @@ export function RemoteEnablePanel({
   const canUseMaster = license?.edition === 'enterprise' || !!license?.mssp
 
   const { forwarders, setDataType, setCertificates, tlsStatus, dataTypeConfig } = useCollectorIntegration()
+  const apiKeys = useApiKeysList()
 
   const allForwarders = forwarders.data ?? []
 
   const initialProto = defaultProto ?? availableProtos[0]
   const [collectorId, setCollectorId] = useState<number | null>(null)
+  const [apiKeyId, setApiKeyId] = useState<number | null>(null)
   const [proto, setProto] = useState<Proto>(initialProto)
   const [port, setPort] = useState(() => defaultPortFor(dataType, initialProto))
   const httpDefaults = httpDefaultsFor(dataType)
@@ -196,8 +202,18 @@ export function RemoteEnablePanel({
   }, [allForwarders, collectorId])
 
   useEffect(() => {
-    onSelectionChange?.({ proto, port })
-  }, [proto, port, onSelectionChange])
+    if (collectorId !== MASTER_ID) setApiKeyId(null)
+  }, [collectorId])
+
+  useEffect(() => {
+    const resolvedKey = apiKeys.data?.data.find((k) => k.id === apiKeyId) ?? null
+    onSelectionChange?.({
+      proto,
+      port,
+      isMaster,
+      apiKey: resolvedKey ? { id: resolvedKey.id, name: resolvedKey.name } : null,
+    })
+  }, [proto, port, isMaster, apiKeyId, apiKeys.data, onSelectionChange])
 
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'
@@ -373,10 +389,21 @@ export function RemoteEnablePanel({
           </div>
 
           {isMaster && (
-            <Button size="sm" variant="outline" onClick={() => navigate('/settings/api-keys')}>
-              <KeySquare size={13} className="mr-1.5" />
-              {t(`${ROOT}.addApiKey`)}
-            </Button>
+            <label className="block max-w-md">
+              <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                {t(`${ROOT}.apiKeyLabel`)}
+              </span>
+              <ApiKeyPicker
+                keys={apiKeys.data?.data ?? []}
+                value={apiKeyId}
+                onChange={setApiKeyId}
+                onAddNew={() => navigate('/settings/api-keys')}
+                addLabel={t(`${ROOT}.apiKeyAddNew`)}
+                placeholder={t(`${ROOT}.apiKeyPlaceholder`)}
+                emptyLabel={t(`${ROOT}.apiKeyNone`)}
+                disabled={apiKeys.isLoading}
+              />
+            </label>
           )}
 
           {!isMaster && (<>

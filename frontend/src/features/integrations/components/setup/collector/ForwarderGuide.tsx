@@ -65,6 +65,19 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
   )
 }
 
+// ── Master API key note ───────────────────────────────────────────────────────
+
+function MasterApiKeyNote({ apiKey }: { apiKey: { id: number; name: string } }) {
+  const { t } = useTranslation()
+  return (
+    <Section title={t(`${SHARED}.masterHeader.title`)}>
+      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: apiKey.name })}</p>
+      {/* ponytail: secret is generated once server-side; user must paste it themselves */}
+      <CodeBlock code="Authorization: Bearer <YOUR_API_KEY_SECRET>" />
+    </Section>
+  )
+}
+
 // ── Manual (CLI) command — collapsible, reactive to the RemoteEnablePanel ────
 // selection above it. Replaces what used to be a fixed "Optional — Enable TLS
 // encryption" block: the command shown here always matches whatever
@@ -164,6 +177,8 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
   const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
     proto: initialProto,
     port: defaultPortFor(sourceType, initialProto) || port,
+    isMaster: false,
+    apiKey: null,
   }))
   const [installOpen, setInstallOpen] = useState(false)
   const installRef = useRef<HTMLDivElement>(null)
@@ -191,6 +206,8 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
         onSelectionChange={setSelection}
         onRequestAddCollector={handleAddCollector}
       />
+
+      {selection.isMaster && selection.apiKey && <MasterApiKeyNote apiKey={selection.apiKey} />}
 
       {/* Vendor-specific steps (device-side config). */}
       {children}
