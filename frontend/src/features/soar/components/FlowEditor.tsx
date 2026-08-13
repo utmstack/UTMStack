@@ -167,7 +167,7 @@ export function FlowEditor({
       f = { ...r.form, active: form.active }
     }
     const input = formToInput(f)
-    return broadcast(BULK_PATHS.soarRules.create, selector, input)
+    return broadcast(BULK_PATHS.soarRules.create, selector, { rule: input })
   }
 
   const broadcastUpdate = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
@@ -179,7 +179,7 @@ export function FlowEditor({
       f = { ...r.form, active: form.active }
     }
     const input = formToInput(f)
-    return broadcast(BULK_PATHS.soarRules.update, selector, { relPath: flow.relPath, ...input })
+    return broadcast(BULK_PATHS.soarRules.update, selector, { relPath: flow.relPath, rule: input })
   }
 
   const broadcastDelete = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
