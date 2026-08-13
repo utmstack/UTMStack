@@ -12,6 +12,7 @@ export interface ConfirmDialogProps {
   danger?: boolean
   icon?: LucideIcon
   busy?: boolean
+  hideCancel?: boolean
   onClose: () => void
   onConfirm: () => void | Promise<void>
 }
@@ -25,6 +26,7 @@ export function ConfirmDialog({
   danger,
   icon: Icon = Trash2,
   busy: externalBusy,
+  hideCancel,
   onClose,
   onConfirm,
 }: ConfirmDialogProps) {
@@ -72,9 +74,11 @@ export function ConfirmDialog({
         <div className="px-6 py-5 text-sm text-muted-foreground">{body}</div>
 
         <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-3">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
-            {cancelLabel ?? t('common.actions.cancel')}
-          </Button>
+          {!hideCancel && (
+            <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
+              {cancelLabel ?? t('common.actions.cancel')}
+            </Button>
+          )}
           <Button
             size="sm"
             variant={danger ? 'destructive' : 'default'}
