@@ -2736,6 +2736,10 @@
           "uninstall": {
             "title": "Optional – Collector deinstallieren",
             "body": "Führen Sie diesen Befehl auf dem Host aus, auf dem der Collector installiert ist, um den Dienst zu beenden und alle zugehörigen Dateien zu entfernen."
+          },
+          "masterHeader": {
+            "title": "Autorisierungs-Header",
+            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis für \"{{name}}\" wird nur einmal bei der Erstellung des API-Schlüssels angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein."
           }
         },
         "aix": {
@@ -3374,7 +3378,11 @@
         "sendToMaster": "An Master senden",
         "enterpriseFeature": "Dies ist eine Enterprise-Funktion.",
         "addCollector": "Collector hinzufügen",
-        "addApiKey": "API-Schlüssel hinzufügen"
+        "addApiKey": "API-Schlüssel hinzufügen",
+        "apiKeyLabel": "API-Schlüssel",
+        "apiKeyPlaceholder": "API-Schlüssel auswählen",
+        "apiKeyAddNew": "API-Schlüssel hinzufügen…",
+        "apiKeyNone": "Noch keine API-Schlüssel vorhanden"
       }
     },
     "codeBlock": {

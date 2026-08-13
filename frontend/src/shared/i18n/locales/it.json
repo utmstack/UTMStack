@@ -2736,6 +2736,10 @@
           "uninstall": {
             "title": "Facoltativo — Disinstalla il Collector",
             "body": "Esegui questo comando sull'host in cui è installato il Collector per interrompere il servizio e rimuovere tutti i suoi file."
+          },
+          "masterHeader": {
+            "title": "Intestazione di autorizzazione",
+            "body": "Includi questa intestazione Authorization in ogni richiesta inviata al Master. Il segreto di \"{{name}}\" viene rivelato una sola volta al momento della generazione della chiave API — copialo allora e incollalo al posto del segnaposto qui sotto."
           }
         },
         "aix": {
@@ -3374,7 +3378,11 @@
         "sendToMaster": "Invia al Master",
         "enterpriseFeature": "Questa è una funzionalità Enterprise.",
         "addCollector": "Aggiungi Collector",
-        "addApiKey": "Aggiungi chiave API"
+        "addApiKey": "Aggiungi chiave API",
+        "apiKeyLabel": "Chiave API",
+        "apiKeyPlaceholder": "Seleziona una chiave API",
+        "apiKeyAddNew": "Aggiungi chiave API…",
+        "apiKeyNone": "Nessuna chiave API ancora"
       }
     },
     "codeBlock": {

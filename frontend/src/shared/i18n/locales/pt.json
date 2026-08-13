@@ -1838,6 +1838,10 @@
           "uninstall": {
             "title": "Opcional — Desinstalar o Collector",
             "body": "Execute este comando no host onde o Collector está instalado para parar o serviço e remover todos os seus arquivos."
+          },
+          "masterHeader": {
+            "title": "Cabeçalho de autorização",
+            "body": "Inclua este cabeçalho Authorization em cada requisição enviada ao Master. O segredo de \"{{name}}\" é revelado apenas uma vez ao gerar a chave de API — copie-o naquele momento e cole no lugar do marcador abaixo."
           }
         },
         "cisco": {
@@ -3336,7 +3340,11 @@
         "sendToMaster": "Enviar para o Master",
         "enterpriseFeature": "Este é um recurso Enterprise.",
         "addCollector": "Adicionar Collector",
-        "addApiKey": "Adicionar chave de API"
+        "addApiKey": "Adicionar chave de API",
+        "apiKeyLabel": "Chave de API",
+        "apiKeyPlaceholder": "Selecionar uma chave de API",
+        "apiKeyAddNew": "Adicionar chave de API…",
+        "apiKeyNone": "Nenhuma chave de API ainda"
       }
     },
     "codeBlock": {

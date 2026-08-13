@@ -2895,6 +2895,10 @@
             "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
             "certStep": "1 · Load your certificate and key (once per Collector)",
             "enableStep": "2 · Enable the integration"
+          },
+          "masterHeader": {
+            "title": "Authorization header",
+            "body": "Include this Authorization header on every request you send to Master. The secret for \"{{name}}\" is only revealed once when the API key is generated — copy it then and paste it in place of the placeholder below."
           }
         },
         "aix": {
@@ -3475,7 +3479,11 @@
         "sendToMaster": "Send to Master",
         "enterpriseFeature": "This is an Enterprise feature.",
         "addCollector": "Add Collector",
-        "addApiKey": "Add API key"
+        "addApiKey": "Add API key",
+        "apiKeyLabel": "API key",
+        "apiKeyPlaceholder": "Select an API key",
+        "apiKeyAddNew": "Add API key…",
+        "apiKeyNone": "No API keys yet"
       }
     },
     "codeBlock": {

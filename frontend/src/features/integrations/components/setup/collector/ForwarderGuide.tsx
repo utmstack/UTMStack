@@ -65,15 +65,20 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
   )
 }
 
-// ── Master API key note ───────────────────────────────────────────────────────
+// ── Master command (POST endpoint + auth header) ─────────────────────────────
 
-function MasterApiKeyNote({ apiKey }: { apiKey: { id: number; name: string } }) {
+function MasterCommandSection({ selection }: { selection: RemoteEnableSelection }) {
   const { t } = useTranslation()
+  if (!selection.apiKey) return null
+  const host = forwarderHost()
+  // ponytail: secret is generated once server-side; user must paste it themselves
+  const cmd = `POST ${selection.proto}://${host}:8080/v1/logs
+Authorization: Bearer <YOUR_API_KEY_SECRET>
+Content-Type: application/json`
   return (
-    <Section title={t(`${SHARED}.masterHeader.title`)}>
-      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: apiKey.name })}</p>
-      {/* ponytail: secret is generated once server-side; user must paste it themselves */}
-      <CodeBlock code="Authorization: Bearer <YOUR_API_KEY_SECRET>" />
+    <Section title={t(`${SHARED}.masterHeader.title`)} step={2}>
+      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: selection.apiKey.name })}</p>
+      <CodeBlock code={cmd} />
     </Section>
   )
 }
@@ -207,16 +212,18 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
         onRequestAddCollector={handleAddCollector}
       />
 
-      {selection.isMaster && selection.apiKey && <MasterApiKeyNote apiKey={selection.apiKey} />}
+      {selection.isMaster && selection.apiKey && <MasterCommandSection selection={selection} />}
 
-      {/* Vendor-specific steps (device-side config). */}
-      {children}
+      {/* Vendor-specific steps (device-side config). Hidden in master mode — it targets the forwarder, not master. */}
+      {!selection.isMaster && children}
 
-      <div ref={installRef}>
-        <ForwarderInstallSection source={source} open={installOpen} onToggle={() => setInstallOpen((o) => !o)} />
-      </div>
-      <ManualCommandSection sourceType={sourceType} selection={selection} />
-      <ForwarderUninstallSection />
+      {!selection.isMaster && (
+        <div ref={installRef}>
+          <ForwarderInstallSection source={source} open={installOpen} onToggle={() => setInstallOpen((o) => !o)} />
+        </div>
+      )}
+      {!selection.isMaster && <ManualCommandSection sourceType={sourceType} selection={selection} />}
+      {!selection.isMaster && <ForwarderUninstallSection />}
     </div>
   )
 }

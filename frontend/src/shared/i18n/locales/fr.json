@@ -2736,6 +2736,10 @@
           "uninstall": {
             "title": "Optionnel — Désinstaller le Collector",
             "body": "Exécutez cette commande sur l'hôte où le Collector est installé pour arrêter le service et supprimer tous ses fichiers."
+          },
+          "masterHeader": {
+            "title": "En-tête d'autorisation",
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous."
           }
         },
         "aix": {
@@ -3374,7 +3378,11 @@
         "sendToMaster": "Envoyer au Master",
         "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
         "addCollector": "Ajouter un Collector",
-        "addApiKey": "Ajouter une clé API"
+        "addApiKey": "Ajouter une clé API",
+        "apiKeyLabel": "Clé API",
+        "apiKeyPlaceholder": "Sélectionner une clé API",
+        "apiKeyAddNew": "Ajouter une clé API…",
+        "apiKeyNone": "Aucune clé API pour l'instant"
       }
     },
     "codeBlock": {

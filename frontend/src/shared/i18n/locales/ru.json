@@ -2618,6 +2618,10 @@
           "uninstall": {
             "title": "Дополнительно — Удалить Collector",
             "body": "Выполните эту команду на хосте, где установлен Collector, чтобы остановить службу и удалить все её файлы."
+          },
+          "masterHeader": {
+            "title": "Заголовок авторизации",
+            "body": "Включайте этот заголовок Authorization в каждый запрос, отправляемый на Master. Секрет ключа «{{name}}» отображается только один раз при его создании — скопируйте его тогда и вставьте вместо заполнителя ниже."
           }
         },
         "aix": {
@@ -3256,7 +3260,11 @@
         "sendToMaster": "Отправить на Master",
         "enterpriseFeature": "Это функция Enterprise.",
         "addCollector": "Добавить Collector",
-        "addApiKey": "Добавить API-ключ"
+        "addApiKey": "Добавить API-ключ",
+        "apiKeyLabel": "API-ключ",
+        "apiKeyPlaceholder": "Выберите API-ключ",
+        "apiKeyAddNew": "Добавить API-ключ…",
+        "apiKeyNone": "Нет ни одного API-ключа"
       }
     },
     "codeBlock": {
