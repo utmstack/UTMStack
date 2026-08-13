@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, Forward, Server, ShieldCheck } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -6,7 +6,6 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
 import { FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
-import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
 import { RemoteEnablePanel, type RemoteEnableSelection } from './RemoteEnablePanel'
 import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 
@@ -66,6 +65,24 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
   )
 }
 
+// ── Master command (POST endpoint + auth header) ─────────────────────────────
+
+function MasterCommandSection({ selection }: { selection: RemoteEnableSelection }) {
+  const { t } = useTranslation()
+  if (!selection.apiKey) return null
+  const host = forwarderHost()
+  // ponytail: secret is generated once server-side; user must paste it themselves
+  const cmd = `POST ${selection.proto}://${host}:8080/v1/logs
+Authorization: Bearer <YOUR_API_KEY_SECRET>
+Content-Type: application/json`
+  return (
+    <Section title={t(`${SHARED}.masterHeader.title`)} step={2}>
+      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: selection.apiKey.name })}</p>
+      <CodeBlock code={cmd} />
+    </Section>
+  )
+}
+
 // ── Manual (CLI) command — collapsible, reactive to the RemoteEnablePanel ────
 // selection above it. Replaces what used to be a fixed "Optional — Enable TLS
 // encryption" block: the command shown here always matches whatever
@@ -115,15 +132,8 @@ function ManualCommandSection({ sourceType, selection }: { sourceType: string; s
 
 // ── Forwarder install section ─────────────────────────────────────────────────
 
-export function ForwarderInstall({ source }: { source: string }) {
-  const { t } = useTranslation()
-  const { key } = useConectionKey()
-  const host = forwarderHost()
-
-  // Token is always shown as •••••••  in the UI; the real value is copied on click.
-  // Falls back to "*******" if the key hasn't loaded or the request failed.
-  const token = key.data?.connectionKey ?? '*'.repeat(7)
-  const installCmd = `sudo bash -c "
+function buildForwarderInstallCmd(host: string, token: string): string {
+  return `sudo bash -c "
   apt update -y && apt install wget -y && \\
   mkdir -p /opt/utmstack-forwarder && \\
   wget --no-check-certificate -P /opt/utmstack-forwarder \\
@@ -131,6 +141,13 @@ export function ForwarderInstall({ source }: { source: string }) {
   chmod 755 /opt/utmstack-forwarder/utmstack_forwarder && \\
   /opt/utmstack-forwarder/utmstack_forwarder install ${host} <secret>${token}</secret> yes
 "`
+}
+
+export function ForwarderInstall({ source }: { source: string }) {
+  const { t } = useTranslation()
+  const { key } = useConectionKey()
+  const token = key.data?.connectionKey ?? '*'.repeat(7)
+  const installCmd = buildForwarderInstallCmd(forwarderHost(), token)
 
   return (
     <Section title={t(`${SHARED}.install.title`)} step={1}>
@@ -160,14 +177,21 @@ interface ForwarderGuideProps {
 
 export function ForwarderGuide({ source, port, sourceType, defaultProto, children }: ForwarderGuideProps) {
   const { t } = useTranslation()
-  const { forwarders } = useCollectorIntegration()
-  const hasOnlineForwarder = (forwarders.data ?? []).some((f) => f.status === 'online')
   const availableProtos = useMemo(() => availableProtosFor(sourceType), [sourceType])
   const initialProto = defaultProto ?? availableProtos[0]
   const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
     proto: initialProto,
     port: defaultPortFor(sourceType, initialProto) || port,
+    isMaster: false,
+    apiKey: null,
   }))
+  const [installOpen, setInstallOpen] = useState(false)
+  const installRef = useRef<HTMLDivElement>(null)
+
+  const handleAddCollector = () => {
+    setInstallOpen(true)
+    setTimeout(() => installRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
 
   return (
     <div className="space-y-4">
@@ -179,21 +203,56 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
         </p>
       </Section>
 
-      {!forwarders.isLoading && !hasOnlineForwarder && <ForwarderInstall source={source} />}
-
       <RemoteEnablePanel
         dataType={sourceType}
         availableProtos={availableProtos}
         defaultProto={defaultProto}
-        step={2}
+        step={1}
         onSelectionChange={setSelection}
+        onRequestAddCollector={handleAddCollector}
       />
 
-      {/* Vendor-specific steps (device-side config). */}
-      {children}
+      {selection.isMaster && selection.apiKey && <MasterCommandSection selection={selection} />}
 
-      <ManualCommandSection sourceType={sourceType} selection={selection} />
-      <ForwarderUninstallSection />
+      {/* Vendor-specific steps (device-side config). Hidden in master mode — it targets the forwarder, not master. */}
+      {!selection.isMaster && children}
+
+      {!selection.isMaster && (
+        <div ref={installRef}>
+          <ForwarderInstallSection source={source} open={installOpen} onToggle={() => setInstallOpen((o) => !o)} />
+        </div>
+      )}
+      {!selection.isMaster && <ManualCommandSection sourceType={sourceType} selection={selection} />}
+      {!selection.isMaster && <ForwarderUninstallSection />}
+    </div>
+  )
+}
+
+function ForwarderInstallSection({ source, open, onToggle }: { source: string; open: boolean; onToggle: () => void }) {
+  const { t } = useTranslation()
+  const { key } = useConectionKey()
+
+  const token = key.data?.connectionKey ?? '*'.repeat(7)
+  const installCmd = buildForwarderInstallCmd(forwarderHost(), token)
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-border">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/40 transition-colors"
+      >
+        <span>{t(`${SHARED}.install.title`)}</span>
+        <ChevronDown size={14} className={cn('shrink-0 text-muted-foreground transition-transform duration-200', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div className="space-y-3 border-t border-border px-4 pb-4 pt-3">
+          <p className="text-sm text-foreground/90">{t(`${SHARED}.install.body`)}</p>
+          <CodeBlock code={installCmd} />
+          <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+            {t(`${SHARED}.install.reuse`, { source })}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

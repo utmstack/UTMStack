@@ -1838,6 +1838,10 @@
           "uninstall": {
             "title": "Opcional — Desinstalar o Collector",
             "body": "Execute este comando no host onde o Collector está instalado para parar o serviço e remover todos os seus arquivos."
+          },
+          "masterHeader": {
+            "title": "Cabeçalho de autorização",
+            "body": "Inclua este cabeçalho Authorization em cada requisição enviada ao Master. O segredo de \"{{name}}\" é revelado apenas uma vez ao gerar a chave de API — copie-o naquele momento e cole no lugar do marcador abaixo."
           }
         },
         "cisco": {
@@ -3292,6 +3296,55 @@
           "bodyHttp": "Envie seus eventos como JSON via HTTP POST para <hl>{{endpoint}}</hl>. O corpo de cada requisição é um evento JSON:",
           "httpBindNote": "O listener HTTP/HTTPS vincula-se a 127.0.0.1 (o host do Collector) por padrão, portanto envie requisições de um app em execução nesse host — ou coloque um proxy reverso à frente. Para fontes remotas, use syslog (UDP/TCP/TLS)."
         }
+      },
+      "remoteEnable": {
+        "title": "Ativar esta integração remotamente",
+        "body": "Escolha um Collector, selecione o protocolo e a porta, depois ative a integração — sem necessidade de SSH.",
+        "noPermission": "Você não tem permissão para gerenciar integrações remotas. Peça a um administrador para conceder a permissão integrations.write.",
+        "loadingCollectors": "Carregando Collectors…",
+        "noCollectors": "Nenhum Collector foi registrado ainda. Instale um acima para ativar integrações remotamente.",
+        "forwarderOffline": "Este Collector está offline e não pode receber alterações de configuração agora.",
+        "legendOnline": "{{count}} online",
+        "legendOffline": "{{count}} offline",
+        "legendTotal": "{{count}} total",
+        "forwarderLabel": "Collector",
+        "protoLabel": "Protocolo",
+        "portLabel": "Porta",
+        "currentStateLoading": "Verificando configuração atual…",
+        "currentlyEnabled": "Atualmente: ativada · {{proto}} · porta {{port}}",
+        "currentlyDisabled": "Atualmente: desativada · {{proto}} · porta {{port}}",
+        "authLabel": "Autenticação",
+        "authNone": "Nenhuma",
+        "authBearer": "Token Bearer",
+        "authHmac": "Assinatura HMAC",
+        "pathLabel": "Caminho",
+        "signatureHeaderLabel": "Cabeçalho de assinatura",
+        "certTitle": "Certificado TLS",
+        "certLoading": "Verificando status do certificado…",
+        "certLoaded": "Um certificado válido já está carregado neste Collector.",
+        "certMissing": "Nenhum certificado carregado ainda — envie um para ativar este protocolo.",
+        "certInvalid": "O certificado carregado é inválido: {{error}}",
+        "certPemLabel": "Certificado",
+        "keyPemLabel": "Chave privada",
+        "caPemLabel": "Certificado CA",
+        "uploadCertsButton": "Enviar certificado",
+        "certUploadSuccess": "Certificado enviado.",
+        "certUploadError": "Falha ao enviar o certificado.",
+        "certReadError": "Não foi possível ler o(s) arquivo(s) selecionado(s).",
+        "enableButton": "Ativar integração",
+        "disableButton": "Desativar integração",
+        "enableSuccess": "Integração ativada.",
+        "disableSuccess": "Integração desativada.",
+        "enableError": "Falha ao atualizar a integração.",
+        "secretWarning": "Armazene este token com segurança — não será exibido novamente.",
+        "sendToMaster": "Enviar para o Master",
+        "enterpriseFeature": "Este é um recurso Enterprise.",
+        "addCollector": "Adicionar Collector",
+        "addApiKey": "Adicionar chave de API",
+        "apiKeyLabel": "Chave de API",
+        "apiKeyPlaceholder": "Selecionar uma chave de API",
+        "apiKeyAddNew": "Adicionar chave de API…",
+        "apiKeyNone": "Nenhuma chave de API ainda"
       }
     },
     "codeBlock": {
