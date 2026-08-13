@@ -3471,7 +3471,11 @@
         "enableSuccess": "Integration enabled.",
         "disableSuccess": "Integration disabled.",
         "enableError": "Failed to update the integration.",
-        "secretWarning": "Store this token securely — it won't be shown again."
+        "secretWarning": "Store this token securely — it won't be shown again.",
+        "sendToMaster": "Send to Master",
+        "enterpriseFeature": "This is an Enterprise feature.",
+        "addCollector": "Add Collector",
+        "addApiKey": "Add API key"
       }
     },
     "codeBlock": {

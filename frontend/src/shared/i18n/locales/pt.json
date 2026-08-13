@@ -3332,7 +3332,11 @@
         "enableSuccess": "Integração ativada.",
         "disableSuccess": "Integração desativada.",
         "enableError": "Falha ao atualizar a integração.",
-        "secretWarning": "Armazene este token com segurança — não será exibido novamente."
+        "secretWarning": "Armazene este token com segurança — não será exibido novamente.",
+        "sendToMaster": "Enviar para o Master",
+        "enterpriseFeature": "Este é um recurso Enterprise.",
+        "addCollector": "Adicionar Collector",
+        "addApiKey": "Adicionar chave de API"
       }
     },
     "codeBlock": {

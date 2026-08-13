@@ -3370,7 +3370,11 @@
         "enableSuccess": "Intégration activée.",
         "disableSuccess": "Intégration désactivée.",
         "enableError": "Échec de la mise à jour de l'intégration.",
-        "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau."
+        "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau.",
+        "sendToMaster": "Envoyer au Master",
+        "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
+        "addCollector": "Ajouter un Collector",
+        "addApiKey": "Ajouter une clé API"
       }
     },
     "codeBlock": {

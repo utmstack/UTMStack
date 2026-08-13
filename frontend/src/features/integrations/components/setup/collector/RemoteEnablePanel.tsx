@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Check, ChevronDown, Copy, Loader2, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Check, ChevronDown, Copy, KeySquare, Loader2, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { useAuth } from '@/features/auth/services/auth.context'
+import { useBilling } from '@/features/billing/services/billing.context'
 import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
 import type { ForwarderCollector } from '@/features/integrations/types'
 import { defaultPortFor, httpDefaultsFor, type HttpAuth, type Proto } from './protoCatalog'
 
 const ROOT = 'integrations.setup.remoteEnable'
+const MASTER_ID = -1
+const ADD_COLLECTOR_ID = -2
 
 export interface RemoteEnableSelection {
   proto: Proto
@@ -23,6 +27,7 @@ interface RemoteEnablePanelProps {
   defaultProto?: Proto
   step?: number
   onSelectionChange?: (selection: RemoteEnableSelection) => void
+  onRequestAddCollector?: () => void
 }
 
 async function fileToBase64(file: File): Promise<string> {
@@ -72,8 +77,8 @@ function ForwarderPicker({
         className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
       >
         <span className="flex min-w-0 items-center gap-2">
-          {selected && <StatusDot status={selected.status} />}
-          <span className="truncate">{selected ? `${selected.hostname} (${selected.ip})` : ''}</span>
+          {selected && selected.ip && <StatusDot status={selected.status} />}
+          <span className="truncate">{selected ? (selected.ip ? `${selected.hostname} (${selected.ip})` : selected.hostname) : ''}</span>
         </span>
         <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
       </button>
@@ -89,10 +94,9 @@ function ForwarderPicker({
               }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
             >
-              <StatusDot status={f.status} />
-              <span className="truncate">
-                {f.hostname} ({f.ip})
-              </span>
+              {f.ip && <StatusDot status={f.status} />}
+              {f.id === ADD_COLLECTOR_ID && <Plus size={12} className="shrink-0 text-muted-foreground" />}
+              <span className="truncate">{f.ip ? `${f.hostname} (${f.ip})` : f.hostname}</span>
             </button>
           ))}
         </div>
@@ -130,10 +134,14 @@ export function RemoteEnablePanel({
   defaultProto,
   step,
   onSelectionChange,
+  onRequestAddCollector,
 }: RemoteEnablePanelProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { hasPermission } = useAuth()
   const canManage = hasPermission('integrations.write')
+  const { license } = useBilling()
+  const canUseMaster = license?.edition === 'enterprise' || !!license?.mssp
 
   const { forwarders, setDataType, setCertificates, tlsStatus, dataTypeConfig } = useCollectorIntegration()
 
@@ -161,13 +169,30 @@ export function RemoteEnablePanel({
   const [keyPem, setKeyPem] = useState<File | null>(null)
   const [caPem, setCaPem] = useState<File | null>(null)
 
+  const isMaster = collectorId === MASTER_ID
+  const masterOption: ForwarderCollector = {
+    id: MASTER_ID,
+    hostname: t(`${ROOT}.sendToMaster`),
+    ip: '',
+    version: '',
+    status: 'online',
+  }
+  const addCollectorOption: ForwarderCollector = {
+    id: ADD_COLLECTOR_ID,
+    hostname: t(`${ROOT}.addCollector`),
+    ip: '',
+    version: '',
+    status: 'online',
+  }
+  const pickerOptions = [masterOption, ...allForwarders, addCollectorOption]
   const selectedForwarder = allForwarders.find((f) => f.id === collectorId) ?? null
-  const isSelectedForwarderOffline = selectedForwarder != null && selectedForwarder.status !== 'online'
+  const isSelectedForwarderOffline = !isMaster && selectedForwarder != null && selectedForwarder.status !== 'online'
 
   useEffect(() => {
-    if (collectorId != null && allForwarders.some((f) => f.id === collectorId)) return
-    const preferred = allForwarders.find((f) => f.status === 'online') ?? allForwarders[0]
-    setCollectorId(preferred?.id ?? null)
+    if (collectorId == null) return
+    if (collectorId === MASTER_ID) return
+    if (allForwarders.some((f) => f.id === collectorId)) return
+    setCollectorId(null)
   }, [allForwarders, collectorId])
 
   useEffect(() => {
@@ -177,10 +202,10 @@ export function RemoteEnablePanel({
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'
 
-  const tlsStatusQuery = tlsStatus(needsCerts ? collectorId : null)
+  const tlsStatusQuery = tlsStatus(needsCerts && !isMaster ? collectorId : null)
 
-  const currentConfig = dataTypeConfig(collectorId, dataType)
-  const isSyncingConfig = collectorId != null && currentConfig.isLoading
+  const currentConfig = dataTypeConfig(isMaster ? null : collectorId, dataType)
+  const isSyncingConfig = !isMaster && collectorId != null && currentConfig.isLoading
 
   const isLiveOnSelectedForwarder = !!(currentConfig.data?.configured && currentConfig.data?.enabled)
   const isConfigLocked = isSyncingConfig || isLiveOnSelectedForwarder
@@ -284,29 +309,34 @@ export function RemoteEnablePanel({
     <Section title={t(`${ROOT}.title`)} step={step}>
       <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.body`)}</p>
 
-      {forwarders.isLoading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {t(`${ROOT}.loadingCollectors`)}
-        </div>
-      ) : allForwarders.length === 0 ? (
-        <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-          {t(`${ROOT}.noCollectors`)}
-        </p>
-      ) : (
-        <div className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+      <div className="space-y-3">
+        {!forwarders.isLoading && allForwarders.length === 0 && !isMaster && (
+          <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+            {t(`${ROOT}.noCollectors`)}
+          </p>
+        )}
+          <div className={cn('grid gap-3', !isMaster && 'sm:grid-cols-2')}>
             <label className="block">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-[11px] font-medium text-muted-foreground">
                   {t(`${ROOT}.forwarderLabel`)}
                 </span>
-                <ForwarderStatusLegend forwarders={allForwarders} />
+                {!isMaster && <ForwarderStatusLegend forwarders={allForwarders} />}
               </div>
               <ForwarderPicker
-                forwarders={allForwarders}
+                forwarders={pickerOptions}
                 value={collectorId}
-                onChange={setCollectorId}
+                onChange={(id) => {
+                  if (id === ADD_COLLECTOR_ID) {
+                    onRequestAddCollector?.()
+                    return
+                  }
+                  if (id === MASTER_ID && !canUseMaster) {
+                    toast.info(t(`${ROOT}.enterpriseFeature`))
+                    return
+                  }
+                  setCollectorId(id)
+                }}
                 disabled={isSyncingConfig}
               />
               {isSelectedForwarderOffline && (
@@ -316,30 +346,40 @@ export function RemoteEnablePanel({
               )}
             </label>
 
-            <label className="block">
-              <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                {t(`${ROOT}.protoLabel`)}
-              </span>
-              <select
-                value={proto}
-                onChange={(e) => {
-                  const next = e.target.value as Proto
-                  setProto(next)
-                  setPort(defaultPortFor(dataType, next))
-                  setGeneratedSecret(null)
-                }}
-                disabled={availableProtos.length <= 1 || isConfigLocked}
-                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
-              >
-                {availableProtos.map((p) => (
-                  <option key={p} value={p}>
-                    {p.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {!isMaster && (
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                  {t(`${ROOT}.protoLabel`)}
+                </span>
+                <select
+                  value={proto}
+                  onChange={(e) => {
+                    const next = e.target.value as Proto
+                    setProto(next)
+                    setPort(defaultPortFor(dataType, next))
+                    setGeneratedSecret(null)
+                  }}
+                  disabled={availableProtos.length <= 1 || isConfigLocked}
+                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
+                >
+                  {availableProtos.map((p) => (
+                    <option key={p} value={p}>
+                      {p.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </div>
 
+          {isMaster && (
+            <Button size="sm" variant="outline" onClick={() => navigate('/settings/api-keys')}>
+              <KeySquare size={13} className="mr-1.5" />
+              {t(`${ROOT}.addApiKey`)}
+            </Button>
+          )}
+
+          {!isMaster && (<>
           {isSyncingConfig ? (
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -524,8 +564,8 @@ export function RemoteEnablePanel({
               {t(`${ROOT}.disableButton`)}
             </Button>
           </div>
+          </>)}
         </div>
-      )}
     </Section>
   )
 }

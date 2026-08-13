@@ -3252,7 +3252,11 @@
         "enableSuccess": "Интеграция включена.",
         "disableSuccess": "Интеграция отключена.",
         "enableError": "Не удалось обновить интеграцию.",
-        "secretWarning": "Сохраните этот токен в безопасном месте — он больше не будет показан."
+        "secretWarning": "Сохраните этот токен в безопасном месте — он больше не будет показан.",
+        "sendToMaster": "Отправить на Master",
+        "enterpriseFeature": "Это функция Enterprise.",
+        "addCollector": "Добавить Collector",
+        "addApiKey": "Добавить API-ключ"
       }
     },
     "codeBlock": {
