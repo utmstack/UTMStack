@@ -217,9 +217,8 @@ export function BroadcastDialog({
       icon={AlertTriangle}
       busy={busy}
       confirmLabel={confirmLabel}
-      cancelLabel={
-        result ? t('common.actions.close', 'Close') : t('common.actions.cancel', 'Cancel')
-      }
+      cancelLabel={t('common.actions.cancel', 'Cancel')}
+      hideCancel={!!result}
       onClose={onClose}
       onConfirm={result ? onClose : run}
     />
