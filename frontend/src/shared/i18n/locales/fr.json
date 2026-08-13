@@ -2736,6 +2736,10 @@
           "uninstall": {
             "title": "Optionnel — Désinstaller le Collector",
             "body": "Exécutez cette commande sur l'hôte où le Collector est installé pour arrêter le service et supprimer tous ses fichiers."
+          },
+          "masterHeader": {
+            "title": "En-tête d'autorisation",
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous."
           }
         },
         "aix": {
@@ -3330,6 +3334,55 @@
           "bodyHttp": "Envoyez vos événements au format JSON via HTTP POST vers <hl>{{endpoint}}</hl>. Chaque corps de requête est un événement JSON :",
           "httpBindNote": "L'écouteur HTTP/HTTPS est lié à 127.0.0.1 (l'hôte Collector) par défaut ; envoyez donc les requêtes depuis une application s'exécutant sur cet hôte, ou placez un proxy inverse devant. Pour les sources distantes, utilisez syslog (UDP/TCP/TLS)."
         }
+      },
+      "remoteEnable": {
+        "title": "Activer cette intégration à distance",
+        "body": "Choisissez un Collector, sélectionnez le protocole et le port, puis activez l'intégration — aucun SSH requis.",
+        "noPermission": "Vous n'avez pas la permission de gérer les intégrations distantes. Demandez à un administrateur d'accorder la permission integrations.write.",
+        "loadingCollectors": "Chargement des Collectors…",
+        "noCollectors": "Aucun Collector n'est enregistré pour le moment. Installez-en un ci-dessus pour activer les intégrations à distance.",
+        "forwarderOffline": "Ce Collector est hors ligne et ne peut pas recevoir de modifications de configuration en ce moment.",
+        "legendOnline": "{{count}} en ligne",
+        "legendOffline": "{{count}} hors ligne",
+        "legendTotal": "{{count}} total",
+        "forwarderLabel": "Collector",
+        "protoLabel": "Protocole",
+        "portLabel": "Port",
+        "currentStateLoading": "Vérification de la configuration actuelle…",
+        "currentlyEnabled": "Actuellement : activé · {{proto}} · port {{port}}",
+        "currentlyDisabled": "Actuellement : désactivé · {{proto}} · port {{port}}",
+        "authLabel": "Authentification",
+        "authNone": "Aucune",
+        "authBearer": "Jeton Bearer",
+        "authHmac": "Signature HMAC",
+        "pathLabel": "Chemin",
+        "signatureHeaderLabel": "En-tête de signature",
+        "certTitle": "Certificat TLS",
+        "certLoading": "Vérification du statut du certificat…",
+        "certLoaded": "Un certificat valide est déjà chargé sur ce Collector.",
+        "certMissing": "Aucun certificat chargé pour le moment — téléchargez-en un pour activer ce protocole.",
+        "certInvalid": "Le certificat chargé est invalide : {{error}}",
+        "certPemLabel": "Certificat",
+        "keyPemLabel": "Clé privée",
+        "caPemLabel": "Certificat CA",
+        "uploadCertsButton": "Télécharger le certificat",
+        "certUploadSuccess": "Certificat téléchargé.",
+        "certUploadError": "Échec du téléchargement du certificat.",
+        "certReadError": "Impossible de lire le(s) fichier(s) sélectionné(s).",
+        "enableButton": "Activer l'intégration",
+        "disableButton": "Désactiver l'intégration",
+        "enableSuccess": "Intégration activée.",
+        "disableSuccess": "Intégration désactivée.",
+        "enableError": "Échec de la mise à jour de l'intégration.",
+        "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau.",
+        "sendToMaster": "Envoyer au Master",
+        "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
+        "addCollector": "Ajouter un Collector",
+        "addApiKey": "Ajouter une clé API",
+        "apiKeyLabel": "Clé API",
+        "apiKeyPlaceholder": "Sélectionner une clé API",
+        "apiKeyAddNew": "Ajouter une clé API…",
+        "apiKeyNone": "Aucune clé API pour l'instant"
       }
     },
     "codeBlock": {

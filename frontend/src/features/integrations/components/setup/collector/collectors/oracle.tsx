@@ -33,7 +33,7 @@ local5.* @<forwarder-ip>:${PORT}`
 
   return (
     <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="oracle">
-      <Section title={t(`${ROOT}.step2.title`)} step={3}>
+      <Section title={t(`${ROOT}.step2.title`)} step={2}>
         <p className="mb-2 text-sm text-foreground/90">{t(`${ROOT}.step2.body`)}</p>
         <CodeBlock code="sudo touch /etc/rsyslog.d/oracle-utmstack.conf" />
         <p className="mt-3 mb-2 text-sm text-foreground/90">{t(`${ROOT}.step2.editBody`)}</p>
