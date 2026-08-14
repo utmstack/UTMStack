@@ -16,23 +16,37 @@ import (
 
 	"github.com/utmstack/UTMStack/log-input/auth"
 	"github.com/utmstack/UTMStack/log-input/config"
-	"github.com/utmstack/UTMStack/log-input/publish"
 )
 
+func loadTLSConfig(certFile, keyFile string) (*tls.Config, error) {
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, err
+	}
+	return &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		MinVersion:   tls.VersionTLS13,
+	}, nil
+}
+
 const processName = "log-input"
+
+type Publisher interface {
+	Publish(ctx context.Context, l *plugins.Log) error
+}
 
 type Server struct {
 	plugins.UnimplementedIntegrationServer
 
 	cfg *config.Config
-	pub *publish.Publisher
+	pub Publisher
 
 	grpc   *grpc.Server
 	health *health.Server
 }
 
-func NewServer(cfg *config.Config, a *auth.Service, pub *publish.Publisher) (*Server, error) {
-	cert, err := tls.LoadX509KeyPair(cfg.CertFile, cfg.KeyFile)
+func NewServer(cfg *config.Config, a *auth.Service, pub Publisher) (*Server, error) {
+	tlsCfg, err := loadTLSConfig(cfg.CertFile, cfg.KeyFile)
 	if err != nil {
 		return nil, catcher.Error("cannot read the certificate files", err, map[string]any{
 			"process": processName,
@@ -40,10 +54,7 @@ func NewServer(cfg *config.Config, a *auth.Service, pub *publish.Publisher) (*Se
 		})
 	}
 
-	creds := credentials.NewTLS(&tls.Config{
-		Certificates: []tls.Certificate{cert},
-		MinVersion:   tls.VersionTLS13,
-	})
+	creds := credentials.NewTLS(tlsCfg)
 
 	m := newMiddlewares(a)
 
@@ -100,7 +111,7 @@ func (s *Server) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 			return err
 		}
 
-		s.applyDefaults(ctx, l)
+		applyDefaults(ctx, s.cfg, l)
 
 		if err := s.pub.Publish(ctx, l); err != nil {
 			return catcher.Error("cannot publish the log", err, map[string]any{
@@ -119,7 +130,7 @@ func (s *Server) ProcessLog(srv plugins.Integration_ProcessLogServer) error {
 	}
 }
 
-func (s *Server) applyDefaults(ctx context.Context, l *plugins.Log) {
+func applyDefaults(ctx context.Context, cfg *config.Config, l *plugins.Log) {
 	if l.Id == "" {
 		l.Id = uuid.NewString()
 	}
@@ -127,7 +138,7 @@ func (s *Server) applyDefaults(ctx context.Context, l *plugins.Log) {
 		l.TenantId = tenant
 	}
 	if l.TenantId == "" {
-		l.TenantId = s.cfg.DefaultTenant
+		l.TenantId = cfg.DefaultTenant
 	}
 	if l.DataType == "" {
 		l.DataType = "generic"

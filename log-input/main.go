@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -57,11 +59,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	httpServer, err := ingest.NewHTTPServer(cfg, authService, publisher)
+	if err != nil {
+		_ = catcher.Error("cannot build the http ingest server", err, map[string]any{"process": processName})
+		time.Sleep(5 * time.Second)
+		os.Exit(1)
+	}
+
 	healthEndpoint := ingest.NewHealth(cfg.HealthAddr)
 	go healthEndpoint.Serve()
 
 	errs := make(chan error, 1)
 	go func() { errs <- server.Serve() }()
+	go func() {
+		if err := httpServer.Serve(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			_ = catcher.Error("the http ingest server stopped", err, map[string]any{"process": processName})
+		}
+	}()
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -79,6 +93,7 @@ func main() {
 		server.Stop()
 
 		sCtx, sCancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+		_ = httpServer.Stop(sCtx)
 		healthEndpoint.Close(sCtx)
 		sCancel()
 	}
