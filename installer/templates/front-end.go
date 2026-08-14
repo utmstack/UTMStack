@@ -62,7 +62,7 @@ const FrontEnd string = `server {
 
 	
 		if ($valid_request = 0) {
-			return 403;
+			return 400;
 		}
 
 		proxy_pass $utmstack_log_input/v1/ingest;
