@@ -18,6 +18,9 @@ const FrontEnd string = `server {
 
     set $utmstack_log_input https://log-input:50052;
 	set $api_key_header $http_utm_api_key;
+	set $connector_key_header $http_x_connector_key;
+	set $connector_id_header $http_x_connector_id;
+	set $connector_type_header $http_x_connector_type;
 
     location ~ ^/api/v1/soar/ws/ {
         proxy_pass $utmstack_backend;
@@ -33,7 +36,32 @@ const FrontEnd string = `server {
 
 
 	location /ingest {
-		if ($api_key_header = "") {
+		set $valid_request 0;
+
+		if ($connector_key_header = "") {
+			set $valid_request 1;
+		}
+
+		if ($valid_request = 1) {
+			if ($connector_id_header = "") {
+				set $valid_request 0;
+			}
+		}
+
+		if ($valid_request = 1) {
+			if ($connector_type_header = "") {
+				set $valid_request 0;
+			}
+		}
+
+		if ($valid_request = 0) {
+			if ($api_key_header != "") {
+				set $valid_request 1;
+			}
+		}
+
+	
+		if ($valid_request = 0) {
 			return 403;
 		}
 
