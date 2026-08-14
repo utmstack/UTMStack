@@ -86,7 +86,6 @@ function MasterCommandSection({ selection }: { selection: RemoteEnableSelection 
     "raw": "<raw-log>"
   }'`
   const batchCmd = `curl -X POST https://${host}/ingest \\
-  --cacert /path/to/ca.crt \\
   -H "Content-Type: application/json" \\
   -H "Utm-Api-Key: <YOUR_API_KEY>" \\
   -d '{
