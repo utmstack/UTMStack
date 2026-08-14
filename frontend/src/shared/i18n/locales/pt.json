@@ -1841,7 +1841,9 @@
           },
           "masterHeader": {
             "title": "Cabeçalho de autorização",
-            "body": "Inclua este cabeçalho Authorization em cada requisição enviada ao Master. O segredo de \"{{name}}\" é revelado apenas uma vez ao gerar a chave de API — copie-o naquele momento e cole no lugar do marcador abaixo."
+            "body": "Inclua este cabeçalho Authorization em cada requisição enviada ao Master. O segredo de \"{{name}}\" é revelado apenas uma vez ao gerar a chave de API — copie-o naquele momento e cole no lugar do marcador abaixo.",
+            "tabSimple": "Simples",
+            "tabBatch": "Lote"
           }
         },
         "cisco": {

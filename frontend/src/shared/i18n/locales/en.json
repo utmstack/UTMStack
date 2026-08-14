@@ -2898,7 +2898,9 @@
           },
           "masterHeader": {
             "title": "Authorization header",
-            "body": "Include this Authorization header on every request you send to Master. The secret for \"{{name}}\" is only revealed once when the API key is generated — copy it then and paste it in place of the placeholder below."
+            "body": "Include this Authorization header on every request you send to Master. The secret for \"{{name}}\" is only revealed once when the API key is generated — copy it then and paste it in place of the placeholder below.",
+            "tabSimple": "Simple",
+            "tabBatch": "Batch"
           }
         },
         "aix": {

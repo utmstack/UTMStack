@@ -155,7 +155,6 @@ export function RemoteEnablePanel({
   const initialProto = defaultProto ?? availableProtos[0]
   const [collectorId, setCollectorId] = useState<number | null>(null)
   const [apiKeyId, setApiKeyId] = useState<number | null>(null)
-  const [masterProto, setMasterProto] = useState<'http' | 'https'>('https')
   const [proto, setProto] = useState<Proto>(initialProto)
   const [port, setPort] = useState(() => defaultPortFor(dataType, initialProto))
   const httpDefaults = httpDefaultsFor(dataType)
@@ -209,12 +208,12 @@ export function RemoteEnablePanel({
   useEffect(() => {
     const resolvedKey = apiKeys.data?.data.find((k) => k.id === apiKeyId) ?? null
     onSelectionChange?.({
-      proto: isMaster ? masterProto : proto,
+      proto: isMaster ? 'https' : proto,
       port,
       isMaster,
       apiKey: resolvedKey ? { id: resolvedKey.id, name: resolvedKey.name } : null,
     })
-  }, [proto, masterProto, port, isMaster, apiKeyId, apiKeys.data, onSelectionChange])
+  }, [proto, port, isMaster, apiKeyId, apiKeys.data, onSelectionChange])
 
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'
@@ -390,36 +389,21 @@ export function RemoteEnablePanel({
           </div>
 
           {isMaster && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                  {t(`${ROOT}.apiKeyLabel`)}
-                </span>
-                <ApiKeyPicker
-                  keys={apiKeys.data?.data ?? []}
-                  value={apiKeyId}
-                  onChange={setApiKeyId}
-                  onAddNew={() => navigate('/settings/api-keys')}
-                  addLabel={t(`${ROOT}.apiKeyAddNew`)}
-                  placeholder={t(`${ROOT}.apiKeyPlaceholder`)}
-                  emptyLabel={t(`${ROOT}.apiKeyNone`)}
-                  disabled={apiKeys.isLoading}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                  {t(`${ROOT}.protoLabel`)}
-                </span>
-                <select
-                  value={masterProto}
-                  onChange={(e) => setMasterProto(e.target.value as 'http' | 'https')}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
-                >
-                  <option value="https">HTTPS</option>
-                  <option value="http">HTTP</option>
-                </select>
-              </label>
-            </div>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                {t(`${ROOT}.apiKeyLabel`)}
+              </span>
+              <ApiKeyPicker
+                keys={apiKeys.data?.data ?? []}
+                value={apiKeyId}
+                onChange={setApiKeyId}
+                onAddNew={() => navigate('/settings/api-keys')}
+                addLabel={t(`${ROOT}.apiKeyAddNew`)}
+                placeholder={t(`${ROOT}.apiKeyPlaceholder`)}
+                emptyLabel={t(`${ROOT}.apiKeyNone`)}
+                disabled={apiKeys.isLoading}
+              />
+            </label>
           )}
 
           {!isMaster && (<>
