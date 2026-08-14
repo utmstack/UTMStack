@@ -448,6 +448,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		Ports: []string{
 			"50051:50051",
+			"50052:50052",
 		},
 		Volumes: []string{
 			stack.Cert + ":/cert",
