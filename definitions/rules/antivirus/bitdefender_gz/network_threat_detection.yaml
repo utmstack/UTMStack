@@ -1,55 +1,48 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Network-Based Threat Detection
+name: Bitdefender GravityZone Network Attack Blocked
 impact:
   confidentiality: 3
   integrity: 2
-  availability: 3
+  availability: 2
 category: Command and Control
-technique: "T1071 - Application Layer Protocol: Command and Control"
+technique: "T1071 - Application Layer Protocol"
 adversary: origin
 references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1071/
-  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
 description: |
-  Detects network-based threats including C2 communications, malicious network activity, and suspicious network connections identified by Bitdefender GravityZone.
+  Detects network-layer attacks that Bitdefender blocked at the endpoint, from either Network Attack Defense (exploit attempts, brute force, credential-stealing traffic) or the endpoint Firewall (port scans and blocked connections).
+
+  The rule fires on a single high-severity event, and the correlation step raises it when the same source keeps coming back: five or more events from the same origin.ip within two hours is a persistent adversary rather than a stray packet.
+
+  origin.ip is the attacker and target.ip is the endpoint being attacked. target.port tells you what was targeted, which is often the fastest way to read intent - 88 is Kerberos, 445 is SMB, 3389 is RDP.
 
   Next Steps:
-  1. Identify the affected host using log.hostId and check for other security events from this system
-  2. Review origin.ip to determine if it's a known malicious IP or C2 server
-  3. Check firewall logs for any blocked or allowed connections to/from the suspicious IP
-  4. Investigate running processes on the affected host for signs of malware
-  5. Review network traffic patterns for data exfiltration attempts
-  6. If ransomware is detected, immediately isolate the affected system
-  7. Collect network packet captures if available for deeper analysis
-  8. Check if other hosts have communicated with the same external IP address
-  9. Submit suspicious IPs to threat intelligence platforms for reputation checking
-  10. Document findings and update firewall rules to block confirmed malicious IPs
-where: |
-  (oneOf("log.eventType", ["network-sandboxing", "fw"]) &&
-   oneOf("log.severity", ["high", "critical", "4", "5"])) ||
-  (exists("origin.ip") && contains("log.eventType", "network") &&
-   contains("log.restData", ["malware", "threat", "blocked", "c2", "botnet"])) ||
-  (equals("log.severity", "critical") && contains("log.product", "network"))
-afterEvents:
-  - with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
+  1. Read the two sides: origin.ip is the source, target.host and target.ip are what it reached
+  2. Decide whether the source is internal or external:
+     - An external origin.ip means perimeter exposure - check why that traffic reached the endpoint at all
+     - An internal origin.ip means an already-compromised host is attacking laterally, which is more urgent
+  3. Read the intent from the detection:
+     - log.BitdefenderGZDetectionName names the attack, for example Attack.Bruteforce.KERBEROS
+     - log.BitdefenderGZDetectionAttackTechnique gives the MITRE-aligned phase, such as credentialAccess
+     - target.port identifies the targeted service
+  4. For credential access, assume the credentials are at risk:
+     - Force a reset on the targeted accounts and review authentication logs from origin.ip for any success
+     - If the target is a domain controller, treat it as a domain-wide incident
+  5. Check whether the same origin.ip reached other endpoints - the correlation step groups by source for exactly this reason
+  6. Block the source at the perimeter, and only then close the alert. A blocked attempt means this attack failed, not that the attacker stopped
+where: oneOf("log.BitdefenderGZModule", ["network-monitor", "fw"]) && greaterOrEqual("severity", 8)
+correlation:
     within: 2h
     count: 5
-    or:
-      - with:
-          - field: log.hostId
-            operator: filter_term
-            value: '{{.log.hostId}}'
-          - field: log.eventType
-            operator: filter_term
-            value: 'network-sandboxing'
-        within: 4h
-        count: 3
+    with:
+      - field: origin.ip
+        operator: filter_term
+        value: "{{.origin.ip}}"
 groupBy:
-  - lastEvent.log.hostId
+  - target.host
   - adversary.ip

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.1.0
 
 dataTypes:
   - firewall-sonicwall
@@ -14,23 +14,36 @@ references:
   - https://www.sonicwall.com/support/knowledge-base/capture-atp-overview/170503785055490
   - https://attack.mitre.org/techniques/T1204/
 description: |
-  Detects when SonicWall Capture ATP (Advanced Threat Protection) identifies a file as malicious after sandbox analysis. This indicates an attempted malware delivery or execution that was blocked by the ATP service.
+  Detects when SonicWall Capture ATP (Advanced Threat Protection) sandboxes a
+  file and returns a malicious verdict. Indicates an attempted malware
+  delivery. Also covers RTDMI (Real-Time Deep Memory Inspection) verdicts
+  which share the ATP verdict pipeline on the firewall.
 
   Next Steps:
-  1. Investigate the source IP address for additional malicious activity
-  2. Review the file hash and name for threat intelligence correlation
-  3. Check if the same file was delivered to other internal systems
-  4. Verify ATP policies are properly configured and up to date
-  5. Consider blocking the source IP at the perimeter if confirmed malicious
-  6. Document the incident and update threat intelligence feeds
-where: (contains("log.msg", "Capture ATP") || contains("log.msg", "Gateway Anti-Virus") || contains("log.msg", "Sandbox") || equals("log.category", "Anti-Virus") || equals("log.af_type", "ATP")) && (contains("log.msg", "malicious") || contains("log.msg", "blocked") || contains("log.msg", "threat detected") || equals("log.result", "malicious") || equals("action", "blocked"))
+  1. Investigate the source IP for additional malicious activity.
+  2. Pivot on the file hash / URL captured in `log.note` against threat intel.
+  3. Check whether the same file reached other internal systems.
+  4. Verify ATP policies and enforce automated blocking if not already set.
+where: |
+  (
+    oneOf("log.eventCode", ["1440", "1441"]) ||
+    equals("log.appFirewallType", "ATP") ||
+    contains("log.message", ["Capture ATP", "Sandbox", "RTDMI"]) ||
+    contains("log.note", ["Capture ATP", "malicious verdict", "ATP verdict"])
+  ) &&
+  (
+    equals("log.threatResult", "malicious") ||
+    contains("log.message", ["malicious", "threat"]) ||
+    contains("log.note", ["malicious", "threat"]) ||
+    equals("actionResult", "denied")
+  )
 afterEvents:
-  - with:
+    with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
     within: 1h
-    count: 2
+    count: 1
 groupBy:
   - adversary.host
   - adversary.ip
