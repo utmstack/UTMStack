@@ -1,39 +1,47 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Bootkit/UEFI Threat Detection
+name: Bitdefender GravityZone Bootkit or UEFI Threat Detected
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: Defense Evasion, Persistence
-technique: "T1542.001 - Boot or Logon Autostart Execution: System Firmware"
+category: Defense Evasion
+technique: "T1542.001 - Pre-OS Boot: System Firmware"
 adversary: origin
 references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1542/001/
-  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
 description: |
-  Detects bootkit or UEFI-level threats that attempt to persist at the firmware level and compromise the boot process. These threats can survive system reinstalls and bypass traditional security measures by infecting the system firmware.
+  Detects a threat classified by Bitdefender as living at the boot layer: boot sector, UEFI/BIOS, or a kernel-mode rootkit. These persist across reinstalls and survive credential rotation, so a single hit is a full-endpoint incident.
+
+  Three complementary signals, from any of the antimalware engines (Antimalware, Advanced Threat Control, HyperDetect):
+  - malwareType classified as "boot", which is a vendor-defined value for boot-sector threats.
+  - Detection name in a bootkit family: Bootkit.*, Rootkit.*, Trojan.Boot.*, TDSS.*, Alureon.*, ZeroAccess.*, Necurs.*, Sinowal.*.
+  - The artefact sits in a boot region: \EFI\, /EFI/, \boot\, /boot/, or references the Master Boot Record.
 
   Next Steps:
-  - Isolate the affected system immediately to prevent spread
-  - Review system boot logs and firmware settings for modifications
-  - Check for other malware detections on the same host in the past 24-48 hours
-  - Verify system integrity using offline scanning tools
-  - Consider reimaging the system and updating firmware/UEFI
-  - Enable Secure Boot if not already enabled
-  - Review user activity and recently installed software on the affected system
-  - Document the infection for incident response reporting
-  - Check if other systems with similar hardware/firmware versions are affected
+  1. Isolate the endpoint immediately. Bootkits control the boot process; the running OS cannot be trusted to report accurately.
+  2. Do not reboot into the local OS. If forensic capture is required, boot from external media.
+  3. Determine what fired the detection:
+     - target.malware and log.BitdefenderGZDetectionName give the family name and align with public IOCs.
+     - target.path names the affected boot region.
+     - actionResult tells you whether Bitdefender removed the artefact. Boot region cleanup often fails from within the OS - actionResult "failed" is the expected outcome and does not mean the detection was wrong.
+  4. Verify firmware integrity independently: dump BIOS/UEFI, compare against a known-good, check Secure Boot state.
+  5. Reimage from trusted media and reflash firmware. Do not try to disinfect the running OS.
+  6. Enable Secure Boot for all hosts with the same hardware baseline if it was not already on. Bootkit persistence relies on Secure Boot being off or being defeated.
+  7. Hunt the estate for target.sha256 - any other endpoint reporting the same hash without firing this rule is a coverage gap, not proof of cleanliness.
 where: |
-  equals("log.eventType", "av") &&
-  greaterOrEqual("log.severity", 8) &&
-  (
-    contains("log.requested", ["boot", "uefi", "rootkit", "firmware"]) ||
-    contains("log.restData", ["boot", "uefi", "rootkit", "firmware",
-      "\\EFI\\", "/EFI/", "\\boot\\", "/boot/"])
-  )
+  oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
+  (equals("log.BitdefenderGZMalwareType", "boot") ||
+   regexMatch("log.BitdefenderGZDetectionName",
+     "(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\.boot|master.?boot)") ||
+   regexMatch("target.malware",
+     "(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\.boot|master.?boot)") ||
+   regexMatch("target.path",
+     "(?i)(\\\\efi\\\\|/efi/|\\\\boot\\\\|/boot/|master\\.?boot\\.?record|mbr)"))
 groupBy:
-  - lastEvent.log.hostId
-  - lastEvent.log.severity
+  - target.host
+  - target.malware
