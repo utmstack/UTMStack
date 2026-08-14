@@ -2739,7 +2739,9 @@
           },
           "masterHeader": {
             "title": "Autorisierungs-Header",
-            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis für \"{{name}}\" wird nur einmal bei der Erstellung des API-Schlüssels angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein."
+            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis für \"{{name}}\" wird nur einmal bei der Erstellung des API-Schlüssels angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein.",
+            "tabSimple": "Einfach",
+            "tabBatch": "Stapel"
           }
         },
         "aix": {

@@ -2739,7 +2739,9 @@
           },
           "masterHeader": {
             "title": "En-tête d'autorisation",
-            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous."
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
+            "tabSimple": "Simple",
+            "tabBatch": "Lot"
           }
         },
         "aix": {

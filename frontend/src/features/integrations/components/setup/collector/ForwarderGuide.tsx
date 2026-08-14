@@ -37,7 +37,7 @@ export function forwarderHost(): string {
 // don't need to change their imports.
 export { TONES, FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
 
-function FlowDiagram({ source, port }: { source: string; port: string }) {
+function FlowDiagram({ source, port, isMaster }: { source: string; port: string; isMaster: boolean }) {
   const { t } = useTranslation()
   return (
     <div className="mt-3 flex items-stretch justify-center gap-1 sm:gap-2">
@@ -48,13 +48,17 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
         tone="neutral"
       />
       <FlowEdge label={t(`${SHARED}.diagram.flow1`)} />
-      <FlowNode
-        icon={<Forward size={20} />}
-        title={t(`${SHARED}.diagram.forwarder`)}
-        sub={t(`${SHARED}.diagram.forwarderSub`, { port })}
-        tone="accent"
-      />
-      <FlowEdge label={t(`${SHARED}.diagram.flow2`)} />
+      {!isMaster && (
+        <>
+          <FlowNode
+            icon={<Forward size={20} />}
+            title={t(`${SHARED}.diagram.forwarder`)}
+            sub={t(`${SHARED}.diagram.forwarderSub`, { port })}
+            tone="accent"
+          />
+          <FlowEdge label={t(`${SHARED}.diagram.flow2`)} />
+        </>
+      )}
       <FlowNode
         icon={<ShieldCheck size={20} />}
         title={t(`${SHARED}.diagram.utmstack`)}
@@ -69,16 +73,53 @@ function FlowDiagram({ source, port }: { source: string; port: string }) {
 
 function MasterCommandSection({ selection }: { selection: RemoteEnableSelection }) {
   const { t } = useTranslation()
+  const [tab, setTab] = useState<'simple' | 'batch'>('simple')
   if (!selection.apiKey) return null
-  const host = forwarderHost()
-  // ponytail: secret is generated once server-side; user must paste it themselves
-  const cmd = `POST ${selection.proto}://${host}:8080/v1/logs
-Authorization: Bearer <YOUR_API_KEY_SECRET>
-Content-Type: application/json`
+  const host = typeof window === 'undefined' ? 'utmstack-host' : window.location.host
+  const simpleCmd = `curl -k -X POST https://${host}/ingest \\
+  -H "Content-Type: application/json" \\
+  -H "Utm-Api-Key: <YOUR_API_KEY>" \\
+  -d '{
+    "dataType": "<data-type>",
+    "dataSource": "<data-source>",
+    "timestamp": "",
+    "raw": "<raw-log>"
+  }'`
+  const batchCmd = `curl -X POST https://${host}/ingest \\
+  --cacert /path/to/ca.crt \\
+  -H "Content-Type: application/json" \\
+  -H "Utm-Api-Key: <YOUR_API_KEY>" \\
+  -d '{
+    "logs": [
+      {
+        "dataType": "",
+        "dataSource": "",
+        "timestamp": "",
+        "raw": ""
+      },
+      {
+        "dataType": "",
+        "dataSource": "",
+        "timestamp": "",
+        "raw": ""
+      }
+    ]
+  }'`
   return (
     <Section title={t(`${SHARED}.masterHeader.title`)} step={2}>
       <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: selection.apiKey.name })}</p>
-      <CodeBlock code={cmd} />
+      <div className="flex gap-0 border-b border-border mb-3">
+        {(['simple', 'batch'] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setTab(v)}
+            className={cn('px-4 py-1.5 text-sm capitalize transition-colors', tab === v ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground hover:text-foreground')}
+          >
+            {v === 'simple' ? t(`${SHARED}.masterHeader.tabSimple`) : t(`${SHARED}.masterHeader.tabBatch`)}
+          </button>
+        ))}
+      </div>
+      <CodeBlock code={tab === 'simple' ? simpleCmd : batchCmd} />
     </Section>
   )
 }
@@ -197,7 +238,7 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
     <div className="space-y-4">
       <Section title={t(`${SHARED}.intro.title`)}>
         <p className="text-sm text-foreground/90">{t(`${SHARED}.intro.body`, { source })}</p>
-        <FlowDiagram source={source} port={port} />
+        <FlowDiagram source={source} port={port} isMaster={selection.isMaster} />
         <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
           {t(`${SHARED}.noInstall`, { source })}
         </p>
