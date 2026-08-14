@@ -9,18 +9,19 @@ import (
 	"github.com/utmstack/UTMStack/log-input/config"
 )
 
-func newServer() *Server {
-	return &Server{cfg: &config.Config{DefaultTenant: "default-tenant"}}
+// testCfg is a minimal config used by the tenant tests.
+// Only DefaultTenant is relevant here; the other fields are deliberately zero.
+func testCfg() *config.Config {
+	return &config.Config{DefaultTenant: "default-tenant"}
 }
 
 // A connector that names someone else's tenant writes into its own. This is the
 // whole reason the tenant comes from the credential.
 func TestPushedTenantCannotBeChosen(t *testing.T) {
-	s := newServer()
 	ctx := WithTenant(context.Background(), "tenant-a")
 
 	l := &plugins.Log{TenantId: "tenant-b"}
-	s.applyDefaults(ctx, l)
+	applyDefaults(ctx, testCfg(), l)
 
 	if l.TenantId != "tenant-a" {
 		t.Errorf("tenant = %q, want the credential's tenant", l.TenantId)
@@ -28,11 +29,10 @@ func TestPushedTenantCannotBeChosen(t *testing.T) {
 }
 
 func TestTenantIsTakenFromTheCredential(t *testing.T) {
-	s := newServer()
 	ctx := WithTenant(context.Background(), "tenant-a")
 
 	l := &plugins.Log{}
-	s.applyDefaults(ctx, l)
+	applyDefaults(ctx, testCfg(), l)
 
 	if l.TenantId != "tenant-a" {
 		t.Errorf("tenant = %q, want tenant-a", l.TenantId)
@@ -42,10 +42,8 @@ func TestTenantIsTakenFromTheCredential(t *testing.T) {
 // The internal key belongs to UTMStack's own services, which push on behalf of
 // every tenant, so what they send stands.
 func TestInternalCallerKeepsTheTenantItSent(t *testing.T) {
-	s := newServer()
-
 	l := &plugins.Log{TenantId: "tenant-b"}
-	s.applyDefaults(context.Background(), l)
+	applyDefaults(context.Background(), testCfg(), l)
 
 	if l.TenantId != "tenant-b" {
 		t.Errorf("tenant = %q, want tenant-b", l.TenantId)
@@ -53,10 +51,8 @@ func TestInternalCallerKeepsTheTenantItSent(t *testing.T) {
 }
 
 func TestNoTenantAnywhereFallsBackToTheDefault(t *testing.T) {
-	s := newServer()
-
 	l := &plugins.Log{}
-	s.applyDefaults(context.Background(), l)
+	applyDefaults(context.Background(), testCfg(), l)
 
 	if l.TenantId != "default-tenant" {
 		t.Errorf("tenant = %q, want the default", l.TenantId)
