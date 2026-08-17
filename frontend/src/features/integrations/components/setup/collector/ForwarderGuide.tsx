@@ -21,6 +21,7 @@ import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 //   </ForwarderGuide>
 
 const SHARED = 'integrations.setup.collector.forwarder'
+const LOGINPUT_PORT = '50052'
 
 // The Forwarder runs on the UTMStack host; default the address to where the user
 // is browsing from (stripped of any port).
@@ -76,7 +77,7 @@ function MasterCommandSection({ selection }: { selection: RemoteEnableSelection 
   const [tab, setTab] = useState<'simple' | 'batch'>('simple')
   if (!selection.apiKey) return null
   const host = typeof window === 'undefined' ? 'utmstack-host' : window.location.host
-  const simpleCmd = `curl -k -X POST https://${host}/ingest \\
+  const simpleCmd = `curl -k -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
   -H "Content-Type: application/json" \\
   -H "Utm-Api-Key: <YOUR_API_KEY>" \\
   -d '{
@@ -85,7 +86,7 @@ function MasterCommandSection({ selection }: { selection: RemoteEnableSelection 
     "timestamp": "",
     "raw": "<raw-log>"
   }'`
-  const batchCmd = `curl -X POST https://${host}/ingest \\
+  const batchCmd = `curl -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
   -H "Content-Type: application/json" \\
   -H "Utm-Api-Key: <YOUR_API_KEY>" \\
   -d '{
