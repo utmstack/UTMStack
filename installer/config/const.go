@@ -46,7 +46,7 @@ var (
 
 func GetCMServer() string {
 	cnf := GetConfig()
-	if cnf.Branch == "alpha" {
+	if cnf.Branch == "dev" {
 		return "https://cm.dev.utmstack.com"
 	}
 	return "https://cm.utmstack.com"
