@@ -8,10 +8,10 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
-	github.com/threatwinds/go-sdk v1.1.26
+	github.com/threatwinds/go-sdk v1.1.28
 	github.com/threatwinds/logger v1.2.3
 	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/gorm v1.31.2
 )
