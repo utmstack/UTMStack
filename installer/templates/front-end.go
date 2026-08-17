@@ -16,8 +16,6 @@ const FrontEnd string = `server {
     set $shared_key {{.SharedKey}};
     set $shared_key_header $http_x_shared_key;
 
-    set $utmstack_log_input https://log-input:50052;
-
     location ~ ^/api/v1/soar/ws/ {
         proxy_pass $utmstack_backend;
         proxy_http_version 1.1;
@@ -30,16 +28,6 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
-
-	location /ingest {
-
-		proxy_pass $utmstack_log_input/v1/ingest;
-		proxy_set_header Host $host;
-		proxy_set_header X-Real-IP $remote_addr;
-		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-		proxy_set_header X-Forwarded-Proto $scheme;
-		proxy_read_timeout 900;
-	}
 
     location /api {
         proxy_pass  $utmstack_backend;
