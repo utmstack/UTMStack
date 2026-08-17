@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Antivirus Service Stopped or Disabled
+name: Bitdefender GravityZone Antivirus Service Stopped or Tampered
 impact:
   confidentiality: 2
   integrity: 3
@@ -12,28 +12,30 @@ technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects when the Bitdefender antivirus service or critical security modules are stopped, disabled, or experiencing failures. This is a critical security event that could indicate malicious tampering or system issues.
+  Detects when the Bitdefender security agent is disabled, stopped, or under an integrity attack. Three independent signals, all directly emitted by the vendor:
+
+  - Antitampering event with detection_technique "Callback Evasion". Bitdefender's own definition: a post-tampering incident where critical protection mechanisms have been disabled. This is the strongest possible signal that the agent is compromised.
+  - Antitampering event with detection_technique "Vulnerable Drivers". A driver exploitable against the security agent is present on the endpoint, which is the precursor to tampering.
+  - Product Modules Status event reporting that the Antimalware (malware_status) or Advanced Threat Control (avc_status) module has flipped to disabled (value 0).
 
   Next Steps:
-  - Verify if the service was intentionally stopped by authorized personnel
-  - Check system logs for any errors or crashes that may have caused the service to stop
-  - Look for signs of malware or unauthorized access attempts around the time of the event
-  - Review recent system changes or updates that might have affected the antivirus service
-  - If tampering is suspected, isolate the affected system and perform a forensic analysis
-  - Restart the Bitdefender service and ensure all modules are functioning properly
-  - Monitor for recurring issues that might indicate persistent threats
+  1. Isolate the endpoint from the network. The agent is either disabled or being actively targeted, and normal telemetry from this host is now untrusted.
+  2. Identify what changed:
+     - For antitampering events, log.BitdefenderGZDriverName / log.driverName names the driver and log.BitdefenderGZDetectionAction shows whether Bitdefender blocked it (deny/kill) or only observed it (reportOnly). reportOnly means the tampering succeeded.
+     - For modules events, log.BitdefenderGZMalwareStatus and log.BitdefenderGZAvcStatus show which protection was turned off.
+  3. Correlate with logon and admin activity on the same target.host in the surrounding minutes. Legitimate module changes are rare and normally come from a scheduled policy push; ad-hoc changes deserve attention.
+  4. Assume the endpoint is compromised until proven otherwise. Any threats that arrived while protection was down would not have been detected.
+  5. Re-enable protection through GravityZone Control Center, do not rely on the local agent. If the module refuses to come back up, treat as a reimage candidate.
 where: |
-  (equals("log.eventType", "modules") ||
-   equals("log.eventType", "Product ModulesStatus") ||
-   equals("log.eventType", "registration")) &&
-  (oneOf("log.severity", ["high", "5"]) ||
-   contains("log.product", "disabled") ||
-   contains("log.product", "stopped") ||
-   (contains("log.restData", "module") && contains("log.restData", "stopped")) ||
-   (contains("log.restData", "module") && contains("log.restData", "disabled")) ||
-   (contains("log.restData", "av") && contains("log.restData", "failure")))
+  equals("log.BitdefenderGZModule", "antitampering") ||
+  (equals("log.BitdefenderGZModule", "modules") &&
+   (equals("log.malware_status", "0") ||
+    equals("log.avc_status", "0") ||
+    equals("log.BitdefenderGZMalwareStatus", "0") ||
+    equals("log.BitdefenderGZAvcStatus", "0")))
 groupBy:
-  - lastEvent.log.eventType
-  - lastEvent.log.hostId
+  - target.host
+  - lastEvent.log.BitdefenderGZModule

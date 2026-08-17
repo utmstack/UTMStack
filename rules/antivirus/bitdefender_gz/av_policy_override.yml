@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Bitdefender AV Policy Weakened
+name: Bitdefender GravityZone Protection Module Disabled
 impact:
   confidentiality: 3
   integrity: 3
@@ -12,32 +12,36 @@ technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects when Bitdefender GravityZone antivirus policies are weakened by administrators, such as disabling real-time protection, reducing scan aggressiveness, or adding broad exclusions. This could indicate a compromised admin account or insider threat.
+  Detects a Bitdefender GravityZone protection module transitioning to disabled on an endpoint. The vendor reports this in two ways, both of which fire this rule:
+
+  - Product Modules Status (module=modules) with any of the protection flags set to 0. The doc-defined status keys are malware_status (Antimalware on-access), avc_status (Advanced Threat Control), pu_status (Anti-Phishing), dlp_status (Data Protection), app_control_status (Application Control), patch_management, and the exchange_* variants. A 0 means the module is currently off.
+  - Antitampering (Callback Evasion) fires when critical protection mechanisms have been disabled by a post-tampering incident.
+
+  This does not catch every policy edit - adding scan exclusions or narrowing content filtering categories only reaches the Control Center audit log. It catches the highest-impact edits: turning a whole protection module off.
 
   Next Steps:
-  1. Identify the administrator who modified the policy
-  2. Verify the policy change was authorized through change management
-  3. Review the specific settings that were weakened
-  4. Check for concurrent suspicious activity on managed endpoints
-  5. Restore the previous policy configuration if unauthorized
-  6. Review admin account access logs for compromise indicators
+  1. Identify who was authorised to change the policy. Cross-check the modules-status timestamp against the Control Center audit log for policy pushes to this endpoint's group.
+  2. Read which module was disabled: log.BitdefenderGZModule tells you the event, and the specific status key (log.malware_status, log.avc_status, etc.) tells you what turned off. Antimalware and ATC being off is a live-fire situation; the others are lower-severity but still deserve verification.
+  3. If antitampering fired, treat the endpoint as actively targeted rather than mis-configured. detection_technique will be Callback Evasion or Vulnerable Drivers.
+  4. Restore the previous policy configuration from the Control Center if the change was unauthorised. Do not rely on the local agent to accept a re-enable; verify with the next modules-status event.
+  5. Review activity on the endpoint during the disabled window - anything that arrived while protection was off would not have been detected.
+  6. Rotate the credentials of any admin account that could have pushed the change.
 where: |
-  (contains("log.message", ["policy", "configuration", "setting"]) &&
-   (contains("log.message", ["disabled", "weakened", "reduced", "lowered", "excluded"]) ||
-    (contains("log.message", "real-time") && contains("log.message", "off")) ||
-    (contains("log.message", "exclusion") && contains("log.message", "added")) ||
-    (contains("log.message", "protection") && contains("log.message", "disabled")))) &&
-  exists("log.severity")
-afterEvents:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    with:
-      - field: log.hostId
-        operator: filter_term
-        value: '{{.log.hostId}}'
-    within: 1h
-    count: 3
+  equals("log.BitdefenderGZModule", "antitampering") ||
+  (equals("log.BitdefenderGZModule", "modules") &&
+   (equals("log.malware_status", "0") ||
+    equals("log.avc_status", "0") ||
+    equals("log.pu_status", "0") ||
+    equals("log.dlp_status", "0") ||
+    equals("log.app_control_status", "0") ||
+    equals("log.BitdefenderGZMalwareStatus", "0") ||
+    equals("log.BitdefenderGZAvcStatus", "0") ||
+    equals("log.BitdefenderGZPuStatus", "0") ||
+    equals("log.BitdefenderGZDlpStatus", "0") ||
+    equals("log.BitdefenderGZAppControlStatus", "0")))
 groupBy:
-  - lastEvent.log.eventType
-  - lastEvent.log.hostId
+  - target.host
+  - lastEvent.log.BitdefenderGZModule

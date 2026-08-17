@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Bitdefender GravityZone High Severity Threat Detection
+name: Bitdefender GravityZone High Severity Malware Detection
 impact:
   confidentiality: 3
   integrity: 3
@@ -12,31 +12,33 @@ technique: "T1204.002 - User Execution: Malicious File"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1204/002/
-  - https://attack.mitre.org/techniques/T1055/
 description: |
-  Detects high-severity malware threats identified by Bitdefender GravityZone that require immediate attention. This rule triggers on severity levels 8-10, which indicate critical threats such as trojans, ransomware, rootkits, or other advanced malware.
-  
+  Detects a high-severity malware finding from any of Bitdefender's three antimalware engines: Antimalware (signature and on-access), Advanced Threat Control (behavioural) and HyperDetect (machine learning tuned for advanced threats).
+
+  This is the baseline malware alert for the data source. Whether the threat was actually neutralised is a separate question, answered by actionResult: a value of "failed" means it is still on the endpoint, and that case has its own rule with a higher impact.
+
   Next Steps:
-  1. Immediately isolate the affected endpoint(s) from the network to prevent lateral movement
-  2. Review the threat details in Bitdefender GravityZone console:
-     - Check threat name and malware type from the event details
-     - Verify the affected file path and process information
-     - Review the action taken by Bitdefender (quarantine, delete, etc.)
-  3. Investigate the source of infection:
-     - Check origin.ip and origin.path for the malware source
-     - Review recent user activity and email attachments
-     - Look for similar threats on other endpoints
-  4. Perform forensic analysis:
-     - Collect memory dumps if rootkit or fileless malware is suspected
-     - Check for persistence mechanisms (registry, scheduled tasks, services)
-     - Review network connections from the affected host
-  5. Remediation actions:
-     - Ensure Bitdefender has successfully cleaned/quarantined the threat
-     - Run full system scan on affected and neighboring systems
-     - Update antivirus signatures and security policies
-     - Consider reimaging if system integrity is compromised
-where: oneOf("log.severity", ["8", "9", "10"]) && oneOf("log.eventType", ["avc", "malware_detected", "av"])
+  1. Read the outcome before deciding how urgent this is:
+     - actionResult "success" with action blocked, deleted, quarantined or disinfected means the control worked; treat this as an exposure and hygiene finding
+     - actionResult "failed" means the threat is live and the endpoint should be isolated immediately
+  2. Identify what was found:
+     - target.malware and target.malwareType give the threat name and whether it is a file or a process
+     - target.sha256 and target.md5 let you pivot to threat intelligence and across the estate
+     - target.path is the artefact, target.process is the process that touched it
+  3. Establish how it arrived:
+     - origin.url is populated when the threat came in over the web
+     - target.user identifies who was logged on, which usually explains the delivery path
+     - Correlate with Antiphishing events on the same target.host around deviceTime
+  4. Look for related activity on the same host in the surrounding hours - a single detection is often one step of a longer chain
+  5. Hunt the estate for the same target.sha256 to find endpoints where nothing was reported
+  6. Follow up on the endpoint:
+     - Run a full scan and confirm it comes back clean
+     - Check that signatures were current at deviceTime, using log.BitdefenderGZSignaturesNumber
+where: |
+  oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
+  greaterOrEqual("severity", 8)
 groupBy:
-  - lastEvent.log.signatureID
-  - lastEvent.log.syslogHostIP
+  - target.host
+  - target.malware
