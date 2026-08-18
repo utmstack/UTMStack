@@ -1,6 +1,8 @@
 package eventstore
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	chdriver "github.com/ClickHouse/clickhouse-go/v2"
@@ -67,6 +69,19 @@ func (s *Store) TableName(d store.Dataset) string {
 	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics"}[d]
 	db := env.String("CLICKHOUSE_DB", "utmstack", false)
 	return db + "." + name
+}
+
+// PurgeTenant deletes all rows scoped to the given tenant across every
+// dataset table. ClickHouse mutation, not synchronous — the ALTER returns
+// once accepted and the rows disappear as the mutation runs.
+func (s *Store) PurgeTenant(ctx context.Context, tenantID string) error {
+	for _, d := range []store.Dataset{DatasetLogs, DatasetAlerts, DatasetStats} {
+		sql := fmt.Sprintf("ALTER TABLE %s DELETE WHERE tenantId = ?", s.TableName(d))
+		if err := s.Conn.Exec(ctx, sql, tenantID); err != nil {
+			return fmt.Errorf("purge %s: %w", d, err)
+		}
+	}
+	return nil
 }
 
 func SupportsTextSearch(d store.Dataset) bool { return d == DatasetLogs }
