@@ -15,4 +15,5 @@ type TenantRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*domain.Tenant, error)
 	FindByDomain(ctx context.Context, domain string) (*domain.Tenant, error)
 	List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error)
+	PurgeAllTenantData(ctx context.Context, id uuid.UUID) error
 }

@@ -28,5 +28,7 @@ type TenantUsecase interface {
 	List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error)
 	SetSupportAccess(ctx context.Context, id uuid.UUID, level domain.SupportAccess) (*domain.Tenant, error)
 	Terminate(ctx context.Context, id uuid.UUID) error
+	Reactivate(ctx context.Context, id uuid.UUID) (*domain.Tenant, error)
+	PermanentlyDelete(ctx context.Context, id uuid.UUID) error
 	ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error)
 }

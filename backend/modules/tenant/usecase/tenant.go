@@ -185,6 +185,41 @@ func (u *tenantUsecase) Terminate(ctx context.Context, id uuid.UUID) error {
 	return u.repo.Update(ctx, t)
 }
 
+func (u *tenantUsecase) Reactivate(ctx context.Context, id uuid.UUID) (*domain.Tenant, error) {
+	if id.String() == authz.DefaultTenantID {
+		return nil, domain.ErrDefaultTenant
+	}
+	t, err := u.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if t.Status != domain.StatusTerminated {
+		return nil, domain.ErrNotTerminated
+	}
+	t.Status = domain.StatusActive
+	if err := u.repo.Update(ctx, t); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+func (u *tenantUsecase) PermanentlyDelete(ctx context.Context, id uuid.UUID) error {
+	if id.String() == authz.DefaultTenantID {
+		return domain.ErrDefaultTenant
+	}
+	t, err := u.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if t.Status != domain.StatusTerminated {
+		return domain.ErrNotTerminated
+	}
+	if err := u.repo.PurgeAllTenantData(ctx, id); err != nil {
+		return err
+	}
+	return u.repo.Delete(ctx, id)
+}
+
 func (u *tenantUsecase) ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error) {
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
