@@ -5429,7 +5429,7 @@
     "card": {
       "edit": "Modifier",
       "terminate": "Résilier",
-      "deletePermanent": "Delete permanently",
+      "deletePermanent": "Supprimer définitivement",
       "noAccess": "Ce locataire ne vous a pas donné accès.",
       "loadingStats": "Lecture…",
       "enter": "Entrer"
@@ -5470,22 +5470,22 @@
       "submit": "Résilier"
     },
     "reactivate": {
-      "title": "Reactivate this tenant?",
-      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
-      "submit": "Reactivate"
+      "title": "Réactiver ce locataire ?",
+      "body": "{{name}} pourra se reconnecter. Les données conservées sont restaurées telles quelles.",
+      "submit": "Réactiver"
     },
     "deletePermanent": {
-      "title": "Delete this tenant forever?",
-      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
-      "confirmLabel": "Type {{name}} to confirm",
-      "submit": "Delete forever"
+      "title": "Supprimer ce locataire pour toujours ?",
+      "body": "Toute trace de {{name}} — utilisateurs, sources de données, tableaux de bord, alertes, intégrations — sera effacée. C'est irréversible.",
+      "confirmLabel": "Saisissez {{name}} pour confirmer",
+      "submit": "Supprimer définitivement"
     },
     "toast": {
       "created": "Locataire créé",
       "updated": "Locataire mis à jour",
       "terminated": "Locataire résilié",
-      "reactivated": "Tenant reactivated",
-      "permanentlyDeleted": "Tenant permanently deleted",
+      "reactivated": "Locataire réactivé",
+      "permanentlyDeleted": "Locataire supprimé définitivement",
       "domainInUse": "Ce domaine est déjà pris",
       "noPermission": "Vous n'avez pas la permission de faire cela",
       "notFound": "Locataire introuvable",

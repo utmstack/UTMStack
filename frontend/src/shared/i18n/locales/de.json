@@ -5429,7 +5429,7 @@
     "card": {
       "edit": "Bearbeiten",
       "terminate": "Beenden",
-      "deletePermanent": "Delete permanently",
+      "deletePermanent": "Endgültig löschen",
       "noAccess": "Dieser Mandant hat Ihnen keinen Zugriff gewährt.",
       "loadingStats": "Wird gelesen…",
       "enter": "Betreten"
@@ -5470,22 +5470,22 @@
       "submit": "Beenden"
     },
     "reactivate": {
-      "title": "Reactivate this tenant?",
-      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
-      "submit": "Reactivate"
+      "title": "Diesen Mandanten reaktivieren?",
+      "body": "{{name}} kann sich wieder anmelden. Die aufbewahrten Daten werden unverändert wiederhergestellt.",
+      "submit": "Reaktivieren"
     },
     "deletePermanent": {
-      "title": "Delete this tenant forever?",
-      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
-      "confirmLabel": "Type {{name}} to confirm",
-      "submit": "Delete forever"
+      "title": "Diesen Mandanten für immer löschen?",
+      "body": "Jede Spur von {{name}} — Benutzer, Datenquellen, Dashboards, Alarme, Integrationen — wird gelöscht. Das lässt sich nicht rückgängig machen.",
+      "confirmLabel": "Zum Bestätigen {{name}} eingeben",
+      "submit": "Für immer löschen"
     },
     "toast": {
       "created": "Mandant angelegt",
       "updated": "Mandant aktualisiert",
       "terminated": "Mandant beendet",
-      "reactivated": "Tenant reactivated",
-      "permanentlyDeleted": "Tenant permanently deleted",
+      "reactivated": "Mandant reaktiviert",
+      "permanentlyDeleted": "Mandant endgültig gelöscht",
       "domainInUse": "Diese Domain ist bereits vergeben",
       "noPermission": "Dazu fehlt Ihnen die Berechtigung",
       "notFound": "Mandant nicht gefunden",

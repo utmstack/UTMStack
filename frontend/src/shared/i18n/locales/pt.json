@@ -5391,7 +5391,7 @@
     "card": {
       "edit": "Editar",
       "terminate": "Encerrar",
-      "deletePermanent": "Delete permanently",
+      "deletePermanent": "Excluir permanentemente",
       "noAccess": "Este tenant não concedeu acesso a você.",
       "loadingStats": "Lendo…",
       "enter": "Entrar"
@@ -5432,22 +5432,22 @@
       "submit": "Encerrar"
     },
     "reactivate": {
-      "title": "Reactivate this tenant?",
-      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
-      "submit": "Reactivate"
+      "title": "Reativar este tenant?",
+      "body": "{{name}} poderá entrar novamente. Os dados preservados são restaurados como estavam.",
+      "submit": "Reativar"
     },
     "deletePermanent": {
-      "title": "Delete this tenant forever?",
-      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
-      "confirmLabel": "Type {{name}} to confirm",
-      "submit": "Delete forever"
+      "title": "Excluir este tenant para sempre?",
+      "body": "Todo vestígio de {{name}} — usuários, fontes de dados, dashboards, alertas, integrações — será apagado. Isso não pode ser desfeito.",
+      "confirmLabel": "Digite {{name}} para confirmar",
+      "submit": "Excluir para sempre"
     },
     "toast": {
       "created": "Tenant criado",
       "updated": "Tenant atualizado",
       "terminated": "Tenant encerrado",
-      "reactivated": "Tenant reactivated",
-      "permanentlyDeleted": "Tenant permanently deleted",
+      "reactivated": "Tenant reativado",
+      "permanentlyDeleted": "Tenant excluído permanentemente",
       "domainInUse": "Esse domínio já está em uso",
       "noPermission": "Você não tem permissão para isso",
       "notFound": "Tenant não encontrado",
