@@ -5429,6 +5429,7 @@
     "card": {
       "edit": "Modifier",
       "terminate": "Résilier",
+      "deletePermanent": "Delete permanently",
       "noAccess": "Ce locataire ne vous a pas donné accès.",
       "loadingStats": "Lecture…",
       "enter": "Entrer"
@@ -5468,10 +5469,23 @@
       "confirmLabel": "Saisissez {{name}} pour confirmer",
       "submit": "Résilier"
     },
+    "reactivate": {
+      "title": "Reactivate this tenant?",
+      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
+      "submit": "Reactivate"
+    },
+    "deletePermanent": {
+      "title": "Delete this tenant forever?",
+      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Delete forever"
+    },
     "toast": {
       "created": "Locataire créé",
       "updated": "Locataire mis à jour",
       "terminated": "Locataire résilié",
+      "reactivated": "Tenant reactivated",
+      "permanentlyDeleted": "Tenant permanently deleted",
       "domainInUse": "Ce domaine est déjà pris",
       "noPermission": "Vous n'avez pas la permission de faire cela",
       "notFound": "Locataire introuvable",

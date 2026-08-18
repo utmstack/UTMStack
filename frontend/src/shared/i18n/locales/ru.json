@@ -5453,6 +5453,7 @@
     "card": {
       "edit": "Изменить",
       "terminate": "Закрыть",
+      "deletePermanent": "Delete permanently",
       "noAccess": "Этот арендатор не предоставил вам доступ.",
       "loadingStats": "Чтение…",
       "enter": "Войти"
@@ -5492,10 +5493,23 @@
       "confirmLabel": "Введите {{name}} для подтверждения",
       "submit": "Закрыть"
     },
+    "reactivate": {
+      "title": "Reactivate this tenant?",
+      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
+      "submit": "Reactivate"
+    },
+    "deletePermanent": {
+      "title": "Delete this tenant forever?",
+      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Delete forever"
+    },
     "toast": {
       "created": "Арендатор создан",
       "updated": "Арендатор обновлён",
       "terminated": "Арендатор закрыт",
+      "reactivated": "Tenant reactivated",
+      "permanentlyDeleted": "Tenant permanently deleted",
       "domainInUse": "Этот домен уже занят",
       "noPermission": "У вас нет прав на это действие",
       "notFound": "Арендатор не найден",

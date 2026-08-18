@@ -5429,6 +5429,7 @@
     "card": {
       "edit": "Modifica",
       "terminate": "Termina",
+      "deletePermanent": "Delete permanently",
       "noAccess": "Questo tenant non ti ha dato accesso.",
       "loadingStats": "Lettura…",
       "enter": "Entra"
@@ -5468,10 +5469,23 @@
       "confirmLabel": "Scrivi {{name}} per confermare",
       "submit": "Termina"
     },
+    "reactivate": {
+      "title": "Reactivate this tenant?",
+      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
+      "submit": "Reactivate"
+    },
+    "deletePermanent": {
+      "title": "Delete this tenant forever?",
+      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Delete forever"
+    },
     "toast": {
       "created": "Tenant creato",
       "updated": "Tenant aggiornato",
       "terminated": "Tenant terminato",
+      "reactivated": "Tenant reactivated",
+      "permanentlyDeleted": "Tenant permanently deleted",
       "domainInUse": "Questo dominio è già in uso",
       "noPermission": "Non hai il permesso di farlo",
       "notFound": "Tenant non trovato",

@@ -29,6 +29,8 @@ export const tenantsHttpService = {
   create: (input: CreateTenantRequest) => api.post<Tenant>('/tenants', input),
   update: (id: string, input: UpdateTenantRequest) => api.put<Tenant>(`/tenants/${id}`, input),
   terminate: (id: string) => api.delete<void>(`/tenants/${id}`),
+  reactivate: (id: string) => api.post<Tenant>(`/tenants/${id}/reactivate`, {}),
+  permanentlyDelete: (id: string) => api.delete<void>(`/tenants/${id}/permanent`),
 }
 
 /**
