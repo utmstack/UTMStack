@@ -58,7 +58,7 @@ export function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, 
                       <span className="truncate font-medium">{r.name}</span>
                       {r.systemOwner && <Lock size={11} className="shrink-0 text-muted-foreground/50" />}
                     </div>
-                    {r.description && <div className="truncate text-xs text-muted-foreground">{r.description}</div>}
+                    {r.description && <div className="truncate max-w-[18rem] text-muted-foreground">{r.description}</div>}
                   </button>
                 </td>
                 <td className={TD}>
