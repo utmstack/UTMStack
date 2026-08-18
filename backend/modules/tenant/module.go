@@ -15,9 +15,9 @@ type Module struct {
 	bootstrapUC   connectors.BootstrapUsecase
 }
 
-func NewModule(db *gorm.DB, admin connectors.UserProvisioner) *Module {
+func NewModule(db *gorm.DB, admin connectors.UserProvisioner, extras ...connectors.TenantPurgeFunc) *Module {
 	repo := repository.NewTenantRepository(db)
-	tenantUC := usecase.NewTenantUsecase(repo, admin)
+	tenantUC := usecase.NewTenantUsecase(repo, admin, extras)
 
 	return &Module{
 		tenantHandler: handler.NewTenantHandler(tenantUC),

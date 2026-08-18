@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 
 	"gorm.io/gorm"
@@ -48,6 +49,28 @@ func (r *pgTenantRepository) findOne(ctx context.Context, query string, arg any)
 		return nil, err
 	}
 	return &t, nil
+}
+
+func (r *pgTenantRepository) PurgeAllTenantData(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var tables []string
+		if err := tx.Raw(`
+			SELECT table_name
+			FROM information_schema.columns
+			WHERE table_schema = current_schema()
+			  AND column_name  = 'tenant_id'
+			  AND table_name   <> 'tenant'
+		`).Scan(&tables).Error; err != nil {
+			return err
+		}
+		for _, tbl := range tables {
+			sql := fmt.Sprintf(`DELETE FROM %q WHERE tenant_id::text = ?`, tbl)
+			if err := tx.Exec(sql, id.String()).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *pgTenantRepository) List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error) {

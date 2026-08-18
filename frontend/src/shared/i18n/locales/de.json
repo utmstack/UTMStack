@@ -5429,6 +5429,7 @@
     "card": {
       "edit": "Bearbeiten",
       "terminate": "Beenden",
+      "deletePermanent": "Endgültig löschen",
       "noAccess": "Dieser Mandant hat Ihnen keinen Zugriff gewährt.",
       "loadingStats": "Wird gelesen…",
       "enter": "Betreten"
@@ -5468,10 +5469,23 @@
       "confirmLabel": "Zum Bestätigen {{name}} eingeben",
       "submit": "Beenden"
     },
+    "reactivate": {
+      "title": "Diesen Mandanten reaktivieren?",
+      "body": "{{name}} kann sich wieder anmelden. Die aufbewahrten Daten werden unverändert wiederhergestellt.",
+      "submit": "Reaktivieren"
+    },
+    "deletePermanent": {
+      "title": "Diesen Mandanten für immer löschen?",
+      "body": "Jede Spur von {{name}} — Benutzer, Datenquellen, Dashboards, Alarme, Integrationen — wird gelöscht. Das lässt sich nicht rückgängig machen.",
+      "confirmLabel": "Zum Bestätigen {{name}} eingeben",
+      "submit": "Für immer löschen"
+    },
     "toast": {
       "created": "Mandant angelegt",
       "updated": "Mandant aktualisiert",
       "terminated": "Mandant beendet",
+      "reactivated": "Mandant reaktiviert",
+      "permanentlyDeleted": "Mandant endgültig gelöscht",
       "domainInUse": "Diese Domain ist bereits vergeben",
       "noPermission": "Dazu fehlt Ihnen die Berechtigung",
       "notFound": "Mandant nicht gefunden",

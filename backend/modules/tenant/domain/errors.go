@@ -16,4 +16,5 @@ var (
 	ErrLimitInvalid        = errors.New("a limit must be a whole number, or null to remove it")
 	ErrLimitExceedsLicense = errors.New("the limits handed out to tenants would exceed what this instance is licensed for")
 	ErrDefaultTenant       = errors.New("the default tenant holds the platform plane and cannot be changed this way")
+	ErrNotTerminated       = errors.New("tenant is not terminated")
 )

@@ -5391,6 +5391,7 @@
     "card": {
       "edit": "Editar",
       "terminate": "Encerrar",
+      "deletePermanent": "Excluir permanentemente",
       "noAccess": "Este tenant não concedeu acesso a você.",
       "loadingStats": "Lendo…",
       "enter": "Entrar"
@@ -5430,10 +5431,23 @@
       "confirmLabel": "Digite {{name}} para confirmar",
       "submit": "Encerrar"
     },
+    "reactivate": {
+      "title": "Reativar este tenant?",
+      "body": "{{name}} poderá entrar novamente. Os dados preservados são restaurados como estavam.",
+      "submit": "Reativar"
+    },
+    "deletePermanent": {
+      "title": "Excluir este tenant para sempre?",
+      "body": "Todo vestígio de {{name}} — usuários, fontes de dados, dashboards, alertas, integrações — será apagado. Isso não pode ser desfeito.",
+      "confirmLabel": "Digite {{name}} para confirmar",
+      "submit": "Excluir para sempre"
+    },
     "toast": {
       "created": "Tenant criado",
       "updated": "Tenant atualizado",
       "terminated": "Tenant encerrado",
+      "reactivated": "Tenant reativado",
+      "permanentlyDeleted": "Tenant excluído permanentemente",
       "domainInUse": "Esse domínio já está em uso",
       "noPermission": "Você não tem permissão para isso",
       "notFound": "Tenant não encontrado",
