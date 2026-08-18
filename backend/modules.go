@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
 	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
-	"path/filepath"
-	"strings"
-	"time"
 
 	dash_usecase "github.com/utmstack/utmstack/backend/modules/dashboards/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/eventstore"
@@ -43,8 +45,10 @@ import (
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
+	tenant_connectors "github.com/utmstack/utmstack/backend/modules/tenant/connectors"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
+	ep_repository "github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -214,7 +218,25 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
-	tenantMod = tenant.NewModule(db, userUsecase)
+
+	// Extra purgers: ClickHouse rows and per-tenant filesystem folders.
+	// Each subsystem contributes one; failures short-circuit before the SQL purge
+	// so the tenant row survives an outage.
+	var extraPurgers []tenant_connectors.TenantPurgeFunc
+	if events != nil {
+		extraPurgers = append(extraPurgers, func(ctx context.Context, id uuid.UUID) error {
+			return events.PurgeTenant(ctx, id.String())
+		})
+	}
+	rulesUserDir := filepath.Join(env.String(ep_repository.RulesDirEnv, ep_repository.DefaultRulesDir, false), ep_repository.UserSubdir)
+	pipelinesUserDir := filepath.Join(env.String(ep_repository.PipelinesDirEnv, ep_repository.DefaultPipelinesDir, false), ep_repository.UserSubdir)
+	extraPurgers = append(extraPurgers,
+		func(_ context.Context, id uuid.UUID) error { return os.RemoveAll(filepath.Join(rulesUserDir, id.String())) },
+		func(_ context.Context, id uuid.UUID) error {
+			return os.RemoveAll(filepath.Join(pipelinesUserDir, id.String()))
+		},
+	)
+	tenantMod = tenant.NewModule(db, userUsecase, extraPurgers...)
 	tenantListerForConfig = tenantLister
 	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir, tenantLister)
 	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))

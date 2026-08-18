@@ -18,12 +18,13 @@ import (
 const defaultPageSize = 25
 
 type tenantUsecase struct {
-	repo  connectors.TenantRepository
-	admin connectors.UserProvisioner
+	repo   connectors.TenantRepository
+	admin  connectors.UserProvisioner
+	extras []connectors.TenantPurgeFunc
 }
 
-func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner) connectors.TenantUsecase {
-	return &tenantUsecase{repo: repo, admin: admin}
+func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner, extras []connectors.TenantPurgeFunc) connectors.TenantUsecase {
+	return &tenantUsecase{repo: repo, admin: admin, extras: extras}
 }
 
 func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*domain.Tenant, error) {
@@ -213,6 +214,11 @@ func (u *tenantUsecase) PermanentlyDelete(ctx context.Context, id uuid.UUID) err
 	}
 	if t.Status != domain.StatusTerminated {
 		return domain.ErrNotTerminated
+	}
+	for _, purge := range u.extras {
+		if err := purge(ctx, id); err != nil {
+			return fmt.Errorf("external purge: %w", err)
+		}
 	}
 	if err := u.repo.PurgeAllTenantData(ctx, id); err != nil {
 		return err
