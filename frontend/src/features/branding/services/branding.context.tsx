@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { brandingHttpService } from './branding-http.service'
-import { getSupportTenantId } from '@/shared/lib/current-tenant'
+import { getSupportTenantId, useSupportTenant } from '@/shared/lib/current-tenant'
 import type { BrandingPublic } from '../types/branding.types'
 
 interface BrandingContextValue {
@@ -43,6 +43,7 @@ function applyBranding(b: BrandingPublic | null) {
 
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const [branding, setBranding] = useState<BrandingPublic | null>(null)
+  const supportTenantId = useSupportTenant()?.id ?? null
 
   const refresh = useCallback(async () => {
     try {
@@ -66,7 +67,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refresh()
-  }, [refresh])
+  }, [refresh, supportTenantId])
 
   const value = useMemo(() => ({ branding, refresh }), [branding, refresh])
   return <BrandingContext.Provider value={value}>{children}</BrandingContext.Provider>
