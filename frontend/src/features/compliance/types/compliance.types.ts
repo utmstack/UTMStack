@@ -191,7 +191,7 @@ export const isEditStale = (row: ControlRow): boolean =>
   isOverridden(row) && row.originalStatus !== row.engineStatus
 
 export interface ReportSummary {
-  /** Compliant over Evaluated, not over Total. */
+  /** Compliant over Total — un-evaluated requirements weigh against the score. */
   compliantPct: number
   total: number
   evaluated: number
