@@ -20,13 +20,23 @@ func UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
 
-	err := authHeaders(md, info.FullMethod)
+	tenantID, err := authHeaders(md, info.FullMethod)
 	if err != nil {
 		return nil, err
 	}
 
+	if tenantID != "" {
+		ctx = withTenant(ctx, tenantID)
+	}
 	return handler(ctx, req)
 }
+
+type tenantServerStream struct {
+	grpc.ServerStream
+	ctx context.Context
+}
+
+func (s *tenantServerStream) Context() context.Context { return s.ctx }
 
 func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	md, ok := metadata.FromIncomingContext(ss.Context())
@@ -34,15 +44,21 @@ func StreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamS
 		return status.Error(codes.Unauthenticated, "metadata is not provided")
 	}
 
-	err := authHeaders(md, info.FullMethod)
+	tenantID, err := authHeaders(md, info.FullMethod)
 	if err != nil {
 		return err
 	}
 
+	if tenantID != "" {
+		ss = &tenantServerStream{ServerStream: ss, ctx: withTenant(ss.Context(), tenantID)}
+	}
 	return handler(srv, ss)
 }
 
-func authHeaders(md metadata.MD, fullMethod string) error {
+// authHeaders returns the tenantID resolved from the auth material when the
+// connection-key path matched; otherwise "". A non-nil error means the call
+// is unauthenticated and must be rejected.
+func authHeaders(md metadata.MD, fullMethod string) (string, error) {
 	var authType string
 	var routes []string
 	authKey := md.Get("key")
@@ -61,11 +77,11 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 		authType = "internal-key"
 		routes = config.InternalKeyRoutes()
 	} else {
-		return status.Error(codes.Unauthenticated, "auth is not provided")
+		return "", status.Error(codes.Unauthenticated, "auth is not provided")
 	}
 
 	if !isInRoute(fullMethod, routes) {
-		return status.Error(codes.PermissionDenied, fmt.Sprintf("route is not registered for authentication with %s auth type", authType))
+		return "", status.Error(codes.PermissionDenied, fmt.Sprintf("route is not registered for authentication with %s auth type", authType))
 	}
 
 	switch authType {
@@ -73,31 +89,33 @@ func authHeaders(md metadata.MD, fullMethod string) error {
 		key := authKey[0]
 		id, err := strconv.ParseUint(authId[0], 10, 32)
 		if err != nil {
-			return status.Error(codes.PermissionDenied, "id is not valid")
+			return "", status.Error(codes.PermissionDenied, "id is not valid")
 		}
 		typ := strings.ToLower(connectorType[0])
 		switch typ {
 		case "agent":
 			if !AgentServ.ValidateAgentKey(key, uint(id)) {
-				return status.Error(codes.PermissionDenied, "invalid key")
+				return "", status.Error(codes.PermissionDenied, "invalid key")
 			}
 		case "collector":
 			if !CollectorServ.ValidateCollectorKey(key, uint(id)) {
-				return status.Error(codes.PermissionDenied, "invalid key")
+				return "", status.Error(codes.PermissionDenied, "invalid key")
 			}
 		default:
-			return status.Error(codes.PermissionDenied, "invalid type")
+			return "", status.Error(codes.PermissionDenied, "invalid type")
 		}
 	case "connection-key":
-		if !AgentServ.ValidateConnectionKey(authConnectionKey[0]) {
-			return status.Error(codes.PermissionDenied, "invalid connection key")
+		tenantID, ok := AgentServ.TenantForConnectionKey(authConnectionKey[0])
+		if !ok {
+			return "", status.Error(codes.PermissionDenied, "invalid connection key")
 		}
+		return tenantID, nil
 	case "internal-key":
 		if !isInternalKeyValid(authInternalKey[0]) {
-			return status.Error(codes.PermissionDenied, "internal key does not match")
+			return "", status.Error(codes.PermissionDenied, "internal key does not match")
 		}
 	}
-	return nil
+	return "", nil
 }
 
 func isInternalKeyValid(token string) bool {
