@@ -258,7 +258,7 @@ export function TenantCard({
               type="button"
               onClick={onDelete}
               title={t('tenants.card.deletePermanent')}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-red-600 hover:bg-red-500/10 hover:text-red-700"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <Trash2 size={13} />
             </button>
