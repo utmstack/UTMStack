@@ -9,7 +9,7 @@ import (
 
 const (
 	falsePositiveTag = "False positive"
-	statusOpen       = 2
+	statusOpen       = "Open"
 	maxCombinations  = 10000
 )
 

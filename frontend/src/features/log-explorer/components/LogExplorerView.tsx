@@ -131,6 +131,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const [fieldsFor, setFieldsFor] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)
   const [nonce, setNonce] = useState(0)
+  const pinnedRangeRef = useRef<{ from: string | null; to: string } | null>(null)
   // Infinite scroll: pages are accumulated, not replaced. pageRef tracks the last
   // page fetched (1-based); a ref so the scroll handler reads it without re-binding.
   const pageRef = useRef(0)
@@ -309,9 +310,9 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     [fieldsFor, dataset, fields],
   )
 
-  const buildFilters = useCallback((): FilterType[] => {
+  const buildFilters = useCallback((pinned?: { from: string | null; to: string }): FilterType[] => {
     const out: FilterType[] = []
-    const abs = resolveRange(range)
+    const abs = pinned ?? resolveRange(range)
     if (abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
     // Free text reads the record as it arrived, which only some datasets keep.
     // Sending it at a dataset that has no such column is an error, so the box
@@ -368,6 +369,12 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     async (pageNum: number) => {
       const fresh = pageNum <= 1
       if (fresh) {
+        // A relative range resolves against the clock, so resolving it once per
+        // page gives each page of one scroll a different window. With logs still
+        // arriving, a later page starts further down a list that grew at the top,
+        // and the analyst scrolls into rows they have already read. The window is
+        // pinned when the search starts; every page of it reads that same instant.
+        pinnedRangeRef.current = resolveRange(range)
         setLoading(true)
         setError(null)
       } else {
@@ -390,7 +397,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           const r = await svc.search({
             dataset,
             dataType: pattern,
-            filters: buildFilters(),
+            filters: buildFilters(pinnedRangeRef.current ?? undefined),
             // The view counts pages from 1; the endpoint from 0.
             page: pageNum - 1,
             size: PAGE_SIZE_DEFAULT,

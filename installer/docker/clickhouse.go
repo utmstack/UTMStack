@@ -20,10 +20,14 @@ var clickHouseSchema []byte
 const (
 	schemaFileName   = "01-schema.sql"
 	settingsFileName = "utmstack-settings.xml"
+	serverFileName   = "utmstack-server.xml"
 )
 
 //go:embed clickhouse-settings.xml
 var clickHouseSettings []byte
+
+//go:embed clickhouse-server.xml
+var clickHouseServer []byte
 
 // writeClickHouseSettings pins the server settings the pipeline depends on.
 // Unlike the schema, this is read on every start, so it applies to an existing
@@ -32,6 +36,14 @@ func writeClickHouseSettings(dir string) error {
 	path := filepath.Join(dir, settingsFileName)
 	if err := os.WriteFile(path, clickHouseSettings, 0o644); err != nil {
 		return fmt.Errorf("writing the ClickHouse settings to %s: %w", path, err)
+	}
+	return nil
+}
+
+func writeClickHouseServer(dir string) error {
+	path := filepath.Join(dir, serverFileName)
+	if err := os.WriteFile(path, clickHouseServer, 0o644); err != nil {
+		return fmt.Errorf("writing the ClickHouse server configuration to %s: %w", path, err)
 	}
 	return nil
 }

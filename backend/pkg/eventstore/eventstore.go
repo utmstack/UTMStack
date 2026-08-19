@@ -52,6 +52,13 @@ func New() (*Store, error) {
 		TextColumns: map[store.Dataset]string{
 			DatasetLogs: "raw",
 		},
+		// Statistics is absent on purpose: it has no id column, and it is
+		// counted rather than paged through, so it never pays the cost this
+		// avoids.
+		IDColumns: map[store.Dataset]string{
+			DatasetLogs:   "id",
+			DatasetAlerts: "id",
+		},
 		TenantColumn:   "tenantId",
 		DataTypeColumn: "dataType",
 		TimeColumn:     "@timestamp",

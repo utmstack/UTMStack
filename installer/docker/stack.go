@@ -72,8 +72,8 @@ func GetStackConfig() *StackConfig {
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
 		Services = []system.ServiceConfig{
-			{Name: "event-processor", Priority: 1, MinMemory: 4 * 1024, MaxMemory: 60 * 1024},
-			{Name: "clickhouse", Priority: 1, MinMemory: 2048, MaxMemory: 60 * 1024},
+			{Name: "event-processor", Priority: 1, MinMemory: 2048, MaxMemory: 60 * 1024},
+			{Name: "clickhouse", Priority: 1, MinMemory: 3 * 1024, MaxMemory: 60 * 1024},
 			{Name: "log-input", Priority: 2, MinMemory: 256, MaxMemory: 1024},
 			{Name: "nats", Priority: 3, MinMemory: 256, MaxMemory: 2 * 1024},
 			{Name: "redis", Priority: 3, MinMemory: 128, MaxMemory: 1024},

@@ -12,10 +12,13 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
-type analyzerUsecase struct{ repo connectors.AnalyzerRepository }
+type analyzerUsecase struct {
+	repo   connectors.AnalyzerRepository
+	fields *fieldsCache
+}
 
 func NewAnalyzerUsecase(repo connectors.AnalyzerRepository) connectors.AnalyzerUsecase {
-	return &analyzerUsecase{repo: repo}
+	return &analyzerUsecase{repo: repo, fields: newFieldsCache()}
 }
 
 func (u *analyzerUsecase) TopValues(ctx context.Context, dataset, dataType, field string, filters []common_models.FilterType, top int) (*dto.TopValuesResponse, error) {
@@ -41,7 +44,9 @@ func (u *analyzerUsecase) ChartView(ctx context.Context, req dto.ChartViewReques
 func (u *analyzerUsecase) Datasets() []string { return repository.Datasets() }
 
 func (u *analyzerUsecase) Fields(ctx context.Context, dataset string) ([]dto.Field, error) {
-	return u.repo.Fields(ctx, dataset)
+	return u.fields.get(ctx, dataset, func(ctx context.Context) ([]dto.Field, error) {
+		return u.repo.Fields(ctx, dataset)
+	})
 }
 
 func (u *analyzerUsecase) Search(ctx context.Context, req dto.SearchRequest) (*dto.SearchResponse, error) {
