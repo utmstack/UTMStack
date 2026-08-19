@@ -1,16 +1,20 @@
-import { defineConfig } from 'vite'
+import { defineConfig,loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080'
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
+const BACKEND_URL = env.BACKEND_URL ?? 'http://localhost:8080'
 
 // Federation dev mode (npm run dev:federation / VITE_FEDERATION=true): point /api
 // at the Federation Service, which serves its own /api/v1 subpaths and proxies
 // the rest onward to the selected instance. In normal mode /api goes straight to
 // the instance backend.
-const FEDERATION = process.env.VITE_FEDERATION === 'true'
-const FS_URL = process.env.FS_URL ?? 'http://localhost:8090'
+const FEDERATION = env.VITE_FEDERATION === 'true'
+const FS_URL = env.FS_URL ?? 'http://localhost:8090'
 const API_TARGET = FEDERATION ? FS_URL : BACKEND_URL
 
 // changeOrigin only rewrites the Host header, not Origin/Referer — pointing
@@ -18,16 +22,18 @@ const API_TARGET = FEDERATION ? FS_URL : BACKEND_URL
 // check and get a bare 403. Rewrite them to the target so the proxied
 // request looks same-origin. Dev-only convenience for admins of the target
 // instance; do not rely on this to bypass origin checks you don't control.
-function spoofOriginHeaders(proxy: {
-  on: (event: 'proxyReq', cb: (proxyReq: { setHeader: (name: string, value: string) => void }) => void) => void
-}) {
-  proxy.on('proxyReq', (proxyReq) => {
-    proxyReq.setHeader('Origin', API_TARGET)
+type ConfigureProxy = NonNullable<import('vite').ProxyOptions['configure']>
+  console.log(BACKEND_URL)
+
+const spoofOriginHeaders: ConfigureProxy = (proxy) => {
+  proxy.on('proxyReq', (proxyReq, req) => {
     proxyReq.setHeader('Referer', API_TARGET + '/')
+    if (!req.headers.origin || req.headers.origin?.startsWith('http://localhost')) return
+    proxyReq.setHeader('Origin', API_TARGET)
   })
 }
 
-export default defineConfig(({ mode }) => ({
+return {
   // Some deps (react-draggable, prop-types — pulled in by react-grid-layout)
   // reference `process.env.NODE_ENV`, which doesn't exist in the browser and
   // throws "process is not defined". Vite doesn't shim it, so define it here.
@@ -65,4 +71,5 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-}))
+}
+})

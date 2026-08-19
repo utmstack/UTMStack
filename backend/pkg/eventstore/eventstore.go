@@ -1,10 +1,13 @@
 package eventstore
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	chdriver "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/store"
 	"github.com/threatwinds/go-sdk/store/clickhouse"
 
@@ -74,6 +77,26 @@ func (s *Store) TableName(d store.Dataset) string {
 	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics"}[d]
 	db := env.String("CLICKHOUSE_DB", "utmstack", false)
 	return db + "." + name
+}
+
+// PurgeTenant deletes all rows scoped to the given tenant across every
+// dataset table. ClickHouse mutation, not synchronous — the ALTER returns
+// once accepted and the rows disappear as the mutation runs.
+//
+// tenantID must be a UUID string (caller passes uuid.UUID.String()); it is
+// inlined into the SQL because ClickHouse does not bind parameters inside
+// ALTER ... DELETE mutation expressions. The UUID shape makes inlining safe.
+func (s *Store) PurgeTenant(ctx context.Context, tenantID string) error {
+	if _, err := uuid.Parse(tenantID); err != nil {
+		return fmt.Errorf("purge: invalid tenant id: %w", err)
+	}
+	for _, d := range []store.Dataset{DatasetLogs, DatasetAlerts, DatasetStats} {
+		sql := fmt.Sprintf("ALTER TABLE %s DELETE WHERE tenantId = '%s'", s.TableName(d), tenantID)
+		if err := s.Conn.Exec(ctx, sql); err != nil {
+			return fmt.Errorf("purge %s: %w", d, err)
+		}
+	}
+	return nil
 }
 
 func SupportsTextSearch(d store.Dataset) bool { return d == DatasetLogs }

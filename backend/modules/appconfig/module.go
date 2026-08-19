@@ -1,6 +1,8 @@
 package appconfig
 
 import (
+	"context"
+
 	mail_connectors "github.com/utmstack/utmstack/backend/internal/mail/connectors"
 	"github.com/utmstack/utmstack/backend/modules/appconfig/connectors"
 	"github.com/utmstack/utmstack/backend/modules/appconfig/handler"
@@ -15,23 +17,27 @@ type mailerSetter interface {
 }
 
 type Module struct {
-	usecase         connectors.Usecase
-	store           connectors.Store
-	handler         *handler.Handler
-	branding        connectors.BrandingUsecase
-	brandingHandler *handler.BrandingHandler
+	usecase             connectors.Usecase
+	store               connectors.Store
+	handler             *handler.Handler
+	branding            connectors.BrandingUsecase
+	brandingHandler     *handler.BrandingHandler
+	bulkBrandingHandler *handler.BulkBrandingHandler
+	bulkSMTPHandler     *handler.BulkSMTPHandler
 }
 
-func NewModule(db *gorm.DB, cipher *secret.Cipher, uploadDir string) *Module {
+func NewModule(db *gorm.DB, cipher *secret.Cipher, uploadDir string, tenantLister func(context.Context) ([]string, error)) *Module {
 	repo := repository.NewRepository(db)
 	brandingSvc := usecase.NewBranding(repo)
 	svc := usecase.New(repo, cipher, brandingSvc)
 	return &Module{
-		usecase:         svc,
-		store:           svc,
-		handler:         handler.NewHandler(svc),
-		branding:        brandingSvc,
-		brandingHandler: handler.NewBrandingHandler(brandingSvc, uploadDir),
+		usecase:             svc,
+		store:               svc,
+		handler:             handler.NewHandler(svc),
+		branding:            brandingSvc,
+		brandingHandler:     handler.NewBrandingHandler(brandingSvc, uploadDir),
+		bulkBrandingHandler: handler.NewBulkBrandingHandler(brandingSvc, uploadDir, tenantLister),
+		bulkSMTPHandler:     handler.NewBulkSMTPHandler(svc, svc, tenantLister),
 	}
 }
 
@@ -45,11 +51,13 @@ func (m *Module) SetWhiteLabelEntitlement(fn func() bool) {
 	}
 }
 
-func (m *Module) Handler() *handler.Handler                 { return m.handler }
-func (m *Module) BrandingHandler() *handler.BrandingHandler { return m.brandingHandler }
-func (m *Module) Branding() connectors.BrandingUsecase      { return m.branding }
-func (m *Module) Store() connectors.Store                   { return m.store }
-func (m *Module) Usecase() connectors.Usecase               { return m.usecase }
+func (m *Module) Handler() *handler.Handler                         { return m.handler }
+func (m *Module) BrandingHandler() *handler.BrandingHandler         { return m.brandingHandler }
+func (m *Module) BulkBrandingHandler() *handler.BulkBrandingHandler { return m.bulkBrandingHandler }
+func (m *Module) BulkSMTPHandler() *handler.BulkSMTPHandler         { return m.bulkSMTPHandler }
+func (m *Module) Branding() connectors.BrandingUsecase              { return m.branding }
+func (m *Module) Store() connectors.Store                           { return m.store }
+func (m *Module) Usecase() connectors.Usecase                       { return m.usecase }
 
 func (m *Module) SetMailer(mailer mail_connectors.MailService) {
 	if s, ok := m.usecase.(mailerSetter); ok {

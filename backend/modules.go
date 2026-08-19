@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
 	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
-	"path/filepath"
-	"strings"
-	"time"
 
 	dash_usecase "github.com/utmstack/utmstack/backend/modules/dashboards/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/eventstore"
@@ -43,6 +45,10 @@ import (
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
 	"github.com/utmstack/utmstack/backend/modules/storage"
 	"github.com/utmstack/utmstack/backend/modules/tenant"
+	tenant_connectors "github.com/utmstack/utmstack/backend/modules/tenant/connectors"
+	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
+	ep_repository "github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -129,7 +135,24 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		_ = catcher.Error("failed to register tenancy callbacks", err, nil)
 		panic(err)
 	}
-	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir)
+	// ponytail: late-bound lister so configMod can be constructed before tenantMod exists;
+	// tenantMod is always set before the first HTTP request reaches the handler.
+	var tenantMod *tenant.Module
+	tenantLister := func(ctx context.Context) ([]string, error) {
+		tenants, _, err := tenantMod.GetTenantUsecase().List(ctx, tenant_dto.Filter{Size: 10000, Status: tenant_domain.StatusActive})
+		if err != nil {
+			return nil, err
+		}
+		ids := make([]string, 0, len(tenants))
+		for _, t := range tenants {
+			ids = append(ids, t.ID.String())
+		}
+		return ids, nil
+	}
+	var tenantListerForConfig func(context.Context) ([]string, error)
+	configMod := appconfig.NewModule(db, cipher, cfg.uploadDir, func(ctx context.Context) ([]string, error) {
+		return tenantListerForConfig(ctx)
+	})
 	mailMod := mail.NewModule(configMod.Store())
 	configMod.SetMailer(mailMod.Service())
 	// White-labeling renders only under an Enterprise license (resolved from billing).
@@ -142,7 +165,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		complianceEventReader = events
 	}
 	complianceMod := compliance.NewModule(db, complianceEventReader, mailMod.Service(), complianceBranding{uc: brand, uploadDir: cfg.uploadDir},
-		func() bool { return billingMod.License().Current().IsEnterprise() })
+		func() bool { return billingMod.License().Current().IsEnterprise() }, tenantLister)
 	var eventReader dash_usecase.Reader
 	if events != nil {
 		eventReader = events
@@ -175,7 +198,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		agentClient = nil
 	}
 
-	soarMod := soar.NewModule(db, agentClient, signer, cipher)
+	soarMod := soar.NewModule(db, agentClient, signer, cipher, tenantLister)
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
@@ -195,10 +218,28 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
-	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir)
-	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))
 
-	tenantMod := tenant.NewModule(db, userUsecase)
+	// Extra purgers: ClickHouse rows and per-tenant filesystem folders.
+	// Each subsystem contributes one; failures short-circuit before the SQL purge
+	// so the tenant row survives an outage.
+	var extraPurgers []tenant_connectors.TenantPurgeFunc
+	if events != nil {
+		extraPurgers = append(extraPurgers, func(ctx context.Context, id uuid.UUID) error {
+			return events.PurgeTenant(ctx, id.String())
+		})
+	}
+	rulesUserDir := filepath.Join(env.String(ep_repository.RulesDirEnv, ep_repository.DefaultRulesDir, false), ep_repository.UserSubdir)
+	pipelinesUserDir := filepath.Join(env.String(ep_repository.PipelinesDirEnv, ep_repository.DefaultPipelinesDir, false), ep_repository.UserSubdir)
+	extraPurgers = append(extraPurgers,
+		func(_ context.Context, id uuid.UUID) error { return os.RemoveAll(filepath.Join(rulesUserDir, id.String())) },
+		func(_ context.Context, id uuid.UUID) error {
+			return os.RemoveAll(filepath.Join(pipelinesUserDir, id.String()))
+		},
+	)
+	tenantMod = tenant.NewModule(db, userUsecase, extraPurgers...)
+	tenantListerForConfig = tenantLister
+	iamMod := iam.NewModule(authUsecase, userUsecase, roleUsecase, tfaUsecase, apiKeyUsecase, idpUsecase, federationUsecase, cfg.uploadDir, tenantLister)
+	iamMod.SetSessionPurger(iam_usecase.NewSessionPurger(refreshRepo, joblease.New(db)))
 
 	aiUsage := socai_repository.NewUsageRepo(db)
 	aiQuota := &socai.AIQuota{

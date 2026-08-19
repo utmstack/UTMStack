@@ -148,11 +148,20 @@ func InitCollectorService() {
 }
 
 func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterRequest) (*AuthResponse, error) {
+	tenantID, ok := tenantFromContext(ctx)
+	if !ok {
+		// The interceptor is the only writer of this key on the connection-key
+		// path; missing it means the route was reached through some other auth
+		// that shouldn't be allowed to enrol collectors.
+		return nil, status.Error(codes.PermissionDenied, "missing tenant on register")
+	}
+
 	collector := &models.Collector{
 		Ip:       req.GetIp(),
 		Hostname: req.GetHostname(),
 		Version:  req.GetVersion(),
 		Module:   models.CollectorModule(req.GetCollector().String()),
+		TenantID: tenantID,
 	}
 
 	oldCollector := &models.Collector{}
@@ -178,7 +187,7 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 	}
 
 	s.CacheCollectorKeyMutex.Lock()
-	entry := utils.ConnectorAuth{Key: key, TenantID: tenantOrDefault(collector.TenantID)}
+	entry := utils.ConnectorAuth{Key: key, TenantID: collector.TenantID}
 	s.CacheCollectorKey[collector.ID] = entry
 	AuthCache.PublishCollector(collector.ID, entry)
 	s.CacheCollectorKeyMutex.Unlock()
@@ -239,8 +248,15 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 	page := utils.NewPaginator(int(req.PageSize), int(req.PageNumber), req.SortBy)
 	filter := utils.NewFilter(req.SearchQuery)
 
+	// Scoped by the caller: the panel asks for one tenant, and only the
+	// platform asks for all of them.
+	where := ""
+	if req.GetTenantId() != "" {
+		where = fmt.Sprintf("tenant_id = '%s'", sanitizeTenant(req.GetTenantId()))
+	}
+
 	collectors := []models.Collector{}
-	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false)
+	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, where, false)
 	if err != nil {
 		catcher.Error("failed to fetch collectors", err, map[string]any{"process": "agent-manager"})
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)

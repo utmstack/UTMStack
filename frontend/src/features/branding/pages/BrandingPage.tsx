@@ -7,6 +7,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { useBilling } from '@/features/billing'
 import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
+import { PlatformBroadcastButton, broadcast, broadcastBrandingAsset, BULK_PATHS } from '@/features/platform-broadcast'
 import { brandingHttpService } from '../services/branding-http.service'
 import { useBranding } from '../services/branding.context'
 import type { Branding, BrandingAssetSlot } from '../types/branding.types'
@@ -229,9 +230,31 @@ export function BrandingPage() {
               <RotateCcw size={13} className="mr-1.5" />
               {t('branding.restore')}
             </Button>
-            <Button size="sm" disabled={!dirty || saving || !isEnterprise} onClick={() => void save()}>
-              {saving ? t('branding.saving') : t('branding.save')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" disabled={!dirty || saving || !isEnterprise} onClick={() => void save()}>
+                {saving ? t('branding.saving') : t('branding.save')}
+              </Button>
+              {dirty && (
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.branding') })}
+                  disabled={saving || !isEnterprise}
+                  excludeDefaultTenant={true}
+                  onBroadcast={async (selector) => {
+                    return broadcast(BULK_PATHS.branding.update, selector, {
+                      enabled: form.enabled,
+                      productName: form.productName,
+                      accentColor: form.accentColor,
+                      logoUrl: form.logoUrl,
+                      logoDarkUrl: form.logoDarkUrl,
+                      faviconUrl: form.faviconUrl,
+                      reportLogoUrl: form.reportLogoUrl,
+                      reportCoverUrl: form.reportCoverUrl,
+                    })
+                  }}
+                />
+              )}
+            </div>
           </div>
         </fieldset>
       )}
@@ -260,17 +283,26 @@ function AssetCard({
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
+  const [pickedFile, setPickedFile] = useState<File | null>(null)
 
   const pick = () => inputRef.current?.click()
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    e.target.value = ''
-    if (!file) return
+    if (!file) {
+      e.target.value = ''
+      return
+    }
+    setPickedFile(file)
+  }
+
+  const uploadToTenant = async () => {
+    if (!pickedFile) return
     setBusy(true)
     try {
-      const b = await brandingHttpService.uploadAsset(slot, file)
+      const b = await brandingHttpService.uploadAsset(slot, pickedFile)
       await onUploaded(b)
+      setPickedFile(null)
       toast.success(t('branding.uploaded'))
     } catch {
       toast.error(t('branding.uploadError'))
@@ -295,14 +327,32 @@ function AssetCard({
         )}
       </div>
       <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon" hidden onChange={onFile} />
-      <Button variant="outline" size="sm" disabled={disabled || busy} onClick={pick}>
-        {busy ? (
-          <Loader2 size={13} className="mr-1.5 animate-spin" />
-        ) : (
-          <Upload size={13} className="mr-1.5" />
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" disabled={disabled || busy} onClick={pick} className="flex-1">
+          {busy ? (
+            <Loader2 size={13} className="mr-1.5 animate-spin" />
+          ) : (
+            <Upload size={13} className="mr-1.5" />
+          )}
+          {pickedFile ? pickedFile.name : url ? t('branding.asset.replace') : t('branding.asset.upload')}
+        </Button>
+        {pickedFile && (
+          <PlatformBroadcastButton
+            label={t('platformBroadcast.button')}
+            title={t('platformBroadcast.action.upload', { resource: slot })}
+            disabled={disabled || busy}
+            excludeDefaultTenant={true}
+            onBroadcast={async (selector) => {
+              return broadcastBrandingAsset(slot, pickedFile, selector)
+            }}
+          />
         )}
-        {url ? t('branding.asset.replace') : t('branding.asset.upload')}
-      </Button>
+      </div>
+      {pickedFile && (
+        <Button size="sm" disabled={disabled || busy} onClick={() => void uploadToTenant()} className="w-full">
+          {busy ? t('branding.uploading') : 'Upload to tenant'}
+        </Button>
+      )}
     </div>
   )
 }

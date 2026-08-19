@@ -14,6 +14,11 @@ type Config struct {
 	// behind the auth interceptors, so a probe there would need credentials.
 	HealthAddr string
 
+	// HTTPListenAddr is the TLS HTTP ingest endpoint (/v1/ingest).
+	// Kept separate from the gRPC port so each transport can be load-balanced
+	// or firewalled independently.
+	HTTPListenAddr string
+
 	CertFile string
 	KeyFile  string
 
@@ -38,8 +43,9 @@ type Config struct {
 }
 
 const (
-	defaultListenAddr   = "0.0.0.0:50051"
-	defaultHealthAddr   = "0.0.0.0:8080"
+	defaultListenAddr     = "0.0.0.0:50051"
+	defaultHealthAddr     = "0.0.0.0:8080"
+	defaultHTTPListenAddr = "0.0.0.0:50052"
 	defaultShards       = 16
 	defaultTenant       = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	defaultAuthTTL      = 5 * time.Minute
@@ -54,8 +60,9 @@ func Load() (*Config, error) {
 	certs := envOr("CERTS_FOLDER", defaultCertsFolder)
 
 	c := &Config{
-		ListenAddr:    envOr("LISTEN_ADDR", defaultListenAddr),
-		HealthAddr:    envOr("HEALTH_ADDR", defaultHealthAddr),
+		ListenAddr:     envOr("LISTEN_ADDR", defaultListenAddr),
+		HealthAddr:     envOr("HEALTH_ADDR", defaultHealthAddr),
+		HTTPListenAddr: envOr("HTTP_LISTEN_ADDR", defaultHTTPListenAddr),
 		CertFile:      certs + "/" + utmCertFileName,
 		KeyFile:       certs + "/" + utmCertFileKeyName,
 		NATSURL:       os.Getenv("NATS_URL"),
@@ -89,6 +96,9 @@ func Load() (*Config, error) {
 	}
 	if c.AuthTTL < minAuthTTL {
 		return nil, fmt.Errorf("AUTH_TTL must be at least %s", minAuthTTL)
+	}
+	if c.HTTPListenAddr == "" {
+		return nil, fmt.Errorf("HTTP_LISTEN_ADDR must not be empty")
 	}
 
 	return c, nil

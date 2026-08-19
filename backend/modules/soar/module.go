@@ -22,6 +22,7 @@ type Module struct {
 	executionHandler *handler.ExecutionHandler
 	variableHandler  *handler.VariableHandler
 	commandWSHandler *handler.CommandWSHandler
+	bulkHandler      *handler.BulkHandler
 
 	ruleUsecase      connectors.RuleUsecase
 	executionUsecase connectors.ExecutionUsecase
@@ -38,6 +39,7 @@ func NewModule(
 	agentClient *agentmanager.AgentManagerClient,
 	signer *jwtpkg.Signer,
 	cipher *secret.Cipher,
+	tenantLister func(context.Context) ([]string, error),
 ) *Module {
 	flowsSrc := env.String("SOAR_FLOWS_SRC_DIR", "/utmstack/soar", false)
 	flowsRoot := env.String("SOAR_FLOWS_DIR", "/workdir/soar", false)
@@ -65,6 +67,7 @@ func NewModule(
 		executionHandler: handler.NewExecutionHandler(executionUC),
 		variableHandler:  handler.NewVariableHandler(variableUC),
 		commandWSHandler: handler.NewCommandWSHandler(agentClient, signer, variableUC, executionUC),
+		bulkHandler:      handler.NewBulkHandler(ruleUC, tenantLister),
 
 		ruleUsecase:      ruleUC,
 		executionUsecase: executionUC,
@@ -92,6 +95,7 @@ func (m *Module) Start(ctx context.Context) error {
 func (m *Module) GetRuleHandler() *handler.RuleHandler             { return m.ruleHandler }
 func (m *Module) GetExecutionHandler() *handler.ExecutionHandler   { return m.executionHandler }
 func (m *Module) GetVariableHandler() *handler.VariableHandler     { return m.variableHandler }
+func (m *Module) GetBulkHandler() *handler.BulkHandler             { return m.bulkHandler }
 func (m *Module) GetRuleUsecase() connectors.RuleUsecase           { return m.ruleUsecase }
 func (m *Module) GetExecutionUsecase() connectors.ExecutionUsecase { return m.executionUsecase }
 func (m *Module) GetVariableUsecase() connectors.VariableUsecase   { return m.variableUsecase }

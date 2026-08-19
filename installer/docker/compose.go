@@ -226,9 +226,13 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"UTMSTACK_ADMIN_PASSWORD=" + conf.Password,
 	}
 
-	// Disable TFA in dev and rc environments
+	// Disable TFA in dev and rc (internal testing channels)
 	if conf.Branch == "dev" || conf.Branch == "rc" {
 		backendEnv = append(backendEnv, "APP_TFA_ENABLED=false")
+	}
+	// DEV_MODE (CORS for localhost) is only for dev — rc runs in prod mode
+	if conf.Branch == "dev" {
+		backendEnv = append(backendEnv, "DEV_MODE=true")
 	}
 
 	c.Services["backend"] = Service{
@@ -432,6 +436,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		Ports: []string{
 			"50051:50051",
+			"50052:50052",
 		},
 		Volumes: []string{
 			stack.Cert + ":/cert",

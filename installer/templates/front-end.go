@@ -28,6 +28,7 @@ const FrontEnd string = `server {
         proxy_read_timeout 900;
     }
 
+
     location /api {
         proxy_pass  $utmstack_backend;
         proxy_set_header Host $host;

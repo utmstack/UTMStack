@@ -19,6 +19,8 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth, mssp, platform gi
 	g.POST("", write, h.Create)
 	g.PUT("/:id", write, h.Update)
 	g.DELETE("/:id", write, h.Terminate)
+	g.POST("/:id/reactivate", write, h.Reactivate)
+	g.DELETE("/:id/permanent", write, h.PermanentlyDelete)
 
 	own := api.Group("/tenants", userAuth, mssp)
 	ownTenant := []gin.HandlerFunc{middleware.RequireAdmin(), middleware.RequireOwnTenant("id")}

@@ -18,12 +18,13 @@ import (
 const defaultPageSize = 25
 
 type tenantUsecase struct {
-	repo  connectors.TenantRepository
-	admin connectors.UserProvisioner
+	repo   connectors.TenantRepository
+	admin  connectors.UserProvisioner
+	extras []connectors.TenantPurgeFunc
 }
 
-func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner) connectors.TenantUsecase {
-	return &tenantUsecase{repo: repo, admin: admin}
+func NewTenantUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner, extras []connectors.TenantPurgeFunc) connectors.TenantUsecase {
+	return &tenantUsecase{repo: repo, admin: admin, extras: extras}
 }
 
 func (u *tenantUsecase) Create(ctx context.Context, req dto.CreateRequest) (*domain.Tenant, error) {
@@ -183,6 +184,46 @@ func (u *tenantUsecase) Terminate(ctx context.Context, id uuid.UUID) error {
 	t.Status = domain.StatusTerminated
 
 	return u.repo.Update(ctx, t)
+}
+
+func (u *tenantUsecase) Reactivate(ctx context.Context, id uuid.UUID) (*domain.Tenant, error) {
+	if id.String() == authz.DefaultTenantID {
+		return nil, domain.ErrDefaultTenant
+	}
+	t, err := u.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if t.Status != domain.StatusTerminated {
+		return nil, domain.ErrNotTerminated
+	}
+	t.Status = domain.StatusActive
+	if err := u.repo.Update(ctx, t); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+func (u *tenantUsecase) PermanentlyDelete(ctx context.Context, id uuid.UUID) error {
+	if id.String() == authz.DefaultTenantID {
+		return domain.ErrDefaultTenant
+	}
+	t, err := u.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if t.Status != domain.StatusTerminated {
+		return domain.ErrNotTerminated
+	}
+	for _, purge := range u.extras {
+		if err := purge(ctx, id); err != nil {
+			return fmt.Errorf("external purge: %w", err)
+		}
+	}
+	if err := u.repo.PurgeAllTenantData(ctx, id); err != nil {
+		return err
+	}
+	return u.repo.Delete(ctx, id)
 }
 
 func (u *tenantUsecase) ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error) {

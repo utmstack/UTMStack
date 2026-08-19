@@ -181,6 +181,67 @@ func (h *TenantHandler) Terminate(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// Reactivate godoc
+//
+//	@Summary		Reactivate a terminated tenant
+//	@Description	Flips a TERMINATED tenant back to ACTIVE. Fails if the tenant is not terminated.
+//	@Tags			Tenants
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Param			id	path		string	true	"Tenant id"
+//	@Success		200	{object}	domain.Tenant
+//	@Failure		400	{object}	map[string]string
+//	@Failure		403	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Router			/tenants/{id}/reactivate [post]
+func (h *TenantHandler) Reactivate(c *gin.Context) {
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	t, err := h.uc.Reactivate(c.Request.Context(), tid)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.reactivate",
+		ResourceType: "tenant",
+		ResourceID:   c.Param("id"),
+	}, audit_domain.TENANT_REACTIVATE_ATTEMPT, audit_domain.TENANT_REACTIVATE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, t)
+}
+
+// PermanentlyDelete godoc
+//
+//	@Summary		Permanently delete a terminated tenant
+//	@Description	Hard-deletes the tenant row and all rows scoped by tenant_id across the schema. Only allowed when the tenant is TERMINATED.
+//	@Tags			Tenants
+//	@Security		BearerAuth
+//	@Param			id	path	string	true	"Tenant id"
+//	@Success		204
+//	@Failure		400	{object}	map[string]string
+//	@Failure		403	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Router			/tenants/{id}/permanent [delete]
+func (h *TenantHandler) PermanentlyDelete(c *gin.Context) {
+	tid, ok := pathTenantID(c)
+	if !ok {
+		return
+	}
+	err := h.uc.PermanentlyDelete(c.Request.Context(), tid)
+	audit.Record(c, audit_connectors.Event{
+		Action:       "tenant.purge",
+		ResourceType: "tenant",
+		ResourceID:   c.Param("id"),
+	}, audit_domain.TENANT_PURGE_ATTEMPT, audit_domain.TENANT_PURGE_SUCCESS, err)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 func writeError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
@@ -192,7 +253,8 @@ func writeError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrDomainRequired),
 		errors.Is(err, domain.ErrDomainInvalid), errors.Is(err, domain.ErrStatusInvalid),
 		errors.Is(err, domain.ErrAlreadyTerminated), errors.Is(err, domain.ErrSupportInvalid),
-		errors.Is(err, domain.ErrLimitNegative), errors.Is(err, domain.ErrLimitInvalid):
+		errors.Is(err, domain.ErrLimitNegative), errors.Is(err, domain.ErrLimitInvalid),
+		errors.Is(err, domain.ErrNotTerminated):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

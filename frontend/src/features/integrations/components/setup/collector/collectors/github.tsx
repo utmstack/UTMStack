@@ -19,7 +19,7 @@ function GithubGuide({ module: _module }: { module: Integration }) {
         <p className="text-sm text-foreground/90">{t(`${ROOT}.certWarning.body`)}</p>
       </Section>
 
-      <Section title={t(`${ROOT}.step2.title`)} step={3}>
+      <Section title={t(`${ROOT}.step2.title`)} step={2}>
         <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.step2.body`)}</p>
         <img
           src={`${IMG}/webhook.png`}

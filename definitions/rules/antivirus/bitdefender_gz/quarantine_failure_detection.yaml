@@ -1,8 +1,8 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - antivirus-bitdefender-gz
-name: Bitdefender GravityZone Quarantine Failure Detection
+name: Bitdefender GravityZone Malware Not Remediated
 impact:
   confidentiality: 3
   integrity: 3
@@ -12,25 +12,41 @@ technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
 adversary: origin
 references:
   - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects when Bitdefender GravityZone fails to quarantine detected malware. This could indicate that the malware is actively resisting remediation attempts or that there are permission issues preventing proper quarantine.
+  Detects malware that Bitdefender identified but did not remediate: the file or process is still present on the endpoint after the detection. The endpoint should be treated as compromised, not as protected.
+
+  Two equivalent signals, either of which fires the rule:
+  - actionResult "failed", derived by the filter from the vendor's final_status values "still present" and "ignored".
+  - The malware counters saying the same thing structurally: at least one threat still present, none quarantined and none cleaned.
+
+  This is materially different from a normal detection. A blocked, deleted, quarantined or disinfected threat is a control that worked. A threat still present means the control detected and then failed to act, which usually points at insufficient agent privileges, a locked file, an active process defending itself, or quarantine storage problems.
 
   Next Steps:
-  - Immediately isolate the affected system from the network
-  - Check if the malware process is still running and attempt manual termination
-  - Verify antivirus permissions and ensure it has necessary privileges
-  - Review system logs for signs of privilege escalation or rootkit activity
-  - Consider reimaging the system if quarantine continues to fail
-  - Check for similar failures on other systems in the environment
-  - Investigate the specific malware detected and research its capabilities
-  - Review quarantine configuration and storage capacity
+  1. Isolate the endpoint from the network before anything else - the threat is live, not contained
+  2. Identify what is still running:
+     - target.malware and target.malwareType name the threat and whether it is a file or a process
+     - target.path and target.process point at the artefact and the process involved
+     - target.sha256 lets you pivot across the estate and to threat intelligence
+  3. Establish why remediation failed:
+     - A process-type detection that is still present usually means the process resisted termination
+     - Check whether the agent has the privileges it needs, and whether the path is on a locked or network volume
+     - Review quarantine storage capacity in the GravityZone console
+  4. Remediate manually and verify:
+     - Terminate the process, then remove the artefact and confirm a follow-up scan reports it gone
+     - Do not close the alert on the detection alone: confirm the counters changed
+  5. Assess the exposure window - the endpoint ran with known live malware from deviceTime until remediation, so review what else it reported in that period
+  6. Hunt the same threat elsewhere using target.sha256 and target.malware, since a failure to remediate on one host says nothing about the others
+  7. If remediation keeps failing on the same endpoint, treat it as tampering rather than a product fault and consider reimaging
 where: |
-  oneOf("log.eventType", ["quarantine_failed", "quarantine_failure"]) ||
-  (equals("log.eventType", "AntiMalware") &&
-    (containsAll("log.requestToParse", ["quarantine", "fail"]) ||
-     contains("log.restData", ["quarantine failed", "unable to quarantine", "failed to quarantine"]) ||
-     (equals("log.severity", "failure") && contains("log.requestToParse", "quarantine"))))
+  equals("log.eventType", "AntiMalware") &&
+  (
+    equals("actionResult", "failed") ||
+    (greaterOrEqual("log.BitdefenderGZPresentMalwareCnt", 1) &&
+     equals("log.BitdefenderGZQuarantinedMalwareCnt", 0) &&
+     equals("log.BitdefenderGZCleanedMalwareCnt", 0))
+  )
 groupBy:
-  - lastEvent.log.hostId
-  - lastEvent.log.signatureID
+  - target.host
+  - target.malware

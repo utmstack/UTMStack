@@ -10,6 +10,13 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/tenant/dto"
 )
 
+// TenantPurgeFunc is a purger contributed by a subsystem that owns
+// tenant-scoped data outside PostgreSQL (ClickHouse tables, on-disk config
+// directories, etc). Called during PermanentlyDelete before the SQL purge so
+// that a failure leaves the tenant row intact and the whole operation stays
+// retryable.
+type TenantPurgeFunc func(ctx context.Context, id uuid.UUID) error
+
 // UserProvisioner is iam's create, nothing more. Tenant owns tenancy, so it is
 // this module that puts the tenant on the context before calling; iam only makes
 // the account it is asked for, wherever the caller says it belongs.
@@ -28,5 +35,7 @@ type TenantUsecase interface {
 	List(ctx context.Context, f dto.Filter) ([]domain.Tenant, int64, error)
 	SetSupportAccess(ctx context.Context, id uuid.UUID, level domain.SupportAccess) (*domain.Tenant, error)
 	Terminate(ctx context.Context, id uuid.UUID) error
+	Reactivate(ctx context.Context, id uuid.UUID) (*domain.Tenant, error)
+	PermanentlyDelete(ctx context.Context, id uuid.UUID) error
 	ResolveDomain(ctx context.Context, host string) (*domain.Tenant, error)
 }

@@ -24,7 +24,7 @@ description: |
   5. Consider implementing IP-based blocking if malicious activity is confirmed
   6. Review ADFS configuration for security hardening opportunities
   7. Correlate with other authentication events across the domain
-where: equals("log.providerName", "AD FS") && (equals("log.eventId", "411") || equals("log.eventId", "342") || equals("log.eventId", "516")) && contains("log.message", "token validation failed")
+where: equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
 afterEvents:
   - with:
       - field: origin.ip

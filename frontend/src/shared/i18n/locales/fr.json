@@ -20,7 +20,8 @@
       "retry": "Réessayer",
       "refresh": "Actualiser",
       "delete": "Supprimer",
-      "remove": "Retirer"
+      "remove": "Retirer",
+      "close": "Fermer"
     },
     "confirm": {
       "delete": "Supprimer",
@@ -1805,7 +1806,7 @@
         "step3Body": "En quelques minutes, vous devriez voir les événements de {{name}} sous source : {{source}} dans Log Explorer, et une nouvelle entrée dans Sources de données.",
         "endpoint": {
           "title": "Détails de connexion",
-          "hint": "Configurez {{name}} pour transmettre ses journaux au Forwarder en utilisant l'hôte et le port ci-dessous."
+          "hint": "Configurez {{name}} pour transmettre ses journaux au Collector en utilisant l'hôte et le port ci-dessous."
         },
         "syslog": {
           "sections": {
@@ -1826,79 +1827,79 @@
         "netflow": {
           "source": "Équipement réseau",
           "step1": {
-            "title": "Activer l'écouteur NetFlow sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le collecteur NetFlow sur le port 2055 :",
+            "title": "Activer l'écouteur NetFlow sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le collecteur NetFlow sur le port 2055 :",
             "note": "NetFlow utilise uniquement UDP — TCP et TLS ne sont pas pris en charge pour ce protocole."
           },
           "step2": {
             "title": "Configurer votre équipement pour exporter NetFlow",
-            "body": "Dirigez l'export NetFlow de votre routeur ou pare-feu vers l'hôte Forwarder sur le port <hl>{{port}} UDP</hl>. L'exemple ci-dessous concerne Cisco IOS — consultez la documentation de votre fournisseur pour les autres plateformes :",
+            "body": "Dirigez l'export NetFlow de votre routeur ou pare-feu vers l'hôte Collector sur le port <hl>{{port}} UDP</hl>. L'exemple ci-dessous concerne Cisco IOS — consultez la documentation de votre fournisseur pour les autres plateformes :",
             "note": "Remplacez <interface> par le nom de l'interface où le trafic doit être surveillé (ex. GigabitEthernet0/0). Appliquez en entrée/sortie sur chaque interface concernée."
           }
         },
         "cisco": {
           "source": "Cisco ASA",
           "step1": {
-            "title": "Activer l'écouteur Cisco ASA sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco ASA :",
+            "title": "Activer l'écouteur Cisco ASA sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco ASA :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer Cisco ASA pour transmettre les journaux",
-            "body": "Sur votre Cisco ASA, activez <hl>syslog</hl> et pointez-le vers l'hôte Forwarder sur le port {{port}}. Exécutez ces commandes en mode EXEC privilégié (remplacez <interface> par le nom de votre interface interne ou de gestion) :"
+            "body": "Sur votre Cisco ASA, activez <hl>syslog</hl> et pointez-le vers l'hôte Collector sur le port {{port}}. Exécutez ces commandes en mode EXEC privilégié (remplacez <interface> par le nom de votre interface interne ou de gestion) :"
           }
         },
         "ciscoSwitch": {
           "source": "Cisco Switch",
           "step1": {
-            "title": "Activer l'écouteur Cisco Switch sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Switch :",
+            "title": "Activer l'écouteur Cisco Switch sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Switch :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer le commutateur pour transmettre les journaux",
-            "body": "En mode EXEC privilégié sur votre commutateur Cisco, activez <hl>syslog</hl> et pointez-le vers l'hôte Forwarder sur le port {{port}} :"
+            "body": "En mode EXEC privilégié sur votre commutateur Cisco, activez <hl>syslog</hl> et pointez-le vers l'hôte Collector sur le port {{port}} :"
           }
         },
         "ciscoMeraki": {
           "source": "Cisco Meraki",
           "step1": {
-            "title": "Activer l'écouteur Cisco Meraki sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Meraki :",
+            "title": "Activer l'écouteur Cisco Meraki sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Meraki :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer Meraki pour transmettre les journaux",
-            "body": "Dans le tableau de bord Meraki, accédez à <hl>Network-wide → Configure → General</hl>, faites défiler jusqu'à la section Reporting et ajoutez un serveur syslog avec l'IP du Forwarder et le port {{port}}. Sélectionnez tous les rôles que vous souhaitez transmettre."
+            "body": "Dans le tableau de bord Meraki, accédez à <hl>Network-wide → Configure → General</hl>, faites défiler jusqu'à la section Reporting et ajoutez un serveur syslog avec l'IP du Collector et le port {{port}}. Sélectionnez tous les rôles que vous souhaitez transmettre."
           }
         },
         "ciscoFirepower": {
           "source": "Cisco Firepower",
           "step1": {
-            "title": "Activer l'écouteur Cisco Firepower sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Firepower :",
+            "title": "Activer l'écouteur Cisco Firepower sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur de journaux Cisco Firepower :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer Firepower pour transmettre les journaux",
-            "body": "Dans Firepower Management Center (FMC), accédez à <hl>Devices → Platform Settings</hl>, modifiez ou créez une politique et naviguez vers <hl>Syslog → Syslog Servers</hl>. Ajoutez l'IP du Forwarder avec le port {{port}} (UDP), puis assignez la politique à vos équipements et déployez."
+            "body": "Dans Firepower Management Center (FMC), accédez à <hl>Devices → Platform Settings</hl>, modifiez ou créez une politique et naviguez vers <hl>Syslog → Syslog Servers</hl>. Ajoutez l'IP du Collector avec le port {{port}} (UDP), puis assignez la politique à vos équipements et déployez."
           }
         },
         "vmware": {
           "source": "VMware ESXi",
           "step1": {
-            "title": "Activer l'écouteur VMware sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur syslog VMware ESXi. ESXi transmet via TCP :",
-            "note": "Pour un canal chiffré, utilisez tls à la place de tcp (chargez d'abord les certificats sur le Forwarder)."
+            "title": "Activer l'écouteur VMware sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur syslog VMware ESXi. ESXi transmet via TCP :",
+            "note": "Pour un canal chiffré, utilisez tls à la place de tcp (chargez d'abord les certificats sur le Collector)."
           },
           "step2": {
-            "title": "Pointer le syslog ESXi vers le Forwarder",
+            "title": "Pointer le syslog ESXi vers le Collector",
             "body": "Ouvrez une session SSH/ESXi Shell sur l'hôte (ou utilisez le vSphere Client : Host → Configure → Advanced System Settings → Syslog.global.logHost). Définissez l'hôte de journalisation distant sur <hl>{{host}}:{{port}}</hl> et rechargez la configuration :",
             "note": "Sur vSphere, vous pouvez alternativement définir Syslog.global.logHost sur la même valeur tcp://host:port plutôt qu'exécuter esxcli."
           },
           "step3": {
             "title": "Ouvrir le pare-feu ESXi pour syslog",
-            "body": "Autorisez le syslog sortant à travers le pare-feu ESXi afin que l'hôte puisse atteindre le Forwarder :"
+            "body": "Autorisez le syslog sortant à travers le pare-feu ESXi afin que l'hôte puisse atteindre le Collector :"
           }
         },
         "as400": {
@@ -1998,8 +1999,8 @@
         "eset": {
           "source": "ESET Protect",
           "step1": {
-            "title": "Activer l'écouteur ESET sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur syslog ESET :",
+            "title": "Activer l'écouteur ESET sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur syslog ESET :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "console": {
@@ -2017,15 +2018,15 @@
             },
             "syslog": {
               "title": "Configurer le serveur Syslog",
-              "body": "Faites défiler jusqu'à <hl>Serveur Syslog</hl>, activez <hl>Exporter les journaux vers Syslog</hl> et définissez la destination sur l'hôte Forwarder au port {{port}} (UDP). ESET envoie LEEF/syslog, que le Forwarder ingère en tant que type de données antivirus-esmc-eset."
+              "body": "Faites défiler jusqu'à <hl>Serveur Syslog</hl>, activez <hl>Exporter les journaux vers Syslog</hl> et définissez la destination sur l'hôte Collector au port {{port}} (UDP). ESET envoie LEEF/syslog, que le Collector ingère en tant que type de données antivirus-esmc-eset."
             }
           }
         },
         "kaspersky": {
           "source": "Kaspersky Security",
           "step1": {
-            "title": "Activer l'écouteur Kaspersky sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur syslog Kaspersky :",
+            "title": "Activer l'écouteur Kaspersky sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur syslog Kaspersky :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "console": {
@@ -2039,14 +2040,14 @@
             },
             "configure": {
               "title": "Configurer l'export SIEM",
-              "body": "Activez l'export et configurez Kaspersky pour envoyer les événements au format <hl>Splunk (CEF)</hl> vers l'hôte Forwarder sur le port {{port}} (UDP). Le Forwarder les ingère en tant que type de données antivirus-kaspersky."
+              "body": "Activez l'export et configurez Kaspersky pour envoyer les événements au format <hl>Splunk (CEF)</hl> vers l'hôte Collector sur le port {{port}} (UDP). Le Collector les ingère en tant que type de données antivirus-kaspersky."
             }
           }
         },
         "sophos": {
           "intro": {
             "title": "Sophos Central — Plugin API",
-            "body": "Sophos Central fournit des API sécurisées pour récupérer les données d'événements et d'alertes. UTMStack se connecte à ces API pour centraliser la surveillance et améliorer votre visibilité de sécurité — aucun agent ni forwarder requis.",
+            "body": "Sophos Central fournit des API sécurisées pour récupérer les données d'événements et d'alertes. UTMStack se connecte à ces API pour centraliser la surveillance et améliorer votre visibilité de sécurité — aucun agent ni collector requis.",
             "diagram": {
               "source": "Sophos Central API",
               "edge": "HTTPS API",
@@ -2119,9 +2120,9 @@
         "sentinelOne": {
           "source": "SentinelOne",
           "step1": {
-            "title": "Activer l'écouteur SentinelOne sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur syslog SentinelOne. SentinelOne diffuse CEF via TCP :",
-            "note": "Pour un canal chiffré, utilisez tls à la place de tcp (chargez d'abord les certificats sur le Forwarder)."
+            "title": "Activer l'écouteur SentinelOne sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur syslog SentinelOne. SentinelOne diffuse CEF via TCP :",
+            "note": "Pour un canal chiffré, utilisez tls à la place de tcp (chargez d'abord les certificats sur le Collector)."
           },
           "console": {
             "settings": {
@@ -2213,13 +2214,13 @@
         "github": {
           "source": "GitHub",
           "step1": {
-            "title": "Activer l'écouteur de webhook GitHub sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur de webhook HTTPS pour GitHub :",
+            "title": "Activer l'écouteur de webhook GitHub sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur de webhook HTTPS pour GitHub :",
             "tokenNote": "Le terminal affichera un jeton secret — copiez-le immédiatement. Il ne sera plus affiché."
           },
           "certWarning": {
             "title": "GitHub exige un certificat TLS signé par une autorité de certification",
-            "body": "GitHub n'envoie des webhooks qu'aux points de terminaison HTTPS disposant d'un certificat émis par une autorité de certification publique (les certificats auto-signés sont refusés). Assurez-vous que l'hôte du Forwarder possède un certificat de domaine valide avant d'enregistrer le webhook."
+            "body": "GitHub n'envoie des webhooks qu'aux points de terminaison HTTPS disposant d'un certificat émis par une autorité de certification publique (les certificats auto-signés sont refusés). Assurez-vous que l'hôte du Collector possède un certificat de domaine valide avant d'enregistrer le webhook."
           },
           "step2": {
             "title": "Enregistrer le webhook dans GitHub",
@@ -2227,7 +2228,7 @@
             "payloadUrl": "URL de payload",
             "contentType": "Type de contenu",
             "secret": "Secret",
-            "secretHint": "Collez le <hl>jeton</hl> affiché par le Forwarder à l'étape précédente.",
+            "secretHint": "Collez le <hl>jeton</hl> affiché par le Collector à l'étape précédente.",
             "events": "Quels événements",
             "eventsHint": "Tout envoyer — ou sélectionner des types d'événements spécifiques."
           }
@@ -2375,15 +2376,15 @@
         "oracle": {
           "source": "Serveur Oracle DB",
           "step1": {
-            "title": "Activer l'intégration Oracle sur le Forwarder",
-            "body": "Sur le serveur où le Forwarder est installé, exécutez la commande suivante pour commencer à écouter les journaux Oracle :",
-            "note": "Le Forwarder commencera à recevoir des événements syslog d'Oracle sur le port 7021."
+            "title": "Activer l'intégration Oracle sur le Collector",
+            "body": "Sur le serveur où le Collector est installé, exécutez la commande suivante pour commencer à écouter les journaux Oracle :",
+            "note": "Le Collector commencera à recevoir des événements syslog d'Oracle sur le port 7021."
           },
           "step2": {
             "title": "Configurer rsyslog sur le serveur Oracle",
             "body": "Créez le fichier de configuration rsyslog :",
-            "editBody": "Ouvrez le fichier avec votre éditeur préféré et ajoutez la configuration suivante. Remplacez BASEDIR par votre chemin d'installation Oracle (p. ex., /u01/app/oracle) et <forwarder-ip> par l'adresse IP ou le nom d'hôte du Forwarder :",
-            "note": "Utilisez @@<forwarder-ip>:7021 au lieu de @ si vous préférez une livraison TCP."
+            "editBody": "Ouvrez le fichier avec votre éditeur préféré et ajoutez la configuration suivante. Remplacez BASEDIR par votre chemin d'installation Oracle (p. ex., /u01/app/oracle) et <collector-ip> par l'adresse IP ou le nom d'hôte du Collector :",
+            "note": "Utilisez @@<collector-ip>:7021 au lieu de @ si vous préférez une livraison TCP."
           },
           "step3": {
             "title": "Redémarrer rsyslog",
@@ -2704,107 +2705,113 @@
         "forwarder": {
           "intro": {
             "title": "Fonctionnement",
-            "body": "Les journaux transitent de {{source}} vers le UTMStack Forwarder, qui les envoie de manière sécurisée dans UTMStack pour la corrélation et les alertes. Rien n'est installé sur {{source}} — seul le Forwarder doit être exécuté sur un hôte de votre réseau."
+            "body": "Les journaux transitent de {{source}} vers le UTMStack Collector, qui les envoie de manière sécurisée dans UTMStack pour la corrélation et les alertes. Rien n'est installé sur {{source}} — seul le Collector doit être exécuté sur un hôte de votre réseau."
           },
           "diagram": {
             "sourceSub": "vos journaux",
-            "forwarder": "Forwarder",
+            "forwarder": "Collector",
             "forwarderSub": "écoute sur {{port}}",
             "utmstack": "UTMStack",
             "utmstackSub": "alertes & corrélation",
             "flow1": "journaux",
             "flow2": "sécurisé"
           },
-          "noInstall": "Rien n'est installé sur {{source}} — vous redirigez uniquement ses journaux vers le Forwarder.",
+          "noInstall": "Rien n'est installé sur {{source}} — vous redirigez uniquement ses journaux vers le Collector.",
           "install": {
-            "title": "Installer le UTMStack Forwarder",
-            "body": "Le Forwarder est un service Linux qui reçoit les journaux de vos appareils et les envoie à UTMStack. Un seul Forwarder gère plusieurs intégrations simultanément.",
-            "reuse": "Vous avez déjà un Forwarder en cours d'exécution ? Ignorez cette étape — redirigez {{source}} vers celui existant en utilisant l'hôte et le port indiqués ci-dessous."
+            "title": "Installer le UTMStack Collector",
+            "body": "Le Collector est un service Linux qui reçoit les journaux de vos appareils et les envoie à UTMStack. Un seul Collector gère plusieurs intégrations simultanément.",
+            "reuse": "Vous avez déjà un Collector en cours d'exécution ? Ignorez cette étape — redirigez {{source}} vers celui existant en utilisant l'hôte et le port indiqués ci-dessous."
           },
           "tls": {
             "title": "Optionnel — Activer le chiffrement TLS",
             "intro": "Par défaut, le listener accepte du TCP/UDP en clair. Pour chiffrer le trafic syslog en transit, chargez d'abord vos fichiers de certificat, puis réactivez le listener avec le protocole tls.",
-            "step1": "1 · Charger votre certificat et votre clé (une fois par Forwarder)",
+            "step1": "1 · Charger votre certificat et votre clé (une fois par Collector)",
             "step1Note": "Un certificat CA facultatif peut être ajouté comme troisième argument. Omettez-le pour utiliser le certificat feuille comme CA.",
             "step2": "2 · Réactiver le listener avec TLS"
           },
           "httpsCerts": {
-            "title": "Chargez le certificat TLS sur le Forwarder",
-            "body": "Cette intégration utilise un listener HTTPS sur le port {{port}}, le Forwarder a donc besoin d'un certificat et d'une clé chargés avant de l'activer :"
+            "title": "Chargez le certificat TLS sur le Collector",
+            "body": "Cette intégration utilise un listener HTTPS sur le port {{port}}, le Collector a donc besoin d'un certificat et d'une clé chargés avant de l'activer :"
           },
           "uninstall": {
-            "title": "Optionnel — Désinstaller le Forwarder",
-            "body": "Exécutez cette commande sur l'hôte où le Forwarder est installé pour arrêter le service et supprimer tous ses fichiers."
+            "title": "Optionnel — Désinstaller le Collector",
+            "body": "Exécutez cette commande sur l'hôte où le Collector est installé pour arrêter le service et supprimer tous ses fichiers."
+          },
+          "masterHeader": {
+            "title": "En-tête d'autorisation",
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
+            "tabSimple": "Simple",
+            "tabBatch": "Lot"
           }
         },
         "aix": {
           "source": "Serveur AIX",
           "step1": {
-            "title": "Activer le listener AIX sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener de journaux AIX :",
+            "title": "Activer le listener AIX sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener de journaux AIX :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer AIX pour transmettre les journaux",
-            "body": "Sur votre système AIX, configurez le service <hl>syslog</hl> pour rediriger ses journaux vers l'hôte du Forwarder sur le port {{port}}. Consultez la documentation IBM pour la syntaxe exacte — elle varie selon les versions d'AIX."
+            "body": "Sur votre système AIX, configurez le service <hl>syslog</hl> pour rediriger ses journaux vers l'hôte du Collector sur le port {{port}}. Consultez la documentation IBM pour la syntaxe exacte — elle varie selon les versions d'AIX."
           }
         },
         "deceptivebytes": {
           "source": "Deceptive Bytes",
           "step1": {
-            "title": "Activer le listener Deceptive Bytes sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog Deceptive Bytes :",
+            "title": "Activer le listener Deceptive Bytes sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog Deceptive Bytes :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer Deceptive Bytes pour transmettre les journaux",
-            "body": "Dans la console de gestion Deceptive Bytes, configurez le transfert <hl>syslog</hl> pour envoyer les événements à l'hôte du Forwarder sur le port {{port}} (UDP). Deceptive Bytes émet du syslog au format CEF, que le Forwarder ingère sous le type de données <hl>deceptive-bytes</hl>."
+            "body": "Dans la console de gestion Deceptive Bytes, configurez le transfert <hl>syslog</hl> pour envoyer les événements à l'hôte du Collector sur le port {{port}} (UDP). Deceptive Bytes émet du syslog au format CEF, que le Collector ingère sous le type de données <hl>deceptive-bytes</hl>."
           }
         },
         "mikrotik": {
           "source": "Routeur MikroTik",
           "step1": {
-            "title": "Activer le listener MikroTik sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog MikroTik :",
+            "title": "Activer le listener MikroTik sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog MikroTik :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer MikroTik pour transmettre les journaux",
-            "body": "Sur le routeur MikroTik, créez une <hl>action de journalisation</hl> distante pointant vers l'hôte du Forwarder sur le port {{port}} et associez-la aux rubriques de journaux pertinentes. Exécutez la commande suivante depuis le CLI RouterOS (Terminal dans Winbox) :",
+            "body": "Sur le routeur MikroTik, créez une <hl>action de journalisation</hl> distante pointant vers l'hôte du Collector sur le port {{port}} et associez-la aux rubriques de journaux pertinentes. Exécutez la commande suivante depuis le CLI RouterOS (Terminal dans Winbox) :",
             "note": "Vous pouvez également configurer cela via Winbox : System → Logging → onglet Actions (ajouter une action Remote) → puis l'onglet Rules (ajouter des règles pointant vers la nouvelle action)."
           }
         },
         "fortigate": {
           "source": "Pare-feu FortiGate",
           "step1": {
-            "title": "Activer le listener FortiGate sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog FortiGate :",
+            "title": "Activer le listener FortiGate sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog FortiGate :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer FortiGate pour transmettre les journaux",
-            "body": "Sur le FortiGate, pointez syslog vers l'hôte du Forwarder sur le port {{port}}. Exécutez la commande suivante depuis le CLI FortiOS (ou utilisez Log & Report → Log Settings → Syslog dans l'interface graphique) :",
-            "note": "Remplacez l'adresse du serveur si le Forwarder s'exécute sur un hôte différent. Pour plusieurs collecteurs syslog, utilisez syslogd2/syslogd3/syslogd4."
+            "body": "Sur le FortiGate, pointez syslog vers l'hôte du Collector sur le port {{port}}. Exécutez la commande suivante depuis le CLI FortiOS (ou utilisez Log & Report → Log Settings → Syslog dans l'interface graphique) :",
+            "note": "Remplacez l'adresse du serveur si le Collector s'exécute sur un hôte différent. Pour plusieurs collecteurs syslog, utilisez syslogd2/syslogd3/syslogd4."
           }
         },
         "fortiweb": {
           "source": "FortiWeb WAF",
           "step1": {
-            "title": "Activer le listener FortiWeb sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog FortiWeb :",
+            "title": "Activer le listener FortiWeb sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog FortiWeb :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
             "title": "Configurer FortiWeb pour transmettre les journaux",
-            "body": "Sur le FortiWeb, créez une politique syslog pointant vers l'hôte du Forwarder sur le port {{port}} et activez la journalisation syslog. Exécutez la commande suivante depuis le CLI FortiWeb (ou utilisez Log & Report → Log Policy → Syslog Policy dans l'interface graphique) :",
+            "body": "Sur le FortiWeb, créez une politique syslog pointant vers l'hôte du Collector sur le port {{port}} et activez la journalisation syslog. Exécutez la commande suivante depuis le CLI FortiWeb (ou utilisez Log & Report → Log Policy → Syslog Policy dans l'interface graphique) :",
             "note": "Assurez-vous que les types de journaux pertinents (Attack, Event, Traffic) sont activés pour être envoyés à syslog dans les paramètres Log & Report."
           }
         },
         "paloalto": {
           "source": "Pare-feu Palo Alto",
           "step1": {
-            "title": "Activer le listener Palo Alto sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog Palo Alto :",
+            "title": "Activer le listener Palo Alto sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog Palo Alto :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
@@ -2819,8 +2826,8 @@
         "pfsense": {
           "source": "Pare-feu pfSense",
           "step1": {
-            "title": "Activer le listener pfSense sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog pfSense :",
+            "title": "Activer le listener pfSense sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog pfSense :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
@@ -2831,8 +2838,8 @@
         "sonicwall": {
           "source": "Pare-feu SonicWall",
           "step1": {
-            "title": "Activer le listener SonicWall sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog SonicWall :",
+            "title": "Activer le listener SonicWall sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog SonicWall :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
@@ -2843,8 +2850,8 @@
         "sophosxg": {
           "source": "Sophos Firewall",
           "step1": {
-            "title": "Activer le listener Sophos Firewall sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir le listener syslog Sophos Firewall :",
+            "title": "Activer le listener Sophos Firewall sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir le listener syslog Sophos Firewall :",
             "note": "Pour utiliser TCP au lieu de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
@@ -2855,8 +2862,8 @@
         "suricata": {
           "source": "Suricata IDS",
           "step1": {
-            "title": "Activer l'écouteur Suricata sur le Forwarder",
-            "body": "Sur l'hôte où le Forwarder est installé, exécutez cette commande pour ouvrir l'écouteur Suricata :",
+            "title": "Activer l'écouteur Suricata sur le Collector",
+            "body": "Sur l'hôte où le Collector est installé, exécutez cette commande pour ouvrir l'écouteur Suricata :",
             "note": "Pour utiliser TCP à la place de UDP, remplacez udp par tcp dans la commande ci-dessus."
           },
           "step2": {
@@ -2865,8 +2872,8 @@
             "note": "Puis redémarrez Suricata : sudo systemctl restart suricata"
           },
           "step3": {
-            "title": "Transmettre syslog vers le Forwarder",
-            "body": "Dirigez la facility <hl>local5</hl> (vers laquelle Suricata écrit désormais) vers le Forwarder. Ajoutez cette règle dans <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> sur l'hôte Suricata :",
+            "title": "Transmettre syslog vers le Collector",
+            "body": "Dirigez la facility <hl>local5</hl> (vers laquelle Suricata écrit désormais) vers le Collector. Ajoutez cette règle dans <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> sur l'hôte Suricata :",
             "note": "Utilisez @@ au lieu de @ pour TCP. Puis redémarrez rsyslog : sudo systemctl restart rsyslog"
           }
         }
@@ -3305,30 +3312,79 @@
         "exampleLabel": "Exemple de cible syslog sur {{name}} :",
         "intro": {
           "title": "Fonctionnement",
-          "body": "Une intégration personnalisée ingère des journaux depuis toute source non couverte par les modules intégrés. Vous installez le UTMStack Forwarder, enregistrez un écouteur pour vos données avec le protocole de votre choix, puis pointez votre source vers celui-ci.",
-          "note": "Choisissez ci-dessous le protocole que votre source peut envoyer (syslog UDP/TCP/TLS, ou HTTP/HTTPS pour JSON) — le Forwarder crée le type de données automatiquement."
+          "body": "Une intégration personnalisée ingère des journaux depuis toute source non couverte par les modules intégrés. Vous installez le UTMStack Collector, enregistrez un écouteur pour vos données avec le protocole de votre choix, puis pointez votre source vers celui-ci.",
+          "note": "Choisissez ci-dessous le protocole que votre source peut envoyer (syslog UDP/TCP/TLS, ou HTTP/HTTPS pour JSON) — le Collector crée le type de données automatiquement."
         },
         "diagram": {
           "source": "Votre source",
           "sourceSub": "toute application ou appareil",
-          "forwarder": "Forwarder",
+          "forwarder": "Collector",
           "ingests": "ingère",
           "utmstackSub": "alertes & corrélation"
         },
         "choose": {
           "title": "Choisir le protocole et le port",
-          "body": "Sélectionnez la façon dont votre source envoie les données et le port sur lequel le Forwarder doit écouter, puis exécutez la commande d'activation sur l'hôte Forwarder.",
+          "body": "Sélectionnez la façon dont votre source envoie les données et le port sur lequel le Collector doit écouter, puis exécutez la commande d'activation sur l'hôte Collector.",
           "portLabel": "Port d'écoute",
-          "tlsFirst": "Chargez d'abord votre certificat TLS et votre clé sur le Forwarder :",
+          "tlsFirst": "Chargez d'abord votre certificat TLS et votre clé sur le Collector :",
           "enableLabel": "Activez ensuite l'intégration :",
-          "authNote": "Pour exiger une authentification, ajoutez <code>--auth bearer</code> (jeton) ou <code>--auth hmac</code> — le Forwarder affiche un jeton à utiliser dans l'en-tête Authorization."
+          "authNote": "Pour exiger une authentification, ajoutez <code>--auth bearer</code> (jeton) ou <code>--auth hmac</code> — le Collector affiche un jeton à utiliser dans l'en-tête Authorization."
         },
         "send": {
-          "title": "Pointer votre source vers le Forwarder",
+          "title": "Pointer votre source vers le Collector",
           "bodyNetwork": "Configurez votre source pour envoyer les journaux syslog <hl>{{proto}}</hl> vers <hl>{{host}}:{{port}}</hl>. La plupart des appareils disposent d'un paramètre syslog distant ou de transfert de journaux à cet effet.",
           "bodyHttp": "Envoyez vos événements au format JSON via HTTP POST vers <hl>{{endpoint}}</hl>. Chaque corps de requête est un événement JSON :",
-          "httpBindNote": "L'écouteur HTTP/HTTPS est lié à 127.0.0.1 (l'hôte Forwarder) par défaut ; envoyez donc les requêtes depuis une application s'exécutant sur cet hôte, ou placez un proxy inverse devant. Pour les sources distantes, utilisez syslog (UDP/TCP/TLS)."
+          "httpBindNote": "L'écouteur HTTP/HTTPS est lié à 127.0.0.1 (l'hôte Collector) par défaut ; envoyez donc les requêtes depuis une application s'exécutant sur cet hôte, ou placez un proxy inverse devant. Pour les sources distantes, utilisez syslog (UDP/TCP/TLS)."
         }
+      },
+      "remoteEnable": {
+        "title": "Activer cette intégration à distance",
+        "body": "Choisissez un Collector, sélectionnez le protocole et le port, puis activez l'intégration — aucun SSH requis.",
+        "noPermission": "Vous n'avez pas la permission de gérer les intégrations distantes. Demandez à un administrateur d'accorder la permission integrations.write.",
+        "loadingCollectors": "Chargement des Collectors…",
+        "noCollectors": "Aucun Collector n'est enregistré pour le moment. Installez-en un ci-dessus pour activer les intégrations à distance.",
+        "forwarderOffline": "Ce Collector est hors ligne et ne peut pas recevoir de modifications de configuration en ce moment.",
+        "legendOnline": "{{count}} en ligne",
+        "legendOffline": "{{count}} hors ligne",
+        "legendTotal": "{{count}} total",
+        "forwarderLabel": "Collector",
+        "protoLabel": "Protocole",
+        "portLabel": "Port",
+        "currentStateLoading": "Vérification de la configuration actuelle…",
+        "currentlyEnabled": "Actuellement : activé · {{proto}} · port {{port}}",
+        "currentlyDisabled": "Actuellement : désactivé · {{proto}} · port {{port}}",
+        "authLabel": "Authentification",
+        "authNone": "Aucune",
+        "authBearer": "Jeton Bearer",
+        "authHmac": "Signature HMAC",
+        "pathLabel": "Chemin",
+        "signatureHeaderLabel": "En-tête de signature",
+        "certTitle": "Certificat TLS",
+        "certLoading": "Vérification du statut du certificat…",
+        "certLoaded": "Un certificat valide est déjà chargé sur ce Collector.",
+        "certMissing": "Aucun certificat chargé pour le moment — téléchargez-en un pour activer ce protocole.",
+        "certInvalid": "Le certificat chargé est invalide : {{error}}",
+        "certPemLabel": "Certificat",
+        "keyPemLabel": "Clé privée",
+        "caPemLabel": "Certificat CA",
+        "uploadCertsButton": "Télécharger le certificat",
+        "certUploadSuccess": "Certificat téléchargé.",
+        "certUploadError": "Échec du téléchargement du certificat.",
+        "certReadError": "Impossible de lire le(s) fichier(s) sélectionné(s).",
+        "enableButton": "Activer l'intégration",
+        "disableButton": "Désactiver l'intégration",
+        "enableSuccess": "Intégration activée.",
+        "disableSuccess": "Intégration désactivée.",
+        "enableError": "Échec de la mise à jour de l'intégration.",
+        "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau.",
+        "sendToMaster": "Envoyer au Master",
+        "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
+        "addCollector": "Ajouter un Collector",
+        "addApiKey": "Ajouter une clé API",
+        "apiKeyLabel": "Clé API",
+        "apiKeyPlaceholder": "Sélectionner une clé API",
+        "apiKeyAddNew": "Ajouter une clé API…",
+        "apiKeyNone": "Aucune clé API pour l'instant"
       }
     },
     "codeBlock": {
@@ -5372,7 +5428,9 @@
     },
     "card": {
       "edit": "Modifier",
-      "terminate": "Résilier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "deletePermanent": "Supprimer définitivement",
       "noAccess": "Ce locataire ne vous a pas donné accès.",
       "loadingStats": "Lecture…",
       "enter": "Entrer"
@@ -5407,15 +5465,28 @@
       "submit": "Enregistrer"
     },
     "terminate": {
-      "title": "Résilier ce locataire ?",
-      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, un opérateur peut donc revenir en arrière, mais le client est hors ligne dès maintenant.",
+      "title": "Désactiver ce locataire ?",
+      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, c'est donc réversible, mais le client est hors ligne dès maintenant.",
       "confirmLabel": "Saisissez {{name}} pour confirmer",
-      "submit": "Résilier"
+      "submit": "Désactiver"
+    },
+    "reactivate": {
+      "title": "Activer ce locataire ?",
+      "body": "{{name}} pourra se reconnecter. Les données conservées sont restaurées telles quelles.",
+      "submit": "Activer"
+    },
+    "deletePermanent": {
+      "title": "Supprimer ce locataire pour toujours ?",
+      "body": "Toute trace de {{name}} — utilisateurs, sources de données, tableaux de bord, alertes, intégrations — sera effacée. C'est irréversible.",
+      "confirmLabel": "Saisissez {{name}} pour confirmer",
+      "submit": "Supprimer définitivement"
     },
     "toast": {
       "created": "Locataire créé",
       "updated": "Locataire mis à jour",
       "terminated": "Locataire résilié",
+      "reactivated": "Locataire réactivé",
+      "permanentlyDeleted": "Locataire supprimé définitivement",
       "domainInUse": "Ce domaine est déjà pris",
       "noPermission": "Vous n'avez pas la permission de faire cela",
       "notFound": "Locataire introuvable",
@@ -5461,5 +5532,46 @@
     "readOnly": "lecture seule — les écritures sont refusées",
     "full": "accès complet — les changements ici sont réels",
     "leave": "Quitter"
+  },
+  "platformBroadcast": {
+    "button": "Appliquer aux locataires…",
+    "action": {
+      "create": "Diffuser la création de {{resource}}",
+      "update": "Diffuser la mise à jour de {{resource}}",
+      "delete": "Diffuser la suppression de {{resource}}",
+      "toggle": "Diffuser le basculement de {{resource}}",
+      "enable": "Diffuser l'activation de {{resource}}",
+      "activate": "Diffuser l'activation de {{resource}}",
+      "test": "Diffuser le test {{resource}}",
+      "upload": "Diffuser l'actif {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "règle de corrélation",
+      "soarFlow": "flux SOAR",
+      "framework": "cadre",
+      "control": "contrôle",
+      "smtp": "SMTP",
+      "idp": "fournisseur d'identité",
+      "branding": "marque"
+    },
+    "warning": {
+      "title": "Cette action s'exécutera sur chaque locataire sélectionné.",
+      "body": "Les échecs par locataire sont signalés après l'exécution et ne sont pas annulés."
+    },
+    "allTenants": "Appliquer à tous les locataires",
+    "excludesDefault": "Le locataire de la plateforme est exclu de cette action.",
+    "searchPlaceholder": "Rechercher des locataires…",
+    "loading": "Chargement des locataires…",
+    "empty": "Aucun locataire ne correspond.",
+    "targetCount": "Ciblera {{count}} locataire(s).",
+    "platformTenant": "plateforme",
+    "confirm": "Appliquer à {{count}} locataire(s)",
+    "result": {
+      "succeeded": "Réussi",
+      "noneSucceeded": "Aucun locataire n'a réussi.",
+      "failed": "Échoué",
+      "noneFailed": "Aucun échec."
+    }
   }
 }

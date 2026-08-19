@@ -47,6 +47,7 @@ func (m *Module) buildServer() *mcp.Server {
 	registerBilling(m)
 	registerSOCAI(m)
 	registerTenants(m)
+	registerPlatformBulk(m)
 
 	registerResources(m)
 

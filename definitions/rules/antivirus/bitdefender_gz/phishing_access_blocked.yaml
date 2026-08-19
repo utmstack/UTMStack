@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - antivirus-bitdefender-gz
+name: Bitdefender GravityZone Phishing Page Loaded Without Blocking
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 0
+category: Credential Access
+technique: "T1566.002 - Phishing: Spearphishing Link"
+adversary: origin
+references:
+  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+  - https://attack.mitre.org/techniques/T1566/002/
+description: |
+  Detects a user actually loading a page Bitdefender classifies as phishing, fraud or untrusted, because Web Protection was in report-only mode rather than blocking. The URL is in origin.url, the user in target.user and the endpoint in target.host.
+
+  This deliberately excludes blocked phishing. When Bitdefender blocks the page the user never sees it, there is no credential exposure, and an alert would only compete with real incidents. Blocked attempts are worth a periodic awareness report, not an alert.
+
+  A page that loaded is different: the user reached a credential-harvesting form and may have filled it in. Treat it as a possible credential compromise, not as a web-filtering event.
+
+  Next Steps:
+  1. Treat the account in target.user as potentially compromised and reset the credentials, before investigating anything else
+  2. Read the URL in origin.url:
+     - A brand-impersonating domain, especially a bank or the organisation's own name, indicates a targeted campaign rather than random adware
+     - log.BitdefenderGZEventType separates phishing from fraud and untrust, which carry different intent
+  3. Establish how the user got there:
+     - target.process shows the browser or client that made the request
+     - A link in email means the message got past the mail gateway, which is its own finding
+  4. Check whether other users hit the same origin.url - a shared URL across users is a campaign against the organisation
+  5. Look for what followed on the same target.host:
+     - AntiMalware detections shortly after suggest the page also served a payload
+     - Network Attack Defense events with credentialAccess suggest the credentials were used
+  6. Fix the policy that allowed it: find why Web Protection was in report-only mode for this endpoint or group, since every other user under that policy is equally exposed
+  7. Submit the URL for blocking at the perimeter so the rest of the estate is covered
+where: equals("log.BitdefenderGZModule", "aph") && equals("actionResult", "success")
+groupBy:
+  - target.user
+  - adversary.url

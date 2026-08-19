@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc, enterprise, enterpriseLicense gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFunc, enterprise, enterpriseLicense gin.HandlerFunc, platform gin.HandlerFunc) {
 	auth := module.GetAuthHandler()
 	users := module.GetUserHandler()
 	roles := module.GetRoleHandler()
@@ -71,6 +71,13 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	idpGroup.GET("/:id/group-mappings", middleware.RequirePermission("idp.read"), idp.ListMappings)
 
 	api.GET("/idp-providers", idp.PublicList)
+
+	bulkIDP := module.GetBulkIDPHandler()
+	bulkIDPGroup := api.Group("/platform/identity-providers/bulk", userAuth, platform, enterprise, middleware.RequirePermission("idp.write"))
+	bulkIDPGroup.POST("/create", bulkIDP.Create)
+	bulkIDPGroup.POST("/update", bulkIDP.Update)
+	bulkIDPGroup.POST("/delete", bulkIDP.Delete)
+
 	sso := module.GetFederationHandler()
 	ssoGroup := api.Group("/sso/:name", enterpriseLicense)
 	ssoGroup.GET("/login", sso.Start)

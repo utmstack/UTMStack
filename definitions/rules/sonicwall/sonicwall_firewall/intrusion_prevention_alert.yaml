@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.1.0
 
 dataTypes:
   - firewall-sonicwall
@@ -14,25 +14,29 @@ references:
   - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
   - https://attack.mitre.org/techniques/T1190/
 description: |
-  Detects when SonicWall IPS identifies and blocks intrusion attempts, including buffer overflows, SQL injection, cross-site scripting, and other network-based attacks targeting vulnerabilities. This rule triggers when the SonicWall firewall's Intrusion Prevention System detects malicious traffic patterns or known attack signatures.
+  Detects when SonicWall Intrusion Prevention System (IPS) blocks an attack
+  matching a known signature — buffer overflow attempts, SQL injection,
+  cross-site scripting, exploit kits, etc. Reflects the IPS Prevention Alert
+  message family (event codes 88 / 89 / 100 / 785) as well as the descriptive
+  `log.message`, `log.contentCategory` and `log.ipsCategory` fields.
 
   Next Steps:
-  1. Verify the blocked attack by reviewing the SonicWall logs for attack details and signatures matched
-  2. Check if the attack was successfully blocked or if any traffic bypassed the IPS
-  3. Investigate the source IP for additional malicious activity or patterns
-  4. Review target systems for any signs of compromise if the attack was not fully blocked
-  5. Update IPS signatures if new attack patterns are discovered
-  6. Consider implementing additional network segmentation if attacks are targeting critical systems
-  7. Review and update security policies if necessary to prevent similar attacks
+  1. Review the matched signature and CVE (if any) in `log.message` / `log.note`.
+  2. Confirm the block succeeded — check for follow-up connections from the
+     same source that bypassed IPS.
+  3. Investigate the target for compromise signs if the signature was severity
+     high/critical.
+  4. Update IPS profile if the target service is not supposed to expose that
+     surface.
 where: |
-  (exists("log.ipscat") || 
-   contains("log.message", "IPS") ||
-   contains("log.eventName", "Intrusion") ||
-   contains("log.category", "Intrusion Prevention") ||
-   (exists("log.ipspri") && !equals("log.ipspri", "0"))) &&
-  (equals("action", "blocked") || equals("log.fw_action", "drop"))
+  (
+    oneOf("log.eventCode", ["88", "89", "100", "785"]) ||
+    exists("log.ipsCategory") ||
+    contains("log.message", ["IPS Detection Alert", "IPS Prevention Alert", "Intrusion"]) ||
+    contains("log.contentCategory", "Intrusion Prevention")
+  ) && equals("actionResult", "denied")
 afterEvents:
-  - with:
+    with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
