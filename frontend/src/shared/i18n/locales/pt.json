@@ -5390,7 +5390,8 @@
     },
     "card": {
       "edit": "Editar",
-      "terminate": "Encerrar",
+      "activate": "Ativar",
+      "deactivate": "Desativar",
       "deletePermanent": "Excluir permanentemente",
       "noAccess": "Este tenant não concedeu acesso a você.",
       "loadingStats": "Lendo…",
@@ -5426,15 +5427,15 @@
       "submit": "Salvar alterações"
     },
     "terminate": {
-      "title": "Encerrar este tenant?",
-      "body": "Ninguém em {{name}} conseguirá entrar. Os dados são mantidos, então um operador pode reverter, mas o cliente fica fora agora.",
+      "title": "Desativar este tenant?",
+      "body": "Ninguém em {{name}} conseguirá entrar. Os dados são mantidos, então é reversível, mas o cliente fica fora agora.",
       "confirmLabel": "Digite {{name}} para confirmar",
-      "submit": "Encerrar"
+      "submit": "Desativar"
     },
     "reactivate": {
-      "title": "Reativar este tenant?",
+      "title": "Ativar este tenant?",
       "body": "{{name}} poderá entrar novamente. Os dados preservados são restaurados como estavam.",
-      "submit": "Reativar"
+      "submit": "Ativar"
     },
     "deletePermanent": {
       "title": "Excluir este tenant para sempre?",
