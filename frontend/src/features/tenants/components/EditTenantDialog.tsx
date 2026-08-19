@@ -6,31 +6,12 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { tenantsHttpService } from '../services/tenants-http.service'
-import type { Tenant, TenantStatus } from '../types/tenant.types'
+import type { Tenant } from '../types/tenant.types'
 import { Modal } from './Modal'
 import { Field } from './Field'
 import { tenantError } from './tenant-error'
-import { ReactivateTenantDialog } from './ReactivateTenantDialog'
-
-const STATUSES: TenantStatus[] = ['ACTIVE', 'SUSPENDED']
 
 export function EditTenantDialog({
-  tenant,
-  onClose,
-  onSaved,
-}: {
-  tenant: Tenant
-  onClose: () => void
-  onSaved: () => void
-}) {
-  if (tenant.status === 'TERMINATED') {
-    return <ReactivateTenantDialog tenant={tenant} onClose={onClose} onSaved={onSaved} />
-  }
-
-  return <EditTenantForm tenant={tenant} onClose={onClose} onSaved={onSaved} />
-}
-
-function EditTenantForm({
   tenant,
   onClose,
   onSaved,
@@ -42,7 +23,6 @@ function EditTenantForm({
   const { t } = useTranslation()
   const [name, setName] = useState(tenant.name)
   const [domain, setDomain] = useState(tenant.domain)
-  const [status, setStatus] = useState<TenantStatus>(tenant.status)
   const [capped, setCapped] = useState(tenant.limits.maxAIRequests != null)
   const [maxAI, setMaxAI] = useState(String(tenant.limits.maxAIRequests ?? ''))
   const [busy, setBusy] = useState(false)
@@ -58,7 +38,6 @@ function EditTenantForm({
       await tenantsHttpService.update(tenant.id, {
         name: name.trim(),
         domain: domain.trim().toLowerCase(),
-        status,
         // Clearing the cap sends an explicit null: omitting the field would
         // mean "leave it as it is", which is the opposite of the intent.
         maxAIRequests: capped ? parsedMax : null,
@@ -94,29 +73,6 @@ function EditTenantForm({
       </Field>
       <Field label={t('tenants.fields.domain')} hint={t('tenants.fields.domainHint')}>
         <Input value={domain} onChange={(e) => setDomain(e.target.value)} className="font-mono" />
-      </Field>
-
-      <Field label={t('tenants.fields.status')}>
-        <div className="flex gap-2">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatus(s)}
-              className={cn(
-                'flex-1 rounded-md border px-3 py-2 text-xs font-medium transition-colors',
-                status === s ? 'border-primary/40 bg-primary/5 text-foreground' : 'border-border text-muted-foreground hover:bg-muted/40'
-              )}
-            >
-              {t(`tenants.status.${s}`, { defaultValue: s })}
-            </button>
-          ))}
-        </div>
-        {status === 'SUSPENDED' && (
-          <p className="text-[11px] text-amber-600 dark:text-amber-300">
-            {t('tenants.fields.suspendedWarning')}
-          </p>
-        )}
       </Field>
 
       <Field label={t('tenants.fields.aiLimit')} hint={t('tenants.fields.aiLimitHint')}>

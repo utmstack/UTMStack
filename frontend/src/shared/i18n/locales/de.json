@@ -5428,7 +5428,8 @@
     },
     "card": {
       "edit": "Bearbeiten",
-      "terminate": "Beenden",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
       "deletePermanent": "Endgültig löschen",
       "noAccess": "Dieser Mandant hat Ihnen keinen Zugriff gewährt.",
       "loadingStats": "Wird gelesen…",
@@ -5464,15 +5465,15 @@
       "submit": "Änderungen speichern"
     },
     "terminate": {
-      "title": "Diesen Mandanten beenden?",
-      "body": "Niemand aus {{name}} kann sich mehr anmelden. Die Daten bleiben erhalten, ein Betreiber kann es also zurücknehmen — aber der Kunde ist ab sofort offline.",
+      "title": "Diesen Mandanten deaktivieren?",
+      "body": "Niemand aus {{name}} kann sich mehr anmelden. Die Daten bleiben erhalten, es ist also umkehrbar — aber der Kunde ist ab sofort offline.",
       "confirmLabel": "Zum Bestätigen {{name}} eingeben",
-      "submit": "Beenden"
+      "submit": "Deaktivieren"
     },
     "reactivate": {
-      "title": "Diesen Mandanten reaktivieren?",
+      "title": "Diesen Mandanten aktivieren?",
       "body": "{{name}} kann sich wieder anmelden. Die aufbewahrten Daten werden unverändert wiederhergestellt.",
-      "submit": "Reaktivieren"
+      "submit": "Aktivieren"
     },
     "deletePermanent": {
       "title": "Diesen Mandanten für immer löschen?",

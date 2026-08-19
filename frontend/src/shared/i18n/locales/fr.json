@@ -5428,7 +5428,8 @@
     },
     "card": {
       "edit": "Modifier",
-      "terminate": "Résilier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
       "deletePermanent": "Supprimer définitivement",
       "noAccess": "Ce locataire ne vous a pas donné accès.",
       "loadingStats": "Lecture…",
@@ -5464,15 +5465,15 @@
       "submit": "Enregistrer"
     },
     "terminate": {
-      "title": "Résilier ce locataire ?",
-      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, un opérateur peut donc revenir en arrière, mais le client est hors ligne dès maintenant.",
+      "title": "Désactiver ce locataire ?",
+      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, c'est donc réversible, mais le client est hors ligne dès maintenant.",
       "confirmLabel": "Saisissez {{name}} pour confirmer",
-      "submit": "Résilier"
+      "submit": "Désactiver"
     },
     "reactivate": {
-      "title": "Réactiver ce locataire ?",
+      "title": "Activer ce locataire ?",
       "body": "{{name}} pourra se reconnecter. Les données conservées sont restaurées telles quelles.",
-      "submit": "Réactiver"
+      "submit": "Activer"
     },
     "deletePermanent": {
       "title": "Supprimer ce locataire pour toujours ?",
