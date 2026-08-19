@@ -5408,7 +5408,8 @@
     },
     "card": {
       "edit": "Edit",
-      "terminate": "Terminate",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
       "deletePermanent": "Delete permanently",
       "noAccess": "This tenant has not granted you access.",
       "loadingStats": "Reading…",
@@ -5444,15 +5445,15 @@
       "submit": "Save changes"
     },
     "terminate": {
-      "title": "Terminate this tenant?",
-      "body": "Nobody in {{name}} will be able to sign in. Their data is kept, so this is reversible by an operator, but it takes the customer offline now.",
+      "title": "Deactivate this tenant?",
+      "body": "Nobody in {{name}} will be able to sign in. Their data is kept, so this is reversible, but it takes the customer offline now.",
       "confirmLabel": "Type {{name}} to confirm",
-      "submit": "Terminate"
+      "submit": "Deactivate"
     },
     "reactivate": {
-      "title": "Reactivate this tenant?",
+      "title": "Activate this tenant?",
       "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
-      "submit": "Reactivate"
+      "submit": "Activate"
     },
     "deletePermanent": {
       "title": "Delete this tenant forever?",

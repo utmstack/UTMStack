@@ -161,13 +161,15 @@ export function TenantCard({
   tenant,
   readable,
   onEdit,
-  onTerminate,
+  onActivate,
+  onDeactivate,
   onDelete,
 }: {
   tenant: Tenant
   readable: boolean
   onEdit: () => void
-  onTerminate: () => void
+  onActivate: () => void
+  onDeactivate: () => void
   onDelete: () => void
 }) {
   const { t } = useTranslation()
@@ -244,25 +246,33 @@ export function TenantCard({
           >
             <Pencil size={13} />
           </button>
-          {!terminated ? (
+          {tenant.status === 'ACTIVE' ? (
             <button
               type="button"
-              onClick={onTerminate}
-              title={t('tenants.card.terminate')}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+              onClick={onDeactivate}
+              title={t('tenants.card.deactivate')}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600"
             >
-              <Trash2 size={13} />
+              <Power size={13} />
             </button>
           ) : (
             <button
               type="button"
-              onClick={onDelete}
-              title={t('tenants.card.deletePermanent')}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              onClick={onActivate}
+              title={t('tenants.card.activate')}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-600"
             >
-              <Trash2 size={13} />
+              <Power size={13} />
             </button>
           )}
+          <button
+            type="button"
+            onClick={onDelete}
+            title={t('tenants.card.deletePermanent')}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       </div>
 

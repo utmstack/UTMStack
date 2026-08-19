@@ -20,6 +20,7 @@ import { TenantCard } from '../components/TenantCard'
 import { CreateTenantDialog } from '../components/CreateTenantDialog'
 import { EditTenantDialog } from '../components/EditTenantDialog'
 import { TerminateDialog } from '../components/TerminateDialog'
+import { ReactivateTenantDialog } from '../components/ReactivateTenantDialog'
 import { PermanentDeleteDialog } from '../components/PermanentDeleteDialog'
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -34,7 +35,8 @@ export function TenantsPage() {
   const [query, setQuery] = useState('')
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<Tenant | null>(null)
-  const [terminating, setTerminating] = useState<Tenant | null>(null)
+  const [deactivating, setDeactivating] = useState<Tenant | null>(null)
+  const [activating, setActivating] = useState<Tenant | null>(null)
   const [deletingPermanently, setDeletingPermanently] = useState<Tenant | null>(null)
 
   const load = useCallback(async () => {
@@ -128,7 +130,8 @@ export function TenantsPage() {
               tenant={tenant}
               readable={canReadTenant(tenant)}
               onEdit={() => setEditing(tenant)}
-              onTerminate={() => setTerminating(tenant)}
+              onActivate={() => setActivating(tenant)}
+              onDeactivate={() => setDeactivating(tenant)}
               onDelete={() => setDeletingPermanently(tenant)}
             />
           ))}
@@ -157,12 +160,22 @@ export function TenantsPage() {
           }}
         />
       )}
-      {terminating && (
+      {deactivating && (
         <TerminateDialog
-          tenant={terminating}
-          onClose={() => setTerminating(null)}
+          tenant={deactivating}
+          onClose={() => setDeactivating(null)}
           onDone={() => {
-            setTerminating(null)
+            setDeactivating(null)
+            void load()
+          }}
+        />
+      )}
+      {activating && (
+        <ReactivateTenantDialog
+          tenant={activating}
+          onClose={() => setActivating(null)}
+          onSaved={() => {
+            setActivating(null)
             void load()
           }}
         />
