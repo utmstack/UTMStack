@@ -87,11 +87,11 @@ func addToSummary(s *dto.ReportSummary, status domain.ComplianceStatus) {
 }
 
 func finalize(s *dto.ReportSummary) {
-	if s.Evaluated == 0 {
+	if s.Total == 0 {
 		s.CompliantPct = 0
 		return
 	}
-	s.CompliantPct = (s.Compliant * 100) / s.Evaluated
+	s.CompliantPct = (s.Compliant * 100) / s.Total
 }
 
 func sectionsOf(fw *domain.Framework, controls []dto.ControlRow) []dto.ReportSection {
