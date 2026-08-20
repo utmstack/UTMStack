@@ -50,7 +50,7 @@ func evaluateOnce(ctx context.Context, search searchFunc, client disableNotifier
 			continue
 		}
 
-		msg := floodNotificationMessage(b.TenantID, b.RuleName, b.Count, b.DataSource, cfg.WindowHours)
+		msg := floodNotificationMessage(b.RuleName, b.Count, b.DataSource, cfg.WindowHours)
 		if err := client.Notify(ctx, b.TenantID, msg); err != nil {
 			_ = catcher.Error("rule-flood-guard: failed to send notification", err, map[string]any{
 				"tenantId": b.TenantID, "ruleName": b.RuleName, "dataSource": b.DataSource,
