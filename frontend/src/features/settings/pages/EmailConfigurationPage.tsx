@@ -222,14 +222,6 @@ export function EmailConfigurationPage() {
     return broadcast(BULK_PATHS.smtp.update, selector, smtpPayload)
   }
 
-  const onBroadcastTest = async (selector: { tenantIds: string[]; allTenants: boolean }) => {
-    if (!form.from) {
-      toast.error(t('emailConfig.test.fromRequired'))
-      throw new Error('from is required')
-    }
-    return broadcast(BULK_PATHS.smtp.test, selector, smtpPayload)
-  }
-
   return (
     <div className="w-full px-6 pb-6 pt-3">
       <header>
@@ -353,13 +345,6 @@ export function EmailConfigurationPage() {
                 )}
                 {test === 'sending' ? t('emailConfig.test.sending') : t('emailConfig.test.button')}
               </Button>
-              <PlatformBroadcastButton
-                label={t('platformBroadcast.button')}
-                title={t('platformBroadcast.action.test', { resource: t('platformBroadcast.resource.smtp') })}
-                disabled={!form.from}
-                excludeDefaultTenant={true}
-                onBroadcast={onBroadcastTest}
-              />
               {form.from && (
                 <span className="text-[11px] text-muted-foreground">{t('emailConfig.test.sentTo', { email: form.from })}</span>
               )}
