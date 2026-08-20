@@ -132,7 +132,9 @@ export function Topbar() {
   const { branding } = useBranding()
   const brandActive = !!branding?.enabled
   const brandName = (brandActive && branding?.productName) || 'UTMStack'
-  const brandLogo = (brandActive && branding?.logoUrl) || '/logo.svg'
+  const brandLogo =
+    (brandActive && (theme === 'dark' ? branding?.logoDarkUrl || branding?.logoUrl : branding?.logoUrl)) ||
+    '/logo.svg'
 
   const userName = user?.name || user?.email || 'User'
   const userInitials = userName
