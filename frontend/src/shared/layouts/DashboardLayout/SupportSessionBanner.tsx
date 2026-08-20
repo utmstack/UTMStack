@@ -29,24 +29,27 @@ export function SupportSessionBanner() {
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-l-4 px-4 py-1.5 text-xs',
+        'grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 border-b border-l-4 px-4 py-1.5 text-xs',
         readOnly
           ? 'border-b-sky-500/25 border-l-sky-500 bg-sky-500/10 text-sky-900 dark:text-sky-200'
           : 'border-b-amber-500/25 border-l-amber-500 bg-amber-500/10 text-amber-900 dark:text-amber-200'
       )}
     >
-      {readOnly ? (
-        <Eye size={14} className="shrink-0 text-sky-600 dark:text-sky-400" />
-      ) : (
-        <ShieldAlert size={14} className="shrink-0 text-amber-600 dark:text-amber-400" />
-      )}
-      <span className="font-medium">{t('supportSession.inside', { name: tenant.name })}</span>
-      <span className="opacity-70">
-        {readOnly ? t('supportSession.readOnly') : t('supportSession.full')}
-      </span>
+      <span />
+      <div className="flex items-center gap-x-3 justify-self-center">
+        {readOnly ? (
+          <Eye size={14} className="shrink-0 text-sky-600 dark:text-sky-400" />
+        ) : (
+          <ShieldAlert size={14} className="shrink-0 text-amber-600 dark:text-amber-400" />
+        )}
+        <span className="font-medium">{t('supportSession.inside', { name: tenant.name })}</span>
+        <span className="opacity-70">
+          {readOnly ? t('supportSession.readOnly') : t('supportSession.full')}
+        </span>
+      </div>
       <button
         onClick={leave}
-        className="ml-auto inline-flex items-center gap-1 rounded border border-current/25 px-2 py-0.5 font-medium transition-colors hover:bg-current/10"
+        className="justify-self-end inline-flex items-center gap-1 rounded border border-current/25 px-2 py-0.5 font-medium transition-colors hover:bg-current/10"
       >
         <LogOut size={12} />
         {t('supportSession.leave')}
