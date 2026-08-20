@@ -137,6 +137,7 @@ type UtmAlert struct {
 	StatusObservation string          `json:"statusObservation,omitempty"`
 	Impact            *Impact         `json:"impact,omitempty"`
 	ImpactScore       int             `json:"impactScore,omitempty"`
+	Echoes            int64           `json:"echoes,omitempty"`
 	Adversary         *Side           `json:"adversary,omitempty"`
 	Target            *Side           `json:"target,omitempty"`
 	LastEvent         json.RawMessage `json:"lastEvent,omitempty"`
