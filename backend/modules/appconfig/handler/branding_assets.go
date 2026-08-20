@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -99,24 +100,25 @@ func (h *BrandingHandler) storeBrandingFile(slot string, fh *multipart.FileHeade
 		return "", err
 	}
 
-	// Best-effort: drop older files for this slot so they don't accumulate.
-	deleteBrandingFilesExcept(dir, slot+"-", filename)
 	return brandingURLPrefix + "/" + filename, nil
 }
 
-func deleteBrandingFilesExcept(dir, prefix, keep string) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
+// removeIfUnreferenced deletes the file backing `url` when no tenant's branding
+// row still references it. `url` must be a stored branding URL (returned by
+// storeBrandingFile) — external URLs are ignored.
+func (h *BrandingHandler) removeIfUnreferenced(ctx context.Context, url string) {
+	if !strings.HasPrefix(url, brandingURLPrefix+"/") {
 		return
 	}
-	for _, e := range entries {
-		if e.IsDir() {
-			continue
-		}
-		if name := e.Name(); strings.HasPrefix(name, prefix) && name != keep {
-			_ = os.Remove(filepath.Join(dir, name))
-		}
+	referenced, err := h.usecase.IsBrandingAssetReferenced(ctx, url)
+	if err != nil || referenced {
+		return
 	}
+	name := strings.TrimPrefix(url, brandingURLPrefix+"/")
+	if name == "" || strings.ContainsAny(name, "/\\") {
+		return
+	}
+	_ = os.Remove(filepath.Join(h.uploadDir, brandingSubdir, name))
 }
 
 // UploadAsset godoc
@@ -155,7 +157,7 @@ func (h *BrandingHandler) UploadAsset(c *gin.Context) {
 		c.JSON(http.StatusUnsupportedMediaType, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.usecase.SetAsset(c.Request.Context(), c.GetString("user_email"), slot, url)
+	resp, previous, err := h.usecase.SetAsset(c.Request.Context(), c.GetString("user_email"), slot, url)
 	audit.Record(c, audit_connectors.Event{Action: "branding.asset.uploaded", ResourceType: "branding", ResourceID: slot},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if errors.Is(err, usecase.ErrUnknownAssetSlot) {
@@ -166,6 +168,9 @@ func (h *BrandingHandler) UploadAsset(c *gin.Context) {
 		_ = catcher.Error("branding asset upload failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save asset"})
 		return
+	}
+	if previous != "" && previous != url {
+		h.removeIfUnreferenced(c.Request.Context(), previous)
 	}
 	c.JSON(http.StatusOK, resp)
 }

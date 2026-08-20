@@ -19,7 +19,11 @@ type BrandingUsecase interface {
 	Get(ctx context.Context) (*dto.BrandingResponse, error)
 	Update(ctx context.Context, actor string, req dto.BrandingRequest) (*dto.BrandingResponse, error)
 	Seed(ctx context.Context, req dto.BrandingRequest) (*dto.BrandingResponse, error)
-	SetAsset(ctx context.Context, actor, slot, url string) (*dto.BrandingResponse, error)
+	// SetAsset returns the updated branding plus the URL previously stored in
+	// `slot` (empty if none). Callers use the previous URL to garbage-collect
+	// the now-unreferenced file.
+	SetAsset(ctx context.Context, actor, slot, url string) (resp *dto.BrandingResponse, previousURL string, err error)
+	IsBrandingAssetReferenced(ctx context.Context, url string) (bool, error)
 	GetPublic(ctx context.Context) (*dto.BrandingPublic, error)
 	BrandNameProvider
 }
