@@ -51,10 +51,11 @@ func (s *brandingService) isWhiteLabelEntitled(_ context.Context) bool {
 }
 
 // read loads the stored branding (JSON in the `branding` config row), falling
-// back to defaults when unset or unparseable.
+// back to defaults when unset or unparseable. Uses GetOwn so a tenant without
+// its own row gets defaults instead of inheriting the master tenant's brand.
 func (s *brandingService) read(ctx context.Context) (dto.BrandingResponse, error) {
 	resp := dto.BrandingResponse{ProductName: defaultProductName}
-	row, err := s.repo.GetByKey(ctx, brandingConfigKey)
+	row, err := s.repo.GetOwn(ctx, brandingConfigKey)
 	if err != nil {
 		return resp, err
 	}
