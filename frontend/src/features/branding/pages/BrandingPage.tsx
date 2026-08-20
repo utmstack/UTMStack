@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, ImageOff, Loader2, Paintbrush, RotateCcw, Upload } from 'lucide-react'
 import { toast } from 'sonner'
@@ -36,6 +36,8 @@ export function BrandingPage() {
   const [initial, setInitial] = useState<Branding>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [highlightToggle, setHighlightToggle] = useState(false)
+  const toggleRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -145,13 +147,25 @@ export function BrandingPage() {
       ) : (
         <fieldset disabled={!isEnterprise || saving} className="mt-6 space-y-5">
           {/* Enable */}
-          <Section title={t('branding.enable.title')} subtitle={t('branding.enable.description')}>
-            <label className="flex cursor-pointer items-center justify-between gap-4">
+          <Section ref={toggleRef} title={t('branding.enable.title')} subtitle={t('branding.enable.description')}>
+            <label className={cn(
+              'flex cursor-pointer items-center justify-between gap-4 rounded-md px-2 py-1 transition-all',
+              highlightToggle && 'animate-pulse ring-2 ring-primary ring-offset-2 ring-offset-card',
+            )}>
               <span className="text-sm">{t('branding.enable.label')}</span>
               <Toggle enabled={form.enabled} onChange={() => patch({ enabled: !form.enabled })} />
             </label>
           </Section>
 
+          <fieldset disabled={!form.enabled} className="m-0 space-y-5 border-0 p-0" onClickCapture={(e) => {
+            if (!form.enabled) {
+              e.stopPropagation()
+              e.preventDefault()
+              toggleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              setHighlightToggle(true)
+              setTimeout(() => setHighlightToggle(false), 1500)
+            }
+          }}>
           {/* Identity */}
           <Section title={t('branding.identity.title')}>
             <div className="space-y-4">
@@ -256,6 +270,7 @@ export function BrandingPage() {
               )}
             </div>
           </div>
+          </fieldset>
         </fieldset>
       )}
     </div>
@@ -359,17 +374,19 @@ function AssetCard({
 
 /* ─── Small parts ──────────────────────────────────────────────────────── */
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-xl border border-border bg-card p-6">
-      <header className="mb-4">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
-      </header>
-      {children}
-    </section>
-  )
-}
+const Section = forwardRef<HTMLElement, { title: string; subtitle?: string; children: React.ReactNode }>(
+  ({ title, subtitle, children }, ref) => {
+    return (
+      <section ref={ref} className="rounded-xl border border-border bg-card p-6">
+        <header className="mb-4">
+          <h2 className="text-sm font-semibold">{title}</h2>
+          {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+        </header>
+        {children}
+      </section>
+    )
+  },
+)
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
