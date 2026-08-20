@@ -5472,6 +5472,11 @@
       "notFound": "Tenant not found",
       "invalidRequest": "Invalid request",
       "operationFailed": "Operation failed"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
     }
   },
   "supportAccess": {
