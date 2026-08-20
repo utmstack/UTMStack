@@ -141,14 +141,21 @@ func (h *BulkBrandingHandler) UploadAsset(c *gin.Context) {
 	}
 	actorEmail := c.GetString("user_email")
 	var result common_models.BulkResult
+	replaced := make(map[string]struct{})
 	for _, tid := range tenantIDs {
 		// ponytail: skip default (platform-plane) tenant — bulk calls must not silently overwrite operator branding
 		if tid == authz.DefaultTenantID {
 			continue
 		}
 		ctx := authz.WithTenantID(c.Request.Context(), tid)
-		_, err := h.brand.SetAsset(ctx, actorEmail, slot, url)
+		_, previous, err := h.brand.SetAsset(ctx, actorEmail, slot, url)
 		result.Append(tid, err)
+		if err == nil && previous != "" && previous != url {
+			replaced[previous] = struct{}{}
+		}
+	}
+	for previous := range replaced {
+		bh.removeIfUnreferenced(c.Request.Context(), previous)
 	}
 	c.JSON(http.StatusOK, result)
 }

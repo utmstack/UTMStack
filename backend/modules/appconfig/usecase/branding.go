@@ -134,29 +134,44 @@ func (s *brandingService) Seed(ctx context.Context, req dto.BrandingRequest) (*d
 	return &resp, nil
 }
 
-func (s *brandingService) SetAsset(ctx context.Context, actor, slot, url string) (*dto.BrandingResponse, error) {
+func (s *brandingService) SetAsset(ctx context.Context, actor, slot, url string) (*dto.BrandingResponse, string, error) {
 	cur, err := s.read(ctx)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
+	var previous string
 	switch slot {
 	case AssetLogo:
-		cur.LogoURL = url
+		previous, cur.LogoURL = cur.LogoURL, url
 	case AssetLogoDark:
-		cur.LogoDarkURL = url
+		previous, cur.LogoDarkURL = cur.LogoDarkURL, url
 	case AssetFavicon:
-		cur.FaviconURL = url
+		previous, cur.FaviconURL = cur.FaviconURL, url
 	case AssetReportLogo:
-		cur.ReportLogoURL = url
+		previous, cur.ReportLogoURL = cur.ReportLogoURL, url
 	case AssetReportCover:
-		cur.ReportCoverURL = url
+		previous, cur.ReportCoverURL = cur.ReportCoverURL, url
 	default:
-		return nil, ErrUnknownAssetSlot
+		return nil, "", ErrUnknownAssetSlot
 	}
 	if err := s.save(ctx, actor, &cur); err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return &cur, nil
+	return &cur, previous, nil
+}
+
+// IsBrandingAssetReferenced reports whether any tenant's branding row still
+// mentions `url`. Callers use this after replacing an asset to decide whether
+// the file on disk can be removed.
+func (s *brandingService) IsBrandingAssetReferenced(ctx context.Context, url string) (bool, error) {
+	if strings.TrimSpace(url) == "" {
+		return false, nil
+	}
+	n, err := s.repo.CountValueContains(ctx, brandingConfigKey, url)
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
 }
 
 // GetPublic returns the effective branding for the (unauthenticated) login page.

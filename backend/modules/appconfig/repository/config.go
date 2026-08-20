@@ -99,6 +99,21 @@ func (r *pgRepo) GetOwn(ctx context.Context, key string) (*domain.Config, error)
 	return &c, nil
 }
 
+// CountValueContains counts rows for `key` across every tenant whose JSON value
+// contains `needle`. Branding URLs carry a 16-hex-char nonce, so a substring
+// match is unambiguous — no other row's value can collide.
+func (r *pgRepo) CountValueContains(ctx context.Context, key, needle string) (int, error) {
+	var n int64
+	err := r.db.WithContext(tenancy.WithAllTenantsRead(ctx)).
+		Model(&domain.Config{}).
+		Where("key = ? AND value LIKE ?", key, "%"+needle+"%").
+		Count(&n).Error
+	if err != nil {
+		return 0, err
+	}
+	return int(n), nil
+}
+
 func (r *pgRepo) Save(ctx context.Context, c *domain.Config) error {
 	tenant := actingTenant(ctx)
 
