@@ -17,10 +17,9 @@ Everything is scoped per tenant:
   are each below it never add up to a flood between them.
 - **Disabling.** The rule is disabled only for the tenant that flooded. Every
   other tenant keeps it running.
-- **Notifying.** The offending tenant is notified, since the disable applies to
-  them and the remediation is theirs to apply. The platform tenant receives a
-  copy so the operator keeps instance-wide visibility — unless it is already
-  the offending tenant, in which case a single notification is sent.
+- **Notifying.** Only the tenant that flooded is notified, since the disable
+  applies to them and the remediation is theirs to apply. No other tenant hears
+  about it.
 
 Alerts that carry no tenant are dropped rather than attributed to a default
 tenant.

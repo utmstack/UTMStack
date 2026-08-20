@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,9 +14,10 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 )
 
-// The window is interpolated rather than hardcoded: windowHours is
-// configurable, so a fixed "24h" would misreport the period the count covers.
-const notificationMessageTemplate = "Correlation rule '%s' generated %d open, un-deduplicated alerts from data source '%s' for tenant '%s' in the last %dh and was automatically disabled for that tenant to prevent alert flooding. If this volume is expected, use an Alert Tag Rule to mark it 'False positive', or add deduplicateBy/groupBy to the rule, then re-enable it."
+// Template for the notification message sent to the tenant that flooded. It is
+// formatted with the rule name, the number of alerts, the data source, and the
+// window in hours.
+const notificationMessageTemplate = "Correlation rule '%s' generated %d open, un-deduplicated alerts from data source '%s' in the last %dh and was automatically disabled to prevent alert flooding. If this volume is expected, use an Alert Tag Rule to mark it 'False positive', or add deduplicateBy/groupBy to the rule, then re-enable it."
 
 // tenantHeader scopes every backend call. Without it the middleware treats an
 // internal caller as tenantless and the backend falls back to the platform
@@ -154,20 +154,7 @@ type notifyRequest struct {
 	Message string `json:"message"`
 }
 
-// platformTenant is the operator's tenant. It gets a copy of every flood
-// notification so the operator keeps the instance-wide visibility they had
-// before the disable became per-tenant.
-const platformTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-
 func (c *backendClient) Notify(ctx context.Context, tenantID, message string) error {
-	err := c.notifyTenant(ctx, tenantID, message)
-	if tenantID != platformTenant {
-		err = errors.Join(err, c.notifyTenant(ctx, platformTenant, message))
-	}
-	return err
-}
-
-func (c *backendClient) notifyTenant(ctx context.Context, tenantID, message string) error {
 	payload, err := json.Marshal(notifyRequest{Source: "SYSTEM", Type: "WARNING", Message: message})
 	if err != nil {
 		return err
@@ -196,6 +183,6 @@ func (c *backendClient) notifyTenant(ctx context.Context, tenantID, message stri
 	return nil
 }
 
-func floodNotificationMessage(tenantID, ruleName string, count int64, dataSource string, windowHours int) string {
-	return fmt.Sprintf(notificationMessageTemplate, ruleName, count, dataSource, tenantID, windowHours)
+func floodNotificationMessage(ruleName string, count int64, dataSource string, windowHours int) string {
+	return fmt.Sprintf(notificationMessageTemplate, ruleName, count, dataSource, windowHours)
 }
