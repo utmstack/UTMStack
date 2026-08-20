@@ -53,8 +53,7 @@ type Res struct {
 }
 
 type Resources struct {
-	Limits       *Res `yaml:"limits,omitempty"`
-	Reservations *Res `yaml:"reservations,omitempty"`
+	Limits *Res `yaml:"limits,omitempty"`
 }
 
 type Service struct {
@@ -95,6 +94,9 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		return err
 	}
 	if err := writeClickHouseSettings(stack.ClickHouseConf); err != nil {
+		return err
+	}
+	if err := writeClickHouseServer(stack.ClickHouseConfigD); err != nil {
 		return err
 	}
 
@@ -153,7 +155,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	}
 
 	postgresMem := stack.ServiceResources["postgres"].AssignedMemory
-	postgresMin := stack.ServiceResources["postgres"].MinMemory
 	c.Services["postgres"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/postgres:latest"),
 		Environment: []string{
@@ -169,9 +170,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", postgresMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", postgresMin)),
 				},
 			},
 		},
@@ -203,7 +201,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 	}
 
 	backendMem := stack.ServiceResources["backend"].AssignedMemory
-	backendMin := stack.ServiceResources["backend"].MinMemory
 	backendEnv := []string{
 		"SERVER_NAME=" + conf.ServerName,
 		"DB_USER=postgres",
@@ -266,15 +263,11 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", backendMem)),
 				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", backendMin)),
-				},
 			},
 		},
 	}
 
 	epMem := stack.ServiceResources["event-processor"].AssignedMemory
-	epMin := stack.ServiceResources["event-processor"].MinMemory
 	c.Services["event-processor-worker"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
@@ -312,9 +305,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
 				},
 			},
 		},
@@ -363,9 +353,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
 				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
-				},
 			},
 		},
 	}
@@ -391,9 +378,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			Resources: &Resources{
 				Limits: &Res{
 					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", clickHouseMem)),
-				},
-				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", clickHouseMem/2)),
 				},
 			},
 		},

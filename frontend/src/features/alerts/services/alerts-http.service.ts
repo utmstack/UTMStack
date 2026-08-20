@@ -52,30 +52,24 @@ export const alertsHttpService = {
     ),
 
   // Existing distinct values of an arbitrary field — to populate the filter
-  // value picker (so the user selects real values, not free text). Text fields
-  // need their .keyword sub-field for the terms aggregation; we fall back to it.
+  // value picker (so the user selects real values, not free text). There is no
+  // .keyword variant to fall back to: that was an Elasticsearch multi-field, and
+  // the columns it stood in for are LowCardinality(String) here. Asking for one
+  // is not an empty result but an unknown identifier, so the retry only ever
+  // turned no values into an error.
   fieldValues: async (field: string, top = 100): Promise<{ value: string; count: number }[]> => {
     // An alert with no parent has parentId '', not a missing parentId: the column
     // is a plain String, so "has no parent" is an equality test and an existence
     // test matches nothing.
     const body: FilterType[] = [{ field: 'parentId', operator: 'IS', value: '' }]
-    const url = (f: string) =>
-      `/log-analyzer/top-x-values/${ALERT_DATASET}/${encodeURIComponent(f)}/${top}`
-    const tryFetch = async (f: string) => {
-      const r = await api.post<TopValues>(url(f), body)
-      return r.top ?? []
-    }
     try {
-      const r = await tryFetch(field)
-      if (r.length || field.endsWith('.keyword')) return r
-      return await tryFetch(`${field}.keyword`)
+      const r = await api.post<TopValues>(
+        `/log-analyzer/top-x-values/${ALERT_DATASET}/${encodeURIComponent(field)}/${top}`,
+        body
+      )
+      return r.top ?? []
     } catch {
-      if (field.endsWith('.keyword')) return []
-      try {
-        return await tryFetch(`${field}.keyword`)
-      } catch {
-        return []
-      }
+      return []
     }
   },
 
