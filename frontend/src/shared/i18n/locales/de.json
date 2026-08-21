@@ -2074,7 +2074,7 @@
           "credentialsSection": "Mit UTMStack verbinden",
           "credentials": {
             "title": "Sophos Central-Anmeldedaten hinzufügen",
-            "body": "Geben Sie die soeben erstellten Anmeldedaten ein. Sie können mehr als ein Sophos-Konto hinzufügen, indem Sie auf „Tenant hinzufügen“ klicken."
+            "body": "Geben Sie die soeben erstellten Anmeldedaten ein. Sie können mehr als ein Sophos-Konto hinzufügen, indem Sie auf „Konfigurationsgruppe hinzufügen“ klicken."
           },
           "fields": {
             "clientId": {
@@ -2109,7 +2109,7 @@
             },
             "fillForm": {
               "title": "6 · Formular ausfüllen",
-              "body": "Geben Sie die Client ID und das Client Secret an UTMStack weiter. Sie können bei Bedarf mehr als einen Webroot-Tenant hinzufügen."
+              "body": "Geben Sie die Client ID und das Client Secret an UTMStack weiter. Sie können bei Bedarf mehr als eine Webroot-Konfigurationsgruppe hinzufügen."
             },
             "activate": {
               "title": "7 · Aktivieren",
@@ -2193,7 +2193,7 @@
           "credentialsSection": "Anmeldedaten",
           "credentials": {
             "title": "Ihren Microsoft 365-Tenant verbinden",
-            "body": "Geben Sie die Angaben aus den obigen Schritten ein. UTMStack überprüft die Anmeldedaten vor dem Speichern. Sie können mehrere Tenants hinzufügen."
+            "body": "Geben Sie die Angaben aus den obigen Schritten ein. UTMStack überprüft die Anmeldedaten vor dem Speichern. Sie können mehrere Konfigurationsgruppen hinzufügen."
           },
           "fields": {
             "tenantId": {
@@ -2890,13 +2890,13 @@
         "after2": "Danach werden Ereignisse alle 1–5 Minuten abgerufen (abhängig von der API).",
         "after3": "Die Integration wird unter Datenquellen mit aktuellem Abrufstatus und Verzögerung angezeigt.",
         "tenants": {
-          "title": "Konfigurierte Mandanten",
-          "empty": "Noch keine Mandanten konfiguriert. Fügen Sie unten Ihren ersten hinzu.",
-          "loading": "Mandanten werden geladen…",
-          "nameLabel": "Mandantenname",
+          "title": "Konfigurierte Konfigurationsgruppen",
+          "empty": "Noch keine Konfigurationsgruppen konfiguriert. Fügen Sie unten Ihre erste hinzu.",
+          "loading": "Konfigurationsgruppen werden geladen…",
+          "nameLabel": "Name der Konfigurationsgruppe",
           "namePlaceholder": "z. B. acme-prod",
-          "add": "Mandant hinzufügen",
-          "update": "Mandant aktualisieren",
+          "add": "Konfigurationsgruppe hinzufügen",
+          "update": "Konfigurationsgruppe aktualisieren",
           "delete": "Löschen",
           "edit": "Bearbeiten",
           "cancel": "Abbrechen",
@@ -2905,10 +2905,10 @@
           "replaceFile": "Datei ersetzen",
           "fileLoaded": "Datei geladen",
           "invalidJson": "Die Datei konnte nicht als JSON gelesen werden.",
-          "createError": "Der Mandant konnte nicht erstellt werden. Bitte erneut versuchen.",
-          "updateError": "Der Mandant konnte nicht aktualisiert werden. Bitte erneut versuchen.",
-          "createSuccess": "Mandant erfolgreich erstellt.",
-          "updateSuccess": "Mandant erfolgreich aktualisiert."
+          "createError": "Die Konfigurationsgruppe konnte nicht erstellt werden. Bitte erneut versuchen.",
+          "updateError": "Die Konfigurationsgruppe konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+          "createSuccess": "Konfigurationsgruppe erfolgreich erstellt.",
+          "updateSuccess": "Konfigurationsgruppe erfolgreich aktualisiert."
         },
         "google": {
           "sections": {
@@ -3084,7 +3084,7 @@
           "sections": {
             "prerequisite": {
               "title": "Voraussetzung · IAM-Benutzer",
-              "body": "Damit diese Integration funktioniert, benötigen Sie einen IAM-Benutzer für UTMStack mit der Richtlinie CloudWatchLogsReadOnlyAccess. Notieren Sie sich Zugriffsschlüssel-ID und geheimen Zugriffsschlüssel — Sie fügen sie unten in das Mandantenformular ein."
+              "body": "Damit diese Integration funktioniert, benötigen Sie einen IAM-Benutzer für UTMStack mit der Richtlinie CloudWatchLogsReadOnlyAccess. Notieren Sie sich Zugriffsschlüssel-ID und geheimen Zugriffsschlüssel — Sie fügen sie unten in das Formular der Konfigurationsgruppe ein."
             },
             "createTrail": {
               "title": "1 · Trail erstellen",

@@ -2227,7 +2227,7 @@
           "credentialsSection": "Connect to UTMStack",
           "credentials": {
             "title": "Add Sophos Central credentials",
-            "body": "Enter the credentials you just created. You can add more than one Sophos account by clicking Add tenant."
+            "body": "Enter the credentials you just created. You can add more than one Sophos account by clicking Add config group."
           },
           "fields": {
             "clientId": {
@@ -2262,7 +2262,7 @@
             },
             "fillForm": {
               "title": "6 · Fill the form",
-              "body": "Provide the client ID and client secret to UTMStack. You can add more than one Webroot tenant if needed."
+              "body": "Provide the client ID and client secret to UTMStack. You can add more than one Webroot config group if needed."
             },
             "activate": {
               "title": "7 · Activate",
@@ -2346,7 +2346,7 @@
           "credentialsSection": "Credentials",
           "credentials": {
             "title": "Connect your Microsoft 365 tenant",
-            "body": "Enter the details from the steps above. UTMStack verifies the credentials before saving. You can add multiple tenants."
+            "body": "Enter the details from the steps above. UTMStack verifies the credentials before saving. You can add multiple config groups."
           },
           "fields": {
             "tenantId": {
@@ -3049,13 +3049,13 @@
         "after2": "From then on, events are pulled every 1–5 minutes (depends on the API).",
         "after3": "The integration appears under Data Sources with current pull status and lag.",
         "tenants": {
-          "title": "Configured tenants",
-          "empty": "No tenants configured yet. Add your first one below.",
-          "loading": "Loading tenants…",
-          "nameLabel": "Tenant name",
+          "title": "Configured config groups",
+          "empty": "No config groups configured yet. Add your first one below.",
+          "loading": "Loading config groups…",
+          "nameLabel": "Config group name",
           "namePlaceholder": "e.g. acme-prod",
-          "add": "Add tenant",
-          "update": "Update tenant",
+          "add": "Add config group",
+          "update": "Update config group",
           "delete": "Delete",
           "edit": "Edit",
           "cancel": "Cancel",
@@ -3064,10 +3064,10 @@
           "replaceFile": "Replace file",
           "fileLoaded": "File loaded",
           "invalidJson": "Could not parse the file as JSON.",
-          "createError": "Could not create the tenant. Please try again.",
-          "updateError": "Could not update the tenant. Please try again.",
-          "createSuccess": "Tenant created successfully.",
-          "updateSuccess": "Tenant updated successfully."
+          "createError": "Could not create the config group. Please try again.",
+          "updateError": "Could not update the config group. Please try again.",
+          "createSuccess": "Config group created successfully.",
+          "updateSuccess": "Config group updated successfully."
         },
         "google": {
           "intro": {
@@ -3167,11 +3167,11 @@
             },
             "connectionString": {
               "title": "Copy the primary connection string",
-              "body": "Open the Shared access policy you just created and copy the Connection string–primary key. You will use it to configure your tenant below."
+              "body": "Open the Shared access policy you just created and copy the Connection string–primary key. You will use it to configure your config group below."
             },
             "consumerGroup": {
               "title": "Create a dedicated consumer group",
-              "body": "Get the Consumer Group name in: All services → Event Hubs → your namespace → Event Hubs → your instance → Consumer groups. You will use it to configure your tenant below.",
+              "body": "Get the Consumer Group name in: All services → Event Hubs → your namespace → Event Hubs → your instance → Consumer groups. You will use it to configure your config group below.",
               "warn": "Create a consumer group specifically for UTMStack. Do not use $Default or any other group already in use — reusing a consumer group across unrelated consumers can cause unexpected behavior and lost events. All UTMStack instances should share the same consumer group so they can process events together."
             },
             "createStorageAccount": {
@@ -3181,7 +3181,7 @@
             },
             "storageContainer": {
               "title": "Get the Storage Container name",
-              "body": "Get the Storage Container name in: All services → Storage accounts → your account → Containers. You will use it to configure your tenant below."
+              "body": "Get the Storage Container name in: All services → Storage accounts → your account → Containers. You will use it to configure your config group below."
             },
             "storageConnection": {
               "title": "Copy the Storage Account connection string",

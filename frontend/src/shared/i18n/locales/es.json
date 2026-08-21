@@ -1952,7 +1952,7 @@
           "credentialsSection": "Credenciales",
           "credentials": {
             "title": "Conectar tu tenant de Microsoft 365",
-            "body": "Introduce los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardarlas. Puedes añadir múltiples tenants."
+            "body": "Introduce los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardarlas. Puedes añadir múltiples grupos de configuración."
           },
           "fields": {
             "tenantId": {
@@ -2141,7 +2141,7 @@
           "credentialsSection": "Conectar con UTMStack",
           "credentials": {
             "title": "Añadir credenciales de Sophos Central",
-            "body": "Introduce las credenciales que acabas de crear. Puedes añadir más de una cuenta de Sophos haciendo clic en Añadir tenant."
+            "body": "Introduce las credenciales que acabas de crear. Puedes añadir más de una cuenta de Sophos haciendo clic en Añadir grupo de configuración."
           },
           "fields": {
             "clientId": {
@@ -2331,7 +2331,7 @@
             },
             "fillForm": {
               "title": "6 · Completar el formulario",
-              "body": "Proporcione el client ID y el client secret a UTMStack. Puede agregar más de un tenant de Webroot si es necesario."
+              "body": "Proporcione el client ID y el client secret a UTMStack. Puede agregar más de un grupo de configuración de Webroot si es necesario."
             },
             "activate": {
               "title": "7 · Activar",
@@ -2890,13 +2890,13 @@
         "after2": "Desde entonces, los eventos se extraen cada 1–5 minutos (depende de la API).",
         "after3": "La integración aparece bajo Fuentes de datos con el estado actual de extracción y retraso.",
         "tenants": {
-          "title": "Tenants configurados",
-          "empty": "Aún no hay tenants configurados. Añade el primero más abajo.",
-          "loading": "Cargando tenants…",
-          "nameLabel": "Nombre del tenant",
+          "title": "Grupos de configuración configurados",
+          "empty": "Aún no hay grupos de configuración. Añade el primero más abajo.",
+          "loading": "Cargando grupos de configuración…",
+          "nameLabel": "Nombre del grupo de configuración",
           "namePlaceholder": "p. ej. acme-prod",
-          "add": "Añadir tenant",
-          "update": "Actualizar tenant",
+          "add": "Añadir grupo de configuración",
+          "update": "Actualizar grupo de configuración",
           "delete": "Eliminar",
           "edit": "Editar",
           "cancel": "Cancelar",
@@ -2905,10 +2905,10 @@
           "replaceFile": "Reemplazar archivo",
           "fileLoaded": "Archivo cargado",
           "invalidJson": "No se pudo procesar el archivo como JSON.",
-          "createError": "No se pudo crear el tenant. Inténtalo de nuevo.",
-          "updateError": "No se pudo actualizar el tenant. Inténtalo de nuevo.",
-          "createSuccess": "Tenant creado correctamente.",
-          "updateSuccess": "Tenant actualizado correctamente."
+          "createError": "No se pudo crear el grupo de configuración. Inténtalo de nuevo.",
+          "updateError": "No se pudo actualizar el grupo de configuración. Inténtalo de nuevo.",
+          "createSuccess": "Grupo de configuración creado correctamente.",
+          "updateSuccess": "Grupo de configuración actualizado correctamente."
         },
         "google": {
           "sections": {
