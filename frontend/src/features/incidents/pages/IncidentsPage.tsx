@@ -12,6 +12,7 @@ import { IncidentsLayoutToggle, type IncidentsLayout } from '../components/incid
 import { IncidentsTable } from '../components/incidents-table'
 import { IncidentsBoard } from '../components/incidents-board'
 import { IncidentDrawer } from '../components/incident-drawer'
+import { CreateIncidentWizard } from '../components/create-incident-wizard'
 import { Center } from '../components/ui-primitives'
 
 export function IncidentsPage() {
@@ -26,6 +27,7 @@ export function IncidentsPage() {
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
   const [open, setOpen] = useState<Incident | null>(null)
+  const [creating, setCreating] = useState(false)
 
   // Debounce the free-text search.
   useEffect(() => {
@@ -63,6 +65,18 @@ export function IncidentsPage() {
     setDateFrom('')
     setDateTo('')
     setPage(0)
+  }
+
+  if (creating) {
+    return (
+      <CreateIncidentWizard
+        onClose={() => setCreating(false)}
+        onCreated={() => {
+          setCreating(false)
+          refresh()
+        }}
+      />
+    )
   }
 
   return (
@@ -119,6 +133,7 @@ export function IncidentsPage() {
         }}
         hasFilters={hasFilters}
         onClear={clearFilters}
+        onCreate={() => setCreating(true)}
       />
 
       {error ? (

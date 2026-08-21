@@ -1,39 +1,23 @@
-import { Sparkles, Tag, UserCheck } from 'lucide-react'
+import { Sparkles, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, sevKey, statusKey } from '../lib/alert-meta'
-import { isAiNote } from '../lib/ai-note'
-import type { Alert, AlertTag } from '../types/alert.types'
-import { AlertIncidentTarget } from './alert-incident-target'
-import { EchoesChip } from './echoes-chip'
-import { EndpointMini } from './endpoint-mini'
-import { StatusChangeMenu } from './status-change-menu'
-import { TagChip } from './tag-chip'
+import { SEV_BADGE, SEV_META, TS, absTime, relativeTime, sevKey } from '../../alerts/lib/alert-meta'
+import { isAiNote } from '../../alerts/lib/ai-note'
+import type { Alert, AlertTag } from '../../alerts/types/alert.types'
+import { TagChip } from '../../alerts/components/tag-chip'
 
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
-export function AlertRow({
+export function IncidentAlertRow({
   alert: a,
   tagCatalog,
   checked,
-  expanded,
   onToggle,
-  onOpen,
-  onCreateRule,
-  onIncident,
-  onToggleEchoes,
-  onStatus,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
   checked: boolean
-  expanded: boolean
   onToggle: () => void
-  onOpen: () => void
-  onCreateRule: (alert: Alert) => void
-  onIncident: (alert: Alert) => void
-  onToggleEchoes: () => void
-  onStatus: (status: string, observation: string, fp: boolean) => void
 }) {
   const { t } = useTranslation()
   const sk = sevKey(a)
@@ -41,19 +25,12 @@ export function AlertRow({
   return (
     <tr
       className="group cursor-pointer border-b border-border/50 text-[13px] last:border-b-0 hover:bg-muted/20"
-      onClick={onOpen}
+      onClick={onToggle}
     >
-      {/* Severity accent — colored left edge so the row's risk reads at a glance. */}
       <td className={`${TD} relative w-[6px] p-0`}>
         <span className={cn('absolute inset-y-0 left-0 w-[3px]', sev.bar)} title={t(`alerts.severity.${sk}`)} aria-hidden />
       </td>
-      <td
-        className={cn(TD, 'cursor-pointer relative')}
-        onClick={(e) => {
-          e.stopPropagation()
-          onToggle()
-        }}
-      >
+      <td className={cn(TD, 'cursor-pointer relative')}>
         <span
           className={cn(
             'flex h-4 w-4 items-center justify-center rounded border',
@@ -62,26 +39,6 @@ export function AlertRow({
         >
           {checked && <span className="h-2 w-2 rounded-sm bg-primary-foreground" />}
         </span>
-
-        <span className='p-8 absolute -top-0.5   -translate-y-0.5'>
-        </span>
-
-      </td>
-      <td className={TD}>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onCreateRule(a)
-          }}
-          title={t('alerts.row.createRuleFromAlert')}
-          aria-label={t('alerts.row.createRuleFromAlert')}
-          className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 transition hover:bg-background hover:text-primary"
-        >
-          <Tag size={13} />
-        </button>
-      </td>
-      <td className={TD}>
-        <AlertIncidentTarget alert={a} onIncident={onIncident} />
       </td>
       <td className={`${TD} max-w-[480px]`}>
         <div className="flex items-center gap-2">
@@ -122,23 +79,6 @@ export function AlertRow({
           )}
         </div>
       </td>
-      <td className={TD} onClick={(e) => e.stopPropagation()}>
-        <StatusChangeMenu
-          status={statusKey(a)}
-          variant="pill"
-          onStatus={onStatus}
-          onCreateRule={() => onCreateRule(a)}
-        />
-      </td>
-      <td className={`${TD} font-mono mx-auto text-[11px] text-muted-foreground`} title={a.technique}>
-        {a.technique || '—'}
-      </td>
-      <td className={TD}>
-        <EndpointMini ep={a.target} />
-      </td>
-      <td className={TD}>
-        <EndpointMini ep={a.adversary} accent />
-      </td>
       <td className={`${TD} text-center`}>
         <span
           className={cn(
@@ -148,9 +88,6 @@ export function AlertRow({
         >
           {t(`alerts.severity.${sk}`)}
         </span>
-      </td>
-      <td className={`${TD} text-center`}>
-        <EchoesChip count={a.echoes ?? 0} expanded={expanded} onClick={onToggleEchoes} />
       </td>
       <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`} title={absTime(a[TS])}>
         {relativeTime(a[TS])}

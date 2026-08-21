@@ -21,7 +21,9 @@
       "refresh": "Обновить",
       "delete": "Удалить",
       "remove": "Убрать",
-      "close": "Закрыть"
+      "close": "Закрыть",
+      "next": "Далее",
+      "back": "Назад"
     },
     "confirm": {
       "delete": "Удалить",
@@ -3981,7 +3983,8 @@
       "allAssignees": "Все ответственные",
       "from": "С",
       "to": "По",
-      "clear": "Очистить"
+      "clear": "Очистить",
+      "create": "Создать инцидент"
     },
     "layout": {
       "table": "Таблица",
@@ -4063,6 +4066,20 @@
       "INCIDENT_NOTE_ADD": "Заметка добавлена",
       "INCIDENT_NOTE_CHANGE": "Заметка изменена",
       "INCIDENT_ASSIGNED": "Назначение изменено"
+    },
+    "create": {
+      "title": "Создать инцидент",
+      "stepIndicator": "Шаг {{current}} из {{total}}",
+      "selectedCount": "Выбрано оповещений: {{count}}",
+      "submit": "Создать",
+      "success": "Инцидент создан",
+      "error": "Не удалось создать инцидент",
+      "details": {
+        "nameLabel": "Название",
+        "namePlaceholder": "Короткое описательное название",
+        "descriptionLabel": "Описание",
+        "descriptionPlaceholder": "Контекст, область, первичные заметки…"
+      }
     }
   },
   "alertingRules": {

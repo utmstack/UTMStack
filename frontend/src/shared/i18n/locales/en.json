@@ -21,7 +21,9 @@
       "refresh": "Refresh",
       "delete": "Delete",
       "remove": "Remove",
-      "close": "Close"
+      "close": "Close",
+      "next": "Next",
+      "back": "Back"
     },
     "confirm": {
       "delete": "Delete",
@@ -4519,7 +4521,22 @@
       "allAssignees": "All assignees",
       "from": "From",
       "to": "To",
-      "clear": "Clear"
+      "clear": "Clear",
+      "create": "Create incident"
+    },
+    "create": {
+      "title": "Create incident",
+      "stepIndicator": "Step {{current}} of {{total}}",
+      "selectedCount": "{{count}} alerts selected",
+      "submit": "Create",
+      "success": "Incident created",
+      "error": "Could not create the incident",
+      "details": {
+        "nameLabel": "Name",
+        "namePlaceholder": "Short, descriptive title",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Context, scope, initial notes…"
+      }
     },
     "layout": {
       "table": "Table",
