@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Radio } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { useAuth } from '@/features/auth/services/auth.context'
+import { useBilling } from '@/features/billing'
 import { useSupportTenant } from '@/shared/lib/current-tenant'
 import type { BulkResult, BulkSelector } from '../services/broadcast-http.service'
 import { BroadcastDialog } from './BroadcastDialog'
@@ -39,10 +40,11 @@ export interface PlatformBroadcastButtonProps {
  */
 export function PlatformBroadcastButton(props: PlatformBroadcastButtonProps) {
   const { isPlatformAdmin } = useAuth()
+  const { license } = useBilling()
   const supportTenant = useSupportTenant()
   const [open, setOpen] = useState(false)
 
-  if (!isPlatformAdmin || supportTenant !== null) return null
+  if (!isPlatformAdmin || supportTenant !== null || license?.mssp !== true) return null
 
   return (
     <>
