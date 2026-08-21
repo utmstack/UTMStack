@@ -2739,7 +2739,7 @@
           },
           "masterHeader": {
             "title": "Autorisierungs-Header",
-            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis für \"{{name}}\" wird nur einmal bei der Erstellung des API-Schlüssels angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein.",
+            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis des API-Schlüssels wird nur einmal bei seiner Erstellung angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein.",
             "tabSimple": "Einfach",
             "tabBatch": "Stapel"
           }
@@ -3382,6 +3382,7 @@
         "addCollector": "Collector hinzufügen",
         "addApiKey": "API-Schlüssel hinzufügen",
         "apiKeyLabel": "API-Schlüssel",
+        "apiKeyHint": "Zuerst benötigen Sie einen API-Schlüssel.",
         "apiKeyPlaceholder": "API-Schlüssel auswählen",
         "apiKeyAddNew": "API-Schlüssel hinzufügen…",
         "apiKeyNone": "Noch keine API-Schlüssel vorhanden"

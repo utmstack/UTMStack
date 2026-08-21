@@ -2739,7 +2739,7 @@
           },
           "masterHeader": {
             "title": "Intestazione di autorizzazione",
-            "body": "Includi questa intestazione Authorization in ogni richiesta inviata al Master. Il segreto di \"{{name}}\" viene rivelato una sola volta al momento della generazione della chiave API — copialo allora e incollalo al posto del segnaposto qui sotto.",
+            "body": "Includi questa intestazione Authorization in ogni richiesta inviata al Master. Il segreto della chiave API viene rivelato una sola volta al momento della sua generazione — copialo allora e incollalo al posto del segnaposto qui sotto.",
             "tabSimple": "Semplice",
             "tabBatch": "Batch"
           }
@@ -3382,6 +3382,7 @@
         "addCollector": "Aggiungi Collector",
         "addApiKey": "Aggiungi chiave API",
         "apiKeyLabel": "Chiave API",
+        "apiKeyHint": "Prima ti servirà una chiave API.",
         "apiKeyPlaceholder": "Seleziona una chiave API",
         "apiKeyAddNew": "Aggiungi chiave API…",
         "apiKeyNone": "Nessuna chiave API ancora"

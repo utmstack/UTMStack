@@ -80,10 +80,9 @@ function FlowDiagram({ source, port, isMaster }: { source: string; port: string;
 
 // ── Master command (POST endpoint + auth header) ─────────────────────────────
 
-function MasterCommandSection({ selection }: { selection: RemoteEnableSelection }) {
+function MasterCommandSection(_: { selection: RemoteEnableSelection }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<'simple' | 'batch'>('simple')
-  if (!selection.apiKey) return null
   const host = forwarderHost()
   const simpleCmd = `curl -k -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
   -H "Content-Type: application/json" \\
@@ -115,7 +114,7 @@ function MasterCommandSection({ selection }: { selection: RemoteEnableSelection 
   }'`
   return (
     <Section title={t(`${SHARED}.masterHeader.title`)} step={2}>
-      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`, { name: selection.apiKey.name })}</p>
+      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`)}</p>
       <div className="flex gap-0 border-b border-border mb-3">
         {(['simple', 'batch'] as const).map((v) => (
           <button
@@ -261,7 +260,7 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
         onRequestAddCollector={handleAddCollector}
       />
 
-      {selection.isMaster && selection.apiKey && <MasterCommandSection selection={selection} />}
+      {selection.isMaster && <MasterCommandSection selection={selection} />}
 
       {/* Vendor-specific steps (device-side config). Hidden in master mode — it targets the forwarder, not master. */}
       {!selection.isMaster && children}

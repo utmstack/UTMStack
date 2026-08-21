@@ -2898,7 +2898,7 @@
           },
           "masterHeader": {
             "title": "Authorization header",
-            "body": "Include this Authorization header on every request you send to Master. The secret for \"{{name}}\" is only revealed once when the API key is generated — copy it then and paste it in place of the placeholder below.",
+            "body": "Include this Authorization header on every request you send to Master. The API key's secret is revealed only once when it is generated — copy it then and paste it in place of the placeholder below.",
             "tabSimple": "Simple",
             "tabBatch": "Batch"
           }
@@ -3483,6 +3483,7 @@
         "addCollector": "Add Collector",
         "addApiKey": "Add API key",
         "apiKeyLabel": "API key",
+        "apiKeyHint": "First you'll need an API key.",
         "apiKeyPlaceholder": "Select an API key",
         "apiKeyAddNew": "Add API key…",
         "apiKeyNone": "No API keys yet"

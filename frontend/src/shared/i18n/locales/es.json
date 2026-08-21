@@ -1841,7 +1841,7 @@
           },
           "masterHeader": {
             "title": "Cabecera de autorización",
-            "body": "Incluye esta cabecera Authorization en cada solicitud que envíes al Master. El secreto de \"{{name}}\" solo se muestra una vez al generar la clave API — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
+            "body": "Incluye esta cabecera Authorization en cada solicitud que envíes al Master. El secreto de la clave API solo se muestra una vez al generarla — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
             "tabSimple": "Simple",
             "tabBatch": "Lote"
           }
@@ -3344,6 +3344,7 @@
         "addCollector": "Añadir Collector",
         "addApiKey": "Añadir clave API",
         "apiKeyLabel": "Clave API",
+        "apiKeyHint": "Primero necesitarás una clave API.",
         "apiKeyPlaceholder": "Selecciona una clave API",
         "apiKeyAddNew": "Añadir clave API…",
         "apiKeyNone": "Todavía no hay claves API"

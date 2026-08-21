@@ -37,7 +37,7 @@ export function CustomSetup({ integration }: { integration: Integration }) {
   // slug if the catalog row has no explicit data type.
   const name = integration.dataType || integration.moduleName?.toLowerCase() || 'my-integration'
 
-  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'udp', port: '7100', isMaster: false, apiKey: null })
+  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'udp', port: '7100', isMaster: false })
   const { proto, port } = selection
 
   const isHttp = proto === 'http' || proto === 'https'
