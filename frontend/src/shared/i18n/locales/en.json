@@ -5537,7 +5537,7 @@
     "leave": "Leave"
   },
   "platformBroadcast": {
-    "button": "Apply to tenants…",
+    "button": "Apply to all tenants",
     "action": {
       "create": "Broadcast {{resource}} create",
       "update": "Broadcast {{resource}} update",

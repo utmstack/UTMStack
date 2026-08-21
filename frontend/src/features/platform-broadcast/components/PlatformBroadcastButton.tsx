@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Radio } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { useAuth } from '@/features/auth/services/auth.context'
 import { useBilling } from '@/features/billing'
 import { useSupportTenant } from '@/shared/lib/current-tenant'
@@ -48,15 +49,21 @@ export function PlatformBroadcastButton(props: PlatformBroadcastButtonProps) {
 
   return (
     <>
-      <Button
-        variant={props.variant ?? 'outline'}
-        size={props.size ?? 'sm'}
-        disabled={props.disabled}
-        onClick={() => setOpen(true)}
-      >
-        <Radio size={14} className="mr-1.5" />
-        {props.label}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={props.variant ?? 'outline'}
+            size="icon"
+            disabled={props.disabled}
+            onClick={() => setOpen(true)}
+            aria-label={props.label}
+            className={props.size === 'sm' ? 'h-8 w-8' : undefined}
+          >
+            <Radio size={14} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{props.label}</TooltipContent>
+      </Tooltip>
       <BroadcastDialog
         open={open}
         title={props.title}

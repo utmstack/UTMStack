@@ -5514,7 +5514,7 @@
     "leave": "Salir"
   },
   "platformBroadcast": {
-    "button": "Aplicar a inquilinos…",
+    "button": "Aplicar a todos los inquilinos",
     "action": {
       "create": "Difundir creación de {{resource}}",
       "update": "Difundir actualización de {{resource}}",
