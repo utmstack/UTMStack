@@ -5552,7 +5552,7 @@
     "leave": "Esci"
   },
   "platformBroadcast": {
-    "button": "Applica ai tenant…",
+    "button": "Applica a tutti i tenant",
     "action": {
       "create": "Trasmetti creazione {{resource}}",
       "update": "Trasmetti aggiornamento {{resource}}",

@@ -5552,7 +5552,7 @@
     "leave": "Verlassen"
   },
   "platformBroadcast": {
-    "button": "Auf Mandanten anwenden…",
+    "button": "Auf alle Mandanten anwenden",
     "action": {
       "create": "{{resource}} verteilt erstellen",
       "update": "{{resource}} verteilt aktualisieren",

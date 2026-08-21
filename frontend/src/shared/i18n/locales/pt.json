@@ -5514,7 +5514,7 @@
     "leave": "Sair"
   },
   "platformBroadcast": {
-    "button": "Aplicar aos inquilinos…",
+    "button": "Aplicar a todos os inquilinos",
     "action": {
       "create": "Transmitir criação de {{resource}}",
       "update": "Transmitir atualização de {{resource}}",

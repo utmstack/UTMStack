@@ -5552,7 +5552,7 @@
     "leave": "Quitter"
   },
   "platformBroadcast": {
-    "button": "Appliquer aux locataires…",
+    "button": "Appliquer à tous les locataires",
     "action": {
       "create": "Diffuser la création de {{resource}}",
       "update": "Diffuser la mise à jour de {{resource}}",

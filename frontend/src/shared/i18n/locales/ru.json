@@ -5576,7 +5576,7 @@
     "leave": "Выйти"
   },
   "platformBroadcast": {
-    "button": "Применить к арендаторам…",
+    "button": "Применить ко всем арендаторам",
     "action": {
       "create": "Массовое создание: {{resource}}",
       "update": "Массовое обновление: {{resource}}",
