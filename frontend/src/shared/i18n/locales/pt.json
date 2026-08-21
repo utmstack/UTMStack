@@ -21,7 +21,9 @@
       "refresh": "Atualizar",
       "delete": "Excluir",
       "remove": "Remover",
-      "close": "Fechar"
+      "close": "Fechar",
+      "next": "Próximo",
+      "back": "Voltar"
     },
     "confirm": {
       "delete": "Excluir",
@@ -4311,7 +4313,8 @@
       "allAssignees": "Todos os responsáveis",
       "from": "De",
       "to": "Até",
-      "clear": "Limpar"
+      "clear": "Limpar",
+      "create": "Criar incidente"
     },
     "layout": {
       "table": "Tabela",
@@ -4393,6 +4396,20 @@
       "INCIDENT_NOTE_ADD": "Nota adicionada",
       "INCIDENT_NOTE_CHANGE": "Nota editada",
       "INCIDENT_ASSIGNED": "Atribuição alterada"
+    },
+    "create": {
+      "title": "Criar incidente",
+      "stepIndicator": "Etapa {{current}} de {{total}}",
+      "selectedCount": "{{count}} alertas selecionados",
+      "submit": "Criar",
+      "success": "Incidente criado",
+      "error": "Não foi possível criar o incidente",
+      "details": {
+        "nameLabel": "Nome",
+        "namePlaceholder": "Título curto e descritivo",
+        "descriptionLabel": "Descrição",
+        "descriptionPlaceholder": "Contexto, escopo, notas iniciais…"
+      }
     }
   },
   "parsingFilters": {

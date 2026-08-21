@@ -21,7 +21,9 @@
       "refresh": "Aktualisieren",
       "delete": "Löschen",
       "remove": "Entfernen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "next": "Weiter",
+      "back": "Zurück"
     },
     "confirm": {
       "delete": "Löschen",
@@ -4189,7 +4191,8 @@
       "allAssignees": "Alle Zugewiesenen",
       "from": "Von",
       "to": "Bis",
-      "clear": "Zurücksetzen"
+      "clear": "Zurücksetzen",
+      "create": "Vorfall erstellen"
     },
     "layout": {
       "table": "Tabelle",
@@ -4271,6 +4274,20 @@
       "INCIDENT_NOTE_ADD": "Notiz hinzugefügt",
       "INCIDENT_NOTE_CHANGE": "Notiz bearbeitet",
       "INCIDENT_ASSIGNED": "Zuweisung geändert"
+    },
+    "create": {
+      "title": "Vorfall erstellen",
+      "stepIndicator": "Schritt {{current}} von {{total}}",
+      "selectedCount": "{{count}} Warnungen ausgewählt",
+      "submit": "Erstellen",
+      "success": "Vorfall erstellt",
+      "error": "Vorfall konnte nicht erstellt werden",
+      "details": {
+        "nameLabel": "Name",
+        "namePlaceholder": "Kurzer, prägnanter Titel",
+        "descriptionLabel": "Beschreibung",
+        "descriptionPlaceholder": "Kontext, Umfang, erste Notizen…"
+      }
     }
   },
   "alertingRules": {

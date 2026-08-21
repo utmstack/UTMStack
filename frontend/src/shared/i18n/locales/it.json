@@ -21,7 +21,9 @@
       "refresh": "Aggiorna",
       "delete": "Elimina",
       "remove": "Rimuovi",
-      "close": "Chiudi"
+      "close": "Chiudi",
+      "next": "Avanti",
+      "back": "Indietro"
     },
     "confirm": {
       "delete": "Elimina",
@@ -4189,7 +4191,8 @@
       "allAssignees": "Tutti gli assegnatari",
       "from": "Da",
       "to": "A",
-      "clear": "Cancella"
+      "clear": "Cancella",
+      "create": "Crea incidente"
     },
     "layout": {
       "table": "Tabella",
@@ -4271,6 +4274,20 @@
       "INCIDENT_NOTE_ADD": "Nota aggiunta",
       "INCIDENT_NOTE_CHANGE": "Nota modificata",
       "INCIDENT_ASSIGNED": "Assegnazione cambiata"
+    },
+    "create": {
+      "title": "Crea incidente",
+      "stepIndicator": "Passaggio {{current}} di {{total}}",
+      "selectedCount": "{{count}} avvisi selezionati",
+      "submit": "Crea",
+      "success": "Incidente creato",
+      "error": "Impossibile creare l'incidente",
+      "details": {
+        "nameLabel": "Nome",
+        "namePlaceholder": "Titolo breve e descrittivo",
+        "descriptionLabel": "Descrizione",
+        "descriptionPlaceholder": "Contesto, ambito, note iniziali…"
+      }
     }
   },
   "alertingRules": {

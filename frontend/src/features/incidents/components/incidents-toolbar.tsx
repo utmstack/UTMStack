@@ -1,5 +1,6 @@
-import { Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { SELECT_CLS, STATUSES , statusKey} from '../lib/incident-meta'
 import type { IncidentStatus } from '../types/incident.types'
@@ -18,6 +19,7 @@ export interface IncidentsToolbarProps {
   onDateTo: (v: string) => void
   hasFilters: boolean
   onClear: () => void
+  onCreate: () => void
 }
 
 export function IncidentsToolbar({
@@ -34,6 +36,7 @@ export function IncidentsToolbar({
   onDateTo,
   hasFilters,
   onClear,
+  onCreate,
 }: IncidentsToolbarProps) {
   const { t } = useTranslation()
   return (
@@ -86,6 +89,10 @@ export function IncidentsToolbar({
           {t('incidents.toolbar.clear')}
         </button>
       )}
+      <Button size="sm" onClick={onCreate} className="ml-auto">
+        <Plus size={14} className="mr-1.5" />
+        {t('incidents.toolbar.create')}
+      </Button>
     </div>
   )
 }
