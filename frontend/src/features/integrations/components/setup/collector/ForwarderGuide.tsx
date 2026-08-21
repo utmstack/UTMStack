@@ -6,6 +6,8 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
 import { FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
+import { getSupportTenant } from '@/shared/lib/current-tenant'
+import { isMssp } from '@/shared/lib/license-flags'
 import { RemoteEnablePanel, type RemoteEnableSelection } from './RemoteEnablePanel'
 import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 
@@ -23,10 +25,16 @@ import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 const SHARED = 'integrations.setup.collector.forwarder'
 const LOGINPUT_PORT = '50052'
 
-// The Forwarder runs on the UTMStack host; default the address to where the user
-// is browsing from (stripped of any port).
+// The Forwarder runs on the UTMStack host; default the address to where the
+// user is browsing from (stripped of any port). In MSSP mode, when the operator
+// has entered a child tenant, use that tenant's domain instead — the child is
+// reached at its own subdomain, not the default's.
 export function forwarderHost(): string {
   if (typeof window === 'undefined') return 'utmstack-host'
+  if (isMssp()) {
+    const support = getSupportTenant()
+    if (support?.domain) return support.domain
+  }
   const h = window.location.host
   return h.includes(':') ? h.split(':')[0] : h
 }
@@ -76,7 +84,7 @@ function MasterCommandSection({ selection }: { selection: RemoteEnableSelection 
   const { t } = useTranslation()
   const [tab, setTab] = useState<'simple' | 'batch'>('simple')
   if (!selection.apiKey) return null
-  const host = typeof window === 'undefined' ? 'utmstack-host' : window.location.host
+  const host = forwarderHost()
   const simpleCmd = `curl -k -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
   -H "Content-Type: application/json" \\
   -H "Utm-Api-Key: <YOUR_API_KEY>" \\

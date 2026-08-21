@@ -10,6 +10,7 @@ import {
 import { useAuth } from '@/features/auth'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { useCurrentInstanceId } from '@/shared/lib/current-instance'
+import { setMsspFlag } from '@/shared/lib/license-flags'
 import { billingHttpService } from './billing-http.service'
 import type { License, VersionInfo } from '../types/billing.types'
 
@@ -48,6 +49,7 @@ export function BillingProvider({ children }: { children: ReactNode }) {
         billingHttpService.getVersion(),
       ])
       setLicense(lic)
+      setMsspFlag(lic?.mssp === true)
       setVersion(ver)
     } catch {
       setError(true)
@@ -59,6 +61,7 @@ export function BillingProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!ready) {
       setLicense(null)
+      setMsspFlag(false)
       setVersion(null)
       return
     }

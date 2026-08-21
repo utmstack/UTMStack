@@ -86,6 +86,7 @@ export function TenantSwitcher() {
       id: tenant.id,
       name: tenant.name,
       access: tenant.supportAccess === 'FULL' ? 'FULL' : 'READ',
+      domain: tenant.domain,
     })
     reloadAfterSwitch()
   }
