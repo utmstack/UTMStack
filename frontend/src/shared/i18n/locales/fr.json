@@ -2074,7 +2074,7 @@
           "credentialsSection": "Se connecter à UTMStack",
           "credentials": {
             "title": "Ajouter des identifiants Sophos Central",
-            "body": "Saisissez les identifiants que vous venez de créer. Vous pouvez ajouter plusieurs comptes Sophos en cliquant sur Ajouter un tenant."
+            "body": "Saisissez les identifiants que vous venez de créer. Vous pouvez ajouter plusieurs comptes Sophos en cliquant sur Ajouter un groupe de configuration."
           },
           "fields": {
             "clientId": {
@@ -2109,7 +2109,7 @@
             },
             "fillForm": {
               "title": "6 · Remplir le formulaire",
-              "body": "Fournissez le client ID et le client secret à UTMStack. Vous pouvez ajouter plusieurs tenants Webroot si nécessaire."
+              "body": "Fournissez le client ID et le client secret à UTMStack. Vous pouvez ajouter plusieurs groupes de configuration Webroot si nécessaire."
             },
             "activate": {
               "title": "7 · Activer",
@@ -2193,7 +2193,7 @@
           "credentialsSection": "Identifiants",
           "credentials": {
             "title": "Connecter votre tenant Microsoft 365",
-            "body": "Saisissez les informations des étapes précédentes. UTMStack vérifie les identifiants avant l'enregistrement. Vous pouvez ajouter plusieurs tenants."
+            "body": "Saisissez les informations des étapes précédentes. UTMStack vérifie les identifiants avant l'enregistrement. Vous pouvez ajouter plusieurs groupes de configuration."
           },
           "fields": {
             "tenantId": {
@@ -2737,9 +2737,9 @@
             "title": "Optionnel — Désinstaller le Collector",
             "body": "Exécutez cette commande sur l'hôte où le Collector est installé pour arrêter le service et supprimer tous ses fichiers."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "En-tête d'autorisation",
-            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de \"{{name}}\" n'est révélé qu'une seule fois à la génération de la clé API — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée à l'instance. Le secret de la clé API n'est révélé qu'une seule fois à sa génération — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
             "tabSimple": "Simple",
             "tabBatch": "Lot"
           }
@@ -2890,13 +2890,13 @@
         "after2": "Ensuite, les événements sont extraits toutes les 1–5 minutes (dépend de l'API).",
         "after3": "L'intégration apparaît sous Sources de données avec l'état d'extraction et le décalage actuels.",
         "tenants": {
-          "title": "Tenants configurés",
-          "empty": "Aucun tenant configuré pour le moment. Ajoutez le premier ci-dessous.",
-          "loading": "Chargement des tenants…",
-          "nameLabel": "Nom du tenant",
+          "title": "Groupes de configuration configurés",
+          "empty": "Aucun groupe de configuration pour le moment. Ajoutez le premier ci-dessous.",
+          "loading": "Chargement des groupes de configuration…",
+          "nameLabel": "Nom du groupe de configuration",
           "namePlaceholder": "p. ex. acme-prod",
-          "add": "Ajouter un tenant",
-          "update": "Mettre à jour le tenant",
+          "add": "Ajouter un groupe de configuration",
+          "update": "Mettre à jour le groupe de configuration",
           "delete": "Supprimer",
           "edit": "Modifier",
           "cancel": "Annuler",
@@ -2905,10 +2905,10 @@
           "replaceFile": "Remplacer le fichier",
           "fileLoaded": "Fichier chargé",
           "invalidJson": "Impossible de lire le fichier comme JSON.",
-          "createError": "Impossible de créer le tenant. Veuillez réessayer.",
-          "updateError": "Impossible de mettre à jour le tenant. Veuillez réessayer.",
-          "createSuccess": "Tenant créé avec succès.",
-          "updateSuccess": "Tenant mis à jour avec succès."
+          "createError": "Impossible de créer le groupe de configuration. Veuillez réessayer.",
+          "updateError": "Impossible de mettre à jour le groupe de configuration. Veuillez réessayer.",
+          "createSuccess": "Groupe de configuration créé avec succès.",
+          "updateSuccess": "Groupe de configuration mis à jour avec succès."
         },
         "google": {
           "sections": {
@@ -3084,7 +3084,7 @@
           "sections": {
             "prerequisite": {
               "title": "Prérequis · Utilisateur IAM",
-              "body": "Pour que cette intégration fonctionne, vous devez disposer d'un utilisateur IAM pour UTMStack avec la stratégie CloudWatchLogsReadOnlyAccess. Notez son ID de clé d'accès et sa clé d'accès secrète — vous les collerez dans le formulaire du tenant ci-dessous."
+              "body": "Pour que cette intégration fonctionne, vous devez disposer d'un utilisateur IAM pour UTMStack avec la stratégie CloudWatchLogsReadOnlyAccess. Notez son ID de clé d'accès et sa clé d'accès secrète — vous les collerez dans le formulaire du groupe de configuration ci-dessous."
             },
             "createTrail": {
               "title": "1 · Créer un trail",
@@ -3377,11 +3377,12 @@
         "disableSuccess": "Intégration désactivée.",
         "enableError": "Échec de la mise à jour de l'intégration.",
         "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau.",
-        "sendToMaster": "Envoyer au Master",
+        "sendToInstance": "Envoyer à l'instance",
         "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
         "addCollector": "Ajouter un Collector",
         "addApiKey": "Ajouter une clé API",
         "apiKeyLabel": "Clé API",
+        "apiKeyHint": "Vous aurez d'abord besoin d'une clé API.",
         "apiKeyPlaceholder": "Sélectionner une clé API",
         "apiKeyAddNew": "Ajouter une clé API…",
         "apiKeyNone": "Aucune clé API pour l'instant"

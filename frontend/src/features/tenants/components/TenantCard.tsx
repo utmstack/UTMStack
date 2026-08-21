@@ -30,6 +30,7 @@ function enterTenant(tenant: Tenant): void {
     id: tenant.id,
     name: tenant.name,
     access: tenant.supportAccess === 'FULL' ? 'FULL' : 'READ',
+    domain: tenant.domain,
   })
   window.location.assign('/home')
 }

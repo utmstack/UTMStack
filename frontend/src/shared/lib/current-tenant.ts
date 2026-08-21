@@ -18,6 +18,8 @@ export interface SupportTenant {
   name: string
   /** The level the tenant granted when we entered, for the banner to name it. */
   access: 'READ' | 'FULL'
+  /** The tenant's routable domain. Used to build install/ingest URLs in MSSP mode. */
+  domain?: string
 }
 
 function read(): SupportTenant | null {
