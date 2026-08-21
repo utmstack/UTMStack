@@ -47,19 +47,25 @@ export function AlertRow({
       <td className={`${TD} relative w-[6px] p-0`}>
         <span className={cn('absolute inset-y-0 left-0 w-[3px]', sev.bar)} title={t(`alerts.severity.${sk}`)} aria-hidden />
       </td>
-      <td className={TD}>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggle()
-          }}
+      <td
+        className={cn(TD, 'cursor-pointer relative')}
+        onClick={(e) => {
+          e.stopPropagation()
+          onToggle()
+        }}
+      >
+        <span
           className={cn(
             'flex h-4 w-4 items-center justify-center rounded border',
             checked ? 'border-primary bg-primary' : 'border-input'
           )}
         >
           {checked && <span className="h-2 w-2 rounded-sm bg-primary-foreground" />}
-        </button>
+        </span>
+
+        <span className='p-8 absolute -top-0.5   -translate-y-0.5'>
+        </span>
+
       </td>
       <td className={TD}>
         <button
