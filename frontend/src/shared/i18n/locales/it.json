@@ -2737,9 +2737,9 @@
             "title": "Facoltativo — Disinstalla il Collector",
             "body": "Esegui questo comando sull'host in cui è installato il Collector per interrompere il servizio e rimuovere tutti i suoi file."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "Intestazione di autorizzazione",
-            "body": "Includi questa intestazione Authorization in ogni richiesta inviata al Master. Il segreto della chiave API viene rivelato una sola volta al momento della sua generazione — copialo allora e incollalo al posto del segnaposto qui sotto.",
+            "body": "Includi questa intestazione Authorization in ogni richiesta inviata all'istanza. Il segreto della chiave API viene rivelato una sola volta al momento della sua generazione — copialo allora e incollalo al posto del segnaposto qui sotto.",
             "tabSimple": "Semplice",
             "tabBatch": "Batch"
           }
@@ -3377,7 +3377,7 @@
         "disableSuccess": "Integrazione disabilitata.",
         "enableError": "Aggiornamento dell'integrazione non riuscito.",
         "secretWarning": "Archivia questo token in modo sicuro — non verrà visualizzato di nuovo.",
-        "sendToMaster": "Invia al Master",
+        "sendToInstance": "Invia all'istanza",
         "enterpriseFeature": "Questa è una funzionalità Enterprise.",
         "addCollector": "Aggiungi Collector",
         "addApiKey": "Aggiungi chiave API",

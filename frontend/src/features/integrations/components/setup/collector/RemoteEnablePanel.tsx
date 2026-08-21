@@ -173,7 +173,7 @@ export function RemoteEnablePanel({
   const isMaster = collectorId === MASTER_ID
   const masterOption: ForwarderCollector = {
     id: MASTER_ID,
-    hostname: t(`${ROOT}.sendToMaster`),
+    hostname: t(`${ROOT}.sendToInstance`),
     ip: '',
     version: '',
     status: 'online',

@@ -113,8 +113,8 @@ function MasterCommandSection(_: { selection: RemoteEnableSelection }) {
     ]
   }'`
   return (
-    <Section title={t(`${SHARED}.masterHeader.title`)} step={2}>
-      <p className="text-sm text-foreground/90">{t(`${SHARED}.masterHeader.body`)}</p>
+    <Section title={t(`${SHARED}.instanceHeader.title`)} step={2}>
+      <p className="text-sm text-foreground/90">{t(`${SHARED}.instanceHeader.body`)}</p>
       <div className="flex gap-0 border-b border-border mb-3">
         {(['simple', 'batch'] as const).map((v) => (
           <button
@@ -122,7 +122,7 @@ function MasterCommandSection(_: { selection: RemoteEnableSelection }) {
             onClick={() => setTab(v)}
             className={cn('px-4 py-1.5 text-sm capitalize transition-colors', tab === v ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground hover:text-foreground')}
           >
-            {v === 'simple' ? t(`${SHARED}.masterHeader.tabSimple`) : t(`${SHARED}.masterHeader.tabBatch`)}
+            {v === 'simple' ? t(`${SHARED}.instanceHeader.tabSimple`) : t(`${SHARED}.instanceHeader.tabBatch`)}
           </button>
         ))}
       </div>

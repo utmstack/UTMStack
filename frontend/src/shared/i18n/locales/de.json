@@ -2737,9 +2737,9 @@
             "title": "Optional – Collector deinstallieren",
             "body": "Führen Sie diesen Befehl auf dem Host aus, auf dem der Collector installiert ist, um den Dienst zu beenden und alle zugehörigen Dateien zu entfernen."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "Autorisierungs-Header",
-            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an den Master senden. Das Geheimnis des API-Schlüssels wird nur einmal bei seiner Erstellung angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein.",
+            "body": "Fügen Sie diesen Authorization-Header jeder Anfrage hinzu, die Sie an die Instanz senden. Das Geheimnis des API-Schlüssels wird nur einmal bei seiner Erstellung angezeigt — kopieren Sie es dann und fügen Sie es anstelle des Platzhalters unten ein.",
             "tabSimple": "Einfach",
             "tabBatch": "Stapel"
           }
@@ -3377,7 +3377,7 @@
         "disableSuccess": "Integration deaktiviert.",
         "enableError": "Fehler beim Aktualisieren der Integration.",
         "secretWarning": "Speichern Sie dieses Token sicher — es wird danach nicht mehr angezeigt.",
-        "sendToMaster": "An Master senden",
+        "sendToInstance": "An Instanz senden",
         "enterpriseFeature": "Dies ist eine Enterprise-Funktion.",
         "addCollector": "Collector hinzufügen",
         "addApiKey": "API-Schlüssel hinzufügen",

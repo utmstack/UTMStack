@@ -2737,9 +2737,9 @@
             "title": "Optionnel — Désinstaller le Collector",
             "body": "Exécutez cette commande sur l'hôte où le Collector est installé pour arrêter le service et supprimer tous ses fichiers."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "En-tête d'autorisation",
-            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée au Master. Le secret de la clé API n'est révélé qu'une seule fois à sa génération — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
+            "body": "Incluez cet en-tête Authorization dans chaque requête envoyée à l'instance. Le secret de la clé API n'est révélé qu'une seule fois à sa génération — copiez-le à ce moment et collez-le à la place du placeholder ci-dessous.",
             "tabSimple": "Simple",
             "tabBatch": "Lot"
           }
@@ -3377,7 +3377,7 @@
         "disableSuccess": "Intégration désactivée.",
         "enableError": "Échec de la mise à jour de l'intégration.",
         "secretWarning": "Stockez ce jeton en toute sécurité — il ne sera pas affiché à nouveau.",
-        "sendToMaster": "Envoyer au Master",
+        "sendToInstance": "Envoyer à l'instance",
         "enterpriseFeature": "Ceci est une fonctionnalité Enterprise.",
         "addCollector": "Ajouter un Collector",
         "addApiKey": "Ajouter une clé API",

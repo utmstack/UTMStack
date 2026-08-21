@@ -1839,9 +1839,9 @@
             "title": "Opcional — Desinstalar o Collector",
             "body": "Execute este comando no host onde o Collector está instalado para parar o serviço e remover todos os seus arquivos."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "Cabeçalho de autorização",
-            "body": "Inclua este cabeçalho Authorization em cada requisição enviada ao Master. O segredo da chave de API é revelado apenas uma vez ao gerá-la — copie-o naquele momento e cole no lugar do marcador abaixo.",
+            "body": "Inclua este cabeçalho Authorization em cada requisição enviada à instância. O segredo da chave de API é revelado apenas uma vez ao gerá-la — copie-o naquele momento e cole no lugar do marcador abaixo.",
             "tabSimple": "Simples",
             "tabBatch": "Lote"
           }
@@ -3339,7 +3339,7 @@
         "disableSuccess": "Integração desativada.",
         "enableError": "Falha ao atualizar a integração.",
         "secretWarning": "Armazene este token com segurança — não será exibido novamente.",
-        "sendToMaster": "Enviar para o Master",
+        "sendToInstance": "Enviar para a instância",
         "enterpriseFeature": "Este é um recurso Enterprise.",
         "addCollector": "Adicionar Collector",
         "addApiKey": "Adicionar chave de API",
