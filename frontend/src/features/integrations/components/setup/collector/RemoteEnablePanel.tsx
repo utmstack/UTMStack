@@ -344,6 +344,7 @@ export function RemoteEnablePanel({
                 value={collectorId}
                 onChange={(id) => {
                   if (id === ADD_COLLECTOR_ID) {
+                    setCollectorId(null)
                     onRequestAddCollector?.()
                     return
                   }
