@@ -4870,12 +4870,20 @@
         "date": "Data",
         "retries": "Tentativas"
       },
+      "filters": {
+        "source": "Origem",
+        "allSources": "Todas as origens"
+      },
       "manual": "Consola interativa"
     },
     "executionStatus": {
       "EXECUTED": "Executado",
       "PENDING": "Pendente",
       "FAILED": "Falhou"
+    },
+    "executionOrigin": {
+      "FLOW": "Fluxo",
+      "MANUAL": "Manual"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agente offline",

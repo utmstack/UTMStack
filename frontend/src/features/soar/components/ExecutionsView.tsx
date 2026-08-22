@@ -5,11 +5,14 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { presetRange, resolveRange, TimeRangePicker, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { useDateFormat } from '@/shared/lib/datetime'
+import { datasourcesHttpService } from '@/features/datasources/services/datasources-http.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
-import type { Execution, ExecutionStatus, ExecutionListQuery } from '../types/soar.types'
+import type { Execution, ExecutionOrigin, ExecutionStatus, ExecutionListQuery } from '../types/soar.types'
 
 const STATUSES: (ExecutionStatus | 'all')[] = ['all', 'EXECUTED', 'PENDING', 'FAILED']
+const ORIGINS: (ExecutionOrigin | 'all')[] = ['all', 'FLOW', 'MANUAL']
 const COLS = '90px minmax(160px,1.2fr) minmax(180px,1.6fr) 120px 150px 60px'
 
 const STATUS_META: Record<ExecutionStatus, { icon: typeof CheckCircle2; cls: string }> = {
@@ -24,6 +27,10 @@ export function ExecutionsView() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [status, setStatus] = useState<ExecutionStatus | 'all'>('all')
+  const [origin, setOrigin] = useState<ExecutionOrigin | 'all'>('FLOW')
+  const [agent, setAgent] = useState<string>('')
+  const [agents, setAgents] = useState<string[]>([])
+  const [range, setRange] = useState<TimeRange>(presetRange('7d'))
   const [items, setItems] = useState<Execution[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
@@ -39,15 +46,27 @@ export function ExecutionsView() {
     return () => clearTimeout(h)
   }, [search])
 
-  const query = useMemo<ExecutionListQuery>(
-    () => ({
+  // Same source as FlowEditor / InteractiveConsole — Execution.agent stores the datasource name.
+  useEffect(() => {
+    datasourcesHttpService
+      .list({ page: 1, size: 1000, kind: 'agent', sort: 'asset_name.asc' })
+      .then((r) => setAgents((r.items ?? []).map((d) => d.name).filter(Boolean)))
+      .catch(() => {})
+  }, [])
+
+  const query = useMemo<ExecutionListQuery>(() => {
+    const { from, to } = resolveRange(range)
+    return {
       alertId: debounced || undefined,
       status: status === 'all' ? undefined : status,
+      origin: origin === 'all' ? undefined : origin,
+      agent: agent || undefined,
+      startedAtFrom: from ?? undefined,
+      startedAtTo: to,
       page,
       size: pageSize,
-    }),
-    [debounced, status, page, pageSize],
-  )
+    }
+  }, [debounced, status, origin, agent, range, page, pageSize])
 
   const load = useCallback(() => {
     setLoading(true)
@@ -86,6 +105,42 @@ export function ExecutionsView() {
             </button>
           ))}
         </div>
+        <div className="inline-flex rounded-md border border-border p-0.5">
+          {ORIGINS.map((o) => (
+            <button
+              key={o}
+              onClick={() => {
+                setOrigin(o)
+                setPage(0)
+              }}
+              className={cn('rounded px-2.5 py-1 text-xs transition-colors', origin === o ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground')}
+            >
+              {o === 'all' ? t('soar.executions.all') : t(`soar.executionOrigin.${o}`)}
+            </button>
+          ))}
+        </div>
+        <select
+          value={agent}
+          onChange={(e) => {
+            setAgent(e.target.value)
+            setPage(0)
+          }}
+          className="h-9 cursor-pointer rounded-md border border-input bg-popover px-2 text-xs text-foreground"
+          title={t('soar.executions.filters.source')}
+        >
+          <option value="">{t('soar.executions.filters.allSources')}</option>
+          {agents.map((a) => (
+            <option key={a} value={a}>{a}</option>
+          ))}
+        </select>
+        <TimeRangePicker
+          value={range}
+          onChange={(r) => {
+            setRange(r)
+            setPage(0)
+          }}
+          align="right"
+        />
         <Button variant="outline" size="sm" onClick={load} disabled={loading} title={t('soar.refresh')}>
           <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
         </Button>
