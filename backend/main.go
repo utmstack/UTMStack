@@ -38,7 +38,7 @@ func main() {
 
 	modules := initModules(db, cfg)
 
-	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin@localhost", false)
+	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin", false)
 	created, err := modules.tenant.GetBootstrapUsecase().EnsureDefaultTenant(
 		appCtx, adminEmail, env.String("UTMSTACK_ADMIN_PASSWORD", "", false))
 	if err != nil {
