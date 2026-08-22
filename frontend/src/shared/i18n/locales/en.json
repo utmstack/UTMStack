@@ -5134,12 +5134,20 @@
         "date": "Date",
         "retries": "Retries"
       },
+      "filters": {
+        "source": "Source",
+        "allSources": "All sources"
+      },
       "manual": "Interactive console"
     },
     "executionStatus": {
       "EXECUTED": "Executed",
       "PENDING": "Pending",
       "FAILED": "Failed"
+    },
+    "executionOrigin": {
+      "FLOW": "Flow",
+      "MANUAL": "Manual"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agent offline",

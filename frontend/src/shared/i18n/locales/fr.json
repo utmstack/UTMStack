@@ -4748,12 +4748,20 @@
         "date": "Date",
         "retries": "Tentatives"
       },
+      "filters": {
+        "source": "Source",
+        "allSources": "Toutes les sources"
+      },
       "manual": "Console interactive"
     },
     "executionStatus": {
       "EXECUTED": "Exécuté",
       "PENDING": "En attente",
       "FAILED": "Échoué"
+    },
+    "executionOrigin": {
+      "FLOW": "Flux",
+      "MANUAL": "Manuel"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agent hors ligne",
