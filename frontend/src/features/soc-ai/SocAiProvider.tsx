@@ -1,7 +1,11 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { extractNavigation, streamChat, type NavAction } from './lib/chat-stream'
+import { extractNavigation, streamChat, type ChatHistoryTurn, type NavAction } from './lib/chat-stream'
+
+// How many prior text turns to replay to the backend as chat memory. Server-side
+// compaction will still trim if this exceeds the model context window.
+const HISTORY_LIMIT = 10
 
 export interface ToolStep {
   tool: string
@@ -114,8 +118,13 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       const page = pageContext(location.pathname)
       const lang = (i18n.language || 'en').split('-')[0]
 
+      const history: ChatHistoryTurn[] = current
+        .filter((m) => m.text && !m.error && !m.pending)
+        .slice(-HISTORY_LIMIT)
+        .map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
+
       streamChat(
-        { task: text, page, lang },
+        { task: text, page, lang, history },
         (ev) => {
           patchMsg(scope, aiId, (msg) => {
             switch (ev.kind) {
