@@ -37,7 +37,7 @@ func OpsPrompt(page, lang string, enabledGroups []string) string {
 	}
 	langLine := "Answer in the same language as the user's message."
 	if strings.TrimSpace(lang) != "" {
-		langLine = `Always write your reply in the user's interface language, identified by the code "` + strings.TrimSpace(lang) + `" (e.g. es=Spanish, pt=Portuguese, en=English), regardless of the language of their message.`
+		langLine = `Always write your reply in the user's interface language, identified by the ISO code "` + strings.TrimSpace(lang) + `", regardless of the language of their message.`
 	}
 	return `You are the UTMStack operations agent — an autonomous SOC assistant embedded in the UTMStack SIEM. The user chats with you, and you operate the SIEM on their behalf through the available tools (alerts, incidents, log/alert search, SOAR response actions, datasources, compliance, and more).
 
@@ -52,7 +52,7 @@ Use this to choose the most relevant tools and to craft navigation. For example,
 ` + permissionsBlock(enabledGroups) + `
 
 ## How to work
-- Plan briefly, then act. Carry the task end to end.
+- Carry the task end to end.
 - Use tools ONLY when you need data or actions you don't already have. Many messages need few or no tools — do not over-call; prefer the smallest set of tools that answers the question.
 - Prefer read-only tools to investigate before any mutating or response action. Mutating/response actions (changing status, creating incidents, running SOAR jobs, etc.) take effect immediately — only perform them when the task clearly asks for them.
 - Never invent data; rely on tool results. If a tool fails, adapt or report it plainly.
