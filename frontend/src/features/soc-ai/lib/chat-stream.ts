@@ -32,13 +32,21 @@ export interface NavAction {
   time?: string
 }
 
+/** A single prior chat turn replayed to the backend as context. Only user and
+ * assistant text turns are forwarded — tool_use/tool_result blocks are internal
+ * to a single Run() on the server and must not be replayed. */
+export interface ChatHistoryTurn {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 /**
  * Streams the SOC-AI chat agent over SSE. The backend (/soc-ai/chat) proxies the
  * plugin's agent and emits tool_call / tool_result / final / error events. Uses
  * fetch + ReadableStream because the shared axios client can't stream.
  */
 export async function streamChat(
-  body: { task: string; page?: string; lang?: string },
+  body: { task: string; page?: string; lang?: string; history?: ChatHistoryTurn[] },
   onEvent: (e: ChatEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {

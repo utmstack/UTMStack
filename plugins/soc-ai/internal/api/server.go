@@ -22,6 +22,16 @@ type AgentTaskRequest struct {
 	// Lang is the user's interface language code (en/es/pt/…) so the agent
 	// replies in that language regardless of the message language.
 	Lang string `json:"lang"`
+	// History is prior chat turns from the client (text only). Only user and
+	// assistant roles are accepted; tool_use/tool_result turns are internal to
+	// a single Run() and must not be replayed.
+	History []AgentTurn `json:"history,omitempty"`
+}
+
+// AgentTurn is a single prior chat message forwarded by the client.
+type AgentTurn struct {
+	Role    string `json:"role"` // "user" | "assistant"
+	Content string `json:"content"`
 }
 
 // AnalyzeRequest represents the request body for manual alert analysis
@@ -214,9 +224,36 @@ func handleAgentTask(w http.ResponseWriter, r *http.Request) {
 	_, _ = ag.Run(r.Context(), agent.RunTask{
 		System:        agent.OpsPrompt(req.Page, req.Lang, capabilities),
 		Input:         req.Task,
+		History:       toHistory(req.History),
 		EnabledGroups: capabilities,
 		MaxIters:      maxIters,
 	}, sink)
+}
+
+// toHistory converts client-supplied turns into agent.Message. Unknown roles
+// and empty content are dropped so a malformed client can't inject tool turns
+// or blank rows.
+func toHistory(turns []AgentTurn) []agent.Message {
+	if len(turns) == 0 {
+		return nil
+	}
+	out := make([]agent.Message, 0, len(turns))
+	for _, t := range turns {
+		if t.Content == "" {
+			continue
+		}
+		var role agent.Role
+		switch t.Role {
+		case "user":
+			role = agent.RoleUser
+		case "assistant":
+			role = agent.RoleAssistant
+		default:
+			continue
+		}
+		out = append(out, agent.Message{Role: role, Content: t.Content})
+	}
+	return out
 }
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
