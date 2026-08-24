@@ -7,6 +7,7 @@ import (
 	"net"
 	stdhttp "net/http"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -24,7 +25,7 @@ type HTTPCollector struct {
 	ctx       context.Context
 }
 
-type httpInstance struct {
+type httpConfig struct {
 	dataType        string
 	proto           string // "http" | "https"
 	port            string
@@ -33,8 +34,13 @@ type httpInstance struct {
 	auth            string // "" | "bearer" | "hmac"
 	signatureHeader string // e.g. "X-Hub-Signature-256"
 	tokenPath       string // path to token file (used by bearer and hmac)
-	server          *stdhttp.Server
-	listener        net.Listener
+}
+
+type httpInstance struct {
+	httpConfig
+
+	server   *stdhttp.Server
+	listener net.Listener
 }
 
 func New() *HTTPCollector {
@@ -74,29 +80,53 @@ func (h *HTTPCollector) reconcile() {
 	for name, integration := range cfg.Integrations {
 		if integration.HTTP != nil && integration.HTTP.Enabled {
 			key := name + ":http"
-			desired[key] = buildInstance(name, "http", integration.HTTP)
+			inst, err := buildInstance(name, "http", integration.HTTP)
+			if err != nil {
+				utils.Logger.ErrorF("http: skipping integration %s: %v", key, err)
+			} else {
+				desired[key] = inst
+			}
 		}
 		if integration.HTTPS != nil && integration.HTTPS.Enabled {
 			key := name + ":https"
-			desired[key] = buildInstance(name, "https", integration.HTTPS)
+			inst, err := buildInstance(name, "https", integration.HTTPS)
+			if err != nil {
+				utils.Logger.ErrorF("http: skipping integration %s: %v", key, err)
+			} else {
+				desired[key] = inst
+			}
 		}
 	}
 
-	for key, inst := range h.instances {
-		if _, ok := desired[key]; !ok {
-			shutdownInstance(inst)
-			delete(h.instances, key)
+	// Everything that must change goes down before anything comes up.
+	// Shutting down and restarting one key at a time cannot handle two
+	// integrations swapping ports: whichever is processed first fails to bind
+	// because the other still holds the port, and stays down until the next
+	// reconcile.
+	for key, running := range h.instances {
+		inst, wanted := desired[key]
+		// Compare the whole config: a presence check silently ignores port,
+		// path and auth edits. New fields must go in httpConfig, not here.
+		if wanted && running.httpConfig == inst.httpConfig {
+			continue
 		}
+		if wanted {
+			utils.Logger.Info("http[%s]: configuration changed, restarting on %s:%s%s (auth=%q)",
+				key, inst.bind, inst.port, inst.path, inst.auth)
+		}
+		shutdownInstance(running)
+		delete(h.instances, key)
 	}
 
 	for key, inst := range desired {
-		if _, running := h.instances[key]; !running {
-			if err := h.startInstance(inst); err != nil {
-				utils.Logger.ErrorF("http: failed to start %s: %v", key, err)
-				continue
-			}
-			h.instances[key] = inst
+		if _, isRunning := h.instances[key]; isRunning {
+			continue
 		}
+		if err := h.startInstance(inst); err != nil {
+			utils.Logger.ErrorF("http: failed to start %s: %v", key, err)
+			continue
+		}
+		h.instances[key] = inst
 	}
 }
 
@@ -149,18 +179,65 @@ func shutdownInstance(inst *httpInstance) {
 		defer cancel()
 		if err := inst.server.Shutdown(ctx); err != nil {
 			utils.Logger.ErrorF("http[%s:%s]: shutdown error: %v", inst.dataType, inst.proto, err)
+			if err := inst.server.Close(); err != nil {
+				utils.Logger.ErrorF("http[%s:%s]: force close error: %v", inst.dataType, inst.proto, err)
+			}
 		}
 	}
 }
 
-func buildInstance(name, proto string, port *schema.HTTPPort) *httpInstance {
+// defaultPath is used when the operator leaves the path empty.
+const defaultPath = "/logs"
+
+func normalizeAndValidatePath(path string) (normalized string, repaired bool, err error) {
+	if path == "" {
+		return defaultPath, false, nil
+	}
+
+	normalized = strings.TrimSpace(path)
+	if normalized == "" {
+		normalized = defaultPath
+	}
+
+	if i := strings.IndexAny(normalized, " \t"); i >= 0 {
+		return "", false, fmt.Errorf("invalid path %q: contains whitespace at offset %d; "+
+			"a URL path cannot contain a space or tab, and method-scoped patterns such as %q are not supported",
+			path, i, "GET /logs")
+	}
+
+	if !strings.HasPrefix(normalized, "/") {
+		normalized = "/" + normalized
+	}
+
+	if err := probeMuxPattern(normalized); err != nil {
+		return "", false, fmt.Errorf("invalid path %q: %w", path, err)
+	}
+
+	return normalized, normalized != path, nil
+}
+
+func probeMuxPattern(pattern string) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("rejected by http.ServeMux: %v", r)
+		}
+	}()
+	stdhttp.NewServeMux().Handle(pattern, stdhttp.NotFoundHandler())
+	return nil
+}
+
+func buildInstance(name, proto string, port *schema.HTTPPort) (*httpInstance, error) {
 	bind := port.Bind
 	if bind == "" {
 		bind = "127.0.0.1"
 	}
-	path := port.Path
-	if path == "" {
-		path = "/logs"
+	path, repaired, err := normalizeAndValidatePath(port.Path)
+	if err != nil {
+		return nil, err
+	}
+	if repaired {
+		utils.Logger.Info("http[%s:%s]: path %q is malformed and was read as %q; fix the integration configuration",
+			name, proto, port.Path, path)
 	}
 	sigHeader := port.SignatureHeader
 	if sigHeader == "" {
@@ -168,15 +245,17 @@ func buildInstance(name, proto string, port *schema.HTTPPort) *httpInstance {
 	}
 
 	return &httpInstance{
-		dataType:        name,
-		proto:           proto,
-		port:            port.Port,
-		path:            path,
-		bind:            bind,
-		auth:            port.Auth,
-		signatureHeader: sigHeader,
-		tokenPath:       tokenPath(name),
-	}
+		httpConfig: httpConfig{
+			dataType:        name,
+			proto:           proto,
+			port:            port.Port,
+			path:            path,
+			bind:            bind,
+			auth:            port.Auth,
+			signatureHeader: sigHeader,
+			tokenPath:       tokenPath(name),
+		},
+	}, nil
 }
 
 func tokenPath(name string) string {
