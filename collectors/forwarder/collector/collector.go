@@ -6,9 +6,9 @@ import (
 
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/file"
+	"github.com/utmstack/UTMStack/collectors/forwarder/collector/http"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/netflow"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/syslog"
-	listeners "github.com/utmstack/UTMStack/collectors/forwarder/listeners"
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
 
@@ -56,7 +56,7 @@ func StartAll(ctx context.Context) {
 	go runCollector(ctx, fileCollector, LogQueue)
 
 	// Create HTTP/HTTPS collector
-	httpColl := listeners.New()
+	httpColl := http.New()
 	activeCollectors = append(activeCollectors, httpColl)
 	go runCollector(ctx, httpColl, LogQueue)
 
@@ -85,5 +85,3 @@ func StopAll() {
 	activeCollectors = nil
 	utils.Logger.Info("All collectors stopped")
 }
-
-

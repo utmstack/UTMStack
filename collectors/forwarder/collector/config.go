@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/utmstack/UTMStack/collectors/forwarder/collector/http"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/schema"
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"
-	listeners "github.com/utmstack/UTMStack/collectors/forwarder/listeners"
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 	"github.com/utmstack/UTMStack/shared/fs"
 )
@@ -390,7 +390,7 @@ func EnableHTTPIntegration(logTyp string, opts HTTPIntegrationOptions) (string, 
 		tp := filepath.Join(config.HTTPTokenDir, "integration-http-"+logTyp+".token")
 		if _, statErr := os.Stat(tp); statErr != nil {
 			// Generate token when file doesn't exist or can't be read
-			token, genErr := listeners.GenerateTokenFile(tp)
+			token, genErr := http.GenerateTokenFile(tp)
 			if genErr != nil {
 				return "", fmt.Errorf("generate token: %w", genErr)
 			}
