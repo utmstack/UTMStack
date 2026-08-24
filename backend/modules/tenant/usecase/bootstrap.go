@@ -17,13 +17,13 @@ import (
 
 var defaultTenantID = uuid.MustParse(authz.DefaultTenantID)
 
-const (
-	defaultTenantName   = "UTMStack"
-	defaultTenantDomain = "localhost"
-)
+const defaultTenantName = "UTMStack"
 
 var ErrBootstrapPasswordRequired = errors.New(
 	"UTMSTACK_ADMIN_PASSWORD is required to create the initial administrator")
+
+var ErrBootstrapDomainRequired = errors.New(
+	"UTMSTACK_DEFAULT_DOMAIN is required to create the default tenant")
 
 type bootstrapUsecase struct {
 	repo  connectors.TenantRepository
@@ -34,7 +34,7 @@ func NewBootstrapUsecase(repo connectors.TenantRepository, admin connectors.User
 	return &bootstrapUsecase{repo: repo, admin: admin}
 }
 
-func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, adminPassword string) (bool, error) {
+func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, adminPassword, tenantDomain string) (bool, error) {
 	// Only the tenant table is read and written across tenants. The
 	// administrator is created on the plain context so the tenancy callback
 	// still stamps it: a context that spans every tenant belongs to none, and
@@ -52,11 +52,14 @@ func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, 
 	if adminPassword == "" {
 		return false, ErrBootstrapPasswordRequired
 	}
+	if tenantDomain == "" {
+		return false, ErrBootstrapDomainRequired
+	}
 
 	t := &domain.Tenant{
 		ID:     defaultTenantID,
 		Name:   defaultTenantName,
-		Domain: defaultTenantDomain,
+		Domain: tenantDomain,
 		Status: domain.StatusActive,
 	}
 	if err := u.repo.Create(all, t); err != nil {
