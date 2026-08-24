@@ -11,15 +11,24 @@ import (
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
 
-const (
-	// FallbackInterval is used as a safety net in case fsnotify misses events
-	FallbackInterval = 5 * time.Minute
-)
+// FallbackInterval is used as a safety net in case fsnotify misses events.
+const FallbackInterval = 5 * time.Minute
 
-// Watch monitors the collector config file for changes and calls onConfigChange
-// when the file is modified. It also calls onConfigChange periodically as a fallback.
-// This function blocks until ctx is cancelled.
+// Watch blocks until ctx is cancelled. collector.StopAll depends on that: the
+// return of a collector's Start is its signal that no reconcile is still in
+// flight. An implementation that returned early while the loop kept running in
+// the background would silently reintroduce the shutdown race.
 func Watch(ctx context.Context, name string, onConfigChange func()) {
+	// Check without blocking whether we were cancelled before doing any work:
+	// the initial onConfigChange below opens sockets, and a collector whose
+	// goroutine had not been scheduled yet when StopAll ran must not open them.
+	select {
+	case <-ctx.Done():
+		utils.Logger.Info("%s: stopping config watcher", name)
+		return
+	default:
+	}
+
 	// Initial call
 	onConfigChange()
 
