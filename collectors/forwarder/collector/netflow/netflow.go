@@ -225,12 +225,15 @@ func (nc *NetflowCollector) enablePort() {
 		return
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	portStr := nc.port
+
 	nc.isEnabled = true
 	nc.listener = listener
-	nc.ctx, nc.cancel = context.WithCancel(context.Background())
+	nc.ctx, nc.cancel = ctx, cancel
 	nc.mu.Unlock()
 
-	utils.Logger.Info("Server %s listening in port: %s protocol: UDP", nc.dataType, nc.port)
+	utils.Logger.Info("Server %s listening in port: %s protocol: UDP", nc.dataType, portStr)
 
 	buffer := make([]byte, 65535)
 
@@ -243,12 +246,12 @@ func (nc *NetflowCollector) enablePort() {
 
 		for {
 			select {
-			case <-nc.ctx.Done():
+			case <-ctx.Done():
 				return
 			default:
-				nc.listener.SetDeadline(time.Now().Add(1 * time.Second))
+				listener.SetDeadline(time.Now().Add(1 * time.Second))
 
-				length, addr, err := nc.listener.ReadFromUDP(buffer)
+				length, addr, err := listener.ReadFromUDP(buffer)
 				if err != nil {
 					if errors.Is(err, net.ErrClosed) {
 						return
