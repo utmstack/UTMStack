@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"strings"
+	"sync/atomic"
 
 	"github.com/google/uuid"
 
@@ -22,12 +25,10 @@ const defaultTenantName = "UTMStack"
 var ErrBootstrapPasswordRequired = errors.New(
 	"UTMSTACK_ADMIN_PASSWORD is required to create the initial administrator")
 
-var ErrBootstrapDomainRequired = errors.New(
-	"UTMSTACK_DEFAULT_DOMAIN is required to create the default tenant")
-
 type bootstrapUsecase struct {
-	repo  connectors.TenantRepository
-	admin connectors.UserProvisioner
+	repo   connectors.TenantRepository
+	admin  connectors.UserProvisioner
+	healed atomic.Bool
 }
 
 func NewBootstrapUsecase(repo connectors.TenantRepository, admin connectors.UserProvisioner) connectors.BootstrapUsecase {
@@ -46,14 +47,14 @@ func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, 
 		return false, fmt.Errorf("looking up the default tenant: %w", err)
 	}
 	if existing != nil {
+		if existing.Domain != "" {
+			u.healed.Store(true)
+		}
 		return false, nil
 	}
 
 	if adminPassword == "" {
 		return false, ErrBootstrapPasswordRequired
-	}
-	if tenantDomain == "" {
-		return false, ErrBootstrapDomainRequired
 	}
 
 	t := &domain.Tenant{
@@ -65,6 +66,9 @@ func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, 
 	if err := u.repo.Create(all, t); err != nil {
 		return false, fmt.Errorf("creating the default tenant: %w", err)
 	}
+	if tenantDomain != "" {
+		u.healed.Store(true)
+	}
 
 	if err := provisionAdmin(ctx, u.admin, t.ID, adminEmail, adminPassword, false); err != nil {
 		if delErr := u.repo.Delete(all, t.ID); delErr != nil {
@@ -73,6 +77,48 @@ func (u *bootstrapUsecase) EnsureDefaultTenant(ctx context.Context, adminEmail, 
 		return false, err
 	}
 	return true, nil
+}
+
+// TryHealDefaultDomain stamps the default tenant's Domain from the first
+// request's Host when UTMSTACK_DEFAULT_DOMAIN was not set at install time.
+// Runs at most once per process (atomic fast path), and no-ops once the row
+// already has a domain.
+func (u *bootstrapUsecase) TryHealDefaultDomain(ctx context.Context, host string) error {
+	if u.healed.Load() {
+		return nil
+	}
+	host = normalizeHealHost(host)
+	if host == "" {
+		return nil
+	}
+	all := tenancy.WithAllTenants(ctx)
+	t, err := u.repo.FindByID(all, defaultTenantID)
+	if err != nil || t == nil {
+		return err
+	}
+	if t.Domain != "" {
+		u.healed.Store(true)
+		return nil
+	}
+	t.Domain = host
+	if err := u.repo.Update(all, t); err != nil {
+		return err
+	}
+	u.healed.Store(true)
+	return nil
+}
+
+func normalizeHealHost(raw string) string {
+	// X-Forwarded-Host may carry a comma-separated chain; the first hop is the
+	// original client-facing hostname.
+	if i := strings.IndexByte(raw, ','); i >= 0 {
+		raw = raw[:i]
+	}
+	raw = strings.TrimSpace(raw)
+	if h, _, err := net.SplitHostPort(raw); err == nil {
+		raw = h
+	}
+	return strings.ToLower(raw)
 }
 
 func provisionAdmin(ctx context.Context, admin connectors.UserProvisioner, tenantID uuid.UUID, email, password string, invite bool) error {

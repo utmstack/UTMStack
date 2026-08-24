@@ -26,6 +26,7 @@ type UserProvisioner interface {
 
 type BootstrapUsecase interface {
 	EnsureDefaultTenant(ctx context.Context, adminEmail, adminPassword, domain string) (created bool, err error)
+	TryHealDefaultDomain(ctx context.Context, host string) error
 }
 
 type TenantUsecase interface {
