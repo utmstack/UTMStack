@@ -68,7 +68,9 @@ func (inst *syslogInstance) readLoop(ctx context.Context, reader *bufio.Reader, 
 	}
 }
 
-func (inst *syslogInstance) handleConnectionTCP(c net.Conn, queue chan *plugins.Log) {
+// ctx is a parameter on purpose: reading ctx here needs the
+// mutex and can latch onto the context of a listener installed by a later enable.
+func (inst *syslogInstance) handleConnectionTCP(ctx context.Context, c net.Conn, queue chan *plugins.Log) {
 	defer c.Close()
 	reader := bufio.NewReader(c)
 	remoteAddr := resolveRemoteAddr(c.RemoteAddr().String())
@@ -94,12 +96,12 @@ func (inst *syslogInstance) handleConnectionTCP(c net.Conn, queue chan *plugins.
 
 	msgChannel := make(chan MSGDS)
 	defer close(msgChannel)
-	go inst.handleMessage(inst.TCPListener.CTX, msgChannel, queue)
+	go inst.handleMessage(ctx, msgChannel, queue)
 
-	inst.readLoop(inst.TCPListener.CTX, reader, remoteAddr, msgChannel, nil)
+	inst.readLoop(ctx, reader, remoteAddr, msgChannel, nil)
 }
 
-func (inst *syslogInstance) handleTLSConnection(conn net.Conn, queue chan *plugins.Log) {
+func (inst *syslogInstance) handleTLSConnection(ctx context.Context, conn net.Conn, queue chan *plugins.Log) {
 	defer conn.Close()
 
 	remoteAddr := resolveRemoteAddr(conn.RemoteAddr().String())
@@ -124,9 +126,9 @@ func (inst *syslogInstance) handleTLSConnection(conn net.Conn, queue chan *plugi
 	reader := bufio.NewReader(tlsConn)
 	msgChannel := make(chan MSGDS)
 	defer close(msgChannel)
-	go inst.handleMessage(inst.TCPListener.CTX, msgChannel, queue)
+	go inst.handleMessage(ctx, msgChannel, queue)
 
-	inst.readLoop(inst.TCPListener.CTX, reader, remoteAddr, msgChannel, conn)
+	inst.readLoop(ctx, reader, remoteAddr, msgChannel, conn)
 }
 
 // handleMessage processes messages from the channel and sends them to the queue.
