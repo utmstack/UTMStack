@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/tls"
+	"errors"
 	"io"
 	"net"
 	"os"
@@ -49,17 +50,26 @@ func (inst *syslogInstance) readLoop(ctx context.Context, reader *bufio.Reader, 
 			}
 			message, err := readSyslogMessage(reader)
 			if err != nil {
-				if err == io.EOF {
+				if ctx.Err() != nil {
+					utils.Logger.Info("%s connection from %s released on shutdown", connType, remoteAddr)
+					return
+				}
+
+				if errors.Is(err, io.EOF) {
 					utils.Logger.Info("%s connection closed by %s", connType, remoteAddr)
 					return
 				}
-				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+
+				var netErr net.Error
+				if errors.As(err, &netErr) && netErr.Timeout() {
 					utils.Logger.Info("%s connection timeout from %s", connType, remoteAddr)
 					return
 				}
+
 				utils.Logger.ErrorF("error reading %s data from %s: %v", connType, remoteAddr, err)
 				return
 			}
+
 			// msgChannel is unbuffered and handleMessage returns on ctx.Done,
 			// so an unguarded send parks here forever and leaks the connection.
 			select {
@@ -74,7 +84,7 @@ func (inst *syslogInstance) readLoop(ctx context.Context, reader *bufio.Reader, 
 	}
 }
 
-// ctx is a parameter on purpose: reading ctx here needs the
+// ctx is a parameter on purpose: reading inst.TCPListener.CTX here needs the
 // mutex and can latch onto the context of a listener installed by a later enable.
 func (inst *syslogInstance) handleConnectionTCP(ctx context.Context, c net.Conn, queue chan *plugins.Log) {
 	defer c.Close()
@@ -147,7 +157,6 @@ func (inst *syslogInstance) handleTLSConnection(ctx context.Context, conn net.Co
 	inst.readLoop(ctx, reader, remoteAddr, msgChannel, conn)
 }
 
-// handleMessage processes messages from the channel and sends them to the queue.
 func (inst *syslogInstance) handleMessage(ctx context.Context, logsChannel chan MSGDS, queue chan *plugins.Log) {
 	for {
 		select {

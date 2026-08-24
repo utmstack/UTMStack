@@ -6,8 +6,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-
-	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
 
 // Buffer size constants for syslog message processing.
@@ -30,7 +28,6 @@ const (
 func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
 	firstByte, err := reader.Peek(1)
 	if err != nil {
-		utils.Logger.ErrorF("failed to peek first byte for framing detection: %v", err)
 		return 0, fmt.Errorf("failed to peek first byte: %w", err)
 	}
 
@@ -42,7 +39,6 @@ func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
 		return FramingNewline, nil
 	}
 
-	utils.Logger.ErrorF("unknown framing method detected, first byte: 0x%02x", firstByte[0])
 	return 0, fmt.Errorf("unknown framing method, first byte: 0x%02x", firstByte[0])
 }
 
@@ -50,30 +46,25 @@ func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
 func readOctetCountingFrame(reader *bufio.Reader) (string, error) {
 	lengthStr, err := reader.ReadString(' ')
 	if err != nil {
-		utils.Logger.ErrorF("failed to read message length in octet counting frame: %v", err)
 		return "", fmt.Errorf("failed to read message length: %w", err)
 	}
 
 	lengthStr = strings.TrimSuffix(lengthStr, " ")
 	msgLen, err := strconv.Atoi(lengthStr)
 	if err != nil {
-		utils.Logger.ErrorF("invalid message length '%s' in octet counting frame: %v", lengthStr, err)
 		return "", fmt.Errorf("invalid message length '%s': %w", lengthStr, err)
 	}
 
 	if msgLen < 1 {
-		utils.Logger.ErrorF("message length %d is too small (minimum 1 byte)", msgLen)
 		return "", fmt.Errorf("message length %d is too small (minimum 1)", msgLen)
 	}
 	if msgLen > MaxBufferSize {
-		utils.Logger.ErrorF("message length %d exceeds maximum %d bytes", msgLen, MaxBufferSize)
 		return "", fmt.Errorf("message length %d exceeds maximum %d", msgLen, MaxBufferSize)
 	}
 
 	msgBytes := make([]byte, msgLen)
 	_, err = io.ReadFull(reader, msgBytes)
 	if err != nil {
-		utils.Logger.ErrorF("failed to read %d byte message body: %v", msgLen, err)
 		return "", fmt.Errorf("failed to read %d byte message body: %w", msgLen, err)
 	}
 
@@ -84,7 +75,6 @@ func readOctetCountingFrame(reader *bufio.Reader) (string, error) {
 func readNewlineFrame(reader *bufio.Reader) (string, error) {
 	message, err := reader.ReadString('\n')
 	if err != nil {
-		utils.Logger.ErrorF("failed to read newline-delimited message: %v", err)
 		return "", fmt.Errorf("failed to read newline-delimited message: %w", err)
 	}
 	return message, nil
@@ -103,7 +93,6 @@ func readSyslogMessage(reader *bufio.Reader) (string, error) {
 	case FramingNewline:
 		return readNewlineFrame(reader)
 	default:
-		utils.Logger.ErrorF("unsupported framing method: %d", method)
 		return "", fmt.Errorf("unsupported framing method: %d", method)
 	}
 }
