@@ -135,32 +135,37 @@ func (inst *syslogInstance) enableTCP(queue chan *plugins.Log) {
 		return
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	port := inst.TCPListener.Port
+	tlsEnabled := inst.TCPListener.TLSEnabled
+
 	inst.TCPListener.IsEnabled = true
 	inst.TCPListener.Listener = listener
-	inst.TCPListener.CTX, inst.TCPListener.Cancel = context.WithCancel(context.Background())
+	inst.TCPListener.CTX, inst.TCPListener.Cancel = ctx, cancel
 	inst.mu.Unlock()
 
-	utils.Logger.Info("Server %s listening in port: %s protocol: TCP", inst.DataType, inst.TCPListener.Port)
-	if inst.TCPListener.TLSEnabled {
-		utils.Logger.Info("Server %s TLS enabled in port: %s protocol: TCP", inst.DataType, inst.TCPListener.Port)
+	utils.Logger.Info("Server %s listening in port: %s protocol: TCP", inst.DataType, port)
+	if tlsEnabled {
+		utils.Logger.Info("Server %s TLS enabled in port: %s protocol: TCP", inst.DataType, port)
 	}
 
+	// enableTCP/disableTCP own the listener; closing it here closes it twice.
+	// The panic path is the exception: nobody is accepting any more, so the
+	// socket must go down too. Leaving it open would keep accepting peers whose
+	// logs are never read, which loses data silently instead of failing loudly.
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
 				utils.Logger.ErrorF("panic in TCP listener for %s: %v", inst.DataType, r)
-			}
-			err = inst.TCPListener.Listener.Close()
-			if err != nil {
-				utils.Logger.ErrorF("error closing tcp listener: %v", err)
+				inst.disableTCP()
 			}
 		}()
 		for {
 			select {
-			case <-inst.TCPListener.CTX.Done():
+			case <-ctx.Done():
 				return
 			default:
-				conn, err := inst.TCPListener.Listener.Accept()
+				conn, err := listener.Accept()
 				if err != nil {
 					if errors.Is(err, net.ErrClosed) {
 						return
@@ -176,10 +181,10 @@ func (inst *syslogInstance) enableTCP(queue chan *plugins.Log) {
 					continue
 				}
 
-				if inst.TCPListener.TLSEnabled {
-					go inst.handleTLSConnection(conn, queue)
+				if tlsEnabled {
+					go inst.handleTLSConnection(ctx, conn, queue)
 				} else {
-					go inst.handleConnectionTCP(conn, queue)
+					go inst.handleConnectionTCP(ctx, conn, queue)
 				}
 			}
 		}
@@ -208,31 +213,34 @@ func (inst *syslogInstance) enableUDP(queue chan *plugins.Log) {
 		return
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	port := inst.UDPListener.Port
+
 	inst.UDPListener.IsEnabled = true
 	inst.UDPListener.Listener = listener
-	inst.UDPListener.CTX, inst.UDPListener.Cancel = context.WithCancel(context.Background())
+	inst.UDPListener.CTX, inst.UDPListener.Cancel = ctx, cancel
 	inst.mu.Unlock()
 
-	utils.Logger.Info("Server %s listening in port: %s protocol: UDP", inst.DataType, inst.UDPListener.Port)
+	utils.Logger.Info("Server %s listening in port: %s protocol: UDP", inst.DataType, port)
 
 	buffer := make([]byte, UDPBufferSize)
 	msgChannel := make(chan MSGDS)
 
-	go inst.handleMessage(inst.UDPListener.CTX, msgChannel, queue)
+	go inst.handleMessage(ctx, msgChannel, queue)
 
+	// enableUDP/disableUDP own the listener; closing it here closes it twice.
+	// The panic path is the exception: see enableTCP.
 	go func() {
 		defer close(msgChannel)
 		defer func() {
 			if r := recover(); r != nil {
 				utils.Logger.ErrorF("panic in UDP listener for %s: %v", inst.DataType, r)
-			}
-			if err := inst.UDPListener.Listener.Close(); err != nil {
-				utils.Logger.ErrorF("error closing udp listener: %v", err)
+				inst.disableUDP()
 			}
 		}()
 		for {
 			select {
-			case <-inst.UDPListener.CTX.Done():
+			case <-ctx.Done():
 				return
 			default:
 				udpListener.SetDeadline(time.Now().Add(time.Second * 1))
