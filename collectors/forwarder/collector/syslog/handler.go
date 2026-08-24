@@ -60,9 +60,15 @@ func (inst *syslogInstance) readLoop(ctx context.Context, reader *bufio.Reader, 
 				utils.Logger.ErrorF("error reading %s data from %s: %v", connType, remoteAddr, err)
 				return
 			}
-			msgChannel <- MSGDS{
+			// msgChannel is unbuffered and handleMessage returns on ctx.Done,
+			// so an unguarded send parks here forever and leaks the connection.
+			select {
+			case <-ctx.Done():
+				return
+			case msgChannel <- MSGDS{
 				DataSource: remoteAddr,
 				Message:    message,
+			}:
 			}
 		}
 	}
@@ -93,6 +99,16 @@ func (inst *syslogInstance) handleConnectionTCP(ctx context.Context, c net.Conn,
 	// Reset deadline and create a new reader that includes the read bytes
 	c.SetReadDeadline(time.Time{})
 	reader = bufio.NewReader(io.MultiReader(strings.NewReader(string(firstBytes[:n])), reader))
+
+	handlerDone := make(chan struct{})
+	defer close(handlerDone)
+	go func() {
+		select {
+		case <-ctx.Done():
+			_ = c.SetReadDeadline(time.Now())
+		case <-handlerDone:
+		}
+	}()
 
 	msgChannel := make(chan MSGDS)
 	defer close(msgChannel)
