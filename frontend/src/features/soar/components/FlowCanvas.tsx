@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Background,
   Controls,
-  MiniMap,
   ReactFlow,
   ReactFlowProvider,
   addEdge,
@@ -19,6 +18,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import { ChevronLeft, ChevronRight, PanelLeft, PanelRight } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { useTheme } from '@/shared/hooks/useTheme'
 import type { FlowNode, NodeKind } from '../types/soar.types'
 import { NodePalette } from './NodePalette'
 import { NodeInspector } from './NodeInspector'
@@ -49,6 +49,7 @@ export function FlowCanvas(props: Props) {
 function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
+  const { theme } = useTheme()
 
   // Layout positions are stashed by node id so they survive re-derivation
   // whenever the flow model updates. Fresh nodes get a top-down default.
@@ -359,15 +360,23 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
           onReconnectStart={onReconnectStart}
           onReconnectEnd={onReconnectEnd}
           onPaneClick={() => setSelectedId(null)}
+          colorMode={theme}
           nodesDraggable={!readOnly}
           nodesConnectable={!readOnly}
           edgesFocusable={!readOnly}
           fitView
           fitViewOptions={{ padding: 0.2 }}
           proOptions={{ hideAttribution: true }}
+          style={{
+            '--xy-background-color-default': 'var(--background)',
+            '--xy-controls-button-background-color-default': 'var(--card)',
+            '--xy-controls-button-background-color-hover-default': 'var(--muted)',
+            '--xy-controls-button-color-default': 'var(--foreground)',
+            '--xy-controls-button-color-hover-default': 'var(--foreground)',
+            '--xy-controls-button-border-color-default': 'var(--border)',
+          } as React.CSSProperties}
         >
           <Background gap={16} size={1} />
-          <MiniMap pannable zoomable nodeStrokeWidth={2} />
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
