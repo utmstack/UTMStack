@@ -118,7 +118,14 @@ func normalizeHealHost(raw string) string {
 	if h, _, err := net.SplitHostPort(raw); err == nil {
 		raw = h
 	}
-	return strings.ToLower(raw)
+	raw = strings.ToLower(raw)
+	// Single-label hosts ("backend", "localhost", any compose service name)
+	// are internal identities, never the public domain the admin browsed to.
+	// Real user-facing hosts are FQDNs (dotted) or bare IP literals.
+	if !strings.Contains(raw, ".") && net.ParseIP(raw) == nil {
+		return ""
+	}
+	return raw
 }
 
 func provisionAdmin(ctx context.Context, admin connectors.UserProvisioner, tenantID uuid.UUID, email, password string, invite bool) error {
