@@ -15,9 +15,10 @@ type InstallationUUID struct {
 
 type Config struct {
 	Server             string `yaml:"server"`
-	CollectorID  uint   `yaml:"collector-id"`
-	CollectorKey string `yaml:"collector-key"`
+	CollectorID        uint   `yaml:"collector-id"`
+	CollectorKey       string `yaml:"collector-key"`
 	SkipCertValidation bool   `yaml:"insecure"`
+	NoRemoteControl    bool   `yaml:"no-remote-control"`
 }
 
 var (
@@ -72,8 +73,8 @@ func SaveConfig(cnf *Config) error {
 
 	encryptConf := &Config{
 		Server:             cnf.Server,
-		CollectorID:  cnf.CollectorID,
-		CollectorKey: agentKey,
+		CollectorID:        cnf.CollectorID,
+		CollectorKey:       agentKey,
 		SkipCertValidation: cnf.SkipCertValidation,
 	}
 

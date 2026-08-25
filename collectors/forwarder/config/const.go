@@ -10,9 +10,9 @@ import (
 var REPLACE_KEY string
 
 var (
-	AgentManagerPort = "9000"
-	LogAuthProxyPort = "50051"
-	DependenciesPort = "9001"
+	AgentManagerPort = "443"
+	LogAuthProxyPort = "443"
+	DependenciesPort = "443"
 	DependUrl        = "https://%s:%s/private/dependencies/collector/%s"
 	VersionPath      = filepath.Join(fs.GetExecutablePath(), "version.json")
 

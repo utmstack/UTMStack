@@ -21,11 +21,17 @@ func StartCollectorConfigStream(cnf *config.Config, ctx context.Context) {
 
 		client := NewCollectorServiceClient(connection)
 
-		resyncResults, err := resyncCollectorConfig(client, cnf, ctx)
-		if err != nil {
-			LogConnectionError(err, "Collector Config (resync)", &connErrLogged)
-			time.Sleep(timeToSleep)
-			continue
+		// Both halves of remote configuration are refused here: the pull on
+		// connect and the push below. The stream itself stays up, because the
+		// server still has to be told this collector is alive.
+		var resyncResults []*ConfigKnowledge
+		if !cnf.NoRemoteControl {
+			resyncResults, err = resyncCollectorConfig(client, cnf, ctx)
+			if err != nil {
+				LogConnectionError(err, "Collector Config (resync)", &connErrLogged)
+				time.Sleep(timeToSleep)
+				continue
+			}
 		}
 
 		stream, err := client.CollectorStream(ctx)
@@ -65,6 +71,11 @@ func StartCollectorConfigStream(cnf *config.Config, ctx context.Context) {
 
 			pushed, ok := in.StreamMessage.(*CollectorMessages_Config)
 			if !ok || pushed.Config == nil {
+				continue
+			}
+
+			if cnf.NoRemoteControl {
+				utils.Logger.ErrorF("refused a configuration push: this collector was installed with no-remote-control")
 				continue
 			}
 

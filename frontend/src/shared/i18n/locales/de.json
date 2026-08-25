@@ -3384,7 +3384,8 @@
         "apiKeyLabel": "API-Schlüssel",
         "apiKeyPlaceholder": "API-Schlüssel auswählen",
         "apiKeyAddNew": "API-Schlüssel hinzufügen…",
-        "apiKeyNone": "Noch keine API-Schlüssel vorhanden"
+        "apiKeyNone": "Noch keine API-Schlüssel vorhanden",
+        "forwarderNoRemoteControl": "Dieser Forwarder wurde mit deaktivierter Fernsteuerung installiert. Er ignoriert von hier gesendete Konfiguration; das lässt sich nur auf dem Rechner selbst ändern."
       }
     },
     "codeBlock": {
@@ -3748,7 +3749,9 @@
       "disabled": "Agent offline — Befehle sind deaktiviert",
       "connError": "Verbindungsfehler",
       "cmdError": "Befehlsfehler",
-      "shellSelect": "Shell-Typ"
+      "shellSelect": "Shell-Typ",
+      "noRemoteControl": "Dieser Agent wurde mit deaktivierter Fernsteuerung installiert. Er lehnt Befehle ab; das lässt sich nur auf dem Rechner selbst ändern.",
+      "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert"
     },
     "health": {
       "online": "online",
@@ -4584,7 +4587,8 @@
       "loading": "Agenten werden geladen…",
       "loadError": "Agenten konnten nicht geladen werden.",
       "pickAgent": "Agent auswählen",
-      "pickAgentHint": "Wählen Sie einen Agenten aus der Liste, um seine interaktive Konsole zu öffnen."
+      "pickAgentHint": "Wählen Sie einen Agenten aus der Liste, um seine interaktive Konsole zu öffnen.",
+      "lockedAgent": "Fernsteuerung deaktiviert"
     },
     "search": "Flows suchen…",
     "refresh": "Aktualisieren",
@@ -4713,7 +4717,8 @@
       "noAgents": "Keine Agenten",
       "insertInto": "In Befehl {{n}} einfügen:",
       "insertField": "Alert-Feld",
-      "variables": "Variablen"
+      "variables": "Variablen",
+      "noRemoteControl": "ohne Fernsteuerung"
     },
     "executions": {
       "search": "Nach Alert-ID suchen…",

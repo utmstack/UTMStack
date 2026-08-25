@@ -12,11 +12,33 @@ server {
 }
 
 server {
-    listen 443 ssl;
+    # http2 so gRPC survives the hop. The old syntax rather than the http2
+    # directive: this nginx comes from the distro, and Ubuntu and RHEL both
+    # still ship versions that predate it.
+    listen 443 ssl http2;
     server_name _;
 
     set $utmstack http://127.0.0.1:10001;
     set $shared_key {{.SharedKey}};
+
+    # Agents speak gRPC, and proxy_pass below would answer them over HTTP/1.1,
+    # which cannot carry it. Handed to the router in one piece: every service
+    # is in the proto package "agent", and which one it is gets decided there.
+    location /agent. {
+        grpc_pass grpc://127.0.0.1:10001;
+        grpc_set_header x-shared-key $shared_key;
+        grpc_read_timeout 900;
+        grpc_send_timeout 900;
+    }
+
+    # log-input's ingest. Separate only because its proto package differs; the
+    # router behind decides which of the two it is.
+    location /plugins. {
+        grpc_pass grpc://127.0.0.1:10001;
+        grpc_set_header x-shared-key $shared_key;
+        grpc_read_timeout 900;
+        grpc_send_timeout 900;
+    }
 
     location / {
         proxy_pass  $utmstack;
@@ -74,11 +96,27 @@ server {
 }
 
 server {
-    listen 443 ssl;
+    listen 443 ssl http2;
     server_name _;
 
     set $utmstack http://127.0.0.1:10001;
     set $shared_key {{.SharedKey}};
+
+    location /agent. {
+        grpc_pass grpc://127.0.0.1:10001;
+        grpc_set_header x-shared-key $shared_key;
+        grpc_read_timeout 900;
+        grpc_send_timeout 900;
+    }
+
+    # log-input's ingest. Separate only because its proto package differs; the
+    # router behind decides which of the two it is.
+    location /plugins. {
+        grpc_pass grpc://127.0.0.1:10001;
+        grpc_set_header x-shared-key $shared_key;
+        grpc_read_timeout 900;
+        grpc_send_timeout 900;
+    }
 
     location / {
         proxy_pass  $utmstack;

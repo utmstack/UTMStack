@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"net/mail"
 	"strings"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -68,7 +69,7 @@ func GetAdminEmail() (string, error) {
 
 	containerID := containerIDs[0]
 
-	// The instance's administrator: the platform tenant's oldest active admin.
+	// The platform tenant's active administrators, oldest first.
 	// "admin@localhost" is the placeholder the backend creates when nobody
 	// supplied an address, so it is not an answer.
 	query := `SELECT u.email FROM "user" u ` +
@@ -76,15 +77,39 @@ func GetAdminEmail() (string, error) {
 		`JOIN role r ON r.id = ur.role_id AND r.name = 'ROLE_ADMIN' ` +
 		`WHERE u.tenant_id = '` + defaultTenantID + `' ` +
 		`AND u.status = 'active' AND u.email <> 'admin@localhost' ` +
-		`ORDER BY u.created_at LIMIT 1`
+		`ORDER BY u.created_at`
 	output, err := utils.RunCmdWithOutput("docker", "exec", containerID, "psql", "-U", "postgres", "-d", "utmstack", "-t", "-c", query)
 	if err != nil {
 		return "", fmt.Errorf("error executing query: %v", err)
 	}
 
-	if len(output) == 0 {
+	return firstAdminEmail(output)
+}
+
+func firstAdminEmail(rows []string) (string, error) {
+	var rejected []string
+	for _, row := range rows {
+		if strings.TrimSpace(row) == "" {
+			continue
+		}
+		email, err := adminEmailFrom(row)
+		if err == nil {
+			return email, nil
+		}
+		rejected = append(rejected, strings.TrimSpace(row))
+	}
+	if len(rejected) == 0 {
 		return "", nil
 	}
+	return "", fmt.Errorf("no administrator has an email address (found %s), so this instance cannot be registered upstream; give one of them a real address, or add an administrator that has one",
+		strings.Join(rejected, ", "))
+}
 
-	return output[0], nil
+func adminEmailFrom(raw string) (string, error) {
+	raw = strings.TrimSpace(raw)
+	addr, err := mail.ParseAddress(raw)
+	if err != nil {
+		return "", fmt.Errorf("the platform administrator has %q where an email address goes; set one so this instance can be registered upstream", raw)
+	}
+	return addr.Address, nil
 }

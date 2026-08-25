@@ -3485,7 +3485,8 @@
         "apiKeyLabel": "API key",
         "apiKeyPlaceholder": "Select an API key",
         "apiKeyAddNew": "Add API key…",
-        "apiKeyNone": "No API keys yet"
+        "apiKeyNone": "No API keys yet",
+        "forwarderNoRemoteControl": "This forwarder was installed with remote control disabled. It ignores configuration sent from here, which can only be changed on the machine itself."
       }
     },
     "codeBlock": {
@@ -3833,7 +3834,9 @@
       "disabled": "Agent offline — commands are disabled",
       "connError": "Connection error",
       "cmdError": "Command error",
-      "shellSelect": "Shell type"
+      "shellSelect": "Shell type",
+      "noRemoteControl": "This agent was installed with remote control disabled. It refuses commands, and that can only be changed on the machine itself.",
+      "noRemoteControlShort": "Remote control disabled on this agent"
     },
     "sensitivity": {
       "section": "Asset sensitivity",
@@ -4970,7 +4973,8 @@
       "loading": "Loading agents…",
       "loadError": "Could not load agents.",
       "pickAgent": "Select an agent",
-      "pickAgentHint": "Choose an agent from the list to open its interactive console."
+      "pickAgentHint": "Choose an agent from the list to open its interactive console.",
+      "lockedAgent": "Remote control disabled"
     },
     "search": "Search flows…",
     "refresh": "Refresh",
@@ -5099,7 +5103,8 @@
       "noAgents": "No agents",
       "insertInto": "Insert into command {{n}}:",
       "insertField": "Alert field",
-      "variables": "Variables"
+      "variables": "Variables",
+      "noRemoteControl": "no remote control"
     },
     "executions": {
       "search": "Search by alert ID…",

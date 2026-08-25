@@ -12,7 +12,7 @@ interface AgentSetupProps {
   integration: Integration
 }
 
-const AGENT_PORTS = ['9000', '9001', '50051']
+const AGENT_PORTS = ['443']
 
 export function AgentSetup({ integration: i }: AgentSetupProps) {
   const { t } = useTranslation()
@@ -61,7 +61,7 @@ export function AgentSetup({ integration: i }: AgentSetupProps) {
       </Section>
 
       {/* Step 1 (legacy parity): pre-installation requirements — the agent talks
-          to UTMStack over 9000 / 9001 / 50051. */}
+          to UTMStack over 443, the port their network already allows. */}
       <Section title={t('integrations.setup.agent.prereqTitle')} step={1}>
         <p className="mb-2 text-sm text-foreground/90">
           {t('integrations.setup.agent.prereqBody', { ports: AGENT_PORTS.join(', ') })}

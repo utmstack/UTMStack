@@ -9,6 +9,7 @@ service CollectorService {
   rpc RegisterCollector(RegisterRequest) returns (AuthResponse) {}
   rpc DeleteCollector(DeleteRequest) returns (AuthResponse) {}
   rpc ListCollector (ListRequest) returns (ListCollectorResponse) {}
+  rpc GetCollectorAuth (ConnectorAuthRequest) returns (ConnectorAuthResponse) {}
   rpc CollectorStream(stream CollectorMessages) returns (stream CollectorMessages) {}
   rpc GetCollectorConfig(ConfigRequest) returns (CollectorConfig) {}
   rpc SetCollectorConfig(CollectorConfig) returns (ConfigKnowledge) {}
@@ -26,6 +27,10 @@ message RegisterRequest {
   string hostname = 2;
   string version = 3;
   CollectorModule collector = 4;
+  // Same stance as an agent's, and the same reason for reporting it: so the
+  // console can say so. What a collector refuses is configuration rather than
+  // commands, because configuration is the only thing the server sends it.
+  bool no_remote_control = 5;
 }
 
 message ListCollectorResponse {
@@ -43,6 +48,7 @@ message Collector {
   CollectorModule module = 7;
   string last_seen = 8;
   string tenant_id = 9;
+  bool no_remote_control = 10;
 }
 
 message CollectorMessages {

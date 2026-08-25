@@ -12,15 +12,26 @@ import (
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
 
+func init() {
+	installCmd.Flags().Bool("no-remote-control", false,
+		"ignore configuration pushed from the server; can only be undone by reinstalling here")
+}
+
 var installCmd = &cobra.Command{
 	Use:     "install <server_address> <utm_key> <skip_cert_validation(yes/no)>",
 	Short:   "Install the UTMStackForwarder service",
 	Args:    cobra.ExactArgs(3),
 	PreRunE: requireNotInstalled,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		noRemoteControl, err := cmd.Flags().GetBool("no-remote-control")
+		if err != nil {
+			return err
+		}
+
 		cnf := &config.Config{
 			Server:             args[0],
 			SkipCertValidation: args[2] == "yes",
+			NoRemoteControl:    noRemoteControl,
 		}
 		utmKey := args[1]
 

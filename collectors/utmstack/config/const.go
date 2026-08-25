@@ -18,10 +18,14 @@ const (
 )
 
 var (
+	// Everything the server exposes now answers on 443, behind the edge that
+	// routes by path: gRPC by its /package.Service/ prefix, downloads by theirs.
+	// One port is what a customer has to open, and it is the one their network
+	// already allows.
 	DependUrl        = "https://%s:%s/private/dependencies/collector/%s"
-	AgentManagerPort = "9000"
-	LogAuthProxyPort = "50051"
-	DependenciesPort = "9001"
+	AgentManagerPort = "443"
+	LogAuthProxyPort = "443"
+	DependenciesPort = "443"
 
 	ServiceLogFile    = filepath.Join(utils.GetMyPath(), "logs", "utmstack_collector.log")
 	UUIDFileName      = filepath.Join(utils.GetMyPath(), "uuid.yml")

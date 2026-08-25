@@ -12,6 +12,7 @@ service AgentService {
   rpc UpdateAgent(AgentRequest) returns  (AuthResponse) {}
   rpc DeleteAgent(DeleteRequest) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+  rpc GetAgentAuth (ConnectorAuthRequest) returns (ConnectorAuthResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
   rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
 }
@@ -51,6 +52,7 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
+  bool no_remote_control = 12;
 }
 
 message ListAgentsResponse {
@@ -74,6 +76,7 @@ message Agent {
   string aliases = 13;
   string addresses = 14;
   string tenant_id = 15;
+  bool no_remote_control = 16;
 }
 
 message BidirectionalStream {

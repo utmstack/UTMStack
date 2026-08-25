@@ -67,6 +67,20 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	var errB bool
 
 	utils.Logger.LogF(100, "Received command: %s (shell: %s)", command, shell)
+	if cnf.NoRemoteControl {
+		const refused = "refused: this agent was installed with no-remote-control"
+		utils.Logger.ErrorF("%s (command: %s)", refused, command)
+		return stream.Send(&BidirectionalStream{
+			StreamMessage: &BidirectionalStream_Result{
+				Result: &CommandResult{
+					Result:     refused,
+					AgentId:    strconv.Itoa(int(cnf.AgentID)),
+					ExecutedAt: timestamppb.Now(),
+					CmdId:      cmdId,
+				},
+			},
+		})
+	}
 
 	switch runtime.GOOS {
 	case "windows":

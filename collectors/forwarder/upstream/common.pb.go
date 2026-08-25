@@ -117,11 +117,14 @@ func (ConnectorType) EnumDescriptor() ([]byte, []int) {
 }
 
 type ListRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageNumber    int32                  `protobuf:"varint,1,opt,name=page_number,json=pageNumber,proto3" json:"page_number,omitempty"`
-	PageSize      int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	SearchQuery   string                 `protobuf:"bytes,3,opt,name=search_query,json=searchQuery,proto3" json:"search_query,omitempty"`
-	SortBy        string                 `protobuf:"bytes,4,opt,name=sort_by,json=sortBy,proto3" json:"sort_by,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	PageNumber  int32                  `protobuf:"varint,1,opt,name=page_number,json=pageNumber,proto3" json:"page_number,omitempty"`
+	PageSize    int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	SearchQuery string                 `protobuf:"bytes,3,opt,name=search_query,json=searchQuery,proto3" json:"search_query,omitempty"`
+	SortBy      string                 `protobuf:"bytes,4,opt,name=sort_by,json=sortBy,proto3" json:"sort_by,omitempty"`
+	// Which tenant to list. Empty means every tenant, which only the platform
+	// may ask for; a tenant-scoped caller always sets it.
+	TenantId      string `protobuf:"bytes,5,opt,name=tenantId,proto3" json:"tenantId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -180,6 +183,13 @@ func (x *ListRequest) GetSearchQuery() string {
 func (x *ListRequest) GetSortBy() string {
 	if x != nil {
 		return x.SortBy
+	}
+	return ""
+}
+
+func (x *ListRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
 	}
 	return ""
 }
@@ -280,23 +290,125 @@ func (x *DeleteRequest) GetDeletedBy() string {
 	return ""
 }
 
+type ConnectorAuthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectorAuthRequest) Reset() {
+	*x = ConnectorAuthRequest{}
+	mi := &file_common_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectorAuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectorAuthRequest) ProtoMessage() {}
+
+func (x *ConnectorAuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectorAuthRequest.ProtoReflect.Descriptor instead.
+func (*ConnectorAuthRequest) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ConnectorAuthRequest) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ConnectorAuthResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	TenantId      string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectorAuthResponse) Reset() {
+	*x = ConnectorAuthResponse{}
+	mi := &file_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectorAuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectorAuthResponse) ProtoMessage() {}
+
+func (x *ConnectorAuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectorAuthResponse.ProtoReflect.Descriptor instead.
+func (*ConnectorAuthResponse) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ConnectorAuthResponse) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ConnectorAuthResponse) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
 var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\x05agent\"\x87\x01\n" +
+	"\fcommon.proto\x12\x05agent\"\xa3\x01\n" +
 	"\vListRequest\x12\x1f\n" +
 	"\vpage_number\x18\x01 \x01(\x05R\n" +
 	"pageNumber\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12!\n" +
 	"\fsearch_query\x18\x03 \x01(\tR\vsearchQuery\x12\x17\n" +
-	"\asort_by\x18\x04 \x01(\tR\x06sortBy\"0\n" +
+	"\asort_by\x18\x04 \x01(\tR\x06sortBy\x12\x1a\n" +
+	"\btenantId\x18\x05 \x01(\tR\btenantId\"0\n" +
 	"\fAuthResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\".\n" +
 	"\rDeleteRequest\x12\x1d\n" +
 	"\n" +
-	"deleted_by\x18\x01 \x01(\tR\tdeletedBy*.\n" +
+	"deleted_by\x18\x01 \x01(\tR\tdeletedBy\"&\n" +
+	"\x14ConnectorAuthRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\"F\n" +
+	"\x15ConnectorAuthResponse\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId*.\n" +
 	"\x06Status\x12\n" +
 	"\n" +
 	"\x06ONLINE\x10\x00\x12\v\n" +
@@ -319,13 +431,15 @@ func file_common_proto_rawDescGZIP() []byte {
 }
 
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_common_proto_goTypes = []any{
-	(Status)(0),           // 0: agent.Status
-	(ConnectorType)(0),    // 1: agent.ConnectorType
-	(*ListRequest)(nil),   // 2: agent.ListRequest
-	(*AuthResponse)(nil),  // 3: agent.AuthResponse
-	(*DeleteRequest)(nil), // 4: agent.DeleteRequest
+	(Status)(0),                   // 0: agent.Status
+	(ConnectorType)(0),            // 1: agent.ConnectorType
+	(*ListRequest)(nil),           // 2: agent.ListRequest
+	(*AuthResponse)(nil),          // 3: agent.AuthResponse
+	(*DeleteRequest)(nil),         // 4: agent.DeleteRequest
+	(*ConnectorAuthRequest)(nil),  // 5: agent.ConnectorAuthRequest
+	(*ConnectorAuthResponse)(nil), // 6: agent.ConnectorAuthResponse
 }
 var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -346,7 +460,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -23,6 +23,7 @@ const (
 	AgentService_UpdateAgent_FullMethodName       = "/agent.AgentService/UpdateAgent"
 	AgentService_DeleteAgent_FullMethodName       = "/agent.AgentService/DeleteAgent"
 	AgentService_ListAgents_FullMethodName        = "/agent.AgentService/ListAgents"
+	AgentService_GetAgentAuth_FullMethodName      = "/agent.AgentService/GetAgentAuth"
 	AgentService_AgentStream_FullMethodName       = "/agent.AgentService/AgentStream"
 	AgentService_ListAgentCommands_FullMethodName = "/agent.AgentService/ListAgentCommands"
 )
@@ -35,6 +36,7 @@ type AgentServiceClient interface {
 	UpdateAgent(ctx context.Context, in *AgentRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	DeleteAgent(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListAgents(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
+	GetAgentAuth(ctx context.Context, in *ConnectorAuthRequest, opts ...grpc.CallOption) (*ConnectorAuthResponse, error)
 	AgentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[BidirectionalStream, BidirectionalStream], error)
 	ListAgentCommands(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsCommandsResponse, error)
 }
@@ -87,6 +89,16 @@ func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListRequest, op
 	return out, nil
 }
 
+func (c *agentServiceClient) GetAgentAuth(ctx context.Context, in *ConnectorAuthRequest, opts ...grpc.CallOption) (*ConnectorAuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectorAuthResponse)
+	err := c.cc.Invoke(ctx, AgentService_GetAgentAuth_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentServiceClient) AgentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[BidirectionalStream, BidirectionalStream], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[0], AgentService_AgentStream_FullMethodName, cOpts...)
@@ -118,6 +130,7 @@ type AgentServiceServer interface {
 	UpdateAgent(context.Context, *AgentRequest) (*AuthResponse, error)
 	DeleteAgent(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error)
+	GetAgentAuth(context.Context, *ConnectorAuthRequest) (*ConnectorAuthResponse, error)
 	AgentStream(grpc.BidiStreamingServer[BidirectionalStream, BidirectionalStream]) error
 	ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
@@ -141,6 +154,9 @@ func (UnimplementedAgentServiceServer) DeleteAgent(context.Context, *DeleteReque
 }
 func (UnimplementedAgentServiceServer) ListAgents(context.Context, *ListRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
+}
+func (UnimplementedAgentServiceServer) GetAgentAuth(context.Context, *ConnectorAuthRequest) (*ConnectorAuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAgentAuth not implemented")
 }
 func (UnimplementedAgentServiceServer) AgentStream(grpc.BidiStreamingServer[BidirectionalStream, BidirectionalStream]) error {
 	return status.Errorf(codes.Unimplemented, "method AgentStream not implemented")
@@ -241,6 +257,24 @@ func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_GetAgentAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectorAuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).GetAgentAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_GetAgentAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).GetAgentAuth(ctx, req.(*ConnectorAuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AgentService_AgentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(AgentServiceServer).AgentStream(&grpc.GenericServerStream[BidirectionalStream, BidirectionalStream]{ServerStream: stream})
 }
@@ -288,6 +322,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgents",
 			Handler:    _AgentService_ListAgents_Handler,
+		},
+		{
+			MethodName: "GetAgentAuth",
+			Handler:    _AgentService_GetAgentAuth_Handler,
 		},
 		{
 			MethodName: "ListAgentCommands",

@@ -18,6 +18,7 @@ type Config struct {
 	AgentID            uint   `yaml:"agent-id"`
 	AgentKey           string `yaml:"agent-key"`
 	SkipCertValidation bool   `yaml:"insecure"`
+	NoRemoteControl    bool   `yaml:"no-remote-control"`
 }
 
 var (

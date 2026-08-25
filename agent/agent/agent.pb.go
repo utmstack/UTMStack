@@ -78,7 +78,9 @@ func (AgentCommandStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type ConnectionKeyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Which tenant's enrolment key. Empty means the default tenant.
+	TenantId      string `protobuf:"bytes,1,opt,name=tenantId,proto3" json:"tenantId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -111,6 +113,13 @@ func (x *ConnectionKeyRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ConnectionKeyRequest.ProtoReflect.Descriptor instead.
 func (*ConnectionKeyRequest) Descriptor() ([]byte, []int) {
 	return file_agent_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ConnectionKeyRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
 }
 
 type ConnectionKeyResponse struct {
@@ -170,8 +179,13 @@ type AgentRequest struct {
 	OsMinorVersion string                 `protobuf:"bytes,9,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
 	Aliases        string                 `protobuf:"bytes,10,opt,name=aliases,proto3" json:"aliases,omitempty"`
 	Addresses      string                 `protobuf:"bytes,11,opt,name=addresses,proto3" json:"addresses,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Set at install and never changed from here. It is reported so the console
+	// can show that this machine refuses commands; the refusal itself happens in
+	// the agent, because a flag the server honours is worth nothing against a
+	// server that has been taken over.
+	NoRemoteControl bool `protobuf:"varint,12,opt,name=no_remote_control,json=noRemoteControl,proto3" json:"no_remote_control,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AgentRequest) Reset() {
@@ -281,6 +295,13 @@ func (x *AgentRequest) GetAddresses() string {
 	return ""
 }
 
+func (x *AgentRequest) GetNoRemoteControl() bool {
+	if x != nil {
+		return x.NoRemoteControl
+	}
+	return false
+}
+
 type ListAgentsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Rows          []*Agent               `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows,omitempty"`
@@ -334,23 +355,25 @@ func (x *ListAgentsResponse) GetTotal() int32 {
 }
 
 type Agent struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Ip             string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	Hostname       string                 `protobuf:"bytes,2,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	Os             string                 `protobuf:"bytes,3,opt,name=os,proto3" json:"os,omitempty"`
-	Status         Status                 `protobuf:"varint,4,opt,name=status,proto3,enum=agent.Status" json:"status,omitempty"`
-	Platform       string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
-	Version        string                 `protobuf:"bytes,6,opt,name=version,proto3" json:"version,omitempty"`
-	AgentKey       string                 `protobuf:"bytes,7,opt,name=agent_key,json=agentKey,proto3" json:"agent_key,omitempty"`
-	Id             uint32                 `protobuf:"varint,8,opt,name=id,proto3" json:"id,omitempty"`
-	LastSeen       string                 `protobuf:"bytes,9,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
-	Mac            string                 `protobuf:"bytes,10,opt,name=mac,proto3" json:"mac,omitempty"`
-	OsMajorVersion string                 `protobuf:"bytes,11,opt,name=os_major_version,json=osMajorVersion,proto3" json:"os_major_version,omitempty"`
-	OsMinorVersion string                 `protobuf:"bytes,12,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
-	Aliases        string                 `protobuf:"bytes,13,opt,name=aliases,proto3" json:"aliases,omitempty"`
-	Addresses      string                 `protobuf:"bytes,14,opt,name=addresses,proto3" json:"addresses,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Ip              string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	Hostname        string                 `protobuf:"bytes,2,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Os              string                 `protobuf:"bytes,3,opt,name=os,proto3" json:"os,omitempty"`
+	Status          Status                 `protobuf:"varint,4,opt,name=status,proto3,enum=agent.Status" json:"status,omitempty"`
+	Platform        string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
+	Version         string                 `protobuf:"bytes,6,opt,name=version,proto3" json:"version,omitempty"`
+	AgentKey        string                 `protobuf:"bytes,7,opt,name=agent_key,json=agentKey,proto3" json:"agent_key,omitempty"`
+	Id              uint32                 `protobuf:"varint,8,opt,name=id,proto3" json:"id,omitempty"`
+	LastSeen        string                 `protobuf:"bytes,9,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	Mac             string                 `protobuf:"bytes,10,opt,name=mac,proto3" json:"mac,omitempty"`
+	OsMajorVersion  string                 `protobuf:"bytes,11,opt,name=os_major_version,json=osMajorVersion,proto3" json:"os_major_version,omitempty"`
+	OsMinorVersion  string                 `protobuf:"bytes,12,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
+	Aliases         string                 `protobuf:"bytes,13,opt,name=aliases,proto3" json:"aliases,omitempty"`
+	Addresses       string                 `protobuf:"bytes,14,opt,name=addresses,proto3" json:"addresses,omitempty"`
+	TenantId        string                 `protobuf:"bytes,15,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	NoRemoteControl bool                   `protobuf:"varint,16,opt,name=no_remote_control,json=noRemoteControl,proto3" json:"no_remote_control,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Agent) Reset() {
@@ -479,6 +502,20 @@ func (x *Agent) GetAddresses() string {
 		return x.Addresses
 	}
 	return ""
+}
+
+func (x *Agent) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *Agent) GetNoRemoteControl() bool {
+	if x != nil {
+		return x.NoRemoteControl
+	}
+	return false
 }
 
 type BidirectionalStream struct {
@@ -911,10 +948,11 @@ var File_agent_proto protoreflect.FileDescriptor
 
 const file_agent_proto_rawDesc = "" +
 	"\n" +
-	"\vagent.proto\x12\x05agent\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fcommon.proto\"\x16\n" +
-	"\x14ConnectionKeyRequest\">\n" +
+	"\vagent.proto\x12\x05agent\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fcommon.proto\"2\n" +
+	"\x14ConnectionKeyRequest\x12\x1a\n" +
+	"\btenantId\x18\x01 \x01(\tR\btenantId\">\n" +
 	"\x15ConnectionKeyResponse\x12%\n" +
-	"\x0econnection_key\x18\x01 \x01(\tR\rconnectionKey\"\xbf\x02\n" +
+	"\x0econnection_key\x18\x01 \x01(\tR\rconnectionKey\"\xeb\x02\n" +
 	"\fAgentRequest\x12\x0e\n" +
 	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x1a\n" +
 	"\bhostname\x18\x02 \x01(\tR\bhostname\x12\x0e\n" +
@@ -928,10 +966,11 @@ const file_agent_proto_rawDesc = "" +
 	"\x10os_minor_version\x18\t \x01(\tR\x0eosMinorVersion\x12\x18\n" +
 	"\aaliases\x18\n" +
 	" \x01(\tR\aaliases\x12\x1c\n" +
-	"\taddresses\x18\v \x01(\tR\taddresses\"L\n" +
+	"\taddresses\x18\v \x01(\tR\taddresses\x12*\n" +
+	"\x11no_remote_control\x18\f \x01(\bR\x0fnoRemoteControl\"L\n" +
 	"\x12ListAgentsResponse\x12 \n" +
 	"\x04rows\x18\x01 \x03(\v2\f.agent.AgentR\x04rows\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x88\x03\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xd1\x03\n" +
 	"\x05Agent\x12\x0e\n" +
 	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x1a\n" +
 	"\bhostname\x18\x02 \x01(\tR\bhostname\x12\x0e\n" +
@@ -947,7 +986,9 @@ const file_agent_proto_rawDesc = "" +
 	"\x10os_major_version\x18\v \x01(\tR\x0eosMajorVersion\x12(\n" +
 	"\x10os_minor_version\x18\f \x01(\tR\x0eosMinorVersion\x12\x18\n" +
 	"\aaliases\x18\r \x01(\tR\aaliases\x12\x1c\n" +
-	"\taddresses\x18\x0e \x01(\tR\taddresses\"\x86\x01\n" +
+	"\taddresses\x18\x0e \x01(\tR\taddresses\x12\x1b\n" +
+	"\ttenant_id\x18\x0f \x01(\tR\btenantId\x12*\n" +
+	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\x86\x01\n" +
 	"\x13BidirectionalStream\x12-\n" +
 	"\acommand\x18\x01 \x01(\v2\x11.agent.UtmCommandH\x00R\acommand\x12.\n" +
 	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06resultB\x10\n" +
@@ -995,13 +1036,14 @@ const file_agent_proto_rawDesc = "" +
 	"\x05QUEUE\x10\x01\x12\v\n" +
 	"\aPENDING\x10\x02\x12\f\n" +
 	"\bEXECUTED\x10\x03\x12\t\n" +
-	"\x05ERROR\x10\x042\x9c\x03\n" +
+	"\x05ERROR\x10\x042\xe9\x03\n" +
 	"\fAgentService\x12;\n" +
 	"\rRegisterAgent\x12\x13.agent.AgentRequest\x1a\x13.agent.AuthResponse\"\x00\x129\n" +
 	"\vUpdateAgent\x12\x13.agent.AgentRequest\x1a\x13.agent.AuthResponse\"\x00\x12:\n" +
 	"\vDeleteAgent\x12\x14.agent.DeleteRequest\x1a\x13.agent.AuthResponse\"\x00\x12=\n" +
 	"\n" +
 	"ListAgents\x12\x12.agent.ListRequest\x1a\x19.agent.ListAgentsResponse\"\x00\x12K\n" +
+	"\fGetAgentAuth\x12\x1b.agent.ConnectorAuthRequest\x1a\x1c.agent.ConnectorAuthResponse\"\x00\x12K\n" +
 	"\vAgentStream\x12\x1a.agent.BidirectionalStream\x1a\x1a.agent.BidirectionalStream\"\x00(\x010\x01\x12L\n" +
 	"\x11ListAgentCommands\x12\x12.agent.ListRequest\x1a!.agent.ListAgentsCommandsResponse\"\x002\xf4\x01\n" +
 	"\fPanelService\x12?\n" +
@@ -1039,7 +1081,9 @@ var file_agent_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),      // 12: google.protobuf.Timestamp
 	(*DeleteRequest)(nil),              // 13: agent.DeleteRequest
 	(*ListRequest)(nil),                // 14: agent.ListRequest
-	(*AuthResponse)(nil),               // 15: agent.AuthResponse
+	(*ConnectorAuthRequest)(nil),       // 15: agent.ConnectorAuthRequest
+	(*AuthResponse)(nil),               // 16: agent.AuthResponse
+	(*ConnectorAuthResponse)(nil),      // 17: agent.ConnectorAuthResponse
 }
 var file_agent_proto_depIdxs = []int32{
 	5,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
@@ -1055,22 +1099,24 @@ var file_agent_proto_depIdxs = []int32{
 	3,  // 10: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
 	13, // 11: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
 	14, // 12: agent.AgentService.ListAgents:input_type -> agent.ListRequest
-	6,  // 13: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
-	14, // 14: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
-	7,  // 15: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
-	1,  // 16: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
-	1,  // 17: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
-	15, // 18: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
-	15, // 19: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
-	15, // 20: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
-	4,  // 21: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
-	6,  // 22: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
-	9,  // 23: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
-	8,  // 24: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
-	2,  // 25: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
-	2,  // 26: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
-	18, // [18:27] is the sub-list for method output_type
-	9,  // [9:18] is the sub-list for method input_type
+	15, // 13: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
+	6,  // 14: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
+	14, // 15: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
+	7,  // 16: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
+	1,  // 17: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
+	1,  // 18: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
+	16, // 19: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
+	16, // 20: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
+	16, // 21: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
+	4,  // 22: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
+	17, // 23: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
+	6,  // 24: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
+	9,  // 25: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
+	8,  // 26: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
+	2,  // 27: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
+	2,  // 28: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
+	19, // [19:29] is the sub-list for method output_type
+	9,  // [9:19] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
 	9,  // [9:9] is the sub-list for extension extendee
 	0,  // [0:9] is the sub-list for field type_name

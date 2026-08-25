@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -17,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 var (
@@ -86,24 +88,31 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	}
 
 	agent := &models.Agent{
-		TenantID:       tenantID,
-		Ip:             req.GetIp(),
-		Hostname:       req.GetHostname(),
-		Os:             req.GetOs(),
-		Platform:       req.GetPlatform(),
-		Version:        req.GetVersion(),
-		RegisterBy:     req.GetRegisterBy(),
-		Mac:            req.GetMac(),
-		OsMajorVersion: req.GetOsMajorVersion(),
-		OsMinorVersion: req.GetOsMinorVersion(),
-		Aliases:        req.GetAliases(),
-		Addresses:      req.GetAddresses(),
+		TenantID:        tenantID,
+		Ip:              req.GetIp(),
+		Hostname:        req.GetHostname(),
+		Os:              req.GetOs(),
+		Platform:        req.GetPlatform(),
+		Version:         req.GetVersion(),
+		RegisterBy:      req.GetRegisterBy(),
+		Mac:             req.GetMac(),
+		OsMajorVersion:  req.GetOsMajorVersion(),
+		OsMinorVersion:  req.GetOsMinorVersion(),
+		Aliases:         req.GetAliases(),
+		Addresses:       req.GetAddresses(),
+		NoRemoteControl: req.GetNoRemoteControl(),
 	}
 
 	oldAgent := &models.Agent{}
 	err := s.DBConnection.GetFirst(oldAgent, "hostname = ? AND mac = ?", agent.Hostname, agent.Mac)
 	if err == nil {
-		// Same machine re-registering, return existing agent
+		if oldAgent.NoRemoteControl != agent.NoRemoteControl {
+			if _, uErr := s.DBConnection.UpdateOnly(&models.Agent{}, "id = ?",
+				map[string]interface{}{"no_remote_control": agent.NoRemoteControl}, oldAgent.ID); uErr != nil {
+				catcher.Error("failed to update the agent remote-control stance", uErr,
+					map[string]any{"process": "agent-manager", "agent": oldAgent.ID})
+			}
+		}
 		return &AuthResponse{
 			Id:  uint32(oldAgent.ID),
 			Key: oldAgent.AgentKey,
@@ -267,6 +276,23 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	return convertModelToAgentResponse(agents, total), nil
 }
 
+func (s *AgentService) GetAgentAuth(ctx context.Context, req *ConnectorAuthRequest) (*ConnectorAuthResponse, error) {
+	if req.GetId() == 0 {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	agent := models.Agent{}
+	if err := s.DBConnection.GetFirst(&agent, "id = ?", req.GetId()); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "agent not found")
+		}
+		catcher.Error("failed to fetch agent", err, map[string]any{"process": "agent-manager"})
+		return nil, status.Errorf(codes.Internal, "failed to fetch agent: %v", err)
+	}
+
+	return &ConnectorAuthResponse{Key: agent.AgentKey, TenantId: agent.TenantID}, nil
+}
+
 func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {
 	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
@@ -347,6 +373,12 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 		agentStream, ok := s.AgentStreamMap[uint(streamId)]
 		if !ok {
 			return status.Errorf(codes.NotFound, "agent not found or is disconnected")
+		}
+
+		target := &models.Agent{}
+		if dErr := s.DBConnection.GetFirst(target, "id = ?", streamId); dErr == nil && target.NoRemoteControl {
+			return status.Errorf(codes.PermissionDenied,
+				"agent %d was installed with remote control disabled; it can only be changed on the machine itself", streamId)
 		}
 		if cmd.GetOriginId() == "" {
 			return status.Errorf(codes.NotFound, "agent origin ID not provided")

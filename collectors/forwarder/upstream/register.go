@@ -44,10 +44,11 @@ func RegisterCollector(cnf *config.Config, UTMKey string) error {
 	}
 
 	request := &RegisterRequest{
-		Ip:        ip,
-		Hostname:  osInfo.Hostname,
-		Version:   v.Version,
-		Collector: CollectorModule_FORWARDER,
+		Ip:              ip,
+		Hostname:        osInfo.Hostname,
+		Version:         v.Version,
+		Collector:       CollectorModule_FORWARDER,
+		NoRemoteControl: cnf.NoRemoteControl,
 	}
 
 	response, err := client.RegisterCollector(ctx, request)

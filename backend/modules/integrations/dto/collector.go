@@ -1,12 +1,13 @@
 package dto
 
 type CollectorResponse struct {
-	ID       int32  `json:"id"`
-	Hostname string `json:"hostname"`
-	IP       string `json:"ip"`
-	Version  string `json:"version"`
-	LastSeen string `json:"lastSeen,omitempty"`
-	Status   string `json:"status"`
+	ID              int32  `json:"id"`
+	Hostname        string `json:"hostname"`
+	IP              string `json:"ip"`
+	Version         string `json:"version"`
+	LastSeen        string `json:"lastSeen,omitempty"`
+	Status          string `json:"status"`
+	NoRemoteControl bool   `json:"noRemoteControl"`
 }
 
 type SetDataTypeConfigRequest struct {

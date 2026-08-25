@@ -33,3 +33,12 @@ message AuthResponse {
 message DeleteRequest {
   string deleted_by = 1;
 }
+
+message ConnectorAuthRequest {
+  uint32 id = 1;
+}
+
+message ConnectorAuthResponse {
+  string key = 1;
+  string tenant_id = 2;
+}

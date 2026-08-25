@@ -157,17 +157,25 @@ func (s *CollectorService) RegisterCollector(ctx context.Context, req *RegisterR
 	}
 
 	collector := &models.Collector{
-		Ip:       req.GetIp(),
-		Hostname: req.GetHostname(),
-		Version:  req.GetVersion(),
-		Module:   models.CollectorModule(req.GetCollector().String()),
-		TenantID: tenantID,
+		Ip:              req.GetIp(),
+		Hostname:        req.GetHostname(),
+		Version:         req.GetVersion(),
+		Module:          models.CollectorModule(req.GetCollector().String()),
+		TenantID:        tenantID,
+		NoRemoteControl: req.GetNoRemoteControl(),
 	}
 
 	oldCollector := &models.Collector{}
 	err := s.DBConnection.GetFirst(oldCollector, "hostname = ? and module = ?", collector.Hostname, string(collector.Module))
 	if err == nil {
 		if oldCollector.Ip == collector.Ip {
+			if oldCollector.NoRemoteControl != collector.NoRemoteControl {
+				if _, uErr := s.DBConnection.UpdateOnly(&models.Collector{}, "id = ?",
+					map[string]interface{}{"no_remote_control": collector.NoRemoteControl}, oldCollector.ID); uErr != nil {
+					catcher.Error("failed to update the collector remote-control stance", uErr,
+						map[string]any{"process": "agent-manager", "collector": oldCollector.ID})
+				}
+			}
 			return &AuthResponse{
 				Id:  uint32(oldCollector.ID),
 				Key: oldCollector.CollectorKey,
@@ -262,6 +270,23 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)
 	}
 	return convertModelToCollectorResponse(collectors, total), nil
+}
+
+func (s *CollectorService) GetCollectorAuth(ctx context.Context, req *ConnectorAuthRequest) (*ConnectorAuthResponse, error) {
+	if req.GetId() == 0 {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	collector := models.Collector{}
+	if err := s.DBConnection.GetFirst(&collector, "id = ?", req.GetId()); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "collector not found")
+		}
+		catcher.Error("failed to fetch collector", err, map[string]any{"process": "agent-manager"})
+		return nil, status.Errorf(codes.Internal, "failed to fetch collector: %v", err)
+	}
+
+	return &ConnectorAuthResponse{Key: collector.CollectorKey, TenantId: collector.TenantID}, nil
 }
 
 func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStreamServer) error {

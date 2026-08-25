@@ -51,12 +51,13 @@ func (u *collectorUsecase) ListForwarders(ctx context.Context) ([]dto.CollectorR
 			status = "online"
 		}
 		out = append(out, dto.CollectorResponse{
-			ID:       c.GetId(),
-			Hostname: c.GetHostname(),
-			IP:       c.GetIp(),
-			Version:  c.GetVersion(),
-			LastSeen: c.GetLastSeen(),
-			Status:   status,
+			ID:              c.GetId(),
+			Hostname:        c.GetHostname(),
+			IP:              c.GetIp(),
+			Version:         c.GetVersion(),
+			LastSeen:        c.GetLastSeen(),
+			Status:          status,
+			NoRemoteControl: c.GetNoRemoteControl(),
 		})
 	}
 	return out, nil

@@ -22,6 +22,7 @@ const (
 	CollectorService_RegisterCollector_FullMethodName            = "/agent.CollectorService/RegisterCollector"
 	CollectorService_DeleteCollector_FullMethodName              = "/agent.CollectorService/DeleteCollector"
 	CollectorService_ListCollector_FullMethodName                = "/agent.CollectorService/ListCollector"
+	CollectorService_GetCollectorAuth_FullMethodName             = "/agent.CollectorService/GetCollectorAuth"
 	CollectorService_CollectorStream_FullMethodName              = "/agent.CollectorService/CollectorStream"
 	CollectorService_GetCollectorConfig_FullMethodName           = "/agent.CollectorService/GetCollectorConfig"
 	CollectorService_SetCollectorConfig_FullMethodName           = "/agent.CollectorService/SetCollectorConfig"
@@ -35,6 +36,7 @@ type CollectorServiceClient interface {
 	RegisterCollector(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	DeleteCollector(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	ListCollector(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListCollectorResponse, error)
+	GetCollectorAuth(ctx context.Context, in *ConnectorAuthRequest, opts ...grpc.CallOption) (*ConnectorAuthResponse, error)
 	CollectorStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[CollectorMessages, CollectorMessages], error)
 	GetCollectorConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*CollectorConfig, error)
 	SetCollectorConfig(ctx context.Context, in *CollectorConfig, opts ...grpc.CallOption) (*ConfigKnowledge, error)
@@ -73,6 +75,16 @@ func (c *collectorServiceClient) ListCollector(ctx context.Context, in *ListRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListCollectorResponse)
 	err := c.cc.Invoke(ctx, CollectorService_ListCollector_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *collectorServiceClient) GetCollectorAuth(ctx context.Context, in *ConnectorAuthRequest, opts ...grpc.CallOption) (*ConnectorAuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectorAuthResponse)
+	err := c.cc.Invoke(ctx, CollectorService_GetCollectorAuth_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +141,7 @@ type CollectorServiceServer interface {
 	RegisterCollector(context.Context, *RegisterRequest) (*AuthResponse, error)
 	DeleteCollector(context.Context, *DeleteRequest) (*AuthResponse, error)
 	ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error)
+	GetCollectorAuth(context.Context, *ConnectorAuthRequest) (*ConnectorAuthResponse, error)
 	CollectorStream(grpc.BidiStreamingServer[CollectorMessages, CollectorMessages]) error
 	GetCollectorConfig(context.Context, *ConfigRequest) (*CollectorConfig, error)
 	SetCollectorConfig(context.Context, *CollectorConfig) (*ConfigKnowledge, error)
@@ -151,6 +164,9 @@ func (UnimplementedCollectorServiceServer) DeleteCollector(context.Context, *Del
 }
 func (UnimplementedCollectorServiceServer) ListCollector(context.Context, *ListRequest) (*ListCollectorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCollector not implemented")
+}
+func (UnimplementedCollectorServiceServer) GetCollectorAuth(context.Context, *ConnectorAuthRequest) (*ConnectorAuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectorAuth not implemented")
 }
 func (UnimplementedCollectorServiceServer) CollectorStream(grpc.BidiStreamingServer[CollectorMessages, CollectorMessages]) error {
 	return status.Errorf(codes.Unimplemented, "method CollectorStream not implemented")
@@ -239,6 +255,24 @@ func _CollectorService_ListCollector_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CollectorService_GetCollectorAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectorAuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollectorServiceServer).GetCollectorAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollectorService_GetCollectorAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollectorServiceServer).GetCollectorAuth(ctx, req.(*ConnectorAuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CollectorService_CollectorStream_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(CollectorServiceServer).CollectorStream(&grpc.GenericServerStream[CollectorMessages, CollectorMessages]{ServerStream: stream})
 }
@@ -318,6 +352,10 @@ var CollectorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCollector",
 			Handler:    _CollectorService_ListCollector_Handler,
+		},
+		{
+			MethodName: "GetCollectorAuth",
+			Handler:    _CollectorService_GetCollectorAuth_Handler,
 		},
 		{
 			MethodName: "GetCollectorConfig",

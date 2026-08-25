@@ -3346,7 +3346,8 @@
         "apiKeyLabel": "Chave de API",
         "apiKeyPlaceholder": "Selecionar uma chave de API",
         "apiKeyAddNew": "Adicionar chave de API…",
-        "apiKeyNone": "Nenhuma chave de API ainda"
+        "apiKeyNone": "Nenhuma chave de API ainda",
+        "forwarderNoRemoteControl": "Este forwarder foi instalado com o controlo remoto desativado. Ignora a configuração enviada daqui, e isso só pode ser alterado na própria máquina."
       }
     },
     "codeBlock": {
@@ -3694,7 +3695,9 @@
       "disabled": "Agente offline — os comandos estão desabilitados",
       "connError": "Erro de conexão",
       "cmdError": "Erro de comando",
-      "shellSelect": "Tipo de shell"
+      "shellSelect": "Tipo de shell",
+      "noRemoteControl": "Este agente foi instalado com o controlo remoto desativado. Recusa comandos, e isso só pode ser alterado na própria máquina.",
+      "noRemoteControlShort": "Controlo remoto desativado neste agente"
     },
     "sensitivity": {
       "section": "Sensibilidade do ativo",
@@ -4706,7 +4709,8 @@
       "loading": "Carregando agentes…",
       "loadError": "Não foi possível carregar os agentes.",
       "pickAgent": "Selecione um agente",
-      "pickAgentHint": "Escolha um agente da lista para abrir seu console interativo."
+      "pickAgentHint": "Escolha um agente da lista para abrir seu console interativo.",
+      "lockedAgent": "Controlo remoto desativado"
     },
     "search": "Buscar fluxos…",
     "refresh": "Atualizar",
@@ -4835,7 +4839,8 @@
       "noAgents": "Sem agentes",
       "insertInto": "Inserir no comando {{n}}:",
       "insertField": "Campo do alerta",
-      "variables": "Variáveis"
+      "variables": "Variáveis",
+      "noRemoteControl": "sem controlo remoto"
     },
     "executions": {
       "search": "Buscar por ID de alerta…",

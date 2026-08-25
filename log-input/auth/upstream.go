@@ -20,7 +20,6 @@ import (
 
 const (
 	maxMessageSize = 20 * 1024 * 1024
-	listPageSize   = 100000
 
 	upstreamTimeout = 15 * time.Second
 
@@ -42,7 +41,12 @@ type ConnectorAuth struct {
 	TenantID string
 }
 
-func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint64]ConnectorAuth, error) {
+// getKey resolves one connector by id.
+//
+// It replaced a listing of every connector, which was the only shape the
+// agent-manager offered: a caller holding a single id had to pull the whole
+// fleet to resolve it, and pay that again on every replica with a cold cache.
+func (c *agentManagerClient) getKey(ctx context.Context, typ string, id uint64) (ConnectorAuth, error) {
 	// Self-signed certificate on an internal address; the internal key is what
 	// authenticates the call.
 	creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
@@ -52,7 +56,7 @@ func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("dialling the agent-manager: %w", err)
+		return ConnectorAuth{}, fmt.Errorf("dialling the agent-manager: %w", err)
 	}
 	defer func() { _ = conn.Close() }()
 
@@ -60,33 +64,25 @@ func (c *agentManagerClient) listKeys(ctx context.Context, typ string) (map[uint
 	defer cancel()
 	cCtx = metadata.AppendToOutgoingContext(cCtx, "internal-key", c.cfg.InternalKey)
 
-	req := &agent.ListRequest{PageNumber: 1, PageSize: listPageSize}
+	req := &agent.ConnectorAuthRequest{Id: uint32(id)}
 
 	switch strings.ToLower(typ) {
 	case "agent":
-		resp, err := agent.NewAgentServiceClient(conn).ListAgents(cCtx, req)
+		resp, err := agent.NewAgentServiceClient(conn).GetAgentAuth(cCtx, req)
 		if err != nil {
-			return nil, err
+			return ConnectorAuth{}, err
 		}
-		out := make(map[uint64]ConnectorAuth, len(resp.Rows))
-		for _, row := range resp.Rows {
-			out[uint64(row.Id)] = ConnectorAuth{Key: row.AgentKey, TenantID: row.TenantId}
-		}
-		return out, nil
+		return ConnectorAuth{Key: resp.Key, TenantID: resp.TenantId}, nil
 
 	case "collector":
-		resp, err := agent.NewCollectorServiceClient(conn).ListCollector(cCtx, req)
+		resp, err := agent.NewCollectorServiceClient(conn).GetCollectorAuth(cCtx, req)
 		if err != nil {
-			return nil, err
+			return ConnectorAuth{}, err
 		}
-		out := make(map[uint64]ConnectorAuth, len(resp.Rows))
-		for _, row := range resp.Rows {
-			out[uint64(row.Id)] = ConnectorAuth{Key: row.CollectorKey, TenantID: row.TenantId}
-		}
-		return out, nil
+		return ConnectorAuth{Key: resp.Key, TenantID: resp.TenantId}, nil
 	}
 
-	return nil, fmt.Errorf("unknown connector type %q", typ)
+	return ConnectorAuth{}, fmt.Errorf("unknown connector type %q", typ)
 }
 
 type backendClient struct {

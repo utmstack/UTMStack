@@ -30,7 +30,7 @@ function AS400CollectorInstall() {
   apt update -y && apt install wget -y && \\
   mkdir -p /opt/utmstack-as400-collector && \\
   wget --no-check-certificate -P /opt/utmstack-as400-collector \\
-    https://${host}:9001/private/dependencies/collector/as400/utmstack_as400_collector_service && \\
+    https://${host}/private/dependencies/collector/as400/utmstack_as400_collector_service && \\
   chmod 755 /opt/utmstack-as400-collector/utmstack_as400_collector_service && \\
   /opt/utmstack-as400-collector/utmstack_as400_collector_service install ${host} <secret>${token}</secret> yes
 "`

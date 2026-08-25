@@ -17,21 +17,22 @@ const (
 
 type Agent struct {
 	gorm.Model
-	Ip             string
-	Hostname       string `gorm:"uniqueIndex:idx_hostname_deleted;not null"`
-	Os             string
-	Platform       string
-	Version        string
-	AgentKey       string     `gorm:"type:string;index"`
-	DeletedAt      *time.Time `gorm:"uniqueIndex:idx_hostname_deleted;index:idx_agent_delete"`
-	RegisterBy     string     `gorm:"not null"`
-	DeletedBy      string
-	Mac            string
-	OsMajorVersion string
-	OsMinorVersion string
-	Aliases        string
-	Addresses      string
-	TenantID       string `gorm:"not null;index"`
+	Ip              string
+	Hostname        string `gorm:"uniqueIndex:idx_hostname_deleted;not null"`
+	Os              string
+	Platform        string
+	Version         string
+	AgentKey        string     `gorm:"type:string;index"`
+	DeletedAt       *time.Time `gorm:"uniqueIndex:idx_hostname_deleted;index:idx_agent_delete"`
+	RegisterBy      string     `gorm:"not null"`
+	DeletedBy       string
+	Mac             string
+	OsMajorVersion  string
+	OsMinorVersion  string
+	Aliases         string
+	Addresses       string
+	TenantID        string `gorm:"not null;index"`
+	NoRemoteControl bool   `gorm:"not null;default:false"`
 }
 
 type AgentCommand struct {

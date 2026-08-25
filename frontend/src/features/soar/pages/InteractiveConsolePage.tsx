@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Loader2, Search, Server } from 'lucide-react'
+import { AlertTriangle, Loader2, Lock, Search, Server } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
 import { datasourcesHttpService } from '@/features/datasources/services/datasources-http.service'
@@ -14,6 +14,7 @@ interface AgentItem {
   name: string
   osPlatform?: string
   lastPingAt?: string
+  noRemoteControl: boolean
 }
 
 /** Only agent-kind datasources linked to a real agent record can open a console. */
@@ -26,6 +27,9 @@ function toAgentItem(d: Datasource): AgentItem | null {
     name: d.name,
     osPlatform: typeof d.metadata?.osPlatform === 'string' ? d.metadata.osPlatform : undefined,
     lastPingAt: d.lastPingAt,
+    // The agent-manager writes it as a string, and an agent registered before
+    // the column existed does not write it at all — both mean "accepts commands".
+    noRemoteControl: d.metadata?.noRemoteControl === 'true',
   }
 }
 
@@ -94,6 +98,7 @@ export function InteractiveConsolePage() {
               hostname={selected.name}
               osPlatform={selected.osPlatform}
               offline={selectedStatus === 'offline'}
+              noRemoteControl={selected.noRemoteControl}
               onClose={() => setSelected(null)}
             />
           </div>
@@ -110,6 +115,7 @@ export function InteractiveConsolePage() {
 }
 
 function AgentRow({ agent, active, onClick }: { agent: AgentItem; active: boolean; onClick: () => void }) {
+  const { t } = useTranslation()
   const status = deriveStatus(agent.lastPingAt)
   return (
     <button
@@ -121,6 +127,9 @@ function AgentRow({ agent, active, onClick }: { agent: AgentItem; active: boolea
     >
       <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', STATUS_META[status].dot)} />
       <span className="min-w-0 flex-1 truncate">{agent.name}</span>
+      {agent.noRemoteControl && (
+        <Lock size={11} className="shrink-0 text-muted-foreground" aria-label={t('soar.console.lockedAgent')} />
+      )}
       {agent.osPlatform && (
         <span className="shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
           {agent.osPlatform}

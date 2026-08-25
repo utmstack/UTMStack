@@ -121,10 +121,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
 		},
-		Ports: []string{
-			"9000:9000",
-			"9001:9001",
-		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
 			"INTERNAL_KEY=" + conf.InternalKey,
@@ -182,6 +178,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		DependsOn: []string{
 			"backend",
 		},
+		// The one port still published, and only so the host's nginx can reach
+		// into the overlay — everything a customer opens is 443 in front of it.
 		Ports: []string{
 			"10001:80",
 		},
@@ -326,9 +324,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				"backend",
 			},
 		}).([]string),
-		Ports: []string{
-			"8000:8000",
-		},
 		Volumes: []string{
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "pipeline") + ":/workdir/pipeline",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "rules") + ":/workdir/rules/utmstack",
@@ -433,10 +428,6 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"nats",
 			"redis",
 			"agentmanager",
-		},
-		Ports: []string{
-			"50051:50051",
-			"50052:50052",
 		},
 		Volumes: []string{
 			stack.Cert + ":/cert",

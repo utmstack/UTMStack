@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Check, ChevronDown, Copy, Loader2, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Check, ChevronDown, Copy, Loader2, Lock, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Section } from '@/features/integrations/components/ui/Section'
@@ -82,6 +82,7 @@ function ForwarderPicker({
       >
         <span className="flex min-w-0 items-center gap-2">
           {selected && selected.ip && <StatusDot status={selected.status} />}
+          {selected?.noRemoteControl && <Lock size={11} className="shrink-0 text-muted-foreground" />}
           <span className="truncate">{selected ? (selected.ip ? `${selected.hostname} (${selected.ip})` : selected.hostname) : ''}</span>
         </span>
         <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
@@ -99,6 +100,7 @@ function ForwarderPicker({
               className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
             >
               {f.ip && <StatusDot status={f.status} />}
+              {f.noRemoteControl && <Lock size={11} className="shrink-0 text-muted-foreground" />}
               {f.id === ADD_COLLECTOR_ID && <Plus size={12} className="shrink-0 text-muted-foreground" />}
               <span className="truncate">{f.ip ? `${f.hostname} (${f.ip})` : f.hostname}</span>
             </button>
@@ -193,6 +195,9 @@ export function RemoteEnablePanel({
   const pickerOptions = [masterOption, ...allForwarders, addCollectorOption]
   const selectedForwarder = allForwarders.find((f) => f.id === collectorId) ?? null
   const isSelectedForwarderOffline = !isMaster && selectedForwarder != null && selectedForwarder.status !== 'online'
+  // Offline is a wait; this is not. The forwarder discards what this panel
+  // sends and answers nothing, so saving would look like it worked.
+  const isSelectedForwarderLocked = !isMaster && selectedForwarder?.noRemoteControl === true
 
   useEffect(() => {
     if (collectorId == null) return
@@ -291,7 +296,7 @@ export function RemoteEnablePanel({
   }
 
   const submit = (enabled: boolean) => {
-    if (!collectorId || !port) return
+    if (!collectorId || !port || isSelectedForwarderLocked) return
     setDataType.mutate(
       {
         collectorId,
@@ -319,7 +324,8 @@ export function RemoteEnablePanel({
   }
 
   const isPending = setDataType.isPending
-  const canSubmit = collectorId != null && !!port && !isSyncingConfig && !isSelectedForwarderOffline
+  const canSubmit =
+    collectorId != null && !!port && !isSyncingConfig && !isSelectedForwarderOffline && !isSelectedForwarderLocked
 
   return (
     <Section title={t(`${ROOT}.title`)} step={step}>
@@ -355,10 +361,16 @@ export function RemoteEnablePanel({
                 }}
                 disabled={isSyncingConfig}
               />
-              {isSelectedForwarderOffline && (
+              {isSelectedForwarderLocked ? (
                 <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
-                  {t(`${ROOT}.forwarderOffline`)}
+                  {t(`${ROOT}.forwarderNoRemoteControl`)}
                 </p>
+              ) : (
+                isSelectedForwarderOffline && (
+                  <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+                    {t(`${ROOT}.forwarderOffline`)}
+                  </p>
+                )
               )}
             </label>
 

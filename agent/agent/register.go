@@ -39,17 +39,18 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 	}
 
 	request := &AgentRequest{
-		Ip:             ip,
-		Hostname:       osInfo.Hostname,
-		Os:             osInfo.OsType,
-		Platform:       osInfo.Platform,
-		Version:        version.Version,
-		RegisterBy:     osInfo.CurrentUser,
-		Mac:            osInfo.Mac,
-		OsMajorVersion: osInfo.OsMajorVersion,
-		OsMinorVersion: osInfo.OsMinorVersion,
-		Aliases:        osInfo.Aliases,
-		Addresses:      osInfo.Addresses,
+		Ip:              ip,
+		Hostname:        osInfo.Hostname,
+		Os:              osInfo.OsType,
+		Platform:        osInfo.Platform,
+		Version:         version.Version,
+		RegisterBy:      osInfo.CurrentUser,
+		Mac:             osInfo.Mac,
+		OsMajorVersion:  osInfo.OsMajorVersion,
+		OsMinorVersion:  osInfo.OsMinorVersion,
+		Aliases:         osInfo.Aliases,
+		Addresses:       osInfo.Addresses,
+		NoRemoteControl: cnf.NoRemoteControl,
 	}
 
 	response, err := agentClient.RegisterAgent(ctx, request)

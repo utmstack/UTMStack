@@ -20,6 +20,8 @@ const SELECT = 'h-8 rounded-md border border-input bg-background px-2 text-xs fo
 interface AgentOption {
   name: string
   platform: string
+  /** Refuses commands, so a flow that targets it would never do anything. */
+  noRemoteControl: boolean
 }
 
 export function FlowEditor({
@@ -55,6 +57,7 @@ export function FlowEditor({
           (r.items ?? []).map((d) => ({
             name: d.name,
             platform: typeof d.metadata?.osPlatform === 'string' ? d.metadata.osPlatform : '',
+            noRemoteControl: d.metadata?.noRemoteControl === 'true',
           })),
         ),
       )
@@ -750,8 +753,12 @@ function RunScopeField({
           className={cn(SELECT, 'h-9 w-full max-w-xs')}
         >
           <option value="">{t('soar.editor.selectAgentPlaceholder')}</option>
-          {options.map((name) => (
-            <option key={name} value={name}>{name}</option>
+          {agents.map((a) => (
+            // Listed but not selectable: hidden, an operator looking for a host
+            // that is missing goes off to debug why it never registered.
+            <option key={a.name} value={a.name} disabled={a.noRemoteControl}>
+              {a.noRemoteControl ? `${a.name} (${t('soar.editor.noRemoteControl')})` : a.name}
+            </option>
           ))}
           {defaultAgent && !options.includes(defaultAgent) && <option value={defaultAgent}>{defaultAgent}</option>}
         </select>

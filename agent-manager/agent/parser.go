@@ -41,21 +41,22 @@ func parseAgentToProto(agent models.Agent) *Agent {
 		catcher.Error("failed to get last seen status for agent", err, map[string]any{"agent": agent.ID, "process": "agent-manager"})
 	}
 	agentResult := &Agent{
-		Id:             uint32(agent.ID),
-		Ip:             agent.Ip,
-		Status:         agentStatus,
-		Hostname:       agent.Hostname,
-		Os:             agent.Os,
-		Platform:       agent.Platform,
-		Version:        agent.Version,
-		AgentKey:       agent.AgentKey,
-		LastSeen:       lastSeen,
-		Aliases:        agent.Aliases,
-		Addresses:      agent.Addresses,
-		Mac:            agent.Mac,
-		OsMajorVersion: agent.OsMajorVersion,
-		OsMinorVersion: agent.OsMinorVersion,
-		TenantId:       tenantOrDefault(agent.TenantID),
+		Id:              uint32(agent.ID),
+		Ip:              agent.Ip,
+		Status:          agentStatus,
+		Hostname:        agent.Hostname,
+		Os:              agent.Os,
+		Platform:        agent.Platform,
+		Version:         agent.Version,
+		AgentKey:        agent.AgentKey,
+		LastSeen:        lastSeen,
+		Aliases:         agent.Aliases,
+		Addresses:       agent.Addresses,
+		Mac:             agent.Mac,
+		OsMajorVersion:  agent.OsMajorVersion,
+		OsMinorVersion:  agent.OsMinorVersion,
+		TenantId:        tenantOrDefault(agent.TenantID),
+		NoRemoteControl: agent.NoRemoteControl,
 	}
 	return agentResult
 }
@@ -114,14 +115,15 @@ func modelToProtoCollector(model models.Collector) *Collector {
 		catcher.Error("failed to get last seen status for collector", err, map[string]any{"model": model.ID, "process": "agent-manager"})
 	}
 	return &Collector{
-		Id:           int32(model.ID),
-		CollectorKey: model.CollectorKey,
-		Ip:           model.Ip,
-		Hostname:     model.Hostname,
-		Version:      model.Version,
-		Status:       Status(collectorStatus),
-		LastSeen:     lastSeen,
-		Module:       CollectorModule(CollectorModule_value[string(model.Module)]),
-		TenantId:     tenantOrDefault(model.TenantID),
+		Id:              int32(model.ID),
+		CollectorKey:    model.CollectorKey,
+		Ip:              model.Ip,
+		Hostname:        model.Hostname,
+		Version:         model.Version,
+		Status:          Status(collectorStatus),
+		LastSeen:        lastSeen,
+		Module:          CollectorModule(CollectorModule_value[string(model.Module)]),
+		TenantId:        tenantOrDefault(model.TenantID),
+		NoRemoteControl: model.NoRemoteControl,
 	}
 }

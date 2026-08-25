@@ -14,15 +14,26 @@ import (
 	"github.com/utmstack/UTMStack/shared/http"
 )
 
+func init() {
+	installCmd.Flags().Bool("no-remote-control", false,
+		"refuse every remote command on this machine; can only be undone by reinstalling here")
+}
+
 var installCmd = &cobra.Command{
 	Use:     "install <server_address> <utm_key> <skip_cert_validation(yes/no)>",
 	Short:   "Install the UTMStackAgent service",
 	Args:    cobra.ExactArgs(3),
 	PreRunE: requireNotInstalled,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		noRemoteControl, err := cmd.Flags().GetBool("no-remote-control")
+		if err != nil {
+			return err
+		}
+
 		cnf := &config.Config{
 			Server:             args[0],
 			SkipCertValidation: args[2] == "yes",
+			NoRemoteControl:    noRemoteControl,
 		}
 		utmKey := args[1]
 

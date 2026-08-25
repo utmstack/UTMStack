@@ -3384,7 +3384,8 @@
         "apiKeyLabel": "Clé API",
         "apiKeyPlaceholder": "Sélectionner une clé API",
         "apiKeyAddNew": "Ajouter une clé API…",
-        "apiKeyNone": "Aucune clé API pour l'instant"
+        "apiKeyNone": "Aucune clé API pour l'instant",
+        "forwarderNoRemoteControl": "Ce forwarder a été installé avec le contrôle à distance désactivé. Il ignore la configuration envoyée d'ici, et cela ne peut être modifié que sur la machine elle-même."
       }
     },
     "codeBlock": {
@@ -3748,7 +3749,9 @@
       "disabled": "Agent hors ligne — commandes désactivées",
       "connError": "Erreur de connexion",
       "cmdError": "Erreur de commande",
-      "shellSelect": "Type de shell"
+      "shellSelect": "Type de shell",
+      "noRemoteControl": "Cet agent a été installé avec le contrôle à distance désactivé. Il refuse les commandes, et cela ne peut être modifié que sur la machine elle-même.",
+      "noRemoteControlShort": "Contrôle à distance désactivé sur cet agent"
     },
     "health": {
       "online": "en ligne",
@@ -4584,7 +4587,8 @@
       "loading": "Chargement des agents…",
       "loadError": "Impossible de charger les agents.",
       "pickAgent": "Sélectionner un agent",
-      "pickAgentHint": "Choisissez un agent dans la liste pour ouvrir sa console interactive."
+      "pickAgentHint": "Choisissez un agent dans la liste pour ouvrir sa console interactive.",
+      "lockedAgent": "Contrôle à distance désactivé"
     },
     "search": "Rechercher des flux…",
     "refresh": "Actualiser",
@@ -4713,7 +4717,8 @@
       "noAgents": "Aucun agent",
       "insertInto": "Insérer dans la commande {{n}} :",
       "insertField": "Champ d'alerte",
-      "variables": "Variables"
+      "variables": "Variables",
+      "noRemoteControl": "sans contrôle à distance"
     },
     "executions": {
       "search": "Rechercher par ID d'alerte…",

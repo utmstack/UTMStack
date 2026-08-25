@@ -73,6 +73,9 @@ export interface ForwarderCollector {
   version: string;
   lastSeen?: string;
   status: 'online' | 'offline';
+  /** Installed refusing configuration from here. It ignores what this panel
+   *  sends, so the panel does not offer to send it. */
+  noRemoteControl?: boolean;
 }
 
 export interface SetDataTypeConfigRequest {

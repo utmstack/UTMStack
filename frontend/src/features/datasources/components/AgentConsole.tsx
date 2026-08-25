@@ -30,6 +30,7 @@ export function AgentConsole({
   hostname,
   osPlatform,
   offline,
+  noRemoteControl,
   onClose,
   variant = 'docked',
 }: {
@@ -37,6 +38,9 @@ export function AgentConsole({
   hostname: string
   osPlatform?: string
   offline?: boolean
+  /** The agent was installed refusing commands. It enforces that itself, so
+   *  this only spares the analyst typing something that will come back denied. */
+  noRemoteControl?: boolean
   onClose: () => void
   /** 'docked' (default): fixed panel pinned to the bottom of the viewport, like an
    * IDE terminal — used by Data Sources. 'inline': fills its parent container
@@ -109,7 +113,7 @@ export function AgentConsole({
 
   const run = () => {
     const command = input.trim()
-    if (!command || running || offline) return
+    if (!command || running || offline || noRemoteControl) return
     append('cmd', `${shell}> ${command}`)
     setHistory((h) => [...h, command])
     setHistIdx(-1)
@@ -210,10 +214,16 @@ export function AgentConsole({
         </div>
       </header>
 
-        {offline && (
-          <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-[11px] text-amber-300">
-            {t('datasources.console.offline')}
+        {noRemoteControl ? (
+          <div className="border-b border-red-500/20 bg-red-500/10 px-4 py-2 text-[11px] text-red-300">
+            {t('datasources.console.noRemoteControl')}
           </div>
+        ) : (
+          offline && (
+            <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-[11px] text-amber-300">
+              {t('datasources.console.offline')}
+            </div>
+          )
         )}
 
         <div
@@ -241,7 +251,7 @@ export function AgentConsole({
           ) : (
             // The active prompt + input live inline at the bottom of the output,
             // like a real terminal — not in a separate bar. Offline → disabled.
-            <div className={cn('mt-1 flex items-center gap-2', offline && 'opacity-50')}>
+            <div className={cn('mt-1 flex items-center gap-2', (offline || noRemoteControl) && 'opacity-50')}>
               <span className="shrink-0 text-emerald-400">{shell}&gt;</span>
               <ShellCommandInput
                 ref={inputRef}
@@ -249,8 +259,14 @@ export function AgentConsole({
                 shell={shell}
                 onChange={setInput}
                 onKeyDown={onKey}
-                disabled={offline}
-                placeholder={offline ? t('datasources.console.disabled') : t('datasources.console.placeholder')}
+                disabled={offline || noRemoteControl}
+                placeholder={
+                  noRemoteControl
+                    ? t('datasources.console.noRemoteControlShort')
+                    : offline
+                      ? t('datasources.console.disabled')
+                      : t('datasources.console.placeholder')
+                }
               />
             </div>
           )}

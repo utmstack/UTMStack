@@ -26,7 +26,7 @@ function installCmd(pkg: string, host: string, token: string): string {
   ${pkg} update -y && ${pkg} install wget -y && \\
   mkdir -p /opt/utmstack-collector && \\
   wget --no-check-certificate -P /opt/utmstack-collector \\
-    https://${host}:9001/private/dependencies/collector/utmstack_collector && \\
+    https://${host}/private/dependencies/collector/utmstack_collector && \\
   chmod 755 /opt/utmstack-collector/utmstack_collector && \\
   /opt/utmstack-collector/utmstack_collector install ${host} <secret>${token}</secret> yes
 "`

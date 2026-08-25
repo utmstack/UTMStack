@@ -57,7 +57,7 @@ function linuxInstall(host: string, token: string, installer: string, flavor: 'u
 
   return `sudo bash -c "${pkgInstall} && mkdir -p /opt/utmstack-linux-agent && \\
     wget --no-check-certificate -P /opt/utmstack-linux-agent \\
-    https://${host}:9001/private/dependencies/agent/${installer} && \\
+    https://${host}/private/dependencies/agent/${installer} && \\
     chmod -R 755 /opt/utmstack-linux-agent/${installer} && \\
     /opt/utmstack-linux-agent/${installer} install ${host} <secret>${token}</secret> yes"`
 }
@@ -77,7 +77,7 @@ function linuxUninstall(installer: string): string {
 function macosInstall(host: string, token: string, installer: string): string {
   return `sudo bash -c "mkdir -p /opt/utmstack-macos-agent && \\
     curl -k -o /opt/utmstack-macos-agent/${installer} \\
-    https://${host}:9001/private/dependencies/agent/${installer} && \\
+    https://${host}/private/dependencies/agent/${installer} && \\
     chmod +x /opt/utmstack-macos-agent/${installer} && \\
     /opt/utmstack-macos-agent/${installer} install ${host} <secret>${token}</secret> yes"`
 }
@@ -99,7 +99,7 @@ function windowsInstall(host: string, token: string, installer: string): string 
   // wraps top-to-bottom like the bash guides instead of one long horizontal line.
   return `New-Item -ItemType Directory -Force -Path "${dir}"
 & curl.exe -k -o "${dir}\\${installer}" \`
-  "https://${host}:9001/private/dependencies/agent/${installer}"
+  "https://${host}/private/dependencies/agent/${installer}"
 Start-Process "${dir}\\${installer}" \`
   -ArgumentList 'install', '${host}', '<secret>${token}</secret>', 'yes' \`
   -NoNewWindow -Wait`

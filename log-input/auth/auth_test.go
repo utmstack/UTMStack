@@ -34,3 +34,36 @@ func TestMatchConnector(t *testing.T) {
 		})
 	}
 }
+
+// getKey returns the tenant and the key apart; the cache holds them joined, and
+// matchConnector splits them again. Nothing in the type system keeps those
+// three in step, so the round trip is asserted here: a separator changed on one
+// side alone would otherwise authenticate into the wrong tenant, or into none.
+func TestConnectorRoundTripsThroughTheCacheFormat(t *testing.T) {
+	cases := []struct {
+		name string
+		auth ConnectorAuth
+	}{
+		{"an ordinary connector", ConnectorAuth{Key: "secret", TenantID: "tenant-a"}},
+		{"the default tenant is empty", ConnectorAuth{Key: "secret", TenantID: ""}},
+		{"a key that looks like a separator", ConnectorAuth{Key: "a\x00b", TenantID: "tenant-a"}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			stored := c.auth.TenantID + "\x00" + c.auth.Key
+
+			tenant, ok := matchConnector(stored, c.auth.Key)
+			if !ok {
+				t.Fatalf("the key it was issued did not authenticate")
+			}
+			if tenant != c.auth.TenantID {
+				t.Fatalf("tenant = %q, want %q", tenant, c.auth.TenantID)
+			}
+
+			if _, ok := matchConnector(stored, c.auth.Key+"x"); ok {
+				t.Fatalf("a key that is not the issued one authenticated")
+			}
+		})
+	}
+}

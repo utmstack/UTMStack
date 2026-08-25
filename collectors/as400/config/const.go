@@ -14,9 +14,9 @@ const (
 
 var (
 	DependUrl        = "https://%s:%s/private/dependencies/collector/as400/%s"
-	AgentManagerPort = "9000"
-	LogAuthProxyPort = "50051"
-	DependenciesPort = "9001"
+	AgentManagerPort = "443"
+	LogAuthProxyPort = "443"
+	DependenciesPort = "443"
 
 	ServiceLogFile    = filepath.Join(utils.GetMyPath(), "logs", "utmstack_as400_collector.log")
 	UUIDFileName      = filepath.Join(utils.GetMyPath(), "uuid.yml")

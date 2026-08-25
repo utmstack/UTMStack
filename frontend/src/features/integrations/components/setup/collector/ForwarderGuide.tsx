@@ -178,7 +178,7 @@ function buildForwarderInstallCmd(host: string, token: string): string {
   apt update -y && apt install wget -y && \\
   mkdir -p /opt/utmstack-forwarder && \\
   wget --no-check-certificate -P /opt/utmstack-forwarder \\
-    https://${host}:9001/private/dependencies/collector/forwarder/utmstack_forwarder && \\
+    https://${host}/private/dependencies/collector/forwarder/utmstack_forwarder && \\
   chmod 755 /opt/utmstack-forwarder/utmstack_forwarder && \\
   /opt/utmstack-forwarder/utmstack_forwarder install ${host} <secret>${token}</secret> yes
 "`
