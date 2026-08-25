@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
@@ -18,10 +19,17 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	var connErrLogged, streamErrLogged bool
 
 	for {
+		if ctx.Err() != nil {
+			utils.Logger.Info("AgentStream stopping due to context cancellation")
+			return
+		}
+
 		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
 			LogConnectionError(err, "Agent Manager", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepOrDone(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
@@ -29,40 +37,79 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
 			LogStreamError(err, "AgentStream", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepOrDone(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
 		connErrLogged = false
+		serveAgentStream(ctx, stream, path, cnf, &streamErrLogged)
+	}
+}
 
-	recvLoop:
-		for {
-			in, err := stream.Recv()
+func serveAgentStream(ctx context.Context, stream AgentService_AgentStreamClient, path string, cnf *config.Config, streamErrLogged *bool) {
+	sender := &lockedStream{stream: stream}
+
+	beatCtx, stopBeating := context.WithCancel(ctx)
+	defer stopBeating()
+	go sendHeartbeats(beatCtx, sender)
+
+	for {
+		in, err := stream.Recv()
+		if err != nil {
+			HandleGRPCStreamError(err, "error receiving command from server", streamErrLogged)
+			return
+		}
+
+		switch msg := in.StreamMessage.(type) {
+		case *BidirectionalStream_Command:
+			err = commandProcessor(path, sender, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
 			if err != nil {
-				action := HandleGRPCStreamError(err, "error receiving command from server", &streamErrLogged)
-				if action == ActionReconnect {
-					break recvLoop
-				}
-				continue
+				HandleGRPCStreamError(err, "error sending result to server", streamErrLogged)
+				return
 			}
+		}
+		*streamErrLogged = false
+	}
+}
 
-			switch msg := in.StreamMessage.(type) {
-			case *BidirectionalStream_Command:
-				err = commandProcessor(path, stream, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
-				if err != nil {
-					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
-					if action == ActionReconnect {
-						break recvLoop
-					}
-					continue
-				}
+func sendHeartbeats(ctx context.Context, sender resultSender) {
+	ticker := time.NewTicker(heartbeatInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			err := sender.Send(&BidirectionalStream{
+				StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+			})
+			if err != nil {
+				utils.Logger.LogF(100, "heartbeat not delivered: %v", err)
+				return
 			}
-			streamErrLogged = false
 		}
 	}
 }
 
-func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, command, cmdId, shell string) error {
+type resultSender interface {
+	Send(*BidirectionalStream) error
+}
+
+type lockedStream struct {
+	mu     sync.Mutex
+	stream AgentService_AgentStreamClient
+}
+
+func (l *lockedStream) Send(m *BidirectionalStream) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.stream.Send(m)
+}
+
+func commandProcessor(path string, stream resultSender, cnf *config.Config, command, cmdId, shell string) error {
 	var result string
 	var errB bool
 

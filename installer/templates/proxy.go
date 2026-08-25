@@ -29,6 +29,7 @@ server {
         grpc_set_header x-shared-key $shared_key;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
+        client_body_timeout 900;
     }
 
     # log-input's ingest. Separate only because its proto package differs; the
@@ -38,6 +39,7 @@ server {
         grpc_set_header x-shared-key $shared_key;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
+        client_body_timeout 900;
     }
 
     location / {
@@ -107,6 +109,7 @@ server {
         grpc_set_header x-shared-key $shared_key;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
+        client_body_timeout 900;
     }
 
     # log-input's ingest. Separate only because its proto package differs; the
@@ -116,6 +119,7 @@ server {
         grpc_set_header x-shared-key $shared_key;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
+        client_body_timeout 900;
     }
 
     location / {

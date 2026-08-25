@@ -261,8 +261,8 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 	if req.GetTenantId() != "" {
 		filter = append(filter, utils.Filter{
 			Field: "tenant_id",
-			Op: utils.Is,
-			Value:sanitizeTenant(req.GetTenantId()),
+			Op:    utils.Is,
+			Value: sanitizeTenant(req.GetTenantId()),
 		})
 	}
 
@@ -303,33 +303,38 @@ func (s *CollectorService) CollectorStream(stream CollectorService_CollectorStre
 	}
 
 	s.CollectorStreamMutex.Lock()
-	if _, ok := s.CollectorStreamMap[uint(uid)]; ok {
-		s.CollectorStreamMutex.Unlock()
-		return status.Error(codes.AlreadyExists, "client is already connected")
-	}
 	s.CollectorStreamMap[uint(uid)] = stream
 	s.CollectorStreamMutex.Unlock()
+
+	defer func() {
+		s.CollectorStreamMutex.Lock()
+		if s.CollectorStreamMap[uint(uid)] == stream {
+			delete(s.CollectorStreamMap, uint(uid))
+		}
+		s.CollectorStreamMutex.Unlock()
+	}()
 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = utils.WaitForReconnect(stream.Context(), stream)
-			if err != nil {
-				s.CollectorStreamMutex.Lock()
-				delete(s.CollectorStreamMap, uint(uid))
-				s.CollectorStreamMutex.Unlock()
-				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect to client: %v", err))
-			}
-			continue
+			return nil
 		}
 		if err != nil {
-			s.CollectorStreamMutex.Lock()
-			delete(s.CollectorStreamMap, uint(uid))
-			s.CollectorStreamMutex.Unlock()
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message from client: %v", err))
 		}
 
 		switch msg := in.StreamMessage.(type) {
+		case *CollectorMessages_Heartbeat:
+			sendMu := s.sendLockFor(uint(uid))
+			sendMu.Lock()
+			sendErr := stream.Send(&CollectorMessages{
+				StreamMessage: &CollectorMessages_Heartbeat{Heartbeat: &Heartbeat{}},
+			})
+			sendMu.Unlock()
+			if sendErr != nil {
+				return status.Error(codes.Internal, fmt.Sprintf("failed to answer heartbeat: %v", sendErr))
+			}
+
 		case *CollectorMessages_Result:
 			catcher.Info("Received Knowledge", map[string]any{"request_id": msg.Result.RequestId, "process": "agent-manager"})
 			s.handleConfigResult(msg.Result)

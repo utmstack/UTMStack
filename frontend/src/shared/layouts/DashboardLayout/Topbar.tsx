@@ -28,6 +28,7 @@ import { useCurrentInstanceId } from '@/shared/lib/current-instance'
 import { InstanceSelector } from '@/features/federation/components/InstanceSelector'
 import { useFederationVersion } from '@/features/federation/hooks/use-version'
 import { useBilling } from '@/features/billing'
+import { SocAiAskButton } from '@/features/soc-ai/components/SocAiAskButton'
 import { TenantSwitcher } from '@/features/tenants/components/TenantSwitcher'
 import {
   NotificationRow,
@@ -197,6 +198,7 @@ export function Topbar() {
 
       {/* Right cluster */}
       <div className="flex items-center gap-1">
+        <SocAiAskButton />
         <TenantSwitcher />
         <div className="relative" ref={notifRef}>
           <IconButton

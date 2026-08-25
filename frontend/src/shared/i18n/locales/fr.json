@@ -5158,7 +5158,7 @@
       "tryPrefix": "Essayez",
       "suggestion": "combien d'alertes ouvertes, regroupées par adversaire ?",
       "placeholder": "Posez une question…",
-      "floatingPlaceholder": "Interrogez l'assistant SOC…",
+      "ask": "Demander",
       "send": "Envoyer",
       "collapse": "Réduire",
       "expand": "Agrandir",

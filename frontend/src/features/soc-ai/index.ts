@@ -1,7 +1,7 @@
 import './styles/soc-ai.css'
 
-export { SocAiProvider, useSocAi } from './SocAiProvider'
+export { SocAiProvider, useSocAi, useSocAiOptional } from './SocAiProvider'
 export type { SocAiMessage } from './SocAiProvider'
-export { SocAiFloating } from './components/SocAiFloating'
+export { SocAiAskButton } from './components/SocAiAskButton'
 export { SocAiPanel } from './components/SocAiPanel'
 export { useSocAiConfigured } from './lib/useSocAiConfig'

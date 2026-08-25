@@ -108,12 +108,9 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 		default:
 			ack, err := plClient.Recv()
 			if err != nil {
-				action := HandleGRPCStreamError(err, "failed to receive ack", &l.ackErrWritten)
-				if action == ActionReconnect {
-					cancel()
-					return
-				}
-				continue
+				HandleGRPCStreamError(err, "failed to receive ack", &l.ackErrWritten)
+				cancel()
+				return
 			}
 
 			l.ackErrWritten = false
@@ -149,12 +146,9 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 
 			err := plClient.Send(newLog)
 			if err != nil {
-				action := HandleGRPCStreamError(err, "failed to send log", &l.sendErrWritten)
-				if action == ActionReconnect {
-					cancel()
-					return
-				}
-				continue
+				HandleGRPCStreamError(err, "failed to send log", &l.sendErrWritten)
+				cancel()
+				return
 			}
 			l.sendErrWritten = false
 		}

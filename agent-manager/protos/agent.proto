@@ -52,6 +52,10 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
+  // Set at install and never changed from here. It is reported so the console
+  // can show that this machine refuses commands; the refusal itself happens in
+  // the agent, because a flag the server honours is worth nothing against a
+  // server that has been taken over.
   bool no_remote_control = 12;
 }
 
@@ -83,6 +87,7 @@ message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
+    Heartbeat heartbeat = 3;
   }
 }
 

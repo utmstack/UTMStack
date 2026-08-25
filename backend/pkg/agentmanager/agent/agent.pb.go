@@ -167,19 +167,23 @@ func (x *ConnectionKeyResponse) GetConnectionKey() string {
 }
 
 type AgentRequest struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Ip              string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	Hostname        string                 `protobuf:"bytes,2,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	Os              string                 `protobuf:"bytes,3,opt,name=os,proto3" json:"os,omitempty"`
-	Platform        string                 `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
-	Version         string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
-	RegisterBy      string                 `protobuf:"bytes,6,opt,name=register_by,json=registerBy,proto3" json:"register_by,omitempty"`
-	Mac             string                 `protobuf:"bytes,7,opt,name=mac,proto3" json:"mac,omitempty"`
-	OsMajorVersion  string                 `protobuf:"bytes,8,opt,name=os_major_version,json=osMajorVersion,proto3" json:"os_major_version,omitempty"`
-	OsMinorVersion  string                 `protobuf:"bytes,9,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
-	Aliases         string                 `protobuf:"bytes,10,opt,name=aliases,proto3" json:"aliases,omitempty"`
-	Addresses       string                 `protobuf:"bytes,11,opt,name=addresses,proto3" json:"addresses,omitempty"`
-	NoRemoteControl bool                   `protobuf:"varint,12,opt,name=no_remote_control,json=noRemoteControl,proto3" json:"no_remote_control,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Ip             string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	Hostname       string                 `protobuf:"bytes,2,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Os             string                 `protobuf:"bytes,3,opt,name=os,proto3" json:"os,omitempty"`
+	Platform       string                 `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
+	Version        string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
+	RegisterBy     string                 `protobuf:"bytes,6,opt,name=register_by,json=registerBy,proto3" json:"register_by,omitempty"`
+	Mac            string                 `protobuf:"bytes,7,opt,name=mac,proto3" json:"mac,omitempty"`
+	OsMajorVersion string                 `protobuf:"bytes,8,opt,name=os_major_version,json=osMajorVersion,proto3" json:"os_major_version,omitempty"`
+	OsMinorVersion string                 `protobuf:"bytes,9,opt,name=os_minor_version,json=osMinorVersion,proto3" json:"os_minor_version,omitempty"`
+	Aliases        string                 `protobuf:"bytes,10,opt,name=aliases,proto3" json:"aliases,omitempty"`
+	Addresses      string                 `protobuf:"bytes,11,opt,name=addresses,proto3" json:"addresses,omitempty"`
+	// Set at install and never changed from here. It is reported so the console
+	// can show that this machine refuses commands; the refusal itself happens in
+	// the agent, because a flag the server honours is worth nothing against a
+	// server that has been taken over.
+	NoRemoteControl bool `protobuf:"varint,12,opt,name=no_remote_control,json=noRemoteControl,proto3" json:"no_remote_control,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -520,6 +524,7 @@ type BidirectionalStream struct {
 	//
 	//	*BidirectionalStream_Command
 	//	*BidirectionalStream_Result
+	//	*BidirectionalStream_Heartbeat
 	StreamMessage isBidirectionalStream_StreamMessage `protobuf_oneof:"stream_message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -580,6 +585,15 @@ func (x *BidirectionalStream) GetResult() *CommandResult {
 	return nil
 }
 
+func (x *BidirectionalStream) GetHeartbeat() *Heartbeat {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_Heartbeat); ok {
+			return x.Heartbeat
+		}
+	}
+	return nil
+}
+
 type isBidirectionalStream_StreamMessage interface {
 	isBidirectionalStream_StreamMessage()
 }
@@ -592,9 +606,15 @@ type BidirectionalStream_Result struct {
 	Result *CommandResult `protobuf:"bytes,2,opt,name=result,proto3,oneof"`
 }
 
+type BidirectionalStream_Heartbeat struct {
+	Heartbeat *Heartbeat `protobuf:"bytes,3,opt,name=heartbeat,proto3,oneof"`
+}
+
 func (*BidirectionalStream_Command) isBidirectionalStream_StreamMessage() {}
 
 func (*BidirectionalStream_Result) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_Heartbeat) isBidirectionalStream_StreamMessage() {}
 
 type UtmCommand struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -984,10 +1004,11 @@ const file_agent_proto_rawDesc = "" +
 	"\aaliases\x18\r \x01(\tR\aaliases\x12\x1c\n" +
 	"\taddresses\x18\x0e \x01(\tR\taddresses\x12\x1b\n" +
 	"\ttenant_id\x18\x0f \x01(\tR\btenantId\x12*\n" +
-	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\x86\x01\n" +
+	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\xb8\x01\n" +
 	"\x13BidirectionalStream\x12-\n" +
 	"\acommand\x18\x01 \x01(\v2\x11.agent.UtmCommandH\x00R\acommand\x12.\n" +
-	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06resultB\x10\n" +
+	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06result\x120\n" +
+	"\theartbeat\x18\x03 \x01(\v2\x10.agent.HeartbeatH\x00R\theartbeatB\x10\n" +
 	"\x0estream_message\"\xe5\x01\n" +
 	"\n" +
 	"UtmCommand\x12\x19\n" +
@@ -1074,48 +1095,50 @@ var file_agent_proto_goTypes = []any{
 	(*ListAgentsCommandsResponse)(nil), // 9: agent.ListAgentsCommandsResponse
 	(*AgentCommand)(nil),               // 10: agent.AgentCommand
 	(Status)(0),                        // 11: agent.Status
-	(*timestamppb.Timestamp)(nil),      // 12: google.protobuf.Timestamp
-	(*DeleteRequest)(nil),              // 13: agent.DeleteRequest
-	(*ListRequest)(nil),                // 14: agent.ListRequest
-	(*ConnectorAuthRequest)(nil),       // 15: agent.ConnectorAuthRequest
-	(*AuthResponse)(nil),               // 16: agent.AuthResponse
-	(*ConnectorAuthResponse)(nil),      // 17: agent.ConnectorAuthResponse
+	(*Heartbeat)(nil),                  // 12: agent.Heartbeat
+	(*timestamppb.Timestamp)(nil),      // 13: google.protobuf.Timestamp
+	(*DeleteRequest)(nil),              // 14: agent.DeleteRequest
+	(*ListRequest)(nil),                // 15: agent.ListRequest
+	(*ConnectorAuthRequest)(nil),       // 16: agent.ConnectorAuthRequest
+	(*AuthResponse)(nil),               // 17: agent.AuthResponse
+	(*ConnectorAuthResponse)(nil),      // 18: agent.ConnectorAuthResponse
 }
 var file_agent_proto_depIdxs = []int32{
 	5,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
 	11, // 1: agent.Agent.status:type_name -> agent.Status
 	7,  // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
 	8,  // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
-	12, // 4: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
-	10, // 5: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
-	12, // 6: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
-	12, // 7: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
-	3,  // 9: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
-	3,  // 10: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
-	13, // 11: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
-	14, // 12: agent.AgentService.ListAgents:input_type -> agent.ListRequest
-	15, // 13: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
-	6,  // 14: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
-	14, // 15: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
-	7,  // 16: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
-	1,  // 17: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
-	1,  // 18: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
-	16, // 19: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
-	16, // 20: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
-	16, // 21: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
-	4,  // 22: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
-	17, // 23: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
-	6,  // 24: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
-	9,  // 25: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
-	8,  // 26: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
-	2,  // 27: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
-	2,  // 28: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
-	19, // [19:29] is the sub-list for method output_type
-	9,  // [9:19] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	12, // 4: agent.BidirectionalStream.heartbeat:type_name -> agent.Heartbeat
+	13, // 5: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
+	10, // 6: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
+	13, // 7: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
+	13, // 8: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 9: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
+	3,  // 10: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
+	3,  // 11: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
+	14, // 12: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
+	15, // 13: agent.AgentService.ListAgents:input_type -> agent.ListRequest
+	16, // 14: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
+	6,  // 15: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
+	15, // 16: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
+	7,  // 17: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
+	1,  // 18: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
+	1,  // 19: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
+	17, // 20: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
+	17, // 21: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
+	17, // 22: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
+	4,  // 23: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
+	18, // 24: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
+	6,  // 25: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
+	9,  // 26: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
+	8,  // 27: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
+	2,  // 28: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
+	2,  // 29: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
+	20, // [20:30] is the sub-list for method output_type
+	10, // [10:20] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_agent_proto_init() }
@@ -1127,6 +1150,7 @@ func file_agent_proto_init() {
 	file_agent_proto_msgTypes[5].OneofWrappers = []any{
 		(*BidirectionalStream_Command)(nil),
 		(*BidirectionalStream_Result)(nil),
+		(*BidirectionalStream_Heartbeat)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -5150,7 +5150,7 @@
       "tryPrefix": "Versuchen",
       "suggestion": "Wie viele offene Alarme, gruppiert nach Angreifer?",
       "placeholder": "Eine Frage stellen…",
-      "floatingPlaceholder": "Den SOC-Assistenten fragen…",
+      "ask": "Fragen",
       "send": "Senden",
       "collapse": "Einklappen",
       "expand": "Ausklappen",

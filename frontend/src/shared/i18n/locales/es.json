@@ -3981,7 +3981,7 @@
       "tryPrefix": "Prueba",
       "suggestion": "¿cuántas alertas abiertas hay, agrupadas por adversario?",
       "placeholder": "Escribe una pregunta…",
-      "floatingPlaceholder": "Pregúntale al asistente SOC…",
+      "ask": "Preguntar",
       "send": "Enviar",
       "collapse": "Contraer",
       "expand": "Expandir",

@@ -264,8 +264,8 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	if req.GetTenantId() != "" {
 		filter = append(filter, utils.Filter{
 			Field: "tenant_id",
-			Op: utils.Is,
-			Value:sanitizeTenant(req.GetTenantId()),
+			Op:    utils.Is,
+			Value: sanitizeTenant(req.GetTenantId()),
 		})
 	}
 
@@ -308,12 +308,16 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	idUint := uint(idInt)
 
 	s.AgentStreamMutex.Lock()
-	if _, ok := s.AgentStreamMap[idUint]; ok {
-		s.AgentStreamMutex.Unlock()
-		return status.Error(codes.AlreadyExists, "stream already exists")
-	}
 	s.AgentStreamMap[idUint] = stream
 	s.AgentStreamMutex.Unlock()
+
+	defer func() {
+		s.AgentStreamMutex.Lock()
+		if s.AgentStreamMap[idUint] == stream {
+			delete(s.AgentStreamMap, idUint)
+		}
+		s.AgentStreamMutex.Unlock()
+	}()
 
 	if OnAgentConnectHook != nil {
 		OnAgentConnectHook(stream.Context(), idUint)
@@ -322,24 +326,21 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = utils.WaitForReconnect(stream.Context(), stream)
-			if err != nil {
-				s.AgentStreamMutex.Lock()
-				delete(s.AgentStreamMap, idUint)
-				s.AgentStreamMutex.Unlock()
-
-				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect: %v", err))
-			}
-			continue
+			// The agent finished sending. It does not resume on this stream —
+			// it opens a new one — so there is nothing here to wait for.
+			return nil
 		}
 		if err != nil {
-			s.AgentStreamMutex.Lock()
-			delete(s.AgentStreamMap, idUint)
-			s.AgentStreamMutex.Unlock()
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message: %v", err))
 		}
 
 		switch msg := in.StreamMessage.(type) {
+		case *BidirectionalStream_Heartbeat:
+			if err := sendToAgent(idUint, stream, &BidirectionalStream{
+				StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+			}); err != nil {
+				return status.Error(codes.Internal, fmt.Sprintf("failed to answer heartbeat: %v", err))
+			}
 		case *BidirectionalStream_Result:
 			catcher.Info("Received command result from agent", map[string]any{"agent_id": msg.Result.AgentId, "result": msg.Result.Result, "process": "agent-manager"})
 			cmdID := msg.Result.GetCmdId()
@@ -408,26 +409,16 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 			catcher.Error("unable to create a new command history", err, map[string]any{"process": "agent-manager"})
 		}
 
-		var lock sync.Locker
-		if LockStreamHook != nil {
-			lock = LockStreamHook(uint(streamId))
-		}
-		func() {
-			if lock != nil {
-				lock.Lock()
-				defer lock.Unlock()
-			}
-			err = agentStream.Send(&BidirectionalStream{
-				StreamMessage: &BidirectionalStream_Command{
-					Command: &UtmCommand{
-						AgentId: cmd.AgentId,
-						Command: replaceSecretValues(cmd.Command),
-						CmdId:   cmdID,
-						Shell:   cmd.Shell,
-					},
+		err = sendToAgent(uint(streamId), agentStream, &BidirectionalStream{
+			StreamMessage: &BidirectionalStream_Command{
+				Command: &UtmCommand{
+					AgentId: cmd.AgentId,
+					Command: replaceSecretValues(cmd.Command),
+					CmdId:   cmdID,
+					Shell:   cmd.Shell,
 				},
-			})
-		}()
+			},
+		})
 		if err != nil {
 			return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
 		}
@@ -538,4 +529,16 @@ func AuthSnapshot() authcache.Snapshot {
 	}
 
 	return s
+}
+
+func sendToAgent(agentID uint, stream AgentService_AgentStreamServer, msg *BidirectionalStream) error {
+	var lock sync.Locker
+	if LockStreamHook != nil {
+		lock = LockStreamHook(agentID)
+	}
+	if lock != nil {
+		lock.Lock()
+		defer lock.Unlock()
+	}
+	return stream.Send(msg)
 }

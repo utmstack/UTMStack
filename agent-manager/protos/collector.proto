@@ -55,6 +55,7 @@ message CollectorMessages {
   oneof stream_message {
     CollectorConfig config = 1;
     ConfigKnowledge result = 2;
+    Heartbeat heartbeat = 3;
   }
 }
 

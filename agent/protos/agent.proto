@@ -9,15 +9,27 @@ import "common.proto";
 
 service AgentService {
   rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
-  rpc UpdateAgent(AgentRequest) returns (AuthResponse) {}
+  rpc UpdateAgent(AgentRequest) returns  (AuthResponse) {}
   rpc DeleteAgent(DeleteRequest) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+  rpc GetAgentAuth (ConnectorAuthRequest) returns (ConnectorAuthResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
   rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
 }
 
 service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
+  rpc GetConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+}
+
+message ConnectionKeyRequest {
+  // Which tenant's enrolment key. Empty means the default tenant.
+  string tenantId = 1;
+}
+
+message ConnectionKeyResponse {
+  string connection_key = 1;
 }
 
 enum AgentCommandStatus {
@@ -40,6 +52,11 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
+  // Set at install and never changed from here. It is reported so the console
+  // can show that this machine refuses commands; the refusal itself happens in
+  // the agent, because a flag the server honours is worth nothing against a
+  // server that has been taken over.
+  bool no_remote_control = 12;
 }
 
 message ListAgentsResponse {
@@ -62,12 +79,15 @@ message Agent {
   string os_minor_version = 12;
   string aliases = 13;
   string addresses = 14;
+  string tenant_id = 15;
+  bool no_remote_control = 16;
 }
 
 message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
+    Heartbeat heartbeat = 3;
   }
 }
 

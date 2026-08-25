@@ -323,6 +323,7 @@ type CollectorMessages struct {
 	//
 	//	*CollectorMessages_Config
 	//	*CollectorMessages_Result
+	//	*CollectorMessages_Heartbeat
 	StreamMessage isCollectorMessages_StreamMessage `protobuf_oneof:"stream_message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -383,6 +384,15 @@ func (x *CollectorMessages) GetResult() *ConfigKnowledge {
 	return nil
 }
 
+func (x *CollectorMessages) GetHeartbeat() *Heartbeat {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*CollectorMessages_Heartbeat); ok {
+			return x.Heartbeat
+		}
+	}
+	return nil
+}
+
 type isCollectorMessages_StreamMessage interface {
 	isCollectorMessages_StreamMessage()
 }
@@ -395,9 +405,15 @@ type CollectorMessages_Result struct {
 	Result *ConfigKnowledge `protobuf:"bytes,2,opt,name=result,proto3,oneof"`
 }
 
+type CollectorMessages_Heartbeat struct {
+	Heartbeat *Heartbeat `protobuf:"bytes,3,opt,name=heartbeat,proto3,oneof"`
+}
+
 func (*CollectorMessages_Config) isCollectorMessages_StreamMessage() {}
 
 func (*CollectorMessages_Result) isCollectorMessages_StreamMessage() {}
+
+func (*CollectorMessages_Heartbeat) isCollectorMessages_StreamMessage() {}
 
 type CollectorConfig struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
@@ -900,10 +916,11 @@ const file_collector_proto_rawDesc = "" +
 	"\tlast_seen\x18\b \x01(\tR\blastSeen\x12\x1b\n" +
 	"\ttenant_id\x18\t \x01(\tR\btenantId\x12*\n" +
 	"\x11no_remote_control\x18\n" +
-	" \x01(\bR\x0fnoRemoteControl\"\x89\x01\n" +
+	" \x01(\bR\x0fnoRemoteControl\"\xbb\x01\n" +
 	"\x11CollectorMessages\x120\n" +
 	"\x06config\x18\x01 \x01(\v2\x16.agent.CollectorConfigH\x00R\x06config\x120\n" +
-	"\x06result\x18\x02 \x01(\v2\x16.agent.ConfigKnowledgeH\x00R\x06resultB\x10\n" +
+	"\x06result\x18\x02 \x01(\v2\x16.agent.ConfigKnowledgeH\x00R\x06result\x120\n" +
+	"\theartbeat\x18\x03 \x01(\v2\x10.agent.HeartbeatH\x00R\theartbeatB\x10\n" +
 	"\x0estream_message\"\x88\x01\n" +
 	"\x0fCollectorConfig\x12!\n" +
 	"\fcollector_id\x18\x01 \x01(\tR\vcollectorId\x123\n" +
@@ -991,11 +1008,12 @@ var file_collector_proto_goTypes = []any{
 	(*IntegrationStateRequest)(nil),      // 10: agent.IntegrationStateRequest
 	(*IntegrationStateResponse)(nil),     // 11: agent.IntegrationStateResponse
 	(Status)(0),                          // 12: agent.Status
-	(*DeleteRequest)(nil),                // 13: agent.DeleteRequest
-	(*ListRequest)(nil),                  // 14: agent.ListRequest
-	(*ConnectorAuthRequest)(nil),         // 15: agent.ConnectorAuthRequest
-	(*AuthResponse)(nil),                 // 16: agent.AuthResponse
-	(*ConnectorAuthResponse)(nil),        // 17: agent.ConnectorAuthResponse
+	(*Heartbeat)(nil),                    // 13: agent.Heartbeat
+	(*DeleteRequest)(nil),                // 14: agent.DeleteRequest
+	(*ListRequest)(nil),                  // 15: agent.ListRequest
+	(*ConnectorAuthRequest)(nil),         // 16: agent.ConnectorAuthRequest
+	(*AuthResponse)(nil),                 // 17: agent.AuthResponse
+	(*ConnectorAuthResponse)(nil),        // 18: agent.ConnectorAuthResponse
 }
 var file_collector_proto_depIdxs = []int32{
 	0,  // 0: agent.RegisterRequest.collector:type_name -> agent.CollectorModule
@@ -1004,30 +1022,31 @@ var file_collector_proto_depIdxs = []int32{
 	0,  // 3: agent.Collector.module:type_name -> agent.CollectorModule
 	5,  // 4: agent.CollectorMessages.config:type_name -> agent.CollectorConfig
 	9,  // 5: agent.CollectorMessages.result:type_name -> agent.ConfigKnowledge
-	6,  // 6: agent.CollectorConfig.groups:type_name -> agent.CollectorConfigGroup
-	7,  // 7: agent.CollectorConfigGroup.configurations:type_name -> agent.CollectorGroupConfigurations
-	7,  // 8: agent.IntegrationStateResponse.configurations:type_name -> agent.CollectorGroupConfigurations
-	1,  // 9: agent.CollectorService.RegisterCollector:input_type -> agent.RegisterRequest
-	13, // 10: agent.CollectorService.DeleteCollector:input_type -> agent.DeleteRequest
-	14, // 11: agent.CollectorService.ListCollector:input_type -> agent.ListRequest
-	15, // 12: agent.CollectorService.GetCollectorAuth:input_type -> agent.ConnectorAuthRequest
-	4,  // 13: agent.CollectorService.CollectorStream:input_type -> agent.CollectorMessages
-	8,  // 14: agent.CollectorService.GetCollectorConfig:input_type -> agent.ConfigRequest
-	5,  // 15: agent.CollectorService.SetCollectorConfig:input_type -> agent.CollectorConfig
-	10, // 16: agent.CollectorService.GetCollectorIntegrationState:input_type -> agent.IntegrationStateRequest
-	16, // 17: agent.CollectorService.RegisterCollector:output_type -> agent.AuthResponse
-	16, // 18: agent.CollectorService.DeleteCollector:output_type -> agent.AuthResponse
-	2,  // 19: agent.CollectorService.ListCollector:output_type -> agent.ListCollectorResponse
-	17, // 20: agent.CollectorService.GetCollectorAuth:output_type -> agent.ConnectorAuthResponse
-	4,  // 21: agent.CollectorService.CollectorStream:output_type -> agent.CollectorMessages
-	5,  // 22: agent.CollectorService.GetCollectorConfig:output_type -> agent.CollectorConfig
-	9,  // 23: agent.CollectorService.SetCollectorConfig:output_type -> agent.ConfigKnowledge
-	11, // 24: agent.CollectorService.GetCollectorIntegrationState:output_type -> agent.IntegrationStateResponse
-	17, // [17:25] is the sub-list for method output_type
-	9,  // [9:17] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	13, // 6: agent.CollectorMessages.heartbeat:type_name -> agent.Heartbeat
+	6,  // 7: agent.CollectorConfig.groups:type_name -> agent.CollectorConfigGroup
+	7,  // 8: agent.CollectorConfigGroup.configurations:type_name -> agent.CollectorGroupConfigurations
+	7,  // 9: agent.IntegrationStateResponse.configurations:type_name -> agent.CollectorGroupConfigurations
+	1,  // 10: agent.CollectorService.RegisterCollector:input_type -> agent.RegisterRequest
+	14, // 11: agent.CollectorService.DeleteCollector:input_type -> agent.DeleteRequest
+	15, // 12: agent.CollectorService.ListCollector:input_type -> agent.ListRequest
+	16, // 13: agent.CollectorService.GetCollectorAuth:input_type -> agent.ConnectorAuthRequest
+	4,  // 14: agent.CollectorService.CollectorStream:input_type -> agent.CollectorMessages
+	8,  // 15: agent.CollectorService.GetCollectorConfig:input_type -> agent.ConfigRequest
+	5,  // 16: agent.CollectorService.SetCollectorConfig:input_type -> agent.CollectorConfig
+	10, // 17: agent.CollectorService.GetCollectorIntegrationState:input_type -> agent.IntegrationStateRequest
+	17, // 18: agent.CollectorService.RegisterCollector:output_type -> agent.AuthResponse
+	17, // 19: agent.CollectorService.DeleteCollector:output_type -> agent.AuthResponse
+	2,  // 20: agent.CollectorService.ListCollector:output_type -> agent.ListCollectorResponse
+	18, // 21: agent.CollectorService.GetCollectorAuth:output_type -> agent.ConnectorAuthResponse
+	4,  // 22: agent.CollectorService.CollectorStream:output_type -> agent.CollectorMessages
+	5,  // 23: agent.CollectorService.GetCollectorConfig:output_type -> agent.CollectorConfig
+	9,  // 24: agent.CollectorService.SetCollectorConfig:output_type -> agent.ConfigKnowledge
+	11, // 25: agent.CollectorService.GetCollectorIntegrationState:output_type -> agent.IntegrationStateResponse
+	18, // [18:26] is the sub-list for method output_type
+	10, // [10:18] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_collector_proto_init() }
@@ -1039,6 +1058,7 @@ func file_collector_proto_init() {
 	file_collector_proto_msgTypes[3].OneofWrappers = []any{
 		(*CollectorMessages_Config)(nil),
 		(*CollectorMessages_Result)(nil),
+		(*CollectorMessages_Heartbeat)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -34,7 +34,7 @@ func InstallNginx(distro string) error {
 
 func ConfigureNginx(stack *docker.StackConfig, distro string) error {
 	c := NginxConfig{
-		SharedKey: utils.GenerateSecret(32),
+		SharedKey: config.GetConfig().SharedKey,
 	}
 
 	err := utils.GenerateConfig(c, templates.FrontEnd, path.Join(stack.FrontEndNginx, "00_nginx_panel.conf"))
@@ -75,6 +75,10 @@ func ConfigureNginx(stack *docker.StackConfig, distro string) error {
 
 	if err := utils.RunCmd("systemctl", "restart", "nginx"); err != nil {
 		return err
+	}
+
+	if err := utils.RunCmd("docker", "service", "update", "--force", "--quiet", "utmstack_frontend"); err != nil {
+		config.Logger().ErrorF("could not reload the panel's nginx; if the API answers 403, restart utmstack_frontend: %v", err)
 	}
 
 	return nil

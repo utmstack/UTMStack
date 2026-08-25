@@ -34,11 +34,28 @@ message DeleteRequest {
   string deleted_by = 1;
 }
 
+// ConnectorAuthRequest resolves one connector's credential by id.
+//
+// It exists because listing was the only way to answer that question, and a
+// caller that already holds an id had to pull every connector to find one. It
+// carries what authentication needs and nothing else: no status, no last seen,
+// no hostname — none of which the caller reads, and all of which cost a lookup
+// of their own to assemble.
 message ConnectorAuthRequest {
   uint32 id = 1;
 }
 
 message ConnectorAuthResponse {
   string key = 1;
+  // Empty means the default tenant, the same convention the rest of the
+  // service uses.
   string tenant_id = 2;
 }
+
+// Heartbeat keeps an idle control stream from looking abandoned to whatever
+// sits between a connector and the server. Proxies end a request body that
+// stops arriving, and a stream that says nothing for minutes is exactly that:
+// nginx cuts it, the connector sees RST_STREAM, and until it reconnects no
+// command can reach the machine. It carries no fields because it has nothing
+// to say — that it arrived at all is the whole message.
+message Heartbeat {}

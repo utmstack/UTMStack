@@ -5158,7 +5158,7 @@
       "tryPrefix": "Prova",
       "suggestion": "quanti alert aperti, raggruppati per avversario?",
       "placeholder": "Fai una domanda…",
-      "floatingPlaceholder": "Chiedi all'assistente SOC…",
+      "ask": "Chiedi",
       "send": "Invia",
       "collapse": "Comprimi",
       "expand": "Espandi",
