@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -183,6 +184,22 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 		return
 	}
 
+	// Skip alerts already tagged "False positive". Manual path carries Tags
+	// in AlertFields; gRPC path has none (proto lacks the field) so look up
+	// the alert doc from ES. Fail-open if the lookup fails.
+	tags := alertFields.Tags
+	if len(tags) == 0 && !item.IsManual {
+		tags = fetchAlertTags(alertFields.Id)
+	}
+	if hasFalsePositiveTag(tags) {
+		catcher.Info("Skipping LLM: alert tagged False positive", map[string]any{
+			"process":  "plugin_com.utmstack.soc-ai",
+			"alert_id": alertFields.Id,
+		})
+		atomic.AddInt64(&aq.processedCount, 1)
+		return
+	}
+
 	// Check connection to LLM endpoint
 	if config.GetConfig().URL != "" {
 		if err := utils.ConnectionChecker(config.GetConfig().URL); err != nil {
@@ -208,6 +225,30 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 	}
 
 	atomic.AddInt64(&aq.processedCount, 1)
+}
+
+// Matches backend Constants.FALSE_POSITIVE_TAG exactly.
+const falsePositiveTag = "False positive"
+
+func hasFalsePositiveTag(tags []string) bool {
+	for _, t := range tags {
+		if t == falsePositiveTag {
+			return true
+		}
+	}
+	return false
+}
+
+func fetchAlertTags(id string) []string {
+	result, err := elastic.ElasticSearchWithLimit(config.ALERT_INDEX_PATTERN, "id", id, 1)
+	if err != nil {
+		return nil
+	}
+	var alerts []schema.AlertFields
+	if err := json.Unmarshal(result, &alerts); err != nil || len(alerts) == 0 {
+		return nil
+	}
+	return alerts[0].Tags
 }
 
 func (aq *AlertQueue) metricsLogger() {
