@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown, Trash2, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -25,6 +26,7 @@ interface Props {
  *  command/params (schema depends on executor), on_success/on_error left
  *  implicit (drawn on the canvas). */
 export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChange, onDelete }: Props) {
+  const { t } = useTranslation()
   const [localId, setLocalId] = useState(nodeId)
   const [paramsText, setParamsText] = useState(() => (node.params ? JSON.stringify(node.params, null, 2) : ''))
   const [paramsError, setParamsError] = useState<string | null>(null)
@@ -80,7 +82,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
       onChange({ params: parsed })
       setParamsError(null)
     } catch (e) {
-      setParamsError(e instanceof Error ? e.message : 'invalid JSON')
+      setParamsError(e instanceof Error ? e.message : t('soar.editor.canvas.invalidJson'))
     }
   }
 
@@ -144,18 +146,18 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
       <div
         onMouseDown={startResize}
         className="absolute left-0 top-0 z-10 h-full w-1 cursor-col-resize hover:bg-primary/40"
-        title="Drag to resize"
+        title={t('soar.editor.canvas.dragToResize')}
       />
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Node</div>
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('soar.editor.canvas.node')}</div>
         {!readOnly && (
-          <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title="Delete node">
+          <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title={t('soar.editor.canvas.deleteNode')}>
             <Trash2 size={13} />
           </button>
         )}
       </div>
       <div className="flex-1 space-y-3 overflow-y-auto p-3 text-xs">
-        <Field label="ID">
+        <Field label={t('soar.editor.canvas.id')}>
           <Input
             value={localId}
             readOnly={readOnly}
@@ -164,7 +166,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
             className="h-8 font-mono"
           />
         </Field>
-        <Field label="Kind">
+        <Field label={t('soar.editor.canvas.kind')}>
           <select
             value={node.kind}
             disabled={readOnly}
@@ -183,7 +185,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
             ))}
           </select>
         </Field>
-        <Field label="Executor">
+        <Field label={t('soar.editor.canvas.executor')}>
           <select value={node.executor} disabled={readOnly} onChange={(e) => onChange({ executor: e.target.value })} className={SELECT}>
             {validExecutors.map((m) => (
               <option key={m.type} value={m.type}>
@@ -195,7 +197,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
 
         {node.executor === 'shell' && (
           <>
-            <Field label="Command">
+            <Field label={t('soar.editor.canvas.commandLabel')}>
               {!readOnly && (
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
                   <TemplatesPopover
@@ -229,7 +231,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
         )}
 
         {node.executor !== 'shell' && (
-          <Field label="Params (JSON)">
+          <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
                 <InsertFieldMenu nodes={nodes} currentNodeId={nodeId} onInsert={(token) => insertIntoParams(token)} />
@@ -250,14 +252,12 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
         )}
 
         <div className="rounded-md bg-muted/40 p-2 text-[10px] text-muted-foreground">
-          Drag from the bottom-left <span className="text-emerald-500">green</span> handle for on_success, the
-          bottom-right <span className="text-red-500">red</span> handle for on_error. Multiple wires = parallel.
-          Multiple wires into one node = AND-join.
+          {t('soar.editor.canvas.handlesHint')}
         </div>
       </div>
       <div className="border-t border-border p-2">
         <Button size="sm" variant="outline" className="w-full" onClick={onDelete} disabled={readOnly}>
-          Delete node
+          {t('soar.editor.canvas.deleteNode')}
         </Button>
       </div>
     </aside>
@@ -284,6 +284,7 @@ function TemplatesPopover({
   onPick: (command: string) => void
   shellKind: ReturnType<typeof shellKindFor>
 }) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -300,7 +301,7 @@ function TemplatesPopover({
         onClick={() => onOpenChange(!open)}
         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] hover:bg-muted"
       >
-        <Zap size={11} /> Templates <ChevronDown size={10} className="opacity-60" />
+        <Zap size={11} /> {t('soar.editor.canvas.templatesLabel')} <ChevronDown size={10} className="opacity-60" />
       </button>
       {open && (
         <div className="absolute left-0 top-full z-30 mt-1 max-h-64 w-64 overflow-y-auto rounded-md border border-border bg-popover py-1 shadow-lg">

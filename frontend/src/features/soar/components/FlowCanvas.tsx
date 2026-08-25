@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Background,
   Controls,
@@ -47,6 +48,7 @@ export function FlowCanvas(props: Props) {
 }
 
 function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
+  const { t } = useTranslation()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
   const { theme } = useTheme()
@@ -339,13 +341,13 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
             type="button"
             onClick={() => setPaletteOpen(false)}
             className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Hide palette"
+            title={t('soar.editor.canvas.hidePalette')}
           >
             <ChevronLeft size={13} />
           </button>
         </div>
       ) : (
-        <CollapsedRail side="left" label="Palette" onClick={() => setPaletteOpen(true)} />
+        <CollapsedRail side="left" label={t('soar.editor.canvas.paletteLabel')} onClick={() => setPaletteOpen(true)} />
       )}
 
       <div ref={wrapperRef} className="relative flex-1" onDragOver={onDragOver} onDrop={onDrop}>
@@ -397,13 +399,13 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
               type="button"
               onClick={() => setInspectorOpen(false)}
               className="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
-              title="Hide inspector"
+              title={t('soar.editor.canvas.hideInspector')}
             >
               <ChevronRight size={13} />
             </button>
           </div>
         ) : (
-          <CollapsedRail side="right" label="Node" onClick={() => setInspectorOpen(true)} />
+          <CollapsedRail side="right" label={t('soar.editor.canvas.nodeShort')} onClick={() => setInspectorOpen(true)} />
         )
       ) : null}
     </div>
@@ -411,6 +413,7 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
 }
 
 function CollapsedRail({ side, label, onClick }: { side: 'left' | 'right'; label: string; onClick: () => void }) {
+  const { t } = useTranslation()
   const Icon = side === 'left' ? PanelLeft : PanelRight
   return (
     <button
@@ -420,7 +423,7 @@ function CollapsedRail({ side, label, onClick }: { side: 'left' | 'right'; label
         'flex w-8 shrink-0 flex-col items-center gap-2 border-border bg-card py-2 text-muted-foreground hover:bg-muted hover:text-foreground',
         side === 'left' ? 'border-r' : 'border-l',
       )}
-      title={`Show ${label.toLowerCase()}`}
+      title={t('soar.editor.canvas.showPanel', { name: label })}
     >
       <Icon size={13} />
       <span

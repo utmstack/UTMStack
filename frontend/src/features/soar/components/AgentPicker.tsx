@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
@@ -38,6 +39,7 @@ function scopeFrom(agent?: string, excluded?: string[]): Scope {
  *  Platform is a UI-only filter (limits the agent list); the runtime uses
  *  `agent` + `excludedAgents`. */
 export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, onChange }: Props) {
+  const { t } = useTranslation()
   const [agents, setAgents] = useState<AgentOption[]>([])
   const [scope, setScope] = useState<Scope>(() => scopeFrom(agent, excludedAgents))
 
@@ -100,17 +102,17 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2">
-        <Field label="Platform">
+        <Field label={t('soar.editor.canvas.platform')}>
           <select value={platform ?? ''} disabled={readOnly} onChange={(e) => onPlatformChange(e.target.value)} className={SELECT + ' w-full'}>
-            <option value="">any</option>
+            <option value="">{t('soar.editor.canvas.any')}</option>
             {platforms.map((p) => (
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
         </Field>
-        <Field label="Shell">
+        <Field label={t('soar.editor.canvas.shell')}>
           <select value={shell ?? ''} disabled={readOnly} onChange={(e) => onChange({ shell: e.target.value || undefined })} className={SELECT + ' w-full'}>
-            <option value="">auto</option>
+            <option value="">{t('soar.editor.canvas.auto')}</option>
             {shells.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -118,7 +120,7 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
         </Field>
       </div>
 
-      <Field label="Run on">
+      <Field label={t('soar.editor.canvas.runOn')}>
         <div className="inline-flex w-full rounded-md border border-border p-0.5">
           {(['auto', 'specific', 'except'] as const).map((s) => (
             <button
@@ -132,13 +134,17 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
               )}
               title={
                 s === 'auto'
-                  ? 'Runs on the host that raised the alert'
+                  ? t('soar.editor.canvas.runAutoTitle')
                   : s === 'specific'
-                  ? 'Pin to one host (or a template like $(alert.foo))'
-                  : 'Runs on the host that raised the alert, but skips ones in the list'
+                  ? t('soar.editor.canvas.runSpecificTitle')
+                  : t('soar.editor.canvas.runExceptTitle')
               }
             >
-              {s === 'auto' ? 'alert source' : s === 'specific' ? 'one host' : 'all except'}
+              {s === 'auto'
+                ? t('soar.editor.canvas.runAutoLabel')
+                : s === 'specific'
+                ? t('soar.editor.canvas.runSpecificLabel')
+                : t('soar.editor.canvas.runExceptLabel')}
             </button>
           ))}
         </div>
@@ -146,8 +152,10 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
 
       {scope === 'auto' && (
         <p className="rounded-md bg-muted/40 px-2 py-1.5 text-[10px] text-muted-foreground">
-          Runs on <code className="rounded bg-background px-1 font-mono">$(alert.dataSource)</code> — the host that
-          raised the matched alert.
+          <Trans
+            i18nKey="soar.editor.canvas.runAutoHint"
+            components={{ code: <code className="rounded bg-background px-1 font-mono" /> }}
+          />
         </p>
       )}
 
@@ -159,15 +167,17 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
             onChange={(e) => onChange({ agent: e.target.value || undefined, excludedAgents: undefined })}
             className={SELECT + ' w-full'}
           >
-            <option value="">pick a host…</option>
+            <option value="">{t('soar.editor.canvas.pickHost')}</option>
             {options.map((name) => (
               <option key={name} value={name}>{name}</option>
             ))}
             {agent && !options.includes(agent) && <option value={agent}>{agent}</option>}
           </select>
           <p className="text-[10px] text-muted-foreground">
-            Or type a template — <code className="rounded bg-muted px-1 font-mono">$(alert.field)</code> resolves per
-            execution.
+            <Trans
+              i18nKey="soar.editor.canvas.orTemplateHint"
+              components={{ code: <code className="rounded bg-muted px-1 font-mono" /> }}
+            />
           </p>
           <Input
             value={agent ?? ''}
@@ -214,6 +224,7 @@ function AgentMultiSelect({
   readOnly?: boolean
   onChange: (v: string[]) => void
 }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
 
@@ -235,7 +246,7 @@ function AgentMultiSelect({
         ))}
         {!readOnly && (
           <button type="button" onClick={() => setOpen((o) => !o)} className="inline-flex items-center gap-1 px-1 text-[11px] text-muted-foreground hover:text-foreground">
-            <Plus size={11} /> {values.length ? '' : 'add exclusion'}
+            <Plus size={11} /> {values.length ? '' : t('soar.editor.canvas.addExclusion')}
             <ChevronDown size={10} className="opacity-60" />
           </button>
         )}
@@ -247,12 +258,12 @@ function AgentMultiSelect({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               autoFocus
-              placeholder="search agents…"
+              placeholder={t('soar.editor.canvas.searchAgents')}
               className="h-7 w-full rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
           <div className="max-h-52 overflow-y-auto">
-            {filtered.length === 0 && <div className="px-3 py-1.5 text-xs text-muted-foreground">no agents</div>}
+            {filtered.length === 0 && <div className="px-3 py-1.5 text-xs text-muted-foreground">{t('soar.editor.canvas.noAgents')}</div>}
             {filtered.map((o) => {
               const on = values.includes(o)
               return (

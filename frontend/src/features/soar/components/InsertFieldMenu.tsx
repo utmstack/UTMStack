@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { ALERT_FIELDS } from '../lib/alert-fields'
@@ -21,6 +22,7 @@ interface Props {
  *  item per field; the rest offer a generic `$(id.field)` placeholder the
  *  user renames after clicking. */
 export function InsertFieldMenu({ nodes, currentNodeId, onInsert }: Props) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -47,11 +49,11 @@ export function InsertFieldMenu({ nodes, currentNodeId, onInsert }: Props) {
         onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] hover:bg-muted"
       >
-        Insert field <ChevronDown size={10} className="opacity-60" />
+        {t('soar.editor.canvas.insertField')} <ChevronDown size={10} className="opacity-60" />
       </button>
       {open && (
         <div className="absolute left-0 top-full z-30 mt-1 max-h-72 w-72 overflow-y-auto rounded-md border border-border bg-popover py-1 shadow-lg">
-          <SectionHeader>Alert</SectionHeader>
+          <SectionHeader>{t('soar.editor.canvas.alert')}</SectionHeader>
           {ALERT_FIELDS.map((af) => (
             <MenuItem
               key={`alert:${af.field}`}
@@ -82,7 +84,7 @@ export function InsertFieldMenu({ nodes, currentNodeId, onInsert }: Props) {
                 ))
               ) : (
                 <MenuItem
-                  label="whole output (edit the path)"
+                  label={t('soar.editor.canvas.wholeOutput')}
                   path={`${a.nodeId}.*`}
                   token={`$(${a.nodeId}.)`}
                   onClick={() => pick(`$(${a.nodeId}.)`)}
@@ -93,7 +95,7 @@ export function InsertFieldMenu({ nodes, currentNodeId, onInsert }: Props) {
 
           {ancestors.length === 0 && (
             <div className="mt-1 border-t border-border px-3 pt-2 text-[10px] italic text-muted-foreground">
-              No enrichment ancestors yet — add an enrichment node upstream to expose its output here.
+              {t('soar.editor.canvas.noAncestorsHint')}
             </div>
           )}
         </div>
@@ -115,6 +117,7 @@ function SectionDivider() {
 }
 
 function MenuItem({ label, path, token, onClick }: { label: string; path: string; token: string; onClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <Tooltip delayDuration={200}>
       <TooltipTrigger asChild>
@@ -129,7 +132,7 @@ function MenuItem({ label, path, token, onClick }: { label: string; path: string
       </TooltipTrigger>
       <TooltipContent side="left" className="max-w-xs">
         <div className="text-[11px]">{label}</div>
-        <div className="mt-0.5 font-mono text-[10px] opacity-80">inserts {token}</div>
+        <div className="mt-0.5 font-mono text-[10px] opacity-80">{t('soar.editor.canvas.inserts')} {token}</div>
       </TooltipContent>
     </Tooltip>
   )
