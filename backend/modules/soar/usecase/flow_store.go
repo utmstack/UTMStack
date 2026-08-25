@@ -24,9 +24,8 @@ type FlowListFilter struct {
 	Name   string // case-insensitive partial on flow name
 	Search string // case-insensitive partial on flow name
 
-	Active        *bool  // enabled state
-	SystemOwner   *bool  // shipped with the product rather than written here
-	AgentPlatform string // exact match
+	Active      *bool // enabled state
+	SystemOwner *bool // shipped with the product rather than written here
 }
 
 type flowKey struct {
@@ -261,9 +260,6 @@ func flowMatches(sf *domain.StoredFlow, f FlowListFilter) bool {
 		return false
 	}
 	if f.SystemOwner != nil && sf.System != *f.SystemOwner {
-		return false
-	}
-	if f.AgentPlatform != "" && sf.AgentPlatform != f.AgentPlatform {
 		return false
 	}
 	return true

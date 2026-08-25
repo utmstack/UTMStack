@@ -21,29 +21,25 @@ func registerSOAR(m *Module) {
 // ---- soar.rule.* -----------------------------------------------------------
 
 type soarRuleCreateInput struct {
-	Name           string              `json:"name"`
-	Description    string              `json:"description,omitempty"`
-	Conditions     []dto.FilterVM      `json:"conditions"`
-	Commands       []dto.FlowCommandVM `json:"commands"`
-	Active         bool                `json:"active"`
-	AgentPlatform  string              `json:"agent_platform"`
-	DefaultAgent   string              `json:"default_agent,omitempty"`
-	Shell          string              `json:"shell,omitempty"`
-	ExcludedAgents []string            `json:"excluded_agents,omitempty"`
+	Name        string                    `json:"name"`
+	Description string                    `json:"description,omitempty"`
+	Conditions  []dto.FilterVM            `json:"conditions"`
+	Roots       []string                  `json:"roots"`
+	Nodes       map[string]dto.FlowNodeVM `json:"nodes"`
+	MaxDepth    int                       `json:"max_depth,omitempty"`
+	Active      bool                      `json:"active"`
 }
 
 type soarRuleUpdateInput struct {
-	RelPath        string              `json:"rel_path"`
-	ID             *int64              `json:"id,omitempty"`
-	Name           string              `json:"name"`
-	Description    string              `json:"description,omitempty"`
-	Conditions     []dto.FilterVM      `json:"conditions"`
-	Commands       []dto.FlowCommandVM `json:"commands"`
-	Active         bool                `json:"active"`
-	AgentPlatform  string              `json:"agent_platform"`
-	DefaultAgent   string              `json:"default_agent,omitempty"`
-	Shell          string              `json:"shell,omitempty"`
-	ExcludedAgents []string            `json:"excluded_agents,omitempty"`
+	RelPath     string                    `json:"rel_path"`
+	ID          *int64                    `json:"id,omitempty"`
+	Name        string                    `json:"name"`
+	Description string                    `json:"description,omitempty"`
+	Conditions  []dto.FilterVM            `json:"conditions"`
+	Roots       []string                  `json:"roots"`
+	Nodes       map[string]dto.FlowNodeVM `json:"nodes"`
+	MaxDepth    int                       `json:"max_depth,omitempty"`
+	Active      bool                      `json:"active"`
 }
 
 type soarRuleRelPathInput struct {
@@ -56,13 +52,12 @@ type soarRuleSetEnabledInput struct {
 }
 
 type soarRuleListInput struct {
-	RuleName      string `json:"name,omitempty"`
-	RuleActive    *bool  `json:"active,omitempty"`
-	AgentPlatform string `json:"agent_platform,omitempty"`
-	CreatedBy     string `json:"created_by,omitempty"`
-	SystemOwner   *bool  `json:"system_owner,omitempty"`
-	Page          int    `json:"page,omitempty"`
-	Size          int    `json:"size,omitempty"`
+	RuleName    string `json:"name,omitempty"`
+	RuleActive  *bool  `json:"active,omitempty"`
+	CreatedBy   string `json:"created_by,omitempty"`
+	SystemOwner *bool  `json:"system_owner,omitempty"`
+	Page        int    `json:"page,omitempty"`
+	Size        int    `json:"size,omitempty"`
 }
 
 func registerSOARRules(m *Module) {
@@ -72,15 +67,14 @@ func registerSOARRules(m *Module) {
 		Name: "soar.rule.create", Title: "Create SOAR rule",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleCreateInput) (any, error) {
-			if len(in.Conditions) == 0 || len(in.Commands) == 0 {
-				return nil, fmt.Errorf("conditions and commands are required")
+			if len(in.Conditions) == 0 || len(in.Roots) == 0 || len(in.Nodes) == 0 {
+				return nil, fmt.Errorf("conditions, roots, and nodes are required")
 			}
 			active := in.Active
 			return uc.Create(ctx, dto.CreateRuleRequest{
 				Name: in.Name, Description: in.Description,
-				Conditions: in.Conditions, Commands: in.Commands, Active: &active,
-				AgentPlatform: in.AgentPlatform, DefaultAgent: in.DefaultAgent,
-				Shell: in.Shell, ExcludedAgents: in.ExcludedAgents,
+				Conditions: in.Conditions, Roots: in.Roots, Nodes: in.Nodes,
+				MaxDepth: in.MaxDepth, Active: &active,
 			}, actor.Email)
 		})
 
@@ -91,9 +85,8 @@ func registerSOARRules(m *Module) {
 			active := in.Active
 			return uc.Update(ctx, in.RelPath, dto.UpdateRuleRequest{
 				ID: in.ID, Name: in.Name, Description: in.Description,
-				Conditions: in.Conditions, Commands: in.Commands, Active: &active,
-				AgentPlatform: in.AgentPlatform, DefaultAgent: in.DefaultAgent,
-				Shell: in.Shell, ExcludedAgents: in.ExcludedAgents,
+				Conditions: in.Conditions, Roots: in.Roots, Nodes: in.Nodes,
+				MaxDepth: in.MaxDepth, Active: &active,
 			}, actor.Email)
 		})
 
@@ -133,7 +126,7 @@ func registerSOARRules(m *Module) {
 		func(ctx context.Context, _ *authz.Actor, in soarRuleListInput) (any, error) {
 			f := dto.RuleFilters{
 				RuleName: in.RuleName, RuleActive: in.RuleActive,
-				AgentPlatform: in.AgentPlatform, CreatedBy: in.CreatedBy, SystemOwner: in.SystemOwner,
+				CreatedBy: in.CreatedBy, SystemOwner: in.SystemOwner,
 				Params: database.Params{Page: in.Page, Size: clampPageSize(in.Size)},
 			}
 			return uc.List(ctx, f)

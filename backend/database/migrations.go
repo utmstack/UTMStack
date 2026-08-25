@@ -50,6 +50,8 @@ func Models() []any {
 		alerts_domain.AlertTag{},
 		alerts_domain.AlertTagRule{},
 		arr_domain.SoarExecution{},
+		arr_domain.SoarFlowRun{},
+		arr_domain.SoarExecutionEdge{},
 		arr_domain.SoarVariable{},
 		compliance_domain.ReportSchedule{},
 		compliance_domain.Report{},
