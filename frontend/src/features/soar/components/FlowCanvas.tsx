@@ -197,6 +197,65 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
     [roots, nodes, onChange, setFlowEdges],
   )
 
+  // Drag the endpoint of an existing edge off any handle to disconnect. If
+  // it's dropped onto a valid handle we re-route instead.
+  const reconnectOk = useRef(true)
+  const removeEdgeFromModel = useCallback(
+    (edge: Edge, base: { roots: string[]; nodes: Record<string, FlowNode> }) => {
+      if (edge.source === TRIGGER_ID) {
+        base.roots = base.roots.filter((r) => r !== edge.target)
+        return
+      }
+      const src = base.nodes[edge.source]
+      if (!src) return
+      if (edge.sourceHandle === 'error') src.onError = src.onError?.filter((t) => t !== edge.target)
+      else src.onSuccess = src.onSuccess?.filter((t) => t !== edge.target)
+    },
+    [],
+  )
+  const addConnToModel = useCallback((conn: Connection, base: { roots: string[]; nodes: Record<string, FlowNode> }) => {
+    if (!conn.source || !conn.target || conn.source === conn.target) return
+    if (conn.source === TRIGGER_ID) {
+      if (!base.roots.includes(conn.target)) base.roots.push(conn.target)
+      return
+    }
+    const src = base.nodes[conn.source]
+    if (!src) return
+    const list = conn.sourceHandle === 'error' ? (src.onError ??= []) : (src.onSuccess ??= [])
+    if (!list.includes(conn.target)) list.push(conn.target)
+  }, [])
+  const cloneModel = useCallback(
+    () => ({
+      roots: [...roots],
+      nodes: Object.fromEntries(
+        Object.entries(nodes).map(([id, n]) => [id, { ...n, onSuccess: [...(n.onSuccess ?? [])], onError: [...(n.onError ?? [])] }]),
+      ),
+    }),
+    [roots, nodes],
+  )
+  const onReconnectStart = useCallback(() => {
+    reconnectOk.current = false
+  }, [])
+  const onReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      reconnectOk.current = true
+      const base = cloneModel()
+      removeEdgeFromModel(oldEdge, base)
+      addConnToModel(newConnection, base)
+      onChange(base)
+    },
+    [cloneModel, removeEdgeFromModel, addConnToModel, onChange],
+  )
+  const onReconnectEnd = useCallback(
+    (_: unknown, edge: Edge) => {
+      if (reconnectOk.current) return
+      const base = cloneModel()
+      removeEdgeFromModel(edge, base)
+      onChange(base)
+    },
+    [cloneModel, removeEdgeFromModel, onChange],
+  )
+
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'move'
@@ -296,6 +355,9 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
           onNodesChange={handleNodesChange}
           onEdgesChange={handleEdgesChange}
           onConnect={onConnect}
+          onReconnect={onReconnect}
+          onReconnectStart={onReconnectStart}
+          onReconnectEnd={onReconnectEnd}
           onPaneClick={() => setSelectedId(null)}
           nodesDraggable={!readOnly}
           nodesConnectable={!readOnly}

@@ -31,6 +31,27 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
   const commandRef = useRef<HTMLTextAreaElement>(null)
   const paramsRef = useRef<HTMLTextAreaElement>(null)
   const [templatesOpen, setTemplatesOpen] = useState(false)
+  const [width, setWidth] = useState(384)
+
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const startX = e.clientX
+    const startW = width
+    const onMove = (ev: MouseEvent) => {
+      const next = startW + (startX - ev.clientX)
+      setWidth(Math.max(280, Math.min(next, Math.min(900, window.innerWidth - 200))))
+    }
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
 
   useEffect(() => {
     setLocalId(nodeId)
@@ -116,7 +137,15 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
   const shellKind = shellKindFor(node.platform ?? '', node.shell ?? '')
 
   return (
-    <aside className="flex w-96 shrink-0 flex-col border-l border-border bg-card h-[100%] overflow-y-auto">
+    <aside
+      className="relative flex shrink-0 flex-col border-l border-border bg-card h-[100%] overflow-y-auto"
+      style={{ width }}
+    >
+      <div
+        onMouseDown={startResize}
+        className="absolute left-0 top-0 z-10 h-full w-1 cursor-col-resize hover:bg-primary/40"
+        title="Drag to resize"
+      />
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Node</div>
         {!readOnly && (
