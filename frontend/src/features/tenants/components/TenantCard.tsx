@@ -30,6 +30,7 @@ function enterTenant(tenant: Tenant): void {
     id: tenant.id,
     name: tenant.name,
     access: tenant.supportAccess === 'FULL' ? 'FULL' : 'READ',
+    domain: tenant.domain,
   })
   window.location.assign('/home')
 }
@@ -198,13 +199,16 @@ export function TenantCard({
   const hue = hueOf(tenant.name || tenant.domain)
   const initial = (tenant.name || tenant.domain).charAt(0).toUpperCase()
   const terminated = tenant.status === 'TERMINATED'
+  const canEnter = readable && !terminated
 
   return (
     <div
+      onClick={canEnter ? () => enterTenant(tenant) : undefined}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200',
         readable ? 'hover:border-primary/40 hover:shadow-md' : 'opacity-60 saturate-[0.35]',
-        terminated && 'opacity-50'
+        terminated && 'opacity-50',
+        canEnter && 'cursor-pointer'
       )}
     >
       <span
@@ -237,7 +241,10 @@ export function TenantCard({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
+        <div
+          className="flex shrink-0 items-center gap-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             onClick={onEdit}

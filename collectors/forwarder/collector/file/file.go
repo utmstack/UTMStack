@@ -23,8 +23,6 @@ const pollInterval = 1 * time.Second
 type fileWatcher struct {
 	dataType string
 	path     string
-	file     *os.File
-	offset   int64
 	cancel   context.CancelFunc
 }
 
@@ -52,9 +50,6 @@ func (fc *FileCollector) Stop() {
 	for key, w := range fc.watchers {
 		if w.cancel != nil {
 			w.cancel()
-		}
-		if w.file != nil {
-			w.file.Close()
 		}
 		delete(fc.watchers, key)
 	}
@@ -121,9 +116,6 @@ func (fc *FileCollector) reconcile(ctx context.Context) {
 			if w.cancel != nil {
 				w.cancel()
 			}
-			if w.file != nil {
-				w.file.Close()
-			}
 			delete(fc.watchers, key)
 		}
 	}
@@ -145,9 +137,6 @@ func (fc *FileCollector) stopWatchersForDataType(dataType string) {
 			utils.Logger.Info("file collector: stopping watcher for %s", key)
 			if w.cancel != nil {
 				w.cancel()
-			}
-			if w.file != nil {
-				w.file.Close()
 			}
 			delete(fc.watchers, key)
 		}
@@ -184,6 +173,14 @@ func (fc *FileCollector) tailFile(ctx context.Context, w *fileWatcher) {
 		hostname = "unknown"
 	}
 
+	var file *os.File
+	var offset int64
+	defer func() {
+		if file != nil {
+			file.Close()
+		}
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -192,54 +189,54 @@ func (fc *FileCollector) tailFile(ctx context.Context, w *fileWatcher) {
 		}
 
 		// Open the file if not already open or if it was rotated
-		if w.file == nil {
-			file, err := os.Open(w.path)
+		if file == nil {
+			opened, err := os.Open(w.path)
 			if err != nil {
 				utils.Logger.LogF(100, "file collector: error opening %s: %v", w.path, err)
 				time.Sleep(pollInterval)
 				continue
 			}
-			w.file = file
+			file = opened
 
 			// Seek to end to only read new content
-			offset, err := file.Seek(0, io.SeekEnd)
+			end, err := file.Seek(0, io.SeekEnd)
 			if err != nil {
 				utils.Logger.ErrorF("file collector: error seeking %s: %v", w.path, err)
-				w.file.Close()
-				w.file = nil
+				file.Close()
+				file = nil
 				time.Sleep(pollInterval)
 				continue
 			}
-			w.offset = offset
+			offset = end
 		}
 
 		// Check for file rotation (file was replaced)
 		stat, err := os.Stat(w.path)
 		if err != nil {
 			// File may have been deleted, close and retry
-			w.file.Close()
-			w.file = nil
+			file.Close()
+			file = nil
 			time.Sleep(pollInterval)
 			continue
 		}
 
-		fileStat, err := w.file.Stat()
+		fileStat, err := file.Stat()
 		if err != nil || !os.SameFile(stat, fileStat) {
 			// File was rotated, reopen
-			w.file.Close()
-			w.file = nil
-			w.offset = 0
+			file.Close()
+			file = nil
+			offset = 0
 			continue
 		}
 
 		// Check if file was truncated
-		if stat.Size() < w.offset {
-			w.offset = 0
-			w.file.Seek(0, io.SeekStart)
+		if stat.Size() < offset {
+			offset = 0
+			file.Seek(0, io.SeekStart)
 		}
 
 		// Read new lines
-		reader := bufio.NewReader(w.file)
+		reader := bufio.NewReader(file)
 		for {
 			select {
 			case <-ctx.Done():
@@ -260,7 +257,7 @@ func (fc *FileCollector) tailFile(ctx context.Context, w *fileWatcher) {
 			}
 
 			// Update offset
-			w.offset += int64(len(line))
+			offset += int64(len(line))
 
 			// Validate and send log
 			validatedLog, _, err := entities.ValidateString(line, false)

@@ -41,7 +41,13 @@ func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc) bool {
 
 	c.Set("support_access", a.Support)
 
-	ctx := authz.WithTenantID(c.Request.Context(), a.TenantID)
+	tid := a.TenantID
+	if tid == "" && !a.Internal {
+		// platform admin with no tenant selected → scope to the default
+		// tenant instead of "" (which downstream usecases fail-open on).
+		tid = authz.DefaultTenantID
+	}
+	ctx := authz.WithTenantID(c.Request.Context(), tid)
 
 	if a.Internal && a.TenantID == "" {
 		ctx = tenancy.WithAllTenantsRead(ctx)

@@ -8,6 +8,22 @@ the notification bell, suggesting they mark the alerts as false positives
 
 It runs as its own independent plugin, separate from `plugins/alerts`.
 
+## Multitenancy
+
+Everything is scoped per tenant:
+
+- **Counting.** Alerts are grouped by tenant, rule name and data source. The
+  threshold is compared against one tenant's own volume, so two tenants that
+  are each below it never add up to a flood between them.
+- **Disabling.** The rule is disabled only for the tenant that flooded. Every
+  other tenant keeps it running.
+- **Notifying.** Only the tenant that flooded is notified, since the disable
+  applies to them and the remediation is theirs to apply. No other tenant hears
+  about it.
+
+Alerts that carry no tenant are dropped rather than attributed to a default
+tenant.
+
 ## Configuration
 
 Settings live in `system_plugins_rule-flood-guard.yaml`, in the same pipeline
@@ -26,7 +42,7 @@ plugins:
 | Field | Default | Meaning |
 |---|---|---|
 | `enabled` | `true` | Turns the guard on or off. |
-| `threshold` | `50` | How many alerts from the same rule and data source trigger the auto-disable. |
+| `threshold` | `50` | How many alerts from the same rule and data source, within a single tenant, trigger the auto-disable. |
 | `windowHours` | `24` | Time window used to count alerts. |
 | `intervalSeconds` | `300` | How often the guard checks. |
 

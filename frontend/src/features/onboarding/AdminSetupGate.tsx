@@ -8,9 +8,9 @@ import { Input } from '@/shared/components/ui/input'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { useAuth } from '@/features/auth'
 
-// The seeded admin ships with this placeholder address; treat it (and an empty
+// The seeded admin ships with the placeholder "admin"; treat it (and an empty
 // email) as "not configured yet".
-const DEFAULT_ADMIN_EMAIL = 'admin@localhost'
+const DEFAULT_ADMIN_EMAIL = 'admin'
 
 function needsAdminEmail(email: string | undefined): boolean {
   const e = (email ?? '').trim().toLowerCase()
@@ -21,7 +21,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
  * First-run blocking gate (ported from v11): an admin still on the default email
- * (admin@localhost) must set a real address before using the app — password
+ * ("admin") must set a real address before using the app — password
  * reset, notifications, alert emails and threat-intel registration all depend on
  * it. The modal can't be dismissed; after saving, the admin is guided to the
  * mail-server settings (non-blocking). Instance mode only — the federation

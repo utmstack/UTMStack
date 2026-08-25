@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from 'react'
 import { Radio } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { useAuth } from '@/features/auth/services/auth.context'
+import { useBilling } from '@/features/billing'
 import { useSupportTenant } from '@/shared/lib/current-tenant'
 import type { BulkResult, BulkSelector } from '../services/broadcast-http.service'
 import { BroadcastDialog } from './BroadcastDialog'
@@ -39,22 +41,29 @@ export interface PlatformBroadcastButtonProps {
  */
 export function PlatformBroadcastButton(props: PlatformBroadcastButtonProps) {
   const { isPlatformAdmin } = useAuth()
+  const { license } = useBilling()
   const supportTenant = useSupportTenant()
   const [open, setOpen] = useState(false)
 
-  if (!isPlatformAdmin || supportTenant !== null) return null
+  if (!isPlatformAdmin || supportTenant !== null || license?.mssp !== true) return null
 
   return (
     <>
-      <Button
-        variant={props.variant ?? 'outline'}
-        size={props.size ?? 'sm'}
-        disabled={props.disabled}
-        onClick={() => setOpen(true)}
-      >
-        <Radio size={14} className="mr-1.5" />
-        {props.label}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={props.variant ?? 'outline'}
+            size="icon"
+            disabled={props.disabled}
+            onClick={() => setOpen(true)}
+            aria-label={props.label}
+            className={props.size === 'sm' ? 'h-8 w-8' : undefined}
+          >
+            <Radio size={14} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{props.label}</TooltipContent>
+      </Tooltip>
       <BroadcastDialog
         open={open}
         title={props.title}

@@ -21,7 +21,9 @@
       "refresh": "Actualizar",
       "delete": "Eliminar",
       "remove": "Quitar",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "next": "Siguiente",
+      "back": "Atrás"
     },
     "confirm": {
       "delete": "Eliminar",
@@ -1839,9 +1841,9 @@
             "title": "Opcional — Desinstalar el Collector",
             "body": "Ejecuta este comando en el host donde está instalado el Collector para detener el servicio y eliminar todos sus archivos."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "Cabecera de autorización",
-            "body": "Incluye esta cabecera Authorization en cada solicitud que envíes al Master. El secreto de \"{{name}}\" solo se muestra una vez al generar la clave API — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
+            "body": "Incluye esta cabecera Authorization en cada solicitud que envíes a la instancia. El secreto de la clave API solo se muestra una vez al generarla — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
             "tabSimple": "Simple",
             "tabBatch": "Lote"
           }
@@ -1952,7 +1954,7 @@
           "credentialsSection": "Credenciales",
           "credentials": {
             "title": "Conectar tu tenant de Microsoft 365",
-            "body": "Introduce los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardarlas. Puedes añadir múltiples tenants."
+            "body": "Introduce los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardarlas. Puedes añadir múltiples grupos de configuración."
           },
           "fields": {
             "tenantId": {
@@ -2141,7 +2143,7 @@
           "credentialsSection": "Conectar con UTMStack",
           "credentials": {
             "title": "Añadir credenciales de Sophos Central",
-            "body": "Introduce las credenciales que acabas de crear. Puedes añadir más de una cuenta de Sophos haciendo clic en Añadir tenant."
+            "body": "Introduce las credenciales que acabas de crear. Puedes añadir más de una cuenta de Sophos haciendo clic en Añadir grupo de configuración."
           },
           "fields": {
             "clientId": {
@@ -2331,7 +2333,7 @@
             },
             "fillForm": {
               "title": "6 · Completar el formulario",
-              "body": "Proporcione el client ID y el client secret a UTMStack. Puede agregar más de un tenant de Webroot si es necesario."
+              "body": "Proporcione el client ID y el client secret a UTMStack. Puede agregar más de un grupo de configuración de Webroot si es necesario."
             },
             "activate": {
               "title": "7 · Activar",
@@ -2890,13 +2892,13 @@
         "after2": "Desde entonces, los eventos se extraen cada 1–5 minutos (depende de la API).",
         "after3": "La integración aparece bajo Fuentes de datos con el estado actual de extracción y retraso.",
         "tenants": {
-          "title": "Tenants configurados",
-          "empty": "Aún no hay tenants configurados. Añade el primero más abajo.",
-          "loading": "Cargando tenants…",
-          "nameLabel": "Nombre del tenant",
+          "title": "Grupos de configuración configurados",
+          "empty": "Aún no hay grupos de configuración. Añade el primero más abajo.",
+          "loading": "Cargando grupos de configuración…",
+          "nameLabel": "Nombre del grupo de configuración",
           "namePlaceholder": "p. ej. acme-prod",
-          "add": "Añadir tenant",
-          "update": "Actualizar tenant",
+          "add": "Añadir grupo de configuración",
+          "update": "Actualizar grupo de configuración",
           "delete": "Eliminar",
           "edit": "Editar",
           "cancel": "Cancelar",
@@ -2905,10 +2907,10 @@
           "replaceFile": "Reemplazar archivo",
           "fileLoaded": "Archivo cargado",
           "invalidJson": "No se pudo procesar el archivo como JSON.",
-          "createError": "No se pudo crear el tenant. Inténtalo de nuevo.",
-          "updateError": "No se pudo actualizar el tenant. Inténtalo de nuevo.",
-          "createSuccess": "Tenant creado correctamente.",
-          "updateSuccess": "Tenant actualizado correctamente."
+          "createError": "No se pudo crear el grupo de configuración. Inténtalo de nuevo.",
+          "updateError": "No se pudo actualizar el grupo de configuración. Inténtalo de nuevo.",
+          "createSuccess": "Grupo de configuración creado correctamente.",
+          "updateSuccess": "Grupo de configuración actualizado correctamente."
         },
         "google": {
           "sections": {
@@ -3339,11 +3341,12 @@
         "disableSuccess": "Integración deshabilitada.",
         "enableError": "No se pudo actualizar la integración.",
         "secretWarning": "Almacena este token de forma segura — no se mostrará nuevamente.",
-        "sendToMaster": "Enviar al Master",
+        "sendToInstance": "Enviar a la instancia",
         "enterpriseFeature": "Esta es una función Enterprise.",
         "addCollector": "Añadir Collector",
         "addApiKey": "Añadir clave API",
         "apiKeyLabel": "Clave API",
+        "apiKeyHint": "Primero necesitarás una clave API.",
         "apiKeyPlaceholder": "Selecciona una clave API",
         "apiKeyAddNew": "Añadir clave API…",
         "apiKeyNone": "Todavía no hay claves API",
@@ -4313,7 +4316,8 @@
       "allAssignees": "Todos los asignados",
       "from": "Desde",
       "to": "Hasta",
-      "clear": "Limpiar"
+      "clear": "Limpiar",
+      "create": "Crear incidente"
     },
     "layout": {
       "table": "Tabla",
@@ -4395,6 +4399,20 @@
       "INCIDENT_NOTE_ADD": "Nota añadida",
       "INCIDENT_NOTE_CHANGE": "Nota editada",
       "INCIDENT_ASSIGNED": "Asignación cambiada"
+    },
+    "create": {
+      "title": "Crear incidente",
+      "stepIndicator": "Paso {{current}} de {{total}}",
+      "selectedCount": "{{count}} alertas seleccionadas",
+      "submit": "Crear",
+      "success": "Incidente creado",
+      "error": "No se pudo crear el incidente",
+      "details": {
+        "nameLabel": "Nombre",
+        "namePlaceholder": "Título corto y descriptivo",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Contexto, alcance, notas iniciales…"
+      }
     }
   },
   "parsingFilters": {
@@ -4857,12 +4875,20 @@
         "date": "Fecha",
         "retries": "Reintentos"
       },
+      "filters": {
+        "source": "Origen",
+        "allSources": "Todos los orígenes"
+      },
       "manual": "Consola interactiva"
     },
     "executionStatus": {
       "EXECUTED": "Ejecutado",
       "PENDING": "Pendiente",
       "FAILED": "Fallido"
+    },
+    "executionOrigin": {
+      "FLOW": "Flujo",
+      "MANUAL": "Manual"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agente offline",
@@ -5501,7 +5527,7 @@
     "leave": "Salir"
   },
   "platformBroadcast": {
-    "button": "Aplicar a inquilinos…",
+    "button": "Aplicar a todos los inquilinos",
     "action": {
       "create": "Difundir creación de {{resource}}",
       "update": "Difundir actualización de {{resource}}",

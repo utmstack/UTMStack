@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useBranding } from '@/features/branding'
+import { useThemeContext } from '@/app/providers'
 import { ssoHttpService, type PublicIdentityProvider } from '../services/sso-http.service'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Building2, KeyRound, Loader2, Lock, Mail, ShieldCheck, User as UserIcon } from 'lucide-react'
@@ -35,9 +36,12 @@ export function LoginPage() {
       .then(setProviders)
       .catch(() => setProviders([]))
   }, [])
+  const { theme } = useThemeContext()
   const brandActive = !!branding?.enabled
   const brandName = (brandActive && branding?.productName) || 'UTMStack'
-  const brandLogo = (brandActive && branding?.logoUrl) || '/logo.svg'
+  const brandLogo =
+    (brandActive && (theme === 'dark' ? branding?.logoDarkUrl || branding?.logoUrl : branding?.logoUrl)) ||
+    '/logo.svg'
 
   const { t } = useTranslation()
   const { login, verifyTfaCode, requestPasswordReset, finishPasswordReset, adoptSession } = useAuth()

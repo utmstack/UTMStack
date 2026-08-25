@@ -70,13 +70,20 @@ func GetAdminEmail() (string, error) {
 	containerID := containerIDs[0]
 
 	// The platform tenant's active administrators, oldest first.
-	// "admin@localhost" is the placeholder the backend creates when nobody
-	// supplied an address, so it is not an answer.
+	// "admin" is the placeholder the backend creates when nobody supplied an
+	// address, so it is not an answer.
+	//
+	// They are read as a list rather than as the oldest one, because the column
+	// that holds the address is also the one used to log in: an operator who
+	// typed a username there has an administrator that cannot be reached, and
+	// taking only the oldest would let that one account decide that the whole
+	// instance has no address. A second administrator with a real address is
+	// then a fix the operator can apply without changing how anybody logs in.
 	query := `SELECT u.email FROM "user" u ` +
 		`JOIN user_role ur ON ur.user_id = u.id ` +
 		`JOIN role r ON r.id = ur.role_id AND r.name = 'ROLE_ADMIN' ` +
 		`WHERE u.tenant_id = '` + defaultTenantID + `' ` +
-		`AND u.status = 'active' AND u.email <> 'admin@localhost' ` +
+		`AND u.status = 'active' AND u.email <> 'admin' ` +
 		`ORDER BY u.created_at`
 	output, err := utils.RunCmdWithOutput("docker", "exec", containerID, "psql", "-U", "postgres", "-d", "utmstack", "-t", "-c", query)
 	if err != nil {

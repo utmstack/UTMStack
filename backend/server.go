@@ -150,6 +150,8 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	})
 	platform := middleware.RequirePlatform()
 
+	api.Use(middleware.SelfHealDefaultDomain(m.tenant.GetBootstrapUsecase().TryHealDefaultDomain))
+
 	api.Use(middleware.ResolveTenant(
 		func() bool { return m.billing.License().Current().IsMSSP() },
 		cfg.internalKey,

@@ -67,10 +67,16 @@ func NewChatHandler(client socAIStreamer) *ChatHandler {
 	return &ChatHandler{client: client}
 }
 
+type chatTurn struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 type chatRequest struct {
-	Task string `json:"task" binding:"required"`
-	Page string `json:"page"`
-	Lang string `json:"lang"`
+	Task    string     `json:"task" binding:"required"`
+	Page    string     `json:"page"`
+	Lang    string     `json:"lang"`
+	History []chatTurn `json:"history,omitempty"`
 }
 
 // Chat godoc
@@ -101,7 +107,7 @@ func (h *ChatHandler) Chat(c *gin.Context) {
 		return
 	}
 
-	body, err := json.Marshal(map[string]string{"task": req.Task, "page": req.Page, "lang": req.Lang})
+	body, err := json.Marshal(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 		return

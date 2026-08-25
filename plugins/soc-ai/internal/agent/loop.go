@@ -14,6 +14,8 @@ const (
 	defaultMaxIters     = 12
 	compactionThreshold = 0.80
 	summaryMaxTokens    = 400 // ~200 words + slack
+	keepTailMessages    = 4   // messages kept raw when compacting
+	genericErrorMsg     = "An error has occurred while processing your request."
 )
 
 var modelContextWindow = []struct {
@@ -69,6 +71,7 @@ func (s EventSink) emit(e Event) {
 type RunTask struct {
 	System        string // system prompt
 	Input         string // the user turn (alert JSON for triage, free task for ops)
+	History       []Message
 	EnabledGroups []string
 	AlwaysAllow   []string
 	MaxIters      int
@@ -103,7 +106,10 @@ func (a *Agent) Broker() *ToolBroker { return a.broker }
 func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResult, error) {
 	specs, err := a.broker.ListSpecs(ctx)
 	if err != nil {
-		sink.emit(Event{Kind: EventError, Text: "could not load tools: " + err.Error()})
+		_ = catcher.Error("could not load tools", err, map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+		})
+		sink.emit(Event{Kind: EventError, Text: genericErrorMsg})
 		return RunResult{}, fmt.Errorf("list tools: %w", err)
 	}
 	allowed := filterTools(specs, task)
@@ -117,14 +123,19 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 		maxIters = defaultMaxIters
 	}
 
-	msgs := []Message{{Role: RoleUser, Content: task.Input}}
+	msgs := append([]Message{}, task.History...)
+	msgs = append(msgs, Message{Role: RoleUser, Content: task.Input})
 	result := RunResult{}
+
+	// Skipped in-batch dedup; upgrade to singleflight if same-batch duplicates become measurable.
+	toolCache := map[string]tcOut{}
+	var cacheMu sync.Mutex
 
 	for step := 1; step <= maxIters; step++ {
 		result.Steps = step
 
 		if a.contextWindow > 0 && len(msgs) > 1 &&
-			estimateTokens(task.System, msgs) >= int(compactionThreshold*float64(a.contextWindow)) {
+			estimateTokens(task.System, msgs, allowed) >= int(compactionThreshold*float64(a.contextWindow)) {
 			newMsgs, cErr := a.compact(ctx, task.Input, msgs)
 			if cErr != nil {
 				_ = catcher.Error("context compaction failed, continuing with full history", cErr, map[string]any{
@@ -144,7 +155,10 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 			MaxTokens: a.maxTokens,
 		})
 		if err != nil {
-			sink.emit(Event{Kind: EventError, Text: err.Error()})
+			_ = catcher.Error("llm completion failed", err, map[string]any{
+				"process": "plugin_com.utmstack.soc-ai",
+			})
+			sink.emit(Event{Kind: EventError, Text: genericErrorMsg})
 			return result, err
 		}
 
@@ -156,31 +170,78 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 
 		msgs = append(msgs, Message{Role: RoleAssistant, Content: resp.Content, ToolCalls: resp.ToolCalls})
 
-		for _, tc := range resp.ToolCalls {
+		outs := make([]tcOut, len(resp.ToolCalls))
+		var wg sync.WaitGroup
+		for i, tc := range resp.ToolCalls {
 			result.ToolCalls++
 			sink.emit(Event{Kind: EventToolCall, Step: step, Tool: tc.Name, Args: tc.Args})
 
 			if !allowedSet[tc.Name] {
-				const msg = "tool not permitted in this mode"
-				msgs = append(msgs, Message{Role: RoleTool, ToolResult: &ToolResult{ID: tc.ID, Name: tc.Name, Content: msg, IsError: true}})
-				sink.emit(Event{Kind: EventToolResult, Step: step, Tool: tc.Name, Output: msg, IsError: true})
+				outs[i] = tcOut{out: "tool not permitted in this mode", isErr: true}
 				continue
 			}
 
-			out, isErr, callErr := a.broker.Call(ctx, tc.Name, tc.Args)
-			if callErr != nil {
-				out = callErr.Error()
-				isErr = true
+			key := tc.Name + "|" + string(tc.Args)
+			cacheMu.Lock()
+			cached, ok := toolCache[key]
+			cacheMu.Unlock()
+			if ok {
+				outs[i] = cached
+				continue
 			}
-			msgs = append(msgs, Message{Role: RoleTool, ToolResult: &ToolResult{ID: tc.ID, Name: tc.Name, Content: out, IsError: isErr}})
-			sink.emit(Event{Kind: EventToolResult, Step: step, Tool: tc.Name, Output: out, IsError: isErr})
+
+			wg.Add(1)
+			go func(i int, tc ToolCall, key string) {
+				defer wg.Done()
+				out, isErr, callErr := a.broker.Call(ctx, tc.Name, tc.Args)
+				if callErr != nil {
+					out = callErr.Error()
+					isErr = true
+				}
+				r := tcOut{out: out, isErr: isErr}
+				outs[i] = r
+				cacheMu.Lock()
+				toolCache[key] = r
+				cacheMu.Unlock()
+			}(i, tc, key)
+		}
+		wg.Wait()
+
+		for i, tc := range resp.ToolCalls {
+			r := outs[i]
+			msgs = append(msgs, Message{Role: RoleTool, ToolResult: &ToolResult{ID: tc.ID, Name: tc.Name, Content: r.out, IsError: r.isErr}})
+			sink.emit(Event{Kind: EventToolResult, Step: step, Tool: tc.Name, Output: r.out, IsError: r.isErr})
 		}
 	}
 
-	const exhausted = "Reached the maximum number of tool iterations before finishing."
-	sink.emit(Event{Kind: EventFinal, Text: exhausted})
-	result.Final = exhausted
+	// Loop exhausted: give the model one last chance to finalize with no tools.
+	msgs = append(msgs, Message{
+		Role:    RoleUser,
+		Content: "You have reached the maximum number of tool iterations. Do not call any more tools. Provide your final assessment now based on what you have gathered so far.",
+	})
+	finalResp, ferr := a.llm.Complete(ctx, CompletionRequest{
+		System:    task.System,
+		Messages:  msgs,
+		Model:     a.model,
+		MaxTokens: a.maxTokens,
+	})
+	if ferr != nil {
+		_ = catcher.Error("max-iters finalization llm call failed", ferr, map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+		})
+		const msg = "Reached the maximum number of tool iterations and could not finalize."
+		sink.emit(Event{Kind: EventFinal, Text: msg})
+		result.Final = msg
+		return result, nil
+	}
+	sink.emit(Event{Kind: EventFinal, Text: finalResp.Content})
+	result.Final = finalResp.Content
 	return result, nil
+}
+
+type tcOut struct {
+	out   string
+	isErr bool
 }
 
 func filterTools(specs []ToolSpec, task RunTask) []ToolSpec {
@@ -205,8 +266,16 @@ func filterTools(specs []ToolSpec, task RunTask) []ToolSpec {
 	return out
 }
 
-func estimateTokens(system string, msgs []Message) int {
+func estimateTokens(system string, msgs []Message, tools []ToolSpec) int {
 	n := len(system)
+	for _, t := range tools {
+		n += len(t.Name) + len(t.Description)
+		if t.InputSchema != nil {
+			if b, err := json.Marshal(t.InputSchema); err == nil {
+				n += len(b)
+			}
+		}
+	}
 	for _, m := range msgs {
 		n += len(m.Content)
 		for _, tc := range m.ToolCalls {
@@ -220,8 +289,24 @@ func estimateTokens(system string, msgs []Message) int {
 }
 
 func (a *Agent) compact(ctx context.Context, userInput string, msgs []Message) ([]Message, error) {
+	// Keep the last keepTailMessages raw. Advance the cut point forward past any
+	// tool messages so the preserved tail never starts with an orphan tool_result
+	// (which would reference an assistant tool_call left in the summarized head).
+	cut := len(msgs) - keepTailMessages
+	if cut < 1 {
+		cut = 1
+	}
+	for cut < len(msgs) && msgs[cut].Role == RoleTool {
+		cut++
+	}
+	head := msgs[:cut]
+	var tail []Message
+	if cut < len(msgs) {
+		tail = msgs[cut:]
+	}
+
 	var b strings.Builder
-	for _, m := range msgs {
+	for _, m := range head {
 		fmt.Fprintf(&b, "[%s] %s\n", m.Role, m.Content)
 		for _, tc := range m.ToolCalls {
 			fmt.Fprintf(&b, "  tool_call %s(%s)\n", tc.Name, string(tc.Args))
@@ -242,10 +327,11 @@ func (a *Agent) compact(ctx context.Context, userInput string, msgs []Message) (
 	if strings.TrimSpace(resp.Content) == "" {
 		return msgs, fmt.Errorf("empty summary")
 	}
-	return []Message{{
+	summary := Message{
 		Role:    RoleUser,
 		Content: "Original task:\n" + userInput + "\n\nProgress so far (summary of prior context):\n" + resp.Content + "\n\nContinue the task.",
-	}}, nil
+	}
+	return append([]Message{summary}, tail...), nil
 }
 
 type registry struct {

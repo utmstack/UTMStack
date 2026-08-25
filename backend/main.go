@@ -38,9 +38,11 @@ func main() {
 
 	modules := initModules(db, cfg)
 
-	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin@localhost", false)
+	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin", false)
 	created, err := modules.tenant.GetBootstrapUsecase().EnsureDefaultTenant(
-		appCtx, adminEmail, env.String("UTMSTACK_ADMIN_PASSWORD", "", false))
+		appCtx, adminEmail,
+		env.String("UTMSTACK_ADMIN_PASSWORD", "", false),
+		env.String("UTMSTACK_DEFAULT_DOMAIN", "", false))
 	if err != nil {
 		_ = catcher.Error("failed to create the default tenant", err, nil)
 		panic(err)

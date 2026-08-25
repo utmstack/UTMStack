@@ -261,13 +261,16 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 
 	// Scoped by the caller: the panel asks for one tenant, and only the
 	// platform asks for all of them.
-	where := ""
 	if req.GetTenantId() != "" {
-		where = fmt.Sprintf("tenant_id = '%s'", sanitizeTenant(req.GetTenantId()))
+		filter = append(filter, utils.Filter{
+			Field: "tenant_id",
+			Op: utils.Is,
+			Value:sanitizeTenant(req.GetTenantId()),
+		})
 	}
 
 	agents := []models.Agent{}
-	total, err := s.DBConnection.GetByPagination(&agents, page, filter, where, false)
+	total, err := s.DBConnection.GetByPagination(&agents, page, filter, "", false)
 	if err != nil {
 		catcher.Error("failed to fetch agents", err, map[string]any{"process": "agent-manager"})
 		return nil, status.Errorf(codes.Internal, "failed to fetch agents: %v", err)

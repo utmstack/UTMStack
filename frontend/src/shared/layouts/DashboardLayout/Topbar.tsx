@@ -28,6 +28,7 @@ import { useCurrentInstanceId } from '@/shared/lib/current-instance'
 import { InstanceSelector } from '@/features/federation/components/InstanceSelector'
 import { useFederationVersion } from '@/features/federation/hooks/use-version'
 import { useBilling } from '@/features/billing'
+import { TenantSwitcher } from '@/features/tenants/components/TenantSwitcher'
 import {
   NotificationRow,
   useNotificationFeed,
@@ -132,7 +133,9 @@ export function Topbar() {
   const { branding } = useBranding()
   const brandActive = !!branding?.enabled
   const brandName = (brandActive && branding?.productName) || 'UTMStack'
-  const brandLogo = (brandActive && branding?.logoUrl) || '/logo.svg'
+  const brandLogo =
+    (brandActive && (theme === 'dark' ? branding?.logoDarkUrl || branding?.logoUrl : branding?.logoUrl)) ||
+    '/logo.svg'
 
   const userName = user?.name || user?.email || 'User'
   const userInitials = userName
@@ -194,6 +197,7 @@ export function Topbar() {
 
       {/* Right cluster */}
       <div className="flex items-center gap-1">
+        <TenantSwitcher />
         <div className="relative" ref={notifRef}>
           <IconButton
             label={t('notifications.title')}

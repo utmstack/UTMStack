@@ -209,9 +209,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Wire the api-client logout fallback (fired when refresh fails).
   useEffect(() => {
     setLogoutHandler(() => {
-      setUser(null)
+      reset()
     })
-  }, [])
+  }, [reset])
 
   // Apply the user's saved language preference once known (lang_key → i18n).
   useEffect(() => {

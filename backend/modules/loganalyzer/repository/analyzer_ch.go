@@ -269,7 +269,59 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 	if docs == nil {
 		docs = []json.RawMessage{}
 	}
+	if req.Dataset == "alerts" {
+		docs = r.enrichEchoCounts(ctx, scope, docs)
+	}
 	return &dto.SearchResponse{Data: docs, Total: total}, nil
+}
+
+func (r *chAnalyzerRepository) enrichEchoCounts(ctx context.Context, scope store.Scope, docs []json.RawMessage) []json.RawMessage {
+	if len(docs) == 0 {
+		return docs
+	}
+
+	parsed := make([]map[string]any, len(docs))
+	ids := make([]string, 0, len(docs))
+	for i, raw := range docs {
+		var m map[string]any
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+		parsed[i] = m
+		if id, ok := m["id"].(string); ok && id != "" {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 {
+		return docs
+	}
+
+	// ponytail: one TopValues per page; fold into a single hand-written SELECT if the extra roundtrip ever shows up in traces.
+	buckets, err := r.store.TopValues(ctx, scope, "parentId", []store.Filter{{Field: "parentId", Op: store.OpIn, Value: ids}}, len(ids))
+	if err != nil {
+		return docs
+	}
+
+	counts := make(map[string]int64, len(buckets))
+	for _, b := range buckets {
+		if b.Count > 0 {
+			counts[b.Key] = b.Count
+		}
+	}
+
+	for i, m := range parsed {
+		if m == nil {
+			continue
+		}
+		id, _ := m["id"].(string)
+		if c, ok := counts[id]; ok {
+			m["echoes"] = c
+			if raw, err := json.Marshal(m); err == nil {
+				docs[i] = raw
+			}
+		}
+	}
+	return docs
 }
 
 // DataTypes lists the kinds of record a dataset actually holds — o365,

@@ -6,6 +6,7 @@ import { AgentInstallSelector } from '@/features/integrations/components/setup/A
 import { AgentUninstallSection } from '@/features/integrations/components/setup/AgentUninstallSection'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
 import { buildAgentInstall } from '@/features/integrations/utils/agentInstallBuilder'
+import { forwarderHost } from '@/features/integrations/components/setup/collector/ForwarderGuide'
 import type { Integration } from '@/features/integrations/types'
 
 interface AgentSetupProps {
@@ -18,9 +19,7 @@ export function AgentSetup({ integration: i }: AgentSetupProps) {
   const { t } = useTranslation()
   const { key } = useConectionKey()
 
-  const host = window.location.host.includes(':')
-    ? window.location.host.split(':')[0]
-    : window.location.host
+  const host = forwarderHost()
 
   // Always render the command even before the key loads: fall back to a masked
   // placeholder (like the AS/400 and Forwarder guides) so the user never sees a

@@ -258,13 +258,16 @@ func (s *CollectorService) ListCollector(ctx context.Context, req *ListRequest) 
 
 	// Scoped by the caller: the panel asks for one tenant, and only the
 	// platform asks for all of them.
-	where := ""
 	if req.GetTenantId() != "" {
-		where = fmt.Sprintf("tenant_id = '%s'", sanitizeTenant(req.GetTenantId()))
+		filter = append(filter, utils.Filter{
+			Field: "tenant_id",
+			Op: utils.Is,
+			Value:sanitizeTenant(req.GetTenantId()),
+		})
 	}
 
 	collectors := []models.Collector{}
-	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, where, false)
+	total, err := s.DBConnection.GetByPagination(&collectors, page, filter, "", false)
 	if err != nil {
 		catcher.Error("failed to fetch collectors", err, map[string]any{"process": "agent-manager"})
 		return nil, status.Errorf(codes.Internal, "failed to fetch collectors: %v", err)

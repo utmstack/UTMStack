@@ -21,7 +21,9 @@
       "refresh": "Aggiorna",
       "delete": "Elimina",
       "remove": "Rimuovi",
-      "close": "Chiudi"
+      "close": "Chiudi",
+      "next": "Avanti",
+      "back": "Indietro"
     },
     "confirm": {
       "delete": "Elimina",
@@ -2074,7 +2076,7 @@
           "credentialsSection": "Connetti a UTMStack",
           "credentials": {
             "title": "Aggiungere le credenziali Sophos Central",
-            "body": "Inserire le credenziali appena create. È possibile aggiungere più di un account Sophos facendo clic su Add tenant."
+            "body": "Inserire le credenziali appena create. È possibile aggiungere più di un account Sophos facendo clic su Aggiungi gruppo di configurazione."
           },
           "fields": {
             "clientId": {
@@ -2109,7 +2111,7 @@
             },
             "fillForm": {
               "title": "6 · Compilare il modulo",
-              "body": "Fornire il client ID e il client secret a UTMStack. Se necessario, è possibile aggiungere più tenant Webroot."
+              "body": "Fornire il client ID e il client secret a UTMStack. Se necessario, è possibile aggiungere più gruppi di configurazione Webroot."
             },
             "activate": {
               "title": "7 · Attivare",
@@ -2193,7 +2195,7 @@
           "credentialsSection": "Credenziali",
           "credentials": {
             "title": "Connettere il tenant Microsoft 365",
-            "body": "Inserire i dettagli dei passaggi precedenti. UTMStack verifica le credenziali prima del salvataggio. È possibile aggiungere più tenant."
+            "body": "Inserire i dettagli dei passaggi precedenti. UTMStack verifica le credenziali prima del salvataggio. È possibile aggiungere più gruppi di configurazione."
           },
           "fields": {
             "tenantId": {
@@ -2737,9 +2739,9 @@
             "title": "Facoltativo — Disinstalla il Collector",
             "body": "Esegui questo comando sull'host in cui è installato il Collector per interrompere il servizio e rimuovere tutti i suoi file."
           },
-          "masterHeader": {
+          "instanceHeader": {
             "title": "Intestazione di autorizzazione",
-            "body": "Includi questa intestazione Authorization in ogni richiesta inviata al Master. Il segreto di \"{{name}}\" viene rivelato una sola volta al momento della generazione della chiave API — copialo allora e incollalo al posto del segnaposto qui sotto.",
+            "body": "Includi questa intestazione Authorization in ogni richiesta inviata all'istanza. Il segreto della chiave API viene rivelato una sola volta al momento della sua generazione — copialo allora e incollalo al posto del segnaposto qui sotto.",
             "tabSimple": "Semplice",
             "tabBatch": "Batch"
           }
@@ -2890,13 +2892,13 @@
         "after2": "Da allora in poi, gli eventi vengono estratti ogni 1–5 minuti (dipende dall'API).",
         "after3": "L'integrazione appare sotto Origini dati con lo stato di estrazione attuale e il ritardo.",
         "tenants": {
-          "title": "Tenant configurati",
-          "empty": "Nessun tenant configurato. Aggiungi il primo qui sotto.",
-          "loading": "Caricamento tenant…",
-          "nameLabel": "Nome del tenant",
+          "title": "Gruppi di configurazione configurati",
+          "empty": "Nessun gruppo di configurazione. Aggiungi il primo qui sotto.",
+          "loading": "Caricamento gruppi di configurazione…",
+          "nameLabel": "Nome del gruppo di configurazione",
           "namePlaceholder": "es. acme-prod",
-          "add": "Aggiungi tenant",
-          "update": "Aggiorna tenant",
+          "add": "Aggiungi gruppo di configurazione",
+          "update": "Aggiorna gruppo di configurazione",
           "delete": "Elimina",
           "edit": "Modifica",
           "cancel": "Annulla",
@@ -2905,10 +2907,10 @@
           "replaceFile": "Sostituisci file",
           "fileLoaded": "File caricato",
           "invalidJson": "Impossibile interpretare il file come JSON.",
-          "createError": "Impossibile creare il tenant. Riprova.",
-          "updateError": "Impossibile aggiornare il tenant. Riprova.",
-          "createSuccess": "Tenant creato con successo.",
-          "updateSuccess": "Tenant aggiornato con successo."
+          "createError": "Impossibile creare il gruppo di configurazione. Riprova.",
+          "updateError": "Impossibile aggiornare il gruppo di configurazione. Riprova.",
+          "createSuccess": "Gruppo di configurazione creato con successo.",
+          "updateSuccess": "Gruppo di configurazione aggiornato con successo."
         },
         "google": {
           "sections": {
@@ -3084,7 +3086,7 @@
           "sections": {
             "prerequisite": {
               "title": "Prerequisito · Utente IAM",
-              "body": "Per far funzionare questa integrazione, serve un utente IAM per UTMStack con la policy CloudWatchLogsReadOnlyAccess. Annota l'ID della chiave di accesso e la chiave segreta: le incollerai nel modulo del tenant qui sotto."
+              "body": "Per far funzionare questa integrazione, serve un utente IAM per UTMStack con la policy CloudWatchLogsReadOnlyAccess. Annota l'ID della chiave di accesso e la chiave segreta: le incollerai nel modulo del gruppo di configurazione qui sotto."
             },
             "createTrail": {
               "title": "1 · Crea un trail",
@@ -3377,11 +3379,12 @@
         "disableSuccess": "Integrazione disabilitata.",
         "enableError": "Aggiornamento dell'integrazione non riuscito.",
         "secretWarning": "Archivia questo token in modo sicuro — non verrà visualizzato di nuovo.",
-        "sendToMaster": "Invia al Master",
+        "sendToInstance": "Invia all'istanza",
         "enterpriseFeature": "Questa è una funzionalità Enterprise.",
         "addCollector": "Aggiungi Collector",
         "addApiKey": "Aggiungi chiave API",
         "apiKeyLabel": "Chiave API",
+        "apiKeyHint": "Prima ti servirà una chiave API.",
         "apiKeyPlaceholder": "Seleziona una chiave API",
         "apiKeyAddNew": "Aggiungi chiave API…",
         "apiKeyNone": "Nessuna chiave API ancora",
@@ -4191,7 +4194,8 @@
       "allAssignees": "Tutti gli assegnatari",
       "from": "Da",
       "to": "A",
-      "clear": "Cancella"
+      "clear": "Cancella",
+      "create": "Crea incidente"
     },
     "layout": {
       "table": "Tabella",
@@ -4273,6 +4277,20 @@
       "INCIDENT_NOTE_ADD": "Nota aggiunta",
       "INCIDENT_NOTE_CHANGE": "Nota modificata",
       "INCIDENT_ASSIGNED": "Assegnazione cambiata"
+    },
+    "create": {
+      "title": "Crea incidente",
+      "stepIndicator": "Passaggio {{current}} di {{total}}",
+      "selectedCount": "{{count}} avvisi selezionati",
+      "submit": "Crea",
+      "success": "Incidente creato",
+      "error": "Impossibile creare l'incidente",
+      "details": {
+        "nameLabel": "Nome",
+        "namePlaceholder": "Titolo breve e descrittivo",
+        "descriptionLabel": "Descrizione",
+        "descriptionPlaceholder": "Contesto, ambito, note iniziali…"
+      }
     }
   },
   "alertingRules": {
@@ -4735,12 +4753,20 @@
         "date": "Data",
         "retries": "Tentativi"
       },
+      "filters": {
+        "source": "Origine",
+        "allSources": "Tutte le origini"
+      },
       "manual": "Console interattiva"
     },
     "executionStatus": {
       "EXECUTED": "Eseguito",
       "PENDING": "In attesa",
       "FAILED": "Fallito"
+    },
+    "executionOrigin": {
+      "FLOW": "Flusso",
+      "MANUAL": "Manuale"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agente offline",
@@ -5539,7 +5565,7 @@
     "leave": "Esci"
   },
   "platformBroadcast": {
-    "button": "Applica ai tenant…",
+    "button": "Applica a tutti i tenant",
     "action": {
       "create": "Trasmetti creazione {{resource}}",
       "update": "Trasmetti aggiornamento {{resource}}",
