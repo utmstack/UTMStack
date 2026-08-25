@@ -32,24 +32,34 @@ export const SOAR_OPERATORS: SoarOperator[] = [
 export const SOAR_MULTI_VALUE_OPERATORS: SoarOperator[] = ['IS_ONE_OF', 'IS_NOT_ONE_OF']
 export const SOAR_NO_VALUE_OPERATORS: SoarOperator[] = ['EXISTS', 'NOT_EXISTS']
 
-/** A flow condition against an alert field. `value` is string[] for
- *  IS_ONE_OF/IS_NOT_ONE_OF, unused for EXISTS/NOT_EXISTS, and a string
- *  otherwise. */
 export interface FlowCondition {
   operator: SoarOperator
   field: string
   value: unknown
 }
 
-export type SoarCondition = 'OnSuccess' | 'OnFailure' | 'Always'
-export const SOAR_CONDITIONS: SoarCondition[] = ['OnSuccess', 'OnFailure', 'Always']
+export type NodeKind = 'executor' | 'enrichment'
+export const NODE_KINDS: NodeKind[] = ['executor', 'enrichment']
 
-/** Join semantic for a command relative to the previous one:
- *  OnSuccess → `&&`, OnFailure → `||`, Always → `;`. Absent on the first
- *  command (nothing to chain against). */
-export interface FlowCommand {
-  command: string
-  condition?: SoarCondition
+/** One DAG node. Matches backend domain.FlowNode / dto.FlowNodeVM. */
+export interface FlowNode {
+  kind: NodeKind
+  executor: string
+  command?: string
+  shell?: string
+  /** OS platform (linux/windows/…) — used to filter the agent picker for
+   *  shell nodes; not sent to the runtime. Optional. */
+  platform?: string
+  /** Hostname of the endpoint agent to run on. When empty, the shell
+   *  executor defaults to the alert's dataSource (host that raised the
+   *  alert). */
+  agent?: string
+  /** Hostnames that must not run this node when it's in auto-resolve mode
+   *  (no explicit `agent`). Ignored when `agent` is set. */
+  excludedAgents?: string[]
+  params?: unknown // json.RawMessage on the wire; a plain object here for the editor
+  onSuccess?: string[]
+  onError?: string[]
 }
 
 /** An alert-response flow (file-backed YAML). Identity is `relPath`. */
@@ -58,12 +68,10 @@ export interface Flow {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: FlowCommand[]
+  roots: string[]
+  nodes: Record<string, FlowNode>
+  maxDepth?: number
   active: boolean
-  agentPlatform: string
-  defaultAgent: string
-  shell: string
-  excludedAgents: string[]
   systemOwner: boolean
   lastModifiedDate?: string | null
 }
@@ -73,29 +81,25 @@ export interface SaveFlowInput {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: FlowCommand[]
+  roots: string[]
+  nodes: Record<string, FlowNode>
+  maxDepth?: number
   active: boolean
-  agentPlatform: string
-  defaultAgent: string
-  shell: string
-  excludedAgents: string[]
 }
 
 export interface FlowListQuery {
   name?: string
   active?: boolean
-  agentPlatform?: string
   systemOwner?: boolean
   page?: number // 0-based
   size?: number
 }
 
-export type ExecutionStatus = 'EXECUTED' | 'PENDING' | 'FAILED'
-export type NonExecutionCause = 'AGENT_OFFLINE' | 'AGENT_NOT_FOUND' | 'UNKNOWN'
+/** DAG execution status set. Waiting/Executing/Dead are new in the tree engine. */
+export type ExecutionStatus = 'WAITING' | 'PENDING' | 'EXECUTING' | 'EXECUTED' | 'FAILED' | 'DEAD'
+export type NonExecutionCause = 'AGENT_OFFLINE' | 'AGENT_NOT_FOUND' | 'MAX_DEPTH_EXCEEDED' | 'UNKNOWN'
 
-/** One recorded flow execution (Postgres-backed). */
-/** What raised a command: a flow that matched an alert, or a person at the
- *  interactive console. It decides which half of the row carries anything. */
+/** What raised a command. */
 export type ExecutionOrigin = 'FLOW' | 'MANUAL'
 
 export interface Execution {
@@ -114,6 +118,13 @@ export interface Execution {
   finishedAt?: string | null
   nonExecutionCause?: NonExecutionCause | null
   retries: number
+
+  /** DAG node tracking (flow origin only). */
+  nodeId?: string
+  kind?: NodeKind
+  executor?: string
+  flowRunId?: string
+  depth?: number
 }
 
 export interface ExecutionListQuery {
@@ -125,6 +136,27 @@ export interface ExecutionListQuery {
   status?: ExecutionStatus
   startedAtFrom?: string
   startedAtTo?: string
-  page?: number // 0-based
+  page?: number
   size?: number
+}
+
+/** Palette metadata for each backend executor. */
+export interface ExecutorMeta {
+  type: string
+  label: string
+  kinds: NodeKind[] // which kinds this executor can back
+  paramsPlaceholder?: unknown
+}
+
+export const EXECUTOR_CATALOG: ExecutorMeta[] = [
+  { type: 'shell', label: 'Shell (endpoint agent)', kinds: ['executor'] },
+  { type: 'http', label: 'HTTP call', kinds: ['executor', 'enrichment'], paramsPlaceholder: { method: 'GET', url: '' } },
+  { type: 'select', label: 'Select (context transform)', kinds: ['enrichment'], paramsPlaceholder: { fields: {} } },
+  { type: 'llm_enrich', label: 'LLM enrichment', kinds: ['enrichment'], paramsPlaceholder: { prompt: '' } },
+  { type: 'llm_action', label: 'LLM action', kinds: ['executor'], paramsPlaceholder: { prompt: '' } },
+  { type: 'notify', label: 'Send notification', kinds: ['executor'], paramsPlaceholder: { message: '', type: 'INFO' } },
+]
+
+export function executorMeta(type: string): ExecutorMeta | undefined {
+  return EXECUTOR_CATALOG.find((e) => e.type === type)
 }

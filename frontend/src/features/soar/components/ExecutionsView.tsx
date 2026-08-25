@@ -11,14 +11,17 @@ import { datasourcesHttpService } from '@/features/datasources/services/datasour
 import { soarExecutionsService } from '../services/soar-executions.service'
 import type { Execution, ExecutionOrigin, ExecutionStatus, ExecutionListQuery } from '../types/soar.types'
 
-const STATUSES: (ExecutionStatus | 'all')[] = ['all', 'EXECUTED', 'PENDING', 'FAILED']
+const STATUSES: (ExecutionStatus | 'all')[] = ['all', 'EXECUTED', 'PENDING', 'WAITING', 'EXECUTING', 'FAILED', 'DEAD']
 const ORIGINS: (ExecutionOrigin | 'all')[] = ['all', 'FLOW', 'MANUAL']
 const COLS = '90px minmax(160px,1.2fr) minmax(180px,1.6fr) 120px 150px 60px'
 
 const STATUS_META: Record<ExecutionStatus, { icon: typeof CheckCircle2; cls: string }> = {
   EXECUTED: { icon: CheckCircle2, cls: 'text-emerald-500' },
   PENDING: { icon: Clock, cls: 'text-amber-500' },
+  WAITING: { icon: Clock, cls: 'text-muted-foreground' },
+  EXECUTING: { icon: Loader2, cls: 'text-sky-500 animate-spin' },
   FAILED: { icon: XCircle, cls: 'text-red-500' },
+  DEAD: { icon: AlertTriangle, cls: 'text-muted-foreground' },
 }
 
 export function ExecutionsView() {

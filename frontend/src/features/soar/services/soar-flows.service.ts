@@ -11,7 +11,6 @@ function listQuery(q: FlowListQuery): string {
   const p = new URLSearchParams()
   if (q.name) p.set('name.contains', q.name)
   if (q.active != null) p.set('active.equals', String(q.active))
-  if (q.agentPlatform) p.set('agentPlatform.equals', q.agentPlatform)
   if (q.systemOwner != null) p.set('systemOwner.equals', String(q.systemOwner))
   p.set('page', String(q.page ?? 0))
   p.set('size', String(q.size ?? 20))

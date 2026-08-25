@@ -1,13 +1,12 @@
 import { isWindowsPlatform } from './alert-fields'
 
-/** Starter snippets for the most common flow response actions, so a new flow
- *  isn't a blank line. Each resolves to real syntax for the agent's actual
- *  shell — cmd and PowerShell are different languages on Windows, not just a
- *  formatting choice — and, where a matching alert field actually exists,
- *  drops it in pre-filled with `$(field.path)`. Kill-process and the Windows
- *  logoff case have no backing alert field today (no PID/session-id anywhere
- *  on the alert document — see the soar backend), so those stay manual
- *  placeholders (`<PID>`, `<SESSION_ID>`) for the user to fill in. */
+/** Starter snippets for the most common flow response actions, so a new shell
+ *  node isn't a blank line. Each resolves to real syntax for the agent's
+ *  actual shell — cmd and PowerShell are different languages on Windows, not
+ *  just a formatting choice — and, where a matching alert field actually
+ *  exists, drops it in pre-filled with `$(alert.field.path)`. Kill-process
+ *  and the Windows logoff case have no backing alert field today, so those
+ *  stay manual placeholders (`<PID>`, `<SESSION_ID>`) for the user to fill in. */
 export type ShellKind = 'cmd' | 'powershell' | 'unix'
 
 /** Windows without an explicit PowerShell shell falls back to cmd (matches
@@ -20,12 +19,14 @@ export function shellKindFor(platform: string, shell: string): ShellKind {
 
 export interface CommandTemplate {
   id: string
+  label: string
   command: (shell: ShellKind) => string
 }
 
 export const COMMAND_TEMPLATES: CommandTemplate[] = [
   {
     id: 'isolate',
+    label: 'Isolate host (block all traffic)',
     command: (shell) => {
       if (shell === 'powershell') {
         return 'New-NetFirewallRule -DisplayName "UTMStack-Isolate-Out" -Direction Outbound -Action Block -RemoteAddress Any; New-NetFirewallRule -DisplayName "UTMStack-Isolate-In" -Direction Inbound -Action Block -RemoteAddress Any'
@@ -38,6 +39,7 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
   },
   {
     id: 'shutdown',
+    label: 'Shutdown host',
     command: (shell) => {
       if (shell === 'powershell') return 'Stop-Computer -Force'
       if (shell === 'cmd') return 'shutdown /s /f /t 0'
@@ -46,6 +48,7 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
   },
   {
     id: 'killProcess',
+    label: 'Kill process by PID',
     command: (shell) => {
       if (shell === 'powershell') return 'Stop-Process -Id <PID> -Force'
       if (shell === 'cmd') return 'taskkill /F /PID <PID>'
@@ -54,34 +57,38 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
   },
   {
     id: 'logout',
+    label: 'Log user out',
     command: (shell) => {
       if (shell === 'powershell') return 'logoff.exe <SESSION_ID>'
       if (shell === 'cmd') return 'logoff <SESSION_ID>'
-      return 'pkill -KILL -u $(target.user)'
+      return 'pkill -KILL -u $(alert.target.user)'
     },
   },
   {
     id: 'disableUser',
+    label: 'Disable target user',
     command: (shell) => {
-      if (shell === 'powershell') return 'Disable-LocalUser -Name "$(target.user)"'
-      if (shell === 'cmd') return 'net user "$(target.user)" /active:no'
-      return 'usermod -L $(target.user)'
+      if (shell === 'powershell') return 'Disable-LocalUser -Name "$(alert.target.user)"'
+      if (shell === 'cmd') return 'net user "$(alert.target.user)" /active:no'
+      return 'usermod -L $(alert.target.user)'
     },
   },
   {
     id: 'blockIp',
+    label: 'Block adversary IP',
     command: (shell) => {
       if (shell === 'powershell') {
-        return 'New-NetFirewallRule -DisplayName "Block-IP" -Direction Inbound -Action Block -RemoteAddress $(adversary.ip)'
+        return 'New-NetFirewallRule -DisplayName "Block-IP" -Direction Inbound -Action Block -RemoteAddress $(alert.adversary.ip)'
       }
       if (shell === 'cmd') {
-        return 'netsh advfirewall firewall add rule name="Block-IP" dir=in action=block remoteip=$(adversary.ip)'
+        return 'netsh advfirewall firewall add rule name="Block-IP" dir=in action=block remoteip=$(alert.adversary.ip)'
       }
-      return 'iptables -A INPUT -s $(adversary.ip) -j DROP'
+      return 'iptables -A INPUT -s $(alert.adversary.ip) -j DROP'
     },
   },
   {
     id: 'restart',
+    label: 'Restart host',
     command: (shell) => {
       if (shell === 'powershell') return 'Restart-Computer -Force'
       if (shell === 'cmd') return 'shutdown /r /f /t 0'
@@ -89,10 +96,8 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
     },
   },
   {
-    // No alert field carries an installed-package name, so the target stays a
-    // manual placeholder. On Unix the manager differs per distro; apt is the
-    // starting point a user retargets, not a guess that works everywhere.
     id: 'uninstall',
+    label: 'Uninstall a package',
     command: (shell) => {
       if (shell === 'powershell') {
         return 'Get-Package -Name "<PACKAGE>" | Uninstall-Package -Force'

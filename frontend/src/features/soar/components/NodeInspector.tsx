@@ -1,0 +1,295 @@
+import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, Trash2, Zap } from 'lucide-react'
+import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
+import { NODE_KINDS, EXECUTOR_CATALOG, type FlowNode, type NodeKind } from '../types/soar.types'
+import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
+import { AgentPicker } from './AgentPicker'
+import { InsertFieldMenu } from './InsertFieldMenu'
+
+const SELECT = 'h-8 w-full rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+
+interface Props {
+  nodeId: string
+  node: FlowNode
+  /** Full node map — used by InsertFieldMenu to enumerate enrichment
+   *  ancestors reachable from this node. */
+  nodes: Record<string, FlowNode>
+  readOnly?: boolean
+  onRename: (newId: string) => void
+  onChange: (patch: Partial<FlowNode>) => void
+  onDelete: () => void
+}
+
+/** Right-side properties panel for the selected node: id, kind, executor,
+ *  command/params (schema depends on executor), on_success/on_error left
+ *  implicit (drawn on the canvas). */
+export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChange, onDelete }: Props) {
+  const [localId, setLocalId] = useState(nodeId)
+  const [paramsText, setParamsText] = useState(() => (node.params ? JSON.stringify(node.params, null, 2) : ''))
+  const [paramsError, setParamsError] = useState<string | null>(null)
+  const commandRef = useRef<HTMLTextAreaElement>(null)
+  const paramsRef = useRef<HTMLTextAreaElement>(null)
+  const [templatesOpen, setTemplatesOpen] = useState(false)
+
+  useEffect(() => {
+    setLocalId(nodeId)
+  }, [nodeId])
+  useEffect(() => {
+    setParamsText(node.params ? JSON.stringify(node.params, null, 2) : '')
+    setParamsError(null)
+  }, [node.params, nodeId])
+
+  const validExecutors = EXECUTOR_CATALOG.filter((m) => m.kinds.includes(node.kind))
+
+  const commitId = () => {
+    const trimmed = localId.trim()
+    if (trimmed && trimmed !== nodeId) onRename(trimmed)
+    else setLocalId(nodeId)
+  }
+
+  const commitParams = () => {
+    if (!paramsText.trim()) {
+      onChange({ params: undefined })
+      setParamsError(null)
+      return
+    }
+    try {
+      const parsed = JSON.parse(paramsText)
+      onChange({ params: parsed })
+      setParamsError(null)
+    } catch (e) {
+      setParamsError(e instanceof Error ? e.message : 'invalid JSON')
+    }
+  }
+
+  // Insert into the shell command textarea at the caret. Templates replace-all
+  // when the field is empty and insert-at-caret otherwise, so users can build
+  // a chain of them.
+  const insertIntoCommand = (token: string, replaceAll: boolean) => {
+    const cur = node.command ?? ''
+    if (replaceAll && !cur.trim()) {
+      onChange({ command: token })
+      requestAnimationFrame(() => {
+        const el = commandRef.current
+        if (el) {
+          el.focus()
+          el.setSelectionRange(token.length, token.length)
+        }
+      })
+      return
+    }
+    const el = commandRef.current
+    const start = el?.selectionStart ?? cur.length
+    const end = el?.selectionEnd ?? cur.length
+    const next = cur.slice(0, start) + token + cur.slice(end)
+    onChange({ command: next })
+    requestAnimationFrame(() => {
+      const el2 = commandRef.current
+      if (el2) {
+        el2.focus()
+        const pos = start + token.length
+        el2.setSelectionRange(pos, pos)
+      }
+    })
+  }
+
+  // Insert into the non-shell params textarea at the caret. Works against the
+  // local paramsText state (not committed yet) so users can keep composing.
+  const insertIntoParams = (token: string) => {
+    const el = paramsRef.current
+    const cur = paramsText
+    const start = el?.selectionStart ?? cur.length
+    const end = el?.selectionEnd ?? cur.length
+    const next = cur.slice(0, start) + token + cur.slice(end)
+    setParamsText(next)
+    requestAnimationFrame(() => {
+      const el2 = paramsRef.current
+      if (el2) {
+        el2.focus()
+        const pos = start + token.length
+        el2.setSelectionRange(pos, pos)
+      }
+    })
+  }
+
+  const shellKind = shellKindFor(node.platform ?? '', node.shell ?? '')
+
+  return (
+    <aside className="flex w-96 shrink-0 flex-col border-l border-border bg-card h-[100%] overflow-y-auto">
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Node</div>
+        {!readOnly && (
+          <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title="Delete node">
+            <Trash2 size={13} />
+          </button>
+        )}
+      </div>
+      <div className="flex-1 space-y-3 overflow-y-auto p-3 text-xs">
+        <Field label="ID">
+          <Input
+            value={localId}
+            readOnly={readOnly}
+            onChange={(e) => setLocalId(e.target.value)}
+            onBlur={commitId}
+            className="h-8 font-mono"
+          />
+        </Field>
+        <Field label="Kind">
+          <select
+            value={node.kind}
+            disabled={readOnly}
+            onChange={(e) => {
+              const nextKind = e.target.value as NodeKind
+              const meta = EXECUTOR_CATALOG.find((m) => m.type === node.executor)
+              const stillOK = meta?.kinds.includes(nextKind)
+              onChange({ kind: nextKind, executor: stillOK ? node.executor : (EXECUTOR_CATALOG.find((m) => m.kinds.includes(nextKind))?.type ?? node.executor) })
+            }}
+            className={SELECT}
+          >
+            {NODE_KINDS.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Executor">
+          <select value={node.executor} disabled={readOnly} onChange={(e) => onChange({ executor: e.target.value })} className={SELECT}>
+            {validExecutors.map((m) => (
+              <option key={m.type} value={m.type}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        {node.executor === 'shell' && (
+          <>
+            <Field label="Command">
+              {!readOnly && (
+                <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                  <TemplatesPopover
+                    open={templatesOpen}
+                    onOpenChange={setTemplatesOpen}
+                    onPick={(cmd) => insertIntoCommand(cmd, true)}
+                    shellKind={shellKind}
+                  />
+                  <InsertFieldMenu nodes={nodes} currentNodeId={nodeId} onInsert={(token) => insertIntoCommand(token, false)} />
+                </div>
+              )}
+              <textarea
+                ref={commandRef}
+                value={node.command ?? ''}
+                readOnly={readOnly}
+                onChange={(e) => onChange({ command: e.target.value })}
+                rows={4}
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 font-mono text-[11px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                placeholder='usermod -s /sbin/nologin $(alert.target.user)'
+              />
+            </Field>
+            <AgentPicker
+              platform={node.platform}
+              agent={node.agent}
+              excludedAgents={node.excludedAgents}
+              shell={node.shell}
+              readOnly={readOnly}
+              onChange={(patch) => onChange(patch)}
+            />
+          </>
+        )}
+
+        {node.executor !== 'shell' && (
+          <Field label="Params (JSON)">
+            {!readOnly && (
+              <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                <InsertFieldMenu nodes={nodes} currentNodeId={nodeId} onInsert={(token) => insertIntoParams(token)} />
+              </div>
+            )}
+            <textarea
+              ref={paramsRef}
+              value={paramsText}
+              readOnly={readOnly}
+              onChange={(e) => setParamsText(e.target.value)}
+              onBlur={commitParams}
+              rows={8}
+              className="w-full rounded-md border border-input bg-background px-2 py-1.5 font-mono text-[11px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              placeholder='{"url":"https://example.com"}'
+            />
+            {paramsError && <p className="mt-1 text-[10px] text-red-500">{paramsError}</p>}
+          </Field>
+        )}
+
+        <div className="rounded-md bg-muted/40 p-2 text-[10px] text-muted-foreground">
+          Drag from the bottom-left <span className="text-emerald-500">green</span> handle for on_success, the
+          bottom-right <span className="text-red-500">red</span> handle for on_error. Multiple wires = parallel.
+          Multiple wires into one node = AND-join.
+        </div>
+      </div>
+      <div className="border-t border-border p-2">
+        <Button size="sm" variant="outline" className="w-full" onClick={onDelete} disabled={readOnly}>
+          Delete node
+        </Button>
+      </div>
+    </aside>
+  )
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
+      {children}
+    </div>
+  )
+}
+
+function TemplatesPopover({
+  open,
+  onOpenChange,
+  onPick,
+  shellKind,
+}: {
+  open: boolean
+  onOpenChange: (v: boolean) => void
+  onPick: (command: string) => void
+  shellKind: ReturnType<typeof shellKindFor>
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onOpenChange(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open, onOpenChange])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => onOpenChange(!open)}
+        className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] hover:bg-muted"
+      >
+        <Zap size={11} /> Templates <ChevronDown size={10} className="opacity-60" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-30 mt-1 max-h-64 w-64 overflow-y-auto rounded-md border border-border bg-popover py-1 shadow-lg">
+          {COMMAND_TEMPLATES.map((tpl) => (
+            <button
+              key={tpl.id}
+              type="button"
+              onClick={() => {
+                onPick(tpl.command(shellKind))
+                onOpenChange(false)
+              }}
+              className="flex w-full items-center px-3 py-1.5 text-left text-[11px] hover:bg-muted"
+            >
+              {tpl.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
