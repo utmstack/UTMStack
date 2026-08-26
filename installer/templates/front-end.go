@@ -62,7 +62,7 @@ server {
         proxy_pass $utmstack_agent_manager;
         # A self-signed certificate on an internal name: the hop is inside the
         # overlay, and what authenticates it is not being reachable from outside.
-        proxy_ssl_verify off;
+
     }
 
     location /v1/ingest {
@@ -71,32 +71,37 @@ server {
     }
 
     location /agent.AgentService/ {
-        grpc_pass grpc://$utmstack_agent_manager_grpc;
+        grpc_pass grpcs://$utmstack_agent_manager_grpc;
+        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     location /agent.PanelService/ {
-        grpc_pass grpc://$utmstack_agent_manager_grpc;
+        grpc_pass grpcs://$utmstack_agent_manager_grpc;
+        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     location /agent.CollectorService/ {
-        grpc_pass grpc://$utmstack_agent_manager_grpc;
+        grpc_pass grpcs://$utmstack_agent_manager_grpc;
+        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     # log-input's ingest, whose service lives in the SDK's "plugins" package.
     location /plugins.Integration/ {
-        grpc_pass grpc://$utmstack_log_input_grpc;
+        grpc_pass grpcs://$utmstack_log_input_grpc;
+        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     location /agent.PingService/ {
-        grpc_pass grpc://$utmstack_agent_manager_grpc;
+        grpc_pass grpcs://$utmstack_agent_manager_grpc;
+        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
