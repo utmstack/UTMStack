@@ -24,6 +24,13 @@ type ExecutionResponse struct {
 	FinishedAt        *time.Time                `json:"finishedAt,omitempty"`
 	NonExecutionCause *domain.NonExecutionCause `json:"nonExecutionCause,omitempty"`
 	Retries           int                       `json:"retries"`
+
+	// DAG node tracking — populated for flow executions, empty for manual.
+	NodeID    string          `json:"nodeId,omitempty"`
+	Kind      domain.NodeKind `json:"kind,omitempty"`
+	Executor  string          `json:"executor,omitempty"`
+	FlowRunID *uuid.UUID      `json:"flowRunId,omitempty"`
+	Depth     int             `json:"depth,omitempty"`
 }
 
 type MatchRequest struct {

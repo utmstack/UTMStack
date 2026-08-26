@@ -198,7 +198,16 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		agentClient = nil
 	}
 
-	soarMod := soar.NewModule(db, agentClient, signer, cipher, tenantLister)
+	// SOC-AI client is built here so the SOAR LLM executors can share it.
+	// socai.NewModule below reuses the same base URL/key.
+	socAIClient := socai.NewSocAIClient(cfg.socAIBaseURL, cfg.internalKey)
+	// Notifications module is built early so its usecase can back the SOAR
+	// notify executor. Its own dependencies (db + audit logger + leases) are
+	// already available at this point.
+	notificationsMod := notifications.NewModule(db, auditMod.Logger(), joblease.New(db),
+		env.Int("NOTIFICATIONS_READ_RETENTION_DAYS", 30, false),
+		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
+	soarMod := soar.NewModule(db, agentClient, signer, cipher, socAIClient, notificationsMod.Producer(), tenantLister)
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
@@ -212,10 +221,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, reader, joblease.New(db))
 	}
 	datasourcesMod := datasources.NewModule(dsUC, dsReconciler, agentClient)
-
-	notificationsMod := notifications.NewModule(db, auditMod.Logger(), joblease.New(db),
-		env.Int("NOTIFICATIONS_READ_RETENTION_DAYS", 30, false),
-		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
 

@@ -23,7 +23,7 @@ func NewRuleUsecase(store *FlowStore, resolve connectors.ResolveFilterRepository
 }
 
 func (u *ruleUsecase) Create(ctx context.Context, req dto.CreateRuleRequest, createdBy string) (*dto.RuleResponse, error) {
-	sf, err := u.store.Create(tenantOf(ctx), requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
+	sf, err := u.store.Create(tenantOf(ctx), requestToFlow(req.Name, req.Description, req.Conditions, req.Roots, req.Nodes, req.MaxDepth))
 	if err != nil {
 		return nil, mapStoreErr(err)
 	}
@@ -35,7 +35,7 @@ func (u *ruleUsecase) Create(ctx context.Context, req dto.CreateRuleRequest, cre
 }
 
 func (u *ruleUsecase) Update(ctx context.Context, relPath string, req dto.UpdateRuleRequest, modifiedBy string) (*dto.RuleResponse, error) {
-	sf, err := u.store.Update(tenantOf(ctx), relPath, requestToFlow(req.Name, req.Description, req.Conditions, req.Commands, req.Shell, req.AgentPlatform, req.DefaultAgent, req.ExcludedAgents))
+	sf, err := u.store.Update(tenantOf(ctx), relPath, requestToFlow(req.Name, req.Description, req.Conditions, req.Roots, req.Nodes, req.MaxDepth))
 	if err != nil {
 		return nil, mapStoreErr(err)
 	}
@@ -64,12 +64,11 @@ func (u *ruleUsecase) SetEnabled(ctx context.Context, relPath string, enabled bo
 
 func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error) {
 	flows, total := u.store.List(tenantOf(ctx), FlowListFilter{
-		Page:          f.Page,
-		Size:          f.Size,
-		Name:          f.RuleName,
-		Active:        f.RuleActive,
-		SystemOwner:   f.SystemOwner,
-		AgentPlatform: f.AgentPlatform,
+		Page:        f.Page,
+		Size:        f.Size,
+		Name:        f.RuleName,
+		Active:      f.RuleActive,
+		SystemOwner: f.SystemOwner,
 	})
 	items := make([]dto.RuleResponse, 0, len(flows))
 	for _, sf := range flows {
@@ -105,16 +104,14 @@ func mapStoreErr(err error) error {
 	}
 }
 
-func requestToFlow(name, description string, conds []dto.FilterVM, commands []dto.FlowCommandVM, shell, agentPlatform, defaultAgent string, excludedAgents []string) domain.Flow {
+func requestToFlow(name, description string, conds []dto.FilterVM, roots []string, nodes map[string]dto.FlowNodeVM, maxDepth int) domain.Flow {
 	return domain.Flow{
-		Name:           name,
-		Description:    description,
-		Conditions:     toFlowConditions(conds),
-		Commands:       toFlowCommands(commands),
-		Shell:          shell,
-		AgentPlatform:  agentPlatform,
-		DefaultAgent:   defaultAgent,
-		ExcludedAgents: excludedAgents,
+		Name:        name,
+		Description: description,
+		Conditions:  toFlowConditions(conds),
+		Roots:       roots,
+		Nodes:       toFlowNodes(nodes),
+		MaxDepth:    maxDepth,
 	}
 }
 
@@ -126,18 +123,40 @@ func toFlowConditions(vms []dto.FilterVM) []domain.FilterType {
 	return out
 }
 
-func toFlowCommands(vms []dto.FlowCommandVM) []domain.FlowCommand {
-	out := make([]domain.FlowCommand, 0, len(vms))
-	for _, v := range vms {
-		out = append(out, domain.FlowCommand{Command: v.Command, Condition: v.Condition})
+func toFlowNodes(vms map[string]dto.FlowNodeVM) map[string]domain.FlowNode {
+	out := make(map[string]domain.FlowNode, len(vms))
+	for id, v := range vms {
+		out[id] = domain.FlowNode{
+			Kind:           v.Kind,
+			Executor:       v.Executor,
+			Command:        v.Command,
+			Shell:          v.Shell,
+			Platform:       v.Platform,
+			Agent:          v.Agent,
+			ExcludedAgents: v.ExcludedAgents,
+			Params:         v.Params,
+			OnSuccess:      v.OnSuccess,
+			OnError:        v.OnError,
+		}
 	}
 	return out
 }
 
-func flowCommandsToVMs(cmds []domain.FlowCommand) []dto.FlowCommandVM {
-	out := make([]dto.FlowCommandVM, 0, len(cmds))
-	for _, c := range cmds {
-		out = append(out, dto.FlowCommandVM{Command: c.Command, Condition: c.Condition})
+func flowNodesToVMs(nodes map[string]domain.FlowNode) map[string]dto.FlowNodeVM {
+	out := make(map[string]dto.FlowNodeVM, len(nodes))
+	for id, n := range nodes {
+		out[id] = dto.FlowNodeVM{
+			Kind:           n.Kind,
+			Executor:       n.Executor,
+			Command:        n.Command,
+			Shell:          n.Shell,
+			Platform:       n.Platform,
+			Agent:          n.Agent,
+			ExcludedAgents: n.ExcludedAgents,
+			Params:         n.Params,
+			OnSuccess:      n.OnSuccess,
+			OnError:        n.OnError,
+		}
 	}
 	return out
 }
@@ -147,16 +166,14 @@ func storedFlowToResponse(sf *domain.StoredFlow) *dto.RuleResponse {
 		return nil
 	}
 	resp := &dto.RuleResponse{
-		RelPath:        sf.RelPath,
-		Name:           sf.Name,
-		Description:    sf.Description,
-		Commands:       flowCommandsToVMs(sf.Commands),
-		Active:         sf.Active(),
-		AgentPlatform:  sf.AgentPlatform,
-		DefaultAgent:   sf.DefaultAgent,
-		Shell:          sf.Shell,
-		SystemOwner:    sf.SystemOwned(),
-		ExcludedAgents: sf.ExcludedAgents,
+		RelPath:     sf.RelPath,
+		Name:        sf.Name,
+		Description: sf.Description,
+		Roots:       sf.Roots,
+		Nodes:       flowNodesToVMs(sf.Nodes),
+		MaxDepth:    sf.MaxDepth,
+		Active:      sf.Active(),
+		SystemOwner: sf.SystemOwned(),
 	}
 	for _, c := range sf.Conditions {
 		resp.Conditions = append(resp.Conditions, dto.FilterVM{Operator: domain.OperatorType(c.Operator), Field: c.Field, Value: c.Value})

@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
+	"github.com/utmstack/utmstack/backend/modules/soar/executor"
 	"github.com/utmstack/utmstack/backend/modules/soar/handler"
 	"github.com/utmstack/utmstack/backend/modules/soar/repository"
 	"github.com/utmstack/utmstack/backend/modules/soar/usecase"
@@ -39,6 +40,8 @@ func NewModule(
 	agentClient *agentmanager.AgentManagerClient,
 	signer *jwtpkg.Signer,
 	cipher *secret.Cipher,
+	llm executor.LLMStreamer,
+	notifier executor.Notifier,
 	tenantLister func(context.Context) ([]string, error),
 ) *Module {
 	flowsSrc := env.String("SOAR_FLOWS_SRC_DIR", "/utmstack/soar", false)
@@ -50,17 +53,31 @@ func NewModule(
 
 	resolveRepo := repository.NewResolveFilterRepository(db)
 	executionRepo := repository.NewExecutionRepository(db)
+	flowRunRepo := repository.NewFlowRunRepository(db)
 
 	variableRepo := repository.NewVariableRepository(db)
 	variableUC := usecase.NewVariableUsecase(variableRepo, cipher)
 
-	dispatcher := usecase.NewDispatcher(executionRepo, flowStore, agentClient, variableUC)
+	registry := executor.Registry{
+		"shell":  executor.NewShell(agentClient),
+		"http":   executor.NewHTTP(),
+		"select": executor.NewSelect(),
+	}
+	if llm != nil {
+		registry["llm_enrich"] = executor.NewLLMEnrich(llm)
+		registry["llm_action"] = executor.NewLLMAction(llm)
+	}
+	if notifier != nil {
+		registry["notify"] = executor.NewNotify(notifier)
+	}
+
+	dispatcher := usecase.NewDispatcher(executionRepo, flowRunRepo, flowStore, variableUC, registry)
 
 	agentRepo := repository.NewAgentRepository(db)
 	agentUC := usecase.NewAgentUsecase(agentRepo)
 
 	ruleUC := usecase.NewRuleUsecase(flowStore, resolveRepo)
-	executionUC := usecase.NewExecutionUsecase(executionRepo, flowStore, agentUC, dispatcher.Kick)
+	executionUC := usecase.NewExecutionUsecase(executionRepo, flowRunRepo, flowStore, agentUC, variableUC, dispatcher.Kick)
 
 	return &Module{
 		ruleHandler:      handler.NewRuleHandler(ruleUC),
