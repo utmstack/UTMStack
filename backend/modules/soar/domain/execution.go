@@ -63,7 +63,7 @@ type SoarExecution struct {
 	TriggeredBy string `gorm:"column:triggered_by;size:150;not null" json:"triggeredBy,omitempty"`
 
 	// Flow-run linkage — nullable for manual executions.
-	FlowRunID *uuid.UUID `gorm:"column:flow_run_id;type:uuid;index" json:"flowRunId,omitempty"`
+	FlowRunID *uuid.UUID `gorm:"column:flow_run_id;type:uuid;index;index:idx_soar_execution_run_node,unique,priority:1" json:"flowRunId,omitempty"`
 	RulePath  string     `gorm:"column:rule_path;size:512;not null" json:"rulePath,omitempty"`
 	AlertID   string     `gorm:"column:alert_id;size:150;not null"  json:"alertId,omitempty"`
 

@@ -75,6 +75,21 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
 
+	// ponytail: v11 soar_executions rows predate the DAG columns. GORM
+	// AutoMigrate can't add NOT NULL columns without a default when the table
+	// already has rows, so we pre-create them here with DEFAULT ''. New inserts
+	// override the default; legacy rows keep empty strings, which is what the
+	// DAG dispatcher already tolerates for terminal history.
+	for _, stmt := range []string{
+		`ALTER TABLE IF EXISTS soar_executions ADD COLUMN IF NOT EXISTS node_id  varchar(150) NOT NULL DEFAULT ''`,
+		`ALTER TABLE IF EXISTS soar_executions ADD COLUMN IF NOT EXISTS kind     varchar(20)  NOT NULL DEFAULT ''`,
+		`ALTER TABLE IF EXISTS soar_executions ADD COLUMN IF NOT EXISTS executor varchar(60)  NOT NULL DEFAULT ''`,
+	} {
+		if err := db.Exec(stmt).Error; err != nil {
+			return err
+		}
+	}
+
 	models := Models()
 	if len(models) > 0 {
 		catcher.Info("running GORM AutoMigrate...", nil)
