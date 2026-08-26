@@ -4587,9 +4587,12 @@
       "manual": "Интерактивная консоль"
     },
     "executionStatus": {
+      "WAITING": "В ожидании",
+      "PENDING": "В очереди",
+      "EXECUTING": "Выполняется",
       "EXECUTED": "Выполнено",
-      "PENDING": "Ожидание",
-      "FAILED": "Ошибка"
+      "FAILED": "Ошибка",
+      "DEAD": "Недостижимо"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Агент офлайн",

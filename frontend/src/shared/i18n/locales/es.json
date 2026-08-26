@@ -4921,9 +4921,12 @@
       "manual": "Consola interactiva"
     },
     "executionStatus": {
-      "EXECUTED": "Ejecutado",
+      "WAITING": "En espera",
       "PENDING": "Pendiente",
-      "FAILED": "Fallido"
+      "EXECUTING": "Ejecutando",
+      "EXECUTED": "Ejecutado",
+      "FAILED": "Fallido",
+      "DEAD": "Inaccesible"
     },
     "executionOrigin": {
       "FLOW": "Flujo",
