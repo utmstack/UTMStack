@@ -5185,9 +5185,12 @@
       "manual": "Interactive console"
     },
     "executionStatus": {
-      "EXECUTED": "Executed",
+      "WAITING": "Waiting",
       "PENDING": "Pending",
-      "FAILED": "Failed"
+      "EXECUTING": "Executing",
+      "EXECUTED": "Executed",
+      "FAILED": "Failed",
+      "DEAD": "Unreachable"
     },
     "executionOrigin": {
       "FLOW": "Flow",

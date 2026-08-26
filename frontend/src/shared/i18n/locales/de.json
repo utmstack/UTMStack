@@ -4795,9 +4795,12 @@
       "manual": "Interaktive Konsole"
     },
     "executionStatus": {
-      "EXECUTED": "Ausgeführt",
+      "WAITING": "Wartet",
       "PENDING": "Ausstehend",
-      "FAILED": "Fehlgeschlagen"
+      "EXECUTING": "Wird ausgeführt",
+      "EXECUTED": "Ausgeführt",
+      "FAILED": "Fehlgeschlagen",
+      "DEAD": "Nicht erreichbar"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Agent offline",

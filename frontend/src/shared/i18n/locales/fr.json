@@ -4799,9 +4799,12 @@
       "manual": "Console interactive"
     },
     "executionStatus": {
+      "WAITING": "En attente",
+      "PENDING": "En file d'attente",
+      "EXECUTING": "En cours d'exécution",
       "EXECUTED": "Exécuté",
-      "PENDING": "En attente",
-      "FAILED": "Échoué"
+      "FAILED": "Échoué",
+      "DEAD": "Inaccessible"
     },
     "executionOrigin": {
       "FLOW": "Flux",
