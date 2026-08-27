@@ -296,6 +296,17 @@ func (s *AgentService) GetAgentAuth(ctx context.Context, req *ConnectorAuthReque
 	return &ConnectorAuthResponse{Key: agent.AgentKey, TenantId: agent.TenantID}, nil
 }
 
+// evictIfOwner deletes the AgentStreamMap entry for agentID only if it still
+// points to stream. Prevents a slow-exiting prior AgentStream goroutine from
+// clobbering the fresh entry a newly-reconnected agent installed.
+func (s *AgentService) evictIfOwner(agentID uint, stream AgentService_AgentStreamServer) {
+	s.AgentStreamMutex.Lock()
+	if s.AgentStreamMap[agentID] == stream {
+		delete(s.AgentStreamMap, agentID)
+	}
+	s.AgentStreamMutex.Unlock()
+}
+
 func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {
 	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
@@ -307,11 +318,12 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	}
 	idUint := uint(idInt)
 
+	// Replace any prior entry rather than rejecting the reconnect. A dead
+	// prior stream's goroutine may still be looping on Recv (see
+	// utils.WaitForReconnect) and would otherwise block the agent from
+	// re-registering for minutes. evictIfOwner guards the map so the old
+	// goroutine's eventual delete does not clobber the fresh entry.
 	s.AgentStreamMutex.Lock()
-	if _, ok := s.AgentStreamMap[idUint]; ok {
-		s.AgentStreamMutex.Unlock()
-		return status.Error(codes.AlreadyExists, "stream already exists")
-	}
 	s.AgentStreamMap[idUint] = stream
 	s.AgentStreamMutex.Unlock()
 
@@ -324,18 +336,17 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 		if err == io.EOF {
 			err = utils.WaitForReconnect(stream.Context(), stream)
 			if err != nil {
-				s.AgentStreamMutex.Lock()
-				delete(s.AgentStreamMap, idUint)
-				s.AgentStreamMutex.Unlock()
-
+				catcher.Info("AgentStream: WaitForReconnect failed, evicting stream",
+					map[string]any{"agent_id": idUint, "err": err.Error(), "process": "agent-manager"})
+				s.evictIfOwner(idUint, stream)
 				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect: %v", err))
 			}
 			continue
 		}
 		if err != nil {
-			s.AgentStreamMutex.Lock()
-			delete(s.AgentStreamMap, idUint)
-			s.AgentStreamMutex.Unlock()
+			catcher.Info("AgentStream: Recv errored, evicting stream",
+				map[string]any{"agent_id": idUint, "err": err.Error(), "process": "agent-manager"})
+			s.evictIfOwner(idUint, stream)
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message: %v", err))
 		}
 
