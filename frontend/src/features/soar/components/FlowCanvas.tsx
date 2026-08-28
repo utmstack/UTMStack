@@ -20,9 +20,10 @@ import '@xyflow/react/dist/style.css'
 import { ChevronLeft, ChevronRight, PanelLeft, PanelRight } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
-import type { FlowNode, NodeKind } from '../types/soar.types'
+import type { FlowCondition, FlowNode, NodeKind } from '../types/soar.types'
 import { NodePalette } from './NodePalette'
 import { NodeInspector } from './NodeInspector'
+import { TriggerInspector } from './TriggerInspector'
 import { DAGNode } from './nodes/DAGNode'
 import { TriggerNode } from './nodes/TriggerNode'
 
@@ -32,8 +33,10 @@ const TRIGGER_ID = '__trigger__'
 interface Props {
   roots: string[]
   nodes: Record<string, FlowNode>
+  conditions: FlowCondition[]
   readOnly?: boolean
   onChange: (patch: { roots: string[]; nodes: Record<string, FlowNode> }) => void
+  onConditionsChange: (c: FlowCondition[]) => void
 }
 
 /** Node-red style DAG editor for a SOAR flow. Nodes come from the flow's
@@ -47,7 +50,7 @@ export function FlowCanvas(props: Props) {
   )
 }
 
-function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
+function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onConditionsChange }: Props) {
   const { t } = useTranslation()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
@@ -56,7 +59,7 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
   // Layout positions are stashed by node id so they survive re-derivation
   // whenever the flow model updates. Fresh nodes get a top-down default.
   const layoutRef = useRef<Record<string, { x: number; y: number }>>({})
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(TRIGGER_ID)
   const [paletteOpen, setPaletteOpen] = useState(true)
   const [inspectorOpen, setInspectorOpen] = useState(true)
 
@@ -70,6 +73,7 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
         type: 'trigger',
         position: posFor(TRIGGER_ID, { x: 120, y: 0 }),
         data: {},
+        selected: selectedId === TRIGGER_ID,
         draggable: !readOnly,
         deletable: false,
       },
@@ -134,8 +138,10 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
       for (const c of changes) {
         if (c.type === 'position' && c.position) layoutRef.current[c.id] = c.position
         if (c.type === 'select') {
-          if (c.selected && c.id !== TRIGGER_ID) setSelectedId(c.id)
-          else if (!c.selected && selectedId === c.id) setSelectedId(null)
+          if (c.selected) {
+            setSelectedId(c.id)
+            if (c.id === TRIGGER_ID) setInspectorOpen(true)
+          } else if (!c.selected && selectedId === c.id) setSelectedId(null)
         }
       }
       onNodesChange(changes)
@@ -333,9 +339,9 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
   }
 
   return (
-    <div className="flex h-[560px] overflow-hidden rounded-lg border border-border">
+    <div className="flex h-full min-h-[560px] overflow-hidden rounded-lg border border-border">
       {paletteOpen ? (
-        <div className="relative">
+        <div className="relative overflow-y-auto">
           <NodePalette readOnly={readOnly} />
           <button
             type="button"
@@ -367,7 +373,7 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
           nodesConnectable={!readOnly}
           edgesFocusable={!readOnly}
           fitView
-          fitViewOptions={{ padding: 0.2 }}
+          fitViewOptions={{ padding: 0.2, maxZoom: 0.5 }}
           proOptions={{ hideAttribution: true }}
           style={{
             '--xy-background-color-default': 'var(--background)',
@@ -383,7 +389,27 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
         </ReactFlow>
       </div>
 
-      {selected && selectedId ? (
+      {selectedId === TRIGGER_ID ? (
+        inspectorOpen ? (
+          <div className="relative">
+            <TriggerInspector
+              conditions={conditions}
+              readOnly={readOnly}
+              onChange={onConditionsChange}
+            />
+            <button
+              type="button"
+              onClick={() => setInspectorOpen(false)}
+              className="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+              title={t('soar.editor.canvas.hideInspector')}
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        ) : (
+          <CollapsedRail side="right" label={t('soar.editor.when')} onClick={() => setInspectorOpen(true)} />
+        )
+      ) : selected && selectedId ? (
         inspectorOpen ? (
           <div className="relative">
             <NodeInspector

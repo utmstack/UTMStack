@@ -4718,6 +4718,12 @@
       "nameRequired": "Il nome è obbligatorio",
       "conditionsRequired": "È richiesta almeno una condizione con un campo",
       "commandsRequired": "È richiesto almeno un comando",
+      "httpUrlInvalid": "Il nodo HTTP \"{{id}}\" ha un URL non valido — deve essere un URL http(s) valido.",
+      "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
+      "incidentNameRequired": "Il nodo incidente \"{{id}}\" richiede un nome.",
+      "mailToRequired": "Il nodo e-mail \"{{id}}\" richiede almeno un destinatario.",
+      "mailSubjectRequired": "Il nodo e-mail \"{{id}}\" richiede un oggetto.",
+      "identityModalTitle": "Dettagli del flusso",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
@@ -4774,7 +4780,29 @@
         "alert": "Allerta",
         "wholeOutput": "output completo (modifica il percorso)",
         "noAncestorsHint": "Nessun antenato di arricchimento — aggiungi un nodo di arricchimento a monte per esporre qui il suo output.",
-        "inserts": "inserisce"
+        "inserts": "inserisce",
+        "conditionalHint": "Tutte le condizioni devono corrispondere. Corrispondenza → ramo di successo (verde); mancata → ramo di errore (rosso).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) non valido.",
+          "method": "Metodo",
+          "body": "Corpo (JSON)",
+          "bodyInvalid": "JSON non valido"
+        },
+        "incident": {
+          "name": "Nome dell'incidente",
+          "namePlaceholder": "Es. Accesso sospetto su $(alert.dataSource)",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "Contesto facoltativo per i risponditori. I template come $(alert.name) vengono interpolati."
+        },
+        "mail": {
+          "to": "A (separati da virgola)",
+          "cc": "CC (separati da virgola, opzionale)",
+          "subject": "Oggetto",
+          "subjectPlaceholder": "Es. Allarme su $(alert.dataSource)",
+          "body": "Corpo",
+          "bodyPlaceholder": "Contenuto del messaggio. I template come $(alert.name) vengono interpolati."
+        }
       }
     },
     "executions": {

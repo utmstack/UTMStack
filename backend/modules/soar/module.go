@@ -42,6 +42,8 @@ func NewModule(
 	cipher *secret.Cipher,
 	llm executor.LLMStreamer,
 	notifier executor.Notifier,
+	incidentOpener executor.IncidentOpener,
+	mailSender executor.MailSender,
 	tenantLister func(context.Context) ([]string, error),
 ) *Module {
 	flowsSrc := env.String("SOAR_FLOWS_SRC_DIR", "/utmstack/soar", false)
@@ -59,9 +61,9 @@ func NewModule(
 	variableUC := usecase.NewVariableUsecase(variableRepo, cipher)
 
 	registry := executor.Registry{
-		"shell":  executor.NewShell(agentClient),
-		"http":   executor.NewHTTP(),
-		"select": executor.NewSelect(),
+		"shell":       executor.NewShell(agentClient),
+		"http":        executor.NewHTTP(),
+		"conditional": executor.NewConditional(),
 	}
 	if llm != nil {
 		registry["llm_enrich"] = executor.NewLLMEnrich(llm)
@@ -69,6 +71,12 @@ func NewModule(
 	}
 	if notifier != nil {
 		registry["notify"] = executor.NewNotify(notifier)
+	}
+	if incidentOpener != nil {
+		registry["incident"] = executor.NewIncident(incidentOpener)
+	}
+	if mailSender != nil {
+		registry["mail"] = executor.NewMail(mailSender)
 	}
 
 	dispatcher := usecase.NewDispatcher(executionRepo, flowRunRepo, flowStore, variableUC, registry)

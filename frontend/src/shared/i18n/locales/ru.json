@@ -4510,6 +4510,12 @@
       "nameRequired": "Имя обязательно",
       "conditionsRequired": "Требуется хотя бы одно условие с полем",
       "commandsRequired": "Требуется хотя бы одна команда",
+      "httpUrlInvalid": "Узел HTTP \"{{id}}\" содержит недопустимый URL — должен быть допустимый http(s) URL.",
+      "httpBodyInvalid": "Тело узла HTTP \"{{id}}\" не является допустимым JSON: {{error}}",
+      "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
+      "mailToRequired": "Узлу электронной почты \"{{id}}\" требуется хотя бы один получатель.",
+      "mailSubjectRequired": "Узлу электронной почты \"{{id}}\" требуется тема.",
+      "identityModalTitle": "Свойства потока",
       "platformRequired": "Платформа агента обязательна",
       "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
@@ -4566,7 +4572,29 @@
         "alert": "Алерт",
         "wholeOutput": "весь вывод (отредактируйте путь)",
         "noAncestorsHint": "Пока нет предков обогащения — добавьте узел обогащения выше по цепочке, чтобы его вывод стал доступен здесь.",
-        "inserts": "вставляет"
+        "inserts": "вставляет",
+        "conditionalHint": "Все условия должны совпадать. Совпадение → ветвь успеха (зелёная); несовпадение → ветвь ошибки (красная).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "Недопустимый http(s) URL.",
+          "method": "Метод",
+          "body": "Тело (JSON)",
+          "bodyInvalid": "Недопустимый JSON"
+        },
+        "incident": {
+          "name": "Название инцидента",
+          "namePlaceholder": "Напр. Подозрительный вход на $(alert.dataSource)",
+          "description": "Описание",
+          "descriptionPlaceholder": "Дополнительный контекст для отвечающих. Шаблоны вроде $(alert.name) подставляются."
+        },
+        "mail": {
+          "to": "Кому (через запятую)",
+          "cc": "Копия (через запятую, опционально)",
+          "subject": "Тема",
+          "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
+          "body": "Текст",
+          "bodyPlaceholder": "Содержимое сообщения. Шаблоны вроде $(alert.name) подставляются."
+        }
       }
     },
     "executions": {

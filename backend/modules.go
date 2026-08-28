@@ -207,7 +207,16 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	notificationsMod := notifications.NewModule(db, auditMod.Logger(), joblease.New(db),
 		env.Int("NOTIFICATIONS_READ_RETENTION_DAYS", 30, false),
 		env.Int("NOTIFICATIONS_RETENTION_DAYS", 365, false))
-	soarMod := soar.NewModule(db, agentClient, signer, cipher, socAIClient, notificationsMod.Producer(), tenantLister)
+	// Incidents module is built early so its usecase can back the SOAR incident
+	// executor. Its own deps (db + mail + config + alerts + audit) are already
+	// available at this point.
+	incidentsMod := incidents.NewModule(
+		db,
+		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store()),
+		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
+		auditMod.Logger(),
+	)
+	soarMod := soar.NewModule(db, agentClient, signer, cipher, socAIClient, notificationsMod.Producer(), incidentsMod.GetIncidentUsecase(), mailMod.Service(), tenantLister)
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
@@ -266,12 +275,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	socAIMod := socai.NewModule(cfg.socAIBaseURL, cfg.internalKey, cipher,
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
-	incidentsMod := incidents.NewModule(
-		db,
-		incidents.NewIncidentMailer(mailMod.Service(), configMod.Store()),
-		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
-		auditMod.Logger(),
-	)
 	adauditMod := adaudit.NewModule(db)
 	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false))
 	threatintelMod := threatintel.NewModule(

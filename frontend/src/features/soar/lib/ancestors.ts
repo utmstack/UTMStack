@@ -26,7 +26,7 @@ export function enrichmentAncestors(nodes: Record<string, FlowNode>, target: str
     const n = nodes[id]
     if (!n) continue
     if (n.kind === 'enrichment') {
-      out.push({ nodeId: id, executor: n.executor, fields: declaredFields(n) })
+      out.push({ nodeId: id, executor: n.executor, fields: [] })
     }
     for (const parent of reverse.get(id) ?? []) queue.push(parent)
   }
@@ -48,16 +48,3 @@ function buildReverseIndex(nodes: Record<string, FlowNode>): Map<string, string[
   return rev
 }
 
-/** Field names a node reliably exposes at edit time. Only `select` declares
- *  its keys statically today; other enrichment executors defer to the remote
- *  response so we return []. */
-export function declaredFields(node: FlowNode): string[] {
-  if (node.kind !== 'enrichment') return []
-  if (node.executor === 'select') {
-    const p = node.params as { fields?: Record<string, unknown> } | undefined
-    if (p && typeof p === 'object' && p.fields && typeof p.fields === 'object' && !Array.isArray(p.fields)) {
-      return Object.keys(p.fields)
-    }
-  }
-  return []
-}

@@ -4718,6 +4718,12 @@
       "nameRequired": "Le nom est requis",
       "conditionsRequired": "Au moins une condition avec un champ est requise",
       "commandsRequired": "Au moins une commande est requise",
+      "httpUrlInvalid": "Le nœud HTTP \"{{id}}\" a une URL invalide — elle doit être une URL http(s) valide.",
+      "httpBodyInvalid": "Le corps du nœud HTTP \"{{id}}\" n'est pas un JSON valide : {{error}}",
+      "incidentNameRequired": "Le nœud d'incident \"{{id}}\" nécessite un nom.",
+      "mailToRequired": "Le nœud d'e-mail \"{{id}}\" nécessite au moins un destinataire.",
+      "mailSubjectRequired": "Le nœud d'e-mail \"{{id}}\" nécessite un objet.",
+      "identityModalTitle": "Détails du flux",
       "platformRequired": "La plateforme de l'agent est requise",
       "nameLabel": "Nom",
       "namePlaceholder": "Nom du flux",
@@ -4774,7 +4780,29 @@
         "alert": "Alerte",
         "wholeOutput": "sortie complète (éditez le chemin)",
         "noAncestorsHint": "Aucun ancêtre d'enrichissement — ajoutez un nœud d'enrichissement en amont pour exposer sa sortie ici.",
-        "inserts": "insère"
+        "inserts": "insère",
+        "conditionalHint": "Toutes les conditions doivent correspondre. Correspondance → branche succès (verte) ; échec → branche erreur (rouge).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) invalide.",
+          "method": "Méthode",
+          "body": "Corps (JSON)",
+          "bodyInvalid": "JSON invalide"
+        },
+        "incident": {
+          "name": "Nom de l'incident",
+          "namePlaceholder": "Ex. Connexion suspecte sur $(alert.dataSource)",
+          "description": "Description",
+          "descriptionPlaceholder": "Contexte facultatif pour les intervenants. Les gabarits comme $(alert.name) sont interpolés."
+        },
+        "mail": {
+          "to": "À (séparés par une virgule)",
+          "cc": "CC (séparés par une virgule, facultatif)",
+          "subject": "Objet",
+          "subjectPlaceholder": "Ex. Alerte sur $(alert.dataSource)",
+          "body": "Corps",
+          "bodyPlaceholder": "Contenu du message. Les gabarits comme $(alert.name) sont interpolés."
+        }
       }
     },
     "executions": {

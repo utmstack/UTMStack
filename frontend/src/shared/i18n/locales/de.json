@@ -4718,6 +4718,12 @@
       "nameRequired": "Name ist erforderlich",
       "conditionsRequired": "Mindestens eine Bedingung mit Feld ist erforderlich",
       "commandsRequired": "Mindestens ein Befehl ist erforderlich",
+      "httpUrlInvalid": "HTTP-Knoten \"{{id}}\" hat eine ungültige URL — es muss eine gültige http(s)-URL sein.",
+      "httpBodyInvalid": "Body des HTTP-Knotens \"{{id}}\" ist kein gültiges JSON: {{error}}",
+      "incidentNameRequired": "Der Incident-Knoten \"{{id}}\" benötigt einen Namen.",
+      "mailToRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt mindestens einen Empfänger.",
+      "mailSubjectRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt einen Betreff.",
+      "identityModalTitle": "Flow-Details",
       "platformRequired": "Agent-Plattform ist erforderlich",
       "nameLabel": "Name",
       "namePlaceholder": "Flow-Name",
@@ -4774,7 +4780,29 @@
         "alert": "Warnung",
         "wholeOutput": "gesamte Ausgabe (Pfad bearbeiten)",
         "noAncestorsHint": "Noch keine Anreicherungs-Vorgänger — fügen Sie einen Anreicherungsknoten davor ein, um dessen Ausgabe hier verfügbar zu machen.",
-        "inserts": "fügt ein"
+        "inserts": "fügt ein",
+        "conditionalHint": "Alle Bedingungen müssen zutreffen. Treffer → Erfolgszweig (grün); Fehltreffer → Fehlerzweig (rot).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "Keine gültige http(s)-URL.",
+          "method": "Methode",
+          "body": "Body (JSON)",
+          "bodyInvalid": "Ungültiges JSON"
+        },
+        "incident": {
+          "name": "Incident-Name",
+          "namePlaceholder": "z. B. Verdächtiger Login auf $(alert.dataSource)",
+          "description": "Beschreibung",
+          "descriptionPlaceholder": "Optionaler Kontext für Bearbeiter. Vorlagen wie $(alert.name) werden interpoliert."
+        },
+        "mail": {
+          "to": "An (kommagetrennt)",
+          "cc": "CC (kommagetrennt, optional)",
+          "subject": "Betreff",
+          "subjectPlaceholder": "z. B. Alarm auf $(alert.dataSource)",
+          "body": "Nachricht",
+          "bodyPlaceholder": "Nachrichtentext. Vorlagen wie $(alert.name) werden interpoliert."
+        }
       }
     },
     "executions": {

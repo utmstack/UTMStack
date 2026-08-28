@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { ChevronDown, Trash2, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { NODE_KINDS, EXECUTOR_CATALOG, type FlowNode, type NodeKind } from '../types/soar.types'
+import type { FlowNode } from '../types/soar.types'
 import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
 import { AgentPicker } from './AgentPicker'
+import { ConditionalParamsEditor } from './ConditionalParamsEditor'
+import { HttpParamsEditor } from './HttpParamsEditor'
+import { IncidentParamsEditor } from './IncidentParamsEditor'
 import { InsertFieldMenu } from './InsertFieldMenu'
-
-const SELECT = 'h-8 w-full rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+import { MailParamsEditor } from './MailParamsEditor'
 
 interface Props {
   nodeId: string
@@ -62,8 +64,6 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
     setParamsText(node.params ? JSON.stringify(node.params, null, 2) : '')
     setParamsError(null)
   }, [node.params, nodeId])
-
-  const validExecutors = EXECUTOR_CATALOG.filter((m) => m.kinds.includes(node.kind))
 
   const commitId = () => {
     const trimmed = localId.trim()
@@ -166,35 +166,6 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
             className="h-8 font-mono"
           />
         </Field>
-        <Field label={t('soar.editor.canvas.kind')}>
-          <select
-            value={node.kind}
-            disabled={readOnly}
-            onChange={(e) => {
-              const nextKind = e.target.value as NodeKind
-              const meta = EXECUTOR_CATALOG.find((m) => m.type === node.executor)
-              const stillOK = meta?.kinds.includes(nextKind)
-              onChange({ kind: nextKind, executor: stillOK ? node.executor : (EXECUTOR_CATALOG.find((m) => m.kinds.includes(nextKind))?.type ?? node.executor) })
-            }}
-            className={SELECT}
-          >
-            {NODE_KINDS.map((k) => (
-              <option key={k} value={k}>
-                {k}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label={t('soar.editor.canvas.executor')}>
-          <select value={node.executor} disabled={readOnly} onChange={(e) => onChange({ executor: e.target.value })} className={SELECT}>
-            {validExecutors.map((m) => (
-              <option key={m.type} value={m.type}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </Field>
-
         {node.executor === 'shell' && (
           <>
             <Field label={t('soar.editor.canvas.commandLabel')}>
@@ -230,7 +201,49 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
           </>
         )}
 
-        {node.executor !== 'shell' && (
+        {node.executor === 'conditional' && (
+          <Field label={t('soar.editor.conditions')}>
+            <ConditionalParamsEditor
+              nodeId={nodeId}
+              nodes={nodes}
+              params={node.params}
+              readOnly={readOnly}
+              onChange={(next) => onChange({ params: next })}
+            />
+          </Field>
+        )}
+
+        {node.executor === 'http' && (
+          <HttpParamsEditor
+            nodeId={nodeId}
+            nodes={nodes}
+            params={node.params}
+            readOnly={readOnly}
+            onChange={(next) => onChange({ params: next })}
+          />
+        )}
+
+        {node.executor === 'incident' && (
+          <IncidentParamsEditor
+            nodeId={nodeId}
+            nodes={nodes}
+            params={node.params}
+            readOnly={readOnly}
+            onChange={(next) => onChange({ params: next })}
+          />
+        )}
+
+        {node.executor === 'mail' && (
+          <MailParamsEditor
+            nodeId={nodeId}
+            nodes={nodes}
+            params={node.params}
+            readOnly={readOnly}
+            onChange={(next) => onChange({ params: next })}
+          />
+        )}
+
+        {node.executor !== 'shell' && node.executor !== 'conditional' && node.executor !== 'http' && node.executor !== 'incident' && node.executor !== 'mail' && (
           <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
