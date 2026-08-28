@@ -4840,6 +4840,8 @@
       "nameRequired": "El nombre es obligatorio",
       "conditionsRequired": "Se requiere al menos una condición con campo",
       "commandsRequired": "Se requiere al menos un comando",
+      "httpUrlInvalid": "El nodo HTTP \"{{id}}\" tiene una URL inválida — debe ser una URL http(s) válida.",
+      "httpBodyInvalid": "El cuerpo del nodo HTTP \"{{id}}\" no es JSON válido: {{error}}",
       "platformRequired": "La plataforma del agente es obligatoria",
       "nameLabel": "Nombre",
       "namePlaceholder": "Nombre del flujo",
@@ -4897,7 +4899,14 @@
         "wholeOutput": "salida completa (edita la ruta)",
         "noAncestorsHint": "Aún no hay ancestros de enriquecimiento — añade un nodo de enriquecimiento previo para exponer su salida aquí.",
         "inserts": "inserta",
-        "conditionalHint": "Todas las condiciones deben coincidir. Coincidencia → rama de éxito (verde); fallo → rama de error (rojo)."
+        "conditionalHint": "Todas las condiciones deben coincidir. Coincidencia → rama de éxito (verde); fallo → rama de error (rojo).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) inválida.",
+          "method": "Método",
+          "body": "Cuerpo (JSON)",
+          "bodyInvalid": "JSON inválido"
+        }
       }
     },
     "executions": {

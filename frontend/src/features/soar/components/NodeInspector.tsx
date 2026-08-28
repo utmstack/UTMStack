@@ -7,6 +7,7 @@ import type { FlowNode } from '../types/soar.types'
 import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
 import { AgentPicker } from './AgentPicker'
 import { ConditionalParamsEditor } from './ConditionalParamsEditor'
+import { HttpParamsEditor } from './HttpParamsEditor'
 import { InsertFieldMenu } from './InsertFieldMenu'
 
 interface Props {
@@ -210,7 +211,16 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
           </Field>
         )}
 
-        {node.executor !== 'shell' && node.executor !== 'conditional' && (
+        {node.executor === 'http' && (
+          <HttpParamsEditor
+            nodeId={nodeId}
+            params={node.params}
+            readOnly={readOnly}
+            onChange={(next) => onChange({ params: next })}
+          />
+        )}
+
+        {node.executor !== 'shell' && node.executor !== 'conditional' && node.executor !== 'http' && (
           <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">

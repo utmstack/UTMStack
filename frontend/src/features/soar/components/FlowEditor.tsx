@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Code2, LayoutList, Loader2, Lock, Play, Plus, Trash2, X, Zap } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,6 +9,7 @@ import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
+import { clearHttpBodyErrors, firstHttpBodyError, isValidHttpUrl } from '../lib/http-node-validity'
 import { ALERT_FIELDS } from '../lib/alert-fields'
 import {
   SOAR_MULTI_VALUE_OPERATORS,
@@ -42,6 +43,11 @@ export function FlowEditor({
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const set = <K extends keyof FlowFormState>(k: K, v: FlowFormState[K]) => setForm((f) => ({ ...f, [k]: v }))
+
+  useEffect(() => {
+    clearHttpBodyErrors()
+    return () => clearHttpBodyErrors()
+  }, [flow?.relPath])
 
   const toCode = () => {
     setYaml(flowFormToYaml(form))
@@ -80,6 +86,19 @@ export function FlowEditor({
     }
     if (input.roots.length === 0 || Object.keys(input.nodes).length === 0) {
       toast.error(t('soar.editor.nodesRequired', 'Add at least one node and connect it to the trigger.'))
+      return
+    }
+    for (const [id, n] of Object.entries(input.nodes)) {
+      if (n.executor !== 'http') continue
+      const url = (n.params as { url?: string } | undefined)?.url ?? ''
+      if (!isValidHttpUrl(url)) {
+        toast.error(t('soar.editor.httpUrlInvalid', { id }))
+        return
+      }
+    }
+    const bodyErr = firstHttpBodyError()
+    if (bodyErr) {
+      toast.error(t('soar.editor.httpBodyInvalid', { id: bodyErr.nodeId, error: bodyErr.err }))
       return
     }
     setBusy(true)

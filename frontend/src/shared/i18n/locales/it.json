@@ -4718,6 +4718,8 @@
       "nameRequired": "Il nome è obbligatorio",
       "conditionsRequired": "È richiesta almeno una condizione con un campo",
       "commandsRequired": "È richiesto almeno un comando",
+      "httpUrlInvalid": "Il nodo HTTP \"{{id}}\" ha un URL non valido — deve essere un URL http(s) valido.",
+      "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
@@ -4775,7 +4777,14 @@
         "wholeOutput": "output completo (modifica il percorso)",
         "noAncestorsHint": "Nessun antenato di arricchimento — aggiungi un nodo di arricchimento a monte per esporre qui il suo output.",
         "inserts": "inserisce",
-        "conditionalHint": "Tutte le condizioni devono corrispondere. Corrispondenza → ramo di successo (verde); mancata → ramo di errore (rosso)."
+        "conditionalHint": "Tutte le condizioni devono corrispondere. Corrispondenza → ramo di successo (verde); mancata → ramo di errore (rosso).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) non valido.",
+          "method": "Metodo",
+          "body": "Corpo (JSON)",
+          "bodyInvalid": "JSON non valido"
+        }
       }
     },
     "executions": {
