@@ -4896,7 +4896,8 @@
         "alert": "Alerta",
         "wholeOutput": "salida completa (edita la ruta)",
         "noAncestorsHint": "Aún no hay ancestros de enriquecimiento — añade un nodo de enriquecimiento previo para exponer su salida aquí.",
-        "inserts": "inserta"
+        "inserts": "inserta",
+        "conditionalHint": "Todas las condiciones deben coincidir. Coincidencia → rama de éxito (verde); fallo → rama de error (rojo)."
       }
     },
     "executions": {

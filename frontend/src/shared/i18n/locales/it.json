@@ -4774,7 +4774,8 @@
         "alert": "Allerta",
         "wholeOutput": "output completo (modifica il percorso)",
         "noAncestorsHint": "Nessun antenato di arricchimento — aggiungi un nodo di arricchimento a monte per esporre qui il suo output.",
-        "inserts": "inserisce"
+        "inserts": "inserisce",
+        "conditionalHint": "Tutte le condizioni devono corrispondere. Corrispondenza → ramo di successo (verde); mancata → ramo di errore (rosso)."
       }
     },
     "executions": {

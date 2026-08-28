@@ -4896,7 +4896,8 @@
         "alert": "Alerta",
         "wholeOutput": "saída completa (edite o caminho)",
         "noAncestorsHint": "Ainda não há ancestrais de enriquecimento — adicione um nó de enriquecimento acima para expor sua saída aqui.",
-        "inserts": "insere"
+        "inserts": "insere",
+        "conditionalHint": "Todas as condições devem corresponder. Correspondência → ramo de sucesso (verde); falha → ramo de erro (vermelho)."
       }
     },
     "executions": {

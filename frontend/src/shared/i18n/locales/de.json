@@ -4774,7 +4774,8 @@
         "alert": "Warnung",
         "wholeOutput": "gesamte Ausgabe (Pfad bearbeiten)",
         "noAncestorsHint": "Noch keine Anreicherungs-Vorgänger — fügen Sie einen Anreicherungsknoten davor ein, um dessen Ausgabe hier verfügbar zu machen.",
-        "inserts": "fügt ein"
+        "inserts": "fügt ein",
+        "conditionalHint": "Alle Bedingungen müssen zutreffen. Treffer → Erfolgszweig (grün); Fehltreffer → Fehlerzweig (rot)."
       }
     },
     "executions": {

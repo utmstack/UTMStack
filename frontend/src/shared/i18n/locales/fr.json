@@ -4774,7 +4774,8 @@
         "alert": "Alerte",
         "wholeOutput": "sortie complète (éditez le chemin)",
         "noAncestorsHint": "Aucun ancêtre d'enrichissement — ajoutez un nœud d'enrichissement en amont pour exposer sa sortie ici.",
-        "inserts": "insère"
+        "inserts": "insère",
+        "conditionalHint": "Toutes les conditions doivent correspondre. Correspondance → branche succès (verte) ; échec → branche erreur (rouge)."
       }
     },
     "executions": {
