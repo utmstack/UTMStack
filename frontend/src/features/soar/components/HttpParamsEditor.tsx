@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
 import { cn } from '@/shared/lib/utils'
 import { isValidHttpUrl, setHttpBodyError } from '../lib/http-node-validity'
+import type { FlowNode } from '../types/soar.types'
+import { InsertFieldMenu } from './InsertFieldMenu'
 import { JsonCodeEditor } from './JsonCodeEditor'
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as const
@@ -22,6 +24,7 @@ interface HttpParams {
 
 interface Props {
   nodeId: string
+  nodes: Record<string, FlowNode>
   params: unknown
   readOnly?: boolean
   onChange: (params: HttpParams) => void
@@ -30,7 +33,7 @@ interface Props {
 // ponytail: URL split via one regex, body highlighted via Prism (already
 // vendored). Validity for save-blocking flows through http-node-validity —
 // no context wiring.
-export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) {
+export function HttpParamsEditor({ nodeId, nodes, params, readOnly, onChange }: Props) {
   const { t } = useTranslation()
   const p = normalize(params)
   const method = (p.method?.toUpperCase() || 'GET') as string
@@ -38,6 +41,8 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
   const showBody = BODY_METHODS.has(method)
   const urlInvalid = Boolean(p.url) && !isValidHttpUrl(p.url ?? '')
 
+  const urlRef = useRef<HTMLInputElement>(null)
+  const bodyRef = useRef<HTMLTextAreaElement>(null)
   const [bodyText, setBodyText] = useState(() => bodyToText(p.body))
   const [bodyError, setBodyError] = useState<string | null>(null)
 
@@ -69,6 +74,38 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
     onChange({ ...p, url: `${nextScheme}://${trimmed.replace(/^\/+/, '')}` })
   }
 
+  const insertIntoUrl = (token: string) => {
+    const el = urlRef.current
+    const cur = rest
+    const start = el?.selectionStart ?? cur.length
+    const end = el?.selectionEnd ?? cur.length
+    const nextRest = cur.slice(0, start) + token + cur.slice(end)
+    commitUrl(scheme, nextRest)
+    requestAnimationFrame(() => {
+      const el2 = urlRef.current
+      if (!el2) return
+      el2.focus()
+      const pos = start + token.length
+      el2.setSelectionRange(pos, pos)
+    })
+  }
+
+  const insertIntoBody = (token: string) => {
+    const el = bodyRef.current
+    const cur = bodyText
+    const start = el?.selectionStart ?? cur.length
+    const end = el?.selectionEnd ?? cur.length
+    const next = cur.slice(0, start) + token + cur.slice(end)
+    setBodyText(next)
+    requestAnimationFrame(() => {
+      const el2 = bodyRef.current
+      if (!el2) return
+      el2.focus()
+      const pos = start + token.length
+      el2.setSelectionRange(pos, pos)
+    })
+  }
+
   const commitBody = (raw: string) => {
     const trimmed = raw.trim()
     if (!trimmed) {
@@ -95,6 +132,11 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
         <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           {t('soar.editor.canvas.http.url')}
         </label>
+        {!readOnly && (
+          <div className="mb-1 flex flex-wrap items-center gap-1.5">
+            <InsertFieldMenu nodes={nodes} currentNodeId={nodeId} onInsert={insertIntoUrl} />
+          </div>
+        )}
         <div className="flex items-center gap-1">
           <select
             value={scheme}
@@ -109,6 +151,7 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
             ))}
           </select>
           <Input
+            ref={urlRef}
             value={rest}
             readOnly={readOnly}
             onChange={(e) => commitUrl(scheme, e.target.value)}
@@ -145,6 +188,11 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
           <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             {t('soar.editor.canvas.http.body')}
           </label>
+          {!readOnly && (
+            <div className="mb-1 flex flex-wrap items-center gap-1.5">
+              <InsertFieldMenu nodes={nodes} currentNodeId={nodeId} onInsert={insertIntoBody} />
+            </div>
+          )}
           <JsonCodeEditor
             value={bodyText}
             readOnly={readOnly}
@@ -152,6 +200,7 @@ export function HttpParamsEditor({ nodeId, params, readOnly, onChange }: Props) 
             invalid={Boolean(bodyError)}
             onChange={setBodyText}
             onBlur={() => commitBody(bodyText)}
+            textareaRef={bodyRef}
           />
           {bodyError && (
             <p className="mt-1 text-[10px] text-red-500">

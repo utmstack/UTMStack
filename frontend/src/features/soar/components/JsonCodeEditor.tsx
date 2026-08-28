@@ -10,14 +10,17 @@ interface Props {
   invalid?: boolean
   onChange: (v: string) => void
   onBlur?: () => void
+  /** Optional external ref — the parent can drive caret-insertions with it. */
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>
 }
 
 // Prism-highlighted JSON textarea. Same overlay pattern SqlQueryEditor uses:
 // aria-hidden <pre> renders highlighted tokens; transparent <textarea> owns
 // input and caret. Simpler — no autocomplete.
-export function JsonCodeEditor({ value, readOnly, placeholder, invalid, onChange, onBlur }: Props) {
+export function JsonCodeEditor({ value, readOnly, placeholder, invalid, onChange, onBlur, textareaRef }: Props) {
   const preRef = useRef<HTMLPreElement>(null)
-  const taRef = useRef<HTMLTextAreaElement>(null)
+  const internalTaRef = useRef<HTMLTextAreaElement>(null)
+  const taRef = textareaRef ?? internalTaRef
 
   const highlighted = useMemo(() => {
     const grammar = Prism.languages.json

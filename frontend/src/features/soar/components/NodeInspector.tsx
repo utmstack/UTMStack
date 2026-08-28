@@ -216,6 +216,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
         {node.executor === 'http' && (
           <HttpParamsEditor
             nodeId={nodeId}
+            nodes={nodes}
             params={node.params}
             readOnly={readOnly}
             onChange={(next) => onChange({ params: next })}
@@ -224,6 +225,8 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
 
         {node.executor === 'incident' && (
           <IncidentParamsEditor
+            nodeId={nodeId}
+            nodes={nodes}
             params={node.params}
             readOnly={readOnly}
             onChange={(next) => onChange({ params: next })}
