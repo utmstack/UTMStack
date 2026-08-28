@@ -61,7 +61,6 @@ func NewModule(
 	registry := executor.Registry{
 		"shell":       executor.NewShell(agentClient),
 		"http":        executor.NewHTTP(),
-		"select":      executor.NewSelect(),
 		"conditional": executor.NewConditional(),
 	}
 	if llm != nil {

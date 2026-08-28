@@ -1,10 +1,9 @@
-import { Bell, Boxes, Brain, GitBranch, Globe, Sparkles, Terminal, Zap } from 'lucide-react'
+import { Bell, Brain, GitBranch, Globe, Sparkles, Terminal, Zap } from 'lucide-react'
 import { EXECUTOR_CATALOG, type ExecutorMeta, type NodeKind } from '../types/soar.types'
 
 const ICONS: Record<string, typeof Terminal> = {
   shell: Terminal,
   http: Globe,
-  select: Boxes,
   llm_enrich: Brain,
   llm_action: Zap,
   notify: Bell,

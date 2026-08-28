@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Bell, Boxes, Sparkles, Terminal, Globe, Brain, Zap, GitBranch } from 'lucide-react'
+import { Bell, Sparkles, Terminal, Globe, Brain, Zap, GitBranch } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { FlowNode } from '../../types/soar.types'
 
@@ -13,7 +13,6 @@ export interface DAGNodeData extends FlowNode {
 const EXECUTOR_ICONS: Record<string, typeof Terminal> = {
   shell: Terminal,
   http: Globe,
-  select: Boxes,
   llm_enrich: Brain,
   llm_action: Zap,
   notify: Bell,
