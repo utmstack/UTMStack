@@ -335,7 +335,7 @@ function FlowCanvasInner({ roots, nodes, readOnly, onChange }: Props) {
   return (
     <div className="flex h-[560px] overflow-hidden rounded-lg border border-border">
       {paletteOpen ? (
-        <div className="relative">
+        <div className="relative overflow-y-auto">
           <NodePalette readOnly={readOnly} />
           <button
             type="button"
