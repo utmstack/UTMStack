@@ -5109,6 +5109,7 @@
       "incidentNameRequired": "Incident node \"{{id}}\" needs a name.",
       "mailToRequired": "Email node \"{{id}}\" needs at least one recipient.",
       "mailSubjectRequired": "Email node \"{{id}}\" needs a subject.",
+      "identityModalTitle": "Flow details",
       "platformRequired": "Agent platform is required",
       "nameLabel": "Name",
       "namePlaceholder": "Flow name",

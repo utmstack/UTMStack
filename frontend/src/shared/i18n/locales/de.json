@@ -4723,6 +4723,7 @@
       "incidentNameRequired": "Der Incident-Knoten \"{{id}}\" benötigt einen Namen.",
       "mailToRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt mindestens einen Empfänger.",
       "mailSubjectRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt einen Betreff.",
+      "identityModalTitle": "Flow-Details",
       "platformRequired": "Agent-Plattform ist erforderlich",
       "nameLabel": "Name",
       "namePlaceholder": "Flow-Name",

@@ -4845,6 +4845,7 @@
       "incidentNameRequired": "El nodo de incidente \"{{id}}\" requiere un nombre.",
       "mailToRequired": "El nodo de correo \"{{id}}\" requiere al menos un destinatario.",
       "mailSubjectRequired": "El nodo de correo \"{{id}}\" requiere un asunto.",
+      "identityModalTitle": "Detalles del flujo",
       "platformRequired": "La plataforma del agente es obligatoria",
       "nameLabel": "Nombre",
       "namePlaceholder": "Nombre del flujo",

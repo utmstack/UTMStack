@@ -4723,6 +4723,7 @@
       "incidentNameRequired": "Le nœud d'incident \"{{id}}\" nécessite un nom.",
       "mailToRequired": "Le nœud d'e-mail \"{{id}}\" nécessite au moins un destinataire.",
       "mailSubjectRequired": "Le nœud d'e-mail \"{{id}}\" nécessite un objet.",
+      "identityModalTitle": "Détails du flux",
       "platformRequired": "La plateforme de l'agent est requise",
       "nameLabel": "Nom",
       "namePlaceholder": "Nom du flux",

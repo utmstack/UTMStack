@@ -4515,6 +4515,7 @@
       "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
       "mailToRequired": "Узлу электронной почты \"{{id}}\" требуется хотя бы один получатель.",
       "mailSubjectRequired": "Узлу электронной почты \"{{id}}\" требуется тема.",
+      "identityModalTitle": "Свойства потока",
       "platformRequired": "Платформа агента обязательна",
       "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
