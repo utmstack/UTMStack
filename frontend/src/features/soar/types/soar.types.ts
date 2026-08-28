@@ -154,6 +154,7 @@ export const EXECUTOR_CATALOG: ExecutorMeta[] = [
   { type: 'llm_enrich', label: 'LLM enrichment', kinds: ['enrichment'], paramsPlaceholder: { prompt: '' } },
   { type: 'llm_action', label: 'LLM action', kinds: ['executor'], paramsPlaceholder: { prompt: '' } },
   { type: 'notify', label: 'Send notification', kinds: ['executor'], paramsPlaceholder: { message: '', type: 'INFO' } },
+  { type: 'incident', label: 'Open incident', kinds: ['executor'], paramsPlaceholder: { name: '', description: '' } },
   { type: 'conditional', label: 'Conditional (if/else branch)', kinds: ['executor'], paramsPlaceholder: { conditions: [] } },
 ]
 

@@ -4842,6 +4842,7 @@
       "commandsRequired": "Se requiere al menos un comando",
       "httpUrlInvalid": "El nodo HTTP \"{{id}}\" tiene una URL inválida — debe ser una URL http(s) válida.",
       "httpBodyInvalid": "El cuerpo del nodo HTTP \"{{id}}\" no es JSON válido: {{error}}",
+      "incidentNameRequired": "El nodo de incidente \"{{id}}\" requiere un nombre.",
       "platformRequired": "La plataforma del agente es obligatoria",
       "nameLabel": "Nombre",
       "namePlaceholder": "Nombre del flujo",
@@ -4906,6 +4907,12 @@
           "method": "Método",
           "body": "Cuerpo (JSON)",
           "bodyInvalid": "JSON inválido"
+        },
+        "incident": {
+          "name": "Nombre del incidente",
+          "namePlaceholder": "Ej. Inicio de sesión sospechoso en $(alert.dataSource)",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Contexto opcional para los responsables. Plantillas como $(alert.name) se interpolan."
         }
       }
     },

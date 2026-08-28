@@ -4512,6 +4512,7 @@
       "commandsRequired": "Требуется хотя бы одна команда",
       "httpUrlInvalid": "Узел HTTP \"{{id}}\" содержит недопустимый URL — должен быть допустимый http(s) URL.",
       "httpBodyInvalid": "Тело узла HTTP \"{{id}}\" не является допустимым JSON: {{error}}",
+      "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
       "platformRequired": "Платформа агента обязательна",
       "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
@@ -4576,6 +4577,12 @@
           "method": "Метод",
           "body": "Тело (JSON)",
           "bodyInvalid": "Недопустимый JSON"
+        },
+        "incident": {
+          "name": "Название инцидента",
+          "namePlaceholder": "Напр. Подозрительный вход на $(alert.dataSource)",
+          "description": "Описание",
+          "descriptionPlaceholder": "Дополнительный контекст для отвечающих. Шаблоны вроде $(alert.name) подставляются."
         }
       }
     },

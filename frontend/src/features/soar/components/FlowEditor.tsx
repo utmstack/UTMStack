@@ -89,11 +89,19 @@ export function FlowEditor({
       return
     }
     for (const [id, n] of Object.entries(input.nodes)) {
-      if (n.executor !== 'http') continue
-      const url = (n.params as { url?: string } | undefined)?.url ?? ''
-      if (!isValidHttpUrl(url)) {
-        toast.error(t('soar.editor.httpUrlInvalid', { id }))
-        return
+      if (n.executor === 'http') {
+        const url = (n.params as { url?: string } | undefined)?.url ?? ''
+        if (!isValidHttpUrl(url)) {
+          toast.error(t('soar.editor.httpUrlInvalid', { id }))
+          return
+        }
+      }
+      if (n.executor === 'incident') {
+        const name = (n.params as { name?: string } | undefined)?.name?.trim() ?? ''
+        if (!name) {
+          toast.error(t('soar.editor.incidentNameRequired', { id }))
+          return
+        }
       }
     }
     const bodyErr = firstHttpBodyError()

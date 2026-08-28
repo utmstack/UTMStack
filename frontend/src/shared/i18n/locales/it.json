@@ -4720,6 +4720,7 @@
       "commandsRequired": "È richiesto almeno un comando",
       "httpUrlInvalid": "Il nodo HTTP \"{{id}}\" ha un URL non valido — deve essere un URL http(s) valido.",
       "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
+      "incidentNameRequired": "Il nodo incidente \"{{id}}\" richiede un nome.",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
@@ -4784,6 +4785,12 @@
           "method": "Metodo",
           "body": "Corpo (JSON)",
           "bodyInvalid": "JSON non valido"
+        },
+        "incident": {
+          "name": "Nome dell'incidente",
+          "namePlaceholder": "Es. Accesso sospetto su $(alert.dataSource)",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "Contesto facoltativo per i risponditori. I template come $(alert.name) vengono interpolati."
         }
       }
     },

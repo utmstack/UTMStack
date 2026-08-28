@@ -4720,6 +4720,7 @@
       "commandsRequired": "Au moins une commande est requise",
       "httpUrlInvalid": "Le nœud HTTP \"{{id}}\" a une URL invalide — elle doit être une URL http(s) valide.",
       "httpBodyInvalid": "Le corps du nœud HTTP \"{{id}}\" n'est pas un JSON valide : {{error}}",
+      "incidentNameRequired": "Le nœud d'incident \"{{id}}\" nécessite un nom.",
       "platformRequired": "La plateforme de l'agent est requise",
       "nameLabel": "Nom",
       "namePlaceholder": "Nom du flux",
@@ -4784,6 +4785,12 @@
           "method": "Méthode",
           "body": "Corps (JSON)",
           "bodyInvalid": "JSON invalide"
+        },
+        "incident": {
+          "name": "Nom de l'incident",
+          "namePlaceholder": "Ex. Connexion suspecte sur $(alert.dataSource)",
+          "description": "Description",
+          "descriptionPlaceholder": "Contexte facultatif pour les intervenants. Les gabarits comme $(alert.name) sont interpolés."
         }
       }
     },

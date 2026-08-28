@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Bell, Sparkles, Terminal, Globe, Brain, Zap, GitBranch } from 'lucide-react'
+import { AlertOctagon, Bell, Sparkles, Terminal, Globe, Brain, Zap, GitBranch } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { FlowNode } from '../../types/soar.types'
 
@@ -16,6 +16,7 @@ const EXECUTOR_ICONS: Record<string, typeof Terminal> = {
   llm_enrich: Brain,
   llm_action: Zap,
   notify: Bell,
+  incident: AlertOctagon,
   conditional: GitBranch,
 }
 

@@ -5106,6 +5106,7 @@
       "commandsRequired": "At least one command is required",
       "httpUrlInvalid": "HTTP node \"{{id}}\" has an invalid URL — must be a valid http(s) URL.",
       "httpBodyInvalid": "HTTP node \"{{id}}\" body is not valid JSON: {{error}}",
+      "incidentNameRequired": "Incident node \"{{id}}\" needs a name.",
       "platformRequired": "Agent platform is required",
       "nameLabel": "Name",
       "namePlaceholder": "Flow name",
@@ -5170,6 +5171,12 @@
           "method": "Method",
           "body": "Body (JSON)",
           "bodyInvalid": "Invalid JSON"
+        },
+        "incident": {
+          "name": "Incident name",
+          "namePlaceholder": "e.g. Suspicious login on $(alert.dataSource)",
+          "description": "Description",
+          "descriptionPlaceholder": "Optional context for responders. Templates like $(alert.name) are interpolated."
         }
       }
     },

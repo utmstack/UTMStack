@@ -42,6 +42,7 @@ func NewModule(
 	cipher *secret.Cipher,
 	llm executor.LLMStreamer,
 	notifier executor.Notifier,
+	incidentOpener executor.IncidentOpener,
 	tenantLister func(context.Context) ([]string, error),
 ) *Module {
 	flowsSrc := env.String("SOAR_FLOWS_SRC_DIR", "/utmstack/soar", false)
@@ -69,6 +70,9 @@ func NewModule(
 	}
 	if notifier != nil {
 		registry["notify"] = executor.NewNotify(notifier)
+	}
+	if incidentOpener != nil {
+		registry["incident"] = executor.NewIncident(incidentOpener)
 	}
 
 	dispatcher := usecase.NewDispatcher(executionRepo, flowRunRepo, flowStore, variableUC, registry)

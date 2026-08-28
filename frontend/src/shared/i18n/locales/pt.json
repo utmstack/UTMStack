@@ -4842,6 +4842,7 @@
       "commandsRequired": "É necessário ao menos um comando",
       "httpUrlInvalid": "O nó HTTP \"{{id}}\" tem uma URL inválida — deve ser uma URL http(s) válida.",
       "httpBodyInvalid": "O corpo do nó HTTP \"{{id}}\" não é JSON válido: {{error}}",
+      "incidentNameRequired": "O nó de incidente \"{{id}}\" precisa de um nome.",
       "platformRequired": "A plataforma do agente é obrigatória",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome do fluxo",
@@ -4906,6 +4907,12 @@
           "method": "Método",
           "body": "Corpo (JSON)",
           "bodyInvalid": "JSON inválido"
+        },
+        "incident": {
+          "name": "Nome do incidente",
+          "namePlaceholder": "Ex. Login suspeito em $(alert.dataSource)",
+          "description": "Descrição",
+          "descriptionPlaceholder": "Contexto opcional para respondentes. Modelos como $(alert.name) são interpolados."
         }
       }
     },
