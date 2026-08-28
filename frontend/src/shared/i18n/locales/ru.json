@@ -4513,6 +4513,8 @@
       "httpUrlInvalid": "Узел HTTP \"{{id}}\" содержит недопустимый URL — должен быть допустимый http(s) URL.",
       "httpBodyInvalid": "Тело узла HTTP \"{{id}}\" не является допустимым JSON: {{error}}",
       "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
+      "mailToRequired": "Узлу электронной почты \"{{id}}\" требуется хотя бы один получатель.",
+      "mailSubjectRequired": "Узлу электронной почты \"{{id}}\" требуется тема.",
       "platformRequired": "Платформа агента обязательна",
       "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
@@ -4583,6 +4585,14 @@
           "namePlaceholder": "Напр. Подозрительный вход на $(alert.dataSource)",
           "description": "Описание",
           "descriptionPlaceholder": "Дополнительный контекст для отвечающих. Шаблоны вроде $(alert.name) подставляются."
+        },
+        "mail": {
+          "to": "Кому (через запятую)",
+          "cc": "Копия (через запятую, опционально)",
+          "subject": "Тема",
+          "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
+          "body": "Текст",
+          "bodyPlaceholder": "Содержимое сообщения. Шаблоны вроде $(alert.name) подставляются."
         }
       }
     },

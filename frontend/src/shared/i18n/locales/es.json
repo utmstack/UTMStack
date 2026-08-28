@@ -4843,6 +4843,8 @@
       "httpUrlInvalid": "El nodo HTTP \"{{id}}\" tiene una URL inválida — debe ser una URL http(s) válida.",
       "httpBodyInvalid": "El cuerpo del nodo HTTP \"{{id}}\" no es JSON válido: {{error}}",
       "incidentNameRequired": "El nodo de incidente \"{{id}}\" requiere un nombre.",
+      "mailToRequired": "El nodo de correo \"{{id}}\" requiere al menos un destinatario.",
+      "mailSubjectRequired": "El nodo de correo \"{{id}}\" requiere un asunto.",
       "platformRequired": "La plataforma del agente es obligatoria",
       "nameLabel": "Nombre",
       "namePlaceholder": "Nombre del flujo",
@@ -4913,6 +4915,14 @@
           "namePlaceholder": "Ej. Inicio de sesión sospechoso en $(alert.dataSource)",
           "description": "Descripción",
           "descriptionPlaceholder": "Contexto opcional para los responsables. Plantillas como $(alert.name) se interpolan."
+        },
+        "mail": {
+          "to": "Para (separados por coma)",
+          "cc": "CC (separados por coma, opcional)",
+          "subject": "Asunto",
+          "subjectPlaceholder": "Ej. Alerta en $(alert.dataSource)",
+          "body": "Cuerpo",
+          "bodyPlaceholder": "Contenido del mensaje. Plantillas como $(alert.name) se interpolan."
         }
       }
     },

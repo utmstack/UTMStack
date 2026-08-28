@@ -4721,6 +4721,8 @@
       "httpUrlInvalid": "Le nœud HTTP \"{{id}}\" a une URL invalide — elle doit être une URL http(s) valide.",
       "httpBodyInvalid": "Le corps du nœud HTTP \"{{id}}\" n'est pas un JSON valide : {{error}}",
       "incidentNameRequired": "Le nœud d'incident \"{{id}}\" nécessite un nom.",
+      "mailToRequired": "Le nœud d'e-mail \"{{id}}\" nécessite au moins un destinataire.",
+      "mailSubjectRequired": "Le nœud d'e-mail \"{{id}}\" nécessite un objet.",
       "platformRequired": "La plateforme de l'agent est requise",
       "nameLabel": "Nom",
       "namePlaceholder": "Nom du flux",
@@ -4791,6 +4793,14 @@
           "namePlaceholder": "Ex. Connexion suspecte sur $(alert.dataSource)",
           "description": "Description",
           "descriptionPlaceholder": "Contexte facultatif pour les intervenants. Les gabarits comme $(alert.name) sont interpolés."
+        },
+        "mail": {
+          "to": "À (séparés par une virgule)",
+          "cc": "CC (séparés par une virgule, facultatif)",
+          "subject": "Objet",
+          "subjectPlaceholder": "Ex. Alerte sur $(alert.dataSource)",
+          "body": "Corps",
+          "bodyPlaceholder": "Contenu du message. Les gabarits comme $(alert.name) sont interpolés."
         }
       }
     },

@@ -216,7 +216,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		incidents.NewAlertsGatewayFromUsecase(alertsMod.GetAlertUsecase()),
 		auditMod.Logger(),
 	)
-	soarMod := soar.NewModule(db, agentClient, signer, cipher, socAIClient, notificationsMod.Producer(), incidentsMod.GetIncidentUsecase(), tenantLister)
+	soarMod := soar.NewModule(db, agentClient, signer, cipher, socAIClient, notificationsMod.Producer(), incidentsMod.GetIncidentUsecase(), mailMod.Service(), tenantLister)
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)

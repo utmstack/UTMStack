@@ -4843,6 +4843,8 @@
       "httpUrlInvalid": "O nó HTTP \"{{id}}\" tem uma URL inválida — deve ser uma URL http(s) válida.",
       "httpBodyInvalid": "O corpo do nó HTTP \"{{id}}\" não é JSON válido: {{error}}",
       "incidentNameRequired": "O nó de incidente \"{{id}}\" precisa de um nome.",
+      "mailToRequired": "O nó de e-mail \"{{id}}\" precisa de ao menos um destinatário.",
+      "mailSubjectRequired": "O nó de e-mail \"{{id}}\" precisa de um assunto.",
       "platformRequired": "A plataforma do agente é obrigatória",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome do fluxo",
@@ -4913,6 +4915,14 @@
           "namePlaceholder": "Ex. Login suspeito em $(alert.dataSource)",
           "description": "Descrição",
           "descriptionPlaceholder": "Contexto opcional para respondentes. Modelos como $(alert.name) são interpolados."
+        },
+        "mail": {
+          "to": "Para (separados por vírgula)",
+          "cc": "CC (separados por vírgula, opcional)",
+          "subject": "Assunto",
+          "subjectPlaceholder": "Ex. Alerta em $(alert.dataSource)",
+          "body": "Corpo",
+          "bodyPlaceholder": "Conteúdo da mensagem. Modelos como $(alert.name) são interpolados."
         }
       }
     },

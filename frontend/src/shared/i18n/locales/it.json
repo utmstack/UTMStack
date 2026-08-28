@@ -4721,6 +4721,8 @@
       "httpUrlInvalid": "Il nodo HTTP \"{{id}}\" ha un URL non valido — deve essere un URL http(s) valido.",
       "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
       "incidentNameRequired": "Il nodo incidente \"{{id}}\" richiede un nome.",
+      "mailToRequired": "Il nodo e-mail \"{{id}}\" richiede almeno un destinatario.",
+      "mailSubjectRequired": "Il nodo e-mail \"{{id}}\" richiede un oggetto.",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
@@ -4791,6 +4793,14 @@
           "namePlaceholder": "Es. Accesso sospetto su $(alert.dataSource)",
           "description": "Descrizione",
           "descriptionPlaceholder": "Contesto facoltativo per i risponditori. I template come $(alert.name) vengono interpolati."
+        },
+        "mail": {
+          "to": "A (separati da virgola)",
+          "cc": "CC (separati da virgola, opzionale)",
+          "subject": "Oggetto",
+          "subjectPlaceholder": "Es. Allarme su $(alert.dataSource)",
+          "body": "Corpo",
+          "bodyPlaceholder": "Contenuto del messaggio. I template come $(alert.name) vengono interpolati."
         }
       }
     },

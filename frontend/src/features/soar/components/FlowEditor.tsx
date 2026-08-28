@@ -103,6 +103,18 @@ export function FlowEditor({
           return
         }
       }
+      if (n.executor === 'mail') {
+        const mp = (n.params as { to?: string; subject?: string } | undefined) ?? {}
+        const to = (mp.to ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+        if (to.length === 0) {
+          toast.error(t('soar.editor.mailToRequired', { id }))
+          return
+        }
+        if (!(mp.subject ?? '').trim()) {
+          toast.error(t('soar.editor.mailSubjectRequired', { id }))
+          return
+        }
+      }
     }
     const bodyErr = firstHttpBodyError()
     if (bodyErr) {

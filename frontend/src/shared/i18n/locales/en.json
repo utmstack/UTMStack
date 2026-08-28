@@ -5107,6 +5107,8 @@
       "httpUrlInvalid": "HTTP node \"{{id}}\" has an invalid URL — must be a valid http(s) URL.",
       "httpBodyInvalid": "HTTP node \"{{id}}\" body is not valid JSON: {{error}}",
       "incidentNameRequired": "Incident node \"{{id}}\" needs a name.",
+      "mailToRequired": "Email node \"{{id}}\" needs at least one recipient.",
+      "mailSubjectRequired": "Email node \"{{id}}\" needs a subject.",
       "platformRequired": "Agent platform is required",
       "nameLabel": "Name",
       "namePlaceholder": "Flow name",
@@ -5177,6 +5179,14 @@
           "namePlaceholder": "e.g. Suspicious login on $(alert.dataSource)",
           "description": "Description",
           "descriptionPlaceholder": "Optional context for responders. Templates like $(alert.name) are interpolated."
+        },
+        "mail": {
+          "to": "To (comma-separated)",
+          "cc": "CC (comma-separated, optional)",
+          "subject": "Subject",
+          "subjectPlaceholder": "e.g. Alert on $(alert.dataSource)",
+          "body": "Body",
+          "bodyPlaceholder": "Message body. Templates like $(alert.name) are interpolated."
         }
       }
     },
