@@ -5160,7 +5160,8 @@
         "alert": "Alert",
         "wholeOutput": "whole output (edit the path)",
         "noAncestorsHint": "No enrichment ancestors yet — add an enrichment node upstream to expose its output here.",
-        "inserts": "inserts"
+        "inserts": "inserts",
+        "conditionalHint": "All conditions must match. Match → success branch (green); miss → error branch (red)."
       }
     },
     "executions": {

@@ -1,4 +1,4 @@
-import { Bell, Boxes, Brain, Globe, Sparkles, Terminal, Zap } from 'lucide-react'
+import { Bell, Boxes, Brain, GitBranch, Globe, Sparkles, Terminal, Zap } from 'lucide-react'
 import { EXECUTOR_CATALOG, type ExecutorMeta, type NodeKind } from '../types/soar.types'
 
 const ICONS: Record<string, typeof Terminal> = {
@@ -8,6 +8,7 @@ const ICONS: Record<string, typeof Terminal> = {
   llm_enrich: Brain,
   llm_action: Zap,
   notify: Bell,
+  conditional: GitBranch,
 }
 
 /** Palette of draggable node types. Each row is one (executor, kind) pair —

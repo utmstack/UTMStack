@@ -59,9 +59,10 @@ func NewModule(
 	variableUC := usecase.NewVariableUsecase(variableRepo, cipher)
 
 	registry := executor.Registry{
-		"shell":  executor.NewShell(agentClient),
-		"http":   executor.NewHTTP(),
-		"select": executor.NewSelect(),
+		"shell":       executor.NewShell(agentClient),
+		"http":        executor.NewHTTP(),
+		"select":      executor.NewSelect(),
+		"conditional": executor.NewConditional(),
 	}
 	if llm != nil {
 		registry["llm_enrich"] = executor.NewLLMEnrich(llm)

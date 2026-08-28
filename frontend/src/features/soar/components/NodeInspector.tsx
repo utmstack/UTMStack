@@ -6,6 +6,7 @@ import { Input } from '@/shared/components/ui/input'
 import { NODE_KINDS, EXECUTOR_CATALOG, type FlowNode, type NodeKind } from '../types/soar.types'
 import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
 import { AgentPicker } from './AgentPicker'
+import { ConditionalParamsEditor } from './ConditionalParamsEditor'
 import { InsertFieldMenu } from './InsertFieldMenu'
 
 const SELECT = 'h-8 w-full rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
@@ -230,7 +231,19 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
           </>
         )}
 
-        {node.executor !== 'shell' && (
+        {node.executor === 'conditional' && (
+          <Field label={t('soar.editor.conditions')}>
+            <ConditionalParamsEditor
+              nodeId={nodeId}
+              nodes={nodes}
+              params={node.params}
+              readOnly={readOnly}
+              onChange={(next) => onChange({ params: next })}
+            />
+          </Field>
+        )}
+
+        {node.executor !== 'shell' && node.executor !== 'conditional' && (
           <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
