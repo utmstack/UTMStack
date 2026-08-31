@@ -124,22 +124,38 @@ public class AccountResource {
 
     /**
      * {@code POST   /account/reset-password/init} : Send an Email to reset the password of the user.
+     * <p>
+     * Always returns 200 OK, whether or not the submitted email is registered, so that
+     * account existence cannot be inferred from the response (anti-enumeration).
      *
      * @param mail the mail of the user
-     * @throws EmailNotFoundException {@code 400 (Bad Request)} if the email address is not registered
      */
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String mail) {
         final String ctx = CLASSNAME + ".requestPasswordReset";
         try {
-            mailService.sendPasswordResetMail(
-                    userService.requestPasswordReset(mail)
-                            .orElseThrow(EmailNotFoundException::new));
+            if (!StringUtils.hasText(mail))
+                return;
+
+            Optional<User> user = userService.requestPasswordReset(mail);
+
+            if (user.isPresent()) {
+                try {
+                    mailService.sendPasswordResetMail(user.get());
+                } catch (Exception e) {
+                    // The mail was not sent, but the response must stay uniform: logging
+                    // only, no distinct error surfaced to the caller.
+                    String msg = ctx + ": Failed to send password reset mail: " + e.getMessage();
+                    log.error(msg);
+                    applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+                }
+            }
         } catch (Exception e) {
+            // Do not propagate the error to the client: it would reveal whether the
+            // account exists. Log and report internally instead.
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
-            throw new RuntimeException(msg);
         }
     }
 

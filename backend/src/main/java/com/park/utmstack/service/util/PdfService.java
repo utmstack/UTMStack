@@ -11,7 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Set;
 
 /**
  * Service Implementation for PDF generation.
@@ -25,8 +28,22 @@ public class PdfService {
     private final RestTemplateService restTemplateService;
 
 
+    /**
+     * Path prefixes allowed for PDF generation. The frontend only ever requests
+     * print/export views of its own application; anything else is rejected so the
+     * url parameter cannot be used to make the PDF service render arbitrary
+     * pages (SSRF via the headless browser).
+     */
+    private static final Set<String> ALLOWED_PDF_PATH_PREFIXES = Set.of(
+            "/dashboard",
+            "/compliance",
+            "/data/alert/detail"
+    );
+
     public PdfServiceResponse downloadPdf(String url, String accessKey, String accessType) {
         final String ctx = CLASSNAME + ".getPdf";
+
+        validatePdfUrl(url);
 
         String urlService = UriComponentsBuilder.fromUriString(Constants.PDF_SERVICE_URL)
                 .queryParam("baseUrl", Constants.FRONT_BASE_URL)
@@ -49,7 +66,6 @@ public class PdfService {
                 throw new ApiException(message, rs.getStatusCode());
             }
 
-
             PdfServiceResponse body = rs.getBody();
 
             if (body == null || body.getPdfBytes() == null || body.getPdfBytes().length == 0) {
@@ -63,9 +79,46 @@ public class PdfService {
 
             return body;
 
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e){
             log.error("{}: Exception occurred while requesting PDF service: {}", ctx, e.getMessage());
             throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * The url must be a relative path into the UTMStack frontend. The frontend
+     * always sends its own Angular routes (e.g. {@code /dashboard/overview},
+     * {@code /compliance/print-view}); the headless browser in the web-pdf
+     * service loads them client-side against the fixed frontend origin.
+     *
+     * <p>Anything that is not a plain relative route — an absolute URL
+     * ({@code http://...}), a protocol-relative target ({@code //host}), or a
+     * non-http scheme ({@code javascript:}, {@code file:}, {@code data:}) — is
+     * rejected, because it would make the headless browser leave the frontend
+     * and fetch an arbitrary (potentially internal) URL (SSRF,
+     * CVE-2026-82044). As defense in depth, the route must also fall under one
+     * of the known print/export prefixes.
+     */
+    private void validatePdfUrl(String url) {
+        final String ctx = CLASSNAME + ".validatePdfUrl";
+
+        if (!StringUtils.hasText(url)) {
+            throw new ApiException("PDF report url is required", HttpStatus.BAD_REQUEST);
+        }
+
+        String candidate = url.trim().replace('\\', '/');
+
+        if (candidate.contains("://") || candidate.startsWith("//") || !candidate.startsWith("/")) {
+            log.warn("{}: Rejected non-relative PDF url: {}", ctx, candidate);
+            throw new ApiException("PDF report url must be a relative path on the UTMStack frontend", HttpStatus.BAD_REQUEST);
+        }
+
+        String lowerPath = candidate.toLowerCase();
+        if (!ALLOWED_PDF_PATH_PREFIXES.stream().anyMatch(p -> lowerPath.equals(p) || lowerPath.startsWith(p + "/"))) {
+            log.warn("{}: Rejected PDF url outside allowed route prefixes: {}", ctx, candidate);
+            throw new ApiException("PDF report url is not allowed", HttpStatus.BAD_REQUEST);
         }
     }
 
