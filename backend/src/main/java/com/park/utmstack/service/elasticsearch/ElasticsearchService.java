@@ -324,11 +324,27 @@ public class ElasticsearchService {
      * @param indices : List of the names pf all indexes to be removed
      * @throws Exception In case of any error
      */
+    /**
+     * Index names that must never be handed to a delete request: OpenSearch's
+     * own dot-indices (security config, ISM state, dashboards) and the
+     * everything-matching patterns. Deleting any of them takes the platform
+     * down rather than removing SIEM data.
+     */
+    private static void rejectProtectedIndices(List<String> indices) {
+        for (String index : indices) {
+            String name = index == null ? "" : index.trim();
+            if (name.isEmpty() || name.equals("*") || name.equals("_all") || name.startsWith(".")) {
+                throw new IllegalArgumentException("Refusing to delete protected or wildcard index: " + index);
+            }
+        }
+    }
+
     public void deleteIndex(List<String> indices) throws Exception {
         final String ctx = CLASSNAME + ".deleteIndex";
         try {
             if (CollectionUtils.isEmpty(indices))
                 return;
+            rejectProtectedIndices(indices);
             client.getClient().deleteIndex(indices);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());

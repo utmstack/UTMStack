@@ -93,8 +93,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
                 .and()
                 .headers()
+                // Same-origin only: the panel frames its own PDF/report views,
+                // nothing else needs to frame backend responses.
                 .frameOptions()
-                .disable()
+                .sameOrigin()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
