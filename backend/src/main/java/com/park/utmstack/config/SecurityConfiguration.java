@@ -108,7 +108,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/releaseInfo").permitAll()
                 .antMatchers("/api/account/reset-password/init").permitAll()
                 .antMatchers("/api/account/reset-password/finish").permitAll()
-                .antMatchers("/api/utm-providers").permitAll()
                 .antMatchers("/api/images/all").permitAll()
                 .antMatchers("/api/info/version").permitAll()
                 .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
@@ -120,6 +119,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/utm-incident-variables/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers(HttpMethod.GET, "/api/utm-incident-variables").hasAnyAuthority()
                 .antMatchers("/api/custom-reports/**").denyAll()
+                // ---- admin-only surfaces (audit: default was allow for ROLE_USER) ----
+                // Agent/collector enrollment master credential + federation key issuance.
+                .antMatchers("/api/federation-service/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                // IdP / SAML configuration (create, update, delete, list).
+                .antMatchers("/api/identity-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                // Login page lists SSO providers before authentication; the payload is
+                // trimmed to IdentityProviderPublicDto. Everything else is admin-only.
+                .antMatchers(HttpMethod.GET, "/api/utm-providers").permitAll()
+                .antMatchers("/api/utm-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                // Alert-response automation rules can execute OS commands on agents.
+                .antMatchers("/api/utm-alert-response-rules").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/utm-alert-response-rules/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/api/utm-alert-response-action-templates").hasAuthority(AuthoritiesConstants.ADMIN)
+                // Instance-wide configuration parameters (includes TFA + mail settings).
+                .antMatchers(HttpMethod.PUT, "/api/utm-configuration-parameters").hasAuthority(AuthoritiesConstants.ADMIN)
+                // TFA enrollment completion (writes TFA enable/method, returns full token).
+                .antMatchers("/api/tfa/complete").hasAuthority(AuthoritiesConstants.ADMIN)
+                // OpenSearch index management (destructive).
+                .antMatchers("/api/elasticsearch/index/delete-index").hasAuthority(AuthoritiesConstants.ADMIN)
+                // Encryption endpoint (encryption oracle).
+                .antMatchers("/api/encrypt").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/ws/**").permitAll()
