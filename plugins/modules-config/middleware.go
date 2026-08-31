@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -56,7 +57,11 @@ func authFromContext(ctx context.Context) error {
 	}
 
 	internalKey := md.Get("internal-key")
-	if internalKey[0] != InternalKey {
+	if len(internalKey) == 0 {
+		return status.Error(codes.Unauthenticated, "internal key is not provided")
+	}
+
+	if subtle.ConstantTimeCompare([]byte(internalKey[0]), []byte(InternalKey)) != 1 {
 		return status.Error(codes.PermissionDenied, "internal key does not match")
 	}
 

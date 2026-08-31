@@ -64,8 +64,14 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	}
 }
 
+// maxWebhookBody caps the unauthenticated webhook body that is buffered before
+// the signature is verified, so an anonymous caller cannot drive memory use with
+// a single large request.
+const maxWebhookBody = 25 << 20 // 25 MiB
+
 func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxWebhookBody)
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
@@ -139,7 +145,9 @@ func verifySignature(payloadBody []byte, secretToken string, signatureHeader str
 	mac.Write(payloadBody)
 	expectedSignature := "sha256=" + fmt.Sprintf("%x", mac.Sum(nil))
 
-	if signatureHeader != expectedSignature {
+	// Constant-time: a byte-by-byte comparison leaks the expected signature one
+	// position at a time to a caller that can retry.
+	if !hmac.Equal([]byte(signatureHeader), []byte(expectedSignature)) {
 		return errors.New("request signatures didn't match")
 	}
 

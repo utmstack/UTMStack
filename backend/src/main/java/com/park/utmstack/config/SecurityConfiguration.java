@@ -144,6 +144,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/management/info").permitAll()
+                // Runtime log level: TRACE on the wrong logger dumps request bodies
+                // and tokens into the logs.
+                .antMatchers("/management/logs").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .and()
                 .saml2Login()
