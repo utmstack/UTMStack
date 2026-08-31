@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260831001" author="ALEX">
+        <comment>Update Log Explorer 'Login Failed' menu URL to filter by log.eventCode instead of logx.wineventlog.event_id</comment>
+
+        <update tableName="utm_menu">
+            <column name="url" value="discover/log-analyzer?patternId=8&amp;indexPattern=log-wineventlog-*&amp;log.eventCode=IS-&gt;4625"/>
+            <where>id = 205 AND name = 'Login Failed' AND url = 'discover/log-analyzer?patternId=8&amp;indexPattern=log-wineventlog-*&amp;logx.wineventlog.event_id=IS-&gt;4625'
+            </where>
+        </update>
+
+        <rollback>
+            <update tableName="utm_menu">
+                <column name="url" value="discover/log-analyzer?patternId=8&amp;indexPattern=log-wineventlog-*&amp;logx.wineventlog.event_id=IS-&gt;4625"/>
+                <where>id = 205 AND name = 'Login Failed'</where>
+            </update>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
