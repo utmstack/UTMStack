@@ -198,7 +198,7 @@ func (s *CollectorService) DeleteCollector(ctx context.Context, req *DeleteReque
 	delete(s.CollectorStreamMap, uint(idInt))
 	s.CollectorStreamMutex.Unlock()
 
-	catcher.Info("Collector deleted", map[string]any{"key": key, "deleted_by": req.DeletedBy, "process": "agent-manager"})
+	catcher.Info("Collector deleted", map[string]any{"id": idInt, "deleted_by": req.DeletedBy, "process": "agent-manager"})
 	return &AuthResponse{
 		Id:  uint32(idInt),
 		Key: key,
