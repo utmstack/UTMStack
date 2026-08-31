@@ -26,9 +26,10 @@ import { NodeInspector } from './NodeInspector'
 import { TriggerInspector } from './TriggerInspector'
 import { DAGNode } from './nodes/DAGNode'
 import { TriggerNode } from './nodes/TriggerNode'
+import { computeLayeredLayout, TRIGGER_LAYOUT_ID } from './layeredLayout'
 
 const NODE_TYPES: NodeTypes = { dag: DAGNode as unknown as NodeTypes[string], trigger: TriggerNode as unknown as NodeTypes[string] }
-const TRIGGER_ID = '__trigger__'
+const TRIGGER_ID = TRIGGER_LAYOUT_ID
 
 interface Props {
   roots: string[]
@@ -64,31 +65,30 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
   const [inspectorOpen, setInspectorOpen] = useState(true)
 
   const { rfNodes, rfEdges } = useMemo(() => {
-    const posFor = (id: string, fallback: { x: number; y: number }) =>
-      layoutRef.current[id] ?? (layoutRef.current[id] = fallback)
+    // Layered default (trigger → layer 1 → layer 2 …). User drags win via layoutRef.
+    const layered = computeLayeredLayout(roots, nodes)
+    const posFor = (id: string) => layoutRef.current[id] ?? layered[id] ?? { x: 0, y: 0 }
 
     const rfN: Node[] = [
       {
         id: TRIGGER_ID,
         type: 'trigger',
-        position: posFor(TRIGGER_ID, { x: 120, y: 0 }),
+        position: posFor(TRIGGER_ID),
         data: {},
         selected: selectedId === TRIGGER_ID,
         draggable: !readOnly,
         deletable: false,
       },
     ]
-    let i = 0
     for (const [id, n] of Object.entries(nodes)) {
       rfN.push({
         id,
         type: 'dag',
-        position: posFor(id, { x: (i % 3) * 260, y: 180 + Math.floor(i / 3) * 180 }),
+        position: posFor(id),
         data: { nodeId: id, ...n } as unknown as Record<string, unknown>,
         selected: id === selectedId,
         draggable: !readOnly,
       })
-      i++
     }
 
     const rfE: Edge[] = []
