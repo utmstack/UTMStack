@@ -43,6 +43,38 @@ func ReadYAML(path string, result interface{}) error {
 	return nil
 }
 
+// WriteSecretStringToFile writes a file that holds credential material: 0600,
+// re-applied on every write so a file created before this existed does not keep
+// its old world-readable mode.
+func WriteSecretStringToFile(fileName string, body string) error {
+	dir := filepath.Dir(fileName)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+
+	if _, err = file.WriteString(body); err != nil {
+		return err
+	}
+
+	return os.Chmod(fileName, 0600)
+}
+
+// WriteSecretYAML is WriteYAML for files that hold credential material.
+func WriteSecretYAML(url string, data interface{}) error {
+	config, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	return WriteSecretStringToFile(url, string(config))
+}
+
 func WriteStringToFile(fileName string, body string) error {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
 	if err != nil {

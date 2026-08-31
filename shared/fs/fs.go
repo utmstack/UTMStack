@@ -56,6 +56,26 @@ func Copy(src, dst string) error {
 }
 
 // WriteString writes a string to a file, creating or truncating it.
+// WriteSecretString writes a file that holds credential material: 0600, and
+// re-applied on every write so a file created before this existed does not keep
+// its old world-readable mode.
+func WriteSecretString(path string, content string) error {
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return fmt.Errorf("error opening file: %w", err)
+	}
+	defer file.Close()
+
+	if _, err = file.WriteString(content); err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+
+	if err = os.Chmod(path, 0600); err != nil {
+		return fmt.Errorf("error restricting file mode: %w", err)
+	}
+	return nil
+}
+
 func WriteString(path string, content string) error {
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
