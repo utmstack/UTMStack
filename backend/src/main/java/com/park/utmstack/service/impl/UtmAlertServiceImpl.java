@@ -247,7 +247,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String tagScript = "ctx._source.tags=%1$s;";
             String script = String.format(tagScript, (Object) null);
             if (!CollectionUtils.isEmpty(tags))
-                script = String.format(tagScript, "['" + String.join("','", tags) + "']");
+                script = String.format(tagScript, "['" + String.join("','", tags.stream().map(this::escapePainlessString).collect(Collectors.toList())) + "']");
 
             elasticsearchService.updateByQuery(SearchUtil.toQuery(filters), Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS),
                     script);
@@ -342,7 +342,7 @@ public class UtmAlertServiceImpl implements UtmAlertService {
                     incidentId,
                     formattedDate,
                     incidentCreatedBy,
-                    incidentSource
+                    escapePainlessString(incidentSource)
             );
 
 
@@ -387,5 +387,19 @@ public class UtmAlertServiceImpl implements UtmAlertService {
         } catch (Exception e) {
             throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Escapes a value for safe interpolation into a Painless script string
+     * literal. Prevents script injection from user-supplied text (e.g. alert
+     * tags, incident source) that would otherwise break out of the
+     * {@code '...'} literal and execute arbitrary Painless against alert
+     * documents.
+     */
+    private String escapePainlessString(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\").replace("'", "\\'");
     }
 }

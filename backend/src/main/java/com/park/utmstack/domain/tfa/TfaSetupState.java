@@ -10,6 +10,7 @@ public class TfaSetupState {
     private  long setupStartedAt;
 
     private long lastChallengeAt;
+    private boolean verified = false;
     private static final long COOLDOWN_MS = 28_000;
 
     public TfaSetupState(String secret, long expiresAt) {
@@ -17,6 +18,7 @@ public class TfaSetupState {
         this.expiresAt = expiresAt;
         this.setupStartedAt = System.currentTimeMillis();
         this.lastChallengeAt = 0;
+        this.verified = false;
     }
 
     public boolean isExpired() {
