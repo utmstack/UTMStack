@@ -6,8 +6,8 @@
 | --------- | ------------------ | ------------ |
 |  9.x      | :x:                | Jan 15, 2024 |
 |  10.x     | :x:                | Jul 15, 2026 |
-|  11.x LTS | :calendar:         | Nov 15, 2030 |
-|  12.x LTS | :white_check_mark: | Nov 15, 2030 |
+|  11.x LTS | :white_check_mark: | Nov 15, 2030 |
+|  12.x LTS | :calendar:         | Nov 15, 2030 |
 
 ### Legend
 ```list
