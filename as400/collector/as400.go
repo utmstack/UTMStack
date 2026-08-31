@@ -126,6 +126,26 @@ func (c *AS400Collector) saveConfig(config *AS400CollectorConfig) error {
 	return nil
 }
 
+// jarEnvPassthrough is what the JVM needs from our environment. Everything else
+// is dropped: the collector process holds the panel connection key and other
+// service credentials, and os.Environ() handed all of them to the JAR.
+var jarEnvPassthrough = []string{
+	"PATH", "HOME", "LANG", "LC_ALL", "TZ",
+	"JAVA_HOME", "JAVA_TOOL_OPTIONS",
+	"TEMP", "TMP", "TMPDIR",
+	"SYSTEMROOT", "WINDIR", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "PATHEXT", "COMSPEC",
+}
+
+func jarEnv() []string {
+	env := make([]string, 0, len(jarEnvPassthrough)+1)
+	for _, key := range jarEnvPassthrough {
+		if value, ok := os.LookupEnv(key); ok {
+			env = append(env, key+"="+value)
+		}
+	}
+	return append(env, "AS400_SECRET="+config.REPLACE_KEY)
+}
+
 func (c *AS400Collector) startCollectorProcess() error {
 	c.processMutex.Lock()
 	defer c.processMutex.Unlock()
@@ -138,7 +158,7 @@ func (c *AS400Collector) startCollectorProcess() error {
 
 	cmd := exec.CommandContext(c.ctx, "java", "-jar", c.collectorJarPath, "RUN")
 	cmd.Dir = utils.GetMyPath()
-	cmd.Env = append(os.Environ(), "AS400_SECRET="+config.REPLACE_KEY)
+	cmd.Env = jarEnv()
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
