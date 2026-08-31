@@ -1,12 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -14,37 +13,59 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/UTMStack/plugins/shared/coordination"
 )
 
 const (
-	authURL            = "https://id.sophos.com/api/v2/oauth2/token"
-	whoamiURL          = "https://api.central.sophos.com/whoami/v1"
-	defaultTenant      = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	urlCheckConnection = "https://id.sophos.com"
-	wait               = 3 * time.Second
+	authURL       = "https://id.sophos.com/api/v2/oauth2/token"
+	whoamiURL     = "https://api.central.sophos.com/whoami/v1"
+	defaultTenant = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 )
 
-var (
-	nextKeys   = make(map[string]string)
-	nextKeysMu sync.RWMutex
+// tickInterval is how often jobs are published, and the width of a
+// first-activation window.
+const tickInterval = 5 * time.Minute
 
+var (
 	activeGroupsMu sync.RWMutex
 	activeGroups   = make(map[string]*ModuleGroup)
 )
 
+// coordinationRetryDelay paces retries while coordination is unreachable.
+const coordinationRetryDelay = 5 * time.Second
+
 func main() {
-	mode := plugins.GetCfg("plugin_com.utmstack.sophos").Env.Mode
-	if mode != "manager" {
+	mode := plugins.GetCfg(processName).Env.Mode
+	if mode != "worker" {
 		return
 	}
 
 	go StartConfigurationSystem()
 
 	for t := 0; t < 2*runtime.NumCPU(); t++ {
-		go plugins.SendLogsFromChannel("com.utmstack.sophos")
+		go plugins.SendLogsFromChannel(pluginName)
 	}
 
-	watchConfigAndPull()
+	ctx := context.Background()
+
+	// Retry forever and fail closed. Never turn this into a
+	// timeout-then-degrade path: ingesting without coordination means every
+	// replica pulls every group with no durable position.
+	coord, err := coordination.SetupWithRetry(ctx, coordination.DialQueuePath(processName, queuePlugin), coordinationRetryDelay,
+		func(err error) {
+			_ = catcher.Error("coordination setup failed, retrying", err, map[string]any{"process": processName})
+		})
+	if err != nil {
+		return
+	}
+	defer coord.Close()
+	logCoordinationReady()
+
+	// Runs on every replica regardless of the election below: the election
+	// only decides who publishes, not who ingests.
+	go runQueueConsumer(ctx, coord.Consumer, coord.Cursors, getEncryptionKey)
+
+	watchConfigAndPublish(coord.Scheduler, coord.Publisher, uuid.New().String())
 }
 
 func syncActiveGroups(newConfig *ConfigurationSection) {
@@ -53,7 +74,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 
 	if newConfig == nil || !newConfig.ModuleActive {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
-			"process": "plugin_com.utmstack.sophos",
+			"process": processName,
 		})
 		activeGroups = make(map[string]*ModuleGroup)
 		return
@@ -68,7 +89,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		if _, exists := newGroups[key]; !exists {
 			catcher.Info("Group removed from configuration", map[string]any{
 				"group":   key,
-				"process": "plugin_com.utmstack.sophos",
+				"process": processName,
 			})
 		}
 	}
@@ -77,7 +98,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		if _, exists := activeGroups[key]; !exists {
 			catcher.Info("New group added to configuration", map[string]any{
 				"group":   key,
-				"process": "plugin_com.utmstack.sophos",
+				"process": processName,
 			})
 		}
 	}
@@ -96,7 +117,10 @@ func getActiveGroups() []*ModuleGroup {
 	return groups
 }
 
-func watchConfigAndPull() {
+// No connectivity pre-check here on purpose: blocking on id.sophos.com would
+// freeze the config-update branch. Failed pulls advance no cursor and ack no
+// job, so the window is simply redelivered.
+func watchConfigAndPublish(scheduler coordination.Store, publisher coordination.JobPublisher, holder string) {
 	time.Sleep(3 * time.Second)
 
 	initialConfig := GetConfig()
@@ -104,72 +128,57 @@ func watchConfigAndPull() {
 		syncActiveGroups(initialConfig)
 	}
 
-	delay := 5 * time.Minute
-	ticker := time.NewTicker(delay)
+	ticker := time.NewTicker(tickInterval)
 	defer ticker.Stop()
-
-	startTime := time.Now().UTC().Add(-delay)
 
 	for {
 		select {
 		case newConfig := <-GetConfigUpdateChannel():
 			catcher.Info("Received config update, syncing groups", map[string]any{
 				"moduleActive": newConfig != nil && newConfig.ModuleActive,
-				"process":      "plugin_com.utmstack.sophos",
+				"process":      processName,
 			})
 			syncActiveGroups(newConfig)
 
 		case <-ticker.C:
-			endTime := time.Now().UTC()
-
-			if err := connectionChecker(urlCheckConnection); err != nil {
-				_ = catcher.Error("External connection failure detected", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
-				continue
-			}
-
 			groups := getActiveGroups()
 			if len(groups) == 0 {
-				catcher.Info("No active groups, skipping pull", map[string]any{
-					"process": "plugin_com.utmstack.sophos",
+				catcher.Info("No active groups, publishing nothing", map[string]any{
+					"process": processName,
 				})
-				startTime = endTime.Add(1 * time.Nanosecond)
 				continue
 			}
 
-			var wg sync.WaitGroup
-			wg.Add(len(groups))
-			for _, grp := range groups {
-				go func(group *ModuleGroup) {
-					defer wg.Done()
-					var invalid bool
-					for _, c := range group.ModuleGroupConfigurations {
-						if strings.TrimSpace(c.ConfValue) == "" {
-							invalid = true
-							break
-						}
-					}
-					if !invalid {
-						pull(startTime, group)
-					}
-				}(grp)
-			}
-			wg.Wait()
-
-			startTime = endTime.Add(1 * time.Nanosecond)
+			publishTickJobs(context.Background(), scheduler, publisher, holder, groups, time.Now().UTC())
 		}
 	}
 }
 
-func pull(startTime time.Time, group *ModuleGroup) {
-	nextKeysMu.RLock()
-	prevKey := nextKeys[group.Key()]
-	nextKeysMu.RUnlock()
+// ingestion isolates pull's side effects so the cursor rules stay testable.
+type ingestion struct {
+	fetch func(fromTime int64, nextKey string, groupKey string) ([]LogRecord, string, error)
+	emit  func(log *plugins.Log)
+}
 
+func liveIngestion(group *ModuleGroup) ingestion {
 	agent := getSophosCentralProcessor(group)
-	logs, newNextKey, err := agent.getLogs(startTime.Unix(), prevKey)
+	return ingestion{
+		fetch: func(fromTime int64, nextKey string, groupKey string) ([]LogRecord, string, error) {
+			return agent.getLogs(fromTime, nextKey, groupKey)
+		},
+		emit: func(log *plugins.Log) {
+			_ = plugins.EnqueueLog(log, pluginName)
+		},
+	}
+}
+
+func pull(group *ModuleGroup, floor int64, pageKey string, in ingestion) (string, int, error) {
+	records, nextKey, err := in.fetch(floor, pageKey, group.Key())
 	if err != nil {
-		_ = catcher.Error("error getting logs", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
-		return
+		return "", 0, catcher.Error("error getting logs", err, map[string]any{
+			"process": processName,
+			"group":   group.Key(),
+		})
 	}
 
 	tenantId := group.TenantId
@@ -177,22 +186,18 @@ func pull(startTime time.Time, group *ModuleGroup) {
 		tenantId = defaultTenant
 	}
 
-	if len(logs) > 0 {
-		for _, log := range logs {
-			plugins.EnqueueLog(&plugins.Log{
-				Id:         uuid.New().String(),
-				TenantId:   tenantId,
-				DataType:   "sophos-central",
-				DataSource: group.GroupName,
-				Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-				Raw:        log,
-			}, "com.utmstack.sophos")
-		}
+	for _, record := range records {
+		in.emit(&plugins.Log{
+			Id:         record.ID,
+			TenantId:   tenantId,
+			DataType:   "sophos-central",
+			DataSource: group.GroupName,
+			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
+			Raw:        record.Raw,
+		})
 	}
 
-	nextKeysMu.Lock()
-	nextKeys[group.Key()] = newNextKey
-	nextKeysMu.Unlock()
+	return nextKey, len(records), nil
 }
 
 type SophosCentralProcessor struct {
@@ -229,7 +234,6 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
 
-	// Retry logic for getting access token
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -251,26 +255,25 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 		}
 
 		_ = catcher.Error("error getting access token, retrying", err, map[string]any{
-			"process":    "plugin_com.utmstack.sophos",
+			"process":    processName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
 	if err != nil {
-		return "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+		return "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": processName})
 	}
 
 	accessToken, ok := response["access_token"].(string)
 	if !ok || accessToken == "" {
 		return "", catcher.Error("access_token not found in response after all retries", nil, map[string]any{
-			"process":  "plugin_com.utmstack.sophos",
+			"process":  processName,
 			"response": response,
 		})
 	}
@@ -278,7 +281,7 @@ func (p *SophosCentralProcessor) getAccessToken() (string, error) {
 	expiresIn, ok := response["expires_in"].(float64)
 	if !ok {
 		return "", catcher.Error("expires_in not found in response after all retries", nil, map[string]any{
-			"process":  "plugin_com.utmstack.sophos",
+			"process":  processName,
 			"response": response,
 		})
 	}
@@ -304,7 +307,6 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 		"Authorization": "Bearer " + accessToken,
 	}
 
-	// Retry logic for getting tenant info
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -322,25 +324,24 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 		}
 
 		_ = catcher.Error("error getting tenant info, retrying", err, map[string]any{
-			"process":    "plugin_com.utmstack.sophos",
+			"process":    processName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
 	if err != nil {
-		return catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+		return catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": processName})
 	}
 
 	if response.ID == "" {
 		return catcher.Error("tenant ID not found in whoami response after all retries", nil, map[string]any{
-			"process":  "plugin_com.utmstack.sophos",
+			"process":  processName,
 			"response": response,
 		})
 	}
@@ -348,7 +349,7 @@ func (p *SophosCentralProcessor) getTenantInfo(accessToken string) error {
 
 	if response.ApiHosts.DataRegion == "" {
 		return catcher.Error("dataRegion not found in whoami response after all retries", nil, map[string]any{
-			"process":  "plugin_com.utmstack.sophos",
+			"process":  processName,
 			"response": response,
 		})
 	}
@@ -376,8 +377,7 @@ type Pages struct {
 	MaxSize int64  `json:"maxSize"`
 }
 
-func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]string, string, error) {
-	// Retry logic for getting access token
+func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string, groupKey string) ([]LogRecord, string, error) {
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -391,24 +391,22 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		}
 
 		_ = catcher.Error("error getting access token, retrying", err, map[string]any{
-			"process":    "plugin_com.utmstack.sophos",
+			"process":    processName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
 	if err != nil {
-		return nil, "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+		return nil, "", catcher.Error("all retries failed when getting access token", err, map[string]any{"process": processName})
 	}
 
 	if p.TenantID == "" || p.DataRegion == "" {
-		// Retry logic for getting tenant info
 		for retry := 0; retry < maxRetries; retry++ {
 			err = p.getTenantInfo(accessToken)
 			if err == nil {
@@ -416,24 +414,23 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 			}
 
 			_ = catcher.Error("error getting tenant info, retrying", err, map[string]any{
-				"process":    "plugin_com.utmstack.sophos",
+				"process":    processName,
 				"retry":      retry + 1,
 				"maxRetries": maxRetries,
 			})
 
 			if retry < maxRetries-1 {
 				time.Sleep(retryDelay)
-				// Increase delay for next retry
 				retryDelay *= 2
 			}
 		}
 
 		if err != nil {
-			return nil, "", catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+			return nil, "", catcher.Error("all retries failed when getting tenant info", err, map[string]any{"process": processName})
 		}
 	}
 
-	logs := make([]string, 0, 1000)
+	records := make([]LogRecord, 0, 1000)
 
 	for {
 		u, err := p.buildURL(fromTime, nextKey)
@@ -447,7 +444,6 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 			"X-Tenant-ID":   p.TenantID,
 		}
 
-		// Retry logic for getting logs
 		var response EventAggregate
 		for retry := 0; retry < maxRetries; retry++ {
 			response, _, err = utils.DoReq[EventAggregate](u.String(), nil, http.MethodGet, headers, false)
@@ -456,29 +452,28 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 			}
 
 			_ = catcher.Error("error getting logs, retrying", err, map[string]any{
-				"process":    "plugin_com.utmstack.sophos",
+				"process":    processName,
 				"retry":      retry + 1,
 				"maxRetries": maxRetries,
 			})
 
 			if retry < maxRetries-1 {
 				time.Sleep(retryDelay)
-				// Increase delay for next retry
 				retryDelay *= 2
 			}
 		}
 
 		if err != nil {
-			return nil, "", catcher.Error("all retries failed when getting logs", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+			return nil, "", catcher.Error("all retries failed when getting logs", err, map[string]any{"process": processName})
 		}
 
 		for _, item := range response.Items {
-			jsonItem, err := json.Marshal(item)
+			record, err := newLogRecord(groupKey, item)
 			if err != nil {
-				_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
+				_ = catcher.Error("error marshalling content details", err, map[string]any{"process": processName})
 				continue
 			}
-			logs = append(logs, string(jsonItem))
+			records = append(records, record)
 		}
 
 		if response.Pages.NextKey == "" {
@@ -487,7 +482,7 @@ func (p *SophosCentralProcessor) getLogs(fromTime int64, nextKey string) ([]stri
 		nextKey = response.Pages.NextKey
 	}
 
-	return logs, nextKey, nil
+	return records, nextKey, nil
 }
 
 func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.URL, error) {
@@ -495,7 +490,7 @@ func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.
 	u, parseErr := url.Parse(baseURL)
 	if parseErr != nil {
 		return nil, catcher.Error("error parsing url", parseErr, map[string]any{
-			"process": "sophos-plugin",
+			"process": processName,
 			"url":     baseURL,
 		})
 	}
@@ -509,70 +504,4 @@ func (p *SophosCentralProcessor) buildURL(fromTime int64, nextKey string) (*url.
 
 	u.RawQuery = params.Encode()
 	return u, nil
-}
-
-func connectionChecker(url string) error {
-	checkConn := func() error {
-		if err := checkConnection(url); err != nil {
-			return fmt.Errorf("connection failed: %v", err)
-		}
-		return nil
-	}
-
-	if err := infiniteRetryIfXError(checkConn, "connection failed"); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func checkConnection(url string) error {
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			_ = catcher.Error("error closing response body", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
-		}
-	}()
-
-	return nil
-}
-
-func infiniteRetryIfXError(f func() error, exception string) error {
-	var xErrorWasLogged bool
-
-	for {
-		err := f()
-		if err != nil && is(err, exception) {
-			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred, will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.sophos"})
-				xErrorWasLogged = true
-			}
-			time.Sleep(wait)
-			continue
-		}
-
-		return err
-	}
-}
-
-func is(e error, args ...string) bool {
-	for _, arg := range args {
-		if strings.Contains(e.Error(), arg) {
-			return true
-		}
-	}
-	return false
 }
