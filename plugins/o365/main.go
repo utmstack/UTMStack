@@ -15,6 +15,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/UTMStack/plugins/shared/coordination"
 )
 
 type CloudEnvironment string
@@ -76,19 +77,42 @@ var (
 	activeGroups   = make(map[string]*ModuleGroup)
 )
 
+// coordinationRetryDelay paces retries while coordination is unreachable.
+const coordinationRetryDelay = 5 * time.Second
+
 func main() {
-	mode := plugins.GetCfg("plugin_com.utmstack.o365").Env.Mode
-	if mode != "manager" {
+	mode := plugins.GetCfg(processName).Env.Mode
+	if mode != "worker" {
 		return
 	}
 
 	go StartConfigurationSystem()
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
-		go plugins.SendLogsFromChannel("com.utmstack.o365")
+		go plugins.SendLogsFromChannel(pluginName)
 	}
 
-	watchConfigAndPull()
+	ctx := context.Background()
+
+	// Blocks until NATS coordination is up. Fails closed: never ingests without
+	// coordination.
+	setup, err := coordination.SetupWithRetry(ctx, coordination.DialQueuePath(processName, queuePlugin), coordinationRetryDelay, func(err error) {
+		_ = catcher.Error("coordination setup failed, waiting to retry", err, map[string]any{
+			"process": processName,
+		})
+	})
+	if err != nil {
+		// Only reachable on ctx cancellation, which production never does; the
+		// branch exists so tests can kill the retry loop.
+		_ = catcher.Error("coordination setup cancelled before it could succeed", err, map[string]any{"process": processName})
+		return
+	}
+	defer setup.Close()
+	logCoordinationReady()
+
+	go runQueueConsumer(ctx, setup.Consumer, setup.Cursors, getEncryptionKey)
+
+	watchConfigAndPull(setup.Scheduler, setup.Publisher, uuid.New().String())
 }
 
 func syncActiveGroups(newConfig *ConfigurationSection) {
@@ -97,7 +121,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 
 	if newConfig == nil || !newConfig.ModuleActive {
 		catcher.Info("Module deactivated, clearing all groups", map[string]any{
-			"process": "plugin_com.utmstack.o365",
+			"process": processName,
 		})
 		activeGroups = make(map[string]*ModuleGroup)
 		return
@@ -112,7 +136,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		if _, exists := newGroups[key]; !exists {
 			catcher.Info("Group removed from configuration", map[string]any{
 				"group":   key,
-				"process": "plugin_com.utmstack.o365",
+				"process": processName,
 			})
 		}
 	}
@@ -121,7 +145,7 @@ func syncActiveGroups(newConfig *ConfigurationSection) {
 		if _, exists := activeGroups[key]; !exists {
 			catcher.Info("New group added to configuration", map[string]any{
 				"group":   key,
-				"process": "plugin_com.utmstack.o365",
+				"process": processName,
 			})
 		}
 	}
@@ -140,7 +164,9 @@ func getActiveGroups() []*ModuleGroup {
 	return groups
 }
 
-func watchConfigAndPull() {
+// The local startTime below only seeds published jobs; authoritative per-group
+// progress lives in the persisted cursor, since another worker may handle a tick.
+func watchConfigAndPull(scheduler coordination.Store, publisher coordination.JobPublisher, holder string) {
 	time.Sleep(3 * time.Second)
 
 	initialConfig := GetConfig()
@@ -159,7 +185,7 @@ func watchConfigAndPull() {
 		case newConfig := <-GetConfigUpdateChannel():
 			catcher.Info("Received config update, syncing groups", map[string]any{
 				"moduleActive": newConfig != nil && newConfig.ModuleActive,
-				"process":      "plugin_com.utmstack.o365",
+				"process":      processName,
 			})
 			syncActiveGroups(newConfig)
 
@@ -169,7 +195,7 @@ func watchConfigAndPull() {
 			groups := getActiveGroups()
 			if len(groups) == 0 {
 				catcher.Info("No active groups, skipping pull", map[string]any{
-					"process": "plugin_com.utmstack.o365",
+					"process": processName,
 				})
 				startTime = endTime.Add(1 * time.Nanosecond)
 				continue
@@ -177,17 +203,8 @@ func watchConfigAndPull() {
 
 			checkConfiguredEnvironments(groups)
 
-			var wg sync.WaitGroup
-			wg.Add(len(groups))
+			publishTickJobs(context.Background(), scheduler, publisher, holder, groups, startTime, endTime)
 
-			for _, grp := range groups {
-				go func(group *ModuleGroup) {
-					defer wg.Done()
-					pull(startTime, endTime, group)
-				}(grp)
-			}
-
-			wg.Wait()
 			startTime = endTime.Add(1 * time.Nanosecond)
 		}
 	}
@@ -205,7 +222,7 @@ func checkConfiguredEnvironments(groups []*ModuleGroup) {
 	for authority, env := range uniqueAuthorities {
 		if err := ConnectionChecker(authority); err != nil {
 			_ = catcher.Error("External connection failure detected", err, map[string]any{
-				"process":     "plugin_com.utmstack.o365",
+				"process":     processName,
 				"environment": env,
 				"authority":   authority,
 			})
@@ -222,19 +239,20 @@ func getGroupEnvironment(group *ModuleGroup) CloudEnvironment {
 	return CloudCommercial
 }
 
-func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) {
+// pull fetches one window of audit logs for group and enqueues them, returning
+// the record count. Callers must not advance the group's cursor when the error
+// is non-nil: that would skip past un-ingested data.
+func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) (int, error) {
 	agent := GetOfficeProcessor(group)
 
-	err := agent.GetAuth()
-	if err != nil {
-		_ = catcher.Error("error getting auth", err, map[string]any{"process": "plugin_com.utmstack.o365"})
-		return
+	if err := agent.GetAuth(); err != nil {
+		_ = catcher.Error("error getting auth", err, map[string]any{"process": processName})
+		return 0, err
 	}
 
-	err = agent.StartSubscriptions()
-	if err != nil {
-		_ = catcher.Error("error starting subscriptions", err, map[string]any{"process": "plugin_com.utmstack.o365"})
-		return
+	if err := agent.StartSubscriptions(); err != nil {
+		_ = catcher.Error("error starting subscriptions", err, map[string]any{"process": processName})
+		return 0, err
 	}
 
 	utmTenantId := agent.UtmTenantId
@@ -242,24 +260,24 @@ func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) {
 		utmTenantId = DefaultTenant
 	}
 
-	logs := agent.GetLogs(startTime, endTime)
-	for _, log := range logs {
+	records := agent.GetLogs(startTime, endTime, group)
+	for _, record := range records {
 		plugins.EnqueueLog(&plugins.Log{
-			Id:         uuid.New().String(),
+			Id:         record.ID,
 			TenantId:   utmTenantId,
 			DataType:   "o365",
 			DataSource: group.GroupName,
 			Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
-			Raw:        log,
-		}, "com.utmstack.o365")
+			Raw:        record.Raw,
+		}, pluginName)
 	}
+	return len(records), nil
 }
 
 type OfficeProcessor struct {
 	Credentials MicrosoftLoginResponse
-	// TenantId is the customer's own Microsoft Azure AD / Microsoft 365 tenant
-	// ID (config key "office365_tenant_id") — used to build Microsoft Graph
-	// API URLs. It is NOT UTMStack's platform tenant; see UtmTenantId.
+	// TenantId is the customer's Microsoft Azure AD tenant, used to build API
+	// URLs. It is NOT UTMStack's platform tenant; that is UtmTenantId.
 	TenantId         string
 	UtmTenantId      string
 	ClientId         string
@@ -345,7 +363,6 @@ func (o *OfficeProcessor) GetAuth() error {
 
 	dataBytes := []byte(data.Encode())
 
-	// Retry logic for authentication
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -360,19 +377,18 @@ func (o *OfficeProcessor) GetAuth() error {
 		}
 
 		_ = catcher.Error("error getting authentication, retrying", err, map[string]any{
-			"process":    "plugin_com.utmstack.o365",
+			"process":    processName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 		})
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
-	return catcher.Error("all retries failed when getting authentication", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+	return catcher.Error("all retries failed when getting authentication", err, map[string]any{"process": processName})
 }
 
 func (o *OfficeProcessor) StartSubscriptions() error {
@@ -388,7 +404,6 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 		}
 
-		// Retry logic for starting subscriptions
 		maxRetries := 3
 		retryDelay := 2 * time.Second
 
@@ -400,13 +415,13 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 				break
 			}
 
-			// If the subscription is already enabled, that's not an error
+			// Microsoft reports an already-enabled subscription as an error.
 			if strings.Contains(err.Error(), "subscription is already enabled") {
 				return nil
 			}
 
 			_ = catcher.Error("error starting subscription, retrying", err, map[string]any{
-				"process":      "plugin_com.utmstack.o365",
+				"process":      processName,
 				"retry":        retry + 1,
 				"maxRetries":   maxRetries,
 				"subscription": subscription,
@@ -414,14 +429,13 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 
 			if retry < maxRetries-1 {
 				time.Sleep(retryDelay)
-				// Increase delay for next retry
 				retryDelay *= 2
 			}
 		}
 
 		if err != nil {
 			return catcher.Error("all retries failed when starting subscription", err, map[string]any{
-				"process":      "plugin_com.utmstack.o365",
+				"process":      processName,
 				"subscription": subscription,
 			})
 		}
@@ -445,7 +459,6 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	// Retry logic for getting content list
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -460,7 +473,7 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 		}
 
 		_ = catcher.Error("error getting content list, retrying", err, map[string]any{
-			"process":      "plugin_com.utmstack.o365",
+			"process":      processName,
 			"retry":        retry + 1,
 			"maxRetries":   maxRetries,
 			"subscription": subscription,
@@ -469,13 +482,12 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
 	return []ContentList{}, catcher.Error("all retries failed when getting content list", err, map[string]any{
-		"process":      "plugin_com.utmstack.o365",
+		"process":      processName,
 		"subscription": subscription,
 		"status":       status,
 	})
@@ -487,7 +499,6 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	// Retry logic for getting content details
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
@@ -502,7 +513,7 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		}
 
 		_ = catcher.Error("error getting content details, retrying", err, map[string]any{
-			"process":    "plugin_com.utmstack.o365",
+			"process":    processName,
 			"retry":      retry + 1,
 			"maxRetries": maxRetries,
 			"url":        url,
@@ -511,24 +522,26 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
 	return ContentDetailsResponse{}, catcher.Error("all retries failed when getting content details", err, map[string]any{
-		"process": "plugin_com.utmstack.o365",
+		"process": processName,
 		"url":     url,
 		"status":  status,
 	})
 }
 
-func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
-	logs := make([]string, 0, 10)
+// GetLogs returns one LogRecord per audit detail. The Management Activity API
+// is two-step: list content blobs per subscription, then fetch each content URI.
+func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time, group *ModuleGroup) []LogRecord {
+	records := make([]LogRecord, 0, 10)
+	groupKey := group.Key()
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime)
 		if err != nil {
-			_ = catcher.Error("error getting content list", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+			_ = catcher.Error("error getting content list", err, map[string]any{"process": processName})
 			continue
 		}
 
@@ -536,23 +549,27 @@ func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
 			for _, log := range contentList {
 				details, err := o.GetContentDetails(log.ContentUri)
 				if err != nil {
-					_ = catcher.Error("error getting content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+					_ = catcher.Error("error getting content details", err, map[string]any{"process": processName})
 					continue
 				}
 				if len(details) > 0 {
 					for _, detail := range details {
 						rawDetail, err := json.Marshal(detail)
 						if err != nil {
-							_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+							_ = catcher.Error("error marshalling content details", err, map[string]any{"process": processName})
 							continue
 						}
-						logs = append(logs, string(rawDetail))
+						recordID, _ := detail["Id"].(string)
+						records = append(records, LogRecord{
+							ID:  eventIdentity(o.UtmTenantId, groupKey, log.ContentUri, recordID),
+							Raw: string(rawDetail),
+						})
 					}
 				}
 			}
 		}
 	}
-	return logs
+	return records
 }
 
 func ConnectionChecker(url string) error {
@@ -588,7 +605,7 @@ func checkConnection(url string, ctx context.Context) error {
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": processName})
 		}
 	}()
 
@@ -602,7 +619,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 		err := f()
 		if err != nil && is(err, exception) {
 			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": processName})
 				xErrorWasLogged = true
 			}
 			time.Sleep(wait)

@@ -19,6 +19,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/plugins/shared/coordination"
 )
 
 const (
@@ -28,14 +29,15 @@ const (
 )
 
 type activeStream struct {
-	ctx             context.Context
-	cancel          context.CancelFunc
-	processor       *CrowdStrikeProcessor
-	dataSource      string
-	offsets         map[string]uint64
-	streamStartTime uint64
-	wg              sync.WaitGroup
-	mu              sync.Mutex
+	ctx       context.Context
+	cancel    context.CancelFunc
+	processor *CrowdStrikeProcessor
+	// groupKey is ModuleGroup.Key() stored unmodified: the lease key, cursor key
+	// and event identities are all derived from it.
+	groupKey   string
+	dataSource string
+	cursor     *cursorState
+	wg         sync.WaitGroup
 }
 
 var (
@@ -43,15 +45,18 @@ var (
 	activeStreamsMu sync.RWMutex
 )
 
+// coordinationRetryDelay paces retries while coordination is unreachable.
+const coordinationRetryDelay = 5 * time.Second
+
 func main() {
-	mode := plugins.GetCfg("plugin_com.utmstack.crowdstrike").Env.Mode
-	if mode != "manager" {
+	mode := plugins.GetCfg(processName).Env.Mode
+	if mode != "worker" {
 		return
 	}
 
 	if err := connectionChecker(urlCheckConnection); err != nil {
 		_ = catcher.Error("Failed to establish connectivity, plugin will not start", err, map[string]any{
-			"process": "plugin_com.utmstack.crowdstrike",
+			"process": processName,
 		})
 		return
 	}
@@ -60,21 +65,43 @@ func main() {
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
 		go func() {
-			plugins.SendLogsFromChannel("com.utmstack.crowdstrike")
+			plugins.SendLogsFromChannel(pluginName)
 		}()
 	}
 
-	go watchConfigurationChanges()
+	ctx := context.Background()
+
+	// Blocks until coordination succeeds and never falls back to ingesting
+	// without it: an appId names one server-side subscription, so two workers on
+	// the same unit would fight over it instead of splitting the feed.
+	setup, err := coordination.SetupWithRetry(ctx, coordination.DialLeasePath(processName), coordinationRetryDelay, func(err error) {
+		_ = catcher.Error("coordination setup failed, waiting to retry", err, map[string]any{
+			"process": processName,
+		})
+	})
+	if err != nil {
+		// Only reachable if ctx is cancelled; production passes Background().
+		_ = catcher.Error("coordination setup cancelled before it could succeed", err, map[string]any{
+			"process": processName,
+		})
+		return
+	}
+	defer setup.Close()
+
+	holder := uuid.NewString()
+	logCoordinationReady(holder)
+
+	go watchConfigurationChanges(ctx, setup, holder)
 
 	select {}
 }
 
-func watchConfigurationChanges() {
+func watchConfigurationChanges(ctx context.Context, coord coordination.LeasePath, holder string) {
 	time.Sleep(3 * time.Second)
 
 	initialConfig := GetConfig()
 	if initialConfig != nil && initialConfig.ModuleActive {
-		updateStreams(initialConfig)
+		updateStreams(ctx, coord, holder, initialConfig)
 	}
 
 	for newConfig := range GetConfigUpdateChannel() {
@@ -83,11 +110,11 @@ func watchConfigurationChanges() {
 			continue
 		}
 
-		updateStreams(newConfig)
+		updateStreams(ctx, coord, holder, newConfig)
 	}
 }
 
-func updateStreams(newConfig *ConfigurationSection) {
+func updateStreams(ctx context.Context, coord coordination.LeasePath, holder string, newConfig *ConfigurationSection) {
 	activeStreamsMu.Lock()
 	defer activeStreamsMu.Unlock()
 
@@ -125,33 +152,35 @@ func updateStreams(newConfig *ConfigurationSection) {
 					s.wg.Wait()
 					activeStreamsMu.Lock()
 					delete(activeStreams, k)
-					startStream(k, g)
+					startStream(ctx, coord, holder, k, g)
 					activeStreamsMu.Unlock()
 				}(existingStream, key, group)
 			}
 		} else {
-			startStream(key, group)
+			startStream(ctx, coord, holder, key, group)
 		}
 	}
 }
 
-func startStream(key string, group *ModuleGroup) {
-	ctx, cancel := context.WithCancel(context.Background())
-
-	processor := buildProcessor(group)
+// startStream registers a unit; nothing connects until runOwnedStream holds the
+// lease. ctx must be the plugin's root context so shutdown reaches every socket.
+func startStream(ctx context.Context, coord coordination.LeasePath, holder, key string, group *ModuleGroup) {
+	streamCtx, cancel := context.WithCancel(ctx)
 
 	stream := &activeStream{
-		ctx:             ctx,
-		cancel:          cancel,
-		processor:       processor,
-		dataSource:      group.GroupName,
-		offsets:         make(map[string]uint64),
-		streamStartTime: uint64(time.Now().UnixMilli()),
+		ctx:        streamCtx,
+		cancel:     cancel,
+		processor:  buildProcessor(group),
+		groupKey:   key,
+		dataSource: group.GroupName,
+		cursor:     newCursorState(),
 	}
 
 	activeStreams[key] = stream
 
-	go maintainStreamConnection(stream)
+	// Not tracked by stream.wg: runEventStream waits on that same WaitGroup for
+	// its feed goroutines, so adding this one would deadlock the unit.
+	go runOwnedStream(coord, holder, stream, maintainStreamConnection)
 }
 
 func stopAllStreams() {
@@ -203,7 +232,7 @@ func runEventStream(stream *activeStream) error {
 	apiClient, err := stream.processor.createClient()
 	if err != nil {
 		return catcher.Error("failed to create client", err, map[string]any{
-			"process": "plugin_com.utmstack.crowdstrike",
+			"process": processName,
 		})
 	}
 
@@ -213,20 +242,20 @@ func runEventStream(stream *activeStream) error {
 	jsonFormat := "json"
 	response, err := apiClient.EventStreams.ListAvailableStreamsOAuth2(
 		&event_streams.ListAvailableStreamsOAuth2Params{
-			AppID:   stream.processor.AppName,
+			AppID:   stream.processor.AppID,
 			Format:  &jsonFormat,
 			Context: ctx,
 		},
 	)
 	if err != nil {
 		return catcher.Error("failed to list streams", err, map[string]any{
-			"process": "plugin_com.utmstack.crowdstrike",
+			"process": processName,
 		})
 	}
 
 	if err = falcon.AssertNoError(response.Payload.Errors); err != nil {
 		return catcher.Error("CrowdStrike API error", err, map[string]any{
-			"process": "plugin_com.utmstack.crowdstrike",
+			"process": processName,
 		})
 	}
 
@@ -235,7 +264,7 @@ func runEventStream(stream *activeStream) error {
 	for _, streamV2 := range availableStreams {
 		if streamV2.DataFeedURL == nil {
 			catcher.Error("Stream has nil DataFeedURL, skipping", nil, map[string]any{
-				"process": "plugin_com.utmstack.crowdstrike",
+				"process": processName,
 			})
 			continue
 		}
@@ -264,22 +293,22 @@ func maintainIndividualStream(stream *activeStream, apiClient *client.CrowdStrik
 		case <-stream.ctx.Done():
 			return
 		default:
-			stream.mu.Lock()
-			currentOffset := stream.offsets[streamID]
-			stream.mu.Unlock()
+			currentOffset := stream.cursor.offset(streamID)
 
-			falconStream, err := falcon.NewStream(stream.ctx, apiClient, stream.processor.AppName, streamResource, currentOffset)
+			falconStream, err := falcon.NewStream(stream.ctx, apiClient, stream.processor.AppID, streamResource, currentOffset)
 			if err != nil {
 				catcher.Error("failed to create stream, will retry", err, map[string]any{
-					"process": "plugin_com.utmstack.crowdstrike",
+					"process": processName,
 				})
 			} else {
+				logStreamOpened(stream.groupKey, streamID, currentOffset)
+
 				err = processStreamEvents(stream, falconStream, streamID)
 				falconStream.Close()
 
 				if err != nil {
 					catcher.Error("stream error, will reconnect", err, map[string]any{
-						"process": "plugin_com.utmstack.crowdstrike",
+						"process": processName,
 					})
 				}
 			}
@@ -297,6 +326,9 @@ func maintainIndividualStream(stream *activeStream, apiClient *client.CrowdStrik
 }
 
 func processStreamEvents(stream *activeStream, falconStream *falcon.StreamingHandle, streamID string) error {
+	// Scoped to one open socket, so each reconnect announces its first event.
+	var firstEvent firstEventGate
+
 	for {
 		select {
 		case <-stream.ctx.Done():
@@ -305,26 +337,28 @@ func processStreamEvents(stream *activeStream, falconStream *falcon.StreamingHan
 		case err := <-falconStream.Errors:
 			if err.Fatal {
 				return catcher.Error("fatal stream error", err.Err, map[string]any{
-					"process": "plugin_com.utmstack.crowdstrike",
+					"process": processName,
 				})
 			}
 			catcher.Error("Non-fatal stream error", err.Err, map[string]any{
-				"process": "plugin_com.utmstack.crowdstrike",
+				"process": processName,
 			})
 
 		case event := <-falconStream.Events:
-			if event.Metadata.EventCreationTime > stream.streamStartTime {
-				processEvent(event, stream.dataSource, stream.processor.TenantId)
+			if event.Metadata.EventCreationTime > stream.cursor.startsAfter() {
+				processEvent(event, stream.dataSource, stream.processor.TenantId, stream.groupKey, streamID)
 
-				stream.mu.Lock()
-				stream.offsets[streamID] = event.Metadata.Offset
-				stream.mu.Unlock()
+				stream.cursor.setOffset(streamID, event.Metadata.Offset)
+
+				if firstEvent.take() {
+					logFirstEventIngested(stream.groupKey, streamID, event.Metadata.Offset)
+				}
 			}
 		}
 	}
 }
 
-func processEvent(event *streaming_models.EventItem, dataSource string, tenantId string) {
+func processEvent(event *streaming_models.EventItem, dataSource string, tenantId string, groupKey string, streamID string) {
 	var eventData string
 	if len(event.RawMessage) > 0 {
 		eventData = string(event.RawMessage)
@@ -332,7 +366,7 @@ func processEvent(event *streaming_models.EventItem, dataSource string, tenantId
 		eventJSON, err := json.Marshal(event)
 		if err != nil {
 			catcher.Error("Failed to marshal event", err, map[string]any{
-				"process": "plugin_com.utmstack.crowdstrike",
+				"process": processName,
 			})
 			return
 		}
@@ -343,22 +377,26 @@ func processEvent(event *streaming_models.EventItem, dataSource string, tenantId
 		tenantId = defaultTenant
 	}
 
+	// Identity is derived after the defaultTenant substitution above, so it is
+	// scoped to the tenant the event is filed under.
 	_ = plugins.EnqueueLog(&plugins.Log{
-		Id:         uuid.NewString(),
+		Id:         eventIdentity(tenantId, groupKey, streamID, event.Metadata.Offset),
 		TenantId:   tenantId,
 		DataType:   "crowdstrike",
 		DataSource: dataSource,
 		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 		Raw:        eventData,
-	}, "com.utmstack.crowdstrike")
+	}, pluginName)
 }
 
 type CrowdStrikeProcessor struct {
 	ClientID     string
 	ClientSecret string
 	Cloud        string
-	AppName      string
-	TenantId     string
+	// AppID comes from deriveAppID, never from configuration: two groups sharing
+	// a CID and an administrator-chosen app name would share one subscription.
+	AppID    string
+	TenantId string
 }
 
 func isGroupValid(group *ModuleGroup) bool {
@@ -375,7 +413,10 @@ func isGroupValid(group *ModuleGroup) bool {
 }
 
 func buildProcessor(group *ModuleGroup) *CrowdStrikeProcessor {
-	processor := &CrowdStrikeProcessor{TenantId: group.TenantId}
+	processor := &CrowdStrikeProcessor{
+		TenantId: group.TenantId,
+		AppID:    deriveAppID(group.Key()),
+	}
 
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
@@ -385,8 +426,6 @@ func buildProcessor(group *ModuleGroup) *CrowdStrikeProcessor {
 			processor.ClientSecret = cnf.ConfValue
 		case "crowdstrike_cloud_region_url":
 			processor.Cloud = cnf.ConfValue
-		case "crowdstrike_app_name":
-			processor.AppName = cnf.ConfValue
 		}
 	}
 	return processor
@@ -399,20 +438,20 @@ func processorChanged(old, new *CrowdStrikeProcessor) bool {
 	return old.ClientID != new.ClientID ||
 		old.ClientSecret != new.ClientSecret ||
 		old.Cloud != new.Cloud ||
-		old.AppName != new.AppName ||
+		old.AppID != new.AppID ||
 		old.TenantId != new.TenantId
 }
 
 func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecification, error) {
 	if p.ClientID == "" || p.ClientSecret == "" {
 		return nil, catcher.Error("cannot create CrowdStrike client",
-			errors.New("client ID or client secret is empty"), map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+			errors.New("client ID or client secret is empty"), map[string]any{"process": processName})
 	}
 
 	cloudType, err := extractCloudFromURL(p.Cloud)
 	if err != nil {
 		return nil, catcher.Error("invalid cloud region configuration", err, map[string]any{
-			"process":     "plugin_com.utmstack.crowdstrike",
+			"process":     processName,
 			"cloud_value": p.Cloud,
 		})
 	}
@@ -424,7 +463,7 @@ func (p *CrowdStrikeProcessor) createClient() (*client.CrowdStrikeAPISpecificati
 		Context:      context.Background(),
 	})
 	if err != nil {
-		return nil, catcher.Error("cannot create CrowdStrike client", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+		return nil, catcher.Error("cannot create CrowdStrike client", err, map[string]any{"process": processName})
 	}
 
 	return client, nil
@@ -485,7 +524,7 @@ func checkConnection(url string) error {
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+			_ = catcher.Error("error closing response body: %v", err, map[string]any{"process": processName})
 		}
 	}()
 
@@ -499,7 +538,7 @@ func infiniteRetryIfXError(f func() error, exception string) error {
 		err := f()
 		if err != nil && is(err, exception) {
 			if !xErrorWasLogged {
-				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": "plugin_com.utmstack.crowdstrike"})
+				_ = catcher.Error("An error occurred (%s), will keep retrying indefinitely...", err, map[string]any{"process": processName})
 				xErrorWasLogged = true
 			}
 			time.Sleep(reconnectDelay)
