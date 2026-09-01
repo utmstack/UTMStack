@@ -19,7 +19,7 @@ const STATUS_META: Record<ExecutionStatus, { icon: typeof CheckCircle2; cls: str
   EXECUTED: { icon: CheckCircle2, cls: 'text-emerald-500' },
   PENDING: { icon: Clock, cls: 'text-amber-500' },
   WAITING: { icon: Clock, cls: 'text-muted-foreground' },
-  EXECUTING: { icon: Loader2, cls: 'text-sky-500 animate-spin' },
+  EXECUTING: { icon: Loader2, cls: 'text-sky-500 [&_svg]:animate-spin' },
   FAILED: { icon: XCircle, cls: 'text-red-500' },
   DEAD: { icon: AlertTriangle, cls: 'text-muted-foreground' },
 }
@@ -192,7 +192,7 @@ function ExecutionRow({ e, df, t }: { e: Execution; df: ReturnType<typeof useDat
   const source =
     e.origin === 'MANUAL'
       ? e.triggeredBy || t('soar.executions.manual')
-      : ((e.rulePath ?? '').split('/').pop() ?? '').replace(/\.ya?ml$/i, '') || '—' 
+      : ((e.rulePath ?? '').split('/').pop() ?? '').replace(/\.ya?ml$/i, '') || '—'
   return (
     <div className="grid items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0" style={{ gridTemplateColumns: COLS }}>
       <div className={cn('inline-flex items-center gap-1.5 text-[11px] font-medium', meta?.cls)}>
