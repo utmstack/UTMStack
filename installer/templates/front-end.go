@@ -72,21 +72,20 @@ server {
 
     location /agent.AgentService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
+		client_body_timeout 1h;
+        grpc_socket_keepalive on;
     }
 
     location /agent.PanelService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     location /agent.CollectorService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
@@ -94,14 +93,12 @@ server {
     # log-input's ingest, whose service lives in the SDK's "plugins" package.
     location /plugins.Integration/ {
         grpc_pass grpcs://$utmstack_log_input_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
 
     location /agent.PingService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
     }
