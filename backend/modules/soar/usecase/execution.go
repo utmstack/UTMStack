@@ -163,6 +163,7 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 
 	items := make([]dto.ExecutionResponse, len(executions))
 	for i, e := range executions {
+		CommandSummary(ctx, u.vars, &e)
 		items[i] = dto.ExecutionResponse{
 			ID:                e.ID,
 			Origin:            e.Origin,

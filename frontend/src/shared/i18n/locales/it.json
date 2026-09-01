@@ -4815,10 +4815,11 @@
       "cols": {
         "status": "Stato",
         "flow": "Flusso",
-        "command": "Comando",
+        "command": "Comando / Acción",
         "agent": "Agente",
         "date": "Data",
-        "retries": "Tentativi"
+        "retries": "Tentativi",
+        "node": "Nodo"
       },
       "filters": {
         "source": "Origine",

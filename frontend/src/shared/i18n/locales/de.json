@@ -4815,10 +4815,11 @@
       "cols": {
         "status": "Status",
         "flow": "Flow",
-        "command": "Befehl",
+        "command": "Befehl / Aktion",
         "agent": "Agent",
         "date": "Datum",
-        "retries": "Versuche"
+        "retries": "Versuche",
+        "node": "Knoten"
       },
       "manual": "Interaktive Konsole"
     },

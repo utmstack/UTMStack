@@ -4937,10 +4937,11 @@
       "cols": {
         "status": "Status",
         "flow": "Fluxo",
-        "command": "Comando",
+        "command": "Comando / Ação",
         "agent": "Agente",
         "date": "Data",
-        "retries": "Tentativas"
+        "retries": "Tentativas",
+        "node": "Nó"
       },
       "filters": {
         "source": "Origem",

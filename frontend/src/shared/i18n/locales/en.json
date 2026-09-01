@@ -5201,10 +5201,11 @@
       "cols": {
         "status": "Status",
         "flow": "Flow",
-        "command": "Command",
+        "command": "Command / Action",
         "agent": "Agent",
         "date": "Date",
-        "retries": "Retries"
+        "retries": "Retries",
+        "node": "Node"
       },
       "filters": {
         "source": "Source",
