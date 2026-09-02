@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 )
 
 const (
@@ -71,10 +72,20 @@ func connectToServer(addrs, port string, skip bool) (*grpc.ClientConn, error) {
 			return nil, fmt.Errorf("failed to connect to Server: %v", err)
 		}
 
+		// Keepalive pings (30s) travel over the shared HTTP/2 connection and
+		// reset grpc_read_timeout on the nginx hops in front of the agent
+		// manager, so an idle AgentStream is no longer torn down after 900s.
+		// PermitWithoutStream matters: pings keep flowing while AgentStream is
+		// down and being redialed, and on the PingService-only window.
 		conn, err = grpc.NewClient(
 			serverAddress,
 			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize)),
-			grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: skip})))
+			grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: skip})),
+			grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time:                30 * time.Second,
+				Timeout:             10 * time.Second,
+				PermitWithoutStream: true,
+			}))
 		if err != nil {
 			connectionAttemps++
 			utils.Logger.ErrorF("error connecting to Server, trying again in %.0f seconds", reconnectDelay.Seconds())

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/keepalive"
 )
 
 func InitGrpcServer() {
@@ -48,8 +49,21 @@ func StartGrpcServer() {
 		MinVersion:   tls.VersionTLS13,
 	})
 
+	// Keepalive pings keep the connection to the frontend nginx alive while
+	// AgentStream is idle: nginx's grpc_read_timeout (900s) counts time without
+	// upstream bytes, and the PING ACKs we answer to client pings reset it on
+	// every hop. PermitWithoutStream also covers the PingService-only window
+	// where AgentStream is down and the agent is reconnecting it.
 	grpcServer := grpc.NewServer(
 		grpc.Creds(transportCredentials),
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			Time:    30 * time.Second,
+			Timeout: 10 * time.Second,
+		}),
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             10 * time.Second,
+			PermitWithoutStream: true,
+		}),
 		grpc.ChainUnaryInterceptor(UnaryInterceptor),
 		grpc.StreamInterceptor(StreamInterceptor))
 
