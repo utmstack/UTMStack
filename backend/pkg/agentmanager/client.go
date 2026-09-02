@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -39,6 +41,11 @@ func NewClient() (*AgentManagerClient, error) {
 		addr,
 		grpc.WithTransportCredentials(tlsCreds),
 		grpc.WithPerRPCCredentials(&internalKeyCreds{key: internalKey}),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                30 * time.Second,
+			Timeout:             10 * time.Second,
+			PermitWithoutStream: true,
+		}),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("agentmanager: dial %s: %w", addr, err)
