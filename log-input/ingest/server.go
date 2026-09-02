@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	grpcHealth "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/utmstack/UTMStack/log-input/auth"
 	"github.com/utmstack/UTMStack/log-input/config"
@@ -61,8 +62,19 @@ func NewServer(cfg *config.Config, a *auth.Service, pub Publisher) (*Server, err
 	s := &Server{
 		cfg: cfg,
 		pub: pub,
+		// Keepalive pings keep the collector's idle ProcessLog stream alive
+		// through the frontend nginx grpc_read_timeout (900s): the PING ACKs we
+		// answer reset the upstream read timer on every hop.
 		grpc: grpc.NewServer(
 			grpc.Creds(creds),
+			grpc.KeepaliveParams(keepalive.ServerParameters{
+				Time:    30 * time.Second,
+				Timeout: 10 * time.Second,
+			}),
+			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+				MinTime:             10 * time.Second,
+				PermitWithoutStream: true,
+			}),
 			grpc.ChainUnaryInterceptor(m.unary),
 			grpc.ChainStreamInterceptor(m.stream),
 		),
