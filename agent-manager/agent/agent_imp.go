@@ -264,8 +264,8 @@ func (s *AgentService) ListAgents(ctx context.Context, req *ListRequest) (*ListA
 	if req.GetTenantId() != "" {
 		filter = append(filter, utils.Filter{
 			Field: "tenant_id",
-			Op: utils.Is,
-			Value:sanitizeTenant(req.GetTenantId()),
+			Op:    utils.Is,
+			Value: sanitizeTenant(req.GetTenantId()),
 		})
 	}
 
@@ -353,22 +353,47 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 		switch msg := in.StreamMessage.(type) {
 		case *BidirectionalStream_Result:
 			catcher.Info("Received command result from agent", map[string]any{"agent_id": msg.Result.AgentId, "result": msg.Result.Result, "process": "agent-manager"})
-			cmdID := msg.Result.GetCmdId()
-
-			s.CommandResultChannelM.Lock()
-			if resultChan, ok := s.CommandResultChannel[cmdID]; ok {
-				resultChan <- &CommandResult{
-					AgentId:    msg.Result.AgentId,
-					Result:     msg.Result.Result,
-					CmdId:      cmdID,
-					ExecutedAt: msg.Result.ExecutedAt,
-				}
-			} else if OnCommandResultHook == nil || !OnCommandResultHook(msg.Result) {
-				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": cmdID, "process": "agent-manager"})
+			if !s.tryDeliverResult(msg.Result) &&
+				(OnCommandResultHook == nil || !OnCommandResultHook(msg.Result)) {
+				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": msg.Result.GetCmdId(), "process": "agent-manager"})
 			}
-			s.CommandResultChannelM.Unlock()
 		}
 	}
+}
+
+// tryDeliverResult hands an agent command result to the panel waiting on it.
+// It must never block: the AgentStream goroutine is the single consumer of the
+// agent's socket, and a stuck send here freezes every result for that agent
+// (and the global CommandResultChannelM for the whole service). A missing
+// slot, or a slot whose panel already went away (result unclaimed), returns
+// false without blocking.
+func (s *AgentService) tryDeliverResult(result *CommandResult) bool {
+	cmdID := result.GetCmdId()
+	s.CommandResultChannelM.Lock()
+	defer s.CommandResultChannelM.Unlock()
+	resultChan, ok := s.CommandResultChannel[cmdID]
+	if !ok {
+		return false
+	}
+	select {
+	case resultChan <- result:
+		return true
+	default:
+		// Slot is full: the panel that owned it left without claiming the
+		// result. Drop the stale slot so the stream keeps flowing.
+		delete(s.CommandResultChannel, cmdID)
+		catcher.Error("dropping agent result: panel disconnected before claiming it", nil, map[string]any{"cmdID": cmdID, "process": "agent-manager"})
+		return false
+	}
+}
+
+// reclaimResultSlot removes the panel command slot, releasing any AgentStream
+// goroutine blocked on delivering a result for it. Called via defer on every
+// exit path of handlePanelCommand.
+func (s *AgentService) reclaimResultSlot(cmdID string) {
+	s.CommandResultChannelM.Lock()
+	delete(s.CommandResultChannel, cmdID)
+	s.CommandResultChannelM.Unlock()
 }
 
 func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) error {
@@ -380,103 +405,117 @@ func (s *AgentService) ProcessCommand(stream PanelService_ProcessCommandServer) 
 		if err != nil {
 			return status.Error(codes.Internal, fmt.Sprintf("failed to receive message: %v", err))
 		}
-		streamId, err := strconv.Atoi(cmd.AgentId)
-		if err != nil {
-			return status.Error(codes.InvalidArgument, "invalid agent ID")
+		if err := s.handlePanelCommand(stream, cmd); err != nil {
+			return err
 		}
-		agentStream, ok := s.AgentStreamMap[uint(streamId)]
-		if !ok {
-			return status.Errorf(codes.NotFound, "agent not found or is disconnected")
-		}
+	}
+}
 
-		target := &models.Agent{}
-		if dErr := s.DBConnection.GetFirst(target, "id = ?", streamId); dErr == nil && target.NoRemoteControl {
-			return status.Errorf(codes.PermissionDenied,
-				"agent %d was installed with remote control disabled; it can only be changed on the machine itself", streamId)
-		}
-		if cmd.GetOriginId() == "" {
-			return status.Errorf(codes.NotFound, "agent origin ID not provided")
-		}
-		if cmd.GetOriginType() == "" {
-			return status.Errorf(codes.NotFound, "agent origin TYPE not provided")
-		}
-		if cmd.GetReason() == "" {
-			return status.Errorf(codes.NotFound, "agent command reason not provided")
-		}
+// handlePanelCommand forwards one panel command to the agent stream and waits
+// for the result (max 5 minutes). The result slot is created before the send
+// and reclaimed via defer on EVERY exit — success, timeout, and panel
+// disconnect — so a result that arrives after the panel is gone can never
+// block the AgentStream goroutine.
+func (s *AgentService) handlePanelCommand(stream PanelService_ProcessCommandServer, cmd *UtmCommand) error {
+	streamId, err := strconv.Atoi(cmd.AgentId)
+	if err != nil {
+		return status.Error(codes.InvalidArgument, "invalid agent ID")
+	}
+	agentStream, ok := s.AgentStreamMap[uint(streamId)]
+	if !ok {
+		return status.Errorf(codes.NotFound, "agent not found or is disconnected")
+	}
 
-		cmdID := cmd.GetCmdId()
-		if cmdID == "" {
-			cmdID = uuid.New().String()
-		}
+	target := &models.Agent{}
+	if dErr := s.DBConnection.GetFirst(target, "id = ?", streamId); dErr == nil && target.NoRemoteControl {
+		return status.Errorf(codes.PermissionDenied,
+			"agent %d was installed with remote control disabled; it can only be changed on the machine itself", streamId)
+	}
+	if cmd.GetOriginId() == "" {
+		return status.Errorf(codes.NotFound, "agent origin ID not provided")
+	}
+	if cmd.GetOriginType() == "" {
+		return status.Errorf(codes.NotFound, "agent origin TYPE not provided")
+	}
+	if cmd.GetReason() == "" {
+		return status.Errorf(codes.NotFound, "agent command reason not provided")
+	}
 
-		s.CommandResultChannelM.Lock()
-		s.CommandResultChannel[cmdID] = make(chan *CommandResult)
-		s.CommandResultChannelM.Unlock()
+	cmdID := cmd.GetCmdId()
+	if cmdID == "" {
+		cmdID = uuid.New().String()
+	}
 
-		histCommand := createHistoryCommand(cmd, cmdID, uint(streamId))
-		err = s.DBConnection.Create(&histCommand)
-		if err != nil {
-			catcher.Error("unable to create a new command history", err, map[string]any{"process": "agent-manager"})
-		}
+	s.CommandResultChannelM.Lock()
+	// Buffered by 1: a result can always be absorbed even when the panel is no
+	// longer waiting, so delivery in AgentStream never blocks on it.
+	s.CommandResultChannel[cmdID] = make(chan *CommandResult, 1)
+	s.CommandResultChannelM.Unlock()
+	defer s.reclaimResultSlot(cmdID)
 
-		var lock sync.Locker
-		if LockStreamHook != nil {
-			lock = LockStreamHook(uint(streamId))
+	histCommand := createHistoryCommand(cmd, cmdID, uint(streamId))
+	if cErr := s.DBConnection.Create(&histCommand); cErr != nil {
+		catcher.Error("unable to create a new command history", cErr, map[string]any{"process": "agent-manager"})
+	}
+
+	var lock sync.Locker
+	if LockStreamHook != nil {
+		lock = LockStreamHook(uint(streamId))
+	}
+	func() {
+		if lock != nil {
+			lock.Lock()
+			defer lock.Unlock()
 		}
-		func() {
-			if lock != nil {
-				lock.Lock()
-				defer lock.Unlock()
-			}
-			err = agentStream.Send(&BidirectionalStream{
-				StreamMessage: &BidirectionalStream_Command{
-					Command: &UtmCommand{
-						AgentId: cmd.AgentId,
-						Command: replaceSecretValues(cmd.Command),
-						CmdId:   cmdID,
-						Shell:   cmd.Shell,
-					},
+		err = agentStream.Send(&BidirectionalStream{
+			StreamMessage: &BidirectionalStream_Command{
+				Command: &UtmCommand{
+					AgentId: cmd.AgentId,
+					Command: replaceSecretValues(cmd.Command),
+					CmdId:   cmdID,
+					Shell:   cmd.Shell,
 				},
-			})
-		}()
-		if err != nil {
-			return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
+			},
+		})
+	}()
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to send command to agent: %v", err)
+	}
+
+	select {
+	case result := <-s.CommandResultChannel[cmdID]:
+		if uErr := s.DBConnection.Upsert(
+			&models.AgentCommand{},
+			"agent_id = ? AND cmd_id = ?",
+			map[string]interface{}{"command_status": models.Executed, "result": result.Result},
+			cmd.AgentId, cmdID,
+		); uErr != nil {
+			catcher.Error("failed to update command status", uErr, map[string]any{"process": "agent-manager"})
 		}
 
-		select {
-		case result := <-s.CommandResultChannel[cmdID]:
-			err = s.DBConnection.Upsert(
-				&models.AgentCommand{},
-				"agent_id = ? AND cmd_id = ?",
-				map[string]interface{}{"command_status": models.Executed, "result": result.Result},
-				cmd.AgentId, cmdID,
-			)
-			if err != nil {
-				catcher.Error("failed to update command status", err, map[string]any{"process": "agent-manager"})
-			}
+		return stream.Send(result)
+	case <-time.After(5 * time.Minute):
+		_ = s.DBConnection.Upsert(
+			&models.AgentCommand{},
+			"agent_id = ? AND cmd_id = ?",
+			map[string]interface{}{"command_status": models.Error, "result": "command timed out after 5 minutes"},
+			cmd.AgentId, cmdID,
+		)
 
-			err = stream.Send(result)
-			if err != nil {
-				return err
-			}
-		case <-time.After(5 * time.Minute):
-			s.CommandResultChannelM.Lock()
-			delete(s.CommandResultChannel, cmdID)
-			s.CommandResultChannelM.Unlock()
+		return status.Errorf(codes.DeadlineExceeded, "agent did not respond within 5 minutes")
+	case <-stream.Context().Done():
+		// The panel went away (viewer disconnected, backend request canceled).
+		// Mark the history row, then exit without waiting: the deferred slot
+		// reclamation keeps the AgentStream goroutine unblocked when the agent
+		// finally responds.
+		_ = s.DBConnection.Upsert(
+			&models.AgentCommand{},
+			"agent_id = ? AND cmd_id = ?",
+			map[string]interface{}{"command_status": models.Error, "result": "panel disconnected before the agent responded"},
+			cmd.AgentId, cmdID,
+		)
 
-			_ = s.DBConnection.Upsert(
-				&models.AgentCommand{},
-				"agent_id = ? AND cmd_id = ?",
-				map[string]interface{}{"command_status": models.Error, "result": "command timed out after 5 minutes"},
-				cmd.AgentId, cmdID,
-			)
-
-			return status.Errorf(codes.DeadlineExceeded, "agent did not respond within 5 minutes")
-		}
-
-		s.CommandResultChannelM.Lock()
-		delete(s.CommandResultChannel, cmdID)
-		s.CommandResultChannelM.Unlock()
+		return stream.Context().Err()
 	}
 }
 
