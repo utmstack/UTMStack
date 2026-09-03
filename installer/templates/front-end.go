@@ -72,15 +72,15 @@ server {
 
     # The agent's persistent gRPC streams to agent-manager. nginx has no
     # "no timeout" for upstream read/send (0 means "fire immediately", which
-    # breaks every request), so use a large inactivity backstop of 24h:
-    # gRPC keepalive (30s ping / 10s timeout on both ends) plus
-    # grpc_socket_keepalive keep live streams active by resetting the
-    # inactivity timer, and still reap a genuinely dead peer.
+    # breaks every request), so use a large inactivity backstop of 24h.
+    # gRPC keepalive PINGs are HTTP/2 control frames - nginx only ACKs them
+    # and they do NOT reset these timers; only DATA does. Every timer below
+    # must therefore be large for streams legitimately silent between calls.
     location /agent.AgentService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
         grpc_read_timeout 86400;
         grpc_send_timeout 86400;
-		client_body_timeout 1h;
+        client_body_timeout 86400;
         grpc_socket_keepalive on;
     }
 
@@ -88,6 +88,7 @@ server {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
         grpc_read_timeout 86400;
         grpc_send_timeout 86400;
+        client_body_timeout 86400;
         grpc_socket_keepalive on;
     }
 
@@ -95,20 +96,25 @@ server {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
         grpc_read_timeout 86400;
         grpc_send_timeout 86400;
+        client_body_timeout 86400;
         grpc_socket_keepalive on;
     }
 
     # log-input's ingest, whose service lives in the SDK's "plugins" package.
+    # log-input's ingest: also a persistent collector stream, so the same
+    # 24h inactivity backstop (a quiet host can go >60s without a log line).
     location /plugins.Integration/ {
         grpc_pass grpcs://$utmstack_log_input_grpc;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        grpc_read_timeout 86400;
+        grpc_send_timeout 86400;
+        client_body_timeout 86400;
     }
 
     location /agent.PingService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
         grpc_read_timeout 86400;
         grpc_send_timeout 86400;
+        client_body_timeout 86400;
         grpc_socket_keepalive on;
     }
 

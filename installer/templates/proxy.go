@@ -27,8 +27,15 @@ server {
     location /agent. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        # Long-lived agent streams: nginx's gRPC keepalive PINGs are HTTP/2
+        # control frames and do NOT reset these timers; only DATA does.
+        # An AgentStream is pure DATA between commands, so the 60s-default
+        # client_body_timeout (request body inactivity) is what evicted idle
+        # agents at exactly 60s. Use a 24h inactivity backstop; liveness is
+        # the app's job (gRPC keepalive + TCP keepalive).
+        grpc_read_timeout 86400;
+        grpc_send_timeout 86400;
+        client_body_timeout 86400;
     }
 
     # log-input's ingest. Separate only because its proto package differs; the
@@ -36,8 +43,11 @@ server {
     location /plugins. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        # Same long-lived-stream treatment: a quiet collector can easily go
+        # more than 60s without a single log line on the stream.
+        grpc_read_timeout 86400;
+        grpc_send_timeout 86400;
+        client_body_timeout 86400;
     }
 
     location / {
@@ -105,8 +115,15 @@ server {
     location /agent. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        # Long-lived agent streams: nginx's gRPC keepalive PINGs are HTTP/2
+        # control frames and do NOT reset these timers; only DATA does.
+        # An AgentStream is pure DATA between commands, so the 60s-default
+        # client_body_timeout (request body inactivity) is what evicted idle
+        # agents at exactly 60s. Use a 24h inactivity backstop; liveness is
+        # the app's job (gRPC keepalive + TCP keepalive).
+        grpc_read_timeout 86400;
+        grpc_send_timeout 86400;
+        client_body_timeout 86400;
     }
 
     # log-input's ingest. Separate only because its proto package differs; the
@@ -114,8 +131,11 @@ server {
     location /plugins. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        # Same long-lived-stream treatment: a quiet collector can easily go
+        # more than 60s without a single log line on the stream.
+        grpc_read_timeout 86400;
+        grpc_send_timeout 86400;
+        client_body_timeout 86400;
     }
 
     location / {
