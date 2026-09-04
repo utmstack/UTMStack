@@ -5181,6 +5181,10 @@
           "description": "Description",
           "descriptionPlaceholder": "Optional context for responders. Templates like $(alert.name) are interpolated."
         },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "The model is instructed to always answer with a single JSON object carrying a \"result\" property. The backend guarantees this shape even if the model deviates. Child nodes reference it via $({{nodeId}}.result) or specific fields."
+        },
         "mail": {
           "to": "To (comma-separated)",
           "cc": "CC (comma-separated, optional)",

@@ -23,8 +23,8 @@ type LLMStreamer interface {
 
 // LLM is one implementation backing two node types:
 //   - llm_enrich (kind=enrichment): drives the SOC-AI agent with a prompt and
-//     returns the final message parsed as JSON — becomes ancestor context for
-//     downstream nodes.
+//     returns its final message normalized to {"result": ...} — becomes
+//     ancestor context for downstream nodes.
 //   - llm_action (kind=executor): drives the SOC-AI agent with a prompt so it
 //     can use its own tools (list hosts, run commands, page oncall, etc.) and
 //     succeeds when the stream ends on a `final` event.
@@ -33,12 +33,25 @@ type LLM struct {
 	typ    string
 }
 
-// NewLLMEnrich registers a node type that expects a JSON `final` payload.
+// NewLLMEnrich registers a node type that normalizes its output to {"result": ...}.
 func NewLLMEnrich(c LLMStreamer) *LLM { return &LLM{client: c, typ: "llm_enrich"} }
 
 // NewLLMAction registers a node type that treats the `final` payload as free
 // text and only cares whether the stream ended cleanly.
 func NewLLMAction(c LLMStreamer) *LLM { return &LLM{client: c, typ: "llm_action"} }
+
+// enrichSystemPrompt is appended to the task of every llm_enrich execution.
+// It pins the output shape; the backend then enforces it in
+// normalizeEnrichmentOutput, so downstream nodes may always rely on
+// $(<nodeId>.result). Keep it in English regardless of the flow's lang —
+// models follow a contract more reliably in their training language.
+const enrichSystemPrompt = `OUTPUT CONTRACT (mandatory, overrides any conflicting instruction above):
+Respond with EXACTLY ONE JSON object and nothing else - no prose before or after it, no markdown fences.
+The object MUST contain a "result" property holding your complete finding:
+  {"result": ...}
+- "result" may be a string, a JSON object, or a JSON array.
+- You may add a few sibling properties (e.g. "confidence").
+Downstream automation resolves <this-node-id>.result from your object verbatim.`
 
 func (l *LLM) Type() string { return l.typ }
 
@@ -68,8 +81,18 @@ func (l *LLM) Execute(ctx context.Context, exec *domain.SoarExecution) (json.Raw
 		return nil, errors.New("soar llm: prompt is required")
 	}
 
+	// The SOC-AI client takes a single task body, so the enrichment output
+	// contract travels inside the task. It is mandatory for this node type:
+	// downstream nodes resolve $(<nodeId>.result) against the normalized
+	// output. llm_action leaves the task untouched — it only cares that the
+	// agent finished cleanly.
+	task := p.Prompt
+	if exec.Kind == domain.NodeKindEnrichment {
+		task = p.Prompt + "\n\n" + enrichSystemPrompt
+	}
+
 	body, err := json.Marshal(map[string]any{
-		"task":    p.Prompt,
+		"task":    task,
 		"page":    defaultString(p.Page, "soar"),
 		"lang":    defaultString(p.Lang, "en"),
 		"history": p.History,
@@ -106,11 +129,7 @@ func (l *LLM) Execute(ctx context.Context, exec *domain.SoarExecution) (json.Raw
 		// structured to hand downstream.
 		return nil, nil
 	}
-	output, err := extractJSONOutput(finalRaw)
-	if err != nil {
-		return nil, fmt.Errorf("soar llm enrichment: final is not JSON: %w", err)
-	}
-	return output, nil
+	return normalizeEnrichmentOutput(finalRaw)
 }
 
 // drainSSE walks a text/event-stream body and returns the concatenated event
@@ -182,34 +201,96 @@ func parseSSEFrame(frame []byte) (event string, data string) {
 	return event, dataBuf.String()
 }
 
-// extractJSONOutput accepts a few final-message shapes the SOC-AI agent tends
-// to produce: bare JSON, a `content` field inside a JSON envelope, or a JSON
-// blob wrapped in a ```json fence.
-func extractJSONOutput(finalData string) (json.RawMessage, error) {
-	trimmed := strings.TrimSpace(finalData)
+// normalizeEnrichmentOutput is the backend-side half of the enrichment
+// contract: whatever the model returns, the node output is ALWAYS a JSON
+// object whose "result" property carries the finding, so downstream nodes can
+// unconditionally reference $(<nodeId>.result).
+//
+//   - JSON object already carrying "result"      -> passed through unchanged
+//     (siblings such as "confidence" survive).
+//   - JSON object without "result"               -> encapsulated: the whole
+//     object becomes the "result" value.
+//   - JSON array or JSON scalar                  -> encapsulated as "result".
+//   - JSON hidden in a {"content": "..."} envelope
+//     or a ``` fence (model/transport quirk)     -> unwrapped first, then
+//     re-run through the same rules.
+//   - plain text (contract ignored)              -> {"result": "<text>"}.
+func normalizeEnrichmentOutput(finalRaw string) (json.RawMessage, error) {
+	trimmed := strings.TrimSpace(finalRaw)
 	if trimmed == "" {
-		return nil, errors.New("empty final message")
+		return nil, errors.New("soar llm enrichment: empty final message")
 	}
+
 	if raw, ok := tryJSON(trimmed); ok {
-		// Envelope { "content": "..." } — unwrap and retry.
-		var env struct {
-			Content string `json:"content"`
-		}
-		if err := json.Unmarshal(raw, &env); err == nil && strings.TrimSpace(env.Content) != "" {
-			if inner, ok := tryJSON(strings.TrimSpace(env.Content)); ok {
-				return inner, nil
-			}
-			if fenced, ok := stripJSONFence(env.Content); ok {
-				return fenced, nil
-			}
-			return nil, fmt.Errorf("content is not JSON: %s", truncate(env.Content, 200))
-		}
-		return raw, nil
+		return finishFromJSON(unwrapEnvelope(raw))
 	}
 	if fenced, ok := stripJSONFence(trimmed); ok {
-		return fenced, nil
+		return finishFromJSON(unwrapEnvelope(fenced))
 	}
-	return nil, fmt.Errorf("not JSON: %s", truncate(trimmed, 200))
+	// No JSON at all: the model answered in prose. Still succeed — the whole
+	// text becomes "result". The contract prompt exists to avoid this branch.
+	quoted, err := json.Marshal(trimmed)
+	if err != nil {
+		return nil, fmt.Errorf("soar llm enrichment: encapsulate result: %w", err)
+	}
+	return appendJSONValue(quoted), nil
+}
+
+// finishFromJSON passes a JSON value through when it is already an object
+// carrying "result"; otherwise it encapsulates the value under "result".
+func finishFromJSON(raw json.RawMessage) (json.RawMessage, error) {
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &m); err == nil {
+		if _, has := m["result"]; has {
+			return raw, nil
+		}
+	}
+	return appendJSONValue(raw), nil
+}
+
+// unwrapEnvelope resolves a JSON value to its payload: a {"content": "..."}
+// envelope whose content is JSON (possibly fenced) is unwrapped to that inner
+// value; content that is plain prose becomes a JSON string. The model
+// sometimes wraps its answer in the chat-message envelope instead of sending
+// the object directly.
+func unwrapEnvelope(raw json.RawMessage) json.RawMessage {
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return raw // array or scalar — nothing to unwrap
+	}
+	c, ok := m["content"]
+	if !ok {
+		return raw
+	}
+	var cs string
+	if err := json.Unmarshal(c, &cs); err != nil {
+		return raw // content is not a string — leave the envelope as-is
+	}
+	cs = strings.TrimSpace(cs)
+	if cs == "" {
+		return raw
+	}
+	if inner, isJSON := tryJSON(cs); isJSON {
+		return inner
+	}
+	if fenced, isJSON := stripJSONFence(cs); isJSON {
+		return fenced
+	}
+	quoted, err := json.Marshal(cs)
+	if err != nil {
+		return raw
+	}
+	return quoted
+}
+
+// appendJSONValue wraps a JSON value under "result", keeping objects, arrays
+// and scalars as real JSON values (not escaped strings).
+func appendJSONValue(raw json.RawMessage) json.RawMessage {
+	out := make([]byte, 0, len(raw)+12)
+	out = append(out, `{"result":`...)
+	out = append(out, raw...)
+	out = append(out, '}')
+	return out
 }
 
 func tryJSON(s string) (json.RawMessage, bool) {
@@ -231,7 +312,7 @@ func stripJSONFence(s string) (json.RawMessage, bool) {
 	return tryJSON(strings.TrimSpace(trimmed))
 }
 
-func defaultString(s, fallback string) string {
+func defaultString(s string, fallback string) string {
 	if s == "" {
 		return fallback
 	}

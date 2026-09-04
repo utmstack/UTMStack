@@ -4795,6 +4795,10 @@
           "description": "Descrizione",
           "descriptionPlaceholder": "Contesto facoltativo per i risponditori. I template come $(alert.name) vengono interpolati."
         },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "Al modello è imposto di rispondere sempre con un unico oggetto JSON con la proprietà \"result\"; il backend garantisce questa forma anche se il modello devia. I nodi figli lo consultano tramite $({{nodeId}}.result) o campi specifici."
+        },
         "mail": {
           "to": "A (separati da virgola)",
           "cc": "CC (separati da virgola, opzionale)",
