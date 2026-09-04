@@ -4797,7 +4797,7 @@
         },
         "llm": {
           "prompt": "Prompt",
-          "hint": "Le modèle est instruit de toujours répondre avec un seul objet JSON portant la propriété \"result\". Les nœuds enfants s'y réfèrent via $({{nodeId}}.result) ou des champs spécifiques."
+          "hint": "Le modèle est instruit de toujours répondre avec un seul objet JSON portant la propriété \"result\" ; le backend garantit ce format même si le modèle s'écarte. Les nœuds enfants s'y réfèrent via $({{nodeId}}.result) ou des champs spécifiques."
         },
         "mail": {
           "to": "À (séparés par une virgule)",

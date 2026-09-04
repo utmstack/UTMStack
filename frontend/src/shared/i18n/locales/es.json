@@ -4919,7 +4919,7 @@
         },
         "llm": {
           "prompt": "Prompt",
-          "hint": "El modelo siempre responde con un único objeto JSON que incluye la propiedad \"result\". Los nodos hijos la consultan con $({{nodeId}}.result) o campos específicos."
+          "hint": "El modelo siempre responde con un único objeto JSON que incluye la propiedad \"result\"; el backend garantiza ese formato aunque el modelo se desvíe. Los nodos hijos la consultan con $({{nodeId}}.result) o campos específicos."
         },
         "mail": {
           "to": "Para (separados por coma)",

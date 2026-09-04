@@ -26,7 +26,11 @@ export function enrichmentAncestors(nodes: Record<string, FlowNode>, target: str
     const n = nodes[id]
     if (!n) continue
     if (n.kind === 'enrichment') {
-      out.push({ nodeId: id, executor: n.executor, fields: [] })
+      // llm_enrich output is always normalized to {"result": ...} by the
+      // backend, so "result" is statically known; other executors' output
+      // shapes stay runtime-dependent (empty fields = user types the path).
+      const fields = n.executor === 'llm_enrich' ? ['result'] : []
+      out.push({ nodeId: id, executor: n.executor, fields })
     }
     for (const parent of reverse.get(id) ?? []) queue.push(parent)
   }

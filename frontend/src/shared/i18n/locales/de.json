@@ -4797,7 +4797,7 @@
         },
         "llm": {
           "prompt": "Prompt",
-          "hint": "Das Modell ist angewiesen, immer mit einem einzigen JSON-Objekt mit der Eigenschaft \"result\" zu antworten. Kindknoten greifen per $({{nodeId}}.result) oder konkreten Feldern zu."
+          "hint": "Das Modell ist angewiesen, immer mit einem einzigen JSON-Objekt mit der Eigenschaft \"result\" zu antworten; die Backend garantiert dieses Format, selbst wenn das Modell abweicht. Kindknoten greifen per $({{nodeId}}.result) oder konkreten Feldern zu."
         },
         "mail": {
           "to": "An (kommagetrennt)",
