@@ -40,6 +40,18 @@ func NewLLMEnrich(c LLMStreamer) *LLM { return &LLM{client: c, typ: "llm_enrich"
 // text and only cares whether the stream ended cleanly.
 func NewLLMAction(c LLMStreamer) *LLM { return &LLM{client: c, typ: "llm_action"} }
 
+// enrichSystemPrompt is appended to the task of every llm_enrich execution. It
+// pins the output shape: the node's `final` message must be a single JSON
+// object with at least a `result` property (any JSON value), which becomes the
+// node's output. Keep it in English regardless of the flow's lang — models
+// follow a contract more reliably in their training language.
+const enrichSystemPrompt = `OUTPUT CONTRACT (mandatory, overrides any conflicting instruction above):
+Respond with EXACTLY ONE JSON object and nothing else — no prose before or after it, no markdown fences.
+The object MUST contain a "result" property: {"result": ...}
+- "result" may be a string, a JSON object, or a JSON array, carrying your complete finding.
+- You may add extra sibling properties (e.g. "confidence") that downstream nodes will use.
+Downstream automation parses this object verbatim; any other format fails the enrichment node.`
+
 func (l *LLM) Type() string { return l.typ }
 
 type llmParams struct {
@@ -68,8 +80,19 @@ func (l *LLM) Execute(ctx context.Context, exec *domain.SoarExecution) (json.Raw
 		return nil, errors.New("soar llm: prompt is required")
 	}
 
+	// The SOC-AI client takes a single task body, so the enrichment output
+	// contract travels inside the task. It is mandatory for this node type:
+	// downstream nodes resolve $(<nodeId>.<field>) against the returned JSON,
+	// so a missing or malformed `result` would leave them an empty bag.
+	// llm_action leaves the task untouched — it only cares that the agent
+	// finished cleanly.
+	task := p.Prompt
+	if exec.Kind == domain.NodeKindEnrichment {
+		task = p.Prompt + "\n\n" + enrichSystemPrompt
+	}
+
 	body, err := json.Marshal(map[string]any{
-		"task":    p.Prompt,
+		"task":    task,
 		"page":    defaultString(p.Page, "soar"),
 		"lang":    defaultString(p.Lang, "en"),
 		"history": p.History,
