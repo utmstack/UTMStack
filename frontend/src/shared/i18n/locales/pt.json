@@ -4917,6 +4917,10 @@
           "description": "Descrição",
           "descriptionPlaceholder": "Contexto opcional para respondentes. Modelos como $(alert.name) são interpolados."
         },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "O modelo é instruído a responder sempre com um único objeto JSON com a propriedade \"result\". Os nós filhos referenciam via $({{nodeId}}.result) ou campos específicos."
+        },
         "mail": {
           "to": "Para (separados por vírgula)",
           "cc": "CC (separados por vírgula, opcional)",

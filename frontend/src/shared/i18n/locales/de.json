@@ -4795,6 +4795,10 @@
           "description": "Beschreibung",
           "descriptionPlaceholder": "Optionaler Kontext für Bearbeiter. Vorlagen wie $(alert.name) werden interpoliert."
         },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "Das Modell ist angewiesen, immer mit einem einzigen JSON-Objekt mit der Eigenschaft \"result\" zu antworten. Kindknoten greifen per $({{nodeId}}.result) oder konkreten Feldern zu."
+        },
         "mail": {
           "to": "An (kommagetrennt)",
           "cc": "CC (kommagetrennt, optional)",

@@ -4917,6 +4917,10 @@
           "description": "Descripción",
           "descriptionPlaceholder": "Contexto opcional para los responsables. Plantillas como $(alert.name) se interpolan."
         },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "El modelo siempre responde con un único objeto JSON que incluye la propiedad \"result\". Los nodos hijos la consultan con $({{nodeId}}.result) o campos específicos."
+        },
         "mail": {
           "to": "Para (separados por coma)",
           "cc": "CC (separados por coma, opcional)",
