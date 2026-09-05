@@ -30,7 +30,7 @@ func (Notify) Type() string { return "notify" }
 
 type notifyParams struct {
 	Message string `json:"message"`
-	Type    string `json:"type,omitempty"` // INFO (default) | WARNING
+	Type    string `json:"type,omitempty"`
 }
 
 func (n *Notify) Execute(ctx context.Context, exec *soardomain.SoarExecution) (json.RawMessage, error) {
@@ -47,8 +47,11 @@ func (n *Notify) Execute(ctx context.Context, exec *soardomain.SoarExecution) (j
 		return nil, errors.New("soar notify: message is required")
 	}
 	ntype := domain.TypeInfo
-	if p.Type == string(domain.TypeWarning) {
+	switch domain.NotificationType(p.Type) {
+	case domain.TypeWarning:
 		ntype = domain.TypeWarning
+	case domain.TypeError:
+		ntype = domain.TypeError
 	}
 	if err := n.client.Notify(ctx, domain.SourceSystem, ntype, p.Message); err != nil {
 		return nil, err

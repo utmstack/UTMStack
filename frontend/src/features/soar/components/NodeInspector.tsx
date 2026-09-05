@@ -12,6 +12,7 @@ import { IncidentParamsEditor } from './IncidentParamsEditor'
 import { InsertFieldMenu } from './InsertFieldMenu'
 import { MailParamsEditor } from './MailParamsEditor'
 import { LLMParamsEditor } from './LLMParamsEditor'
+import { NotifyParamsEditor } from './NotifyParamsEditor'
 
 interface Props {
   nodeId: string
@@ -244,6 +245,16 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
           />
         )}
 
+        {node.executor === 'notify' && (
+          <NotifyParamsEditor
+            nodeId={nodeId}
+            nodes={nodes}
+            params={node.params}
+            readOnly={readOnly}
+            onChange={(next) => onChange({ params: next })}
+          />
+        )}
+
         {(node.executor === 'llm_enrich' || node.executor === 'llm_action') && (
           <LLMParamsEditor
             nodeId={nodeId}
@@ -255,7 +266,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
           />
         )}
 
-        {node.executor !== 'shell' && node.executor !== 'conditional' && node.executor !== 'http' && node.executor !== 'incident' && node.executor !== 'mail' && node.executor !== 'llm_enrich' && node.executor !== 'llm_action' && (
+        {node.executor !== 'shell' && node.executor !== 'conditional' && node.executor !== 'http' && node.executor !== 'incident' && node.executor !== 'mail' && node.executor !== 'notify' && node.executor !== 'llm_enrich' && node.executor !== 'llm_action' && (
           <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
