@@ -5192,6 +5192,11 @@
           "subjectPlaceholder": "e.g. Alert on $(alert.dataSource)",
           "body": "Body",
           "bodyPlaceholder": "Message body. Templates like $(alert.name) are interpolated."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
         }
       }
     },
