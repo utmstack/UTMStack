@@ -83,8 +83,11 @@ message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
+    Heartbeat heartbeat = 3;
   }
 }
+
+message Heartbeat {}
 
 message UtmCommand {
   string agent_id = 1;

@@ -27,17 +27,19 @@ server {
     location /agent. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        grpc_read_timeout 7d;
+        grpc_send_timeout 7d;
+        client_body_timeout 7d;
+        grpc_socket_keepalive on;
     }
 
-    # log-input's ingest. Separate only because its proto package differs; the
-    # router behind decides which of the two it is.
     location /plugins. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        grpc_read_timeout 7d;
+        grpc_send_timeout 7d;
+        client_body_timeout 7d;
+        grpc_socket_keepalive on;
     }
 
     location / {
@@ -105,17 +107,19 @@ server {
     location /agent. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        grpc_read_timeout 7d;
+        grpc_send_timeout 7d;
+        client_body_timeout 7d;
+        grpc_socket_keepalive on;
     }
 
-    # log-input's ingest. Separate only because its proto package differs; the
-    # router behind decides which of the two it is.
     location /plugins. {
         grpc_pass grpc://127.0.0.1:10001;
         grpc_set_header x-shared-key $shared_key;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
+        grpc_read_timeout 7d;
+        grpc_send_timeout 7d;
+        client_body_timeout 7d;
+        grpc_socket_keepalive on;
     }
 
     location / {
