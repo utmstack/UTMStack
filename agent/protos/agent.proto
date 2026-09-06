@@ -40,6 +40,7 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
+  bool no_remote_control = 12;
 }
 
 message ListAgentsResponse {
@@ -68,8 +69,11 @@ message BidirectionalStream {
   oneof stream_message {
     UtmCommand command = 1;
     CommandResult result = 2;
+    Heartbeat heartbeat = 3;
   }
 }
+
+message Heartbeat {}
 
 message UtmCommand {
   string agent_id = 1;

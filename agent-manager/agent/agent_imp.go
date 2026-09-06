@@ -21,6 +21,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const agentHeartbeatInterval = 30 * time.Second
+
 var (
 	AgentServ     *AgentService
 	agentServOnce sync.Once
@@ -331,6 +333,8 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 		OnAgentConnectHook(stream.Context(), idUint)
 	}
 
+	go serverHeartbeatLoop(stream.Context(), idUint, stream)
+
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -356,6 +360,37 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 			if !s.tryDeliverResult(msg.Result) &&
 				(OnCommandResultHook == nil || !OnCommandResultHook(msg.Result)) {
 				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": msg.Result.GetCmdId(), "process": "agent-manager"})
+			}
+		case *BidirectionalStream_Heartbeat:
+		}
+	}
+}
+
+func serverHeartbeatLoop(ctx context.Context, agentID uint, stream AgentService_AgentStreamServer) {
+	t := time.NewTicker(agentHeartbeatInterval)
+	defer t.Stop()
+	msg := &BidirectionalStream{
+		StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			var lock sync.Locker
+			if LockStreamHook != nil {
+				lock = LockStreamHook(agentID)
+			}
+			var err error
+			func() {
+				if lock != nil {
+					lock.Lock()
+					defer lock.Unlock()
+				}
+				err = stream.Send(msg)
+			}()
+			if err != nil {
+				return
 			}
 		}
 	}

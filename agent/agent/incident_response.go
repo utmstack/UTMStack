@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
@@ -12,6 +13,8 @@ import (
 	"github.com/utmstack/UTMStack/shared/fs"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+const heartbeatInterval = 30 * time.Second
 
 func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	path := fs.GetExecutablePath()
@@ -35,6 +38,10 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 
 		connErrLogged = false
 
+		var sendMu sync.Mutex
+		hbCtx, hbCancel := context.WithCancel(ctx)
+		go agentHeartbeatLoop(hbCtx, stream, &sendMu)
+
 	recvLoop:
 		for {
 			in, err := stream.Recv()
@@ -48,7 +55,7 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 
 			switch msg := in.StreamMessage.(type) {
 			case *BidirectionalStream_Command:
-				err = commandProcessor(path, stream, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
+				err = commandProcessor(path, stream, &sendMu, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
 				if err != nil {
 					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
 					if action == ActionReconnect {
@@ -59,10 +66,34 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			}
 			streamErrLogged = false
 		}
+		hbCancel()
 	}
 }
 
-func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *config.Config, command, cmdId, shell string) error {
+func agentHeartbeatLoop(ctx context.Context, stream AgentService_AgentStreamClient, mu *sync.Mutex) {
+	t := time.NewTicker(heartbeatInterval)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			if err := sendLocked(stream, mu, &BidirectionalStream{
+				StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+			}); err != nil {
+				return
+			}
+		}
+	}
+}
+
+func sendLocked(stream AgentService_AgentStreamClient, mu *sync.Mutex, msg *BidirectionalStream) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return stream.Send(msg)
+}
+
+func commandProcessor(path string, stream AgentService_AgentStreamClient, sendMu *sync.Mutex, cnf *config.Config, command, cmdId, shell string) error {
 	var result string
 	var errB bool
 
@@ -70,7 +101,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 	if cnf.NoRemoteControl {
 		const refused = "refused: this agent was installed with no-remote-control"
 		utils.Logger.ErrorF("%s (command: %s)", refused, command)
-		return stream.Send(&BidirectionalStream{
+		return sendLocked(stream, sendMu, &BidirectionalStream{
 			StreamMessage: &BidirectionalStream_Result{
 				Result: &CommandResult{
 					Result:     refused,
@@ -108,7 +139,7 @@ func commandProcessor(path string, stream AgentService_AgentStreamClient, cnf *c
 		utils.Logger.LogF(100, "Result when executing the command %s: %s", command, result)
 	}
 
-	if err := stream.Send(&BidirectionalStream{
+	if err := sendLocked(stream, sendMu, &BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
 			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: cmdId},
 		},
