@@ -23,6 +23,8 @@ import {
   LifeBuoy,
   Mail,
   Palette,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plug,
   Radar,
   ScrollText,
@@ -41,6 +43,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { useAuth } from '@/features/auth'
 import { useBilling } from '@/features/billing'
 import { useSupportTenant } from '@/shared/lib/current-tenant'
@@ -177,6 +180,7 @@ const settingsItems: {
 
 const SECTIONS_KEY = 'utmstack-sidebar-sections-closed'
 const GROUPS_KEY = 'utmstack-sidebar-groups-closed'
+const COLLAPSED_KEY = 'utmstack-sidebar-collapsed'
 
 function loadSet(key: string): Set<string> {
   if (typeof window === 'undefined') return new Set()
@@ -190,6 +194,36 @@ function loadSet(key: string): Set<string> {
   }
 }
 
+function loadCollapsed(): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(COLLAPSED_KEY) === '1'
+}
+
+function useCollapsed(): [boolean, () => void] {
+  const [collapsed, setCollapsed] = useState<boolean>(loadCollapsed)
+  useEffect(() => {
+    localStorage.setItem(COLLAPSED_KEY, collapsed ? '1' : '0')
+  }, [collapsed])
+  return [collapsed, () => setCollapsed((v) => !v)]
+}
+
+function CollapseToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      className={cn(
+        'flex items-center rounded-lg p-2 text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground',
+        collapsed ? 'justify-center' : 'ml-auto'
+      )}
+    >
+      <Icon size={16} strokeWidth={1.75} />
+    </button>
+  )
+}
+
 export function Sidebar() {
   const { t } = useTranslation()
   const { isAdmin, isPlatformAdmin } = useAuth()
@@ -201,6 +235,7 @@ export function Sidebar() {
   const actingAsPlatform = isPlatformAdmin && supportTenant === null
   const [closedSections, setClosedSections] = useState<Set<string>>(() => loadSet(SECTIONS_KEY))
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => loadSet(GROUPS_KEY))
+  const [collapsed, toggleCollapsed] = useCollapsed()
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -233,12 +268,20 @@ export function Sidebar() {
 
   // Drill-down: when navigating under /settings the sidebar swaps to a sub-nav.
   if (pathname.startsWith('/settings')) {
-    return <SettingsSidebar isPathActive={isPathActive} />
+    return <SettingsSidebar isPathActive={isPathActive} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
   }
 
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2">
+    <aside
+      className={cn(
+        'flex h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-150',
+        collapsed ? 'w-14' : 'w-60'
+      )}
+    >
+      <div className="flex p-2">
+        <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
+      </div>
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2 pt-0">
         {sections
           .filter((section) => !section.adminOnly || isAdmin)
           .map((section, idx) => {
@@ -248,7 +291,7 @@ export function Sidebar() {
               key={section.id}
               className={cn(idx > 0 && 'mt-2 pt-2 border-t border-sidebar-border/60')}
             >
-              {section.label && (
+              {section.label && !collapsed && (
                 <button
                   onClick={() => toggleSection(section.id)}
                   className="mb-1 flex w-full items-center justify-between px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground"
@@ -260,7 +303,7 @@ export function Sidebar() {
                   />
                 </button>
               )}
-              {!isClosed && (
+              {(collapsed || !isClosed) && (
                 <div className="space-y-0.5">
                   {section.items
                     .filter(
@@ -276,12 +319,15 @@ export function Sidebar() {
                         onToggle={() => toggleGroup(item.id)}
                         isPathActive={isPathActive}
                         isBaseActive={isBaseActive}
+                        collapsed={collapsed}
+                        onExpandRequest={toggleCollapsed}
                       />
                     ) : (
                       <SidebarLeaf
                         key={item.to}
                         item={item}
                         active={item.matchPrefix ? isBaseActive(item.to) : isPathActive(item.to)}
+                        collapsed={collapsed}
                       />
                     )
                   )}
@@ -299,27 +345,39 @@ function SidebarLeaf({
   item,
   active,
   nested,
+  collapsed,
 }: {
   item: { to: string; label: string; icon: LucideIcon }
   active: boolean
   nested?: boolean
+  collapsed?: boolean
 }) {
   const { t } = useTranslation()
   const Icon = item.icon
-  return (
+  const label = t(item.label)
+  const link = (
     <Link
       to={item.to}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+        'flex items-center rounded-lg text-sm transition-colors',
+        collapsed ? 'justify-center px-2 py-2' : 'gap-3 px-3 py-2',
         active
           ? 'bg-primary/15 text-primary'
           : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
-        nested && 'pl-7'
+        !collapsed && nested && 'pl-7'
       )}
+      aria-label={collapsed ? label : undefined}
     >
       <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-      <span className="whitespace-nowrap">{t(item.label)}</span>
+      {!collapsed && <span className="whitespace-nowrap">{label}</span>}
     </Link>
+  )
+  if (!collapsed) return link
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -329,16 +387,45 @@ function SidebarGroup({
   onToggle,
   isPathActive,
   isBaseActive,
+  collapsed,
+  onExpandRequest,
 }: {
   item: GroupItem
   open: boolean
   onToggle: () => void
   isPathActive: (to: string) => boolean
   isBaseActive: (base: string) => boolean
+  collapsed?: boolean
+  onExpandRequest?: () => void
 }) {
   const { t } = useTranslation()
   const Icon = item.icon
   const baseActive = isBaseActive(item.basePath)
+  const label = t(item.label)
+
+  // Collapsed: no sub-menu room, so clicking a group just re-opens the sidebar.
+  if (collapsed) {
+    const btn = (
+      <button
+        onClick={onExpandRequest}
+        aria-label={label}
+        className={cn(
+          'flex w-full items-center justify-center rounded-lg px-2 py-2 text-sm transition-colors',
+          baseActive
+            ? 'bg-primary/10 text-primary'
+            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+        )}
+      >
+        <Icon size={16} strokeWidth={1.75} className="shrink-0" />
+      </button>
+    )
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{btn}</TooltipTrigger>
+        <TooltipContent side="right">{label}</TooltipContent>
+      </Tooltip>
+    )
+  }
 
   return (
     <div>
@@ -352,7 +439,7 @@ function SidebarGroup({
         )}
       >
         <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-        <span className="flex-1 whitespace-nowrap text-left">{t(item.label)}</span>
+        <span className="flex-1 whitespace-nowrap text-left">{label}</span>
         <ChevronDown
           size={14}
           className={cn(
@@ -377,7 +464,15 @@ function SidebarGroup({
   )
 }
 
-function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boolean }) {
+function SettingsSidebar({
+  isPathActive,
+  collapsed,
+  onToggleCollapsed,
+}: {
+  isPathActive: (to: string) => boolean
+  collapsed: boolean
+  onToggleCollapsed: () => void
+}) {
   const { t } = useTranslation()
   const { isAdmin, isPlatformAdmin } = useAuth()
   const { license } = useBilling()
@@ -387,39 +482,55 @@ function SettingsSidebar({ isPathActive }: { isPathActive: (to: string) => boole
     if (item.tenantOnly) return isAdmin && !isPlatformAdmin && license?.mssp === true
     return true
   })
+  const backLabel = t('nav.back')
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="border-b border-sidebar-border p-2">
-        <Link
-          to="/home"
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-        >
-          <ArrowLeft size={16} strokeWidth={1.75} className="shrink-0" />
-          <span>{t('nav.back')}</span>
-        </Link>
+    <aside
+      className={cn(
+        'flex h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-150',
+        collapsed ? 'w-14' : 'w-60'
+      )}
+    >
+      <div className="flex border-b border-sidebar-border p-2">
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/home"
+                aria-label={backLabel}
+                className="flex flex-1 items-center justify-center rounded-lg px-2 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              >
+                <ArrowLeft size={16} strokeWidth={1.75} className="shrink-0" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">{backLabel}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Link
+            to="/home"
+            className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          >
+            <ArrowLeft size={16} strokeWidth={1.75} className="shrink-0" />
+            <span>{backLabel}</span>
+          </Link>
+        )}
       </div>
-      <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-        {t('settings.title')}
+      <div className="flex p-2 pb-0">
+        <CollapseToggle collapsed={collapsed} onToggle={onToggleCollapsed} />
       </div>
+      {!collapsed && (
+        <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          {t('settings.title')}
+        </div>
+      )}
       <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-2 pt-1">
-        {items.map((item) => {
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                isPathActive(item.to)
-                  ? 'bg-primary/15 text-primary'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
-              )}
-            >
-              <Icon size={16} strokeWidth={1.75} className="shrink-0" />
-              <span className="whitespace-nowrap">{t(item.label)}</span>
-            </Link>
-          )
-        })}
+        {items.map((item) => (
+          <SidebarLeaf
+            key={item.to}
+            item={{ to: item.to, label: item.label, icon: item.icon }}
+            active={isPathActive(item.to)}
+            collapsed={collapsed}
+          />
+        ))}
       </nav>
     </aside>
   )

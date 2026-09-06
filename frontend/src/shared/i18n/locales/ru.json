@@ -4510,6 +4510,12 @@
       "nameRequired": "Имя обязательно",
       "conditionsRequired": "Требуется хотя бы одно условие с полем",
       "commandsRequired": "Требуется хотя бы одна команда",
+      "httpUrlInvalid": "Узел HTTP \"{{id}}\" содержит недопустимый URL — должен быть допустимый http(s) URL.",
+      "httpBodyInvalid": "Тело узла HTTP \"{{id}}\" не является допустимым JSON: {{error}}",
+      "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
+      "mailToRequired": "Узлу электронной почты \"{{id}}\" требуется хотя бы один получатель.",
+      "mailSubjectRequired": "Узлу электронной почты \"{{id}}\" требуется тема.",
+      "identityModalTitle": "Свойства потока",
       "platformRequired": "Платформа агента обязательна",
       "nameLabel": "Название",
       "namePlaceholder": "Имя потока",
@@ -4528,7 +4534,72 @@
       "insertInto": "Вставить в команду {{n}}:",
       "insertField": "Поле алерта",
       "variables": "Переменные",
-      "noRemoteControl": "без удалённого управления"
+      "canvas": {
+        "node": "Узел",
+        "deleteNode": "Удалить узел",
+        "id": "ID",
+        "kind": "Тип",
+        "executor": "Исполнитель",
+        "commandLabel": "Команда",
+        "paramsJson": "Параметры (JSON)",
+        "dragToResize": "Потяните, чтобы изменить размер",
+        "templatesLabel": "Шаблоны",
+        "handlesHint": "Потяните от зелёного разъёма (снизу слева) для on_success и от красного (снизу справа) для on_error. Несколько связей = параллельно. Несколько связей к одному узлу = AND-join.",
+        "invalidJson": "недопустимый JSON",
+        "hidePalette": "Скрыть палитру",
+        "hideInspector": "Скрыть инспектор",
+        "paletteLabel": "Палитра",
+        "nodeShort": "Узел",
+        "showPanel": "Показать {{name}}",
+        "platform": "Платформа",
+        "shell": "Оболочка",
+        "any": "любая",
+        "auto": "авто",
+        "runOn": "Запуск на",
+        "runAutoTitle": "Запускается на хосте, где сработало предупреждение",
+        "runSpecificTitle": "Закрепить за одним хостом (или шаблоном вида $(alert.foo))",
+        "runExceptTitle": "Запускается на хосте, где сработало предупреждение, но пропускает указанные в списке",
+        "runAutoLabel": "источник алерта",
+        "runSpecificLabel": "один хост",
+        "runExceptLabel": "все кроме",
+        "runAutoHint": "Запускается на <code>$(alert.dataSource)</code> — хосте, где сработало предупреждение.",
+        "pickHost": "выберите хост…",
+        "orTemplateHint": "Или введите шаблон — <code>$(alert.field)</code> вычисляется при каждом запуске.",
+        "addExclusion": "добавить исключение",
+        "searchAgents": "поиск агентов…",
+        "noAgents": "нет агентов",
+        "insertField": "Вставить поле",
+        "alert": "Алерт",
+        "wholeOutput": "весь вывод (отредактируйте путь)",
+        "noAncestorsHint": "Пока нет предков обогащения — добавьте узел обогащения выше по цепочке, чтобы его вывод стал доступен здесь.",
+        "inserts": "вставляет",
+        "conditionalHint": "Все условия должны совпадать. Совпадение → ветвь успеха (зелёная); несовпадение → ветвь ошибки (красная).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "Недопустимый http(s) URL.",
+          "method": "Метод",
+          "body": "Тело (JSON)",
+          "bodyInvalid": "Недопустимый JSON"
+        },
+        "incident": {
+          "name": "Название инцидента",
+          "namePlaceholder": "Напр. Подозрительный вход на $(alert.dataSource)",
+          "description": "Описание",
+          "descriptionPlaceholder": "Дополнительный контекст для отвечающих. Шаблоны вроде $(alert.name) подставляются."
+        },
+        "llm": {
+          "prompt": "Промпт",
+          "hint": "Модель всегда отвечает одним JSON-объектом со свойством \"result\"; backend гарантирует этот формат даже если модель отклоняется. Дочерние узлы обращаются к нему через $({{nodeId}}.result) или конкретные поля."
+        },
+        "mail": {
+          "to": "Кому (через запятую)",
+          "cc": "Копия (через запятую, опционально)",
+          "subject": "Тема",
+          "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
+          "body": "Текст",
+          "bodyPlaceholder": "Содержимое сообщения. Шаблоны вроде $(alert.name) подставляются."
+        }
+      }
     },
     "executions": {
       "search": "Поиск по ID алерта…",
@@ -4540,17 +4611,21 @@
       "cols": {
         "status": "Статус",
         "flow": "Поток",
-        "command": "Команда",
+        "command": "Команда / Действие",
         "agent": "Агент",
         "date": "Дата",
-        "retries": "Попытки"
+        "retries": "Попытки",
+        "node": "Узел"
       },
       "manual": "Интерактивная консоль"
     },
     "executionStatus": {
+      "WAITING": "В ожидании",
+      "PENDING": "В очереди",
+      "EXECUTING": "Выполняется",
       "EXECUTED": "Выполнено",
-      "PENDING": "Ожидание",
-      "FAILED": "Ошибка"
+      "FAILED": "Ошибка",
+      "DEAD": "Недостижимо"
     },
     "nonExecutionCause": {
       "AGENT_OFFLINE": "Агент офлайн",

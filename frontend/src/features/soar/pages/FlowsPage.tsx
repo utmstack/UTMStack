@@ -318,14 +318,31 @@ function FlowRow({ f, stat, onOpen, onToggle, t }: { f: Flow; stat?: FlowStat; o
         </div>
       </td>
       <td className={TD}>
-        {f.agentPlatform ? (
-          <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{f.agentPlatform}</span>
-        ) : (
-          <span className="text-[11px] text-muted-foreground">—</span>
-        )}
+        {(() => {
+          // Aggregate platforms across the flow's shell nodes — a DAG can span
+          // several platforms now, so we render the distinct set instead of a
+          // flow-level field that no longer exists.
+          const platforms = Array.from(
+            new Set(
+              Object.values(f.nodes ?? {})
+                .map((n) => n.platform?.trim())
+                .filter((p): p is string => !!p),
+            ),
+          )
+          if (platforms.length === 0) return <span className="text-[11px] text-muted-foreground">—</span>
+          return (
+            <div className="flex flex-wrap gap-1">
+              {platforms.map((p) => (
+                <span key={p} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                  {p}
+                </span>
+              ))}
+            </div>
+          )
+        })()}
       </td>
       <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}>{f.conditions?.length ?? 0}</td>
-      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}>{f.commands?.length ?? 0}</td>
+      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}>{f.nodes ? Object.keys(f.nodes).length : 0}</td>
       <td className={`${TD} text-[11px]`} title={stat?.last ? new Date(stat.last).toLocaleString() : undefined}>
         {stat?.last ? (
           <div className="flex items-center gap-1.5">

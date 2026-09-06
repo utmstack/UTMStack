@@ -1,10 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,13 +10,14 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
-	"golang.org/x/crypto/pbkdf2"
+	"github.com/utmstack/UTMStack/plugins/shared/crypto"
 	"gopkg.in/yaml.v3"
 )
 
 const (
 	pluginFile         = "system_plugins_sophos.yaml"
-	processName        = "plugin_com.utmstack.sophos"
+	pluginName         = "com.utmstack.sophos"
+	processName        = "plugin_" + pluginName
 	pipelineDirDefault = "/workdir/pipeline"
 )
 
@@ -47,7 +44,24 @@ var (
 	cnf              *ConfigurationSection
 	mu               sync.Mutex
 	configUpdateChan chan *ConfigurationSection
+
+	encKeyMu  sync.RWMutex
+	encKeyVal string
 )
+
+// setEncryptionKey records the plugin-wide encryption key. Cursor payloads are
+// encrypted with it because the ingest_cursors bucket has no auth and no TLS.
+func setEncryptionKey(key string) {
+	encKeyMu.Lock()
+	defer encKeyMu.Unlock()
+	encKeyVal = key
+}
+
+func getEncryptionKey() string {
+	encKeyMu.RLock()
+	defer encKeyMu.RUnlock()
+	return encKeyVal
+}
 
 func init() {
 	configUpdateChan = make(chan *ConfigurationSection, 1)
@@ -68,8 +82,7 @@ func GetConfigUpdateChannel() <-chan *ConfigurationSection {
 	return configUpdateChan
 }
 
-// StartConfigurationSystem starts the file watcher. Blocks until configured,
-// then runs indefinitely.
+// StartConfigurationSystem blocks until configured, then watches indefinitely.
 func StartConfigurationSystem() {
 	pipelineDir := pipelineDirDefault
 	var encKey string
@@ -80,6 +93,7 @@ func StartConfigurationSystem() {
 				pipelineDir = d
 			}
 			encKey = cfg.Get("encryptionKey").String()
+			setEncryptionKey(encKey)
 			break
 		}
 		_ = catcher.Error("plugin configuration not found", nil, map[string]any{"process": processName})
@@ -88,7 +102,6 @@ func StartConfigurationSystem() {
 
 	filePath := filepath.Join(pipelineDir, pluginFile)
 
-	// Initial load.
 	if sec := readConfig(filePath, encKey); sec != nil {
 		mu.Lock()
 		cnf = sec
@@ -104,7 +117,7 @@ func StartConfigurationSystem() {
 	}
 	defer watcher.Close()
 
-	// Watch the directory so we catch atomic write (rename) events.
+	// Watch the directory, not the file, to catch atomic write (rename) events.
 	if err := watcher.Add(pipelineDir); err != nil {
 		_ = catcher.Error("failed to watch pipeline dir", err, map[string]any{"process": processName})
 		pollFallback(filePath, encKey)
@@ -140,7 +153,6 @@ func StartConfigurationSystem() {
 	}
 }
 
-// pollFallback is used if fsnotify setup fails — polls every 30s instead.
 func pollFallback(filePath, encKey string) {
 	catcher.Warn("falling back to 30s polling", map[string]any{"process": processName})
 	for range time.Tick(30 * time.Second) {
@@ -187,8 +199,7 @@ func readConfig(path, encKey string) *ConfigurationSection {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// File removed → module disabled / no configuration. Report an empty,
-			// inactive section so the module is treated as disabled and all work stops.
+			// A removed file means the module is disabled, not a read failure.
 			return &ConfigurationSection{ModuleActive: false}
 		}
 		_ = catcher.Error("failed to read config file", err, map[string]any{"process": processName, "file": path})
@@ -215,7 +226,7 @@ func readConfig(path, encKey string) *ConfigurationSection {
 			for k, v := range g.Config {
 				conf := &Configuration{ConfKey: k, ConfValue: v}
 				if encKey != "" && sensitiveKeys[conf.ConfKey] {
-					if dec, err := NewCipher(encKey).Decrypt(conf.ConfValue); err == nil {
+					if dec, err := crypto.NewCipher(encKey).Decrypt(conf.ConfValue); err == nil {
 						conf.ConfValue = dec
 					}
 				}
@@ -224,68 +235,6 @@ func readConfig(path, encKey string) *ConfigurationSection {
 			sec.ModuleGroups = append(sec.ModuleGroups, grp)
 		}
 	}
-	// A tenant section with no groups must not read as configured.
 	sec.ModuleActive = len(sec.ModuleGroups) > 0
 	return sec
-}
-
-// ---------------------------------------------------------------------------
-// Cipher (merged from cipher.go)
-// ---------------------------------------------------------------------------
-
-const (
-	iterationCount = 65536
-	keyLength      = 16
-)
-
-type Cipher struct {
-	key []byte
-}
-
-func NewCipher(key string) *Cipher {
-	return &Cipher{key: []byte(key)}
-}
-
-func (c *Cipher) setKey() (cipher.Block, []byte, error) {
-	h := sha1.New()
-	h.Write(c.key)
-	salt := h.Sum(nil)
-	keyEnc := pbkdf2.Key(c.key, salt, iterationCount, keyLength, sha1.New)
-	block, err := aes.NewCipher(keyEnc)
-	if err != nil {
-		return nil, nil, err
-	}
-	return block, salt[:keyLength], nil
-}
-
-func (c *Cipher) Decrypt(crypt string) (string, error) {
-	if crypt == "" {
-		return "", nil
-	}
-	encryptedData, err := base64.StdEncoding.DecodeString(crypt)
-	if err != nil {
-		return crypt, nil // not base64 → already plaintext
-	}
-	blk, iv, err := c.setKey()
-	if err != nil {
-		return crypt, err
-	}
-	if len(encryptedData)%aes.BlockSize != 0 {
-		return crypt, nil // not a valid CBC block → already plaintext
-	}
-	dec := cipher.NewCBCDecrypter(blk, iv)
-	decrypted := make([]byte, len(encryptedData))
-	dec.CryptBlocks(decrypted, encryptedData)
-	return string(pkcs5Trim(decrypted)), nil
-}
-
-func pkcs5Trim(data []byte) []byte {
-	if len(data) == 0 {
-		return data
-	}
-	padding := int(data[len(data)-1])
-	if padding > len(data) || padding == 0 {
-		return data
-	}
-	return data[:len(data)-padding]
 }

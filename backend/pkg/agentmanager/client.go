@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -39,6 +41,11 @@ func NewClient() (*AgentManagerClient, error) {
 		addr,
 		grpc.WithTransportCredentials(tlsCreds),
 		grpc.WithPerRPCCredentials(&internalKeyCreds{key: internalKey}),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                30 * time.Second,
+			Timeout:             10 * time.Second,
+			PermitWithoutStream: true,
+		}),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("agentmanager: dial %s: %w", addr, err)
@@ -352,7 +359,18 @@ func (c *AgentManagerClient) GetCollectorIntegrationState(ctx context.Context, c
 	return resp, nil
 }
 
+// ProcessCommand opens a bidi stream, sends one command, and reads one result.
+// It does NOT call CloseSend — parity with ProcessCommandStream / Java. Half-
+// closing the panel-side stream races the agent-manager's ProcessCommand
+// handler (agent-manager/agent/agent_imp.go) into an EOF path that has been
+// observed to leave AgentStreamMap[agentID] empty, after which every
+// subsequent panel call (SOAR + console) returns codes.NotFound "agent not
+// found or is disconnected". The ctx cancellation on function return is what
+// tears the stream down cleanly.
 func (c *AgentManagerClient) ProcessCommand(ctx context.Context, cmd *agent.UtmCommand) (*agent.CommandResult, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	stream, err := c.panelService.ProcessCommand(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("agentmanager: ProcessCommand open stream: %w", err)
@@ -360,9 +378,6 @@ func (c *AgentManagerClient) ProcessCommand(ctx context.Context, cmd *agent.UtmC
 
 	if err := stream.Send(cmd); err != nil {
 		return nil, fmt.Errorf("agentmanager: ProcessCommand send: %w", err)
-	}
-	if err := stream.CloseSend(); err != nil {
-		return nil, fmt.Errorf("agentmanager: ProcessCommand close send: %w", err)
 	}
 
 	result, err := stream.Recv()

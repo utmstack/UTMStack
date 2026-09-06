@@ -133,8 +133,15 @@ func (u *correlationRuleUsecase) Update(ctx context.Context, req dto.UpdateCorre
 	if req.RelPath == "" {
 		return domain.ErrIDRequired
 	}
-	if err := u.writable(ctx, req.RelPath); err != nil {
+	sr, err := u.readable(ctx, req.RelPath)
+	if err != nil {
 		return err
+	}
+	if sr.System {
+		return domain.ErrCorrelationRuleSystemOwner
+	}
+	if tenant := authz.TenantIDFromContext(ctx); tenant != "" && sr.TenantId != tenant {
+		return domain.ErrCorrelationRuleNotFound
 	}
 	if len(req.DataTypes) == 0 {
 		return domain.ErrDataTypesRequired
@@ -149,12 +156,12 @@ func (u *correlationRuleUsecase) Update(ctx context.Context, req dto.UpdateCorre
 		req.RuleAvailability, req.RuleCategory, req.RuleTechnique, req.RuleDescription,
 		req.RuleReferencesDef, req.RuleDefinitionDef, correlate, req.RuleGroupByDef,
 		req.DeduplicateByDef, req.DataTypes)
+	rule.TenantId = sr.TenantId
 
 	if _, err := u.store.Update(req.RelPath, rule); err != nil {
 		return err
 	}
-	// Reconcile the active state (the store keeps it in the filename).
-	_, err := u.store.SetEnabled(authz.TenantIDFromContext(ctx), req.RelPath, req.RuleActive)
+	_, err = u.store.SetEnabled(sr.TenantId, req.RelPath, req.RuleActive)
 	return err
 }
 

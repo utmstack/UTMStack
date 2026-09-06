@@ -4840,6 +4840,12 @@
       "nameRequired": "O nome é obrigatório",
       "conditionsRequired": "É necessária ao menos uma condição com campo",
       "commandsRequired": "É necessário ao menos um comando",
+      "httpUrlInvalid": "O nó HTTP \"{{id}}\" tem uma URL inválida — deve ser uma URL http(s) válida.",
+      "httpBodyInvalid": "O corpo do nó HTTP \"{{id}}\" não é JSON válido: {{error}}",
+      "incidentNameRequired": "O nó de incidente \"{{id}}\" precisa de um nome.",
+      "mailToRequired": "O nó de e-mail \"{{id}}\" precisa de ao menos um destinatário.",
+      "mailSubjectRequired": "O nó de e-mail \"{{id}}\" precisa de um assunto.",
+      "identityModalTitle": "Detalhes do fluxo",
       "platformRequired": "A plataforma do agente é obrigatória",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome do fluxo",
@@ -4858,7 +4864,72 @@
       "insertInto": "Inserir no comando {{n}}:",
       "insertField": "Campo do alerta",
       "variables": "Variáveis",
-      "noRemoteControl": "sem controlo remoto"
+      "canvas": {
+        "node": "Nó",
+        "deleteNode": "Excluir nó",
+        "id": "ID",
+        "kind": "Tipo",
+        "executor": "Executor",
+        "commandLabel": "Comando",
+        "paramsJson": "Parâmetros (JSON)",
+        "dragToResize": "Arraste para redimensionar",
+        "templatesLabel": "Modelos",
+        "handlesHint": "Arraste do conector verde (inferior esquerdo) para on_success e do vermelho (inferior direito) para on_error. Várias conexões = paralelo. Várias conexões em um mesmo nó = AND-join.",
+        "invalidJson": "JSON inválido",
+        "hidePalette": "Ocultar paleta",
+        "hideInspector": "Ocultar inspetor",
+        "paletteLabel": "Paleta",
+        "nodeShort": "Nó",
+        "showPanel": "Mostrar {{name}}",
+        "platform": "Plataforma",
+        "shell": "Shell",
+        "any": "qualquer",
+        "auto": "auto",
+        "runOn": "Executar em",
+        "runAutoTitle": "Executa no host que gerou o alerta",
+        "runSpecificTitle": "Fixar em um host (ou um modelo como $(alert.foo))",
+        "runExceptTitle": "Executa no host que gerou o alerta, ignorando os da lista",
+        "runAutoLabel": "fonte do alerta",
+        "runSpecificLabel": "um host",
+        "runExceptLabel": "todos exceto",
+        "runAutoHint": "Executa em <code>$(alert.dataSource)</code> — o host que gerou o alerta.",
+        "pickHost": "escolha um host…",
+        "orTemplateHint": "Ou digite um modelo — <code>$(alert.field)</code> é resolvido por execução.",
+        "addExclusion": "adicionar exclusão",
+        "searchAgents": "buscar agentes…",
+        "noAgents": "sem agentes",
+        "insertField": "Inserir campo",
+        "alert": "Alerta",
+        "wholeOutput": "saída completa (edite o caminho)",
+        "noAncestorsHint": "Ainda não há ancestrais de enriquecimento — adicione um nó de enriquecimento acima para expor sua saída aqui.",
+        "inserts": "insere",
+        "conditionalHint": "Todas as condições devem corresponder. Correspondência → ramo de sucesso (verde); falha → ramo de erro (vermelho).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) inválida.",
+          "method": "Método",
+          "body": "Corpo (JSON)",
+          "bodyInvalid": "JSON inválido"
+        },
+        "incident": {
+          "name": "Nome do incidente",
+          "namePlaceholder": "Ex. Login suspeito em $(alert.dataSource)",
+          "description": "Descrição",
+          "descriptionPlaceholder": "Contexto opcional para respondentes. Modelos como $(alert.name) são interpolados."
+        },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "O modelo é instruído a responder sempre com um único objeto JSON com a propriedade \"result\"; o backend garante esse formato mesmo se o modelo se desviar. Os nós filhos referenciam via $({{nodeId}}.result) ou campos específicos."
+        },
+        "mail": {
+          "to": "Para (separados por vírgula)",
+          "cc": "CC (separados por vírgula, opcional)",
+          "subject": "Assunto",
+          "subjectPlaceholder": "Ex. Alerta em $(alert.dataSource)",
+          "body": "Corpo",
+          "bodyPlaceholder": "Conteúdo da mensagem. Modelos como $(alert.name) são interpolados."
+        }
+      }
     },
     "executions": {
       "search": "Buscar por ID de alerta…",
@@ -4870,10 +4941,11 @@
       "cols": {
         "status": "Status",
         "flow": "Fluxo",
-        "command": "Comando",
+        "command": "Comando / Ação",
         "agent": "Agente",
         "date": "Data",
-        "retries": "Tentativas"
+        "retries": "Tentativas",
+        "node": "Nó"
       },
       "filters": {
         "source": "Origem",
@@ -4882,9 +4954,12 @@
       "manual": "Consola interativa"
     },
     "executionStatus": {
-      "EXECUTED": "Executado",
+      "WAITING": "Aguardando",
       "PENDING": "Pendente",
-      "FAILED": "Falhou"
+      "EXECUTING": "Executando",
+      "EXECUTED": "Executado",
+      "FAILED": "Falhou",
+      "DEAD": "Inacessível"
     },
     "executionOrigin": {
       "FLOW": "Fluxo",

@@ -5104,6 +5104,12 @@
       "nameRequired": "Name is required",
       "conditionsRequired": "At least one condition with a field is required",
       "commandsRequired": "At least one command is required",
+      "httpUrlInvalid": "HTTP node \"{{id}}\" has an invalid URL — must be a valid http(s) URL.",
+      "httpBodyInvalid": "HTTP node \"{{id}}\" body is not valid JSON: {{error}}",
+      "incidentNameRequired": "Incident node \"{{id}}\" needs a name.",
+      "mailToRequired": "Email node \"{{id}}\" needs at least one recipient.",
+      "mailSubjectRequired": "Email node \"{{id}}\" needs a subject.",
+      "identityModalTitle": "Flow details",
       "platformRequired": "Agent platform is required",
       "nameLabel": "Name",
       "namePlaceholder": "Flow name",
@@ -5122,7 +5128,77 @@
       "insertInto": "Insert into command {{n}}:",
       "insertField": "Alert field",
       "variables": "Variables",
-      "noRemoteControl": "no remote control"
+      "canvas": {
+        "node": "Node",
+        "deleteNode": "Delete node",
+        "id": "ID",
+        "kind": "Kind",
+        "executor": "Executor",
+        "commandLabel": "Command",
+        "paramsJson": "Params (JSON)",
+        "dragToResize": "Drag to resize",
+        "templatesLabel": "Templates",
+        "handlesHint": "Drag from the bottom-left green handle for on_success, the bottom-right red handle for on_error. Multiple wires = parallel. Multiple wires into one node = AND-join.",
+        "invalidJson": "invalid JSON",
+        "hidePalette": "Hide palette",
+        "hideInspector": "Hide inspector",
+        "paletteLabel": "Palette",
+        "nodeShort": "Node",
+        "showPanel": "Show {{name}}",
+        "platform": "Platform",
+        "shell": "Shell",
+        "any": "any",
+        "auto": "auto",
+        "runOn": "Run on",
+        "runAutoTitle": "Runs on the host that raised the alert",
+        "runSpecificTitle": "Pin to one host (or a template like $(alert.foo))",
+        "runExceptTitle": "Runs on the host that raised the alert, but skips ones in the list",
+        "runAutoLabel": "alert source",
+        "runSpecificLabel": "one host",
+        "runExceptLabel": "all except",
+        "runAutoHint": "Runs on <code>$(alert.dataSource)</code> — the host that raised the matched alert.",
+        "pickHost": "pick a host…",
+        "orTemplateHint": "Or type a template — <code>$(alert.field)</code> resolves per execution.",
+        "addExclusion": "add exclusion",
+        "searchAgents": "search agents…",
+        "noAgents": "no agents",
+        "insertField": "Insert field",
+        "alert": "Alert",
+        "wholeOutput": "whole output (edit the path)",
+        "noAncestorsHint": "No enrichment ancestors yet — add an enrichment node upstream to expose its output here.",
+        "inserts": "inserts",
+        "conditionalHint": "All conditions must match. Match → success branch (green); miss → error branch (red).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "Not a valid http(s) URL.",
+          "method": "Method",
+          "body": "Body (JSON)",
+          "bodyInvalid": "Invalid JSON"
+        },
+        "incident": {
+          "name": "Incident name",
+          "namePlaceholder": "e.g. Suspicious login on $(alert.dataSource)",
+          "description": "Description",
+          "descriptionPlaceholder": "Optional context for responders. Templates like $(alert.name) are interpolated."
+        },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "The model is instructed to always answer with a single JSON object carrying a \"result\" property. The backend guarantees this shape even if the model deviates. Child nodes reference it via $({{nodeId}}.result) or specific fields."
+        },
+        "mail": {
+          "to": "To (comma-separated)",
+          "cc": "CC (comma-separated, optional)",
+          "subject": "Subject",
+          "subjectPlaceholder": "e.g. Alert on $(alert.dataSource)",
+          "body": "Body",
+          "bodyPlaceholder": "Message body. Templates like $(alert.name) are interpolated."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
+        }
+      }
     },
     "executions": {
       "search": "Search by alert ID…",
@@ -5134,10 +5210,11 @@
       "cols": {
         "status": "Status",
         "flow": "Flow",
-        "command": "Command",
+        "command": "Command / Action",
         "agent": "Agent",
         "date": "Date",
-        "retries": "Retries"
+        "retries": "Retries",
+        "node": "Node"
       },
       "filters": {
         "source": "Source",
@@ -5146,9 +5223,12 @@
       "manual": "Interactive console"
     },
     "executionStatus": {
-      "EXECUTED": "Executed",
+      "WAITING": "Waiting",
       "PENDING": "Pending",
-      "FAILED": "Failed"
+      "EXECUTING": "Executing",
+      "EXECUTED": "Executed",
+      "FAILED": "Failed",
+      "DEAD": "Unreachable"
     },
     "executionOrigin": {
       "FLOW": "Flow",

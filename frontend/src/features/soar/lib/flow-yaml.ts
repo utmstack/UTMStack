@@ -1,17 +1,26 @@
 import { dump, load } from 'js-yaml'
-import { SOAR_CONDITIONS, SOAR_MULTI_VALUE_OPERATORS, SOAR_NO_VALUE_OPERATORS, SOAR_OPERATORS, type Flow, type FlowCommand, type FlowCondition, type SaveFlowInput, type SoarCondition, type SoarOperator } from '../types/soar.types'
+import {
+  SOAR_MULTI_VALUE_OPERATORS,
+  SOAR_NO_VALUE_OPERATORS,
+  SOAR_OPERATORS,
+  NODE_KINDS,
+  type Flow,
+  type FlowCondition,
+  type FlowNode,
+  type NodeKind,
+  type SaveFlowInput,
+  type SoarOperator,
+} from '../types/soar.types'
 
-/** Structured editing state for a flow. `active` is managed by the toggle (not in
- *  the YAML file), so callers preserve it across the code round-trip. */
+/** Structured editing state for a flow. `active` is managed by the toggle
+ *  outside the YAML file, so callers preserve it across the code round-trip. */
 export interface FlowFormState {
   name: string
   description: string
   conditions: FlowCondition[]
-  commands: FlowCommand[]
-  shell: string
-  agentPlatform: string
-  defaultAgent: string
-  excludedAgents: string[]
+  roots: string[]
+  nodes: Record<string, FlowNode>
+  maxDepth: number
   active: boolean
 }
 
@@ -23,23 +32,12 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 const str = (v: unknown): string => (v == null ? '' : String(v))
 const strArray = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : [])
 
-/** Accept either the object form `{command, condition?}` or a legacy bare
- *  string (older YAML files). Unknown/invalid condition values are dropped. */
-function parseCommand(c: unknown): FlowCommand {
-  if (typeof c === 'string') return { command: c }
-  if (!isRecord(c)) return { command: '' }
-  const command = str(c.command)
-  const cond = str(c.condition)
-  return SOAR_CONDITIONS.includes(cond as SoarCondition) ? { command, condition: cond as SoarCondition } : { command }
-}
-
 function parseCond(c: unknown): FlowCondition {
   const o = isRecord(c) ? c : {}
   const op = (SOAR_OPERATORS.includes(str(o.operator) as SoarOperator) ? o.operator : 'IS') as SoarOperator
   return { operator: op, field: str(o.field), value: o.value }
 }
 
-/** Coerce a condition's value to the right shape for its operator. */
 function normalizeCond(c: FlowCondition): FlowCondition {
   const field = c.field.trim()
   if (SOAR_NO_VALUE_OPERATORS.includes(c.operator)) {
@@ -58,35 +56,106 @@ function normalizeCond(c: FlowCondition): FlowCondition {
   return { operator: c.operator, field, value: str(v) }
 }
 
-export function flowToForm(f?: Flow): FlowFormState {
+function parseNode(raw: unknown): FlowNode {
+  const o = isRecord(raw) ? raw : {}
+  const kind = (NODE_KINDS.includes(str(o.kind) as NodeKind) ? o.kind : 'executor') as NodeKind
+  const excluded = strArray(o.excludedAgents)
   return {
-    name: f?.name ?? '',
-    description: f?.description ?? '',
-    conditions: f?.conditions?.length ? f.conditions.map((c) => ({ ...c })) : [{ operator: 'IS', field: '', value: '' }],
-    commands: f?.commands?.length ? f.commands.map((c) => ({ ...c })) : [{ command: '' }],
-    shell: f?.shell ?? '',
-    agentPlatform: f?.agentPlatform ?? '',
-    defaultAgent: f?.defaultAgent ?? '',
-    excludedAgents: f?.excludedAgents ? [...f.excludedAgents] : [],
-    active: f?.active ?? true,
+    kind,
+    executor: str(o.executor),
+    command: o.command ? str(o.command) : undefined,
+    shell: o.shell ? str(o.shell) : undefined,
+    platform: o.platform ? str(o.platform) : undefined,
+    agent: o.agent ? str(o.agent) : undefined,
+    excludedAgents: excluded.length ? excluded : undefined,
+    params: o.params,
+    onSuccess: strArray(o.onSuccess),
+    onError: strArray(o.onError),
+  }
+}
+
+function parseNodes(raw: unknown): Record<string, FlowNode> {
+  if (!isRecord(raw)) return {}
+  const out: Record<string, FlowNode> = {}
+  for (const [id, v] of Object.entries(raw)) {
+    out[id] = parseNode(v)
+  }
+  return out
+}
+
+/** Legacy compat: if the file still uses `commands:` chain shape, upgrade it
+ *  to a linear DAG the same way the backend does — one shell node per step.
+ *  Flow-level platform/agent get stamped onto every shell node so behavior
+ *  survives the upgrade. */
+function upgradeLegacyChain(raw: Record<string, unknown>): { roots: string[]; nodes: Record<string, FlowNode> } {
+  const commands = Array.isArray(raw.commands) ? raw.commands : []
+  const shell = str(raw.shell)
+  const platform = str(raw.agentPlatform)
+  const agent = str(raw.defaultAgent)
+  if (!commands.length) return { roots: [], nodes: {} }
+  const nodes: Record<string, FlowNode> = {}
+  const roots: string[] = ['step_0']
+  commands.forEach((c, i) => {
+    const id = `step_${i}`
+    const command = typeof c === 'string' ? c : str((c as Record<string, unknown>)?.command)
+    const cond = typeof c === 'string' ? '' : str((c as Record<string, unknown>)?.condition)
+    nodes[id] = {
+      kind: 'executor',
+      executor: 'shell',
+      command,
+      shell: shell || undefined,
+      platform: platform || undefined,
+      agent: agent || undefined,
+      onSuccess: [],
+      onError: [],
+    }
+    if (i === 0) return
+    const prevId = `step_${i - 1}`
+    const prev = nodes[prevId]
+    if (cond === 'OnSuccess') prev.onSuccess = [...(prev.onSuccess ?? []), id]
+    else if (cond === 'OnFailure') prev.onError = [...(prev.onError ?? []), id]
+    else {
+      prev.onSuccess = [...(prev.onSuccess ?? []), id]
+      prev.onError = [...(prev.onError ?? []), id]
+    }
+  })
+  return { roots, nodes }
+}
+
+export function emptyForm(): FlowFormState {
+  return {
+    name: '',
+    description: '',
+    conditions: [{ operator: 'IS', field: '', value: '' }],
+    roots: [],
+    nodes: {},
+    maxDepth: 50,
+    active: true,
+  }
+}
+
+export function flowToForm(f?: Flow): FlowFormState {
+  if (!f) return emptyForm()
+  return {
+    name: f.name,
+    description: f.description ?? '',
+    conditions: f.conditions?.length ? f.conditions.map((c) => ({ ...c })) : [{ operator: 'IS', field: '', value: '' }],
+    roots: f.roots ? [...f.roots] : [],
+    nodes: f.nodes ? Object.fromEntries(Object.entries(f.nodes).map(([id, n]) => [id, { ...n }])) : {},
+    maxDepth: f.maxDepth ?? 50,
+    active: f.active ?? true,
   }
 }
 
 export function formToInput(f: FlowFormState): SaveFlowInput {
-  const commands = f.commands
-    .map((c) => ({ ...c, command: c.command.trim() }))
-    .filter((c) => c.command)
-    .map((c, i) => (i === 0 ? { command: c.command } : { command: c.command, condition: c.condition ?? 'Always' }))
   return {
     name: f.name.trim(),
     description: f.description.trim(),
     conditions: f.conditions.filter((c) => c.field.trim()).map(normalizeCond),
-    commands,
+    roots: [...f.roots],
+    nodes: f.nodes,
+    maxDepth: f.maxDepth || undefined,
     active: f.active,
-    agentPlatform: f.agentPlatform.trim(),
-    defaultAgent: f.defaultAgent.trim(),
-    shell: f.shell.trim(),
-    excludedAgents: f.excludedAgents.map((a) => a.trim()).filter(Boolean),
   }
 }
 
@@ -96,16 +165,12 @@ export function flowFormToYaml(f: FlowFormState): string {
   const doc: Record<string, unknown> = { name: input.name }
   if (input.description) doc.description = input.description
   doc.conditions = input.conditions
-  doc.commands = input.commands
-  if (input.shell) doc.shell = input.shell
-  if (input.agentPlatform) doc.agentPlatform = input.agentPlatform
-  if (input.defaultAgent) doc.defaultAgent = input.defaultAgent
-  if (input.excludedAgents.length) doc.excludedAgents = input.excludedAgents
+  if (input.maxDepth) doc.maxDepth = input.maxDepth
+  doc.roots = input.roots
+  doc.nodes = input.nodes
   return dump([doc], { indent: 2, lineWidth: -1, noRefs: true, quotingType: '"' })
 }
 
-/** Parse a flow YAML back into the form. Accepts the on-disk list form and a
- *  single mapping. ruleActive/active is left default; callers preserve it. */
 export function yamlToFlowForm(content: string): FlowParseResult {
   let raw: unknown
   try {
@@ -117,16 +182,21 @@ export function yamlToFlowForm(content: string): FlowParseResult {
   if (!isRecord(raw)) return { ok: false, error: 'root must be a flow mapping' }
 
   const conditions = Array.isArray(raw.conditions) ? raw.conditions.map(parseCond) : []
-  const commands = Array.isArray(raw.commands) ? raw.commands.map(parseCommand) : []
+  let roots = strArray(raw.roots)
+  let nodes = parseNodes(raw.nodes)
+  if (!roots.length && !Object.keys(nodes).length) {
+    // Legacy chain YAML — upgrade in place so old flows keep opening.
+    const legacy = upgradeLegacyChain(raw)
+    roots = legacy.roots
+    nodes = legacy.nodes
+  }
   const form: FlowFormState = {
     name: str(raw.name),
     description: str(raw.description),
     conditions: conditions.length ? conditions : [{ operator: 'IS', field: '', value: '' }],
-    commands: commands.length ? commands : [{ command: '' }],
-    shell: str(raw.shell),
-    agentPlatform: str(raw.agentPlatform),
-    defaultAgent: str(raw.defaultAgent),
-    excludedAgents: strArray(raw.excludedAgents),
+    roots,
+    nodes,
+    maxDepth: typeof raw.maxDepth === 'number' ? raw.maxDepth : 50,
     active: true,
   }
   return { ok: true, form }

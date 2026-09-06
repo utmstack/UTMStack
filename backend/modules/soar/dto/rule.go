@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
@@ -13,35 +14,41 @@ type FilterVM struct {
 	Value    any                 `json:"value"`
 }
 
-type FlowCommandVM struct {
-	Command   string            `json:"command"             binding:"required"`
-	Condition *domain.Condition `json:"condition,omitempty" binding:"omitempty,oneof=OnSuccess OnFailure Always"`
+// FlowNodeVM mirrors domain.FlowNode across the API. YAML on-disk uses the
+// same field names — only the DAG shape lives here.
+type FlowNodeVM struct {
+	Kind           domain.NodeKind `json:"kind"                     binding:"required,oneof=executor enrichment"`
+	Executor       string          `json:"executor"                 binding:"required,max=60"`
+	Command        string          `json:"command,omitempty"`
+	Shell          string          `json:"shell,omitempty"          binding:"omitempty,max=20"`
+	Platform       string          `json:"platform,omitempty"       binding:"omitempty,max=60"`
+	Agent          string          `json:"agent,omitempty"          binding:"omitempty,max=150"`
+	ExcludedAgents []string        `json:"excludedAgents,omitempty"`
+	Params         json.RawMessage `json:"params,omitempty"`
+	OnSuccess      []string        `json:"onSuccess,omitempty"`
+	OnError        []string        `json:"onError,omitempty"`
 }
 
 type CreateRuleRequest struct {
-	ID             *int64          `json:"id"`
-	Name           string          `json:"name"           binding:"required,max=150"`
-	Description    string          `json:"description"    binding:"omitempty,max=512"`
-	Conditions     []FilterVM      `json:"conditions"     binding:"required,min=1"`
-	Commands       []FlowCommandVM `json:"commands"       binding:"required,min=1,dive"`
-	Active         *bool           `json:"active"         binding:"required"`
-	AgentPlatform  string          `json:"agentPlatform"  binding:"required"`
-	DefaultAgent   string          `json:"defaultAgent"   binding:"omitempty,max=500"`
-	Shell          string          `json:"shell"          binding:"omitempty,max=20"`
-	ExcludedAgents []string        `json:"excludedAgents"`
+	ID          *int64                `json:"id"`
+	Name        string                `json:"name"        binding:"required,max=150"`
+	Description string                `json:"description" binding:"omitempty,max=512"`
+	Conditions  []FilterVM            `json:"conditions"  binding:"required,min=1"`
+	Roots       []string              `json:"roots"       binding:"required,min=1"`
+	Nodes       map[string]FlowNodeVM `json:"nodes"       binding:"required,min=1"`
+	MaxDepth    int                   `json:"maxDepth"    binding:"omitempty,min=1,max=1000"`
+	Active      *bool                 `json:"active"      binding:"required"`
 }
 
 type UpdateRuleRequest struct {
-	ID             *int64          `json:"id"`
-	Name           string          `json:"name"           binding:"required,max=150"`
-	Description    string          `json:"description"    binding:"omitempty,max=512"`
-	Conditions     []FilterVM      `json:"conditions"     binding:"required,min=1"`
-	Commands       []FlowCommandVM `json:"commands"       binding:"required,min=1,dive"`
-	Active         *bool           `json:"active"         binding:"required"`
-	AgentPlatform  string          `json:"agentPlatform"  binding:"required"`
-	DefaultAgent   string          `json:"defaultAgent"   binding:"omitempty,max=500"`
-	Shell          string          `json:"shell"          binding:"omitempty,max=20"`
-	ExcludedAgents []string        `json:"excludedAgents"`
+	ID          *int64                `json:"id"`
+	Name        string                `json:"name"        binding:"required,max=150"`
+	Description string                `json:"description" binding:"omitempty,max=512"`
+	Conditions  []FilterVM            `json:"conditions"  binding:"required,min=1"`
+	Roots       []string              `json:"roots"       binding:"required,min=1"`
+	Nodes       map[string]FlowNodeVM `json:"nodes"       binding:"required,min=1"`
+	MaxDepth    int                   `json:"maxDepth"    binding:"omitempty,min=1,max=1000"`
+	Active      *bool                 `json:"active"      binding:"required"`
 }
 
 type ToggleRuleRequest struct {
@@ -49,25 +56,22 @@ type ToggleRuleRequest struct {
 }
 
 type RuleResponse struct {
-	RelPath          string          `json:"relPath"`
-	Name             string          `json:"name"`
-	Description      string          `json:"description,omitempty"`
-	Conditions       []FilterVM      `json:"conditions"`
-	Commands         []FlowCommandVM `json:"commands"`
-	Active           bool            `json:"active"`
-	AgentPlatform    string          `json:"agentPlatform,omitempty"`
-	DefaultAgent     string          `json:"defaultAgent,omitempty"`
-	Shell            string          `json:"shell,omitempty"`
-	ExcludedAgents   []string        `json:"excludedAgents,omitempty"`
-	SystemOwner      bool            `json:"systemOwner"`
-	LastModifiedDate *time.Time      `json:"lastModifiedDate,omitempty"`
+	RelPath          string                `json:"relPath"`
+	Name             string                `json:"name"`
+	Description      string                `json:"description,omitempty"`
+	Conditions       []FilterVM            `json:"conditions"`
+	Roots            []string              `json:"roots"`
+	Nodes            map[string]FlowNodeVM `json:"nodes"`
+	MaxDepth         int                   `json:"maxDepth,omitempty"`
+	Active           bool                  `json:"active"`
+	SystemOwner      bool                  `json:"systemOwner"`
+	LastModifiedDate *time.Time            `json:"lastModifiedDate,omitempty"`
 }
 
 type RuleFilters struct {
 	ID                  int64  `form:"id.equals"`
 	RuleName            string `form:"name.contains"`
 	RuleActive          *bool  `form:"active.equals"`
-	AgentPlatform       string `form:"agentPlatform.equals"`
 	CreatedBy           string `form:"createdBy.equals"`
 	LastModifiedBy      string `form:"lastModifiedBy.equals"`
 	CreatedDateGTE      string `form:"createdDate.greaterThanOrEqual"`

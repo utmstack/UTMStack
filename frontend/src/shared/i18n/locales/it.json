@@ -4718,6 +4718,12 @@
       "nameRequired": "Il nome è obbligatorio",
       "conditionsRequired": "È richiesta almeno una condizione con un campo",
       "commandsRequired": "È richiesto almeno un comando",
+      "httpUrlInvalid": "Il nodo HTTP \"{{id}}\" ha un URL non valido — deve essere un URL http(s) valido.",
+      "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
+      "incidentNameRequired": "Il nodo incidente \"{{id}}\" richiede un nome.",
+      "mailToRequired": "Il nodo e-mail \"{{id}}\" richiede almeno un destinatario.",
+      "mailSubjectRequired": "Il nodo e-mail \"{{id}}\" richiede un oggetto.",
+      "identityModalTitle": "Dettagli del flusso",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
       "nameLabel": "Nome",
       "namePlaceholder": "Nome del flusso",
@@ -4736,7 +4742,72 @@
       "insertInto": "Inserisci nel comando {{n}}:",
       "insertField": "Campo dell'alert",
       "variables": "Variabili",
-      "noRemoteControl": "senza controllo remoto"
+      "canvas": {
+        "node": "Nodo",
+        "deleteNode": "Elimina nodo",
+        "id": "ID",
+        "kind": "Tipo",
+        "executor": "Esecutore",
+        "commandLabel": "Comando",
+        "paramsJson": "Parametri (JSON)",
+        "dragToResize": "Trascina per ridimensionare",
+        "templatesLabel": "Modelli",
+        "handlesHint": "Trascina dalla maniglia verde (in basso a sinistra) per on_success e da quella rossa (in basso a destra) per on_error. Più connessioni = parallelo. Più connessioni verso lo stesso nodo = AND-join.",
+        "invalidJson": "JSON non valido",
+        "hidePalette": "Nascondi tavolozza",
+        "hideInspector": "Nascondi ispettore",
+        "paletteLabel": "Tavolozza",
+        "nodeShort": "Nodo",
+        "showPanel": "Mostra {{name}}",
+        "platform": "Piattaforma",
+        "shell": "Shell",
+        "any": "qualsiasi",
+        "auto": "auto",
+        "runOn": "Esegui su",
+        "runAutoTitle": "Esegue sull'host che ha generato l'allerta",
+        "runSpecificTitle": "Fissa a un host (o un modello come $(alert.foo))",
+        "runExceptTitle": "Esegue sull'host che ha generato l'allerta, escludendo quelli nella lista",
+        "runAutoLabel": "sorgente allerta",
+        "runSpecificLabel": "un host",
+        "runExceptLabel": "tutti tranne",
+        "runAutoHint": "Esegue su <code>$(alert.dataSource)</code> — l'host che ha generato l'allerta.",
+        "pickHost": "scegli un host…",
+        "orTemplateHint": "O digita un modello — <code>$(alert.field)</code> viene risolto ad ogni esecuzione.",
+        "addExclusion": "aggiungi esclusione",
+        "searchAgents": "cerca agenti…",
+        "noAgents": "nessun agente",
+        "insertField": "Inserisci campo",
+        "alert": "Allerta",
+        "wholeOutput": "output completo (modifica il percorso)",
+        "noAncestorsHint": "Nessun antenato di arricchimento — aggiungi un nodo di arricchimento a monte per esporre qui il suo output.",
+        "inserts": "inserisce",
+        "conditionalHint": "Tutte le condizioni devono corrispondere. Corrispondenza → ramo di successo (verde); mancata → ramo di errore (rosso).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) non valido.",
+          "method": "Metodo",
+          "body": "Corpo (JSON)",
+          "bodyInvalid": "JSON non valido"
+        },
+        "incident": {
+          "name": "Nome dell'incidente",
+          "namePlaceholder": "Es. Accesso sospetto su $(alert.dataSource)",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "Contesto facoltativo per i risponditori. I template come $(alert.name) vengono interpolati."
+        },
+        "llm": {
+          "prompt": "Prompt",
+          "hint": "Al modello è imposto di rispondere sempre con un unico oggetto JSON con la proprietà \"result\"; il backend garantisce questa forma anche se il modello devia. I nodi figli lo consultano tramite $({{nodeId}}.result) o campi specifici."
+        },
+        "mail": {
+          "to": "A (separati da virgola)",
+          "cc": "CC (separati da virgola, opzionale)",
+          "subject": "Oggetto",
+          "subjectPlaceholder": "Es. Allarme su $(alert.dataSource)",
+          "body": "Corpo",
+          "bodyPlaceholder": "Contenuto del messaggio. I template come $(alert.name) vengono interpolati."
+        }
+      }
     },
     "executions": {
       "search": "Cerca per ID alert…",
@@ -4748,10 +4819,11 @@
       "cols": {
         "status": "Stato",
         "flow": "Flusso",
-        "command": "Comando",
+        "command": "Comando / Acción",
         "agent": "Agente",
         "date": "Data",
-        "retries": "Tentativi"
+        "retries": "Tentativi",
+        "node": "Nodo"
       },
       "filters": {
         "source": "Origine",
@@ -4760,9 +4832,12 @@
       "manual": "Console interattiva"
     },
     "executionStatus": {
+      "WAITING": "In attesa",
+      "PENDING": "In coda",
+      "EXECUTING": "In esecuzione",
       "EXECUTED": "Eseguito",
-      "PENDING": "In attesa",
-      "FAILED": "Fallito"
+      "FAILED": "Fallito",
+      "DEAD": "Non raggiungibile"
     },
     "executionOrigin": {
       "FLOW": "Flusso",

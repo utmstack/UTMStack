@@ -195,8 +195,11 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 			return
 		}
 		// A fresh context: ctx is cancelled by the time this runs on a
-		// disconnect, and the row still has to be closed.
-		done, cancelDone := context.WithTimeout(context.Background(), 5*time.Second)
+		// disconnect, and the row still has to be closed. The tenancy GORM
+		// callback needs the acting tenant in the context, so carry it over
+		// from the actor — a bare context.Background() fails the update with
+		// ErrNoTenant whenever multi-tenancy is enabled.
+		done, cancelDone := context.WithTimeout(authz.WithTenantID(context.Background(), actor.TenantID), 5*time.Second)
 		defer cancelDone()
 		_ = h.executionUC.FinishManual(done, execID, status, collected.String())
 	}

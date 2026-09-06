@@ -62,7 +62,7 @@ server {
         proxy_pass $utmstack_agent_manager;
         # A self-signed certificate on an internal name: the hop is inside the
         # overlay, and what authenticates it is not being reachable from outside.
-        proxy_ssl_verify off;
+
     }
 
     location /v1/ingest {
@@ -70,45 +70,47 @@ server {
         proxy_request_buffering off;
     }
 
+    # The agent's persistent gRPC streams to agent-manager. nginx's
+    # grpc_*_timeout of 0 means "no inactivity timeout" (removing the
+    # directive would silently fall back to a 60s default), so an idle
+    # AgentStream / PingService / CollectorService is never torn down by the
+    # proxy. Liveness is carried by the gRPC keepalive (30s ping / 10s
+    # timeout on both ends) plus grpc_socket_keepalive, which still reaps a
+    # genuinely dead peer.
     location /agent.AgentService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
-        client_body_timeout 900;
+        grpc_read_timeout 0;
+        grpc_send_timeout 0;
+		client_body_timeout 1h;
+        grpc_socket_keepalive on;
     }
 
     location /agent.PanelService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
-        client_body_timeout 900;
+        grpc_read_timeout 0;
+        grpc_send_timeout 0;
+        grpc_socket_keepalive on;
     }
 
     location /agent.CollectorService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
-        client_body_timeout 900;
+        grpc_read_timeout 0;
+        grpc_send_timeout 0;
+        grpc_socket_keepalive on;
     }
 
     # log-input's ingest, whose service lives in the SDK's "plugins" package.
     location /plugins.Integration/ {
         grpc_pass grpcs://$utmstack_log_input_grpc;
-        grpc_ssl_verify off;
         grpc_read_timeout 900;
         grpc_send_timeout 900;
-        client_body_timeout 900;
     }
 
     location /agent.PingService/ {
         grpc_pass grpcs://$utmstack_agent_manager_grpc;
-        grpc_ssl_verify off;
-        grpc_read_timeout 900;
-        grpc_send_timeout 900;
-        client_body_timeout 900;
+        grpc_read_timeout 0;
+        grpc_send_timeout 0;
+        grpc_socket_keepalive on;
     }
 
     client_max_body_size 200M;
