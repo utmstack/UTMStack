@@ -69,11 +69,14 @@ func summarizeNodeAction(executor string, params json.RawMessage) string {
 		}
 		return ""
 	case "notify":
-		label := "notify (INFO)"
-		if g.Get("type").Str == string(notificationdomain.TypeWarning) {
-			label = "notify (WARNING)"
+		ntype := "INFO"
+		switch g.Get("type").Str {
+		case string(notificationdomain.TypeWarning):
+			ntype = "WARNING"
+		case string(notificationdomain.TypeError):
+			ntype = "ERROR"
 		}
-		return label + ": " + g.Get("message").Str
+		return "notify (" + ntype + "): " + g.Get("message").Str
 	case "incident":
 		return "open incident: " + g.Get("name").Str
 	case "conditional":
