@@ -13,8 +13,7 @@ const ICONS: Record<string, typeof Terminal> = {
 }
 
 /** Palette of draggable node types. Each row is one (executor, kind) pair —
- *  since some executors back both kinds (http, select via kind flag), the
- *  palette spells them out so the drag payload is unambiguous. */
+ *  the palette spells them out so the drag payload is unambiguous. */
 export function NodePalette({ readOnly }: { readOnly?: boolean }) {
   const rows: Array<{ meta: ExecutorMeta; kind: NodeKind }> = []
   for (const meta of EXECUTOR_CATALOG) {

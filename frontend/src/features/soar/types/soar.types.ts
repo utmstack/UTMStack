@@ -150,7 +150,7 @@ export interface ExecutorMeta {
 
 export const EXECUTOR_CATALOG: ExecutorMeta[] = [
   { type: 'shell', label: 'Shell (endpoint agent)', kinds: ['executor'] },
-  { type: 'http', label: 'HTTP call', kinds: ['executor', 'enrichment'], paramsPlaceholder: { method: 'GET', url: '' } },
+  { type: 'http', label: 'HTTP call', kinds: ['enrichment'], paramsPlaceholder: { method: 'GET', url: '' } },
   { type: 'llm_enrich', label: 'LLM enrichment', kinds: ['enrichment'], paramsPlaceholder: { prompt: '' } },
   { type: 'llm_action', label: 'LLM action', kinds: ['executor'], paramsPlaceholder: { prompt: '' } },
   { type: 'notify', label: 'Send notification', kinds: ['executor'], paramsPlaceholder: { message: '', type: 'INFO' } },

@@ -4909,7 +4909,9 @@
           "urlInvalid": "URL http(s) inválida.",
           "method": "Método",
           "body": "Cuerpo (JSON)",
-          "bodyInvalid": "JSON inválido"
+          "bodyInvalid": "JSON inválido",
+          "headers": "Encabezados HTTP",
+          "addHeader": "Agregar encabezado"
         },
         "incident": {
           "name": "Nombre del incidente",

@@ -4787,7 +4787,9 @@
           "urlInvalid": "URL http(s) non valido.",
           "method": "Metodo",
           "body": "Corpo (JSON)",
-          "bodyInvalid": "JSON non valido"
+          "bodyInvalid": "JSON non valido",
+          "headers": "Intestazioni HTTP",
+          "addHeader": "Aggiungi intestazione"
         },
         "incident": {
           "name": "Nome dell'incidente",
