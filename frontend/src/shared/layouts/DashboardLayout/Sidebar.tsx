@@ -265,6 +265,10 @@ export function Sidebar() {
   const isPathActive = (to: string) => pathname === to
   const isBaseActive = (basePath: string) =>
     pathname === basePath || pathname.startsWith(basePath + '/')
+  const overviewItem = sections
+    .flatMap((section) => section.items)
+    .find((item): item is LeafItem => !isGroup(item) && item.to === '/home')
+  const renderOverviewWithToggle = !collapsed && overviewItem
 
   // Drill-down: when navigating under /settings the sidebar swaps to a sub-nav.
   if (pathname.startsWith('/settings')) {
@@ -278,10 +282,25 @@ export function Sidebar() {
         collapsed ? 'w-14' : 'w-60'
       )}
     >
-      <div className="flex p-2">
-        <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
-      </div>
+      {collapsed ? (
+        <div className="flex justify-center p-2">
+          <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
+        </div>
+      ) : null}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2 pt-0">
+        {renderOverviewWithToggle && overviewItem && (
+          <div className="mb-1 flex items-center gap-2 pt-2">
+            <div className="min-w-0 flex-1">
+              <SidebarLeaf
+                item={overviewItem}
+                active={overviewItem.matchPrefix ? isBaseActive(overviewItem.to) : isPathActive(overviewItem.to)}
+                collapsed={false}
+              />
+            </div>
+            <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
+          </div>
+        )}
+
         {sections
           .filter((section) => !section.adminOnly || isAdmin)
           .map((section, idx) => {
@@ -308,7 +327,8 @@ export function Sidebar() {
                   {section.items
                     .filter(
                       (item) =>
-                        isGroup(item) || !item.platformOnly || (actingAsPlatform && isMSSP)
+                        (isGroup(item) || !item.platformOnly || (actingAsPlatform && isMSSP)) &&
+                        !(renderOverviewWithToggle && !isGroup(item) && item.to === '/home')
                     )
                     .map((item) =>
                     isGroup(item) ? (
