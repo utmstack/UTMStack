@@ -4579,7 +4579,9 @@
           "urlInvalid": "Недопустимый http(s) URL.",
           "method": "Метод",
           "body": "Тело (JSON)",
-          "bodyInvalid": "Недопустимый JSON"
+          "bodyInvalid": "Недопустимый JSON",
+          "headers": "HTTP-заголовки",
+          "addHeader": "Добавить заголовок"
         },
         "incident": {
           "name": "Название инцидента",

@@ -4787,7 +4787,9 @@
           "urlInvalid": "Keine gültige http(s)-URL.",
           "method": "Methode",
           "body": "Body (JSON)",
-          "bodyInvalid": "Ungültiges JSON"
+          "bodyInvalid": "Ungültiges JSON",
+          "headers": "HTTP-Kopfzeilen",
+          "addHeader": "Kopfzeile hinzufügen"
         },
         "incident": {
           "name": "Incident-Name",
