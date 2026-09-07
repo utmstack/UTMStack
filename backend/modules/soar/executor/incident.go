@@ -62,9 +62,9 @@ func (i *Incident) Execute(ctx context.Context, exec *soardomain.SoarExecution) 
 	if alertName == "" {
 		alertName = exec.AlertID
 	}
-	severity := gjson.Get(src, "alert.severity").String()
+	severity := strings.ToLower(gjson.Get(src, "alert.severity").String())
 	if severity == "" {
-		severity = "Low"
+		severity = "low"
 	}
 
 	req := incidentsdto.CreateIncidentRequest{

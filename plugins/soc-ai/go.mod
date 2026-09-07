@@ -1,6 +1,6 @@
 module github.com/utmstack/UTMStack/plugins/soc-ai
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/fsnotify/fsnotify v1.10.1
@@ -56,7 +56,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	golang.org/x/arch v0.27.0 // indirect
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
