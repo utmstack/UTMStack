@@ -21,6 +21,7 @@ service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
   rpc GetConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
   rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  rpc SetAgentConfig(SetAgentConfigRequest) returns (SetAgentConfigResponse) {}
 }
 
 message ConnectionKeyRequest {
@@ -84,10 +85,32 @@ message BidirectionalStream {
     UtmCommand command = 1;
     CommandResult result = 2;
     Heartbeat heartbeat = 3;
+    ConfigState config_state = 4;
+    ConfigUpdate config_update = 5;
   }
 }
 
-message Heartbeat {}
+message ConfigState {
+  map<string, uint64> revisions = 1;
+}
+
+message ConfigUpdate {
+  string key = 1;
+  uint64 revision = 2;
+  string content = 3;
+}
+
+message SetAgentConfigRequest {
+  string key = 1;
+  string content = 2;
+  // 0 (default) targets the whole fleet; a specific agent id overrides
+  // just that agent, taking priority over the fleet-wide value for it.
+  uint32 agent_id = 3;
+}
+
+message SetAgentConfigResponse {
+  uint64 revision = 1;
+}
 
 message UtmCommand {
   string agent_id = 1;

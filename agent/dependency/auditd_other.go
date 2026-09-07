@@ -5,7 +5,7 @@ package dependency
 
 // AuditdVersion is the UTMStack audit rules version.
 // This is a stub for non-Linux systems.
-const AuditdVersion = "1.0.0"
+const AuditdVersion = "1.2.0"
 
 // configureAuditd is a no-op on non-Linux systems.
 func configureAuditd() error {

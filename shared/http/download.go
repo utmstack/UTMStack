@@ -2,12 +2,15 @@
 package http
 
 import (
+	"crypto/sha256"
 	"crypto/tls"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -88,4 +91,57 @@ func DownloadFile(url string, headers map[string]string, filename, destDir strin
 		Timeout:       5 * time.Minute,
 	}
 	return Download(url, destDir, filename, opts)
+}
+
+func DownloadAndVerify(url, destDir, filename string, opts DownloadOptions) (verified bool, err error) {
+	if err := Download(url, destDir, filename, opts); err != nil {
+		return false, err
+	}
+
+	checksumFilename := filename + ".sha256.tmp"
+	if err := Download(url+".sha256", destDir, checksumFilename, opts); err != nil {
+		return false, nil
+	}
+	checksumPath := filepath.Join(destDir, checksumFilename)
+	defer os.Remove(checksumPath)
+
+	raw, err := os.ReadFile(checksumPath)
+	if err != nil {
+		return false, nil
+	}
+	fields := strings.Fields(string(raw))
+	if len(fields) == 0 {
+		return false, nil
+	}
+	expected := strings.ToLower(fields[0])
+	if len(expected) != sha256.Size*2 {
+		return false, nil
+	}
+
+	f, err := os.Open(filepath.Join(destDir, filename))
+	if err != nil {
+		return false, fmt.Errorf("error opening downloaded file for checksum: %w", err)
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return false, fmt.Errorf("error hashing downloaded file: %w", err)
+	}
+	actual := hex.EncodeToString(h.Sum(nil))
+
+	if actual != expected {
+		return false, fmt.Errorf("checksum mismatch for %s: expected %s, got %s", filename, expected, actual)
+	}
+
+	return true, nil
+}
+
+func DownloadFileAndVerify(url string, headers map[string]string, filename, destDir string, skipTLSVerify bool) (verified bool, err error) {
+	opts := DownloadOptions{
+		Headers:       headers,
+		SkipTLSVerify: skipTLSVerify,
+		Timeout:       5 * time.Minute,
+	}
+	return DownloadAndVerify(url, destDir, filename, opts)
 }

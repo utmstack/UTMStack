@@ -5,6 +5,7 @@ package dependency
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/agent/config"
@@ -20,9 +21,9 @@ func GetDependencies() []Dependency {
 
 	return []Dependency{
 		{
-			Name:        "updater",
-			Version:     getUpdaterVersion(),
-			BinaryPath:  filepath.Join(basePath, UpdaterFile("")),
+			Name:       "updater",
+			Version:    getUpdaterVersion(),
+			BinaryPath: filepath.Join(basePath, UpdaterFile("")),
 			DownloadURL: func(server string) string {
 				return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, UpdaterFile(""))
 			},
@@ -30,6 +31,15 @@ func GetDependencies() []Dependency {
 			PreDownload: preDownloadUpdater,
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
+		},
+
+		{
+			Name:       "audit-policy",
+			Version:    AuditPolicyVersion,
+			BinaryPath: filepath.Join(os.Getenv("windir"), "System32", "auditpol.exe"),
+			Critical:   false,
+			Configure:  configureWindowsAuditPolicy,
+			Update:     configureWindowsAuditPolicy,
 		},
 	}
 }
@@ -56,7 +66,7 @@ func preDownloadUpdater() (func(), error) {
 			_ = svc.Start(config.SERVICE_UPDATER_NAME)
 		}, nil
 	}
-	
+
 	// Return cleanup function that restarts the service
 	return func() {
 		_ = svc.Start(config.SERVICE_UPDATER_NAME)

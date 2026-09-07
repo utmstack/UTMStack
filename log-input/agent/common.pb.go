@@ -290,6 +290,13 @@ func (x *DeleteRequest) GetDeletedBy() string {
 	return ""
 }
 
+// ConnectorAuthRequest resolves one connector's credential by id.
+//
+// It exists because listing was the only way to answer that question, and a
+// caller that already holds an id had to pull every connector to find one. It
+// carries what authentication needs and nothing else: no status, no last seen,
+// no hostname — none of which the caller reads, and all of which cost a lookup
+// of their own to assemble.
 type ConnectorAuthRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -335,9 +342,11 @@ func (x *ConnectorAuthRequest) GetId() uint32 {
 }
 
 type ConnectorAuthResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	TenantId      string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Key   string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Empty means the default tenant, the same convention the rest of the
+	// service uses.
+	TenantId      string `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -386,6 +395,48 @@ func (x *ConnectorAuthResponse) GetTenantId() string {
 	return ""
 }
 
+// Heartbeat keeps an idle control stream from looking abandoned to whatever
+// sits between a connector and the server. Proxies end a request body that
+// stops arriving, and a stream that says nothing for minutes is exactly that:
+// nginx cuts it, the connector sees RST_STREAM, and until it reconnects no
+// command can reach the machine. It carries no fields because it has nothing
+// to say — that it arrived at all is the whole message.
+type Heartbeat struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Heartbeat) Reset() {
+	*x = Heartbeat{}
+	mi := &file_common_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Heartbeat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Heartbeat) ProtoMessage() {}
+
+func (x *Heartbeat) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Heartbeat.ProtoReflect.Descriptor instead.
+func (*Heartbeat) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{5}
+}
+
 var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
@@ -408,7 +459,8 @@ const file_common_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\rR\x02id\"F\n" +
 	"\x15ConnectorAuthResponse\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1b\n" +
-	"\ttenant_id\x18\x02 \x01(\tR\btenantId*.\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\"\v\n" +
+	"\tHeartbeat*.\n" +
 	"\x06Status\x12\n" +
 	"\n" +
 	"\x06ONLINE\x10\x00\x12\v\n" +
@@ -431,7 +483,7 @@ func file_common_proto_rawDescGZIP() []byte {
 }
 
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_common_proto_goTypes = []any{
 	(Status)(0),                   // 0: agent.Status
 	(ConnectorType)(0),            // 1: agent.ConnectorType
@@ -440,6 +492,7 @@ var file_common_proto_goTypes = []any{
 	(*DeleteRequest)(nil),         // 4: agent.DeleteRequest
 	(*ConnectorAuthRequest)(nil),  // 5: agent.ConnectorAuthRequest
 	(*ConnectorAuthResponse)(nil), // 6: agent.ConnectorAuthResponse
+	(*Heartbeat)(nil),             // 7: agent.Heartbeat
 }
 var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -460,7 +513,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

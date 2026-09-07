@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/tools/rulecheck
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.28
+	github.com/threatwinds/go-sdk v1.1.31
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )

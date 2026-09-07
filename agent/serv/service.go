@@ -13,7 +13,6 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
-	"github.com/utmstack/UTMStack/agent/collector/auditd"
 	"github.com/utmstack/UTMStack/agent/collector/platform"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/database"
@@ -140,8 +139,12 @@ func (p *program) run() {
 		pb.UpdateAgent(cnf, ctx)
 	})
 
+	p.goSafe("StatusReporter", func() {
+		pb.RunStatusReporter(ctx)
+	})
+
 	// Start OS-level collectors (platform + auditd only).
-	startOSCollectors(ctx, pb.LogQueue)
+	startOSCollectors(ctx, pb.EnqueueLog)
 
 	// Wait for shutdown signal
 	signals := make(chan os.Signal, 1)
@@ -157,15 +160,12 @@ func (p *program) run() {
 
 var activeCollectors []platform.Collector
 
-func startOSCollectors(ctx context.Context, queue chan *plugins.Log) {
+func startOSCollectors(ctx context.Context, enqueue func(*plugins.Log) error) {
 	activeCollectors = nil
 	for _, c := range platform.GetCollectors() {
 		activeCollectors = append(activeCollectors, c)
-		go runCollector(ctx, c, queue)
+		go runCollector(ctx, c, enqueue)
 	}
-	a := auditd.New()
-	activeCollectors = append(activeCollectors, a)
-	go runCollector(ctx, a, queue)
 }
 
 func stopOSCollectors() {
@@ -175,12 +175,22 @@ func stopOSCollectors() {
 	activeCollectors = nil
 }
 
-func runCollector(ctx context.Context, c platform.Collector, queue chan *plugins.Log) {
+func runCollector(ctx context.Context, c platform.Collector, enqueue func(*plugins.Log) error) {
 	defer func() {
 		if r := recover(); r != nil {
 			utils.Logger.ErrorF("panic in collector %s: %v", c.Name(), r)
 		}
 	}()
-	c.Start(ctx, queue)
-}
 
+	// Wrap enqueue so every source's health (received/persisted/failed,
+	// last event time — see A15/A16) is tracked by the collector's own
+	// name, without each collector needing to know about stats itself.
+	name := c.Name()
+	tracked := func(log *plugins.Log) error {
+		err := enqueue(log)
+		pb.RecordSourceEvent(name, err)
+		return err
+	}
+
+	c.Start(ctx, tracked)
+}

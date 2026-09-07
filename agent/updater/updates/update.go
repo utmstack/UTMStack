@@ -24,6 +24,27 @@ type Version struct {
 	Version string `json:"version"`
 }
 
+// updateHoldState mirrors updateHoldState in agent/agent/updatehold.go —
+// the file is the only thing shared between the two, since they are
+// separate binaries/modules.
+type updateHoldState struct {
+	Hold bool `json:"hold"`
+}
+
+// updateHeld reads config.UpdateHoldFile fresh on every call rather than
+// caching it, unlike the rest of Config (see the field comment on
+// config.UpdateHoldFile for why). A missing or unreadable file means "not
+// held" — the same default as before this existed — so a fleet where
+// agent-manager has never called SetAgentConfig for "update_hold" behaves
+// exactly as it did before this feature.
+func updateHeld() bool {
+	var state updateHoldState
+	if err := fs.ReadJSON(config.UpdateHoldFile, &state); err != nil {
+		return false
+	}
+	return state.Hold
+}
+
 // legacyServiceFile returns the old naming convention for the agent binary.
 // This is used for migration from old agents that don't have OS/arch suffix.
 func legacyServiceFile() string {
@@ -44,8 +65,29 @@ func UpdateDependencies(cnf *config.Config) {
 		}
 	}
 
+	autoUpdatePausedLogged := false
+	remoteHoldLogged := false
+
 	for {
 		time.Sleep(checkEvery)
+
+		if cnf.PauseAutoUpdate {
+			if !autoUpdatePausedLogged {
+				logger.Info("auto-update is paused (pause-auto-update), staying on version %s", currentVersion.Version)
+				autoUpdatePausedLogged = true
+			}
+			continue
+		}
+		autoUpdatePausedLogged = false
+
+		if updateHeld() {
+			if !remoteHoldLogged {
+				logger.Info("update held by agent-manager (update_hold config), staying on version %s", currentVersion.Version)
+				remoteHoldLogged = true
+			}
+			continue
+		}
+		remoteHoldLogged = false
 
 		if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), nil, "version_new.json", basePath, cnf.SkipCertValidation); err != nil {
 			logger.Error("error downloading version.json: %v", err)
@@ -62,9 +104,21 @@ func UpdateDependencies(cnf *config.Config) {
 			logger.Info("New version of agent found: %s", newVersion.Version)
 
 			agentBinary := config.ServiceFile("")
-			if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, agentBinary), nil, config.ServiceFile("_new"), basePath, cnf.SkipCertValidation); err != nil {
-				logger.Error("error downloading agent: %v", err)
+			verified, err := http.DownloadFileAndVerify(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, agentBinary), nil, config.ServiceFile("_new"), basePath, cnf.SkipCertValidation)
+			if err != nil {
+				logger.Error("error downloading or verifying agent: %v", err)
+				os.Remove(filepath.Join(basePath, config.ServiceFile("_new")))
+				os.Remove(filepath.Join(basePath, "version_new.json"))
 				continue
+			}
+			if verified {
+				logger.Info("checksum verified for %s", agentBinary)
+			} else {
+				// No checksum published by this server yet — install
+				// unverified rather than block every update until the
+				// server side catches up (see C1 in
+				// GAPS_AND_IMPROVEMENTS.md).
+				logger.Info("no checksum published for %s, installing unverified", agentBinary)
 			}
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {

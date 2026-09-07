@@ -347,6 +347,7 @@ const (
 	PanelService_ProcessCommand_FullMethodName      = "/agent.PanelService/ProcessCommand"
 	PanelService_GetConnectionKey_FullMethodName    = "/agent.PanelService/GetConnectionKey"
 	PanelService_RotateConnectionKey_FullMethodName = "/agent.PanelService/RotateConnectionKey"
+	PanelService_SetAgentConfig_FullMethodName      = "/agent.PanelService/SetAgentConfig"
 )
 
 // PanelServiceClient is the client API for PanelService service.
@@ -356,6 +357,7 @@ type PanelServiceClient interface {
 	ProcessCommand(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[UtmCommand, CommandResult], error)
 	GetConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error)
 	RotateConnectionKey(ctx context.Context, in *ConnectionKeyRequest, opts ...grpc.CallOption) (*ConnectionKeyResponse, error)
+	SetAgentConfig(ctx context.Context, in *SetAgentConfigRequest, opts ...grpc.CallOption) (*SetAgentConfigResponse, error)
 }
 
 type panelServiceClient struct {
@@ -399,6 +401,16 @@ func (c *panelServiceClient) RotateConnectionKey(ctx context.Context, in *Connec
 	return out, nil
 }
 
+func (c *panelServiceClient) SetAgentConfig(ctx context.Context, in *SetAgentConfigRequest, opts ...grpc.CallOption) (*SetAgentConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetAgentConfigResponse)
+	err := c.cc.Invoke(ctx, PanelService_SetAgentConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PanelServiceServer is the server API for PanelService service.
 // All implementations must embed UnimplementedPanelServiceServer
 // for forward compatibility.
@@ -406,6 +418,7 @@ type PanelServiceServer interface {
 	ProcessCommand(grpc.BidiStreamingServer[UtmCommand, CommandResult]) error
 	GetConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error)
 	RotateConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error)
+	SetAgentConfig(context.Context, *SetAgentConfigRequest) (*SetAgentConfigResponse, error)
 	mustEmbedUnimplementedPanelServiceServer()
 }
 
@@ -424,6 +437,9 @@ func (UnimplementedPanelServiceServer) GetConnectionKey(context.Context, *Connec
 }
 func (UnimplementedPanelServiceServer) RotateConnectionKey(context.Context, *ConnectionKeyRequest) (*ConnectionKeyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RotateConnectionKey not implemented")
+}
+func (UnimplementedPanelServiceServer) SetAgentConfig(context.Context, *SetAgentConfigRequest) (*SetAgentConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAgentConfig not implemented")
 }
 func (UnimplementedPanelServiceServer) mustEmbedUnimplementedPanelServiceServer() {}
 func (UnimplementedPanelServiceServer) testEmbeddedByValue()                      {}
@@ -489,6 +505,24 @@ func _PanelService_RotateConnectionKey_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PanelService_SetAgentConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAgentConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PanelServiceServer).SetAgentConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PanelService_SetAgentConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PanelServiceServer).SetAgentConfig(ctx, req.(*SetAgentConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PanelService_ServiceDesc is the grpc.ServiceDesc for PanelService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -503,6 +537,10 @@ var PanelService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RotateConnectionKey",
 			Handler:    _PanelService_RotateConnectionKey_Handler,
+		},
+		{
+			MethodName: "SetAgentConfig",
+			Handler:    _PanelService_SetAgentConfig_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

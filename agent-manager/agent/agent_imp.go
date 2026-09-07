@@ -45,6 +45,10 @@ type AgentService struct {
 	connKeys              map[string]models.ConnectionKey // tenant -> key
 	connKeyMutex          sync.RWMutex
 	DBConnection          *database.DB
+
+	configRegistry  map[string]map[uint]string // key -> agentID (0 = fleet-wide default) -> content
+	configRevisions map[string]uint64          // key -> shared revision, see models.AgentConfigRevision
+	configMutex     sync.RWMutex
 }
 
 func (s *AgentService) ValidateAgentKey(key string, id uint) bool {
@@ -76,6 +80,11 @@ func InitAgentService() error {
 		}
 
 		if e := AgentServ.loadConnectionKeys(); e != nil {
+			err = e
+			return
+		}
+
+		if e := AgentServ.loadConfigRegistry(); e != nil {
 			err = e
 			return
 		}
@@ -329,6 +338,14 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	s.AgentStreamMap[idUint] = stream
 	s.AgentStreamMutex.Unlock()
 
+	defer func() {
+		s.AgentStreamMutex.Lock()
+		if s.AgentStreamMap[idUint] == stream {
+			delete(s.AgentStreamMap, idUint)
+		}
+		s.AgentStreamMutex.Unlock()
+	}()
+
 	if OnAgentConnectHook != nil {
 		OnAgentConnectHook(stream.Context(), idUint)
 	}
@@ -338,14 +355,9 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			err = utils.WaitForReconnect(stream.Context(), stream)
-			if err != nil {
-				catcher.Info("AgentStream: WaitForReconnect failed, evicting stream",
-					map[string]any{"agent_id": idUint, "err": err.Error(), "process": "agent-manager"})
-				s.evictIfOwner(idUint, stream)
-				return status.Error(codes.Internal, fmt.Sprintf("failed to reconnect: %v", err))
-			}
-			continue
+			// The agent finished sending. It does not resume on this stream —
+			// it opens a new one — so there is nothing here to wait for.
+			return nil
 		}
 		if err != nil {
 			catcher.Info("AgentStream: Recv errored, evicting stream",
@@ -355,17 +367,36 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 		}
 
 		switch msg := in.StreamMessage.(type) {
+		case *BidirectionalStream_Heartbeat:
+			if err := sendToAgent(idUint, stream, &BidirectionalStream{
+				StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+			}); err != nil {
+				return status.Error(codes.Internal, fmt.Sprintf("failed to answer heartbeat: %v", err))
+			}
 		case *BidirectionalStream_Result:
 			catcher.Info("Received command result from agent", map[string]any{"agent_id": msg.Result.AgentId, "result": msg.Result.Result, "process": "agent-manager"})
 			if !s.tryDeliverResult(msg.Result) &&
 				(OnCommandResultHook == nil || !OnCommandResultHook(msg.Result)) {
 				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": msg.Result.GetCmdId(), "process": "agent-manager"})
 			}
-		case *BidirectionalStream_Heartbeat:
+		case *BidirectionalStream_ConfigState:
+			for _, update := range s.diffConfig(idUint, msg.ConfigState.GetRevisions()) {
+				if err := sendToAgent(idUint, stream, &BidirectionalStream{
+					StreamMessage: &BidirectionalStream_ConfigUpdate{ConfigUpdate: update},
+				}); err != nil {
+					return status.Error(codes.Internal, fmt.Sprintf("failed to send config update: %v", err))
+				}
+			}
 		}
 	}
 }
 
+// serverHeartbeatLoop pings the agent on its own cadence, independent of the
+// agent's own heartbeats or the reactive echo above. Two nginx L7 hops sit
+// between them, and each one enforces its own idle timeout on its own side of
+// the connection — a reply that only ever follows something the agent sent
+// does not, by itself, guarantee the hop closest to this server ever sees
+// server-initiated traffic.
 func serverHeartbeatLoop(ctx context.Context, agentID uint, stream AgentService_AgentStreamServer) {
 	t := time.NewTicker(agentHeartbeatInterval)
 	defer t.Stop()
@@ -623,4 +654,16 @@ func AuthSnapshot() authcache.Snapshot {
 	}
 
 	return s
+}
+
+func sendToAgent(agentID uint, stream AgentService_AgentStreamServer, msg *BidirectionalStream) error {
+	var lock sync.Locker
+	if LockStreamHook != nil {
+		lock = LockStreamHook(agentID)
+	}
+	if lock != nil {
+		lock.Lock()
+		defer lock.Unlock()
+	}
+	return stream.Send(msg)
 }

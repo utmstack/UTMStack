@@ -17,7 +17,7 @@ import (
 
 // AuditdVersion is the UTMStack audit rules version.
 // Bump this when audit rules are updated to trigger rule redeployment.
-const AuditdVersion = "1.0.0"
+const AuditdVersion = "1.2.0"
 
 // auditRulesContent contains the UTMStack security audit rules.
 // These rules are deployed to /etc/audit/rules.d/50-utmstack.rules
@@ -27,14 +27,22 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 ## Managed by UTMStack Agent - Do not edit manually
 ## Additive rules - does not delete existing configuration
 
-# Monitor executed commands (critical for SIEM)
-# Filter: auid>=1000 (real users only), auid!=4294967295 (valid audit UID, excludes system processes)
--a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=4294967295 -k utmstack_exec
--a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=4294967295 -k utmstack_exec
+# Monitor executed commands (critical for SIEM). Deliberately no auid
+# filter: an earlier "auid>=1000 -F auid!=4294967295" filter here only
+# caught interactive non-root logins, silently missing root sessions
+# (auid=0) and — more importantly — anything with no login session at all
+# (auid unset = 4294967295): systemd services, cron jobs, container
+# processes, web server workers. That's exactly the vector most real
+# server compromises use (a web shell, a compromised service), so it went
+# undetected. Higher event volume is an accepted tradeoff for that
+# coverage.
+-a always,exit -F arch=b64 -S execve -k utmstack_exec
+-a always,exit -F arch=b32 -S execve -k utmstack_exec
 
-# Privilege escalation
--a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
--a always,exit -F arch=b32 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
+# Privilege escalation. Same reasoning as execve above: root and
+# no-login-session processes must not be invisible here either.
+-a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -k utmstack_priv
+-a always,exit -F arch=b32 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -k utmstack_priv
 
 # Sensitive file access (Identity)
 -w /etc/shadow -p wa -k utmstack_sensitive
@@ -46,9 +54,29 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 -w /etc/sudoers -p wa -k utmstack_sensitive
 -w /etc/sudoers.d -p wa -k utmstack_sensitive
 -w /etc/ssh/sshd_config -p wa -k utmstack_sensitive
--w /root/.ssh -p rwa -k utmstack_sensitive   
+-w /root/.ssh -p rwa -k utmstack_sensitive
 
-# Log Tampering 
+# Persistence mechanisms. These are cheap to watch (only fire on actual
+# writes/attribute changes, not a hot syscall path) and cover the
+# techniques most commonly used to survive a reboot or hide a backdoor.
+# A path that doesn't exist on a given distro just fails to load that one
+# watch — auditctl/augenrules skip it and still load every other rule.
+-w /etc/cron.d -p wa -k utmstack_persistence
+-w /etc/cron.daily -p wa -k utmstack_persistence
+-w /etc/cron.hourly -p wa -k utmstack_persistence
+-w /etc/cron.weekly -p wa -k utmstack_persistence
+-w /etc/cron.monthly -p wa -k utmstack_persistence
+-w /etc/crontab -p wa -k utmstack_persistence
+-w /var/spool/cron -p wa -k utmstack_persistence
+-w /var/spool/cron/crontabs -p wa -k utmstack_persistence
+-w /etc/systemd/system -p wa -k utmstack_persistence
+-w /etc/ld.so.preload -p wa -k utmstack_persistence
+-w /etc/rc.local -p wa -k utmstack_persistence
+-w /etc/environment -p wa -k utmstack_persistence
+-w /etc/pam.d -p wa -k utmstack_persistence
+-w /etc/hosts -p wa -k utmstack_persistence
+
+# Log Tampering
 -w /var/log/wtmp -p wa -k utmstack_log_tampering
 -w /var/log/btmp -p wa -k utmstack_log_tampering
 -w /var/log/lastlog -p wa -k utmstack_log_tampering
@@ -57,7 +85,16 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 -a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k utmstack_modules
 -a always,exit -F arch=b32 -S init_module,finit_module,delete_module -k utmstack_modules
 
-# Network connections (may be high volume - consider enabling selectively)
+# Network connections: deliberately NOT enabled. auditd has no cheap way to
+# filter connect() by destination (the address is behind a pointer arg, not
+# something -F can inspect), so this is all-or-nothing — one full audit
+# record per socket connect() on the host: outbound, inbound-local, unix
+# sockets, DNS, health checks, everything. Even Datadog's eBPF-based Cloud
+# Workload Security doesn't log network activity this way — it aggregates
+# connections into periodic flow summaries in-kernel (NetworkFlowMonitorEvent)
+# instead of one event per syscall, which auditd/netlink cannot do. Getting
+# real network visibility here needs an eBPF-based flow monitor, not an
+# audit rule; that's a separate, larger piece of work.
 # -a always,exit -F arch=b64 -S connect -F auid>=1000 -k utmstack_network
 
 # Time changes

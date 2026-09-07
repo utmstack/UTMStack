@@ -1,0 +1,33 @@
+# UTMStack Agent configuration.
+#
+# This file is normally written by `utmstack_agent install ...` — you don't
+# need to hand-write it for a fresh install. It's documented here for
+# reference (e.g. when restoring a host, or scripting a deployment) and
+# because every field below can also be set as an environment variable on
+# the service, which takes precedence over this file. That's useful for
+# config-managed deployments (Ansible, GPO, RMM) that prefer environment
+# variables over editing files in place.
+#
+# agent-key is stored AES-encrypted, keyed by this install's uuid.yml — it
+# is set by `install`/registration, never hand-edited, and has no
+# environment variable override.
+
+# UTMStack server address (host or IP). Env override: UTMSTACK_SERVER
+server: ""
+
+# Agent ID issued by the server at registration. Not overridable.
+agent-id: 0
+
+# Encrypted agent key issued at registration. Not overridable.
+agent-key: ""
+
+# Skip TLS certificate validation when talking to the server. Only for
+# on-prem deployments with a self-signed certificate you can't otherwise
+# trust. Env override: UTMSTACK_SKIP_CERT_VALIDATION (true/false)
+insecure: false
+
+# Refuse every remote command sent from the console to this host. Set at
+# install via --no-remote-control; enforced locally by the agent itself
+# (not just reported to the server), so it holds even if the server were
+# ever compromised. Env override: UTMSTACK_NO_REMOTE_CONTROL (true/false)
+no-remote-control: false

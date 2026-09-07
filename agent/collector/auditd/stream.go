@@ -21,29 +21,31 @@ const (
 
 // eventStream implements libaudit.Stream interface for reassembled events
 type eventStream struct {
-	queue    chan *plugins.Log
+	enqueue  func(*plugins.Log) error
 	hostname string
+	cursor   *auditLogCursor
 }
 
 // newEventStream creates a new eventStream
-func newEventStream(queue chan *plugins.Log, hostname string) *eventStream {
+func newEventStream(enqueue func(*plugins.Log) error, hostname string, cursor *auditLogCursor) *eventStream {
 	return &eventStream{
-		queue:    queue,
+		enqueue:  enqueue,
 		hostname: hostname,
+		cursor:   cursor,
 	}
 }
 
-// ReassemblyComplete is called when a complete group of events has been received.
-// Uses non-blocking send to prevent backpressure from propagating to the kernel.
-// If the queue is full, events are dropped rather than blocking.
 func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	if len(msgs) == 0 {
 		return
 	}
 
+	seq := msgs[0].Sequence
+
 	jsonOutput, err := formatAuditEvent(msgs)
 	if err != nil {
 		utils.Logger.ErrorF("auditd: error formatting event: %v", err)
+		s.cursor.resolve(seq, false)
 		return
 	}
 
@@ -53,14 +55,14 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 		Raw:        jsonOutput,
 	}
 
-	// Non-blocking send: drop events if queue is full to prevent backpressure
-	select {
-	case s.queue <- log:
-		// Event sent successfully
-	default:
-		// Queue is full - drop event to prevent backpressure to kernel
-		utils.Logger.ErrorF("auditd: queue full, dropping event (sequence=%d)", msgs[0].Sequence)
+	err = s.enqueue(log)
+	if err != nil {
+		utils.Logger.ErrorF("auditd: failed to persist event (sequence=%d): %v", seq, err)
 	}
+	// Only advance the audit.log resume position past this event once it's
+	// durably persisted — resolve(seq, false) still drops the pending
+	// entry so it doesn't leak, it just doesn't move the cursor forward.
+	s.cursor.resolve(seq, err == nil)
 }
 
 // EventsLost is called when events were lost due to buffer overflow or rate limiting.

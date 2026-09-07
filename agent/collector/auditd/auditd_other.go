@@ -24,7 +24,7 @@ func (a *AuditdCollector) Name() string {
 }
 
 // Start is a no-op on non-Linux platforms
-func (a *AuditdCollector) Start(ctx context.Context, queue chan *plugins.Log) {
+func (a *AuditdCollector) Start(ctx context.Context, enqueue func(*plugins.Log) error) {
 	utils.Logger.Info("auditd collector not supported on this platform, skipping")
 }
 

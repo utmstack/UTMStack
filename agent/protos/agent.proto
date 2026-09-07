@@ -9,15 +9,32 @@ import "common.proto";
 
 service AgentService {
   rpc RegisterAgent(AgentRequest) returns (AuthResponse) {}
-  rpc UpdateAgent(AgentRequest) returns (AuthResponse) {}
+  rpc UpdateAgent(AgentRequest) returns  (AuthResponse) {}
   rpc DeleteAgent(DeleteRequest) returns (AuthResponse) {}
   rpc ListAgents (ListRequest) returns (ListAgentsResponse) {}
+  rpc GetAgentAuth (ConnectorAuthRequest) returns (ConnectorAuthResponse) {}
   rpc AgentStream(stream BidirectionalStream) returns (stream BidirectionalStream) {}
   rpc ListAgentCommands (ListRequest) returns (ListAgentsCommandsResponse) {}
 }
 
 service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
+  rpc GetConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  // SetAgentConfig sets the authoritative content for a named config key,
+  // bumping its version. Agents pick it up on their next ConfigState
+  // report (see BidirectionalStream) — this call does not push anything
+  // itself, it only changes what the server considers current.
+  rpc SetAgentConfig(SetAgentConfigRequest) returns (SetAgentConfigResponse) {}
+}
+
+message ConnectionKeyRequest {
+  // Which tenant's enrolment key. Empty means the default tenant.
+  string tenantId = 1;
+}
+
+message ConnectionKeyResponse {
+  string connection_key = 1;
 }
 
 enum AgentCommandStatus {
@@ -40,6 +57,10 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
+  // Set at install and never changed from here. It is reported so the console
+  // can show that this machine refuses commands; the refusal itself happens in
+  // the agent, because a flag the server honours is worth nothing against a
+  // server that has been taken over.
   bool no_remote_control = 12;
 }
 
@@ -63,6 +84,8 @@ message Agent {
   string os_minor_version = 12;
   string aliases = 13;
   string addresses = 14;
+  string tenant_id = 15;
+  bool no_remote_control = 16;
 }
 
 message BidirectionalStream {
@@ -70,10 +93,47 @@ message BidirectionalStream {
     UtmCommand command = 1;
     CommandResult result = 2;
     Heartbeat heartbeat = 3;
+    ConfigState config_state = 4;
+    ConfigUpdate config_update = 5;
   }
 }
 
-message Heartbeat {}
+// ConfigState reports which revision of each named config the agent
+// currently has applied. Sent periodically (not just once) so the server
+// can compute what, if anything, is stale — without keeping its own
+// record of what each agent has. This mirrors Datadog Remote Config's
+// client-declares-state model instead of a per-agent tracking table: the
+// server only needs to know the current authoritative revision of each
+// key, not what any specific agent last received. Called "revision", not
+// "version", to avoid reading as the agent's own software version (see
+// AgentRequest.version) — this counts edits to a config key, unrelated.
+message ConfigState {
+  map<string, uint64> revisions = 1;
+}
+
+// ConfigUpdate pushes one named config's new content. The server sends
+// one of these per key where the agent's reported revision is behind the
+// authoritative one — never proactively, only in response to a
+// ConfigState. The set of valid keys and how to apply each one's content
+// is owned entirely by the agent; the server just stores and revisions
+// opaque content per key.
+message ConfigUpdate {
+  string key = 1;
+  uint64 revision = 2;
+  string content = 3;
+}
+
+message SetAgentConfigRequest {
+  string key = 1;
+  string content = 2;
+  // 0 (default) targets the whole fleet; a specific agent id overrides
+  // just that agent, taking priority over the fleet-wide value for it.
+  uint32 agent_id = 3;
+}
+
+message SetAgentConfigResponse {
+  uint64 revision = 1;
+}
 
 message UtmCommand {
   string agent_id = 1;

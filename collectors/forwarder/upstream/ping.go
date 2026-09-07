@@ -9,18 +9,26 @@ import (
 )
 
 var (
-	timeToSleep  = 10 * time.Second
-	pingInterval = 15 * time.Second
+	timeToSleep       = 10 * time.Second
+	pingInterval      = 15 * time.Second
+	heartbeatInterval = 30 * time.Second
 )
 
 func StartPing(cnf *config.Config, ctx context.Context) {
 	var connErrLogged, streamErrLogged bool
 
 	for {
+		if ctx.Err() != nil {
+			utils.Logger.Info("Ping Stream stopping due to context cancellation")
+			return
+		}
+
 		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
 			LogConnectionError(err, "Agent Manager", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepOrDone(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
@@ -28,7 +36,9 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 		stream, err := client.Ping(ctx)
 		if err != nil {
 			LogStreamError(err, "Ping Stream", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepOrDone(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
@@ -41,11 +51,8 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 		for range ticker.C {
 			err := stream.Send(&PingRequest{Type: ConnectorType_COLLECTOR})
 			if err != nil {
-				action := HandleGRPCStreamError(err, "error sending Ping request", &streamErrLogged)
-				if action == ActionReconnect {
-					break pingLoop
-				}
-				continue
+				HandleGRPCStreamError(err, "error sending Ping request", &streamErrLogged)
+				break pingLoop
 			}
 
 			streamErrLogged = false

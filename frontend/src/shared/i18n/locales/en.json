@@ -4120,7 +4120,7 @@
       "tryPrefix": "Try",
       "suggestion": "how many open alerts, grouped by adversary?",
       "placeholder": "Ask a question…",
-      "floatingPlaceholder": "Ask the SOC assistant…",
+      "ask": "Ask",
       "send": "Send",
       "collapse": "Collapse",
       "expand": "Expand",

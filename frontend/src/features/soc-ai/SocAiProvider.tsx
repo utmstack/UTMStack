@@ -173,6 +173,16 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   return <SocAiContext.Provider value={value}>{children}</SocAiContext.Provider>
 }
 
+/**
+ * The assistant when it is available, null when it is not. The Topbar lives
+ * both inside the dashboard (where the provider exists) and in the federation
+ * shell (where it does not), so its entry point has to be able to ask without
+ * bringing the page down.
+ */
+export function useSocAiOptional(): SocAiContextValue | null {
+  return useContext(SocAiContext)
+}
+
 export function useSocAi(): SocAiContextValue {
   const ctx = useContext(SocAiContext)
   if (!ctx) throw new Error('useSocAi must be used within SocAiProvider')

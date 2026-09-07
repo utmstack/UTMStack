@@ -10,5 +10,5 @@ type Log struct {
 	DataSource string
 	Type       string
 	Log        string
-	Processed  bool
+	Processed  bool `gorm:"index"`
 }

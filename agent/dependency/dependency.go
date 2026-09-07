@@ -341,8 +341,17 @@ func downloadDependency(dep Dependency, server string, skipCertValidation bool) 
 		return fmt.Errorf("failed to create directory %s: %v", destDir, err)
 	}
 
-	if err := http.DownloadFile(url, map[string]string{}, filename, destDir, skipCertValidation); err != nil {
+	verified, err := http.DownloadFileAndVerify(url, map[string]string{}, filename, destDir, skipCertValidation)
+	if err != nil {
 		return err
+	}
+	if verified {
+		utils.Logger.Info("checksum verified for dependency %s", dep.Name)
+	} else {
+		// No checksum published for this dependency yet — install
+		// unverified rather than block it until the server side catches
+		// up (see C1 in GAPS_AND_IMPROVEMENTS.md).
+		utils.Logger.Info("no checksum published for dependency %s, installing unverified", dep.Name)
 	}
 
 	// Run post-download hook if defined (e.g., unzip)

@@ -8,7 +8,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
-	github.com/threatwinds/go-sdk v1.1.28
+	github.com/threatwinds/go-sdk v1.1.31
 	github.com/threatwinds/logger v1.2.3
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12

@@ -68,7 +68,7 @@ export function ExecutionsView() {
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [status, setStatus] = useState<ExecutionStatus | "all">("all");
-  const [origin, setOrigin] = useState<ExecutionOrigin | "all">("FLOW");
+  const [origin, setOrigin] = useState<ExecutionOrigin | "all">("all");
   const [agent, setAgent] = useState<string>("");
   const [agents, setAgents] = useState<string[]>([]);
   const [range, setRange] = useState<TimeRange>(presetRange("7d"));
