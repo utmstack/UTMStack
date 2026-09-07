@@ -21,6 +21,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const agentHeartbeatInterval = 30 * time.Second
+
 var (
 	AgentServ     *AgentService
 	agentServOnce sync.Once
@@ -348,6 +350,8 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 		OnAgentConnectHook(stream.Context(), idUint)
 	}
 
+	go serverHeartbeatLoop(stream.Context(), idUint, stream)
+
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -382,6 +386,42 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 				}); err != nil {
 					return status.Error(codes.Internal, fmt.Sprintf("failed to send config update: %v", err))
 				}
+			}
+		}
+	}
+}
+
+// serverHeartbeatLoop pings the agent on its own cadence, independent of the
+// agent's own heartbeats or the reactive echo above. Two nginx L7 hops sit
+// between them, and each one enforces its own idle timeout on its own side of
+// the connection — a reply that only ever follows something the agent sent
+// does not, by itself, guarantee the hop closest to this server ever sees
+// server-initiated traffic.
+func serverHeartbeatLoop(ctx context.Context, agentID uint, stream AgentService_AgentStreamServer) {
+	t := time.NewTicker(agentHeartbeatInterval)
+	defer t.Stop()
+	msg := &BidirectionalStream{
+		StreamMessage: &BidirectionalStream_Heartbeat{Heartbeat: &Heartbeat{}},
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			var lock sync.Locker
+			if LockStreamHook != nil {
+				lock = LockStreamHook(agentID)
+			}
+			var err error
+			func() {
+				if lock != nil {
+					lock.Lock()
+					defer lock.Unlock()
+				}
+				err = stream.Send(msg)
+			}()
+			if err != nil {
+				return
 			}
 		}
 	}
