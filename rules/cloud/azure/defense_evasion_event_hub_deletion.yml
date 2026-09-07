@@ -52,7 +52,7 @@ where: |
   (equalsIgnoreCase("log.category", "Administrative") || contains("log.category", "Activity")) &&
   (equalsIgnoreCase("log.operationName", "MICROSOFT.EVENTHUB/NAMESPACES/EVENTHUBS/DELETE") ||
   contains("log.operationName", "Delete EventHub")) &&
-  (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+  (equalsIgnoreCase("log.resultType", "0") || equalsIgnoreCase("actionResult", "success"))
 groupBy:
   - adversary.ip
   - adversary.user
