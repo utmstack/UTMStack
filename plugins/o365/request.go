@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -34,7 +35,18 @@ func doReqWithHeaders[T any](link string, body []byte, method string, headers ma
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return result, resp.Header, resp.StatusCode, err
+	}
+
+	// Same error shape as utils.DoReq, so a failure carries the API's own code.
+	if resp.StatusCode >= http.StatusBadRequest {
+		return result, resp.Header, resp.StatusCode,
+			fmt.Errorf("error response (status=%d): %s", resp.StatusCode, string(respBody))
+	}
+
+	if err := json.Unmarshal(respBody, &result); err != nil {
 		return result, resp.Header, resp.StatusCode, err
 	}
 
