@@ -26,7 +26,7 @@ description: |
   7. If malicious, disable the forwarding rule and reset user credentials
 where: |
   oneOf("action", ["NewInboxRule", "Set-InboxRule", "UpdateInboxRules"]) && 
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (contains("log.Parameters", "ForwardTo") || contains("log.Parameters", "ForwardAsAttachmentTo") || contains("log.Parameters", "RedirectTo"))
 groupBy:
   - adversary.ip

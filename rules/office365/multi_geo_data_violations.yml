@@ -29,7 +29,7 @@ where: |
   (exists("log.SourceFileName") && exists("log.DestinationFileName") && contains("log.SourceRelativeUrl", "geo") && contains("log.DestinationRelativeUrl", "geo")) ||
   (contains("log.Parameters", "DataLocation") || contains("log.Parameters", "PreferredDataLocation"))) &&
   exists("origin.user") &&
-  equals("actionResult", "Succeeded") &&
+  equals("actionResult", "success") &&
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-o365-*

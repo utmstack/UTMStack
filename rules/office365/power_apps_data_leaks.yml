@@ -27,7 +27,7 @@ description: |
   8. If unauthorized, immediately revoke access and investigate potential data compromise
 where: |
   oneOf("action", ["CreateDataConnection", "UpdateDataConnection", "ExportData", "ImportData"]) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   equals("log.Workload", "PowerApps")
 afterEvents:
   - indexPattern: v11-log-o365-*

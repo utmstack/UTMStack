@@ -28,7 +28,7 @@ description: |
 where: |
   (oneOf("action", ["FormCreated", "FormUpdated", "FormShared"]) ||
    contains("action", "Sway")) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (contains("log.Parameters", "password") ||
    contains("log.Parameters", "credential") ||
    contains("log.Parameters", "login") ||

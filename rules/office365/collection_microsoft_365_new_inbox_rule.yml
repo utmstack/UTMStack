@@ -20,7 +20,7 @@ references:
   - "https://attack.mitre.org/techniques/T1114/003/"
   - "https://attack.mitre.org/tactics/TA0009/"
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "New-InboxRule") && oneOf("actionResult", ["Success","Succeeded","PartiallySucceeded","True"])
+  equals("log.Workload", "Exchange") && equals("action", "New-InboxRule") && equals("actionResult", "success")
 groupBy:
   - adversary.ip
   - adversary.user
