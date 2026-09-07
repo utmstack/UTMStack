@@ -26,6 +26,7 @@ const (
 	endPointContent                            = "/activity/feed/subscriptions/content"
 	DefaultTenant                              = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	apiVersion                                 = "api/v1.0/"
+	maxContentListPages                        = 1000
 	CloudCommercial           CloudEnvironment = "Commercial"
 	CloudGCC                  CloudEnvironment = "GCC"
 	CloudGCCHigh              CloudEnvironment = "GCCHigh"
@@ -426,23 +427,80 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 		endTime.UTC().Format("2006-01-02T15:04:05"),
 		subscription)
 
+	contentList := make([]ContentList, 0, 10)
+
+	for page := 0; page < maxContentListPages; page++ {
+		entries, respHeaders, err := o.getContentListPage(link, subscription)
+		if err != nil {
+			return []ContentList{}, err
+		}
+
+		contentList = append(contentList, entries...)
+
+		nextPageUri := respHeaders.Get("NextPageUri")
+		if nextPageUri == "" {
+			return contentList, nil
+		}
+
+		if err := o.validateNextPageUri(nextPageUri); err != nil {
+			return []ContentList{}, err
+		}
+
+		// Followed verbatim: its nextPage parameter is an opaque server-side id.
+		link = nextPageUri
+	}
+
+	return []ContentList{}, catcher.Error("exceeded the content list page limit", nil, map[string]any{
+		"process":      "plugin_com.utmstack.o365",
+		"subscription": subscription,
+		"maxPages":     maxContentListPages,
+	})
+}
+
+func (o *OfficeProcessor) validateNextPageUri(nextPageUri string) error {
+	endpoint, err := url.Parse(o.CloudConfig.ManagementEndpoint)
+	if err != nil {
+		return catcher.Error("cannot parse management endpoint", err, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+		})
+	}
+
+	next, err := url.Parse(nextPageUri)
+	if err != nil {
+		return catcher.Error("cannot parse NextPageUri", err, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+		})
+	}
+
+	if !strings.EqualFold(next.Scheme, endpoint.Scheme) || !strings.EqualFold(next.Host, endpoint.Host) {
+		return catcher.Error("NextPageUri does not match the management endpoint", nil, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+			"host":    next.Host,
+			"scheme":  next.Scheme,
+		})
+	}
+
+	return nil
+}
+
+func (o *OfficeProcessor) getContentListPage(link string, subscription string) ([]ContentList, http.Header, error) {
 	headers := map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	// Retry logic for getting content list
 	maxRetries := 3
 	retryDelay := 2 * time.Second
 
 	var respBody []ContentList
+	var respHeaders http.Header
 	var status int
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		respBody, status, err = utils.DoReq[[]ContentList](link, nil, http.MethodGet, headers, false)
+		respBody, respHeaders, status, err = doReqWithHeaders[[]ContentList](link, nil, http.MethodGet, headers)
 		if err == nil && status == http.StatusOK {
-			return respBody, nil
+			return respBody, respHeaders, nil
 		}
 
 		_ = catcher.Error("error getting content list, retrying", err, map[string]any{
@@ -455,12 +513,11 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
-	return []ContentList{}, catcher.Error("all retries failed when getting content list", err, map[string]any{
+	return nil, nil, catcher.Error("all retries failed when getting content list", err, map[string]any{
 		"process":      "plugin_com.utmstack.o365",
 		"subscription": subscription,
 		"status":       status,
