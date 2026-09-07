@@ -377,9 +377,8 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 		}
 
-		// Retry logic for starting subscriptions
 		maxRetries := 3
-		retryDelay := 2 * time.Second
+		retryDelay := contentRetryDelay
 
 		var err error
 
@@ -389,9 +388,10 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 				break
 			}
 
-			// If the subscription is already enabled, that's not an error
+			// Microsoft reports an already enabled subscription as HTTP 400.
 			if strings.Contains(err.Error(), "subscription is already enabled") {
-				return nil
+				err = nil
+				break
 			}
 
 			_ = catcher.Error("error starting subscription, retrying", err, map[string]any{
@@ -403,7 +403,6 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 
 			if retry < maxRetries-1 {
 				time.Sleep(retryDelay)
-				// Increase delay for next retry
 				retryDelay *= 2
 			}
 		}
