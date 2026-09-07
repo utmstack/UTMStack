@@ -26,6 +26,7 @@ const (
 type LinuxSystemArm64 struct {
 	cmd    *exec.Cmd
 	cancel context.CancelFunc
+	cursor *journaldCursor
 	mu     sync.Mutex
 }
 
@@ -33,12 +34,15 @@ func (l *LinuxSystemArm64) Name() string {
 	return "linux-system"
 }
 
-func (l *LinuxSystemArm64) Start(ctx context.Context, queue chan *plugins.Log) {
+func (l *LinuxSystemArm64) Start(ctx context.Context, enqueue func(*plugins.Log) error) {
 	host, err := os.Hostname()
 	if err != nil {
 		utils.Logger.ErrorF("error getting hostname: %v", err)
 		host = "unknown"
 	}
+
+	l.cursor = newJournaldCursor()
+	go l.cursor.flushLoop(ctx)
 
 	restartDelay := journaldRestartDelayArm64
 
@@ -50,7 +54,7 @@ func (l *LinuxSystemArm64) Start(ctx context.Context, queue chan *plugins.Log) {
 		default:
 		}
 
-		exitCode := l.runJournalctl(ctx, host, queue)
+		exitCode := l.runJournalctl(ctx, host, enqueue)
 
 		if exitCode == 0 {
 			utils.Logger.Info("journalctl exited normally")
@@ -72,13 +76,16 @@ func (l *LinuxSystemArm64) Start(ctx context.Context, queue chan *plugins.Log) {
 	}
 }
 
-func (l *LinuxSystemArm64) runJournalctl(ctx context.Context, host string, queue chan *plugins.Log) int {
+func (l *LinuxSystemArm64) runJournalctl(ctx context.Context, host string, enqueue func(*plugins.Log) error) int {
 	l.mu.Lock()
 	cmdCtx, cancel := context.WithCancel(ctx)
 	l.cancel = cancel
 
-	// journalctl -f: follow, -o json: JSON output, --no-pager: don't use pager
-	l.cmd = exec.CommandContext(cmdCtx, "journalctl", "-f", "-o", "json", "--no-pager")
+	args := []string{"-f", "-o", "json", "--no-pager"}
+	if after := l.cursor.resumePoint(); after != "" {
+		args = append([]string{"--after-cursor", after}, args...)
+	}
+	l.cmd = exec.CommandContext(cmdCtx, "journalctl", args...)
 
 	stdout, err := l.cmd.StdoutPipe()
 	if err != nil {
@@ -122,10 +129,17 @@ func (l *LinuxSystemArm64) runJournalctl(ctx context.Context, host string, queue
 			continue
 		}
 
-		queue <- &plugins.Log{
+		if err := enqueue(&plugins.Log{
 			DataType:   string(config.DataTypeLinuxAgent),
 			DataSource: host,
 			Raw:        validatedLog,
+		}); err != nil {
+			utils.Logger.ErrorF("failed to persist journald log, not advancing cursor: %v", err)
+			continue
+		}
+
+		if cursor := extractJournaldCursor(line); cursor != "" {
+			l.cursor.set(cursor)
 		}
 	}
 

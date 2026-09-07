@@ -21,6 +21,7 @@ service PanelService {
   rpc ProcessCommand (stream UtmCommand) returns (stream CommandResult){}
   rpc GetConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
   rpc RotateConnectionKey(ConnectionKeyRequest) returns (ConnectionKeyResponse) {}
+  rpc SetAgentConfig(SetAgentConfigRequest) returns (SetAgentConfigResponse) {}
 }
 
 message ConnectionKeyRequest {
@@ -52,10 +53,6 @@ message AgentRequest {
   string os_minor_version = 9;
   string aliases = 10;
   string addresses = 11;
-  // Set at install and never changed from here. It is reported so the console
-  // can show that this machine refuses commands; the refusal itself happens in
-  // the agent, because a flag the server honours is worth nothing against a
-  // server that has been taken over.
   bool no_remote_control = 12;
 }
 
@@ -88,7 +85,31 @@ message BidirectionalStream {
     UtmCommand command = 1;
     CommandResult result = 2;
     Heartbeat heartbeat = 3;
+    ConfigState config_state = 4;
+    ConfigUpdate config_update = 5;
   }
+}
+
+message ConfigState {
+  map<string, uint64> revisions = 1;
+}
+
+message ConfigUpdate {
+  string key = 1;
+  uint64 revision = 2;
+  string content = 3;
+}
+
+message SetAgentConfigRequest {
+  string key = 1;
+  string content = 2;
+  // 0 (default) targets the whole fleet; a specific agent id overrides
+  // just that agent, taking priority over the fleet-wide value for it.
+  uint32 agent_id = 3;
+}
+
+message SetAgentConfigResponse {
+  uint64 revision = 1;
 }
 
 message UtmCommand {

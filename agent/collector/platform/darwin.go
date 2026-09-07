@@ -33,7 +33,7 @@ func (d Darwin) Name() string {
 	return "darwin"
 }
 
-func (d Darwin) Start(ctx context.Context, queue chan *plugins.Log) {
+func (d Darwin) Start(ctx context.Context, enqueue func(*plugins.Log) error) {
 	path := fs.GetExecutablePath()
 	collectorPath := filepath.Join(path, "utmstack-collector-mac")
 
@@ -60,7 +60,7 @@ func (d Darwin) Start(ctx context.Context, queue chan *plugins.Log) {
 		default:
 		}
 
-		exitCode := d.runCollector(collectorPath, host, queue)
+		exitCode := d.runCollector(collectorPath, host, enqueue)
 
 		if exitCode == 0 {
 			utils.Logger.Info("macOS collector exited normally")
@@ -78,7 +78,7 @@ func (d Darwin) Start(ctx context.Context, queue chan *plugins.Log) {
 	}
 }
 
-func (d Darwin) runCollector(collectorPath, host string, queue chan *plugins.Log) int {
+func (d Darwin) runCollector(collectorPath, host string, enqueue func(*plugins.Log) error) int {
 	defer func() {
 		if r := recover(); r != nil {
 			utils.Logger.ErrorF("panic in macOS collector: %v", r)
@@ -124,10 +124,12 @@ func (d Darwin) runCollector(collectorPath, host string, queue chan *plugins.Log
 				continue
 			}
 
-			queue <- &plugins.Log{
+			if err := enqueue(&plugins.Log{
 				DataType:   string(config.DataTypeMacOs),
 				DataSource: host,
 				Raw:        validatedLog,
+			}); err != nil {
+				utils.Logger.ErrorF("failed to persist macOS log: %v", err)
 			}
 		}
 

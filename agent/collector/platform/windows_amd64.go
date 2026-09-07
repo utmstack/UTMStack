@@ -53,7 +53,12 @@ type ExecutionData struct {
 	ThreadID  int `xml:"ThreadID,attr"`
 }
 
-type SecurityData struct{}
+// SecurityData holds the SID of the security context the event was raised
+// in. Windows only populates <Security UserID="..."> for events tied to a
+// specific user's session — many System-category events leave it empty.
+type SecurityData struct {
+	UserID string `xml:"UserID,attr"`
+}
 
 type SystemData struct {
 	Provider      ProviderData    `xml:"Provider"`
@@ -77,27 +82,48 @@ type EventSubscription struct {
 	Query        string
 	Errors       chan error
 	winAPIHandle windows.Handle
+	bookmark     windows.Handle
+	bookmarks    *bookmarkStore
+	// events is this channel's own delivery queue (see A5 in
+	// GAPS_AND_IMPROVEMENTS.md) — a burst on one Windows Event Log channel
+	// (e.g. verbose PowerShell script block logging) fills only its own
+	// queue, instead of a single shared one that would also delay events
+	// from every other channel (including Security).
+	events chan windowsEventEnvelope
 
 	mu      sync.Mutex
 	running bool
 }
 
 const (
-	EvtSubscribeToFutureEvents = 1
-	evtSubscribeActionError    = 0
-	evtSubscribeActionDeliver  = 1
-	evtRenderEventXML          = 1
+	EvtSubscribeToFutureEvents     = 1
+	EvtSubscribeStartAfterBookmark = 3
+	evtSubscribeActionError        = 0
+	evtSubscribeActionDeliver      = 1
+	evtRenderEventXML              = 1
+	evtRenderBookmark              = 2
+
+	// perChannelQueueSize is the buffer size of each channel's own events
+	// queue (see EventSubscription.events).
+	perChannelQueueSize = 256
 )
 
 var (
-	modwevtapi       = windows.NewLazySystemDLL("wevtapi.dll")
-	procEvtSubscribe = modwevtapi.NewProc("EvtSubscribe")
-	procEvtRender    = modwevtapi.NewProc("EvtRender")
-	procEvtClose     = modwevtapi.NewProc("EvtClose")
-	incomingEvents   = make(chan string, 1024)
+	modwevtapi            = windows.NewLazySystemDLL("wevtapi.dll")
+	procEvtSubscribe      = modwevtapi.NewProc("EvtSubscribe")
+	procEvtRender         = modwevtapi.NewProc("EvtRender")
+	procEvtClose          = modwevtapi.NewProc("EvtClose")
+	procEvtCreateBookmark = modwevtapi.NewProc("EvtCreateBookmark")
+	procEvtUpdateBookmark = modwevtapi.NewProc("EvtUpdateBookmark")
 )
 
-func (evtSub *EventSubscription) Create() error {
+type windowsEventEnvelope struct {
+	channel  string
+	xml      string
+	bookmark string
+}
+
+func (evtSub *EventSubscription) Create(initialBookmarkXML string) error {
 	evtSub.mu.Lock()
 	defer evtSub.mu.Unlock()
 
@@ -115,6 +141,32 @@ func (evtSub *EventSubscription) Create() error {
 		return fmt.Errorf("windows_events: invalid query: %s", err)
 	}
 
+	flags := uintptr(EvtSubscribeToFutureEvents)
+	var bookmarkArg uintptr
+	if initialBookmarkXML != "" {
+		if bookmarkXMLPtr, perr := windows.UTF16PtrFromString(initialBookmarkXML); perr == nil {
+			if h, _, cerr := procEvtCreateBookmark.Call(uintptr(unsafe.Pointer(bookmarkXMLPtr))); h != 0 {
+				evtSub.bookmark = windows.Handle(h)
+				bookmarkArg = h
+				flags = EvtSubscribeStartAfterBookmark
+			} else {
+				utils.Logger.ErrorF("windows_events: failed to create bookmark for channel %s, starting from now: %v", evtSub.Channel, cerr)
+			}
+		} else {
+			utils.Logger.ErrorF("windows_events: invalid saved bookmark for channel %s, starting from now: %v", evtSub.Channel, perr)
+		}
+	}
+
+	if evtSub.bookmark == 0 {
+		// No usable saved bookmark: create an empty one so this event's
+		// position can still be tracked and saved going forward.
+		h, _, cerr := procEvtCreateBookmark.Call(0)
+		if h == 0 {
+			return fmt.Errorf("windows_events: failed to create bookmark: %v", cerr)
+		}
+		evtSub.bookmark = windows.Handle(h)
+	}
+
 	callback := syscall.NewCallback(evtSub.winAPICallback)
 
 	log.Printf("Debug - Subscribing to channel: %s", evtSub.Channel)
@@ -124,10 +176,10 @@ func (evtSub *EventSubscription) Create() error {
 		0,
 		uintptr(unsafe.Pointer(winChannel)),
 		uintptr(unsafe.Pointer(winQuery)),
-		0,
+		bookmarkArg,
 		0,
 		callback,
-		uintptr(EvtSubscribeToFutureEvents),
+		flags,
 	)
 
 	if handle == 0 {
@@ -150,6 +202,12 @@ func (evtSub *EventSubscription) Close() error {
 		return fmt.Errorf("windows_events: error closing handle: %s", err)
 	}
 	evtSub.winAPIHandle = 0
+
+	if evtSub.bookmark != 0 {
+		procEvtClose.Call(uintptr(evtSub.bookmark))
+		evtSub.bookmark = 0
+	}
+
 	return nil
 }
 
@@ -168,7 +226,11 @@ func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintp
 
 			for {
 				time.Sleep(5 * time.Second)
-				if err := evtSub.Create(); err != nil {
+				initial := ""
+				if evtSub.bookmarks != nil {
+					initial = evtSub.bookmarks.get(channel)
+				}
+				if err := evtSub.Create(initial); err != nil {
 					utils.Logger.ErrorF("Retry failed for channel %s: %s", channel, err)
 				} else {
 					utils.Logger.LogF(100, "Resubscribed to channel: %s", channel)
@@ -179,15 +241,27 @@ func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintp
 
 	case evtSubscribeActionDeliver:
 		utils.Logger.LogF(100, "Received event from channel: %s", evtSub.Channel)
-		xmlStr, err := quickRenderXML(event)
+		xmlStr, err := renderHandle(event, evtRenderEventXML)
 		if err != nil {
 			evtSub.Errors <- fmt.Errorf("render in callback: %v", err)
 			break
 		}
+
+		bookmarkXML := ""
+		if evtSub.bookmark != 0 {
+			if ok, _, uerr := procEvtUpdateBookmark.Call(uintptr(evtSub.bookmark), event); ok == 0 {
+				utils.Logger.ErrorF("failed to update bookmark for channel %s: %v", evtSub.Channel, uerr)
+			} else if rendered, rerr := renderHandle(uintptr(evtSub.bookmark), evtRenderBookmark); rerr == nil {
+				bookmarkXML = rendered
+			} else {
+				utils.Logger.ErrorF("failed to render bookmark for channel %s: %v", evtSub.Channel, rerr)
+			}
+		}
+
 		select {
-		case incomingEvents <- xmlStr:
+		case evtSub.events <- windowsEventEnvelope{channel: evtSub.Channel, xml: xmlStr, bookmark: bookmarkXML}:
 		default:
-			utils.Logger.ErrorF("incomingEvents full: event discarded")
+			utils.Logger.ErrorF("events queue full for channel %s: event discarded", evtSub.Channel)
 		}
 	default:
 		evtSub.Errors <- fmt.Errorf("windows_events: unsupported action in callback: %x", uint16(action))
@@ -195,7 +269,7 @@ func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintp
 	return 0
 }
 
-func quickRenderXML(h uintptr) (string, error) {
+func renderHandle(h uintptr, flag uintptr) (string, error) {
 	bufSize := uint32(4096)
 	for {
 		space := make([]uint16, bufSize/2)
@@ -203,7 +277,7 @@ func quickRenderXML(h uintptr) (string, error) {
 		prop := uint32(0)
 
 		ret, _, err := procEvtRender.Call(
-			0, h, evtRenderEventXML,
+			0, h, flag,
 			uintptr(bufSize),
 			uintptr(unsafe.Pointer(&space[0])),
 			uintptr(unsafe.Pointer(&used)),
@@ -254,35 +328,61 @@ func (w *Windows) Name() string {
 	return "windows-amd64"
 }
 
-func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
+func (w *Windows) Start(ctx context.Context, enqueue func(*plugins.Log) error) {
 	defer func() {
 		if r := recover(); r != nil {
 			utils.Logger.ErrorF("panic in Windows AMD64 collector: %v", r)
 		}
 	}()
 
+	bookmarks := loadBookmarkStore()
+	go bookmarks.flushLoop(ctx)
+
 	errorsChan := make(chan error, 10)
-	go eventWorker(queue)
 
 	channels := []string{
 		"Security", "Application", "System", "Windows Powershell", "Microsoft-Windows-Powershell/Operational", "ForwardedEvents",
 		"Microsoft-Windows-WinLogon/Operational", "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall",
 		"Microsoft-Windows-Windows Defender/Operational",
+		// Added for A10 (see agent/GAPS_AND_IMPROVEMENTS.md) — high
+		// forensic value channels missing from the original list.
+		// TaskScheduler and PrintService are disabled by default on a
+		// stock Windows install; dependency.configureWindowsAuditPolicy
+		// enables them at startup (via wevtutil), or subscribing here
+		// would just never see any events.
+		"Microsoft-Windows-TaskScheduler/Operational",
+		"Microsoft-Windows-TerminalServices-RDPClient/Operational",
+		"Microsoft-Windows-TerminalServices-LocalSessionManager/Operational",
+		"Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational",
+		"Microsoft-Windows-WinRM/Operational",
+		"Microsoft-Windows-NTLM/Operational",
+		"Microsoft-Windows-CodeIntegrity/Operational",
+		"Microsoft-Windows-WMI-Activity/Operational",
+		"Microsoft-Windows-GroupPolicy/Operational",
+		"Microsoft-Windows-SmbClient/Security",
+		"Microsoft-Windows-PrintService/Operational",
+		// Only exists if Sysmon is installed; subscribing to a channel
+		// that doesn't exist on this host fails gracefully below (logged,
+		// skipped) like any other missing channel.
+		"Microsoft-Windows-Sysmon/Operational",
 	}
 
 	w.mu.Lock()
 	w.subscriptions = nil
 	for _, channel := range channels {
 		sub := &EventSubscription{
-			Channel: channel,
-			Query:   "*",
-			Errors:  errorsChan,
+			Channel:   channel,
+			Query:     "*",
+			Errors:    errorsChan,
+			bookmarks: bookmarks,
+			events:    make(chan windowsEventEnvelope, perChannelQueueSize),
 		}
-		if err := sub.Create(); err != nil {
+		if err := sub.Create(bookmarks.get(channel)); err != nil {
 			utils.Logger.ErrorF("Error subscribing to channel %s: %s", channel, err)
 			continue
 		}
 		w.subscriptions = append(w.subscriptions, sub)
+		go eventWorker(sub.events, enqueue, bookmarks)
 		utils.Logger.LogF(100, "Subscribed to channel: %s", channel)
 	}
 	w.mu.Unlock()
@@ -316,16 +416,16 @@ func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
 	utils.Logger.Info("Windows AMD64 collector stopped.")
 }
 
-func eventWorker(queue chan *plugins.Log) {
+func eventWorker(events chan windowsEventEnvelope, enqueue func(*plugins.Log) error, bookmarks *bookmarkStore) {
 	host, err := os.Hostname()
 	if err != nil {
 		utils.Logger.ErrorF("error getting hostname: %v", err)
 		host = "unknown"
 	}
 
-	for xmlStr := range incomingEvents {
+	for envelope := range events {
 		ev := new(Event)
-		if err := xml.Unmarshal([]byte(xmlStr), ev); err != nil {
+		if err := xml.Unmarshal([]byte(envelope.xml), ev); err != nil {
 			utils.Logger.ErrorF("unmarshal error: %v", err)
 			continue
 		}
@@ -342,14 +442,17 @@ func eventWorker(queue chan *plugins.Log) {
 			continue
 		}
 
-		select {
-		case queue <- &plugins.Log{
+		if err := enqueue(&plugins.Log{
 			DataSource: host,
 			DataType:   string(config.DataTypeWindowsAgent),
 			Raw:        validatedLog,
-		}:
-		default:
-			utils.Logger.LogF(100, "LogQueue full: event discarded")
+		}); err != nil {
+			utils.Logger.ErrorF("failed to persist windows event from channel %s, not advancing bookmark: %v", envelope.channel, err)
+			continue
+		}
+
+		if envelope.bookmark != "" {
+			bookmarks.set(envelope.channel, envelope.bookmark)
 		}
 	}
 }
@@ -372,6 +475,10 @@ func convertEventToJSON(event *Event) (string, error) {
 		"channel":       event.System.Channel,
 		"computer":      event.System.Computer,
 		"data":          make(map[string]interface{}),
+	}
+
+	if event.System.Security.UserID != "" {
+		eventMap["userId"] = event.System.Security.UserID
 	}
 
 	dataMap := eventMap["data"].(map[string]interface{})

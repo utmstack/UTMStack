@@ -4,7 +4,7 @@ import "github.com/utmstack/UTMStack/agent-manager/models"
 
 func MigrateDatabase() error {
 	db := GetDB()
-	err := db.Migrate(&models.Agent{}, &models.AgentCommand{}, &models.LastSeen{}, &models.Collector{}, &models.ConnectionKey{}, &models.Recovery{}, &models.RecoveryTarget{}, &models.CollectorIntegrationConfig{})
+	err := db.Migrate(&models.Agent{}, &models.AgentCommand{}, &models.LastSeen{}, &models.Collector{}, &models.ConnectionKey{}, &models.Recovery{}, &models.RecoveryTarget{}, &models.CollectorIntegrationConfig{}, &models.AgentConfigRevision{}, &models.AgentConfig{})
 	if err != nil {
 		return err
 	}

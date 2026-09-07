@@ -43,6 +43,10 @@ type AgentService struct {
 	connKeys              map[string]models.ConnectionKey // tenant -> key
 	connKeyMutex          sync.RWMutex
 	DBConnection          *database.DB
+
+	configRegistry  map[string]map[uint]string // key -> agentID (0 = fleet-wide default) -> content
+	configRevisions map[string]uint64          // key -> shared revision, see models.AgentConfigRevision
+	configMutex     sync.RWMutex
 }
 
 func (s *AgentService) ValidateAgentKey(key string, id uint) bool {
@@ -74,6 +78,11 @@ func InitAgentService() error {
 		}
 
 		if e := AgentServ.loadConnectionKeys(); e != nil {
+			err = e
+			return
+		}
+
+		if e := AgentServ.loadConfigRegistry(); e != nil {
 			err = e
 			return
 		}
@@ -365,6 +374,14 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 			if !s.tryDeliverResult(msg.Result) &&
 				(OnCommandResultHook == nil || !OnCommandResultHook(msg.Result)) {
 				catcher.Error("failed to find result channel for CmdID", nil, map[string]any{"cmdID": msg.Result.GetCmdId(), "process": "agent-manager"})
+			}
+		case *BidirectionalStream_ConfigState:
+			for _, update := range s.diffConfig(idUint, msg.ConfigState.GetRevisions()) {
+				if err := sendToAgent(idUint, stream, &BidirectionalStream{
+					StreamMessage: &BidirectionalStream_ConfigUpdate{ConfigUpdate: update},
+				}); err != nil {
+					return status.Error(codes.Internal, fmt.Sprintf("failed to send config update: %v", err))
+				}
 			}
 		}
 	}

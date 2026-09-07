@@ -28,12 +28,16 @@ var cleanLogsCmd = &cobra.Command{
 			fmt.Println("Error getting retention: ", err)
 			os.Exit(1)
 		}
-		_, err = db.DeleteOld(models.Log{}, datR)
+		processedDeleted, unprocessedDeleted, err := db.DeleteOld(models.Log{}, datR)
 		if err != nil {
 			fmt.Println("Error cleaning logs: ", err)
 			os.Exit(1)
 		}
-		fmt.Println("Logs cleaned correctly")
+		fmt.Printf("Logs cleaned correctly (%d delivered logs removed", processedDeleted)
+		if unprocessedDeleted > 0 {
+			fmt.Printf(", %d undelivered logs also removed after exceeding the hard disk cap", unprocessedDeleted)
+		}
+		fmt.Println(")")
 		time.Sleep(5 * time.Second)
 
 		return nil

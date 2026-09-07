@@ -22,6 +22,13 @@ var (
 	DependenciesPort = "443"
 
 	VersionPath = filepath.Join(fs.GetExecutablePath(), "version.json")
+
+	// UpdateHoldFile is written by the agent process's "update_hold" config
+	// applier (see agent/agent/updatehold.go) and read fresh on every poll
+	// here — not cached like the rest of Config — so a hold set by
+	// agent-manager while this process is already running takes effect
+	// within one checkEvery cycle instead of requiring a service restart.
+	UpdateHoldFile = filepath.Join(fs.GetExecutablePath(), "update_hold.json")
 )
 
 // ServiceFile returns the agent binary name with OS and architecture suffix.

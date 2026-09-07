@@ -1,6 +1,3 @@
-// Package auditd provides a native collector for Linux Audit Framework events.
-// It uses go-libaudit to receive events via netlink multicast and reassembles
-// them before sending to the log queue.
 package auditd
 
 import "time"

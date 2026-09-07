@@ -15,6 +15,8 @@ import (
 )
 
 func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
+	ensureConfigStateLoaded()
+
 	path := fs.GetExecutablePath()
 	var connErrLogged, streamErrLogged bool
 
@@ -54,6 +56,7 @@ func serveAgentStream(ctx context.Context, stream AgentService_AgentStreamClient
 	beatCtx, stopBeating := context.WithCancel(ctx)
 	defer stopBeating()
 	go sendHeartbeats(beatCtx, sender)
+	go sendConfigStateReports(beatCtx, sender)
 
 	for {
 		in, err := stream.Recv()
@@ -69,6 +72,8 @@ func serveAgentStream(ctx context.Context, stream AgentService_AgentStreamClient
 				HandleGRPCStreamError(err, "error sending result to server", streamErrLogged)
 				return
 			}
+		case *BidirectionalStream_ConfigUpdate:
+			applyConfigUpdate(msg.ConfigUpdate)
 		}
 		*streamErrLogged = false
 	}

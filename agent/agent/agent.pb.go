@@ -525,6 +525,8 @@ type BidirectionalStream struct {
 	//	*BidirectionalStream_Command
 	//	*BidirectionalStream_Result
 	//	*BidirectionalStream_Heartbeat
+	//	*BidirectionalStream_ConfigState
+	//	*BidirectionalStream_ConfigUpdate
 	StreamMessage isBidirectionalStream_StreamMessage `protobuf_oneof:"stream_message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -594,6 +596,24 @@ func (x *BidirectionalStream) GetHeartbeat() *Heartbeat {
 	return nil
 }
 
+func (x *BidirectionalStream) GetConfigState() *ConfigState {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_ConfigState); ok {
+			return x.ConfigState
+		}
+	}
+	return nil
+}
+
+func (x *BidirectionalStream) GetConfigUpdate() *ConfigUpdate {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_ConfigUpdate); ok {
+			return x.ConfigUpdate
+		}
+	}
+	return nil
+}
+
 type isBidirectionalStream_StreamMessage interface {
 	isBidirectionalStream_StreamMessage()
 }
@@ -610,11 +630,248 @@ type BidirectionalStream_Heartbeat struct {
 	Heartbeat *Heartbeat `protobuf:"bytes,3,opt,name=heartbeat,proto3,oneof"`
 }
 
+type BidirectionalStream_ConfigState struct {
+	ConfigState *ConfigState `protobuf:"bytes,4,opt,name=config_state,json=configState,proto3,oneof"`
+}
+
+type BidirectionalStream_ConfigUpdate struct {
+	ConfigUpdate *ConfigUpdate `protobuf:"bytes,5,opt,name=config_update,json=configUpdate,proto3,oneof"`
+}
+
 func (*BidirectionalStream_Command) isBidirectionalStream_StreamMessage() {}
 
 func (*BidirectionalStream_Result) isBidirectionalStream_StreamMessage() {}
 
 func (*BidirectionalStream_Heartbeat) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_ConfigState) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_ConfigUpdate) isBidirectionalStream_StreamMessage() {}
+
+// ConfigState reports which revision of each named config the agent
+// currently has applied. Sent periodically (not just once) so the server
+// can compute what, if anything, is stale — without keeping its own
+// record of what each agent has. This mirrors Datadog Remote Config's
+// client-declares-state model instead of a per-agent tracking table: the
+// server only needs to know the current authoritative revision of each
+// key, not what any specific agent last received. Called "revision", not
+// "version", to avoid reading as the agent's own software version (see
+// AgentRequest.version) — this counts edits to a config key, unrelated.
+type ConfigState struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Revisions     map[string]uint64      `protobuf:"bytes,1,rep,name=revisions,proto3" json:"revisions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigState) Reset() {
+	*x = ConfigState{}
+	mi := &file_agent_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigState) ProtoMessage() {}
+
+func (x *ConfigState) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigState.ProtoReflect.Descriptor instead.
+func (*ConfigState) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ConfigState) GetRevisions() map[string]uint64 {
+	if x != nil {
+		return x.Revisions
+	}
+	return nil
+}
+
+// ConfigUpdate pushes one named config's new content. The server sends
+// one of these per key where the agent's reported revision is behind the
+// authoritative one — never proactively, only in response to a
+// ConfigState. The set of valid keys and how to apply each one's content
+// is owned entirely by the agent; the server just stores and revisions
+// opaque content per key.
+type ConfigUpdate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Revision      uint64                 `protobuf:"varint,2,opt,name=revision,proto3" json:"revision,omitempty"`
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigUpdate) Reset() {
+	*x = ConfigUpdate{}
+	mi := &file_agent_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigUpdate) ProtoMessage() {}
+
+func (x *ConfigUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigUpdate.ProtoReflect.Descriptor instead.
+func (*ConfigUpdate) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ConfigUpdate) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ConfigUpdate) GetRevision() uint64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *ConfigUpdate) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+type SetAgentConfigRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Key     string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Content string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	// 0 (default) targets the whole fleet; a specific agent id overrides
+	// just that agent, taking priority over the fleet-wide value for it.
+	AgentId       uint32 `protobuf:"varint,3,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAgentConfigRequest) Reset() {
+	*x = SetAgentConfigRequest{}
+	mi := &file_agent_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAgentConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAgentConfigRequest) ProtoMessage() {}
+
+func (x *SetAgentConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAgentConfigRequest.ProtoReflect.Descriptor instead.
+func (*SetAgentConfigRequest) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SetAgentConfigRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *SetAgentConfigRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *SetAgentConfigRequest) GetAgentId() uint32 {
+	if x != nil {
+		return x.AgentId
+	}
+	return 0
+}
+
+type SetAgentConfigResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Revision      uint64                 `protobuf:"varint,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAgentConfigResponse) Reset() {
+	*x = SetAgentConfigResponse{}
+	mi := &file_agent_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAgentConfigResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAgentConfigResponse) ProtoMessage() {}
+
+func (x *SetAgentConfigResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAgentConfigResponse.ProtoReflect.Descriptor instead.
+func (*SetAgentConfigResponse) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SetAgentConfigResponse) GetRevision() uint64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
 
 type UtmCommand struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -632,7 +889,7 @@ type UtmCommand struct {
 
 func (x *UtmCommand) Reset() {
 	*x = UtmCommand{}
-	mi := &file_agent_proto_msgTypes[6]
+	mi := &file_agent_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -644,7 +901,7 @@ func (x *UtmCommand) String() string {
 func (*UtmCommand) ProtoMessage() {}
 
 func (x *UtmCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[6]
+	mi := &file_agent_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +914,7 @@ func (x *UtmCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UtmCommand.ProtoReflect.Descriptor instead.
 func (*UtmCommand) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{6}
+	return file_agent_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UtmCommand) GetAgentId() string {
@@ -728,7 +985,7 @@ type CommandResult struct {
 
 func (x *CommandResult) Reset() {
 	*x = CommandResult{}
-	mi := &file_agent_proto_msgTypes[7]
+	mi := &file_agent_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -740,7 +997,7 @@ func (x *CommandResult) String() string {
 func (*CommandResult) ProtoMessage() {}
 
 func (x *CommandResult) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[7]
+	mi := &file_agent_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -753,7 +1010,7 @@ func (x *CommandResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommandResult.ProtoReflect.Descriptor instead.
 func (*CommandResult) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{7}
+	return file_agent_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CommandResult) GetAgentId() string {
@@ -794,7 +1051,7 @@ type ListAgentsCommandsResponse struct {
 
 func (x *ListAgentsCommandsResponse) Reset() {
 	*x = ListAgentsCommandsResponse{}
-	mi := &file_agent_proto_msgTypes[8]
+	mi := &file_agent_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +1063,7 @@ func (x *ListAgentsCommandsResponse) String() string {
 func (*ListAgentsCommandsResponse) ProtoMessage() {}
 
 func (x *ListAgentsCommandsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[8]
+	mi := &file_agent_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -819,7 +1076,7 @@ func (x *ListAgentsCommandsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentsCommandsResponse.ProtoReflect.Descriptor instead.
 func (*ListAgentsCommandsResponse) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{8}
+	return file_agent_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListAgentsCommandsResponse) GetRows() []*AgentCommand {
@@ -855,7 +1112,7 @@ type AgentCommand struct {
 
 func (x *AgentCommand) Reset() {
 	*x = AgentCommand{}
-	mi := &file_agent_proto_msgTypes[9]
+	mi := &file_agent_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -867,7 +1124,7 @@ func (x *AgentCommand) String() string {
 func (*AgentCommand) ProtoMessage() {}
 
 func (x *AgentCommand) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[9]
+	mi := &file_agent_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -880,7 +1137,7 @@ func (x *AgentCommand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentCommand.ProtoReflect.Descriptor instead.
 func (*AgentCommand) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{9}
+	return file_agent_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AgentCommand) GetCreatedAt() *timestamppb.Timestamp {
@@ -1004,12 +1261,29 @@ const file_agent_proto_rawDesc = "" +
 	"\aaliases\x18\r \x01(\tR\aaliases\x12\x1c\n" +
 	"\taddresses\x18\x0e \x01(\tR\taddresses\x12\x1b\n" +
 	"\ttenant_id\x18\x0f \x01(\tR\btenantId\x12*\n" +
-	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\xb8\x01\n" +
+	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\xad\x02\n" +
 	"\x13BidirectionalStream\x12-\n" +
 	"\acommand\x18\x01 \x01(\v2\x11.agent.UtmCommandH\x00R\acommand\x12.\n" +
 	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06result\x120\n" +
-	"\theartbeat\x18\x03 \x01(\v2\x10.agent.HeartbeatH\x00R\theartbeatB\x10\n" +
-	"\x0estream_message\"\xe5\x01\n" +
+	"\theartbeat\x18\x03 \x01(\v2\x10.agent.HeartbeatH\x00R\theartbeat\x127\n" +
+	"\fconfig_state\x18\x04 \x01(\v2\x12.agent.ConfigStateH\x00R\vconfigState\x12:\n" +
+	"\rconfig_update\x18\x05 \x01(\v2\x13.agent.ConfigUpdateH\x00R\fconfigUpdateB\x10\n" +
+	"\x0estream_message\"\x8c\x01\n" +
+	"\vConfigState\x12?\n" +
+	"\trevisions\x18\x01 \x03(\v2!.agent.ConfigState.RevisionsEntryR\trevisions\x1a<\n" +
+	"\x0eRevisionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\"V\n" +
+	"\fConfigUpdate\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\brevision\x18\x02 \x01(\x04R\brevision\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\"^\n" +
+	"\x15SetAgentConfigRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x12\x19\n" +
+	"\bagent_id\x18\x03 \x01(\rR\aagentId\"4\n" +
+	"\x16SetAgentConfigResponse\x12\x1a\n" +
+	"\brevision\x18\x01 \x01(\x04R\brevision\"\xe5\x01\n" +
 	"\n" +
 	"UtmCommand\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x18\n" +
@@ -1062,11 +1336,12 @@ const file_agent_proto_rawDesc = "" +
 	"ListAgents\x12\x12.agent.ListRequest\x1a\x19.agent.ListAgentsResponse\"\x00\x12K\n" +
 	"\fGetAgentAuth\x12\x1b.agent.ConnectorAuthRequest\x1a\x1c.agent.ConnectorAuthResponse\"\x00\x12K\n" +
 	"\vAgentStream\x12\x1a.agent.BidirectionalStream\x1a\x1a.agent.BidirectionalStream\"\x00(\x010\x01\x12L\n" +
-	"\x11ListAgentCommands\x12\x12.agent.ListRequest\x1a!.agent.ListAgentsCommandsResponse\"\x002\xf4\x01\n" +
+	"\x11ListAgentCommands\x12\x12.agent.ListRequest\x1a!.agent.ListAgentsCommandsResponse\"\x002\xc5\x02\n" +
 	"\fPanelService\x12?\n" +
 	"\x0eProcessCommand\x12\x11.agent.UtmCommand\x1a\x14.agent.CommandResult\"\x00(\x010\x01\x12O\n" +
 	"\x10GetConnectionKey\x12\x1b.agent.ConnectionKeyRequest\x1a\x1c.agent.ConnectionKeyResponse\"\x00\x12R\n" +
-	"\x13RotateConnectionKey\x12\x1b.agent.ConnectionKeyRequest\x1a\x1c.agent.ConnectionKeyResponse\"\x00B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
+	"\x13RotateConnectionKey\x12\x1b.agent.ConnectionKeyRequest\x1a\x1c.agent.ConnectionKeyResponse\"\x00\x12O\n" +
+	"\x0eSetAgentConfig\x12\x1c.agent.SetAgentConfigRequest\x1a\x1d.agent.SetAgentConfigResponse\"\x00B2Z0github.com/utmstack/UTMStack/agent-manager/agentb\x06proto3"
 
 var (
 	file_agent_proto_rawDescOnce sync.Once
@@ -1081,7 +1356,7 @@ func file_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_agent_proto_goTypes = []any{
 	(AgentCommandStatus)(0),            // 0: agent.AgentCommandStatus
 	(*ConnectionKeyRequest)(nil),       // 1: agent.ConnectionKeyRequest
@@ -1090,55 +1365,65 @@ var file_agent_proto_goTypes = []any{
 	(*ListAgentsResponse)(nil),         // 4: agent.ListAgentsResponse
 	(*Agent)(nil),                      // 5: agent.Agent
 	(*BidirectionalStream)(nil),        // 6: agent.BidirectionalStream
-	(*UtmCommand)(nil),                 // 7: agent.UtmCommand
-	(*CommandResult)(nil),              // 8: agent.CommandResult
-	(*ListAgentsCommandsResponse)(nil), // 9: agent.ListAgentsCommandsResponse
-	(*AgentCommand)(nil),               // 10: agent.AgentCommand
-	(Status)(0),                        // 11: agent.Status
-	(*Heartbeat)(nil),                  // 12: agent.Heartbeat
-	(*timestamppb.Timestamp)(nil),      // 13: google.protobuf.Timestamp
-	(*DeleteRequest)(nil),              // 14: agent.DeleteRequest
-	(*ListRequest)(nil),                // 15: agent.ListRequest
-	(*ConnectorAuthRequest)(nil),       // 16: agent.ConnectorAuthRequest
-	(*AuthResponse)(nil),               // 17: agent.AuthResponse
-	(*ConnectorAuthResponse)(nil),      // 18: agent.ConnectorAuthResponse
+	(*ConfigState)(nil),                // 7: agent.ConfigState
+	(*ConfigUpdate)(nil),               // 8: agent.ConfigUpdate
+	(*SetAgentConfigRequest)(nil),      // 9: agent.SetAgentConfigRequest
+	(*SetAgentConfigResponse)(nil),     // 10: agent.SetAgentConfigResponse
+	(*UtmCommand)(nil),                 // 11: agent.UtmCommand
+	(*CommandResult)(nil),              // 12: agent.CommandResult
+	(*ListAgentsCommandsResponse)(nil), // 13: agent.ListAgentsCommandsResponse
+	(*AgentCommand)(nil),               // 14: agent.AgentCommand
+	nil,                                // 15: agent.ConfigState.RevisionsEntry
+	(Status)(0),                        // 16: agent.Status
+	(*Heartbeat)(nil),                  // 17: agent.Heartbeat
+	(*timestamppb.Timestamp)(nil),      // 18: google.protobuf.Timestamp
+	(*DeleteRequest)(nil),              // 19: agent.DeleteRequest
+	(*ListRequest)(nil),                // 20: agent.ListRequest
+	(*ConnectorAuthRequest)(nil),       // 21: agent.ConnectorAuthRequest
+	(*AuthResponse)(nil),               // 22: agent.AuthResponse
+	(*ConnectorAuthResponse)(nil),      // 23: agent.ConnectorAuthResponse
 }
 var file_agent_proto_depIdxs = []int32{
 	5,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
-	11, // 1: agent.Agent.status:type_name -> agent.Status
-	7,  // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
-	8,  // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
-	12, // 4: agent.BidirectionalStream.heartbeat:type_name -> agent.Heartbeat
-	13, // 5: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
-	10, // 6: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
-	13, // 7: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
-	13, // 8: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 9: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
-	3,  // 10: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
-	3,  // 11: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
-	14, // 12: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
-	15, // 13: agent.AgentService.ListAgents:input_type -> agent.ListRequest
-	16, // 14: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
-	6,  // 15: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
-	15, // 16: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
-	7,  // 17: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
-	1,  // 18: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
-	1,  // 19: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
-	17, // 20: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
-	17, // 21: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
-	17, // 22: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
-	4,  // 23: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
-	18, // 24: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
-	6,  // 25: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
-	9,  // 26: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
-	8,  // 27: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
-	2,  // 28: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
-	2,  // 29: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
-	20, // [20:30] is the sub-list for method output_type
-	10, // [10:20] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	16, // 1: agent.Agent.status:type_name -> agent.Status
+	11, // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
+	12, // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
+	17, // 4: agent.BidirectionalStream.heartbeat:type_name -> agent.Heartbeat
+	7,  // 5: agent.BidirectionalStream.config_state:type_name -> agent.ConfigState
+	8,  // 6: agent.BidirectionalStream.config_update:type_name -> agent.ConfigUpdate
+	15, // 7: agent.ConfigState.revisions:type_name -> agent.ConfigState.RevisionsEntry
+	18, // 8: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
+	14, // 9: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
+	18, // 10: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
+	18, // 11: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 12: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
+	3,  // 13: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
+	3,  // 14: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
+	19, // 15: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
+	20, // 16: agent.AgentService.ListAgents:input_type -> agent.ListRequest
+	21, // 17: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
+	6,  // 18: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
+	20, // 19: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
+	11, // 20: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
+	1,  // 21: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
+	1,  // 22: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
+	9,  // 23: agent.PanelService.SetAgentConfig:input_type -> agent.SetAgentConfigRequest
+	22, // 24: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
+	22, // 25: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
+	22, // 26: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
+	4,  // 27: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
+	23, // 28: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
+	6,  // 29: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
+	13, // 30: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
+	12, // 31: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
+	2,  // 32: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
+	2,  // 33: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
+	10, // 34: agent.PanelService.SetAgentConfig:output_type -> agent.SetAgentConfigResponse
+	24, // [24:35] is the sub-list for method output_type
+	13, // [13:24] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_agent_proto_init() }
@@ -1151,6 +1436,8 @@ func file_agent_proto_init() {
 		(*BidirectionalStream_Command)(nil),
 		(*BidirectionalStream_Result)(nil),
 		(*BidirectionalStream_Heartbeat)(nil),
+		(*BidirectionalStream_ConfigState)(nil),
+		(*BidirectionalStream_ConfigUpdate)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1158,7 +1445,7 @@ func file_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_proto_rawDesc), len(file_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

@@ -6,7 +6,7 @@ require (
 	github.com/crowdstrike/gofalcon v0.22.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.28
+	github.com/threatwinds/go-sdk v1.1.31
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v3 v3.0.1
 )

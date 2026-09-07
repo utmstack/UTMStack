@@ -41,6 +41,7 @@ func InternalKeyRoutes() []string {
 		"/agent.PanelService/ProcessCommand",
 		"/agent.PanelService/GetConnectionKey",
 		"/agent.PanelService/RotateConnectionKey",
+		"/agent.PanelService/SetAgentConfig",
 		"/agent.CollectorService/SetCollectorConfig",
 		"/agent.CollectorService/GetCollectorIntegrationState",
 
