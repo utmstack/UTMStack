@@ -18,7 +18,7 @@ references:
   - "https://attack.mitre.org/techniques/T1566/"
   - "https://attack.mitre.org/tactics/TA0001/"
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "Remove-AntiPhishPolicy") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+  equals("log.Workload", "Exchange") && equals("action", "Remove-AntiPhishPolicy") && equals("actionResult", "success")
 groupBy:
   - adversary.ip
   - adversary.user

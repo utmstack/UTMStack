@@ -28,9 +28,9 @@ description: |
 where: |
   equals("log.Workload", "AzureActiveDirectory") &&
   (
-    (equals("action", "Add member to role") && equals("actionResult", "Success")) ||
-    (equals("action", "Delete user") && equals("actionResult", "Success")) ||
-    (equals("action", "Add service principal") && equals("actionResult", "Success"))
+    (equals("action", "Add member to role") && equals("actionResult", "success")) ||
+    (equals("action", "Delete user") && equals("actionResult", "success")) ||
+    (equals("action", "Add service principal") && equals("actionResult", "success"))
   )
 afterEvents:
   - indexPattern: v11-log-o365-*
