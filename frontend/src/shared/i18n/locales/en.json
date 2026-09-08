@@ -5175,7 +5175,11 @@
           "body": "Body (JSON)",
           "bodyInvalid": "Invalid JSON",
           "headers": "HTTP headers",
-          "addHeader": "Add header"
+          "params": "Query params",
+          "key": "Key",
+          "value": "Value",
+          "addHeader": "Add header",
+          "addParam": "Add param"
         },
         "incident": {
           "name": "Incident name",
