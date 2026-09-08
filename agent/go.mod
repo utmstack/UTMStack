@@ -1,6 +1,6 @@
 module github.com/utmstack/UTMStack/agent
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
@@ -16,7 +16,7 @@ require (
 	github.com/threatwinds/go-sdk v1.1.31
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
-	golang.org/x/sys v0.47.0
+	golang.org/x/sys v0.48.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gorm.io/gorm v1.31.2
