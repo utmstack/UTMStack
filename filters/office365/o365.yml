@@ -1,4 +1,4 @@
-# Microsoft 365 filter, version 1.0.4
+# Microsoft 365 filter, version 1.0.5
 
 # Based on Official documentation
 # See https://learn.microsoft.com/en-us/compliance/assurance/assurance-microsoft-365-audit-log-collection
@@ -11,6 +11,12 @@ pipeline:
     steps:
       - json:
           source: raw
+
+      # Normalized event time.
+      - rename:
+          from:
+            - log.CreationTime
+          to: deviceTime
 
       - rename:  
           from:
@@ -35,7 +41,7 @@ pipeline:
       - rename:  
           from:
             - log.AppAccessContext.IssuedAtTime
-          to: log.deviceTime
+          to: log.appAccessContextIssuedAtTime
 
       - rename:  
           from:
