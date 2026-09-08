@@ -78,7 +78,7 @@ references:
 where: |
   equalsIgnoreCase("log.category", "AuditLogs") &&
   equalsIgnoreCase("log.operationName", "Disable Strong Authentication") &&
-  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS"))
+  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "success"))
 groupBy:
   - target.ip
   - target.user

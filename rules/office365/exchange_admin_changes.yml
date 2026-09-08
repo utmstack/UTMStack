@@ -26,7 +26,7 @@ description: |
   7. If unauthorized, immediately review affected configurations and revert if necessary
 where: |
   oneOf("action", ["Set-AdminAuditLogConfig", "Set-TransportRule", "Set-MalwareFilterPolicy", "Set-HostedContentFilterPolicy", "Set-DkimSigningConfig", "Set-OrganizationConfig", "Set-RoleGroup", "Add-RoleGroupMember", "Remove-RoleGroupMember", "New-ManagementRoleAssignment", "Remove-ManagementRoleAssignment"]) && 
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

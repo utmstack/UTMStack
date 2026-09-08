@@ -26,6 +26,7 @@ const (
 	endPointContent                            = "/activity/feed/subscriptions/content"
 	DefaultTenant                              = "ce66672c-e36d-4761-a8c8-90058fee1a24"
 	apiVersion                                 = "api/v1.0/"
+	maxContentListPages                        = 1000
 	CloudCommercial           CloudEnvironment = "Commercial"
 	CloudGCC                  CloudEnvironment = "GCC"
 	CloudGCCHigh              CloudEnvironment = "GCCHigh"
@@ -148,7 +149,7 @@ func watchConfigAndPull() {
 	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
 
-	startTime := time.Now().UTC().Add(-delay)
+	positions := newWindowPositions(defaultStatePath())
 
 	for {
 		select {
@@ -160,14 +161,19 @@ func watchConfigAndPull() {
 			syncActiveGroups(newConfig)
 
 		case <-ticker.C:
-			endTime := time.Now().UTC()
-
+			now := time.Now().UTC()
 			groups := getActiveGroups()
+
+			configured := make(map[int32]struct{}, len(groups))
+			for _, grp := range groups {
+				configured[grp.Id] = struct{}{}
+			}
+			positions.retain(configured)
+
 			if len(groups) == 0 {
 				catcher.Info("No active groups, skipping pull", map[string]any{
 					"process": "plugin_com.utmstack.o365",
 				})
-				startTime = endTime.Add(1 * time.Nanosecond)
 				continue
 			}
 
@@ -179,12 +185,11 @@ func watchConfigAndPull() {
 			for _, grp := range groups {
 				go func(group *config.ModuleGroup) {
 					defer wg.Done()
-					pull(startTime, endTime, group)
+					collectGroup(positions, group, now, now.Add(-delay), pull)
 				}(grp)
 			}
 
 			wg.Wait()
-			startTime = endTime.Add(1 * time.Nanosecond)
 		}
 	}
 }
@@ -218,22 +223,18 @@ func getGroupEnvironment(group *config.ModuleGroup) CloudEnvironment {
 	return CloudCommercial
 }
 
-func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
+func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) error {
 	agent := GetOfficeProcessor(group)
 
-	err := agent.GetAuth()
-	if err != nil {
-		_ = catcher.Error("error getting auth", err, map[string]any{"process": "plugin_com.utmstack.o365"})
-		return
+	if err := agent.GetAuth(); err != nil {
+		return catcher.Error("error getting auth", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 	}
 
-	err = agent.StartSubscriptions()
-	if err != nil {
-		_ = catcher.Error("error starting subscriptions", err, map[string]any{"process": "plugin_com.utmstack.o365"})
-		return
+	if err := agent.StartSubscriptions(); err != nil {
+		return catcher.Error("error starting subscriptions", err, map[string]any{"process": "plugin_com.utmstack.o365"})
 	}
 
-	logs := agent.GetLogs(startTime, endTime)
+	logs, err := agent.GetLogs(startTime, endTime)
 	for _, log := range logs {
 		plugins.EnqueueLog(&plugins.Log{
 			Id:         uuid.New().String(),
@@ -244,6 +245,8 @@ func pull(startTime time.Time, endTime time.Time, group *config.ModuleGroup) {
 			Raw:        log,
 		}, "com.utmstack.o365")
 	}
+
+	return err
 }
 
 type OfficeProcessor struct {
@@ -374,9 +377,8 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 			"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 		}
 
-		// Retry logic for starting subscriptions
 		maxRetries := 3
-		retryDelay := 2 * time.Second
+		retryDelay := contentRetryDelay
 
 		var err error
 
@@ -386,9 +388,10 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 				break
 			}
 
-			// If the subscription is already enabled, that's not an error
+			// Microsoft reports an already enabled subscription as HTTP 400.
 			if strings.Contains(err.Error(), "subscription is already enabled") {
-				return nil
+				err = nil
+				break
 			}
 
 			_ = catcher.Error("error starting subscription, retrying", err, map[string]any{
@@ -400,7 +403,6 @@ func (o *OfficeProcessor) StartSubscriptions() error {
 
 			if retry < maxRetries-1 {
 				time.Sleep(retryDelay)
-				// Increase delay for next retry
 				retryDelay *= 2
 			}
 		}
@@ -426,23 +428,82 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 		endTime.UTC().Format("2006-01-02T15:04:05"),
 		subscription)
 
+	contentList := make([]ContentList, 0, 10)
+
+	for page := 0; page < maxContentListPages; page++ {
+		entries, respHeaders, err := o.getContentListPage(link, subscription)
+		if err != nil {
+			return []ContentList{}, err
+		}
+
+		contentList = append(contentList, entries...)
+
+		nextPageUri := respHeaders.Get("NextPageUri")
+		if nextPageUri == "" {
+			return contentList, nil
+		}
+
+		if err := o.validateNextPageUri(nextPageUri); err != nil {
+			return []ContentList{}, err
+		}
+
+		// Followed verbatim: its nextPage parameter is an opaque server-side id.
+		link = nextPageUri
+	}
+
+	return []ContentList{}, catcher.Error("exceeded the content list page limit", nil, map[string]any{
+		"process":      "plugin_com.utmstack.o365",
+		"subscription": subscription,
+		"maxPages":     maxContentListPages,
+	})
+}
+
+func (o *OfficeProcessor) validateNextPageUri(nextPageUri string) error {
+	endpoint, err := url.Parse(o.CloudConfig.ManagementEndpoint)
+	if err != nil {
+		return catcher.Error("cannot parse management endpoint", err, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+		})
+	}
+
+	next, err := url.Parse(nextPageUri)
+	if err != nil {
+		return catcher.Error("cannot parse NextPageUri", err, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+		})
+	}
+
+	if !strings.EqualFold(next.Scheme, endpoint.Scheme) || !strings.EqualFold(next.Host, endpoint.Host) {
+		return catcher.Error("NextPageUri does not match the management endpoint", nil, map[string]any{
+			"process": "plugin_com.utmstack.o365",
+			"host":    next.Host,
+			"scheme":  next.Scheme,
+		})
+	}
+
+	return nil
+}
+
+var contentRetryDelay = 2 * time.Second
+
+func (o *OfficeProcessor) getContentListPage(link string, subscription string) ([]ContentList, http.Header, error) {
 	headers := map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	// Retry logic for getting content list
 	maxRetries := 3
-	retryDelay := 2 * time.Second
+	retryDelay := contentRetryDelay
 
 	var respBody []ContentList
+	var respHeaders http.Header
 	var status int
 	var err error
 
 	for retry := 0; retry < maxRetries; retry++ {
-		respBody, status, err = utils.DoReq[[]ContentList](link, nil, http.MethodGet, headers, false)
+		respBody, respHeaders, status, err = doReqWithHeaders[[]ContentList](link, nil, http.MethodGet, headers)
 		if err == nil && status == http.StatusOK {
-			return respBody, nil
+			return respBody, respHeaders, nil
 		}
 
 		_ = catcher.Error("error getting content list, retrying", err, map[string]any{
@@ -455,12 +516,11 @@ func (o *OfficeProcessor) GetContentList(subscription string, startTime time.Tim
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
 
-	return []ContentList{}, catcher.Error("all retries failed when getting content list", err, map[string]any{
+	return nil, nil, catcher.Error("all retries failed when getting content list", err, map[string]any{
 		"process":      "plugin_com.utmstack.o365",
 		"subscription": subscription,
 		"status":       status,
@@ -473,9 +533,8 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 		"Authorization": fmt.Sprintf("%s %s", o.Credentials.TokenType, o.Credentials.AccessToken),
 	}
 
-	// Retry logic for getting content details
 	maxRetries := 3
-	retryDelay := 2 * time.Second
+	retryDelay := contentRetryDelay
 
 	var respBody ContentDetailsResponse
 	var status int
@@ -483,7 +542,7 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 
 	for retry := 0; retry < maxRetries; retry++ {
 		respBody, status, err = utils.DoReq[ContentDetailsResponse](url, nil, http.MethodGet, headers, false)
-		if err == nil {
+		if err == nil && status == http.StatusOK {
 			return respBody, nil
 		}
 
@@ -497,7 +556,6 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 
 		if retry < maxRetries-1 {
 			time.Sleep(retryDelay)
-			// Increase delay for next retry
 			retryDelay *= 2
 		}
 	}
@@ -509,34 +567,47 @@ func (o *OfficeProcessor) GetContentDetails(url string) (ContentDetailsResponse,
 	})
 }
 
-func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) []string {
+func (o *OfficeProcessor) GetLogs(startTime, endTime time.Time) ([]string, error) {
 	logs := make([]string, 0, 10)
+	incomplete := false
+
 	for _, subscription := range o.Subscriptions {
 		contentList, err := o.GetContentList(subscription, startTime, endTime)
 		if err != nil {
 			_ = catcher.Error("error getting content list", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+			incomplete = true
 			continue
 		}
 
-		if len(contentList) > 0 {
-			for _, log := range contentList {
-				details, err := o.GetContentDetails(log.ContentUri)
+		for _, log := range contentList {
+			details, err := o.GetContentDetails(log.ContentUri)
+			if err != nil {
+				_ = catcher.Error("error getting content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+				incomplete = true
+				continue
+			}
+
+			for _, detail := range details {
+				rawDetail, err := json.Marshal(detail)
 				if err != nil {
-					_ = catcher.Error("error getting content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+					_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
+					incomplete = true
 					continue
 				}
-				if len(details) > 0 {
-					for _, detail := range details {
-						rawDetail, err := json.Marshal(detail)
-						if err != nil {
-							_ = catcher.Error("error marshalling content details", err, map[string]any{"process": "plugin_com.utmstack.o365"})
-							continue
-						}
-						logs = append(logs, string(rawDetail))
-					}
-				}
+
+				logs = append(logs, string(rawDetail))
 			}
 		}
 	}
-	return logs
+
+	if incomplete {
+		return logs, catcher.Error("collection incomplete for the requested window", nil, map[string]any{
+			"process":   "plugin_com.utmstack.o365",
+			"startTime": startTime.Format(time.RFC3339),
+			"endTime":   endTime.Format(time.RFC3339),
+			"collected": len(logs),
+		})
+	}
+
+	return logs, nil
 }

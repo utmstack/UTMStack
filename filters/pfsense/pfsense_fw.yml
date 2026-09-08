@@ -33,7 +33,9 @@ pipeline:
           source: raw
           where: regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")
 
-      # Parsing syslog format date (OPNsense/pfSense)
+      #......................................................................#
+      # Parsing syslog format date (OPNsense/pfSense) — BSD WITH hostname
+      #......................................................................#
       - grok:
           patterns:
             - fieldName: log.priority
@@ -45,7 +47,21 @@ pipeline:
             - fieldName: log.msgAll
               pattern: '{{.greedy}}'
           source: raw
-          where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}")
+          where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+\\S+\\s+\\S+[\\[:]")
+
+      #......................................................................#
+      # Parsing syslog format date (OPNsense/pfSense) — BSD WITHOUT hostname
+      #......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.priority
+              pattern: '\<{{.integer}}\>'
+            - fieldName: log.deviceTime
+              pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}{{.space}}'
+            - fieldName: log.msgAll
+              pattern: '{{.greedy}}'
+          source: raw
+          where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+[^\\s\\[:]+[\\[:]")
 
       #......................................................................#
       # Removing unnecessary characters of the syslogHeader
@@ -131,7 +147,7 @@ pipeline:
             - log.tcpWindow
             - log.urg
             - log.tcpOptions
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(tcp|TCP|Tcp)")
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(tcp|TCP|Tcp)")
 
       # .......................................................................#
       - csv:
@@ -161,7 +177,7 @@ pipeline:
             - log.srcPort
             - log.dstPort
             - log.dataLength
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(udp|UDP|Udp)")
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(udp|UDP|Udp)")
 
       #......................................................................#
       - csv:
@@ -194,7 +210,7 @@ pipeline:
             - log.icmpData3
             - log.icmpData4
             - log.icmpData5
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(4|6),(.+)(icmp|ICMP|Icmp)")
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(icmp|ICMP|Icmp)")
 
       #......................................................................#
       - csv:
@@ -227,7 +243,7 @@ pipeline:
             - log.tcpWindow
             - log.urg
             - log.tcpOptions
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),(6|17),(.+)(tcp|TCP|Tcp)")
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(tcp|TCP|Tcp)")
       
       #......................................................................#
       - csv:
@@ -254,7 +270,7 @@ pipeline:
             - log.srcPort
             - log.dstPort
             - log.dataLength
-          where: regexMatch("log.csvMsg", "(.+),(match|\\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)") 
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)")
 
       #......................................................................#
       - csv:
@@ -284,7 +300,7 @@ pipeline:
             - log.icmpData3
             - log.icmpData4
             - log.icmpData5
-          where: regexMatch("log.csvMsg", "(.+),(match|\\w+),(block|pass),(in|out),(6|17),(.+)(icmp|ICMP|Icmp)")
+          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(icmp|ICMP|Icmp)")
 
       # ................................................#
       # Rename fields

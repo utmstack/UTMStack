@@ -20,6 +20,13 @@ const (
 // when the file is modified. It also calls onConfigChange periodically as a fallback.
 // This function blocks until ctx is cancelled.
 func Watch(ctx context.Context, name string, onConfigChange func()) {
+	WatchFile(ctx, name, config.CollectorFileName, 0, onConfigChange)
+}
+
+// WatchFile monitors filePath instead of the collector config. debounce coalesces
+// bursts of events, which matters for files a human edits: editors often save by
+// truncating and rewriting, briefly exposing an empty file. Pass 0 to disable.
+func WatchFile(ctx context.Context, name, filePath string, debounce time.Duration, onConfigChange func()) {
 	// Initial call
 	onConfigChange()
 
@@ -33,8 +40,8 @@ func Watch(ctx context.Context, name string, onConfigChange func()) {
 	defer watcher.Close()
 
 	// Watch the directory containing the config file
-	configDir := filepath.Dir(config.CollectorFileName)
-	configBase := filepath.Base(config.CollectorFileName)
+	configDir := filepath.Dir(filePath)
+	configBase := filepath.Base(filePath)
 
 	if err := watcher.Add(configDir); err != nil {
 		utils.Logger.ErrorF("%s: failed to watch config directory: %v, falling back to polling", name, err)
@@ -48,6 +55,15 @@ func Watch(ctx context.Context, name string, onConfigChange func()) {
 	fallbackTicker := time.NewTicker(FallbackInterval)
 	defer fallbackTicker.Stop()
 
+	// A nil channel blocks, which is what we want while no change is pending.
+	var debounceTimer *time.Timer
+	var debounced <-chan time.Time
+	defer func() {
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -58,12 +74,29 @@ func Watch(ctx context.Context, name string, onConfigChange func()) {
 			if !ok {
 				return
 			}
-			if filepath.Base(event.Name) == configBase {
-				if event.Op&(fsnotify.Write|fsnotify.Create) != 0 {
-					utils.Logger.Info("%s: config file changed, reconciling", name)
-					onConfigChange()
-				}
+			if filepath.Base(event.Name) != configBase {
+				continue
 			}
+			if event.Op&(fsnotify.Write|fsnotify.Create) == 0 {
+				continue
+			}
+			if debounce <= 0 {
+				utils.Logger.Info("%s: config file changed, reconciling", name)
+				onConfigChange()
+				continue
+			}
+			if debounceTimer == nil {
+				debounceTimer = time.NewTimer(debounce)
+			} else {
+				debounceTimer.Stop()
+				debounceTimer.Reset(debounce)
+			}
+			debounced = debounceTimer.C
+
+		case <-debounced:
+			debounced = nil
+			utils.Logger.Info("%s: config file changed, reconciling", name)
+			onConfigChange()
 
 		case err, ok := <-watcher.Errors:
 			if !ok {

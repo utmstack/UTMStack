@@ -27,7 +27,7 @@ description: |
   8. Consider implementing Power Platform DLP policies to prevent future abuse
 where: |
   oneOf("action", ["CreateFlow", "ShareFlow", "CreateConnection"]) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   equals("log.Workload", "PowerAutomate")
 afterEvents:
   - indexPattern: v11-log-o365-*

@@ -18,7 +18,7 @@ references:
   - "https://attack.mitre.org/techniques/T1562/"
   - "https://attack.mitre.org/tactics/TA0005/"
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeAttachmentRule") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeAttachmentRule") && equals("actionResult", "success")
 groupBy:
   - adversary.ip
   - adversary.user
