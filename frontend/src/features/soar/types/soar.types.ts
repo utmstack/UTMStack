@@ -150,7 +150,23 @@ export interface ExecutorMeta {
 
 export const EXECUTOR_CATALOG: ExecutorMeta[] = [
   { type: 'shell', label: 'Shell (endpoint agent)', kinds: ['executor'] },
-  { type: 'http', label: 'HTTP call', kinds: ['enrichment'], paramsPlaceholder: { method: 'GET', url: '' } },
+  {
+    type: 'http',
+    label: 'HTTP call',
+    kinds: ['enrichment'],
+    paramsPlaceholder: {
+      method: 'GET',
+      url: '',
+      headers: {
+        'Postman-Token': '<calculated when request is sent>',
+        Host: '<calculated when request is sent>',
+        'User-Agent': 'PostmanRuntime/7.43.0',
+        Accept: '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Connection: 'keep-alive',
+      },
+    },
+  },
   { type: 'llm_enrich', label: 'LLM enrichment', kinds: ['enrichment'], paramsPlaceholder: { prompt: '' } },
   { type: 'llm_action', label: 'LLM action', kinds: ['executor'], paramsPlaceholder: { prompt: '' } },
   { type: 'notify', label: 'Send notification', kinds: ['executor'], paramsPlaceholder: { message: '', type: 'INFO' } },

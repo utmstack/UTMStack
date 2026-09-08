@@ -4911,7 +4911,11 @@
           "body": "Cuerpo (JSON)",
           "bodyInvalid": "JSON inválido",
           "headers": "Encabezados HTTP",
-          "addHeader": "Agregar encabezado"
+          "params": "Parámetros de consulta",
+          "key": "Clave",
+          "value": "Valor",
+          "addHeader": "Agregar encabezado",
+          "addParam": "Agregar parámetro"
         },
         "incident": {
           "name": "Nombre del incidente",
