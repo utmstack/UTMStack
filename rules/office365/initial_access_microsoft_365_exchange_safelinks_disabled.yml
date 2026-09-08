@@ -19,7 +19,7 @@ references:
   - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/atp-safe-links?view=o365-worldwide"
   - "https://attack.mitre.org/techniques/T1566/"
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeLinksRule") && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+  equals("log.Workload", "Exchange") && equals("action", "Disable-SafeLinksRule") && equals("actionResult", "success")
 groupBy:
   - adversary.ip
   - adversary.user

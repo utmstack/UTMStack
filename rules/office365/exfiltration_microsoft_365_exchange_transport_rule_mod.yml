@@ -17,7 +17,7 @@ references:
   - "https://attack.mitre.org/techniques/T1537/"
   - "https://attack.mitre.org/tactics/TA0010/"
 where: |
-  equals("log.Workload", "Exchange") && oneOf("action", ["Remove-TransportRule","Disable-TransportRule"]) && oneOf("actionResult", ["Success","PartiallySucceeded","True"])
+  equals("log.Workload", "Exchange") && oneOf("action", ["Remove-TransportRule","Disable-TransportRule"]) && equals("actionResult", "success")
 groupBy:
   - adversary.ip
   - adversary.user

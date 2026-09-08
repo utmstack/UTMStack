@@ -106,7 +106,14 @@ pipeline:
           params:
             key: actionResult
             value: 'failed'
-          where: oneOf("log.ResultStatus", ["Failure", "Failed"])
+          where: oneOf("log.ResultStatus", ["Failure", "Failed", "False"])
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'blocked'
+          where: equals("log.ResultStatus", "Blocked")
 
       # Adding geolocation to origin ip
       - dynamic:

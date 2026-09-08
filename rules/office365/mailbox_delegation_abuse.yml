@@ -27,7 +27,7 @@ description: |
   8. Enable mailbox audit logging if not already enabled
 where: |
   oneOf("action", ["Add-MailboxPermission", "Add-RecipientPermission", "Set-Mailbox"]) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (contains("log.Parameters", "FullAccess") ||
    contains("log.Parameters", "SendAs") ||
    contains("log.Parameters", "SendOnBehalf"))

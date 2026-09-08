@@ -27,7 +27,7 @@ description: |
   8. Enable Safe Links and Safe Attachments for Teams
 where: |
   (equals("action", "MemberAdded") || equals("action", "ChatCreated") || equals("action", "MessageSent")) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   contains("log.Parameters", "#EXT#")
 afterEvents:
   - indexPattern: v11-log-o365-*
