@@ -1,8 +1,6 @@
-import {HttpClient} from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProviderType, UtmIdentityProvider } from '../../models/utm-identity-provider.model';
-import {validateMetadataUrl} from '../../validators/validator';
 
 @Component({
   selector: 'app-provider-form',
@@ -31,8 +29,7 @@ export class ProviderFormComponent implements OnInit {
   spEntityId = '';
   spAcsUrl = '';
 
-  constructor(private fb: FormBuilder,
-              private http: HttpClient) {}
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
     this.editMode = !!this.provider;
@@ -60,7 +57,7 @@ export class ProviderFormComponent implements OnInit {
     this.providerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       providerType: [ProviderType.GOOGLE, Validators.required],
-      metadataUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)], [validateMetadataUrl(this.http)]],
+      metadataUrl: ['', [Validators.required, Validators.pattern(/^https:\/\/.+/)]],
       active: [true],
       spEntityId: [''],
       spAcsUrl: ['']
