@@ -26,15 +26,15 @@ description: |
 where: |
   (equals("log.subsystem", "com.apple.endpointsecurity") ||
    contains("log.process", "EndpointSecurity") ||
-   contains("log.message", "ES_EVENT_TYPE")) &&
-  (contains("log.message", "bypass") ||
-   contains("log.message", "failed authorization") ||
-   contains("log.message", "client disconnected") ||
-   contains("log.message", "authorization denied") ||
-   contains("log.message", "invalid client") ||
-   contains("log.message", "ES_RETURN_ERROR") ||
-   equals("log.eventType", "error") ||
-   contains("log.message", "memory leak detected"))
+   contains("log.eventMessage", "ES_EVENT_TYPE")) &&
+  (contains("log.eventMessage", "bypass") ||
+   contains("log.eventMessage", "failed authorization") ||
+   contains("log.eventMessage", "client disconnected") ||
+   contains("log.eventMessage", "authorization denied") ||
+   contains("log.eventMessage", "invalid client") ||
+   contains("log.eventMessage", "ES_RETURN_ERROR") ||
+   equals("log.level", "error") ||
+   contains("log.eventMessage", "memory leak detected"))
 afterEvents:
   - with:
       - field: system.hostname

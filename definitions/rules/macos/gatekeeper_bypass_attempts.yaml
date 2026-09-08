@@ -42,7 +42,7 @@ where: |
     equals("log.eventType", "logEvent")
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/var/db/SystemPolicy.*") &&
+    regexMatch("log.eventMessage", ".*/var/db/SystemPolicy.*") &&
     regexMatch("log.eventMessage", ".*(modify|write|delete).*")
   ) ||
   (

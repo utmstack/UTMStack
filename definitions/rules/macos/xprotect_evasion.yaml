@@ -35,10 +35,6 @@ where: |
     )
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
-    regexMatch("log.eventMessage", ".*(modify|write|delete).*")
-  ) ||
-  (
     regexMatch("log.eventMessage", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
     (
       regexMatch("log.eventMessage", ".*(modify|tamper|delete).*") ||

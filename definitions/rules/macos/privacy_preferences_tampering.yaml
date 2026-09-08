@@ -25,8 +25,6 @@ description: |
   6. Consider implementing additional monitoring for TCC database access
 where: |
   (contains("log.eventMessage", "Update Access Record:") && equals("log.subsystem", "com.apple.TCC")) ||
-  (equals("log.process", "sqlite3") && contains("log.eventMessage", "TCC.db")) ||
-  (equals("log.process", "tccutil") && contains("log.eventMessage", "reset")) ||
   (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "INSERT")) ||
   (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "UPDATE")) ||
   (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "DELETE")) ||

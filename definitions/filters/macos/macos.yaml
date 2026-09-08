@@ -1,4 +1,3 @@
-# Macos filter, version 3.0.1
 pipeline:
   - dataTypes: [macos]
     order: 21  # global pipeline order -- unique across all filters, customer-adjustable
@@ -6,26 +5,242 @@ pipeline:
       - json:
           source: raw
 
-      # Renaming useful fields
       - rename:
           from:
-            - log.activityidentifier
+            - log.activity_identifier
           to: log.activityIdentifier
 
       - rename:
           from:
-            - log.processidentifier
+            - log.process_identifier
           to: log.processIdentifier
 
       - rename:
           from:
-            - log.storecategory
+            - log.store_category
           to: log.storeCategory
 
       - rename:
           from:
-            - log.threadidentifier
+            - log.thread_identifier
           to: log.threadIdentifier
+
+      - rename:
+          from:
+            - log.parent_activity_identifier
+          to: log.parentActivityIdentifier
+
+      - rename:
+          from:
+            - log.signpost_type
+          to: log.signpostType
+
+      - rename:
+          from:
+            - log.signpost_identifier
+          to: log.signpostIdentifier
+
+      - rename:
+          from:
+            - log.signpost_name
+          to: log.signpostName
+
+      - rename:
+          from:
+            - log.class_name
+          to: log.className
+
+      - rename:
+          from:
+            - log.message
+          to: log.eventMessage
+
+      - rename:
+          from:
+            - log.signing_id
+          to: log.signingId
+
+      - rename:
+          from:
+            - log.team_id
+          to: log.teamId
+
+      - rename:
+          from:
+            - log.is_platform_binary
+          to: log.isPlatformBinary
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventType
+            value: 'logEvent'
+
+      - rename:
+          from:
+            - log.host
+          to: origin.host
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A process was executed'
+          where: equals("log.className", "es.exec")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A process forked a child process'
+          where: equals("log.className", "es.fork")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A signal was sent to a process'
+          where: equals("log.className", "es.signal")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A file was renamed'
+          where: equals("log.className", "es.rename")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A file was created'
+          where: equals("log.className", "es.create")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A file was deleted'
+          where: equals("log.className", "es.unlink")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An extended attribute was set on a file'
+          where: equals("log.className", "es.setextattr")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An extended attribute was removed from a file'
+          where: equals("log.className", "es.deleteextattr")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A kernel extension was loaded'
+          where: equals("log.className", "es.kextload")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user manually overrode a Gatekeeper block'
+          where: equals("log.className", "es.gatekeeper_user_override")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A TCC (privacy) permission grant was modified'
+          where: equals("log.className", "es.tcc_modify")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A persistent login/launch item was registered'
+          where: equals("log.className", "es.btm_launch_item_add")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A local user account was created'
+          where: equals("log.className", "es.od_create_user")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user was added to a local group'
+          where: equals("log.className", "es.od_group_add")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: "A local group's membership was set"
+          where: equals("log.className", "es.od_group_set")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A local user account was enabled'
+          where: equals("log.className", "es.od_enable_user")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A local account password was changed'
+          where: equals("log.className", "es.od_modify_password")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user attempted to switch to another user account (su)'
+          where: equals("log.className", "es.su")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A user executed a command with elevated privileges (sudo)'
+          where: equals("log.className", "es.sudo")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'An incoming Screen Sharing connection was accepted'
+          where: equals("log.className", "es.screensharing_attach")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A process attached to another process via ptrace'
+          where: equals("log.className", "es.trace")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'XProtect detected malware'
+          where: equals("log.className", "es.xp_malware_detected")
+
+      - add:
+          function: 'string'
+          params:
+            key: log.eventName
+            value: 'A filesystem or disk image was mounted'
+          where: equals("log.className", "es.mount")
 
       # Drop unnecessary events
       - drop:

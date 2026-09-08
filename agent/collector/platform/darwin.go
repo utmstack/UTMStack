@@ -13,19 +13,32 @@ import (
 
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/tidwall/sjson"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"github.com/utmstack/UTMStack/shared/fs"
 )
 
 const (
-	maxRestartDelay = 5 * time.Minute
+	maxRestartDelay  = 5 * time.Minute
 	baseRestartDelay = 5 * time.Second
 )
 
 type Darwin struct{}
 
 func GetCollectors() []Collector {
+	// EndpointSecurity{} (darwin_es.go) is deliberately not registered here:
+	// it needs the com.apple.developer.endpoint-security.client entitlement
+	// on our own binary to be authorizable at all -- shelling out to Apple's
+	// /usr/bin/eslogger to borrow its entitlement turned out to be a dead
+	// end (confirmed empirically: eslogger can't be added to Full Disk
+	// Access manually since /usr/bin is SIP-protected, doesn't
+	// self-register there after repeated denials the way installd/
+	// siriactionsd do, and a copy outside /usr/bin gets killed instantly at
+	// launch since its trust is pinned to its original path). The event
+	// selection and reshape() mapping in darwin_es.go stay as-is, ready to
+	// wire back in once our own binary has the entitlement -- that part of
+	// the design doesn't depend on which binary makes the ES client call.
 	return []Collector{Darwin{}}
 }
 
@@ -118,9 +131,15 @@ func (d Darwin) runCollector(collectorPath, host string, enqueue func(*plugins.L
 			logLine := scanner.Text()
 			utils.Logger.LogF(100, "output: %s", logLine)
 
-			validatedLog, _, err := entities.ValidateString(logLine, false)
+			withHost, err := sjson.Set(logLine, "host", host)
 			if err != nil {
-				utils.Logger.ErrorF("error validating log: %s: %v", logLine, err)
+				utils.Logger.ErrorF("error adding host to log: %s: %v", logLine, err)
+				withHost = logLine
+			}
+
+			validatedLog, _, err := entities.ValidateString(withHost, false)
+			if err != nil {
+				utils.Logger.ErrorF("error validating log: %s: %v", withHost, err)
 				continue
 			}
 

@@ -26,10 +26,8 @@ description: |
   7. Consider quarantining the affected system if malicious activity is confirmed
   8. Review security policies regarding software installation and execution
 where: |
-  (equals("log.process", "spctl") && contains("log.eventMessage", "assessment")) ||
   (equals("log.subsystem", "com.apple.xprotect") && contains("log.eventMessage", "failed on rPathCmd")) ||
   (contains("log.eventMessage", "com.apple.quarantine") && contains("log.eventMessage", "remove")) ||
-  (equals("log.process", "xattr") && contains("log.eventMessage", "-d com.apple.quarantine")) ||
   (contains("log.eventMessage", "LSFileQuarantineEnabled") && contains("log.eventMessage", "false")) ||
   (contains("log.eventMessage", "ACL") && contains("log.eventMessage", "quarantine"))
 groupBy:

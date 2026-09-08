@@ -35,11 +35,6 @@ where: |
     )
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/Library/Application Support/com\\.apple\\.TCC/TCC\\.db.*") &&
-    regexMatch("log.eventMessage", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
-    !equals("log.process", "tccd")
-  ) ||
-  (
     contains("log.eventMessage", "TCC.db") &&
     (
       regexMatch("log.eventMessage", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||

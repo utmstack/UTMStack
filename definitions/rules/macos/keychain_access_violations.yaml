@@ -37,7 +37,7 @@ where: |
    contains("log.eventMessage", "unauthorized") ||
    contains("log.eventMessage", "-25308") ||
    contains("log.eventMessage", "accountsd wants to use")) &&
-  oneOf("log.messageType", ["error", "fault"])
+  oneOf("log.level", ["error", "fault"])
 groupBy:
   - adversary.host
   - adversary.user

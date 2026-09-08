@@ -32,7 +32,6 @@ where: |
       contains("log.eventMessage", "install")
     ) &&
     (
-      !regexMatch("log.processImagePath", ".*/System/Library/.*") ||
       contains("log.eventMessage", "unsigned") ||
       regexMatch("log.eventMessage", ".*invalid.*signature.*")
     )
@@ -59,10 +58,6 @@ where: |
     contains("log.eventMessage", "/System/Library/Extensions") &&
     regexMatch("log.eventMessage", ".*(modify|write|create).*") &&
     !equals("log.process", "kextcache")
-  ) ||
-  (
-    equals("log.process", "eslogger") &&
-    regexMatch("log.eventMessage", ".*kext.*bypass.*")
   )
 groupBy:
   - adversary.host

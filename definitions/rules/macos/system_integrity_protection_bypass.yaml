@@ -31,7 +31,6 @@ where: |
     contains("log.eventMessage", "com.apple.rootless.install.heritable")
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/System/Library/.*") && 
     regexMatch("log.eventMessage", ".*(csrutil|disable|rootless).*") &&
     equals("log.eventType", "logEvent")
   ) ||
