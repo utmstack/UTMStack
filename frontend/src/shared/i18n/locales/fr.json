@@ -4787,7 +4787,9 @@
           "urlInvalid": "URL http(s) invalide.",
           "method": "Méthode",
           "body": "Corps (JSON)",
-          "bodyInvalid": "JSON invalide"
+          "bodyInvalid": "JSON invalide",
+          "headers": "En-têtes HTTP",
+          "addHeader": "Ajouter un en-tête"
         },
         "incident": {
           "name": "Nom de l'incident",

@@ -5173,7 +5173,9 @@
           "urlInvalid": "Not a valid http(s) URL.",
           "method": "Method",
           "body": "Body (JSON)",
-          "bodyInvalid": "Invalid JSON"
+          "bodyInvalid": "Invalid JSON",
+          "headers": "HTTP headers",
+          "addHeader": "Add header"
         },
         "incident": {
           "name": "Incident name",
