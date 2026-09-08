@@ -604,5 +604,7 @@
   <include file="/config/liquibase/changelog/20260623001_migrate_compliance_report_config_to_control_config.xml" relativeToChangelogFile="false"/>
     
   <include file="/config/liquibase/changelog/20260831001_update_login_failed_menu_event_code.xml" relativeToChangelogFile="false"/>
-    
+
+  <include file="/config/liquibase/changelog/20260908001_allow_empty_alert_notification_emails.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
