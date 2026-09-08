@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -19,6 +18,8 @@ import (
 
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/UTMStack/agent/collector/configwatcher"
+	"github.com/utmstack/UTMStack/agent/collector/schema"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"golang.org/x/sys/windows"
@@ -78,8 +79,23 @@ type EventSubscription struct {
 	Errors       chan error
 	winAPIHandle windows.Handle
 
-	mu      sync.Mutex
-	running bool
+	id   uintptr
+	ctx  context.Context
+	stop chan struct{}
+	once sync.Once
+
+	mu       sync.Mutex
+	retrying bool
+}
+
+func newEventSubscription(ctx context.Context, channel string, errors chan error) *EventSubscription {
+	return &EventSubscription{
+		Channel: channel,
+		Query:   "*",
+		Errors:  errors,
+		ctx:     ctx,
+		stop:    make(chan struct{}),
+	}
 }
 
 const (
@@ -87,6 +103,15 @@ const (
 	evtSubscribeActionError    = 0
 	evtSubscribeActionDeliver  = 1
 	evtRenderEventXML          = 1
+)
+
+const (
+	maxResubscribeAttempts = 10
+	resubscribeBaseDelay   = 5 * time.Second
+	resubscribeMaxDelay    = 5 * time.Minute
+
+	// Coalesces the burst of events an editor emits on save.
+	channelReloadDebounce = 1 * time.Second
 )
 
 var (
@@ -97,10 +122,64 @@ var (
 	incomingEvents   = make(chan string, 1024)
 )
 
+// syscall.NewCallback allocates from a pool of 2000 process-wide slots that are
+// never released, and exhausting it aborts the process with a runtime throw that
+// recover cannot catch. This single callback is shared by every subscription:
+// EvtSubscribe carries the subscription id as its context argument, and
+// dispatchEvent uses it to find the owner.
+//
+// Assigned in init because dispatchEvent reaches createLocked, which reads
+// sharedCallback, and Go rejects that as a variable initialization cycle.
+var sharedCallback uintptr
+
+func init() {
+	sharedCallback = syscall.NewCallback(dispatchEvent)
+}
+
+var (
+	registryMu sync.Mutex
+	registry   = map[uintptr]*EventSubscription{}
+	lastID     uintptr
+)
+
+func dispatchEvent(action, userContext, event uintptr) uintptr {
+	registryMu.Lock()
+	evtSub := registry[userContext]
+	registryMu.Unlock()
+
+	if evtSub == nil {
+		return 0
+	}
+	return evtSub.handleEvent(action, event)
+}
+
+// registerSubscription assigns an id on first use. Ids start at 1, because
+// EvtSubscribe treats 0 as "no context".
+func registerSubscription(evtSub *EventSubscription) {
+	registryMu.Lock()
+	defer registryMu.Unlock()
+	if evtSub.id == 0 {
+		lastID++
+		evtSub.id = lastID
+	}
+	registry[evtSub.id] = evtSub
+}
+
+func unregisterSubscription(evtSub *EventSubscription) {
+	registryMu.Lock()
+	defer registryMu.Unlock()
+	delete(registry, evtSub.id)
+}
+
 func (evtSub *EventSubscription) Create() error {
 	evtSub.mu.Lock()
 	defer evtSub.mu.Unlock()
+	return evtSub.createLocked()
+}
 
+// createLocked requires evtSub.mu, so the resubscribe path can reuse it without
+// relocking a non-reentrant mutex.
+func (evtSub *EventSubscription) createLocked() error {
 	if evtSub.winAPIHandle != 0 {
 		return fmt.Errorf("windows_events: subscription has already been created")
 	}
@@ -115,9 +194,10 @@ func (evtSub *EventSubscription) Create() error {
 		return fmt.Errorf("windows_events: invalid query: %s", err)
 	}
 
-	callback := syscall.NewCallback(evtSub.winAPICallback)
+	utils.Logger.LogF(100, "Subscribing to channel: %s", evtSub.Channel)
 
-	log.Printf("Debug - Subscribing to channel: %s", evtSub.Channel)
+	// Registered before subscribing, because the callback can fire immediately.
+	registerSubscription(evtSub)
 
 	handle, _, err := procEvtSubscribe.Call(
 		0,
@@ -125,12 +205,13 @@ func (evtSub *EventSubscription) Create() error {
 		uintptr(unsafe.Pointer(winChannel)),
 		uintptr(unsafe.Pointer(winQuery)),
 		0,
-		0,
-		callback,
+		evtSub.id,
+		sharedCallback,
 		uintptr(EvtSubscribeToFutureEvents),
 	)
 
 	if handle == 0 {
+		unregisterSubscription(evtSub)
 		return fmt.Errorf("windows_events: failed to subscribe to events: %v", err)
 	}
 
@@ -138,9 +219,18 @@ func (evtSub *EventSubscription) Create() error {
 	return nil
 }
 
+// Close releases the subscription and aborts a pending resubscribe. Safe to call
+// more than once, since teardown may follow a reconcile that already closed it.
 func (evtSub *EventSubscription) Close() error {
+	evtSub.once.Do(func() { close(evtSub.stop) })
+
 	evtSub.mu.Lock()
 	defer evtSub.mu.Unlock()
+	return evtSub.closeLocked()
+}
+
+func (evtSub *EventSubscription) closeLocked() error {
+	unregisterSubscription(evtSub)
 
 	if evtSub.winAPIHandle == 0 {
 		return fmt.Errorf("windows_events: no active subscription to close")
@@ -153,29 +243,12 @@ func (evtSub *EventSubscription) Close() error {
 	return nil
 }
 
-func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintptr) uintptr {
+func (evtSub *EventSubscription) handleEvent(action, event uintptr) uintptr {
 	switch action {
 	case evtSubscribeActionError:
 		err := fmt.Errorf("windows_events: error in callback, code: %x", uint16(event))
 		evtSub.Errors <- err
-
-		go func(channel string) {
-			utils.Logger.LogF(100, "Attempting to resubscribe to channel: %s after error: %v", channel, err)
-			evtSub.mu.Lock()
-			defer evtSub.mu.Unlock()
-
-			_ = evtSub.Close()
-
-			for {
-				time.Sleep(5 * time.Second)
-				if err := evtSub.Create(); err != nil {
-					utils.Logger.ErrorF("Retry failed for channel %s: %s", channel, err)
-				} else {
-					utils.Logger.LogF(100, "Resubscribed to channel: %s", channel)
-					break
-				}
-			}
-		}(evtSub.Channel)
+		evtSub.scheduleResubscribe(err)
 
 	case evtSubscribeActionDeliver:
 		utils.Logger.LogF(100, "Received event from channel: %s", evtSub.Channel)
@@ -193,6 +266,61 @@ func (evtSub *EventSubscription) winAPICallback(action, userContext, event uintp
 		evtSub.Errors <- fmt.Errorf("windows_events: unsupported action in callback: %x", uint16(action))
 	}
 	return 0
+}
+
+// scheduleResubscribe retries a failed subscription with backoff. Only one
+// attempt loop runs per subscription, so a burst of error callbacks on the same
+// channel cannot spawn competing goroutines.
+func (evtSub *EventSubscription) scheduleResubscribe(cause error) {
+	evtSub.mu.Lock()
+	if evtSub.retrying {
+		evtSub.mu.Unlock()
+		return
+	}
+	evtSub.retrying = true
+	_ = evtSub.closeLocked()
+	evtSub.mu.Unlock()
+
+	go func(channel string) {
+		defer func() {
+			evtSub.mu.Lock()
+			evtSub.retrying = false
+			evtSub.mu.Unlock()
+			if r := recover(); r != nil {
+				utils.Logger.ErrorF("panic resubscribing to channel %s: %v", channel, r)
+			}
+		}()
+
+		utils.Logger.LogF(100, "Attempting to resubscribe to channel: %s after error: %v", channel, cause)
+
+		delay := resubscribeBaseDelay
+		for attempt := 1; attempt <= maxResubscribeAttempts; attempt++ {
+			// Waiting outside the lock keeps teardown from blocking on a backoff.
+			select {
+			case <-evtSub.ctx.Done():
+				return
+			case <-evtSub.stop:
+				return
+			case <-time.After(delay):
+			}
+
+			evtSub.mu.Lock()
+			err := evtSub.createLocked()
+			evtSub.mu.Unlock()
+
+			if err == nil {
+				utils.Logger.LogF(100, "Resubscribed to channel: %s", channel)
+				return
+			}
+			utils.Logger.ErrorF("Retry %d/%d failed for channel %s: %s",
+				attempt, maxResubscribeAttempts, channel, err)
+
+			delay = utils.IncrementReconnectDelay(delay, resubscribeMaxDelay)
+		}
+
+		utils.Logger.ErrorF("windows_events: channel %s unavailable after %d attempts, giving up",
+			channel, maxResubscribeAttempts)
+	}(evtSub.Channel)
 }
 
 func quickRenderXML(h uintptr) (string, error) {
@@ -259,31 +387,21 @@ func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
 		}
 	}()
 
+	// Cancelled by the caller or by Stop(), so the watcher and any pending
+	// resubscribe observe both paths.
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	go func() {
+		select {
+		case <-runCtx.Done():
+		case <-w.stopChan:
+			cancel()
+		}
+	}()
+
+	// Started once: reconcile runs again on every config change.
 	errorsChan := make(chan error, 10)
 	go eventWorker(queue)
-
-	channels := []string{
-		"Security", "Application", "System", "Windows Powershell", "Microsoft-Windows-Powershell/Operational", "ForwardedEvents",
-		"Microsoft-Windows-WinLogon/Operational", "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall",
-		"Microsoft-Windows-Windows Defender/Operational",
-	}
-
-	w.mu.Lock()
-	w.subscriptions = nil
-	for _, channel := range channels {
-		sub := &EventSubscription{
-			Channel: channel,
-			Query:   "*",
-			Errors:  errorsChan,
-		}
-		if err := sub.Create(); err != nil {
-			utils.Logger.ErrorF("Error subscribing to channel %s: %s", channel, err)
-			continue
-		}
-		w.subscriptions = append(w.subscriptions, sub)
-		utils.Logger.LogF(100, "Subscribed to channel: %s", channel)
-	}
-	w.mu.Unlock()
 
 	go func() {
 		defer func() {
@@ -296,11 +414,8 @@ func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
 		}
 	}()
 
-	// Block until context is cancelled or Stop() is called
-	select {
-	case <-ctx.Done():
-	case <-w.stopChan:
-	}
+	configwatcher.WatchFile(runCtx, "windows collector", config.WindowsEventChannelsFile,
+		channelReloadDebounce, func() { w.reconcile(runCtx, errorsChan) })
 
 	utils.Logger.Info("Windows ARM64 collector stopping...")
 	w.mu.Lock()
@@ -312,6 +427,60 @@ func (w *Windows) Start(ctx context.Context, queue chan *plugins.Log) {
 	w.subscriptions = nil
 	w.mu.Unlock()
 	utils.Logger.Info("Windows ARM64 collector stopped.")
+}
+
+// reconcile aligns the live subscriptions with the configured channels.
+func (w *Windows) reconcile(ctx context.Context, errorsChan chan error) {
+	channels, skipped, err := schema.ResolveWindowsEventChannels(
+		config.WindowsEventChannelsFile, config.DefaultWindowsEventChannels)
+	if err != nil {
+		// Keep what is running. Editors save by truncating, so a read can catch
+		// the file mid-write, and treating that as an empty list would drop every
+		// custom subscription and rebuild it a moment later.
+		utils.Logger.ErrorF("Error reading custom event channels, keeping current subscriptions: %s", err)
+		return
+	}
+	for _, reason := range skipped {
+		utils.Logger.Info("Custom event channel skipped: %s", reason)
+	}
+
+	desired := make(map[string]struct{}, len(channels))
+	for _, channel := range channels {
+		desired[strings.ToLower(channel)] = struct{}{}
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	active := make(map[string]struct{}, len(w.subscriptions))
+	kept := w.subscriptions[:0:0]
+	for _, sub := range w.subscriptions {
+		key := strings.ToLower(sub.Channel)
+		if _, wanted := desired[key]; wanted {
+			active[key] = struct{}{}
+			kept = append(kept, sub)
+			continue
+		}
+		// Defaults are always in desired, so only client-added channels get here.
+		utils.Logger.Info("Unsubscribing from removed channel: %s", sub.Channel)
+		if err := sub.Close(); err != nil {
+			utils.Logger.ErrorF("Error closing subscription for %s: %v", sub.Channel, err)
+		}
+	}
+	w.subscriptions = kept
+
+	for _, channel := range channels {
+		if _, running := active[strings.ToLower(channel)]; running {
+			continue
+		}
+		sub := newEventSubscription(ctx, channel, errorsChan)
+		if err := sub.Create(); err != nil {
+			utils.Logger.ErrorF("Error subscribing to channel %s: %s", channel, err)
+			continue
+		}
+		w.subscriptions = append(w.subscriptions, sub)
+		utils.Logger.LogF(100, "Subscribed to channel: %s", channel)
+	}
 }
 
 func eventWorker(queue chan *plugins.Log) {

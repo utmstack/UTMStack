@@ -113,6 +113,22 @@ var (
 		DataTypeNginxModule:      {"/var/log/nginx/access.log", "/var/log/nginx/error.log"},
 		DataTypePostgresqlModule: {"/var/log/postgresql/postgresql-*-main.log"},
 	}
+
+	WindowsEventChannelsFile = filepath.Join(fs.GetExecutablePath(), "windows-event-channels.yml")
+
+	// DefaultWindowsEventChannels are always collected. They are defined here and
+	// not in WindowsEventChannelsFile so clients can only add to them.
+	DefaultWindowsEventChannels = []string{
+		"Security",
+		"Application",
+		"System",
+		"Windows Powershell",
+		"Microsoft-Windows-Powershell/Operational",
+		"ForwardedEvents",
+		"Microsoft-Windows-WinLogon/Operational",
+		"Microsoft-Windows-Windows Firewall With Advanced Security/Firewall",
+		"Microsoft-Windows-Windows Defender/Operational",
+	}
 )
 
 func ValidateModuleType(typ string) string {
