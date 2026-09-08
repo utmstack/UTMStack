@@ -29,6 +29,7 @@ public class MailConfigService {
                 .filter(p -> p.getConfParamShort().equals(shortName))
                 .findFirst()
                 .map(UtmConfigurationParameter::getConfParamValue)
+                .filter(v -> !Constants.MASKED_VALUE.equals(v))
                 .orElse(Constants.CFG.get(shortName));
     }
 }

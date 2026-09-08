@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmConfigurationParameterQueryService;
@@ -117,6 +118,7 @@ public class UtmConfigurationParameterResource {
         log.debug("REST request to get UtmConfigurationParameters by criteria: {}", criteria);
         Page<UtmConfigurationParameter> page = utmConfigurationParameterQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-configuration-parameters");
+        page.getContent().forEach(this::maskSensitive);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -130,7 +132,15 @@ public class UtmConfigurationParameterResource {
     public ResponseEntity<UtmConfigurationParameter> getUtmConfigurationParameter(@PathVariable Long id) {
         log.debug("REST request to get UtmConfigurationParameter : {}", id);
         Optional<UtmConfigurationParameter> utmConfigurationParameter = utmConfigurationParameterService.findOne(id);
+        utmConfigurationParameter.ifPresent(this::maskSensitive);
         return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmConfigurationParameter);
+    }
+
+    private void maskSensitive(UtmConfigurationParameter p) {
+        if (Constants.CONF_TYPE_PASSWORD.equalsIgnoreCase(p.getConfParamDatatype())
+                && StringUtils.hasText(p.getConfParamValue())) {
+            p.setConfParamValue(Constants.MASKED_VALUE);
+        }
     }
 
     @PostMapping ("/checkEmailConfiguration")
