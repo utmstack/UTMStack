@@ -12,14 +12,6 @@ const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as 
 const BODY_METHODS = new Set<string>(['POST', 'PUT', 'PATCH'])
 const SCHEMES = ['https', 'http'] as const
 const EMPTY_ROWS: Array<[string, string]> = []
-const DEFAULT_HEADER_ROWS: Array<[string, string]> = [
-  ['Postman-Token', '<calculated when request is sent>'],
-  ['Host', '<calculated when request is sent>'],
-  ['User-Agent', 'PostmanRuntime/7.43.0'],
-  ['Accept', '*/*'],
-  ['Accept-Encoding', 'gzip, deflate, br'],
-  ['Connection', 'keep-alive'],
-]
 type Row = [string, string]
 type RowCache = { rows: Row[]; selected: boolean[] }
 const HTTP_ROWS_CACHE = new Map<string, RowCache>()
@@ -96,12 +88,6 @@ export function HttpParamsEditor({ nodeId, nodes, params: httpParams, readOnly, 
     }
     onChange({ ...current, ...changes })
   }
-
-  useEffect(() => {
-    if (!readOnly && !p.headers) {
-      emit({ headers: Object.fromEntries(DEFAULT_HEADER_ROWS) })
-    }
-  }, [p.headers, readOnly])
 
   const commitUrl = (nextScheme: string, nextRest: string) => {
     const trimmed = nextRest.trim()
@@ -580,7 +566,6 @@ function HeaderRows({
     <KeyValueRows
       title={t('soar.editor.canvas.http.headers')}
       values={headers}
-      defaultRows={DEFAULT_HEADER_ROWS}
       addLabel={t('soar.editor.canvas.http.addHeader')}
       readOnly={readOnly}
       nodes={nodes}
