@@ -38,7 +38,6 @@ import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
-import {CheckEmailConfigService, ParamShortType} from '../../../shared/services/util/check-email-config.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -79,7 +78,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
               private alertDataTypeBehavior: AlertDataTypeBehavior,
               private alertTagService: AlertTagService,
               private spinner: NgxSpinnerService,
-              private checkEmailConfigService: CheckEmailConfigService,
               private localStorage: LocalStorageService,
               private alertActionRefreshService: AlertActionRefreshService) {
     // this.tableWidth = this.pageWidth - 300;
@@ -150,7 +148,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.openAlerts = this.localStorage.retrieve(OPEN_ALERTS_KEY);
-    this.checkEmailConfigService.check(ParamShortType.Alert);
     this.setInitialWidth();
     this.getTags();
     this.activatedRoute.queryParams.subscribe(params => {
