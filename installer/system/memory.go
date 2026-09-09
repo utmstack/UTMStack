@@ -33,7 +33,7 @@ func maxInt(a, b int) int {
 }
 
 var priorityWeight = map[int]float64{
-	1: 4.0,
+	1: 8.0,
 	2: 3.0,
 	3: 2.0,
 }

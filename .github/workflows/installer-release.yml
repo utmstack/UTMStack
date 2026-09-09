@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       version_major:
-        description: 'Major version (v10 or v11)'
+        description: 'Major version (v12)'
         required: true
         type: string
       environment:
@@ -34,114 +34,6 @@ on:
         required: false
 
 jobs:
-  # ============================================
-  # V10 DEV - Deploy to runner only
-  # ============================================
-  deploy_v10_dev:
-    name: Deploy V10 to Dev Runner
-    runs-on: utmstack-v10-dev
-    if: inputs.version_major == 'v10' && inputs.environment == 'dev'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-
-      - name: Build and Deploy
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          echo "Building V10 Installer for dev environment"
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run Installer
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
-
-  # ============================================
-  # V10 RC - Deploy to runner
-  # ============================================
-  deploy_v10_rc_runner:
-    name: Deploy V10 to RC Runner
-    runs-on: utmstack-v10-rc
-    if: inputs.version_major == 'v10' && inputs.environment == 'rc'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-
-      - name: Build and Deploy
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          echo "Building V10 Installer for rc environment"
-          go build -o installer -v .
-          mv installer /home/utmstack/installer
-          chmod +x /home/utmstack/installer
-
-      - name: Run Installer
-        working-directory: /home/utmstack
-        run: |
-          sudo ./installer
-
-  # ============================================
-  # V10 RC - Upload to prerelease
-  # ============================================
-  deploy_v10_rc_prerelease:
-    name: Upload V10 Installer to Prerelease
-    runs-on: ubuntu-24.04
-    if: inputs.version_major == 'v10' && inputs.environment == 'rc'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-
-      - name: Prepare changelog
-        id: changelog
-        env:
-          CHANGELOG_CONTENT: ${{ inputs.changelog }}
-        run: |
-          printf '%s' "$CHANGELOG_CONTENT" > /tmp/CHANGELOG.md
-
-      - name: Build
-        working-directory: ./installer
-        env:
-          GOOS: linux
-          GOARCH: amd64
-        run: |
-          echo "Building V10 Installer for prerelease"
-          go build -o installer -v .
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ inputs.version }}
-          body_path: /tmp/CHANGELOG.md
-          draft: false
-          prerelease: ${{ inputs.prerelease }}
-          files: |
-            ./installer/installer
-
   # ============================================
   # V12 Production - Build installer and upload to GitHub release.
   # ============================================

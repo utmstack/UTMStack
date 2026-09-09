@@ -38,9 +38,10 @@ func RegisterInstance() error {
 		}
 
 		instanceRegisterReq := InstanceDTOInput{
-			Name:    serverConfig.ServerName,
-			Edition: "community",
-			Version: v.Version,
+			Name:        serverConfig.ServerName,
+			Edition:     "community",
+			Version:     v.Version,
+			ProductSlug: config.GetProductSlug(),
 		}
 
 		if serverConfig.MappingName != nil && *serverConfig.MappingName != "" {

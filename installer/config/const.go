@@ -17,8 +17,9 @@ const (
 
 	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 
-	ImagesPath       = "/utmstack/images"
-	InstallerBinPath = "/usr/local/bin/utmstack_installer"
+	ImagesPath         = "/utmstack/images"
+	InstallerBinPath   = "/usr/local/bin/utmstack_installer"
+	InstallerAliasPath = "/usr/local/bin/utmstack"
 
 	RequiredMinCPUCores  = 2
 	RequiredMinDiskSpace = 30
@@ -38,6 +39,7 @@ var (
 	VersionFilePath        = filepath.Join(GetConfig().UpdatesFolder, "version.json")
 	LicenseFilePath        = filepath.Join(GetConfig().UpdatesFolder, "LICENSE")
 	PendingUpdatesPath     = filepath.Join(GetConfig().UpdatesFolder, "pending-updates.json")
+	MemoryAllocationPath   = filepath.Join(GetConfig().UpdatesFolder, "memory-allocation.json")
 	LastAdminEmailPath     = filepath.Join(GetConfig().UpdatesFolder, "last-admin-email.txt")
 	EventProcessorLogsPath = filepath.Join(GetConfig().DataDir, "events-engine-workdir", "logs")
 	CheckUpdatesEvery      = 5 * time.Minute
@@ -50,4 +52,11 @@ func GetCMServer() string {
 		return "https://cm.dev.utmstack.com"
 	}
 	return "https://cm.utmstack.com"
+}
+
+func GetProductSlug() string {
+	if GetConfig().Branch == "dev" {
+		return "utmstack-v12-dev"
+	}
+	return "utmstack-v12"
 }

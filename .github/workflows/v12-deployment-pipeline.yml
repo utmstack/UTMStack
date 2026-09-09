@@ -21,6 +21,7 @@ jobs:
       cm_url: ${{ steps.set-env.outputs.cm_url }}
       event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
       enterprise_version: ${{ steps.set-env.outputs.enterprise_version }}
+      gh_environment: ${{ steps.set-env.outputs.gh_environment }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -64,6 +65,7 @@ jobs:
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
             echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v12-dev" >> $GITHUB_OUTPUT
 
           # =====================================================================
           # PRODUCTION — release.published (prerelease or not)
@@ -89,6 +91,7 @@ jobs:
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
             echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v12-prod" >> $GITHUB_OUTPUT
           fi
   build_agent:
     name: Build Agent Binaries (${{ matrix.goos }}/${{ matrix.goarch }})
@@ -561,6 +564,7 @@ jobs:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
     if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
@@ -572,6 +576,7 @@ jobs:
           ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
           TAG: ${{ needs.setup_deployment.outputs.tag }}
           CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+          SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
         run: |
           # Use AI changelog for production releases, generic for dev.
           if [ "$ENVIRONMENT" != "dev" ] && [ -n "$CHANGELOG_CONTENT" ]; then
@@ -584,78 +589,74 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_SERVICE_ACCOUNT and product slug based on environment
-          if [ "$ENVIRONMENT" = "dev" ]; then
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
-            PRODUCT_SLUG="utmstack-v12-dev"
-          else
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
-            PRODUCT_SLUG="utmstack-v12"
+          if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+            echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+            exit 1
           fi
 
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
+          else
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
+          fi
           id=$(echo "$cmAuth" | jq -r '.id')
           key=$(echo "$cmAuth" | jq -r '.key')
 
-          body=$(jq -n \
-            --arg version "$TAG" \
-            --arg changelog "$changelog" \
-            --arg product_slug "$PRODUCT_SLUG" \
-            '{version: $version, changelog: $changelog, product_slug: $product_slug}'
-          )
+          for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+            echo "Registering $TAG for product: $product_id"
 
-          response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
-            -H "Content-Type: application/json" \
-            -H "id: $id" \
-            -H "key: $key" \
-            -d "$body")
+            body=$(jq -n \
+              --arg version "$TAG" \
+              --arg changelog "$changelog" \
+              --arg product_id "$product_id" \
+              '{version: $version, changelog: $changelog, product_id: $product_id}'
+            )
+
+            response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
+              -H "Content-Type: application/json" \
+              -H "id: $id" \
+              -H "key: $key" \
+              -d "$body")
+
+            echo "Response: $response"
+          done
 
           echo "Response: $response"
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
     if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     env:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
       TAG: ${{ needs.setup_deployment.outputs.tag }}
       CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
-      SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
-      SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
+      SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
       CM_AUTH_DEV: ${{ secrets.CM_SERVICE_ACCOUNT_DEV }}
       CM_AUTH_PROD: ${{ secrets.CM_SERVICE_ACCOUNT_PROD }}
     steps:
       - name: Schedule updates
         run: |
-          echo "🔍 Environment: $ENVIRONMENT"
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
-          # Values are passed in via `env:` (not interpolated directly into this
-          # script) so embedded quotes in the JSON can't corrupt the shell parsing.
-          if [ "$ENVIRONMENT" = "dev" ]; then
-            targets_json="$SCHEDULE_INSTANCES_DEV"
-            auth_json="$CM_AUTH_DEV"
-            targets_var_name="SCHEDULE_INSTANCES_DEV"
-          else
-            targets_json="$SCHEDULE_INSTANCES_PROD"
-            auth_json="$CM_AUTH_PROD"
-            targets_var_name="SCHEDULE_INSTANCES_PROD"
-          fi
-
-          if ! echo "$targets_json" | jq empty > /dev/null 2>&1; then
-            echo "❌ $targets_var_name is not valid JSON: $targets_json"
+          if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+            echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
             exit 1
           fi
 
-          # Extract id and key from auth JSON
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            auth_json="$CM_AUTH_DEV"
+          else
+            auth_json="$CM_AUTH_PROD"
+          fi
           auth_id=$(echo "$auth_json" | jq -r '.id')
           auth_key=$(echo "$auth_json" | jq -r '.key')
 
-          # Targets are grouped by product_id (CM scopes instances/versions by
-          # product and /api/v1/updates requires it): {"<product_id>": ["<instance_id>", ...]}
           scheduled=0
-          for product_id in $(echo "$targets_json" | jq -r 'keys[]'); do
-            for instance_id in $(echo "$targets_json" | jq -r --arg p "$product_id" '.[$p][]'); do
+          for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+            for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
               echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
 
               response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
@@ -679,7 +680,7 @@ jobs:
           done
 
           if [ "$scheduled" -eq 0 ]; then
-            echo "❌ No instances were scheduled — check $targets_var_name"
+            echo "❌ No instances were scheduled — check SCHEDULE_INSTANCES for this environment"
             exit 1
           fi
 

@@ -22,6 +22,7 @@ type InstanceDTOInput struct {
 	CurrentIp   string `json:"current_ip"`
 	MappingName string `json:"mapping_name,omitempty"`
 	Tags        string `json:"tags"`
+	ProductSlug string `json:"product_slug,omitempty"`
 }
 
 type InstanceInfo struct {

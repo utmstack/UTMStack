@@ -72,29 +72,76 @@ func GetStackConfig() *StackConfig {
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
 		Services = []system.ServiceConfig{
-			{Name: "event-processor", Priority: 1, MinMemory: 2048, MaxMemory: 60 * 1024},
-			{Name: "clickhouse", Priority: 1, MinMemory: 3 * 1024, MaxMemory: 60 * 1024},
+			{Name: "event-processor", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
+			{Name: "clickhouse", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
 			{Name: "log-input", Priority: 2, MinMemory: 256, MaxMemory: 1024},
 			{Name: "nats", Priority: 3, MinMemory: 256, MaxMemory: 2 * 1024},
 			{Name: "redis", Priority: 3, MinMemory: 128, MaxMemory: 1024},
-			{Name: "backend", Priority: 2, MinMemory: 700, MaxMemory: 2 * 1024},
+			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		}
 
-		total := int(mem.Total/1024/1024) - system.SYSTEM_RESERVED_MEMORY
+		if rsrcs, ok := loadPersistedMemoryAllocation(); ok {
+			stackConfig.ServiceResources = rsrcs
+			return
+		}
 
-		rsrcs, err := system.BalanceMemory(Services, total)
+		rsrcs, err := balanceMemoryNow()
 		if err != nil {
 			fmt.Printf("error balancing memory: %v\n", err)
 			os.Exit(1)
 		}
-
 		stackConfig.ServiceResources = rsrcs
 	})
 
 	return stackConfig
+}
+
+func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
+	mem := sigar.Mem{}
+	if err := mem.Get(); err != nil {
+		return nil, fmt.Errorf("error getting memory: %v", err)
+	}
+	total := int(mem.Total/1024/1024) - system.SYSTEM_RESERVED_MEMORY
+
+	rsrcs, err := system.BalanceMemory(Services, total)
+	if err != nil {
+		return nil, fmt.Errorf("error balancing memory: %v", err)
+	}
+
+	if err := utils.WriteJSON(config.MemoryAllocationPath, rsrcs); err != nil {
+		fmt.Printf("warning: could not persist memory allocation: %v\n", err)
+	}
+
+	return rsrcs, nil
+}
+
+func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
+	if !utils.CheckIfPathExist(config.MemoryAllocationPath) {
+		return nil, false
+	}
+
+	var rsrcs map[string]*system.ServiceConfig
+	if err := utils.ReadJson(config.MemoryAllocationPath, &rsrcs); err != nil {
+		fmt.Printf("warning: could not read persisted memory allocation, recalculating: %v\n", err)
+		return nil, false
+	}
+
+	return rsrcs, true
+}
+
+func RecalculateMemory() error {
+	stack := GetStackConfig() // ensures Services and directories are set up
+
+	rsrcs, err := balanceMemoryNow()
+	if err != nil {
+		return err
+	}
+
+	stack.ServiceResources = rsrcs
+	return nil
 }
 
 func StackUP(tag string) error {

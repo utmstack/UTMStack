@@ -41,6 +41,13 @@ func main() {
 				os.Exit(1)
 			}
 
+		case "--recalculate-memory":
+			err := RecalculateMemory()
+			if err != nil {
+				fmt.Printf("\nerror recalculating memory: %v", err)
+				os.Exit(1)
+			}
+
 		default:
 			help()
 		}
@@ -62,4 +69,5 @@ func help() {
 	fmt.Printf("  --install, -i                         Install %s\n", name)
 	fmt.Printf("  --uninstall, -u                       Uninstall %s\n", name)
 	fmt.Printf("  --version, -v                         Show %s version\n", name)
+	fmt.Println("  --recalculate-memory                  Rebalance container memory limits against current VM resources and redeploy")
 }

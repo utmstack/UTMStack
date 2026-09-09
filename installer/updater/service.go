@@ -140,7 +140,28 @@ func copyInstallerToStandardPath() error {
 		return fmt.Errorf("error setting permissions on binary: %v", err)
 	}
 
+	ensureInstallerAlias()
+
 	return nil
+}
+
+func ensureInstallerAlias() {
+	if target, err := os.Readlink(config.InstallerAliasPath); err == nil {
+		if target == config.InstallerBinPath {
+			return
+		}
+		config.Logger().Info("not creating the utmstack alias: %s already links elsewhere (%s)", config.InstallerAliasPath, target)
+		return
+	}
+
+	if _, err := os.Lstat(config.InstallerAliasPath); err == nil {
+		config.Logger().Info("not creating the utmstack alias: %s already exists and is not a symlink", config.InstallerAliasPath)
+		return
+	}
+
+	if err := os.Symlink(config.InstallerBinPath, config.InstallerAliasPath); err != nil {
+		config.Logger().ErrorF("error creating utmstack alias symlink: %v", err)
+	}
 }
 
 func migrateServiceIfNeeded() bool {
