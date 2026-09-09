@@ -287,14 +287,28 @@ public class ElasticsearchService {
     private void deleteOldestIndices() {
         final String ctx = CLASSNAME + ".deleteOldestIndices";
         try {
-            List<IndicesRecord> indices = client.getClient().getIndices(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS), IndexSort.builder()
-                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build());
+            List<String> patterns = Arrays.asList(
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS),
+                    "security-auditlog-*",
+                    "top_queries-*");
+            IndexSort sortAsc = IndexSort.builder()
+                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build();
 
-            // If no index that match with log-* was found then te function is terminated
+            List<IndicesRecord> indices = new ArrayList<>();
+            for (String pattern : patterns) {
+                try {
+                    indices.addAll(client.getClient().getIndices(pattern, sortAsc));
+                } catch (Exception e) {
+                    log.warn("{}: pattern {} lookup failed: {}", ctx, pattern, e.getMessage());
+                }
+            }
+
+            indices.sort(Comparator.comparing(IndicesRecord::creationDateString, Comparator.nullsLast(String::compareTo)));
+
             if (CollectionUtils.isEmpty(indices))
                 return;
 
-            // Indices are returned from oldest to newest ordered by creation.date asc
+            // Indices are ordered from oldest to newest by creation.date asc
             for (IndicesRecord index : indices) {
                 Optional<ElasticCluster> opt = getClusterStatus();
 
