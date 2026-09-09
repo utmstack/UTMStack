@@ -40,6 +40,7 @@ var (
 	VersionFilePath        = filepath.Join(GetConfig().UpdatesFolder, "version.json")
 	LicenseFilePath        = filepath.Join(GetConfig().UpdatesFolder, "LICENSE")
 	PendingUpdatesPath     = filepath.Join(GetConfig().UpdatesFolder, "pending-updates.json")
+	MemoryAllocationPath   = filepath.Join(GetConfig().UpdatesFolder, "memory-allocation.json")
 	LastAdminEmailPath     = filepath.Join(GetConfig().UpdatesFolder, "last-admin-email.txt")
 	EventProcessorLogsPath = filepath.Join(GetConfig().DataDir, "events-engine-workdir", "logs")
 	CheckUpdatesEvery      = 5 * time.Minute
@@ -49,7 +50,7 @@ var (
 
 func GetCMServer() string {
 	cnf := GetConfig()
-	if cnf.Branch == "alpha" {
+	if cnf.Branch == "dev" {
 		return "https://cm.dev.utmstack.com"
 	}
 	return "https://cm.utmstack.com"
