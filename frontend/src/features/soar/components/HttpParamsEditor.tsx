@@ -13,7 +13,6 @@ const BODY_METHODS = new Set<string>(['POST', 'PUT', 'PATCH'])
 const SCHEMES = ['https', 'http'] as const
 const EMPTY_ROWS: Array<[string, string]> = []
 const DEFAULT_HEADER_ROWS: Array<[string, string]> = [
-  ['Access-Control-Allow-Origin', '*'],
   ['Content-Type', 'application/json'],
   ['Accept', '*/*'],
   ['Accept-Encoding', 'gzip, deflate, br'],

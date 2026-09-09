@@ -158,7 +158,6 @@ export const EXECUTOR_CATALOG: ExecutorMeta[] = [
       method: 'GET',
       url: '',
       headers: {
-        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         Accept: '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
