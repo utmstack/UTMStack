@@ -158,9 +158,8 @@ export const EXECUTOR_CATALOG: ExecutorMeta[] = [
       method: 'GET',
       url: '',
       headers: {
-        'Postman-Token': '<calculated when request is sent>',
-        Host: '<calculated when request is sent>',
-        'User-Agent': 'PostmanRuntime/7.43.0',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
         Accept: '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
         Connection: 'keep-alive',
