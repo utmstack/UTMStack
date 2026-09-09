@@ -12,6 +12,12 @@ const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as 
 const BODY_METHODS = new Set<string>(['POST', 'PUT', 'PATCH'])
 const SCHEMES = ['https', 'http'] as const
 const EMPTY_ROWS: Array<[string, string]> = []
+const DEFAULT_HEADER_ROWS: Array<[string, string]> = [
+  ['Content-Type', 'application/json'],
+  ['Accept', '*/*'],
+  ['Accept-Encoding', 'gzip, deflate, br'],
+  ['Connection', 'keep-alive'],
+]
 type Row = [string, string]
 type RowCache = { rows: Row[]; selected: boolean[] }
 const HTTP_ROWS_CACHE = new Map<string, RowCache>()
@@ -52,6 +58,7 @@ export function HttpParamsEditor({ nodeId, nodes, params: httpParams, readOnly, 
   const urlRef = useRef<HTMLInputElement>(null)
   const bodyRef = useRef<HTMLTextAreaElement>(null)
   const queryParamsRef = useRef<Record<string, string>>(queryParams)
+  const defaultHeadersNodeRef = useRef<string | null>(null)
   const activeQueryParams = getActiveQueryParams(nodeId, queryParamsRef.current, queryParams)
   const previewBaseUrl = p.url || (rest.trim() ? `${scheme}://${rest}` : '')
   const fullUrlPreview = appendQueryParams(previewBaseUrl, activeQueryParams)
@@ -88,6 +95,14 @@ export function HttpParamsEditor({ nodeId, nodes, params: httpParams, readOnly, 
     }
     onChange({ ...current, ...changes })
   }
+
+  useEffect(() => {
+    if (readOnly || defaultHeadersNodeRef.current === nodeId) return
+    defaultHeadersNodeRef.current = nodeId
+    if (!p.headers) {
+      emit({ headers: Object.fromEntries(DEFAULT_HEADER_ROWS) })
+    }
+  }, [nodeId, p.headers, readOnly])
 
   const commitUrl = (nextScheme: string, nextRest: string) => {
     const trimmed = nextRest.trim()
@@ -392,7 +407,7 @@ function KeyValueRows({
       if (!nextSelected[index]) return
       if (k.trim()) out[k.trim()] = v
     })
-    onChange(Object.keys(out).length > 0 ? out : undefined)
+    onChange(out)
   }
 
   const setAt = (i: number, patch: { key?: string; value?: string }) => {
@@ -566,6 +581,7 @@ function HeaderRows({
     <KeyValueRows
       title={t('soar.editor.canvas.http.headers')}
       values={headers}
+      defaultRows={DEFAULT_HEADER_ROWS}
       addLabel={t('soar.editor.canvas.http.addHeader')}
       readOnly={readOnly}
       nodes={nodes}
