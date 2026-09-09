@@ -11,6 +11,7 @@ import com.park.utmstack.loggin.LogContextBuilder;
 import com.park.utmstack.security.jwt.JWTFilter;
 import com.park.utmstack.security.jwt.TokenProvider;
 import com.park.utmstack.service.UserService;
+import com.park.utmstack.service.login_attempts.LoginAttemptService;
 import com.park.utmstack.service.UtmConfigurationParameterService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.jwt.JWTToken;
@@ -54,6 +55,7 @@ public class TfaResource {
     private final UtmConfigurationParameterService utmConfigurationParameterService;
     private final TokenProvider tokenProvider;
     private final LogContextBuilder logContextBuilder;
+    private final LoginAttemptService loginAttemptService;
 
     @PostMapping("/init")
     public ResponseEntity<TfaInitResponse> initTfa(@RequestBody TfaInitRequest request) {
@@ -158,13 +160,21 @@ public class TfaResource {
     public ResponseEntity<JWTToken> verifyCode(@RequestBody String code, HttpServletRequest request) {
         final String ctx = CLASSNAME + ".verifyCode";
         User user = userService.getCurrentUserLogin();
+
+        if (loginAttemptService.isTfaBlocked(user.getLogin())) {
+            throw new TfaVerificationException("Too many second-factor attempts for user '" + user.getLogin() + "', try again later");
+        }
+
         TfaMethod method = TfaMethod.valueOf(user.getTfaMethod());
         TfaVerifyRequest tfaVerifyRequest = new TfaVerifyRequest(method, code);
         TfaVerifyResponse response = tfaService.verifyCode(user, tfaVerifyRequest);
 
         if (!response.isValid()) {
+            loginAttemptService.registerFailedTfa(user.getLogin());
             throw new TfaVerificationException("TFA invalid for user '" + user.getLogin() + "': " + response.getMessage());
         }
+
+        loginAttemptService.registerSuccessfulTfa(user.getLogin());
 
         List<SimpleGrantedAuthority> authorities = user.getAuthorities().stream().map(Authority::getName)
                 .map(SimpleGrantedAuthority::new).collect(Collectors.toList());

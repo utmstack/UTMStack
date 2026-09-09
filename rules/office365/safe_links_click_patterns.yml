@@ -24,7 +24,7 @@ description: |
   5. Implement additional security awareness training for the affected user
   6. Consider blocking the malicious domains at the network level
 where: |
-  equals("action", "ClickedSafeLink") && equals("actionResult", "Blocked") && exists("origin.user")
+  equals("action", "ClickedSafeLink") && equals("actionResult", "blocked") && exists("origin.user")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

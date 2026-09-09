@@ -1,5 +1,6 @@
 package com.park.utmstack.security.saml;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.jwt.TokenProvider;
@@ -13,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,9 +43,7 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        String scheme = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Proto"), request.getScheme());
-        String host = Objects.requireNonNullElse(request.getHeader("X-Forwarded-Host"), request.getServerName());
-        String frontBaseUrl = scheme + "://" + host;
+        String frontBaseUrl = resolveFrontBaseUrl(request);
 
         Saml2AuthenticatedPrincipal samlUser = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
         String username = samlUser.getName();
@@ -74,5 +74,24 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         log.info("SAML2 login successful for user: {}", username);
         response.sendRedirect(redirectUri.toString());
+    }
+
+    /**
+     * Builds the base URL the browser is sent back to after SAML login.
+     *
+     * <p>The configured panel URL wins. X-Forwarded-Host / X-Forwarded-Proto are
+     * client-supplied: trusting them let anyone who could reach the backend with
+     * their own headers steer the post-login redirect — which carries a token —
+     * at a host of their choosing. Without configuration we fall back to the
+     * request's own scheme and server name.
+     */
+    private String resolveFrontBaseUrl(HttpServletRequest request) {
+        String configured = Constants.CFG.get(Constants.PROP_MAIL_BASE_URL);
+        if (StringUtils.hasText(configured)) {
+            return StringUtils.trimTrailingCharacter(configured.trim(), '/');
+        }
+
+        String scheme = request.isSecure() ? "https" : request.getScheme();
+        return scheme + "://" + request.getServerName();
     }
 }

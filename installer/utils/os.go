@@ -70,13 +70,14 @@ func RunCmdWithOutput(command string, arg ...string) ([]string, error) {
 	return result, nil
 }
 
+// MakeDir creates the directory described by arg and returns it. mode is
+// applied to the directory itself only: the previous implementation chmod'ed
+// every path component on the way down, so asking for a 0777 leaf also made
+// every parent - /utmstack included - world-writable.
 func MakeDir(mode os.FileMode, arg ...string) string {
-	path := ""
-	for _, folder := range arg {
-		path = filepath.Join(path, folder)
-		os.MkdirAll(path, mode)
-		os.Chmod(path, mode)
-	}
+	path := filepath.Join(arg...)
+	os.MkdirAll(path, mode)
+	os.Chmod(path, mode)
 	return path
 }
 
@@ -93,6 +94,39 @@ func CreatePathIfNotExist(path string) error {
 		return fmt.Errorf("error checking path: %v", err)
 	}
 	return nil
+}
+
+// WriteSecretToFile writes a file that holds credential material: 0600, and
+// re-applied on every write so a file created before this existed does not keep
+// its old world-readable mode.
+func WriteSecretToFile(fileName string, body string) error {
+	dir := filepath.Dir(fileName)
+	if err := CreatePathIfNotExist(dir); err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	if _, err = file.WriteString(body); err != nil {
+		return err
+	}
+
+	return os.Chmod(fileName, 0600)
+}
+
+// WriteSecretYAML is WriteYAML for files that hold credential material.
+func WriteSecretYAML(url string, data any) error {
+	config, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	return WriteSecretToFile(url, string(config))
 }
 
 func WriteToFile(fileName string, body string) error {

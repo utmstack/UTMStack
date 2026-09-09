@@ -82,7 +82,7 @@ public class UserService {
 
     public void completePasswordReset(String newPassword, String key) {
         final String ctx = CLASS_NAME + ".completePasswordReset";
-        log.debug("{}: Processing password reset with key: {}", ctx, key);
+        log.debug("{}: Processing password reset request", ctx);
 
         Optional<User> userOptional = userRepository.findOneByResetKey(key);
 

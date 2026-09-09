@@ -101,12 +101,18 @@ public class UtmConfigurationParameterService {
 
 
             Map<String, String> cfg = new HashMap<>();
+            List<UtmConfigurationParameter> toSave = new ArrayList<>();
             for (UtmConfigurationParameter p : params) {
+                boolean isPassword = Constants.CONF_TYPE_PASSWORD.equalsIgnoreCase(p.getConfParamDatatype());
+                if (isPassword && Constants.MASKED_VALUE.equals(p.getConfParamValue())) {
+                    continue;
+                }
                 cfg.put(p.getConfParamShort(), p.getConfParamValue());
-                if (StringUtils.hasText(p.getConfParamValue()) && p.getConfParamDatatype().equalsIgnoreCase("password"))
+                if (StringUtils.hasText(p.getConfParamValue()) && isPassword)
                     p.setConfParamValue(CipherUtil.encrypt(p.getConfParamValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                toSave.add(p);
             }
-            configParamRepository.saveAll(params);
+            configParamRepository.saveAll(toSave);
             Constants.CFG.putAll(cfg);
         } catch (UtmMailException e) {
             throw new UtmMailException(ctx + ": " + e.getMessage());

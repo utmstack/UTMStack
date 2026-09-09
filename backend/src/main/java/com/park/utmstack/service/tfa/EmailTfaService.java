@@ -67,7 +67,10 @@ public class EmailTfaService implements TfaMethodService {
 
         boolean expired = tfaSetupState.isExpired();
         boolean valid = !expired && tfaService.validateCode(tfaSetupState.getSecret(), code);
-
+        if (valid) {
+            tfaSetupState.setVerified(true);
+            cache.storeState(user.getLogin(), TfaMethod.EMAIL, tfaSetupState);
+        }
         return new TfaVerifyResponse(
                 valid,
                 expired,
@@ -78,9 +81,12 @@ public class EmailTfaService implements TfaMethodService {
 
     @Override
     public void persistConfiguration(User user) {
-        String secret = cache.getState(user.getLogin(), TfaMethod.EMAIL)
-                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
-                .getSecret();
+        TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.EMAIL)
+                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
+        if (!state.isVerified() || state.isExpired()) {
+            throw new IllegalStateException("Cannot complete TFA setup without a verified code");
+        }
+        String secret = state.getSecret();
         userService.updateUserTfaSecret(user.getLogin(), secret, TfaMethod.EMAIL.toString());
         cache.clear(user.getLogin(), TfaMethod.EMAIL);
     }

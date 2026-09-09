@@ -8,14 +8,45 @@ import (
 	sync "sync"
 	"time"
 
+	"crypto/subtle"
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/UTMStack/agent-manager/database"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 	"github.com/utmstack/UTMStack/agent-manager/utils"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+// hasAgentKeyProof reports whether the caller presented the credentials of an
+// already registered agent. The installer sends them as "agent-id"/"agent-key"
+// metadata when it finds a previous configuration on the host, which keeps
+// re-installs idempotent without handing the key to anyone who can guess a
+// hostname and MAC. The names are deliberately distinct from the "id"/"key"
+// pair the auth interceptor uses, so this proof never changes how the request
+// itself is authenticated.
+func hasAgentKeyProof(ctx context.Context, oldAgent *models.Agent) bool {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return false
+	}
+
+	ids := md.Get("agent-id")
+	keys := md.Get("agent-key")
+	if len(ids) == 0 || len(keys) == 0 {
+		return false
+	}
+
+	id, err := strconv.ParseUint(ids[0], 10, 32)
+	if err != nil || uint(id) != oldAgent.ID {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(keys[0]), []byte(oldAgent.AgentKey)) == 1
+}
 
 var (
 	AgentServ     *AgentService
@@ -84,7 +115,18 @@ func (s *AgentService) RegisterAgent(ctx context.Context, req *AgentRequest) (*A
 	oldAgent := &models.Agent{}
 	err := s.DBConnection.GetFirst(oldAgent, "hostname = ? AND mac = ?", agent.Hostname, agent.Mac)
 	if err == nil {
-		// Same machine re-registering, return existing agent
+		// An agent already exists for this (hostname, mac). Hostname and MAC are
+		// self-declared by the caller, and the connection key is shared by every
+		// endpoint, so returning the stored key here would let any holder of the
+		// connection key take over an arbitrary agent's command channel. Re-issue
+		// it only to a caller that already holds it.
+		if !hasAgentKeyProof(ctx, oldAgent) {
+			catcher.Error("registration rejected for an already registered agent",
+				errors.New("no proof of possession of the current agent key"),
+				map[string]any{"hostname": oldAgent.Hostname, "id": oldAgent.ID, "process": "agent-manager"})
+			return nil, status.Error(codes.AlreadyExists,
+				"an agent is already registered for this hostname and mac: delete it from the panel before installing again")
+		}
 		return &AuthResponse{
 			Id:  uint32(oldAgent.ID),
 			Key: oldAgent.AgentKey,
@@ -207,7 +249,7 @@ func (s *AgentService) DeleteAgent(ctx context.Context, req *DeleteRequest) (*Au
 	delete(s.AgentStreamMap, uint(idInt))
 	s.AgentStreamMutex.Unlock()
 
-	catcher.Info("Agent deleted", map[string]any{"key": key, "deleted_by": req.DeletedBy, "process": "agent-manager"})
+	catcher.Info("Agent deleted", map[string]any{"id": idInt, "deleted_by": req.DeletedBy, "process": "agent-manager"})
 
 	return &AuthResponse{
 		Id:  uint32(idInt),

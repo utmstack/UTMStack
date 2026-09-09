@@ -16,6 +16,7 @@ jobs:
       environment: ${{ steps.set-env.outputs.environment }}
       cm_url: ${{ steps.set-env.outputs.cm_url }}
       event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
+      gh_environment: ${{ steps.set-env.outputs.gh_environment }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -34,7 +35,7 @@ jobs:
             BRANCH_VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
             echo "Branch version: $BRANCH_VERSION"
 
-            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
+            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest?product=utmstack-v11-dev")
             LATEST_VERSION=$(echo "$RESPONSE" | jq -r '.version // empty')
             echo "Latest version from CM: $LATEST_VERSION"
 
@@ -58,6 +59,7 @@ jobs:
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v11-dev" >> $GITHUB_OUTPUT
 
           # =====================================================================
           # PRODUCTION — release.published (prerelease or not)
@@ -82,6 +84,7 @@ jobs:
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v11-prod" >> $GITHUB_OUTPUT
           fi
 
   build_agent:
@@ -512,6 +515,7 @@ jobs:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
     if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
@@ -523,6 +527,7 @@ jobs:
           ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
           TAG: ${{ needs.setup_deployment.outputs.tag }}
           CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+          SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
         run: |
           # Use AI changelog for production releases, generic for dev.
           if [ "$ENVIRONMENT" != "dev" ] && [ -n "$CHANGELOG_CONTENT" ]; then
@@ -535,39 +540,71 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_SERVICE_ACCOUNT based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
-
           id=$(echo "$cmAuth" | jq -r '.id')
           key=$(echo "$cmAuth" | jq -r '.key')
 
-          body=$(jq -n \
-            --arg version "$TAG" \
-            --arg changelog "$changelog" \
-            '{version: $version, changelog: $changelog}'
-          )
+          # CM-dev already has the products schema (same as v12). CM-prod
+          # doesn't yet, so production keeps registering one version with no
+          # product_id, exactly as before -- only dev goes through the
+          # per-product loop.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+              echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+              exit 1
+            fi
 
-          response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
-            -H "Content-Type: application/json" \
-            -H "id: $id" \
-            -H "key: $key" \
-            -d "$body")
+            for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+              echo "Registering $TAG for product: $product_id"
 
-          echo "Response: $response"
+              body=$(jq -n \
+                --arg version "$TAG" \
+                --arg changelog "$changelog" \
+                --arg product_id "$product_id" \
+                '{version: $version, changelog: $changelog, product_id: $product_id}'
+              )
+
+              response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
+                -H "Content-Type: application/json" \
+                -H "id: $id" \
+                -H "key: $key" \
+                -d "$body")
+
+              echo "Response: $response"
+            done
+          else
+            body=$(jq -n \
+              --arg version "$TAG" \
+              --arg changelog "$changelog" \
+              '{version: $version, changelog: $changelog}'
+            )
+
+            response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
+              -H "Content-Type: application/json" \
+              -H "id: $id" \
+              -H "key: $key" \
+              -d "$body")
+
+            echo "Response: $response"
+          fi
 
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
     if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     env:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
       TAG: ${{ needs.setup_deployment.outputs.tag }}
       CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+      SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
+      CM_AUTH_DEV: ${{ secrets.CM_SERVICE_ACCOUNT_DEV }}
+      CM_AUTH_PROD: ${{ secrets.CM_SERVICE_ACCOUNT_PROD }}
     steps:
       - name: Schedule updates
         run: |
@@ -575,47 +612,83 @@ jobs:
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
-          # Select instance IDs and auth based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
+            auth_json="$CM_AUTH_DEV"
           else
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
+            auth_json="$CM_AUTH_PROD"
           fi
-
-          # Extract id and key from auth JSON
           auth_id=$(echo "$auth_json" | jq -r '.id')
           auth_key=$(echo "$auth_json" | jq -r '.key')
 
-          # Parse IDs (handle single ID or comma-separated IDs)
-          IFS=',' read -ra ID_ARRAY <<< "$instance_ids"
+          scheduled=0
 
-          # Iterate over each instance ID
-          for instance_id in "${ID_ARRAY[@]}"; do
-            instance_id=$(echo "$instance_id" | xargs)
-
-            echo "📅 Scheduling release for instance: $instance_id"
-
-            response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
-              -H "Content-Type: application/json" \
-              -H "id: $auth_id" \
-              -H "key: $auth_key" \
-              -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
-
-            http_code=$(echo "$response" | tail -n1)
-            body=$(echo "$response" | sed '$d')
-
-            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-              echo "✅ Successfully scheduled for instance: $instance_id"
-            else
-              echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
-              echo "Response: $body"
+          # CM-dev has the products schema (same as v12). CM-prod doesn't
+          # yet, so production keeps scheduling against the flat instance
+          # list with no product_id, exactly as before -- only dev goes
+          # through the per-product loop.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+              echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
               exit 1
             fi
-          done
 
-          echo "✅ Scheduled release for all instances with version $TAG"
+            for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+              for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
+                echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
+
+                response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
+                  -H "Content-Type: application/json" \
+                  -H "id: $auth_id" \
+                  -H "key: $auth_key" \
+                  -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\", \"product_id\": \"$product_id\"}")
+
+                http_code=$(echo "$response" | tail -n1)
+                body=$(echo "$response" | sed '$d')
+
+                if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                  echo "✅ Successfully scheduled for instance: $instance_id"
+                  scheduled=$((scheduled + 1))
+                else
+                  echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
+                  echo "Response: $body"
+                  exit 1
+                fi
+              done
+            done
+          else
+            IFS=',' read -ra ID_ARRAY <<< "$SCHEDULE_INSTANCES"
+
+            for instance_id in "${ID_ARRAY[@]}"; do
+              instance_id=$(echo "$instance_id" | xargs)
+
+              echo "📅 Scheduling release for instance: $instance_id"
+
+              response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
+                -H "Content-Type: application/json" \
+                -H "id: $auth_id" \
+                -H "key: $auth_key" \
+                -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
+
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | sed '$d')
+
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "✅ Successfully scheduled for instance: $instance_id"
+                scheduled=$((scheduled + 1))
+              else
+                echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
+                echo "Response: $body"
+                exit 1
+              fi
+            done
+          fi
+
+          if [ "$scheduled" -eq 0 ]; then
+            echo "❌ No instances were scheduled — check SCHEDULE_INSTANCES for this environment"
+            exit 1
+          fi
+
+          echo "✅ Scheduled release for all $scheduled instance(s) with version $TAG"
 
 
 

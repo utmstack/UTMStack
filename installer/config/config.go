@@ -110,7 +110,9 @@ func GetConfig() *Config {
 }
 
 func (c *Config) Set() error {
-	return utils.WriteYAML(ConfigPath, c)
+	// /root/utmstack.yml holds the master secrets (internal/encryption key,
+	// database and OpenSearch passwords): keep it owner-only.
+	return utils.WriteSecretYAML(ConfigPath, c)
 }
 
 func DetectAirGapMode() bool {

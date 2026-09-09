@@ -32,7 +32,7 @@ where: |
     equals("action", "Add guest to group") ||
     equals("action", "Guest user invite redeemed")
   ) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

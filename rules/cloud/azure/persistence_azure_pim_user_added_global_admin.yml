@@ -73,7 +73,7 @@ references:
 
 where: |
   equalsIgnoreCase("log.category", "AuditLogs") &&
-  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "SUCCESS")) &&
+  (equals("log.resultType", "0") || equalsIgnoreCase("actionResult", "success")) &&
   (contains("log.operationName", "Add eligible member to role") || contains("log.operationName", "Add member to role")) &&
   (contains("log.properties.targetResources.displayName", "Global Administrator") || contains("log.properties.targetResources.displayName", "Company Administrator"))
 groupBy:

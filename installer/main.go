@@ -40,6 +40,13 @@ func main() {
 				os.Exit(1)
 			}
 
+		case "--recalculate-memory":
+			err := RecalculateMemory()
+			if err != nil {
+				fmt.Printf("\nerror recalculating memory: %v", err)
+				os.Exit(1)
+			}
+
 		default:
 			help()
 		}
@@ -60,4 +67,5 @@ func help() {
 	fmt.Println("  --install, -i                         Install UTMStack")
 	fmt.Println("  --uninstall, -u                       Uninstall UTMStack")
 	fmt.Println("  --version, -v                         Show UTMStack version")
+	fmt.Println("  --recalculate-memory                  Recalculate container memory limits from current VM resources and redeploy")
 }

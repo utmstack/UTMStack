@@ -1,6 +1,7 @@
 package com.park.utmstack.web.rest.incident_response;
 
 import com.google.gson.Gson;
+import com.park.utmstack.security.AuthoritiesConstants;
 import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.agent_manager.AgentGrpcService;
 import com.park.utmstack.service.dto.agent_manager.AgentDTO;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
@@ -47,6 +49,10 @@ public class UTMIncidentCommandWebsocket {
     public void processCommand(@NotNull String command, @DestinationVariable @NotNull String hostname) {
         final String ctx = CLASSNAME + ".processCommand";
         try {
+            if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+                throw new AccessDeniedException(ctx + ": Incident response command execution requires admin privileges");
+            }
+
             String executedBy = SecurityUtils.getCurrentUserLogin()
                     .orElseThrow(() -> new InternalServerErrorException("Current user login not found"));
             String destination = String.format("/topic/%1$s", hostname);

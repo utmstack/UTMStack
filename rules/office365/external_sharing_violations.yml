@@ -36,7 +36,7 @@ where: |
     equals("action", "CompanyLinkCreated") ||
     equals("action", "AddedToSecureLink")
   ) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (
     equals("log.TargetUserOrGroupType", "Guest") ||
     contains("log.SiteUrl", "external") ||
