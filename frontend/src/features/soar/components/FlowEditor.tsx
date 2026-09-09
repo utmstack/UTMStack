@@ -172,7 +172,7 @@ export function FlowEditor({
       <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
         <div className="min-w-0">
           <h2 className="flex items-center gap-2 truncate text-lg font-semibold">
-            <span className="truncate">{form.name.trim() || (creating ? t('soar.editor.createTitle') : (flow?.name ?? ''))}</span>
+            <span className="truncate">{form.name.trim() || (creating ? t('soar.new') : (flow?.name ?? t('soar.new')))}</span>
             {!readOnly && (
               <button
                 type="button"

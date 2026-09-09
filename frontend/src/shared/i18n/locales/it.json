@@ -4789,7 +4789,11 @@
           "body": "Corpo (JSON)",
           "bodyInvalid": "JSON non valido",
           "headers": "Intestazioni HTTP",
-          "addHeader": "Aggiungi intestazione"
+          "params": "Parametri di query",
+          "key": "Chiave",
+          "value": "Valore",
+          "addHeader": "Aggiungi intestazione",
+          "addParam": "Aggiungi parametro"
         },
         "incident": {
           "name": "Nome dell'incidente",

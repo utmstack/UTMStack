@@ -4789,7 +4789,11 @@
           "body": "Corps (JSON)",
           "bodyInvalid": "JSON invalide",
           "headers": "En-têtes HTTP",
-          "addHeader": "Ajouter un en-tête"
+          "params": "Paramètres de requête",
+          "key": "Clé",
+          "value": "Valeur",
+          "addHeader": "Ajouter un en-tête",
+          "addParam": "Ajouter un paramètre"
         },
         "incident": {
           "name": "Nom de l'incident",

@@ -36,7 +36,9 @@ export function useAlertIocs() {
         })),
       )
       const flat = perField.flatMap(({ twAttr, values }) =>
-        values.map((v) => ({ twAttr, value: v.value, count: v.count })),
+        values
+          .filter((v) => v.value)
+          .map((v) => ({ twAttr, value: v.value, count: v.count })),
       )
       flat.sort((a, b) => b.count - a.count)
       const byAttr: Record<string, string[]> = {}

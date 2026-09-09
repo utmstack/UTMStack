@@ -4789,7 +4789,11 @@
           "body": "Body (JSON)",
           "bodyInvalid": "Ungültiges JSON",
           "headers": "HTTP-Kopfzeilen",
-          "addHeader": "Kopfzeile hinzufügen"
+          "params": "Abfrageparameter",
+          "key": "Schlüssel",
+          "value": "Wert",
+          "addHeader": "Kopfzeile hinzufügen",
+          "addParam": "Parameter hinzufügen"
         },
         "incident": {
           "name": "Incident-Name",
