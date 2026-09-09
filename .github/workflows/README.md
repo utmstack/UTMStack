@@ -98,20 +98,15 @@ previous `updates:` list (see git history of that file).
   surfaces conflicts in your release branch rather than at the final
   merge, and it lets dev builds include the patched code immediately.
 
-**Version derivation is automatic.** When a hotfix merges to `v11`, the
-deployment pipeline compares the candidate BASE (from CM DEV) against
-the latest version in CM PROD:
-
-- If BASE > PROD → use BASE as RC tag (normal flow).
-- If BASE ≤ PROD → the BASE was already shipped; bump the patch of PROD
-  to get the next tag (hotfix flow).
-
-Concrete example: PROD is on `v11.2.9`, dev is still on
-`v11.2.9-dev.5` from the cycle that produced it. A hotfix lands on
-`v11`. The pipeline sees BASE=`v11.2.9` collides with PROD=`v11.2.9`,
-auto-bumps to `v11.2.10`, and the rest of the run (build, installer,
-prerelease, CM register) proceeds with that tag. No manual rename, no
-config change.
+**Version derivation.** Dev builds are automatic: a push to
+`release/v11.x.x` queries CM DEV for the latest version of that base and
+increments the dev suffix (`v11.x.x-dev.9` → `v11.x.x-dev.10`); a base that
+CM DEV has never seen starts at `-dev.1`. Release tags are **not** derived —
+the pipeline uses the GitHub release tag verbatim, with no comparison against
+CM PROD and no auto-bump. If a hotfix means the next patch version, pick the
+new tag when you create the release (e.g. `v11.2.9` is already in PROD →
+tag `v11.2.10`); the build, installer, and CM registration all follow that
+tag.
 
 ---
 
@@ -279,19 +274,26 @@ Triggers:
 
 - Push to `v10` → deploy to **v10-rc**
 - Push to `release/v10**` → deploy to **v10-dev**
-- Tag `v10.*` → production build
+- Release published with tag `v10.*` (non-prerelease) → production
+  installer build
 
 Main jobs:
 
 1. `setup_deployment` — determines environment from the trigger.
-2. `validations` — checks permissions (team membership).
-3. `build_agent` — Windows/Linux signed agents.
-4. `build_agent_manager` — Docker image.
-5. `build_*` — microservices (aws, backend, correlation, frontend, etc).
-6. `all_builds_complete` — checkpoint.
-7. `deploy_dev` / `deploy_rc` — deploy to the corresponding environment.
+2. `build_agent` — cross-compiles Linux + Windows (amd64/arm64) agents and
+   signs the Windows binaries with signtool on the `utmstack-signer`
+   self-hosted runner.
+3. `build_agent_manager` — Docker image bundling agents + collectors.
+4. `build_*` — microservices (aws, backend, correlation, frontend,
+   bitdefender, mutate, office365, log-auth-proxy, soc-ai, sophos,
+   user-auditor, web-pdf).
+5. `all_builds_complete` — checkpoint.
+6. `deploy_installer_dev` / `deploy_installer_rc` — build and upload the
+   installer for the corresponding environment.
 
-Permissions: `integration-developers` or `core-developers`.
+Note: v10 has no CM publish/schedule step — v10 deploys are installer
+uploads only, and there is no in-pipeline permission gate (branch
+protection is enforced on GitHub's side instead).
 
 ---
 
@@ -299,9 +301,12 @@ Permissions: `integration-developers` or `core-developers`.
 
 Triggers:
 
-- Push to `release/v11**` → deploy to **dev** (auto-incremented version
-  `v11.x.x-dev.N`).
-- Prerelease created → deploy to **rc** (version `v11.x.x` from the tag).
+- Push to `release/v11**` → build & deploy to **dev** (auto-incremented
+  version `v11.x.x-dev.N`), install to the dev runner, publish to CM-dev.
+- Any release published with tag `v11.*` (prerelease **or** final) →
+  build, upload the installer to the release, publish to CM-prod and
+  schedule updates to the prod instances. Prereleases are the RC gate in
+  practice — customers are never pointed at a pre-release build by us.
 
 ### Flow
 
@@ -312,40 +317,47 @@ Push to release/v11.x.x
 Auto-increment version (v11.x.x-dev.N)
         │
         ▼
-Build & Deploy to DEV
+Build all images + sign agents
+        │
+        ▼
+Install to dev runner (utmstack-v11-dev)
         │
         ▼
 Publish to CM Dev → schedule to dev instances
 
 
-Create Prerelease (tag v11.x.x)
+Publish release with tag v11.x.x (prerelease or final)
         │
         ▼
-Build & Deploy to RC
+Build all images + sign agents
         │
         ▼
-Generate Changelog (AI)
-        │
-        ▼
-Build & Upload Installer
+Generate Changelog (AI) → upload installer to the release
         │
         ▼
 Publish to CM Prod → schedule to prod instances
 ```
 
-Jobs: `setup_deployment`, `validations`, `build_agent`,
-`build_utmstack_collector`, `build_agent_manager`, `build_event_processor`,
-`build_backend` (Java 17), `build_frontend`, `build_user_auditor`,
-`build_web_pdf`, `all_builds_complete`, `generate_changelog` (RC),
-`build_installer_rc` (RC), `deploy_installer_dev` (Dev),
+Jobs: `setup_deployment`, `build_agent`, `sign_agent_windows`,
+`sign_agent_macos`, `build_utmstack_collector`, `build_agent_manager`,
+`build_event_processor`, `build_backend` (Java 17), `build_frontend`,
+`build_user_auditor`, `build_web_pdf`, `all_builds_complete`,
+`generate_changelog` (release events), `build_installer_release`
+(release events, uploads to the triggered release),
+`deploy_installer_dev` (dev events, installs to the dev runner),
 `publish_new_version`, `schedule`.
 
 ### Environment detection
 
-| Trigger | Environment | CM URL | Service Account | Schedule Var |
+| Trigger | Environment | CM URL | Service Account | Schedule var |
 |---------|-------------|--------|------------------|--------------|
-| Push to `release/v11**` | dev | `https://cm.dev.utmstack.com` | `CM_SERVICE_ACCOUNT_DEV` | `SCHEDULE_INSTANCES_DEV` |
-| Prerelease | rc | `https://cm.utmstack.com` | `CM_SERVICE_ACCOUNT_PROD` | `SCHEDULE_INSTANCES_PROD` |
+| Push to `release/v11**` | dev | `https://cm.dev.utmstack.com` | `CM_SERVICE_ACCOUNT_DEV` | `SCHEDULE_INSTANCES` (JSON map, per product) |
+| Release published (tag `v11.*`) | production | `https://cm.utmstack.com` | `CM_SERVICE_ACCOUNT_PROD` | `SCHEDULE_INSTANCES` (comma-separated UUIDs) |
+
+The pipeline has exactly two environments (`dev`, `production`); there is no
+`rc` environment in v11. "RC" in this repo means *publishing a prerelease
+tag*, which runs the production pipeline (build, installer upload, CM-prod
+register, prod-instance schedule) against the RC fleet.
 
 ### Version auto-increment (dev)
 
@@ -357,8 +369,10 @@ Jobs: `setup_deployment`, `validations`, `build_agent`,
 
 ### Promotion to Community / Enterprise
 
-- **Community:** manual — promoting the prerelease to `latest` on GitHub
-  triggers the auto-deploy.
+- **Community:** manual — promoting the pre-release to a final
+  `released` state triggers the production pipeline again, which
+  registers the new version with CM-prod and schedules it to the
+  prod instance list.
 - **Enterprise:** manual with a checklist (zero crashes for 48h, no open
   P0 issues). The last safety net before touching large customers.
 
@@ -366,14 +380,22 @@ Jobs: `setup_deployment`, `validations`, `build_agent`,
 
 ## Installer Release
 
-Trigger: GitHub Release published (type `released`).
+`installer-release.yml` has no standalone trigger — it is
+`workflow_call`-only and invoked by the deployment pipelines
+(`deploy_installer_dev` / `deploy_installer_rc` on v10,
+`deploy_installer_dev` / `build_installer_release` on v11) with
+`version`, `version_major`, `environment`, and optional `prerelease`
+/ `changelog` inputs.
 
-```
-Tag v10.x.x → build v10 installer
-Tag v11.x.x → build v11 installer (with ldflags: version, branch, encryption keys)
-```
+What it does, by (version_major, environment):
 
-The installer is uploaded as a release asset.
+| | dev | rc (v10 only) | production (v11) |
+|---|---|---|---|
+| v10 | Build (no ldflags) and run the installer on the `utmstack-v10-dev` self-hosted runner | Same on `utmstack-v10-rc`, **plus** upload the installer to the release tag (with `changelog` as body) | — |
+| v11 | Build with ldflags (`DEFAULT_BRANCH=dev`, `INSTALLER_VERSION`, `REPLACE=CM_ENCRYPT_SALT`, `PUBLIC_KEY=CM_SIGN_PUBLIC_KEY`) and run it on the `utmstack-v11-dev` runner | — | Build with ldflags (`DEFAULT_BRANCH=prod`, same keys) and upload the binary + AI changelog as a release asset |
+
+It authenticates private `utmstack/*` Go module fetches with
+`API_SECRET` (git `insteadOf` rewrite + `GOPRIVATE`).
 
 ---
 
@@ -383,15 +405,23 @@ The installer is uploaded as a release asset.
 
 | Secret | Used in | Description |
 |--------|---------|-------------|
-| `API_SECRET` | All, pr-checks | GitHub PAT with `read:org` scope. Used by deployment workflows for team-membership validation and by the `approver` job to check that the PR author belongs to `administrators` or `core-developers`. |
-| `AGENT_SECRET_PREFIX` | v10, v11 | Agent encryption key |
-| `SIGN_CERT` | v10, v11 | Code signing certificate path (it's a `var`) |
-| `SIGN_KEY` | v10, v11 | Code signing key |
-| `SIGN_CONTAINER` | v10, v11 | Code signing container name |
-| `CM_SERVICE_ACCOUNT_PROD` | v11 | Customer Manager service account (prod/rc), JSON `{"id":"...","key":"..."}` |
+| `API_SECRET` | pr-checks (go_deps, approver), installer-release | GitHub PAT with `read:packages` / `read:org`. In PR checks it authenticates private `utmstack/*` Go modules for `go list` and (when the approver App token isn't used) backs the team-membership check. In `installer-release` it authenticates private module fetches during the installer build. |
+| `AGENT_SECRET_PREFIX` | v10, v11 | Agent/collector encryption key injected via `-ldflags` at build time |
+| `SIGN_CERT` | v10 only | Code signing certificate path (it's a `var`) — used by v10's signtool step. v11 signs Windows agents with GCP KMS instead. |
+| `SIGN_KEY` | v10 only | Code signing key (v10 signtool step). v11 uses GCP KMS. |
+| `SIGN_CONTAINER` | v10 only | Code signing container name (v10 signtool step). v11 uses GCP KMS. |
+| `GCP_WINDOWS_SIGNER_SA_KEY` | v11 (sign_agent_windows) | GCP service-account JSON for jsign + KMS signing. |
+| `WINDOWS_SIGNER_CERT_CHAIN_PEM` | v11 (sign_agent_windows) | Full PEM cert chain. Overrides the repo path `.github/certs/codesign-chain.pem` when set. |
+| `APPLE_CERTIFICATE_BASE64` | v11 (sign_agent_macos) | Base64 PKCS12 certificate for macOS codesign. |
+| `APPLE_CERTIFICATE_PASSWORD` | v11 (sign_agent_macos) | Password for the PKCS12. |
+| `APPLE_SIGNING_IDENTITY` | v11 (sign_agent_macos) | Signing identity (e.g. "Developer ID Application: ..."). |
+| `APPLE_ID` | v11 (sign_agent_macos) | Apple ID for notarytool. |
+| `APPLE_APP_PASSWORD` | v11 (sign_agent_macos) | App-specific password for notarytool. |
+| `APPLE_TEAM_ID` | v11 (sign_agent_macos) | Apple team ID for notarytool. |
+| `CM_SERVICE_ACCOUNT_PROD` | v11 | Customer Manager service account (production), JSON `{"id":"...","key":"..."}` |
 | `CM_SERVICE_ACCOUNT_DEV` | v11 | Customer Manager service account (dev), JSON `{"id":"...","key":"..."}` |
-| `CM_ENCRYPT_SALT` | installer | Installer encryption salt |
-| `CM_SIGN_PUBLIC_KEY` | installer | Public key for verification |
+| `CM_ENCRYPT_SALT` | v10, v11 (via installer-release) | Installer encryption salt |
+| `CM_SIGN_PUBLIC_KEY` | v10, v11 (via installer-release) | Public key for license verification |
 | `THREATWINDS_API_KEY` | pr-checks, v11 changelog | ThreatWinds API key for `ai_review` and `generate-changelog` |
 | `THREATWINDS_API_SECRET` | pr-checks, v11 changelog | ThreatWinds API secret for `ai_review` and `generate-changelog` |
 | `APPROVER_APP_ID` | pr-checks | GitHub App ID for the approver bot. See [Approver GitHub App setup](#approver-github-app-setup). Without this, the approver runs in comments-only mode (no formal review, no auto-merge). |
@@ -402,10 +432,13 @@ The installer is uploaded as a release asset.
 
 | Variable | Used in | Description | Format |
 |----------|---------|-------------|--------|
-| `SCHEDULE_INSTANCES_PROD` | v11 | Instance IDs for prod/rc scheduling | Comma-separated UUIDs |
-| `SCHEDULE_INSTANCES_DEV` | v11 | Instance IDs for dev scheduling | Comma-separated UUIDs |
-| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | ThreatWinds Event Processor version (prod/rc) | Semver (`1.0.0`) |
+| `SCHEDULE_INSTANCES` | v11 | Instance IDs for scheduling. Single variable interpreted per environment: the `publish_new_version` and `schedule` jobs read it as a JSON object keyed by product ID (values: instance ID arrays) in dev, and as a flat comma-separated instance list in production. | JSON object (dev) / comma-separated UUIDs (prod) |
+| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | ThreatWinds Event Processor version (production) | Semver (`1.0.0`) |
 | `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | ThreatWinds Event Processor version (dev) | Semver (`1.0.0-beta`) |
+| `GCP_PROJECT_PROD` | v11 | GCP project for Windows agent signing (KMS) | Project ID |
+| `KMS_KEYRING_LOCATION` | v11 | KMS keyring location (default `global`) | Region |
+| `KMS_KEYRING_NAME` | v11 | KMS keyring name | Name |
+| `KMS_KEY_NAME` | v11 | KMS key used by jsign | Name |
 
 ---
 
@@ -550,8 +583,12 @@ git checkout release/v10.x.x
 **Production:**
 
 ```bash
+# 1. Tag the commit
 git tag v10.5.0
 git push origin v10.5.0
+# 2. On GitHub Releases, publish the tag as a NON-prerelease release.
+#    The pipeline only fires on `release: types: [released]` — a bare
+#    tag push does NOT trigger it.
 ```
 
 ### V11
@@ -568,9 +605,10 @@ git push origin v10.5.0
 1. GitHub Releases → "Draft a new release".
 2. New tag (e.g. `v11.2.1`).
 3. Mark as pre-release.
-4. Publish.
-5. The pipeline builds microservices, generates the AI changelog, uploads
-   the installer, publishes to CM, and schedules updates to RC instances.
+4. Publish. The pipeline fires on **any** published `v11.*` release
+   (prereleases are the norm); it builds all images, generates the AI
+   changelog, uploads the installer to the release, publishes to
+   CM-prod, and schedules updates to the prod instances.
 
 **Hotfix:**
 
@@ -589,7 +627,11 @@ git checkout -b hotfix/auth-bug
 ## Troubleshooting
 
 **Permission denied:**
-- Verify membership in `integration-developers` or `core-developers`.
+- If the PR shows a "⛔ Permission denied" comment from the approver, the
+  author is not in `administrators` or `core-developers` (see the
+  approver step list above) — a member of one of those teams must push
+  the fix or re-open the PR. The deployment pipelines themselves have no
+  team gate; they rely on branch protection and the PR approver.
 
 **`ai_review` artifact with tier 2 fallback "Manual review recommended":**
 - The model didn't return valid JSON or returned an invalid tier. The
@@ -619,8 +661,10 @@ git checkout -b hotfix/auth-bug
 
 **Build failures:**
 - Check that all required secrets are configured.
-- Verify availability of the `utmstack-signer` runner (required for
-  agent signing).
+- v10: verify availability of the `utmstack-signer` self-hosted runner
+  (its agent build + signtool step runs there). v11 signs on managed
+  runners (`ubuntu-latest` for Windows/jsign+KMS, `macos-latest` for
+  codesign+notarytool) — no self-hosted runner involved.
 
 **Version not incrementing:**
 - Check that `CM_SERVICE_ACCOUNT_DEV` / `CM_SERVICE_ACCOUNT_PROD` are
@@ -628,19 +672,22 @@ git checkout -b hotfix/auth-bug
 - The branch name must follow `release/v11.x.x`.
 
 **Changelog not generated:**
-- Only applies to RC (prereleases).
+- Only runs on release events (v11 pipeline).
 - Verify `THREATWINDS_API_KEY` and `THREATWINDS_API_SECRET` are configured.
-- To test locally: export the same secrets and run
-  `./scripts/test-generate-changelog.sh v11.2.8` from the repo root
-  (auto-detects the previous tag; the wrapper also loads them from a
-  local `.env` if present).
+- To test locally: export the same two secrets and run
+  `bash .github/scripts/generate-changelog.sh <current_tag> [previous_tag]`
+  from the repo root (previous tag auto-detected from `git tag` when omitted;
+  output written to `OUTPUT_FILE`, default `/tmp/changelog.md`).
 
 ---
 
 ## Notes
 
 - Docker images are published to `ghcr.io/utmstack/utmstack/*`.
-- Agent signing requires the `utmstack-signer` runner.
+- Agent signing: v10 uses the `utmstack-signer` self-hosted runner
+  (signtool); v11 uses GCP KMS (Windows, jsign) and Apple codesign +
+  notarytool (macOS) on managed runners.
 - Artifacts (agents, collector) have a 1-day retention.
 - Dev versions: `v11.x.x-dev.N` (auto-incremented).
-- RC versions: the prerelease tag (e.g. `v11.2.1`).
+- Release versions: the published release tag (e.g. `v11.2.1`); RC in
+  practice = the prerelease tag.
