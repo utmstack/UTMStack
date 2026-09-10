@@ -6,8 +6,18 @@ import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 export function useTiSearchAdvanced() {
   return useMutation({
-    mutationFn: (input: { body: AdvancedSearchRequest; limit?: number; page?: number }) =>
-      threatIntelHttpService.searchAdvanced(input.body, { limit: input.limit, page: input.page }),
+    mutationFn: async (input: { body: AdvancedSearchRequest; limit?: number; page?: number }) =>{
+      try{
+        return await threatIntelHttpService.searchAdvanced(input.body, { limit: input.limit, page: input.page })
+      }catch(e){
+        if(isNotFound(e)){
+          const resp = await threatIntelHttpService.searchAdvanced({}, { limit: input.limit, page: input.page })
+          resp.kind="empty"
+          return resp
+        }
+        throw e
+      }
+    },
     onError: (e) => { if (!isNotConfigured(e) && !isNotFound(e)) toast.error(describeError(e)) },
   })
 }
