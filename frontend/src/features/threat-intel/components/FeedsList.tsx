@@ -1,18 +1,30 @@
 import { useTranslation } from 'react-i18next'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { FeedRow } from './FeedRow'
 import { FeedsHeader } from './FeedsHeader'
 
+const FEED_COLS = [12, '1fr', 160, 140]
+
 export function FeedsList() {
   const { t } = useTranslation()
   const { data, isLoading } = useTiFeeds()
+  const feedLabelMins = colMins([
+    t('threatIntel.feeds.table.name'),
+    t('threatIntel.feeds.table.type'),
+    t('threatIntel.feeds.table.accuracy'),
+  ])
+  const { template: tableCols, startDrag } = useResizableColumns(FEED_COLS, {
+    min: [12, ...feedLabelMins],
+    storageKey: 'threat-intel-feed-table-columns',
+  })
 
   if (data?.kind === 'not-configured') return null
 
   if (isLoading) {
     return (
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <FeedsHeader />
+      <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
+        <FeedsHeader tableCols={tableCols} startDrag={startDrag} />
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
@@ -34,10 +46,10 @@ export function FeedsList() {
   }
 
   return (
-    <div className="overflow-hidden overflow-y-auto max-h-[70dvh] rounded-xl border border-border bg-card">
-      <FeedsHeader />
+    <div className="max-h-[70dvh] overflow-x-auto overflow-y-auto rounded-xl border border-border bg-card">
+      <FeedsHeader tableCols={tableCols} startDrag={startDrag} />
       {feeds.map((feed) => (
-        <FeedRow key={`${feed.type}-${feed.name}`} feed={feed} />
+        <FeedRow key={`${feed.type}-${feed.name}`} feed={feed} tableCols={tableCols} />
       ))}
     </div>
   )

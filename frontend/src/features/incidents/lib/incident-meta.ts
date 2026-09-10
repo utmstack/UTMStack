@@ -30,4 +30,4 @@ export const SEV_TONE: Record<SevKey, string> = {
 }
 
 export const SELECT_CLS = 'h-9 rounded-md border border-border bg-background px-2 text-sm'
-export const TABLE_COLS = '1fr 120px 90px 150px 70px 110px'
+export const TABLE_COLS = ['1fr', 120, 90, 150, 70, 110]

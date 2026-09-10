@@ -1,20 +1,21 @@
 import { Tag as TagIcon } from 'lucide-react'
 import type { TaggingRule } from '../types/tagging-rule.types'
-import { TAGGING_RULES_TABLE_COLS } from './tagging-rules-table'
 
 export function TaggingRulesTableRow({
   rule,
+  tableCols,
   onOpen,
 }: {
   rule: TaggingRule
+  tableCols: string
   onOpen: (rule: TaggingRule) => void
 }) {
   const tags = rule.tags ?? []
   return (
     <div
       onClick={() => onOpen(rule)}
-      className="grid cursor-pointer items-center gap-3 border-b border-border/60 px-4 py-3 text-sm last:border-b-0 hover:bg-muted/30"
-      style={{ gridTemplateColumns: TAGGING_RULES_TABLE_COLS }}
+      className="grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/60 px-4 py-3 text-sm last:border-b-0 hover:bg-muted/30"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <div className="min-w-0">
         <div className="truncate font-medium">{rule.name}</div>

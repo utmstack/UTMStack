@@ -27,6 +27,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type {
   CustomFilter,
@@ -38,6 +40,7 @@ import type { ADUser, ADUserSource, ADUserStats, ADUserStatus } from '../types/a
 
 const SIZE = 50
 const STALE_MS = 30 * 86_400_000
+const LIST_COLS = [32, '1fr', '1.3fr', 110, 110, 110, 90, 36]
 
 type ViewId = 'all' | ADUserSource
 const VIEW_IDS: ViewId[] = ['all', 'windows', 'linux']
@@ -105,6 +108,18 @@ export function UserAuditorPage() {
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
   const [openUser, setOpenUser] = useState<ADUser | null>(null)
+  const listLabelMins = colMins([
+    t('userAuditor.list.account'),
+    t('userAuditor.list.identity'),
+    t('userAuditor.list.status'),
+    t('userAuditor.list.lastLogon'),
+    t('userAuditor.list.lastSeen'),
+    t('userAuditor.list.tenant'),
+  ])
+  const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
+    min: [32, ...listLabelMins, 36],
+    storageKey: 'user-auditor-table-columns',
+  })
 
   const filterFields: FilterFieldDef[] = [
     { field: 'status', label: t('userAuditor.filterFields.status') },
@@ -238,12 +253,12 @@ export function UserAuditorPage() {
           </Button>
         </div>
       ) : layout === 'list' ? (
-        <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
-          <ListHeader t={t} />
+        <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
+          <ListHeader t={t} tableCols={listCols} startDrag={startDrag} />
           {loading && users.length === 0 ? (
             <LoadingRows />
           ) : (
-            users.map((u) => <UserListRow key={u.id} user={u} onOpen={() => setOpenUser(u)} t={t} />)
+            users.map((u) => <UserListRow key={u.id} user={u} tableCols={listCols} onOpen={() => setOpenUser(u)} t={t} />)
           )}
           {!loading && users.length === 0 && (
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">
@@ -483,22 +498,28 @@ function Toolbar({
 
 /* ─── List ─────────────────────────────────────────────────────────────── */
 
-const LIST_COLS = '32px 1fr 1.3fr 110px 110px 110px 90px 36px'
-
-function ListHeader({ t }: { t: TFunction }) {
+function ListHeader({ t, tableCols, startDrag }: { t: TFunction; tableCols: string; startDrag: ReturnType<typeof useResizableColumns>['startDrag'] }) {
+  const headers = [
+    '',
+    t('userAuditor.list.account'),
+    t('userAuditor.list.identity'),
+    t('userAuditor.list.status'),
+    t('userAuditor.list.lastLogon'),
+    t('userAuditor.list.lastSeen'),
+    t('userAuditor.list.tenant'),
+    '',
+  ]
   return (
     <div
       className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: LIST_COLS }}
+      style={{ gridTemplateColumns: tableCols }}
     >
-      <div />
-      <div>{t('userAuditor.list.account')}</div>
-      <div>{t('userAuditor.list.identity')}</div>
-      <div>{t('userAuditor.list.status')}</div>
-      <div>{t('userAuditor.list.lastLogon')}</div>
-      <div>{t('userAuditor.list.lastSeen')}</div>
-      <div>{t('userAuditor.list.tenant')}</div>
-      <div />
+      {headers.map((header, index) => (
+        <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
+          {header}
+          {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+        </div>
+      ))}
     </div>
   )
 }
@@ -511,14 +532,14 @@ function LoadingRows() {
   )
 }
 
-function UserListRow({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TFunction }) {
+function UserListRow({ user, tableCols, onOpen, t }: { user: ADUser; tableCols: string; onOpen: () => void; t: TFunction }) {
   const status = statusOf(user)
   const identity = accountIdentity(user)
   return (
     <div
       onClick={onOpen}
-      className="group grid cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-xs hover:bg-muted/40 last:border-b-0"
-      style={{ gridTemplateColumns: LIST_COLS }}
+      className="group grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-xs hover:bg-muted/40 last:border-b-0"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <AccountAvatar user={user} />
       <div className="min-w-0">

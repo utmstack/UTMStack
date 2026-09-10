@@ -13,6 +13,8 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
+import { ResizableGridHeader } from "@/shared/components/ui/resizable-grid-header";
+import { colMins, useResizableColumns } from "@/shared/hooks/useResizableColumns";
 import {
   presetRange,
   resolveRange,
@@ -48,7 +50,7 @@ const STATUSES: (ExecutionStatus | "all")[] = [
 ];
 const ORIGINS: (ExecutionOrigin | "all")[] = ["all", "FLOW", "MANUAL"];
 const COLS =
-  "90px 100px minmax(160px,1.2fr) minmax(180px,1.6fr) 120px 150px 60px";
+  [90, 100, "minmax(160px,1.2fr)", "minmax(180px,1.6fr)", 120, 150, 60];
 
 const STATUS_META: Record<
   ExecutionStatus,
@@ -78,6 +80,19 @@ export function ExecutionsView() {
   // each node's position in the flow's DAG (its ancestor chain) in the Node
   // column — the flow itself carries no per-run state, only its shape.
   const [runFlows, setRunFlows] = useState<Record<string, Flow>>({});
+  const executionsHeaders = [
+    t("soar.executions.cols.status"),
+    t("soar.executions.cols.node"),
+    t("soar.executions.cols.flow"),
+    t("soar.executions.cols.command"),
+    t("soar.executions.cols.agent"),
+    t("soar.executions.cols.date"),
+    t("soar.executions.cols.retries"),
+  ];
+  const { template: tableCols, startDrag } = useResizableColumns(COLS, {
+    min: colMins(executionsHeaders),
+    storageKey: "soar-executions-table-columns",
+  });
   const [page, setPage] = useState(0);
   const [pageSize] = useState(50);
   const [loading, setLoading] = useState(true);
@@ -264,19 +279,14 @@ export function ExecutionsView() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div
-          className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-          style={{ gridTemplateColumns: COLS }}
-        >
-          <div>{t("soar.executions.cols.status")}</div>
-          <div>{t("soar.executions.cols.node")}</div>
-          <div>{t("soar.executions.cols.flow")}</div>
-          <div>{t("soar.executions.cols.command")}</div>
-          <div>{t("soar.executions.cols.agent")}</div>
-          <div>{t("soar.executions.cols.date")}</div>
-          <div className="text-center">{t("soar.executions.cols.retries")}</div>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+          <ResizableGridHeader
+            headers={executionsHeaders}
+            tableCols={tableCols}
+            startDrag={startDrag}
+            className="sticky top-0 z-10 bg-muted/30 py-2.5 font-medium"
+            cellClassName="last:text-center"
+          />
           {loading && items.length === 0 ? (
             <Center>
               <Loader2 className="h-4 w-4 animate-spin" />{" "}
@@ -306,6 +316,7 @@ export function ExecutionsView() {
                   key={e.id}
                   e={e}
                   flow={e.rulePath ? runFlows[e.rulePath] : undefined}
+                  tableCols={tableCols}
                   df={df}
                   t={t}
                 />
@@ -327,11 +338,13 @@ export function ExecutionsView() {
 function ExecutionRow({
   e,
   flow,
+  tableCols,
   df,
   t,
 }: {
   e: Execution;
   flow?: Flow;
+  tableCols: string;
   df: ReturnType<typeof useDateFormat>;
   t: ReturnType<typeof useTranslation>["t"];
 }) {
@@ -357,8 +370,8 @@ function ExecutionRow({
 
   return (
     <div
-      className="grid items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
-      style={{ gridTemplateColumns: COLS }}
+      className="grid w-max min-w-full items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <div
         className={cn(

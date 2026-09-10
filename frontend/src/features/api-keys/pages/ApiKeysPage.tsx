@@ -12,11 +12,13 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { useBilling } from '@/features/billing'
 import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
 import { apiKeysHttpService } from '../services/api-keys-http.service'
 import type { ApiKey, ApiKeyPageInfo } from '../types/api-key.types'
-import { COLS, KeyRow } from '../components/KeyRow'
+import { API_KEY_TABLE_COLS, KeyRow } from '../components/KeyRow'
 import { UpsertDialog } from '../components/UpsertDialog'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { RevealModal } from '../components/RevealModal'
@@ -39,6 +41,19 @@ export function ApiKeysPage() {
   const [dialog, setDialog] = useState<DialogState>(null)
   const [confirm, setConfirm] = useState<ConfirmState>(null)
   const [revealed, setRevealed] = useState<{ name: string; token: string } | null>(null)
+  const apiKeyHeaders = [
+    t('apiKeys.col.name'),
+    t('apiKeys.col.allowedIps'),
+    t('apiKeys.col.created'),
+    t('apiKeys.col.lastRotated'),
+    t('apiKeys.col.expires'),
+    t('apiKeys.col.status'),
+    t('apiKeys.col.actions'),
+  ]
+  const { template: tableCols, startDrag } = useResizableColumns(API_KEY_TABLE_COLS, {
+    min: colMins(apiKeyHeaders),
+    storageKey: 'api-keys-table-columns',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -129,18 +144,17 @@ export function ApiKeysPage() {
             </Button>
           </div>
 
-          <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
+          <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
             <div
               className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-              style={{ gridTemplateColumns: COLS }}
+              style={{ gridTemplateColumns: tableCols }}
             >
-              <div>{t('apiKeys.col.name')}</div>
-              <div>{t('apiKeys.col.allowedIps')}</div>
-              <div>{t('apiKeys.col.created')}</div>
-              <div>{t('apiKeys.col.lastRotated')}</div>
-              <div>{t('apiKeys.col.expires')}</div>
-              <div>{t('apiKeys.col.status')}</div>
-              <div className="text-right">{t('apiKeys.col.actions')}</div>
+              {apiKeyHeaders.map((header, index, headers) => (
+                <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0 last:text-right">
+                  {header}
+                  {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+                </div>
+              ))}
             </div>
 
             {loading && (!keys || keys.length === 0) && (
@@ -173,6 +187,7 @@ export function ApiKeysPage() {
                 <KeyRow
                   key={k.id}
                   apiKey={k}
+                  tableCols={tableCols}
                   onEdit={() => setDialog({ mode: 'edit', key: k })}
                   onRotate={() => setConfirm({ kind: 'rotate', key: k })}
                   onDelete={() => setConfirm({ kind: 'delete', key: k })}

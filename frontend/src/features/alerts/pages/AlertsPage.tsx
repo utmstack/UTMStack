@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { presetRange, type TimeRange, resolveRange } from '@/shared/components/ui/time-range-picker'
+import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { FILTER_OPS, TS } from '../lib/alert-meta'
 import { alertToRuleConditions } from '../lib/tagging-rule-meta'
 import {
@@ -30,7 +31,7 @@ import { AlertsStatusTabs } from '../components/alerts-status-tabs'
 import { AlertsVolumeCard } from '../components/alerts-volume-card'
 import { AlertsBreakdownCard } from '../components/alerts-breakdown-card'
 import { AlertsBulkBar } from '../components/alerts-bulk-bar'
-import { AlertsTableHeader, ALERTS_TABLE_COLUMN_COUNT } from '../components/alerts-table-header'
+import { AlertsTableHeader, ALERTS_TABLE_COLS, ALERTS_TABLE_COLUMN_COUNT, ALERTS_TABLE_MINS } from '../components/alerts-table-header'
 import { AlertRow } from '../components/alert-row'
 import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
@@ -58,6 +59,14 @@ export function AlertsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
+  const { widths: alertTableWidths, startDrag: startAlertTableDrag } = useResizableColumns(ALERTS_TABLE_COLS, {
+    min: ALERTS_TABLE_MINS,
+    storageKey: 'alerts-table-columns',
+  })
+  const alertTableWidth = alertTableWidths.reduce<number>(
+    (total, width) => total + (typeof width === 'number' ? width : 0),
+    0,
+  )
   const [incidentTargets, setIncidentTargets] = useState<Alert[] | null>(null)
   // Tagging-rule drawer is rendered here so the tag editor / rule button don't
   // have to bounce through the tagging-rules page.
@@ -333,8 +342,18 @@ export function AlertsPage() {
           }}
           >
             <div className="min-h-0 flex-1 overflow-auto">
-              <table className="min-w-full border-collapse">
-                <AlertsTableHeader allChecked={allChecked} onTogglePage={togglePage} />
+              <table className="border-collapse table-fixed" style={{ minWidth: '100%', width: `${alertTableWidth}px` }}>
+                <colgroup>
+                  {alertTableWidths.map((width, index) => (
+                    <col key={index} style={{ width: typeof width === 'number' ? `${width}px` : width }} />
+                  ))}
+                </colgroup>
+                <AlertsTableHeader
+                  allChecked={allChecked}
+                  widths={alertTableWidths}
+                  startDrag={startAlertTableDrag}
+                  onTogglePage={togglePage}
+                />
                 <tbody>
                   {loading && alerts.length === 0 ? (
                     <tr>

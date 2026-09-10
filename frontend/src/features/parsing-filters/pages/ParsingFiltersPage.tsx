@@ -7,6 +7,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
@@ -19,6 +21,7 @@ const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 
 const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
+const PARSING_FILTERS_TABLE_COLS = [320, 220, 120, 90, 48, 48]
 
 // The name the engine matches on: the file's base name without its extension.
 function pipelineIdentity(relPath: string): string {
@@ -44,6 +47,18 @@ export function ParsingFiltersPage() {
   const [editing, setEditing] = useState<{ filter: Pipeline; creating: boolean } | null>(null)
   const [preparingNew, setPreparingNew] = useState(false)
   const [showTestModal, setShowTestModal] = useState(false)
+  const parsingFiltersHeaders = [
+    t('parsingFilters.cols.filter'),
+    t('parsingFilters.cols.dataTypes'),
+    t('parsingFilters.cols.type'),
+    t('parsingFilters.cols.active'),
+    48,
+    48,
+  ]
+  const { widths, startDrag } = useResizableColumns(PARSING_FILTERS_TABLE_COLS, {
+    min: colMins(parsingFiltersHeaders),
+    storageKey: 'parsing-filters-table-columns',
+  })
 
   // Deep-link: ?dataType=<value> pre-filters the list to that data type
   // (e.g. opened from an integration's "Filters" button).
@@ -237,17 +252,21 @@ export function ParsingFiltersPage() {
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-auto">
-          <table className="min-w-full border-collapse">
-            <thead className="sticky top-0 z-10 bg-muted/90 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <tr className="border-b border-border">
-                <th className={TH}>{t('parsingFilters.cols.filter')}</th>
-                <th className={TH}>{t('parsingFilters.cols.dataTypes')}</th>
-                <th className={TH}>{t('parsingFilters.cols.type')}</th>
-                <th className={`${TH} text-center`}>{t('parsingFilters.cols.active')}</th>
-                <th className={TH} />
-                <th className={TH} />
-              </tr>
-            </thead>
+          <table className="min-w-full border-collapse table-fixed">
+            <ResizableTableHeader
+              cells={[
+                { content: parsingFiltersHeaders[0], className: TH },
+                { content: parsingFiltersHeaders[1], className: TH },
+                { content: parsingFiltersHeaders[2], className: TH },
+                { content: parsingFiltersHeaders[3], className: `${TH} text-center` },
+                { content: null, className: TH },
+                { content: null, className: TH },
+              ]}
+              widths={widths}
+              startDrag={startDrag}
+              className="sticky top-0 z-10 bg-muted/90 text-[10px] uppercase tracking-wider text-muted-foreground"
+              rowClassName="border-b border-border"
+            />
             <tbody>
               {loading && items.length === 0 ? (
                 <tr><td colSpan={6}><Center>

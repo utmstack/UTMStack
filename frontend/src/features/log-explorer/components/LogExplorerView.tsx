@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { looksLikeSql } from '../domain/sql-sync'
-import { ResultsHeader, ResultRow } from './log-results'
+import { logGridColumnSizes, ResultsHeader, ResultRow } from './log-results'
 import { MSG_FIELDS, SRC_FIELDS, flattenDoc, pick, previewText } from '../domain/flatten'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
@@ -362,6 +363,21 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       },
     ]
   }, [columns, autoColumns])
+  const columnStorageKey = useMemo(
+    () => `log-explorer-table-columns:${columns.length > 0 ? columns.join('|') : `auto:${autoColumns.join('|')}`}`,
+    [columns, autoColumns],
+  )
+  // Grid mins: three fixed leading tracks (row-actions, indicator, time),
+  // then either the user-picked field names (manual mode) or source + auto
+  // fields + a flex message column (default mode). Label-based floors keep
+  // header names from cropping when a column is dragged narrow.
+  const logGridMins = columns.length > 0
+    ? [20, 3, 168, ...colMins(columns)]
+    : [20, 3, 168, 96, ...colMins(autoColumns), 96]
+  const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
+    min: logGridMins,
+    storageKey: columnStorageKey,
+  })
 
   /* Fetch one page. page 1 replaces the list (fresh query); later pages append
      (infinite scroll). The histogram fetches separately. */
@@ -661,7 +677,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               />
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
               <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
-                <ResultsHeader columns={columns} autoColumns={autoColumns} onRemoveColumn={toggleColumn} />
+                <ResultsHeader columns={columns} autoColumns={autoColumns} tableCols={tableCols} startDrag={startDrag} onRemoveColumn={toggleColumn} />
                 {loading && rows.length === 0 ? (
                   <RowMessage>
                     <Loader2 className="h-4 w-4 animate-spin" /> {t('logExplorer.results.searching')}
@@ -706,6 +722,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                         doc={doc}
                         columns={columns}
                         autoColumns={autoColumns}
+                        tableCols={tableCols}
                         expanded={expanded === i}
                         onToggle={toggleExpanded}
                         onAdd={addFilter}

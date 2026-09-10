@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { ResizableGridHeader } from '@/shared/components/ui/resizable-grid-header'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { cn } from '@/shared/lib/utils'
 import { useDateFormat } from '@/shared/lib/datetime'
 import { SEV_TONE, TABLE_COLS, sevKey } from '../lib/incident-meta'
@@ -9,25 +11,33 @@ import { IncidentAssignee } from './incident-assignee'
 export function IncidentsTable({ incidents, onOpen }: { incidents: Incident[]; onOpen: (i: Incident) => void }) {
   const { t } = useTranslation()
   const df = useDateFormat()
+  const incidentsHeaders = [
+    t('incidents.table.name'),
+    t('incidents.table.status'),
+    t('incidents.table.severity'),
+    t('incidents.table.assignee'),
+    t('incidents.table.alerts'),
+    t('incidents.table.created'),
+  ]
+  const { template: tableCols, startDrag } = useResizableColumns(TABLE_COLS, {
+    min: colMins(incidentsHeaders),
+    storageKey: 'incidents-table-columns',
+  })
   return (
-    <div className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-xl border border-border">
-      <div
-        className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-        style={{ gridTemplateColumns: TABLE_COLS }}
-      >
-        <div>{t('incidents.table.name')}</div>
-        <div>{t('incidents.table.status')}</div>
-        <div>{t('incidents.table.severity')}</div>
-        <div>{t('incidents.table.assignee')}</div>
-        <div className="text-center">{t('incidents.table.alerts')}</div>
-        <div>{t('incidents.table.created')}</div>
-      </div>
+    <div className="mt-4 min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-xl border border-border">
+      <ResizableGridHeader
+        headers={incidentsHeaders}
+        tableCols={tableCols}
+        startDrag={startDrag}
+        className="bg-muted/30 py-2.5 font-medium"
+        cellClassName="[&:nth-child(5)]:text-center"
+      />
       {incidents.map((i) => (
         <button
           key={i.id}
           onClick={() => onOpen(i)}
-          className="grid w-full items-center gap-3 border-b border-border/60 px-4 py-3 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
-          style={{ gridTemplateColumns: TABLE_COLS }}
+          className="grid w-max min-w-full items-center gap-3 border-b border-border/60 px-4 py-3 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
+          style={{ gridTemplateColumns: tableCols }}
         >
           <div className="min-w-0">
             <div className="truncate font-medium">{i.incidentName}</div>

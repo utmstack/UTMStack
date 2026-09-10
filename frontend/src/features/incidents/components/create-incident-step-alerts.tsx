@@ -58,7 +58,7 @@ export function CreateIncidentStepAlerts({
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-auto">
-          <table className="min-w-full border-collapse">
+          <table className="min-w-full border-collapse table-fixed">
             <IncidentAlertsPickerHeader allChecked={allChecked} onTogglePage={() => onToggleAll(alerts)} />
             <tbody>
               {loading && alerts.length === 0 ? (

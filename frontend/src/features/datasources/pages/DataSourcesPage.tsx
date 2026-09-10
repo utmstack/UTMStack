@@ -31,6 +31,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import {
   datasourcesHttpService as svc,
@@ -135,6 +137,17 @@ export function DataSourcesPage() {
   const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
   const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
+  const datasourcesLabelMins = colMins([
+    t('datasources.cols.source'),
+    t('datasources.cols.type'),
+    t('datasources.cols.status'),
+    t('datasources.cols.events24h'),
+    t('datasources.cols.lastSeen'),
+  ])
+  const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
+    min: [36, ...datasourcesLabelMins],
+    storageKey: 'datasources-table-columns',
+  })
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -287,10 +300,10 @@ export function DataSourcesPage() {
         ) : sources.length === 0 ? (
           <CenterCard>{t('datasources.none')}</CenterCard>
         ) : layout === 'list' ? (
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <ListHeader />
+          <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
+            <ListHeader tableCols={listCols} startDrag={startDrag} />
             {sources.map((s) => (
-              <SourceListRow key={s.id} source={s} events24h={events24h(s.name)} onOpen={() => setOpenId(s.id)} onLabelClick={filterByLabel} />
+              <SourceListRow key={s.id} source={s} tableCols={listCols} events24h={events24h(s.name)} onOpen={() => setOpenId(s.id)} onLabelClick={filterByLabel} />
             ))}
           </div>
         ) : (
@@ -536,32 +549,42 @@ function Toolbar({
 
 /* ─── List ─────────────────────────────────────────────────────────────── */
 
-const LIST_COLS = '36px 1fr 150px 110px 120px 120px'
+const LIST_COLS = [36, '1fr', 150, 110, 120, 120]
 
-function ListHeader() {
+function ListHeader({ tableCols, startDrag }: { tableCols: string; startDrag: ReturnType<typeof useResizableColumns>['startDrag'] }) {
   const { t } = useTranslation()
+  const headers = [
+    '',
+    t('datasources.cols.source'),
+    t('datasources.cols.type'),
+    t('datasources.cols.status'),
+    t('datasources.cols.events24h'),
+    t('datasources.cols.lastSeen'),
+  ]
   return (
     <div
       className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: LIST_COLS }}
+      style={{ gridTemplateColumns: tableCols }}
     >
-      <div />
-      <div>{t('datasources.cols.source')}</div>
-      <div>{t('datasources.cols.type')}</div>
-      <div>{t('datasources.cols.status')}</div>
-      <div className="text-center">{t('datasources.cols.events24h')}</div>
-      <div className="text-center">{t('datasources.cols.lastSeen')}</div>
+      {headers.map((header, index) => (
+        <div key={index} data-resizable-col className="relative min-w-0 pr-2 text-center first:text-left last:pr-0">
+          {header}
+          {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+        </div>
+      ))}
     </div>
   )
 }
 
 function SourceListRow({
   source: s,
+  tableCols,
   events24h,
   onOpen,
   onLabelClick,
 }: {
   source: Datasource
+  tableCols: string
   events24h: number
   onOpen: () => void
   onLabelClick: (label: string) => void
@@ -573,8 +596,8 @@ function SourceListRow({
   return (
     <div
       onClick={onOpen}
-      className="grid cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-3 text-[13px] hover:bg-muted/20 last:border-b-0"
-      style={{ gridTemplateColumns: LIST_COLS }}
+      className="grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-3 text-[13px] hover:bg-muted/20 last:border-b-0"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <SourceIcon source={s} />
       <div className="min-w-0">

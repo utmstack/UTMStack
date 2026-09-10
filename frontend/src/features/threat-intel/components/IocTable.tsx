@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ResizableGridHeader } from '@/shared/components/ui/resizable-grid-header'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import type { EntitySummary } from '../domain/threat-intel.types'
 import { Pagination } from '@/shared/components/ui/pagination'
 import { IocRow } from './IocRow'
@@ -17,7 +19,7 @@ interface IocTableProps {
   onLoadMore?: () => void
 }
 
-const IOC_COLS = '4px 90px 1fr 130px 1fr 110px 36px'
+const IOC_COLS = [4, 90, '1fr', 130, '1fr', 110, 36]
 
 export function IocTable({
   iocs,
@@ -34,6 +36,20 @@ export function IocTable({
   const { t } = useTranslation()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const iocHeaders = [
+    '',
+    t('threatIntel.iocs.table.type'),
+    t('threatIntel.iocs.table.indicator'),
+    t('threatIntel.iocs.table.reputation'),
+    t('threatIntel.iocs.table.tags'),
+    t('threatIntel.iocs.table.lastSeen'),
+    '',
+  ]
+  const iocLabelMins = colMins(iocHeaders.slice(1, -1))
+  const { template: tableCols, startDrag } = useResizableColumns(IOC_COLS, {
+    min: [4, ...iocLabelMins, 36],
+    storageKey: 'threat-intel-ioc-table-columns',
+  })
 
   useEffect(() => {
     const node = sentinelRef.current
@@ -52,21 +68,16 @@ export function IocTable({
   return (
     <>
       <div className="flex h-[60dvh] flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div
-          className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-          style={{ gridTemplateColumns: IOC_COLS }}
-        >
-          <div />
-          <div>{t('threatIntel.iocs.table.type')}</div>
-          <div>{t('threatIntel.iocs.table.indicator')}</div>
-          <div className="text-right">{t('threatIntel.iocs.table.reputation')}</div>
-          <div>{t('threatIntel.iocs.table.tags')}</div>
-          <div>{t('threatIntel.iocs.table.lastSeen')}</div>
-          <div />
-        </div>
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="flex-1 overflow-x-auto overflow-y-auto">
+          <ResizableGridHeader
+            headers={iocHeaders}
+            tableCols={tableCols}
+            startDrag={startDrag}
+            className="sticky top-0 z-10"
+            cellClassName="[&:nth-child(4)]:text-right"
+          />
           {iocs.map((ioc) => (
-            <IocRow key={ioc.id} ioc={ioc} onOpen={() => onOpen(ioc.id)} />
+            <IocRow key={ioc.id} ioc={ioc} tableCols={tableCols} onOpen={() => onOpen(ioc.id)} />
           ))}
           {!isLoading && iocs.length === 0 && (
             <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('threatIntel.iocs.empty')}</div>
