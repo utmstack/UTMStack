@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { ResizableGridHeader } from '@/shared/components/ui/resizable-grid-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import { TaggingRulesTableRow } from './tagging-rules-table-row'
 
@@ -14,14 +14,15 @@ export function TaggingRulesTable({
   onOpen: (rule: TaggingRule) => void
 }) {
   const { t } = useTranslation()
+  const taggingHeaders = [t('taggingRules.table.rule'), t('taggingRules.table.tags'), t('taggingRules.table.conditions')]
   const { template: tableCols, startDrag } = useResizableColumns(TAGGING_RULES_TABLE_COLS, {
-    min: 60,
+    min: colMins(taggingHeaders),
     storageKey: 'tagging-rules-table-columns',
   })
   return (
     <div className="mt-4 min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-xl border border-border">
       <ResizableGridHeader
-        headers={[t('taggingRules.table.rule'), t('taggingRules.table.tags'), t('taggingRules.table.conditions')]}
+        headers={taggingHeaders}
         tableCols={tableCols}
         startDrag={startDrag}
         className="bg-muted/30 py-2.5 font-medium"

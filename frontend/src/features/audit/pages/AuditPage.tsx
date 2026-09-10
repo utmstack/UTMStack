@@ -18,7 +18,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { auditHttpService } from '../services/audit-http.service'
 import { humanizeAction } from '../lib'
 import type { AuditListQuery, AuditLog } from '../types/audit.types'
@@ -436,10 +436,6 @@ function TableCard({
 }) {
   const { t } = useTranslation()
   const { formatDateTime } = useDateFormat()
-  const { template, startDrag } = useResizableColumns(AUDIT_TABLE_COLS, {
-    min: 60,
-    storageKey: 'audit-log-table-columns',
-  })
   const headers = [
     t('audit.table.timestamp'),
     t('audit.table.actor'),
@@ -449,6 +445,10 @@ function TableCard({
     t('audit.table.ip'),
     '',
   ]
+  const { template, startDrag } = useResizableColumns(AUDIT_TABLE_COLS, {
+    min: colMins(headers),
+    storageKey: 'audit-log-table-columns',
+  })
   return (
     <section className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
       <div

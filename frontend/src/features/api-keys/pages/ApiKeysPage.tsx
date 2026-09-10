@@ -13,7 +13,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { useBilling } from '@/features/billing'
 import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
 import { apiKeysHttpService } from '../services/api-keys-http.service'
@@ -41,8 +41,17 @@ export function ApiKeysPage() {
   const [dialog, setDialog] = useState<DialogState>(null)
   const [confirm, setConfirm] = useState<ConfirmState>(null)
   const [revealed, setRevealed] = useState<{ name: string; token: string } | null>(null)
+  const apiKeyHeaders = [
+    t('apiKeys.col.name'),
+    t('apiKeys.col.allowedIps'),
+    t('apiKeys.col.created'),
+    t('apiKeys.col.lastRotated'),
+    t('apiKeys.col.expires'),
+    t('apiKeys.col.status'),
+    t('apiKeys.col.actions'),
+  ]
   const { template: tableCols, startDrag } = useResizableColumns(API_KEY_TABLE_COLS, {
-    min: 60,
+    min: colMins(apiKeyHeaders),
     storageKey: 'api-keys-table-columns',
   })
 
@@ -140,15 +149,7 @@ export function ApiKeysPage() {
               className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
               style={{ gridTemplateColumns: tableCols }}
             >
-              {[
-                t('apiKeys.col.name'),
-                t('apiKeys.col.allowedIps'),
-                t('apiKeys.col.created'),
-                t('apiKeys.col.lastRotated'),
-                t('apiKeys.col.expires'),
-                t('apiKeys.col.status'),
-                t('apiKeys.col.actions'),
-              ].map((header, index, headers) => (
+              {apiKeyHeaders.map((header, index, headers) => (
                 <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0 last:text-right">
                   {header}
                   {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}

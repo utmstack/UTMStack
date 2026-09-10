@@ -32,7 +32,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import {
   datasourcesHttpService as svc,
@@ -137,8 +137,15 @@ export function DataSourcesPage() {
   const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
   const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
+  const datasourcesLabelMins = colMins([
+    t('datasources.cols.source'),
+    t('datasources.cols.type'),
+    t('datasources.cols.status'),
+    t('datasources.cols.events24h'),
+    t('datasources.cols.lastSeen'),
+  ])
   const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
-    min: 40,
+    min: [36, ...datasourcesLabelMins],
     storageKey: 'datasources-table-columns',
   })
 

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { useTiFeeds } from '../hooks/use-ti-feeds'
 import { FeedRow } from './FeedRow'
 import { FeedsHeader } from './FeedsHeader'
@@ -9,8 +9,13 @@ const FEED_COLS = [12, '1fr', 160, 140]
 export function FeedsList() {
   const { t } = useTranslation()
   const { data, isLoading } = useTiFeeds()
+  const feedLabelMins = colMins([
+    t('threatIntel.feeds.table.name'),
+    t('threatIntel.feeds.table.type'),
+    t('threatIntel.feeds.table.accuracy'),
+  ])
   const { template: tableCols, startDrag } = useResizableColumns(FEED_COLS, {
-    min: 36,
+    min: [12, ...feedLabelMins],
     storageKey: 'threat-intel-feed-table-columns',
   })
 

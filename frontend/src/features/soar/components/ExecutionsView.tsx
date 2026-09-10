@@ -14,7 +14,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
 import { ResizableGridHeader } from "@/shared/components/ui/resizable-grid-header";
-import { useResizableColumns } from "@/shared/hooks/useResizableColumns";
+import { colMins, useResizableColumns } from "@/shared/hooks/useResizableColumns";
 import {
   presetRange,
   resolveRange,
@@ -80,8 +80,17 @@ export function ExecutionsView() {
   // each node's position in the flow's DAG (its ancestor chain) in the Node
   // column — the flow itself carries no per-run state, only its shape.
   const [runFlows, setRunFlows] = useState<Record<string, Flow>>({});
+  const executionsHeaders = [
+    t("soar.executions.cols.status"),
+    t("soar.executions.cols.node"),
+    t("soar.executions.cols.flow"),
+    t("soar.executions.cols.command"),
+    t("soar.executions.cols.agent"),
+    t("soar.executions.cols.date"),
+    t("soar.executions.cols.retries"),
+  ];
   const { template: tableCols, startDrag } = useResizableColumns(COLS, {
-    min: 60,
+    min: colMins(executionsHeaders),
     storageKey: "soar-executions-table-columns",
   });
   const [page, setPage] = useState(0);
@@ -272,15 +281,7 @@ export function ExecutionsView() {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
           <ResizableGridHeader
-            headers={[
-              t("soar.executions.cols.status"),
-              t("soar.executions.cols.node"),
-              t("soar.executions.cols.flow"),
-              t("soar.executions.cols.command"),
-              t("soar.executions.cols.agent"),
-              t("soar.executions.cols.date"),
-              t("soar.executions.cols.retries"),
-            ]}
+            headers={executionsHeaders}
             tableCols={tableCols}
             startDrag={startDrag}
             className="sticky top-0 z-10 bg-muted/30 py-2.5 font-medium"

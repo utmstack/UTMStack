@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { Crosshair, Lock } from 'lucide-react'
 import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { cn } from '@/shared/lib/utils'
 import type { CorrelationRule } from '../services/alerting-rules-http.service'
 import { impactKey } from '../lib/impact-key'
@@ -19,8 +19,17 @@ const IMPACT_TONE: Record<string, string> = { high: 'text-red-500', medium: 'tex
 export function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, onToggle, t, footer }: { rules: CorrelationRule[]; selected: Set<string>; onToggleSelected: (relPath: string) => void; onSelectAll: (checked: boolean) => void; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction; footer?: ReactNode }) {
   const allChecked = rules.length > 0 && rules.every((r) => selected.has(r.relPath))
   const someChecked = !allChecked && rules.some((r) => selected.has(r.relPath))
+  const alertingRulesLabelMins = colMins([
+    t('alertingRules.table.name'),
+    t('alertingRules.table.dataTypes'),
+    t('alertingRules.table.category'),
+    t('alertingRules.table.technique'),
+    t('alertingRules.table.adversary'),
+    t('alertingRules.table.impact'),
+    t('alertingRules.table.active'),
+  ])
   const { widths, startDrag } = useResizableColumns(ALERTING_RULES_TABLE_COLS, {
-    min: 48,
+    min: [48, ...alertingRulesLabelMins],
     storageKey: 'alerting-rules-table-columns',
   })
   return (

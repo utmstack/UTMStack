@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { looksLikeSql } from '../domain/sql-sync'
 import { logGridColumnSizes, ResultsHeader, ResultRow } from './log-results'
 import { MSG_FIELDS, SRC_FIELDS, flattenDoc, pick, previewText } from '../domain/flatten'
@@ -367,8 +367,15 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     () => `log-explorer-table-columns:${columns.length > 0 ? columns.join('|') : `auto:${autoColumns.join('|')}`}`,
     [columns, autoColumns],
   )
+  // Grid mins: three fixed leading tracks (row-actions, indicator, time),
+  // then either the user-picked field names (manual mode) or source + auto
+  // fields + a flex message column (default mode). Label-based floors keep
+  // header names from cropping when a column is dragged narrow.
+  const logGridMins = columns.length > 0
+    ? [20, 3, 168, ...colMins(columns)]
+    : [20, 3, 168, 96, ...colMins(autoColumns), 96]
   const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
-    min: 20,
+    min: logGridMins,
     storageKey: columnStorageKey,
   })
 

@@ -31,7 +31,7 @@ import { AlertsStatusTabs } from '../components/alerts-status-tabs'
 import { AlertsVolumeCard } from '../components/alerts-volume-card'
 import { AlertsBreakdownCard } from '../components/alerts-breakdown-card'
 import { AlertsBulkBar } from '../components/alerts-bulk-bar'
-import { AlertsTableHeader, ALERTS_TABLE_COLS, ALERTS_TABLE_COLUMN_COUNT } from '../components/alerts-table-header'
+import { AlertsTableHeader, ALERTS_TABLE_COLS, ALERTS_TABLE_COLUMN_COUNT, ALERTS_TABLE_MINS } from '../components/alerts-table-header'
 import { AlertRow } from '../components/alert-row'
 import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
@@ -60,7 +60,7 @@ export function AlertsPage() {
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
   const { widths: alertTableWidths, startDrag: startAlertTableDrag } = useResizableColumns(ALERTS_TABLE_COLS, {
-    min: 6,
+    min: ALERTS_TABLE_MINS,
     storageKey: 'alerts-table-columns',
   })
   const alertTableWidth = alertTableWidths.reduce<number>(

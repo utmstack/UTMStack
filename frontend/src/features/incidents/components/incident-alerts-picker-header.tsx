@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 
 const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
 const INCIDENT_ALERTS_TABLE_COLS = [6, 36, 360, 90, 160]
@@ -13,8 +13,13 @@ export function IncidentAlertsPickerHeader({
   onTogglePage: () => void
 }) {
   const { t } = useTranslation()
+  const pickerLabelMins = colMins([
+    t('alerts.table.alert'),
+    t('alerts.table.severity'),
+    t('alerts.table.time'),
+  ])
   const { widths, startDrag } = useResizableColumns(INCIDENT_ALERTS_TABLE_COLS, {
-    min: 6,
+    min: [6, 36, ...pickerLabelMins],
     storageKey: 'incident-alerts-picker-table-columns',
   })
   return (

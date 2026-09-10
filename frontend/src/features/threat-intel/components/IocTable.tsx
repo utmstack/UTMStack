@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ResizableGridHeader } from '@/shared/components/ui/resizable-grid-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import type { EntitySummary } from '../domain/threat-intel.types'
 import { Pagination } from '@/shared/components/ui/pagination'
 import { IocRow } from './IocRow'
@@ -36,8 +36,18 @@ export function IocTable({
   const { t } = useTranslation()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const iocHeaders = [
+    '',
+    t('threatIntel.iocs.table.type'),
+    t('threatIntel.iocs.table.indicator'),
+    t('threatIntel.iocs.table.reputation'),
+    t('threatIntel.iocs.table.tags'),
+    t('threatIntel.iocs.table.lastSeen'),
+    '',
+  ]
+  const iocLabelMins = colMins(iocHeaders.slice(1, -1))
   const { template: tableCols, startDrag } = useResizableColumns(IOC_COLS, {
-    min: 36,
+    min: [4, ...iocLabelMins, 36],
     storageKey: 'threat-intel-ioc-table-columns',
   })
 
@@ -60,15 +70,7 @@ export function IocTable({
       <div className="flex h-[60dvh] flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div ref={scrollRef} className="flex-1 overflow-x-auto overflow-y-auto">
           <ResizableGridHeader
-            headers={[
-              '',
-              t('threatIntel.iocs.table.type'),
-              t('threatIntel.iocs.table.indicator'),
-              t('threatIntel.iocs.table.reputation'),
-              t('threatIntel.iocs.table.tags'),
-              t('threatIntel.iocs.table.lastSeen'),
-              '',
-            ]}
+            headers={iocHeaders}
             tableCols={tableCols}
             startDrag={startDrag}
             className="sticky top-0 z-10"

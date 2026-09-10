@@ -8,7 +8,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
@@ -47,8 +47,16 @@ export function ParsingFiltersPage() {
   const [editing, setEditing] = useState<{ filter: Pipeline; creating: boolean } | null>(null)
   const [preparingNew, setPreparingNew] = useState(false)
   const [showTestModal, setShowTestModal] = useState(false)
+  const parsingFiltersHeaders = [
+    t('parsingFilters.cols.filter'),
+    t('parsingFilters.cols.dataTypes'),
+    t('parsingFilters.cols.type'),
+    t('parsingFilters.cols.active'),
+    48,
+    48,
+  ]
   const { widths, startDrag } = useResizableColumns(PARSING_FILTERS_TABLE_COLS, {
-    min: 48,
+    min: colMins(parsingFiltersHeaders),
     storageKey: 'parsing-filters-table-columns',
   })
 
@@ -247,10 +255,10 @@ export function ParsingFiltersPage() {
           <table className="min-w-full border-collapse table-fixed">
             <ResizableTableHeader
               cells={[
-                { content: t('parsingFilters.cols.filter'), className: TH },
-                { content: t('parsingFilters.cols.dataTypes'), className: TH },
-                { content: t('parsingFilters.cols.type'), className: TH },
-                { content: t('parsingFilters.cols.active'), className: `${TH} text-center` },
+                { content: parsingFiltersHeaders[0], className: TH },
+                { content: parsingFiltersHeaders[1], className: TH },
+                { content: parsingFiltersHeaders[2], className: TH },
+                { content: parsingFiltersHeaders[3], className: `${TH} text-center` },
                 { content: null, className: TH },
                 { content: null, className: TH },
               ]}

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import type { Row } from '@/features/dashboard/types'
 
 export function TableRenderer({ rows }: { rows: Row[] }) {
@@ -11,7 +11,7 @@ export function TableRenderer({ rows }: { rows: Row[] }) {
     return Object.keys(rows[0])
   }, [rows])
   const { widths, startDrag } = useResizableColumns(columns.map(() => 'minmax(120px, 1fr)'), {
-    min: 80,
+    min: colMins(columns),
     storageKey: `dashboard-table-columns:${columns.join('|')}`,
   })
 

@@ -28,7 +28,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type {
   CustomFilter,
@@ -108,8 +108,16 @@ export function UserAuditorPage() {
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
   const [openUser, setOpenUser] = useState<ADUser | null>(null)
+  const listLabelMins = colMins([
+    t('userAuditor.list.account'),
+    t('userAuditor.list.identity'),
+    t('userAuditor.list.status'),
+    t('userAuditor.list.lastLogon'),
+    t('userAuditor.list.lastSeen'),
+    t('userAuditor.list.tenant'),
+  ])
   const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
-    min: 36,
+    min: [32, ...listLabelMins, 36],
     storageKey: 'user-auditor-table-columns',
   })
 

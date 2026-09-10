@@ -7,7 +7,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { soarFlowsService } from '../services/soar-flows.service'
 import { soarExecutionsService } from '../services/soar-executions.service'
@@ -67,8 +67,17 @@ export function FlowsPage() {
   // flows exist.
   const [stateVersion, setStateVersion] = useState(0)
   const [stats, setStats] = useState<Record<string, FlowStat>>({})
+  const flowsHeaders = [
+    t('soar.cols.flow'),
+    t('soar.cols.platform'),
+    t('soar.cols.conditions'),
+    t('soar.cols.commands'),
+    t('soar.cols.lastRun'),
+    t('soar.cols.active'),
+    '',
+  ]
   const { widths, startDrag } = useResizableColumns(FLOWS_TABLE_COLS, {
-    min: 60,
+    min: [...colMins(flowsHeaders.slice(0, -1)), 60],
     storageKey: 'soar-flows-table-columns',
   })
   const flowsTableWidth = widths.reduce<number>(
@@ -209,12 +218,12 @@ export function FlowsPage() {
             </colgroup>
             <ResizableTableHeader
               cells={[
-                { content: t('soar.cols.flow'), className: TH },
-                { content: t('soar.cols.platform'), className: TH },
-                { content: t('soar.cols.conditions'), className: `${TH} text-center` },
-                { content: t('soar.cols.commands'), className: `${TH} text-center` },
-                { content: t('soar.cols.lastRun'), className: TH },
-                { content: t('soar.cols.active'), className: `${TH} text-center` },
+                { content: flowsHeaders[0], className: TH },
+                { content: flowsHeaders[1], className: TH },
+                { content: flowsHeaders[2], className: `${TH} text-center` },
+                { content: flowsHeaders[3], className: `${TH} text-center` },
+                { content: flowsHeaders[4], className: TH },
+                { content: flowsHeaders[5], className: `${TH} text-center` },
                 { content: null, className: TH },
               ]}
               widths={widths}
