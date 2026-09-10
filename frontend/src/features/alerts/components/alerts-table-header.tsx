@@ -5,8 +5,9 @@ import type { ColSize, useResizableColumns } from '@/shared/hooks/useResizableCo
 const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
 export const ALERTS_TABLE_COLS = [6, 36, 38, 38, 360, 130, 180, 160, 160, 90, 90, 160]
 // Icon/checkbox tracks (indices 0-3) keep their exact width as min; label
-// tracks get a floor sized to keep the uppercase heading readable at ~11px.
-export const ALERTS_TABLE_MINS = [6, 36, 38, 38, 140, 90, 110, 90, 110, 90, 80, 100]
+// tracks get a floor sized to keep both the uppercase heading and the row
+// content (alert name, mitre code, endpoint pill, timestamp) legible.
+export const ALERTS_TABLE_MINS = [6, 36, 38, 38, 220, 120, 160, 140, 140, 120, 120, 130]
 
 export function AlertsTableHeader({
   allChecked,

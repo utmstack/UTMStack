@@ -130,14 +130,16 @@ export function AlertRow({
           onCreateRule={() => onCreateRule(a)}
         />
       </td>
-      <td className={`${TD} font-mono mx-auto text-[11px] text-muted-foreground`} title={a.technique}>
-        {a.technique || '—'}
+      <td className={`${TD} overflow-hidden font-mono text-[11px] text-muted-foreground`} title={a.technique}>
+        <span className="block truncate">{a.technique || '—'}</span>
       </td>
       <td className={TD}>
         <EndpointMini ep={a.target} />
       </td>
       <td className={TD}>
-        <EndpointMini ep={a.adversary} accent />
+         <div className="block truncate">
+            <EndpointMini  ep={a.adversary} accent /> 
+        </div>
       </td>
       <td className={`${TD} text-center`}>
         <span
