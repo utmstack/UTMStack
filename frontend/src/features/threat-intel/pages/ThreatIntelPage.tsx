@@ -89,6 +89,7 @@ export function ThreatIntelPage() {
 
   const [filters, setFilters] = useState<FiltersState>(EMPTY_FILTERS)
   const [lastBody, setLastBody] = useState<AdvancedSearchRequest>({})
+  const [empty, setEmpty] = useState<boolean>(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [timeRange, setTimeRange] = useState<TimeRange>('all')
 
@@ -113,7 +114,10 @@ export function ThreatIntelPage() {
         onSuccess: (data) => {
           if (my !== seqRef.current) return
           if (data?.kind === 'not-configured') return
-          if (data?.kind !== 'ok') return
+          if (data?.kind !== 'ok' && data?.kind !== 'empty') return
+          if(data.kind =='empty'){
+            setEmpty(true)
+          }
           setTotalItems(data.value.items)
           setTotalPages(data.value.pages)
           setIocs((prev) =>
@@ -232,12 +236,12 @@ export function ThreatIntelPage() {
         matchedCount={totalItems}
         onExport={handleExport}
         isExporting={isExporting}
-        noInstanceIocs={observedFragment.ready && !observedFragment.hasInstanceIocs}
+        noInstanceIocs={empty || observedFragment.ready && !observedFragment.hasInstanceIocs}
       />
 
       <div className="mt-5">
         <MatchOverviewCard
-          body={observedFragment.ready ? lastBody : undefined}
+          body={observedFragment.ready ? (empty? {}:lastBody) : undefined}
           interval={TIME_RANGE_OPTIONS.find((o) => o.value === timeRange)?.interval ?? 'hour'}
         />
       </div>
