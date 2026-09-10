@@ -7,10 +7,13 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.repository.UserRepository;
+import com.park.utmstack.domain.notification.NotificationSource;
+import com.park.utmstack.domain.notification.NotificationType;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.index_policy.IndexPolicyService;
+import com.park.utmstack.service.notification.UtmNotificationService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
@@ -63,18 +66,21 @@ public class ElasticsearchService {
     private final MailService mailService;
     private final UtmSpaceNotificationControlService spaceNotificationControlService;
     private final IndexPolicyService indexPolicyService;
+    private final UtmNotificationService notificationService;
     private final OpensearchClientBuilder client;
 
     public ElasticsearchService(ApplicationEventService eventService, UserRepository userRepository,
                                 MailService mailService,
                                 UtmSpaceNotificationControlService spaceNotificationControlService,
                                 IndexPolicyService indexPolicyService,
+                                UtmNotificationService notificationService,
                                 OpensearchClientBuilder client) {
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.spaceNotificationControlService = spaceNotificationControlService;
         this.indexPolicyService = indexPolicyService;
+        this.notificationService = notificationService;
         this.client = client;
     }
 
@@ -241,12 +247,12 @@ public class ElasticsearchService {
 
             float diskPercent = clusterStatus.getResume().getDiskUsedPercent();
 
-            if (diskPercent < 70)
+            if (diskPercent < 80)
                 return;
 
             if (diskPercent >= 85) {
                 deleteOldestIndices();
-            } else if (diskPercent >= 70) {
+            } else if (diskPercent >= 80) {
                 List<User> admins = userRepository.findAllAdmins();
                 if (CollectionUtils.isEmpty(admins))
                     return;
@@ -261,6 +267,9 @@ public class ElasticsearchService {
                 if (Objects.isNull(notificationControl.getNextNotification()) ||
                         now.isAfter(notificationControl.getNextNotification())) {
                     mailService.sendLowSpaceEmail(admins, clusterStatus);
+                    notificationService.sendNotification(
+                            String.format("OpenSearch cluster disk usage at %.1f%%. Oldest log indices will be auto-deleted at 85%%.", diskPercent),
+                            NotificationSource.SYSTEM, NotificationType.WARNING);
                     notificationControl.setNextNotification(now.plus(24, ChronoUnit.HOURS));
                     spaceNotificationControlService.save(notificationControl);
                 }
@@ -278,14 +287,28 @@ public class ElasticsearchService {
     private void deleteOldestIndices() {
         final String ctx = CLASSNAME + ".deleteOldestIndices";
         try {
-            List<IndicesRecord> indices = client.getClient().getIndices(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS), IndexSort.builder()
-                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build());
+            List<String> patterns = Arrays.asList(
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS),
+                    "security-auditlog-*",
+                    "top_queries-*");
+            IndexSort sortAsc = IndexSort.builder()
+                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build();
 
-            // If no index that match with log-* was found then te function is terminated
+            List<IndicesRecord> indices = new ArrayList<>();
+            for (String pattern : patterns) {
+                try {
+                    indices.addAll(client.getClient().getIndices(pattern, sortAsc));
+                } catch (Exception e) {
+                    log.warn("{}: pattern {} lookup failed: {}", ctx, pattern, e.getMessage());
+                }
+            }
+
+            indices.sort(Comparator.comparing(IndicesRecord::creationDateString, Comparator.nullsLast(String::compareTo)));
+
             if (CollectionUtils.isEmpty(indices))
                 return;
 
-            // Indices are returned from oldest to newest ordered by creation.date asc
+            // Indices are ordered from oldest to newest by creation.date asc
             for (IndicesRecord index : indices) {
                 Optional<ElasticCluster> opt = getClusterStatus();
 
