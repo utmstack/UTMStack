@@ -10,7 +10,6 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
-import com.park.utmstack.service.validators.tw_config.TwConfigValidatorService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -52,7 +51,6 @@ public class UtmConfigurationParameterResource {
     private final EmailValidatorService emailValidatorService;
     private final MailConfigService mailConfigService;
     private final UtmStackService utmStackService;
-    private final TwConfigValidatorService twConfigValidatorService;
 
     /**
      * PUT  /utm-configuration-parameters : Updates an existing utmConfigurationParameter.
@@ -69,10 +67,6 @@ public class UtmConfigurationParameterResource {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
                 Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
-
-                if(parameter.getConfParamShort().equals("utmstack.tw.enable")){
-                    twConfigValidatorService.validate(parameter, errors);
-                }
 
                 if(StringUtils.hasText(parameter.getConfParamRegexp())){
                     emailValidatorService.validate(parameter, errors);
