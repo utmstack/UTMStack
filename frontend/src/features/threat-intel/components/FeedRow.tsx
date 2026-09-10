@@ -5,18 +5,17 @@ import { feedAccuracyMeta, feedTypeTone } from './utils/severity-style'
 
 interface FeedRowProps {
   feed: ThreatFeed
+  tableCols: string
 }
 
-const FEED_COLS = '12px 1fr 160px 140px'
-
-export function FeedRow({ feed }: FeedRowProps) {
+export function FeedRow({ feed, tableCols }: FeedRowProps) {
   const { t } = useTranslation()
   const acc = feedAccuracyMeta(feed.accuracy)
 
   return (
     <div
-      className="group grid items-center gap-3 border-b border-border/60 px-4 py-2.5 text-xs last:border-b-0 hover:bg-muted/40"
-      style={{ gridTemplateColumns: FEED_COLS }}
+      className="group grid w-max min-w-full items-center gap-3 border-b border-border/60 px-4 py-2.5 text-xs last:border-b-0 hover:bg-muted/40"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <span className={cn('h-2 w-2 rounded-full', acc.dot)} title={t(acc.labelKey)} />
       <div className="min-w-0 truncate font-medium">{feed.name}</div>

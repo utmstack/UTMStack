@@ -1,7 +1,8 @@
-import { memo, useCallback, useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useMemo, useState, type MouseEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
 import { MSG_FIELDS, SRC_FIELDS, docPreview, flattenDoc, pick } from '../domain/flatten'
@@ -46,10 +47,13 @@ function absTimestamp(iso: string) {
 // Grid columns. Manual mode (user picked columns): time + each picked column (last
 // flexes). Default mode: time + source + auto-detected important columns + a
 // flexible message column.
+export function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
+  if (columns.length > 0) return [20, 3, 168, ...columns.map(() => 'minmax(120px, 1fr)')]
+  return [20, 3, 168, 120, ...autoColumns.map(() => 'minmax(96px, 0.7fr)'), 'minmax(0, 1fr)']
+}
+
 function gridTemplate(columns: string[], autoColumns: string[] = []): string {
-  if (columns.length > 0) return `20px 3px 168px ${columns.map(() => 'minmax(120px, 1fr)').join(' ')}`
-  const auto = autoColumns.map(() => 'minmax(96px, 0.7fr)').join(' ')
-  return `20px 3px 168px 120px ${auto ? auto + ' ' : ''}minmax(0, 1fr)`
+  return logGridColumnSizes(columns, autoColumns).map((w) => (typeof w === 'number' ? `${w}px` : w)).join(' ')
 }
 
 function colValue(flat: Record<string, unknown>, c: string): string {
@@ -62,34 +66,48 @@ function colValue(flat: Record<string, unknown>, c: string): string {
 function ResultsHeaderImpl({
   columns,
   autoColumns = [],
+  tableCols,
+  startDrag,
   onRemoveColumn,
 }: {
   columns: string[]
   autoColumns?: string[]
+  tableCols?: string
+  startDrag?: (index: number) => (e: MouseEvent<HTMLElement>) => void
   onRemoveColumn?: (c: string) => void
 }) {
   const { t } = useTranslation()
+  const template = tableCols ?? gridTemplate(columns, autoColumns)
+  const resizeHandle = (index: number) =>
+    startDrag && <ColumnResizeHandle onMouseDown={startDrag(index)} />
   return (
     <div
-      className="sticky top-0 z-10 grid items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: gridTemplate(columns, autoColumns) }}
+      className="sticky top-0 z-10 grid w-max min-w-full items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+      style={{ gridTemplateColumns: template }}
     >
-      <div />
-      <div />
-      <div>{t('logExplorer.results.time')}</div>
+      <div data-resizable-col className="relative min-w-0 pr-2">{resizeHandle(0)}</div>
+      <div data-resizable-col className="relative min-w-0 pr-2">{resizeHandle(1)}</div>
+      <div data-resizable-col className="relative min-w-0 pr-2">
+        {t('logExplorer.results.time')}
+        {resizeHandle(2)}
+      </div>
       {columns.length === 0 ? (
         <>
-          <div>{t('logExplorer.results.source')}</div>
+          <div data-resizable-col className="relative min-w-0 pr-2">
+            {t('logExplorer.results.source')}
+            {resizeHandle(3)}
+          </div>
           {autoColumns.map((c,i) => (
-            <div key={i} className="truncate" title={c}>
+            <div key={i} data-resizable-col className="relative min-w-0 truncate pr-2" title={c}>
               {fieldLabel(c)}
+              {resizeHandle(i + 4)}
             </div>
           ))}
-          <div>{t('logExplorer.results.message')}</div>
+          <div data-resizable-col className="relative min-w-0 pr-2 last:pr-0">{t('logExplorer.results.message')}</div>
         </>
       ) : (
         columns.map((c,i) => (
-          <div key={i} className="group flex min-w-0 items-center gap-1">
+          <div key={i} data-resizable-col className="group relative flex min-w-0 items-center gap-1 pr-2 last:pr-0">
             <span className="truncate" title={c}>
               {fieldLabel(c)}
             </span>
@@ -102,6 +120,7 @@ function ResultsHeaderImpl({
                 <X size={11} />
               </button>
             )}
+            {i < columns.length - 1 && resizeHandle(i + 3)}
           </div>
         ))
       )}
@@ -121,6 +140,7 @@ function ResultRowImpl({
   doc,
   columns,
   autoColumns = [],
+  tableCols,
   expanded,
   onToggle,
   onAdd,
@@ -130,6 +150,7 @@ function ResultRowImpl({
   doc: LogDocument
   columns: string[]
   autoColumns?: string[]
+  tableCols?: string
   expanded: boolean
   onToggle: (index: number) => void
   onAdd?: (f: FilterType) => void
@@ -148,10 +169,10 @@ function ResultRowImpl({
       <div
         onClick={() => onToggle(index)}
         className={cn(
-          'grid cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
+          'grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
           expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
         )}
-        style={{ gridTemplateColumns: gridTemplate(columns, autoColumns) }}
+        style={{ gridTemplateColumns: tableCols ?? gridTemplate(columns, autoColumns) }}
       >
         <ChevronRight size={13} className={cn('text-muted-foreground/60 transition-transform', expanded && 'rotate-90 text-foreground')} />
         <span className={cn('h-3.5 w-[3px] rounded-full', tone.dot)} />

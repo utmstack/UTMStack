@@ -26,6 +26,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { SUPPORTED_LANGUAGES } from '@/shared/i18n'
 import { rolesHttpService, TeamHttpError, usersHttpService } from '../services/team-http.service'
 import type {
@@ -40,6 +42,7 @@ import type {
 } from '../types/team.types'
 
 const PAGE_SIZE = 20
+const MEMBER_COLS = ['1.7fr', '1fr', 90, 130, 40]
 
 /* Roles & permissions arrive from the backend as English DB strings. Translate the
  * stable identifiers (role name, permission resource/action) with a fallback to the
@@ -160,6 +163,10 @@ function MembersView({ roles }: { roles: Role[] }) {
 
   const [openId, setOpenId] = useState<string | null>(null)
   const [inviteOpen, setInviteOpen] = useState(false)
+  const { template: memberCols, startDrag } = useResizableColumns(MEMBER_COLS, {
+    min: 40,
+    storageKey: 'team-members-table-columns',
+  })
 
   // Debounce the search box, and reset to page 1 when the query changes.
   useEffect(() => {
@@ -207,16 +214,23 @@ function MembersView({ roles }: { roles: Role[] }) {
         </Button>
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
         <div
-          className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-          style={{ gridTemplateColumns: MEMBER_COLS }}
+          className="grid w-max min-w-full items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
+          style={{ gridTemplateColumns: memberCols }}
         >
-          <div>{t('team.members.colUser')}</div>
-          <div>{t('team.members.colRoles')}</div>
-          <div>{t('team.members.col2fa')}</div>
-          <div>{t('team.members.colStatus')}</div>
-          <div />
+          {[
+            t('team.members.colUser'),
+            t('team.members.colRoles'),
+            t('team.members.col2fa'),
+            t('team.members.colStatus'),
+            '',
+          ].map((header, index, headers) => (
+            <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
+              {header}
+              {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+            </div>
+          ))}
         </div>
 
         {loading && (!users || users.length === 0) && (
@@ -245,7 +259,7 @@ function MembersView({ roles }: { roles: Role[] }) {
         )}
 
         {users && users.length > 0 &&
-          users.map((u) => <MemberRow key={u.id} user={u} onOpen={() => setOpenId(u.id)} />)}
+            users.map((u) => <MemberRow key={u.id} user={u} tableCols={memberCols} onOpen={() => setOpenId(u.id)} />)}
       </div>
 
       {users && users.length > 0 && (
@@ -280,18 +294,16 @@ function MembersView({ roles }: { roles: Role[] }) {
   )
 }
 
-const MEMBER_COLS = '1.7fr 1fr 90px 130px 40px'
-
-function MemberRow({ user: u, onOpen }: { user: UserListItem; onOpen: () => void }) {
+function MemberRow({ user: u, tableCols, onOpen }: { user: UserListItem; tableCols: string; onOpen: () => void }) {
   const { t } = useTranslation()
   return (
     <div
       onClick={onOpen}
       className={cn(
-        'grid cursor-pointer items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/40',
+        'grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/40',
         u.status !== 'active' && 'opacity-70'
       )}
-      style={{ gridTemplateColumns: MEMBER_COLS }}
+      style={{ gridTemplateColumns: tableCols }}
     >
       <div className="flex min-w-0 items-center gap-3">
         <Avatar user={u} />

@@ -4,7 +4,7 @@ import type { ApiKey } from '../types/api-key.types'
 import { IconAction } from './IconAction'
 import { StatusBadge } from './StatusBadge'
 
-export const COLS = '1.4fr 1.2fr 110px 110px 110px 100px 110px'
+export const API_KEY_TABLE_COLS = ['1.4fr', '1.2fr', 110, 110, 110, 100, 110]
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -14,11 +14,13 @@ function formatDate(iso: string): string {
 
 export function KeyRow({
   apiKey: k,
+  tableCols,
   onEdit,
   onRotate,
   onDelete,
 }: {
   apiKey: ApiKey
+  tableCols: string
   onEdit: () => void
   onRotate: () => void
   onDelete: () => void
@@ -26,8 +28,8 @@ export function KeyRow({
   const { t } = useTranslation()
   return (
     <div
-      className="grid items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/30"
-      style={{ gridTemplateColumns: COLS }}
+      className="grid w-max min-w-full items-center gap-3 border-b border-border px-4 py-3 text-xs last:border-b-0 hover:bg-muted/30"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <div className="flex min-w-0 items-center gap-2">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">

@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
+import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import type { Row } from '@/features/dashboard/types'
 
 export function TableRenderer({ rows }: { rows: Row[] }) {
@@ -8,6 +10,10 @@ export function TableRenderer({ rows }: { rows: Row[] }) {
     if (rows.length === 0) return []
     return Object.keys(rows[0])
   }, [rows])
+  const { widths, startDrag } = useResizableColumns(columns.map(() => 'minmax(120px, 1fr)'), {
+    min: 80,
+    storageKey: `dashboard-table-columns:${columns.join('|')}`,
+  })
 
   if (rows.length === 0) {
     return (
@@ -20,15 +26,13 @@ export function TableRenderer({ rows }: { rows: Row[] }) {
   return (
     <div className="h-full w-full overflow-auto">
       <table className="w-full text-sm">
-        <thead className="sticky top-0 bg-card">
-          <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-            {columns.map((c) => (
-              <th key={c} className="px-3 py-2 font-medium">
-                {c}
-              </th>
-            ))}
-          </tr>
-        </thead>
+        <ResizableTableHeader
+          cells={columns.map((c) => ({ content: c, className: 'px-3 py-2 font-medium' }))}
+          widths={widths}
+          startDrag={startDrag}
+          className="sticky top-0 bg-card"
+          rowClassName="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground"
+        />
         <tbody>
           {rows.map((row, i) => (
             <tr key={i} className="border-b border-border/60 last:border-0 hover:bg-muted/40">

@@ -7,12 +7,11 @@ import { absTimestamp } from './utils/time-format'
 
 interface IocRowProps {
   ioc: EntitySummary
+  tableCols: string
   onOpen: (id: string) => void
 }
 
-const IOC_COLS = '4px 90px 1fr 130px 1fr 110px 36px'
-
-export function IocRow({ ioc, onOpen }: IocRowProps) {
+export function IocRow({ ioc, tableCols, onOpen }: IocRowProps) {
   const { t } = useTranslation()
   const tone = reputationTone(ioc.reputation)
   const rep = REPUTATION_STYLE[tone]
@@ -22,8 +21,8 @@ export function IocRow({ ioc, onOpen }: IocRowProps) {
   return (
     <div
       onClick={() => onOpen(ioc.id)}
-      className="group grid cursor-pointer items-center gap-3 border-b border-border/60 px-4 py-2.5 text-xs hover:bg-muted/40 last:border-b-0"
-      style={{ gridTemplateColumns: IOC_COLS }}
+      className="group grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/60 px-4 py-2.5 text-xs hover:bg-muted/40 last:border-b-0"
+      style={{ gridTemplateColumns: tableCols }}
     >
       <span className={cn('h-3 w-1 rounded-full', rep.bar)} />
       <div className="flex items-center gap-1.5">

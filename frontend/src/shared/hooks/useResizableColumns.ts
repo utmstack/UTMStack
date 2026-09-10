@@ -8,29 +8,15 @@ interface Opts {
   storageKey?: string
 }
 
-const readStored = (key: string, len: number): ColSize[] | null => {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = localStorage.getItem(key)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    if (Array.isArray(parsed) && parsed.length === len) return parsed as ColSize[]
-  } catch { /* ignore */ }
-  return null
-}
-
 export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
   const min = opts.min ?? 40
   const storageKey = opts.storageKey
-  const [widths, setWidths] = useState<ColSize[]>(() =>
-    storageKey ? readStored(storageKey, initial.length) ?? initial : initial,
-  )
-  const dragRef = useRef<{ index: number; startX: number; startW: number } | null>(null)
+  const [widths, setWidths] = useState<ColSize[]>(initial)
+  const dragRef = useRef<{ index: number; startX: number; startW: number; measured: number[] } | null>(null)
 
   useEffect(() => {
-    if (!storageKey || typeof window === 'undefined') return
-    try { localStorage.setItem(storageKey, JSON.stringify(widths)) } catch { /* ignore */ }
-  }, [widths, storageKey])
+    setWidths(initial)
+  }, [initial.length, storageKey])
 
   useEffect(() => {
     const onMove = (e: globalThis.MouseEvent) => {
@@ -39,7 +25,7 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
       e.preventDefault()
       const w = Math.max(min, d.startW + (e.clientX - d.startX))
       setWidths((prev) => {
-        const next = prev.slice()
+        const next = d.measured.length === prev.length ? d.measured.slice() : prev.slice()
         next[d.index] = w
         return next
       })
@@ -64,8 +50,15 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
       e.stopPropagation()
       const handle = e.currentTarget as HTMLElement
       const cell = handle.closest('[data-resizable-col]') as HTMLElement | null ?? handle.parentElement
-      const startW = cell?.getBoundingClientRect().width ?? min
-      dragRef.current = { index, startX: e.clientX, startW }
+      const row = cell?.parentElement
+      const measured = row
+        ? Array.from(row.children)
+            .filter((child): child is HTMLElement => child instanceof HTMLElement && child.hasAttribute('data-resizable-col'))
+            .map((child) => Math.max(min, child.getBoundingClientRect().width))
+        : []
+      const startW = measured[index] ?? cell?.getBoundingClientRect().width ?? min
+      if (measured.length > 0) setWidths(measured)
+      dragRef.current = { index, startX: e.clientX, startW, measured }
       document.body.style.cursor = 'col-resize'
       document.body.style.userSelect = 'none'
     },

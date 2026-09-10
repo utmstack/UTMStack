@@ -17,11 +17,14 @@ import { useDateFormat } from '@/shared/lib/datetime'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { auditHttpService } from '../services/audit-http.service'
 import { humanizeAction } from '../lib'
 import type { AuditListQuery, AuditLog } from '../types/audit.types'
 
 const DEFAULT_PAGE_SIZE = 50
+const AUDIT_TABLE_COLS = [180, 140, '1fr', 180, 90, 140, 60]
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
@@ -433,16 +436,31 @@ function TableCard({
 }) {
   const { t } = useTranslation()
   const { formatDateTime } = useDateFormat()
+  const { template, startDrag } = useResizableColumns(AUDIT_TABLE_COLS, {
+    min: 60,
+    storageKey: 'audit-log-table-columns',
+  })
+  const headers = [
+    t('audit.table.timestamp'),
+    t('audit.table.actor'),
+    t('audit.table.action'),
+    t('audit.table.resource'),
+    t('audit.table.status'),
+    t('audit.table.ip'),
+    '',
+  ]
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="grid grid-cols-[180px_140px_1fr_180px_90px_140px_60px] gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <div>{t('audit.table.timestamp')}</div>
-        <div>{t('audit.table.actor')}</div>
-        <div>{t('audit.table.action')}</div>
-        <div>{t('audit.table.resource')}</div>
-        <div>{t('audit.table.status')}</div>
-        <div>{t('audit.table.ip')}</div>
-        <div className="text-right" />
+    <section className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
+      <div
+        className="grid w-max min-w-full items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground"
+        style={{ gridTemplateColumns: template }}
+      >
+        {headers.map((header, index) => (
+          <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
+            {header}
+            {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+          </div>
+        ))}
       </div>
       {loading && data.length === 0 ? (
         <div className="px-4 py-16 text-center text-sm text-muted-foreground">
@@ -459,7 +477,8 @@ function TableCard({
           <button
             key={log.id}
             onClick={() => onSelect(log)}
-            className="grid w-full grid-cols-[180px_140px_1fr_180px_90px_140px_60px] gap-3 border-b border-border px-4 py-2.5 text-left text-xs last:border-b-0 transition-colors hover:bg-muted/40"
+            className="grid w-max min-w-full gap-3 border-b border-border px-4 py-2.5 text-left text-xs last:border-b-0 transition-colors hover:bg-muted/40"
+            style={{ gridTemplateColumns: template }}
           >
             <div className="font-mono text-[11px] text-muted-foreground">
               {formatDateTime(log.timestamp)}
