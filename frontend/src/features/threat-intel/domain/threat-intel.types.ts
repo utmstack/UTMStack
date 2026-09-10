@@ -124,6 +124,7 @@ export type UsageInfo = Record<string, EndpointUsage>
 
 export type TiResult<T> =
   | { kind: 'ok'; value: T }
+  | { kind: 'empty'; value: T }
   | { kind: 'not-configured' }
 
 export interface AdvancedRangeCondition {
