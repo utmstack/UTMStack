@@ -165,49 +165,49 @@ export function AgentConsole({
     <>
     <div
       className={cn(
-        'flex flex-col overflow-hidden shadow-2xl',
+        'flex flex-col overflow-hidden shadow-2xl bg-card text-card-foreground',
         embedded
-          ? 'h-full w-full rounded-xl border border-white/10 bg-[#0b0d11]'
-          : 'fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#0b0d11]',
+          ? 'h-full w-full rounded-xl border border-border'
+          : 'fixed inset-x-0 bottom-0 z-[60] border-t border-border',
       )}
       style={embedded ? undefined : { height }}
     >
       {/* Drag handle to resize, like an IDE terminal — docked mode only. */}
       {!embedded && (
         <div onMouseDown={startResize} className="group absolute inset-x-0 top-0 z-10 h-2 cursor-row-resize">
-          <div className="mx-auto mt-0.5 h-0.5 w-10 rounded-full bg-zinc-700 transition-colors group-hover:bg-primary" />
+          <div className="mx-auto mt-0.5 h-0.5 w-10 rounded-full bg-muted-foreground/60 transition-colors group-hover:bg-primary" />
         </div>
       )}
 
-      <header className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-zinc-200">
-          <TerminalSquare size={16} className="shrink-0 text-emerald-400" />
+      <header className="flex items-center justify-between border-b border-border px-4 py-2">
+        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+          <TerminalSquare size={16} className="shrink-0 text-emerald-500" />
           <span className="truncate">{hostname}</span>
           {windows ? (
             <select
               value={winShell}
               onChange={(e) => setWinShell(e.target.value as WinShell)}
               title={t('datasources.console.shellSelect')}
-              className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-zinc-300 outline-none focus:border-primary"
+              className="h-7 shrink-0 rounded-md border border-border bg-background px-1.5 text-[11px] text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="cmd">cmd</option>
               <option value="powershell">powershell</option>
             </select>
           ) : (
-            <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-zinc-400">{shell}</span>
+            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">{shell}</span>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
             onClick={() => setVarsOpen(true)}
-            className="flex h-7 items-center gap-1.5 rounded px-2 text-xs text-zinc-400 hover:bg-white/10 hover:text-zinc-100"
+            className="flex h-7 items-center gap-1.5 rounded px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <KeyRound size={13} /> {t('datasources.console.vars.button')}
           </button>
           <button
             onClick={onClose}
             aria-label={t('datasources.console.close')}
-            className="flex h-7 w-7 items-center justify-center rounded text-zinc-400 hover:bg-white/10 hover:text-zinc-100"
+            className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <X size={16} />
           </button>
@@ -229,16 +229,16 @@ export function AgentConsole({
         <div
           ref={scrollRef}
           onClick={() => inputRef.current?.focus()}
-          className="flex-1 cursor-text overflow-y-auto px-4 py-3 font-mono text-[12px] leading-relaxed text-zinc-300"
+          className="flex-1 cursor-text overflow-y-auto px-4 py-3 font-mono text-[12px] leading-relaxed text-foreground/80"
         >
-          {lines.length === 0 && <p className="mb-1 text-zinc-500">{t('datasources.console.hint')}</p>}
+          {lines.length === 0 && <p className="mb-1 text-muted-foreground">{t('datasources.console.hint')}</p>}
           {lines.map((l, i) => (
             <pre
               key={i}
               className={cn(
                 'whitespace-pre-wrap [overflow-wrap:anywhere]',
-                l.kind === 'cmd' && 'mt-2 text-emerald-400 first:mt-0',
-                l.kind === 'err' && 'text-red-400',
+                l.kind === 'cmd' && 'mt-2 text-emerald-500 first:mt-0',
+                l.kind === 'err' && 'text-destructive',
               )}
             >
               {l.text}
