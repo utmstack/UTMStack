@@ -63,6 +63,10 @@ func InitOpenSearch() error {
 		return err
 	}
 
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-alert-*,v11-log-*,.utm-*,.utmstack-*/_settings?allow_no_indices=true", `{"index.mapping.total_fields.limit":50000}`); err != nil {
+		return err
+	}
+
 	// Restore geoip snapshot
 	restoreData := `{"indices":".utm-geoip","include_global_state":false}`
 	if err := execCurl(containerID, "POST", "https://localhost:9200/_snapshot/.utm_geoip/.utm_geoip/_restore", restoreData); err != nil {
