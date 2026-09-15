@@ -47,9 +47,12 @@ function absTimestamp(iso: string) {
 // Grid columns. Manual mode (user picked columns): time + each picked column (last
 // flexes). Default mode: time + source + auto-detected important columns + a
 // flexible message column.
+const FIELD_COL = 160
+const MESSAGE_COL = 320
+
 export function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
-  if (columns.length > 0) return [20, 3, 168, ...columns.map(() => 'minmax(120px, 1fr)')]
-  return [20, 3, 168, 120, ...autoColumns.map(() => 'minmax(96px, 0.7fr)'), 'minmax(0, 1fr)']
+  if (columns.length > 0) return [20, 30, 168, ...columns.map(() => FIELD_COL)]
+  return [20, 30, 168, FIELD_COL, ...autoColumns.map(() => FIELD_COL), MESSAGE_COL]
 }
 
 function gridTemplate(columns: string[], autoColumns: string[] = []): string {

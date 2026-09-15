@@ -67,7 +67,7 @@ const IMPORTANT_FIELDS = [
   'origin.url',
   'target.url',
 ]
-const MAX_AUTO_COLUMNS = 5
+const MAX_AUTO_COLUMNS = 10
 
 /** Router state passed by an alert's "view all related logs" action. */
 interface RelatedLogsSeed {
@@ -372,8 +372,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   // fields + a flex message column (default mode). Label-based floors keep
   // header names from cropping when a column is dragged narrow.
   const logGridMins = columns.length > 0
-    ? [20, 3, 168, ...colMins(columns)]
-    : [20, 3, 168, 96, ...colMins(autoColumns), 96]
+    ? [20, 30, 168, ...colMins(columns)]
+    : [20, 30, 168, 96, ...colMins(autoColumns), 96]
   const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
     min: logGridMins,
     storageKey: columnStorageKey,
