@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, Sparkles, X } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { useSocAi } from '@/features/soc-ai/SocAiProvider'
+import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
 import type { Dashboard } from '@/features/dashboard/types'
 
 export function DashboardFormDialog({
@@ -23,20 +26,40 @@ export function DashboardFormDialog({
   const { t } = useTranslation()
   const [name, setName] = useState(initial?.name ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
+  const [creationMode, setCreationMode] = useState<'manual' | 'ai'>('manual')
+  const aiConfigured = useSocAiConfigured()
+  const { openPanel, submit: submitToAssistant } = useSocAi()
 
   useEffect(() => {
     if (open) {
       setName(initial?.name ?? '')
       setDescription(initial?.description ?? '')
+      setCreationMode('manual')
     }
   }, [open, initial])
 
   if (!open) return null
 
-  const valid = name.trim().length > 0
+  const useAiMode = mode === 'create' && creationMode === 'ai'
+  const valid = useAiMode ? name.trim().length > 0 && description.trim().length > 0 : name.trim().length > 0
 
+  // Manual mode creates the dashboard directly, same as always. AI mode
+  // instead hands the name/description off as the assistant's opening task —
+  // it builds the dashboard itself (dashboards.create / visualizations.create
+  // are just more MCP tools it already has) in its own isolated thread
+  // ('dashboard-create'), not the general Ask panel's conversation.
   const submit = () => {
     if (!valid || busy) return
+    if (useAiMode) {
+      const task = t('dashboards.newDashboard.aiOpenerWithDetails', {
+        name: name.trim(),
+        description: description.trim(),
+      })
+      onClose()
+      openPanel('dashboard-create')
+      submitToAssistant(task, { scope: 'dashboard-create' })
+      return
+    }
     onSubmit({ name: name.trim(), description: description.trim() || undefined })
   }
 
@@ -62,6 +85,40 @@ export function DashboardFormDialog({
           </button>
         </header>
 
+        {mode === 'create' && (
+          <div className="flex gap-2 border-b border-border px-6 pt-4">
+            <button
+              type="button"
+              onClick={() => setCreationMode('manual')}
+              className={cn(
+                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                creationMode === 'manual'
+                  ? 'border-primary/30 bg-primary/10 text-primary'
+                  : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              {t('dashboards.newDashboard.modeManual')}
+            </button>
+            <button
+              type="button"
+              onClick={() => aiConfigured && setCreationMode('ai')}
+              disabled={!aiConfigured}
+              title={aiConfigured ? undefined : t('dashboards.newDashboard.aiLocked')}
+              className={cn(
+                'flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                !aiConfigured
+                  ? 'cursor-not-allowed border-border text-muted-foreground/50'
+                  : creationMode === 'ai'
+                    ? 'border-primary/30 bg-primary/10 text-primary'
+                    : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <Sparkles size={14} />
+              {t('dashboards.newDashboard.modeAi')}
+            </button>
+          </div>
+        )}
+
         <div className="space-y-4 px-6 py-5">
           <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground/80">
@@ -76,12 +133,16 @@ export function DashboardFormDialog({
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground/80">
-              {t('dashboards.form.description')}
+              {useAiMode ? t('dashboards.newDashboard.aiDescriptionLabel') : t('dashboards.form.description')}
             </label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('dashboards.form.descriptionPlaceholder') ?? ''}
+              placeholder={
+                (useAiMode
+                  ? t('dashboards.newDashboard.aiDescriptionPlaceholder')
+                  : t('dashboards.form.descriptionPlaceholder')) ?? ''
+              }
             />
           </div>
         </div>
@@ -92,7 +153,11 @@ export function DashboardFormDialog({
           </Button>
           <Button size="sm" onClick={submit} disabled={!valid || busy}>
             {busy && <Loader2 size={14} className="mr-1 animate-spin" />}
-            {mode === 'create' ? t('dashboards.form.create') : t('dashboards.form.save')}
+            {useAiMode
+              ? t('dashboards.newDashboard.aiCreate')
+              : mode === 'create'
+                ? t('dashboards.form.create')
+                : t('dashboards.form.save')}
           </Button>
         </footer>
       </div>

@@ -24,13 +24,21 @@ description: |
   5. Check for credential harvesting or rootkit functionality in the loaded library
   6. Remove the malicious preload entry and the shared library
   7. Audit all running processes for injected libraries
+# "modified"/"write"/"opened"/"changed" read like structured file-event
+# keywords rather than real execve argv text; "export" is the one real,
+# useful branch here (a real `export LD_PRELOAD=/tmp/evil.so` execve,
+# typically visible only when it's part of a single compound `sh -c "..."`
+# invocation -- see linux.yaml's Phase-2 comment on why a piped/chained shell
+# doesn't otherwise expose a sibling process's env var text). Left as-is
+# (out of scope for this pass, not redesigned).
 where: |
-  (contains("log.message", "ld.so.preload") ||
-   contains("log.message", "LD_PRELOAD") ||
-   contains("log.message", "ld.so.conf")) &&
-  (contains("log.message", "modified") || contains("log.message", "write") ||
-   contains("log.message", "opened") || contains("log.message", "export") ||
-   contains("log.message", "changed"))
+  equals("action", "execve") &&
+  (contains("origin.command", "ld.so.preload") ||
+   contains("origin.command", "LD_PRELOAD") ||
+   contains("origin.command", "ld.so.conf")) &&
+  (contains("origin.command", "modified") || contains("origin.command", "write") ||
+   contains("origin.command", "opened") || contains("origin.command", "export") ||
+   contains("origin.command", "changed"))
 groupBy:
   - adversary.host
   - adversary.user

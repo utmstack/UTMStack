@@ -1,0 +1,23 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Tool Downloaded to a Writable Directory via wget/curl"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: "Command and Control"
+technique: "T1105 - Ingress Tool Transfer"
+adversary: origin
+description: "Detects wget/curl invocations that write their output into a world-writable staging directory (/tmp, /dev/shm,
+              /var/tmp), a common pattern for pulling down a second-stage payload after initial access."
+references:
+  - "https://attack.mitre.org/techniques/T1105/"
+where: |
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/wget", "/usr/bin/curl", "/bin/wget", "/bin/curl"]) &&
+  (contains("origin.command", "/tmp/") || contains("origin.command", "/dev/shm/") || contains("origin.command", "/var/tmp/"))
+groupBy:
+  - adversary.host
+  - adversary.user

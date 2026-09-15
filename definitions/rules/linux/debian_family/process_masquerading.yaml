@@ -22,6 +22,18 @@ description: |
   4. Investigate what the process is actually doing (network connections, file access)
   5. If confirmed malicious, terminate the process and remove the binary
   6. Check for other masquerading processes on the system
+# Effectively non-functional today, documented rather than faked with a
+# fictional field: this rule's premise is that a prctl(PR_SET_NAME) rename or
+# a /proc/self/{comm,exe} write would show up in log.message free text, but
+# no application logs its own prctl/proc-write calls in prose like that, and
+# more fundamentally `prctl` isn't in the agent's configured audit rules at
+# all (see RULE_COVERAGE_METHODOLOGY.md's documented gap) -- so there's no
+# structured signal to check either. Kept as a real, always-populated field
+# (log.message) rather than a made-up structured one so it's at worst inert,
+# not silently broken by a bad field name; closing the gap for real needs a
+# new `-a always,exit -F arch=b64 -S prctl -k utmstack_masquerade`-style audit
+# rule added to agent/dependency/auditd_linux.go, then a rule rewritten
+# against the resulting real fields (syscall/exe/comm/execve.a0 for PR_SET_NAME).
 where: |
   (contains("log.message", "/proc/self/comm") ||
    contains("log.message", "/proc/self/exe") ||

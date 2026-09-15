@@ -38,14 +38,17 @@ export function useAlertsList(page: number, pageSize: number, filters: FilterTyp
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (forceFresh = false) => {
     setLoading(true)
     setError(false)
     try {
       // A page bump that belongs to the previous query is not a page of this
       // one, so it starts over rather than fetching an offset into results
-      // nobody has seen yet.
-      const fresh = page === 0 || acc.key !== key
+      // nobody has seen yet. forceFresh is for refresh(): it must restart
+      // from page 0 even if the sentinel already advanced `page` past 0 —
+      // otherwise a refresh while scrolled down appends onto the stale list
+      // instead of replacing it.
+      const fresh = forceFresh || page === 0 || acc.key !== key
       const { data, total } = await svc.list({ page: fresh ? 0 : page, size: pageSize, filters })
       setAcc((prev) => ({
         key,
@@ -75,6 +78,6 @@ export function useAlertsList(page: number, pageSize: number, filters: FilterTyp
     hasMore: acc.key === key && acc.alerts.length < acc.total,
     loading,
     error,
-    refresh: () => void load(),
+    refresh: () => void load(true),
   }
 }

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -14,7 +14,16 @@ references:
   - https://attack.mitre.org/techniques/T1542/003/
   - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/protecting-systems-against-intrusive-usb-devices_security-hardening
 description: |
-  Detects attempts to modify or tamper with the boot loader configuration, including unauthorized changes to GRUB files, boot parameters, or kernel modules that could indicate bootkit installation attempts.
+  Detects execution of grub2-mkconfig/grub2-install/grub2-set-default, or insmod/modprobe loading a module from
+  /boot, which could indicate bootkit installation or boot-chain tampering.
+
+  Rewritten v2.0.0: the previous version checked log.file_path/log.action/log.event_type/log.module_name/
+  log.module_path, none of which our collector ever populates -- there is no file-integrity-watch subsystem behind
+  those names. Direct file modification of /boot/grub2/*, /etc/default/grub, /boot/vmlinuz*, or /boot/initramfs* is
+  a genuine, still-undetected gap: it would need an explicit `-w /boot -p wa` auditd watch rule added to this
+  agent's installed rule set (agent/dependency/auditd_linux.go's auditRulesContent), which does not currently exist.
+  Until that watch exists, this rule can only see the commands below via their own execve, not arbitrary edits to
+  boot files made by other means (e.g. a text editor).
 
   Next Steps:
   1. Verify the legitimacy of the boot loader modification - check if it was part of a scheduled maintenance or system update
@@ -25,14 +34,13 @@ description: |
   6. If unauthorized, isolate the system and perform forensic analysis
   7. Verify boot process integrity and consider restoring from known good backups
 where: |
-  (contains("log.file_path", "/boot/grub2/") && oneOf("log.action", ["modify", "write", "delete"])) ||
-  (equals("log.file_path", "/etc/default/grub") && oneOf("log.action", ["modify", "write"])) ||
-  (contains("log.command", "grub2-mkconfig")) ||
-  (contains("log.command", "grub2-install")) ||
-  (contains("log.file_path", "/boot/vmlinuz") && oneOf("log.action", ["modify", "replace"])) ||
-  (contains("log.file_path", "/boot/initramfs") && oneOf("log.action", ["modify", "replace"])) ||
-  (equals("log.event_type", "boot_loader_modification")) ||
-  (exists("log.module_name") && equals("log.action", "kernel_module_load") && contains("log.module_path", "/boot/"))
+  equals("action", "execve") &&
+  (
+    contains("origin.command", "grub2-mkconfig") ||
+    contains("origin.command", "grub2-install") ||
+    contains("origin.command", "grub2-set-default") ||
+    (oneOf("origin.process", ["/usr/sbin/insmod", "/sbin/insmod", "/usr/sbin/modprobe", "/sbin/modprobe"]) && contains("origin.command", "/boot/"))
+  )
 groupBy:
-  - lastEvent.log.file_path
   - adversary.host
+  - adversary.user

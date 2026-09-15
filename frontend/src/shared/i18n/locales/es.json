@@ -400,6 +400,10 @@
         "dataset": "Conjunto de datos",
         "noDatasetHint": "Elige un conjunto de datos para habilitar condiciones y agrupación."
       },
+      "widgetTitle": {
+        "label": "Título",
+        "placeholder": "Opcional — usa el tipo de gráfico por defecto"
+      },
       "dataset": {
         "placeholder": "Selecciona un conjunto de datos…",
         "loading": "Cargando conjuntos de datos…"
@@ -546,7 +550,14 @@
     },
     "newDashboard": {
       "title": "Nuevo panel",
-      "subtitle": "Crea un panel en blanco. Podrás agregar widgets después de guardarlo."
+      "subtitle": "Crea un panel en blanco. Podrás agregar widgets después de guardarlo.",
+      "modeManual": "Crear manualmente",
+      "modeAi": "Con IA",
+      "aiLocked": "Activa SOC-AI y configúralo para poder usar esto.",
+      "aiDescriptionLabel": "¿Qué querés que muestre este panel?",
+      "aiDescriptionPlaceholder": "ej. Logins fallidos por país, últimos 7 días",
+      "aiCreate": "Crear con IA",
+      "aiOpenerWithDetails": "Creá un panel llamado \"{{name}}\" que muestre: {{description}}"
     },
     "newVisualization": {
       "title": "Nuevo widget",
@@ -1719,10 +1730,7 @@
   },
   "integrations": {
     "title": "Integraciones",
-    "subtitle_one": "{{count}} de {{total}} integración configurada.",
-    "subtitle_other": "{{count}} de {{total}} integraciones configuradas.",
     "searchPlaceholder": "Buscar integraciones…",
-    "configuredOnly": "Solo configuradas",
     "noMatch": "Ninguna integración coincide.",
     "browseMarketplace": "Explorar marketplace",
     "loading": "Cargando integraciones…",
@@ -3977,6 +3985,7 @@
     },
     "chat": {
       "title": "Asistente SOC",
+      "dashboardCreateTitle": "Creador de paneles",
       "empty": "Pregunta lo que quieras sobre tus alertas, detecciones o la consola — puedo investigar y actuar sobre el SIEM.",
       "tryPrefix": "Prueba",
       "suggestion": "¿cuántas alertas abiertas hay, agrupadas por adversario?",
@@ -4149,6 +4158,7 @@
     },
     "echoes": {
       "title": "{{count}} ecos",
+      "close": "Cerrar",
       "empty": "No hay ecos registrados para esta alerta.",
       "loadError": "No se pudieron cargar los ecos."
     },

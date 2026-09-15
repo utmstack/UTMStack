@@ -401,6 +401,10 @@
         "dataset": "Data set",
         "noDatasetHint": "Choose a data set to enable conditions and grouping."
       },
+      "widgetTitle": {
+        "label": "Title",
+        "placeholder": "Optional — defaults to the chart type"
+      },
       "dataset": {
         "placeholder": "Select a data set…",
         "loading": "Loading data sets…"
@@ -583,7 +587,14 @@
     },
     "newDashboard": {
       "title": "New dashboard",
-      "subtitle": "Create a blank dashboard. You can add widgets after it's saved."
+      "subtitle": "Create a blank dashboard. You can add widgets after it's saved.",
+      "modeManual": "Create manually",
+      "modeAi": "Using AI",
+      "aiLocked": "Enable SOC-AI and configure it to use this.",
+      "aiDescriptionLabel": "What should this dashboard show?",
+      "aiDescriptionPlaceholder": "e.g. Failed logins by country, last 7 days",
+      "aiCreate": "Create with AI",
+      "aiOpenerWithDetails": "Create a dashboard named \"{{name}}\" showing: {{description}}"
     },
     "newVisualization": {
       "title": "New widget",
@@ -1872,10 +1883,7 @@
   },
   "integrations": {
     "title": "Integrations",
-    "subtitle_one": "{{count}} of {{total}} integration configured.",
-    "subtitle_other": "{{count}} of {{total}} integrations configured.",
     "searchPlaceholder": "Search integrations…",
-    "configuredOnly": "Configured only",
     "noMatch": "No integrations match.",
     "browseMarketplace": "Browse marketplace",
     "loading": "Loading integrations…",
@@ -4116,6 +4124,7 @@
     },
     "chat": {
       "title": "SOC Assistant",
+      "dashboardCreateTitle": "Dashboard builder",
       "empty": "Ask anything about your alerts, detections or the console — I can investigate and act on the SIEM.",
       "tryPrefix": "Try",
       "suggestion": "how many open alerts, grouped by adversary?",
@@ -4288,6 +4297,7 @@
     },
     "echoes": {
       "title": "{{count}} echoes",
+      "close": "Close",
       "empty": "No echoes recorded for this alert.",
       "loadError": "Could not load echoes."
     },

@@ -16,7 +16,7 @@ description: "Detects the use of the insmod binary to load a Linux kernel object
 references:
   - "https://attack.mitre.org/tactics/TA0003/"
   - "https://attack.mitre.org/techniques/T1547/006/"
-where: regexMatch("log.message", "(insmod (.+).ko)")
+where: equals("action", "execve") && regexMatch("origin.command", "(insmod (.+).ko)")
 groupBy:
   - adversary.ip
   - adversary.user

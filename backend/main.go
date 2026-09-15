@@ -79,6 +79,7 @@ func main() {
 	modules.compliance.Start(appCtx)
 	modules.integrations.Start(appCtx)
 	modules.datasources.Start(appCtx)
+	modules.dashboards.Start(appCtx)
 	if err := modules.soar.Start(appCtx); err != nil {
 		_ = catcher.Error("soar flow bootstrap failed", err, nil)
 	}

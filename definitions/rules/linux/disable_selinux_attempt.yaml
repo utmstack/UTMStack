@@ -15,7 +15,7 @@ description: "Identifies potential attempts to disable Security-Enhanced Linux (
 references:
   - "https://attack.mitre.org/tactics/TA0005/"
   - "https://attack.mitre.org/techniques/T1562/001/"
-where: contains("log.message", "setenforce 0")
+where: equals("action", "execve") && contains("origin.command", "setenforce 0")
 groupBy:
   - adversary.ip
   - adversary.user

@@ -154,8 +154,8 @@ export function AlertRow({
       <td className={`${TD} text-center`}>
         <EchoesChip count={a.echoes ?? 0} expanded={expanded} onClick={onToggleEchoes} />
       </td>
-      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`} title={absTime(a[TS])}>
-        {relativeTime(a[TS])}
+      <td className={`${TD} text-center font-mono text-[11px] text-muted-foreground`} title={relativeTime(a[TS])}>
+        {absTime(a[TS])}
       </td>
     </tr>
   )

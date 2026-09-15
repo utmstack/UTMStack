@@ -271,6 +271,21 @@ function QuestionPanel({
   return (
     <>
       <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+        <div>
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {t('dashboards.editor.widgetTitle.label')}
+          </label>
+          <input
+            type="text"
+            value={builder.title}
+            placeholder={t('dashboards.editor.widgetTitle.placeholder') ?? undefined}
+            onChange={(e) => onChange((b) => ({ ...b, title: e.target.value }))}
+            className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
         <SectionTitle>{t('dashboards.editor.dataSource.title')}</SectionTitle>
         <div>
           <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">

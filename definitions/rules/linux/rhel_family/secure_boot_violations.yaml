@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -14,7 +14,21 @@ references:
   - https://attack.mitre.org/techniques/T1553/006/
   - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-uefi-secure-boot_security-hardening
 description: |
-  Detects violations of UEFI Secure Boot policy including unsigned kernel modules, tampering with MOK (Machine Owner Key) database, attempts to disable Secure Boot, or loading of unauthorized boot components. This indicates potential compromise of the boot chain integrity or attempts to bypass security controls.
+  Detects mokutil being used to disable Secure Boot validation, reset, or delete an enrolled key, and real
+  kernel-transport journald lines the kernel actually emits for signature-verification failures at module load
+  time (PKCS#7 signature not signed with a trusted key, module verification failed, Secure Boot forbids loading).
+
+  Rewritten v2.0.0. Two categories were dropped as genuine, currently-uncloseable gaps rather than patched with
+  real field names:
+  - EFI variable modification (SecureBoot/PK/KEK/db/dbx, or writes under /sys/firmware/efi/efivars/) -- not
+    watched by this agent's audit rules today (would need a `-w` rule added to
+    agent/dependency/auditd_linux.go's auditRulesContent), and even then a raw byte-level EFI variable write
+    carries no field telling you WHICH variable changed without decoding the write's contents, which this
+    collector does not do.
+  - shim-emitted verification failures -- shim is the first-stage UEFI bootloader; it runs before Linux, before
+    journald exists, and does not log to it. There is no host-agent-observable signal for shim's own decisions at
+    all; this would need UEFI/firmware-level log collection, which is out of scope for this agent entirely.
+  RHEL-family only for the mokutil/GRUB angle; cannot be live-fire verified on the Debian-family V11-DEV-18 test VM.
 
   Next Steps:
   1. Immediately isolate the affected system to prevent lateral movement
@@ -26,14 +40,12 @@ description: |
   7. Validate boot chain integrity and consider system restoration from known good backup
   8. Review and strengthen access controls for system administration
 where: |
-  (equals("log.event_type", "secure_boot_violation")) ||
-  (contains("log.message", "Secure Boot") && (contains("log.message", "violation") || contains("log.message", "failed") || contains("log.message", "unsigned") || contains("log.message", "invalid"))) ||
-  (contains("log.command", "mokutil") && (contains("log.command", "--disable-validation") || contains("log.command", "--reset") || contains("log.command", "--delete"))) ||
-  ((contains("log.file_path", "/sys/firmware/efi/efivars/") || contains("log.file_path", "/boot/efi/EFI/redhat/")) && oneOf("log.action", ["modify", "delete"])) ||
-  (contains("log.kernel_message", "PKCS#7 signature not signed with a trusted key") || contains("log.kernel_message", "module verification failed") || contains("log.kernel_message", "Secure Boot forbids loading")) ||
-  (oneOf("log.module_sig_status", ["unsigned", "invalid", "rejected"])) ||
-  (oneOf("log.efi_variable", ["SecureBoot", "SetupMode", "PK", "KEK", "db", "dbx"]) && oneOf("log.action", ["modify", "delete"])) ||
-  (contains("log.shim_message", "verification failed") || contains("log.shim_message", "signature invalid"))
+  (equals("action", "execve") && contains("origin.command", "mokutil") &&
+   (contains("origin.command", "--disable-validation") || contains("origin.command", "--reset") || contains("origin.command", "--delete"))) ||
+  (equals("log.TRANSPORT", "kernel") &&
+   (contains("log.message", "PKCS#7 signature not signed with a trusted key") ||
+    contains("log.message", "module verification failed") ||
+    contains("log.message", "Secure Boot forbids loading")))
 groupBy:
   - adversary.host
   - adversary.user

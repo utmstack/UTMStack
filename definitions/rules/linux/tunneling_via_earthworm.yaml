@@ -15,7 +15,7 @@ description: "Identifies the execution of the EarthWorm tunneler. Adversaries ma
 references:
   - "https://attack.mitre.org/tactics/TA0011/"
   - "https://attack.mitre.org/techniques/T1572/"
-where: contains("log.message", "-s") && contains("log.message", "-d") && contains("log.message", "rssocks")
+where: equals("action", "execve") && contains("origin.command", "-s") && contains("origin.command", "-d") && contains("origin.command", "rssocks")
 groupBy:
   - adversary.ip
   - adversary.user

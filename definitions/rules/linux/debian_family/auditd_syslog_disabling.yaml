@@ -23,13 +23,14 @@ description: |
   5. Check for other defense evasion techniques on the host
   6. Investigate the attack chain that led to disabling logging
 where: |
-  (contains("log.message", "systemctl") || contains("log.message", "service")) &&
-  (contains("log.message", "stop") || contains("log.message", "disable") ||
-   contains("log.message", "mask") || contains("log.message", "kill")) &&
-  (contains("log.message", "auditd") || contains("log.message", "rsyslog") ||
-   contains("log.message", "syslog-ng") || contains("log.message", "journald") ||
-   contains("log.message", "syslog")) &&
-  !(contains("log.message", "restart") || contains("log.message", "reload"))
+  equals("action", "execve") &&
+  (contains("origin.command", "systemctl") || contains("origin.command", "service")) &&
+  (contains("origin.command", "stop") || contains("origin.command", "disable") ||
+   contains("origin.command", "mask") || contains("origin.command", "kill")) &&
+  (contains("origin.command", "auditd") || contains("origin.command", "rsyslog") ||
+   contains("origin.command", "syslog-ng") || contains("origin.command", "journald") ||
+   contains("origin.command", "syslog")) &&
+  !(contains("origin.command", "restart") || contains("origin.command", "reload"))
 groupBy:
   - adversary.host
   - adversary.user

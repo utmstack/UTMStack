@@ -61,6 +61,7 @@ function sanitizeBuilder(raw: Record<string, unknown>): BuilderState {
 
   return {
     chartType: validChart as ChartTypeId,
+    title: typeof raw.title === 'string' ? raw.title : '',
     dataset: typeof raw.dataset === 'string' ? raw.dataset : '',
     breakdown: raw.breakdown === 'field' ? 'field' : 'time',
     dimension: typeof raw.dimension === 'string' ? raw.dimension : null,
@@ -77,6 +78,7 @@ function sanitizeBuilder(raw: Record<string, unknown>): BuilderState {
 export function makeInitialBuilder(): BuilderState {
   return {
     chartType: 'bar',
+    title: '',
     dataset: '',
     breakdown: 'time',
     dimension: null,

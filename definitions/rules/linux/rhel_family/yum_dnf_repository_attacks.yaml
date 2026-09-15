@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -14,7 +14,21 @@ references:
   - https://attack.mitre.org/techniques/T1195/001/
   - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/managing_software_with_the_dnf_tool/index
 description: |
-  Detects potential attacks on YUM/DNF repositories including unauthorized repository additions, GPG key modifications, or suspicious package installations that could indicate supply chain compromise. This rule identifies attempts to manipulate package management systems to install malicious software or bypass security controls.
+  Detects yum/dnf/rpm invoked with --nogpgcheck, which disables package signature verification for that install.
+
+  Rewritten v2.0.0: dropped everything else in the previous version as either unfixable-by-renaming or fictional:
+  - Direct writes to a .repo file or a gpgkey path -- /etc/yum.repos.d/* is not under an audit watch in this
+    agent's rule set (would need a `-w` rule added to agent/dependency/auditd_linux.go's auditRulesContent), and
+    the previous check also used raw syscall NUMBERS (`oneOf("log.syscall", ["2","257"])`) against a field that
+    this filter renames to `action` and resolves to a syscall NAME, not a number -- it could never have matched
+    even with a working file watch.
+  - "Repository ... added" / "GPG key ... imported" journal text -- yum/dnf do not write these to journald by
+    default (they print to their own stdout/log file); presented as real detection here, this was unverified
+    invented text, so it's dropped rather than kept as a weak fallback.
+  - Package-install provenance (log.eventType/log.package_source/log.gpg_verification/log.repository) -- this
+    collector captures no per-package install metadata at all; there is no signal here to check regardless of
+    field name.
+  RHEL-family only; cannot be live-fire verified on the Debian-family V11-DEV-18 test VM (no yum/dnf present).
 
   **Next Steps:**
   1. **Immediate Response**: Isolate the affected system to prevent further compromise
@@ -28,25 +42,10 @@ description: |
   9. **Policy Review**: Strengthen package management policies and access controls
   10. **Documentation**: Document all findings and remediation steps for incident response records
 where: |
-  (
-    oneOf("log.comm", ["yum", "dnf", "rpm"]) &&
-    oneOf("log.exe", ["/usr/bin/yum", "/usr/bin/dnf", "/usr/bin/rpm"]) &&
-    (
-      (contains("log.path", ".repo") && oneOf("log.syscall", ["2", "257"])) ||
-      (contains("log.path", "gpgkey") && equals("log.operation", "write")) ||
-      (contains("log.args", "install") && contains("log.args", "--nogpgcheck")) ||
-      (contains("log.message", "Repository") && contains("log.message", "added")) ||
-      (contains("log.message", "GPG key") && contains("log.message", "imported"))
-    )
-  ) ||
-  (
-    equals("log.eventType", "PACKAGE_INSTALLED") &&
-    (
-      equals("log.package_source", "unknown") ||
-      equals("log.gpg_verification", "failed") ||
-      !oneOf("log.repository", ["rhel-8-baseos-rpms", "rhel-8-appstream-rpms", "rhel-9-baseos-rpms", "rhel-9-appstream-rpms"])
-    )
-  )
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/yum", "/usr/bin/dnf", "/usr/bin/rpm"]) &&
+  contains("origin.command", "install") &&
+  contains("origin.command", "--nogpgcheck")
 groupBy:
-  - lastEvent.log.comm
   - adversary.host
+  - adversary.user

@@ -17,7 +17,7 @@ description: "Detects when the tc (transmission control) binary is utilized to s
 references:
   - "https://attack.mitre.org/tactics/TA0002/"
   - "https://attack.mitre.org/techniques/T1059/004/"
-where: containsAll("log.message", ["tc", "filter", "bpf"])
+where: equals("action", "execve") && containsAll("origin.command", ["tc", "filter", "bpf"])
 groupBy:
   - adversary.ip
   - adversary.user

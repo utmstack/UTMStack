@@ -1,0 +1,23 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Sensitive Directory Archived via tar/zip"
+impact:
+  confidentiality: 3
+  integrity: 0
+  availability: 0
+category: "Collection"
+technique: "T1560 - Archive Collected Data"
+adversary: origin
+description: "Detects tar/zip/gzip invocations whose command line references a credential- or config-relevant path (/etc/ssh,
+              /home, /root, /var/www). A common step immediately before exfiltrating data off the host."
+references:
+  - "https://attack.mitre.org/techniques/T1560/"
+where: |
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/tar", "/bin/tar", "/usr/bin/zip", "/usr/bin/gzip"]) &&
+  (contains("origin.command", "/etc/ssh") || contains("origin.command", "/home") || contains("origin.command", "/root") || contains("origin.command", "/var/www"))
+groupBy:
+  - adversary.host
+  - adversary.user

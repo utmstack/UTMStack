@@ -52,4 +52,26 @@ describe('useAlertsList', () => {
     await waitFor(() => expect(result.current.alerts).toHaveLength(25))
     expect(result.current.hasMore).toBe(true)
   })
+
+  // refresh() must restart from page 0 even while the caller is still passing
+  // a scrolled-to page — otherwise it appends onto the stale list instead of
+  // replacing it, and the user sees no change after clicking refresh.
+  test('refresh replaces the list even while scrolled past page 0', async () => {
+    listSpy()
+    const noFilter: FilterType[] = []
+    const { result, rerender } = renderHook(({ p }) => useAlertsList(p, 25, noFilter), {
+      initialProps: { p: 0 },
+    })
+    await waitFor(() => expect(result.current.alerts).toHaveLength(25))
+
+    await act(async () => {
+      rerender({ p: 1 })
+    })
+    await waitFor(() => expect(result.current.alerts).toHaveLength(50))
+
+    await act(async () => {
+      result.current.refresh()
+    })
+    await waitFor(() => expect(result.current.alerts).toHaveLength(25))
+  })
 })

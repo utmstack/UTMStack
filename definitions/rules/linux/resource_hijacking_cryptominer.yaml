@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Known Cryptocurrency Miner Binary Executed"
+impact:
+  confidentiality: 0
+  integrity: 1
+  availability: 3
+category: "Impact"
+technique: "T1496 - Resource Hijacking"
+adversary: origin
+description: "Detects execution of well-known cryptomining binaries (xmrig, minerd, cpuminer, ccminer, cgminer, xmr-stak) or a command
+              line referencing a common mining pool port/protocol (stratum+tcp). One of the most common outcomes of a successful Linux
+              server compromise -- monetizing access via CPU/GPU cycles rather than data theft."
+references:
+  - "https://attack.mitre.org/techniques/T1496/"
+where: |
+  equals("action", "execve") &&
+  (regexMatch("origin.process", "(?i)(xmrig|minerd|cpuminer|ccminer|cgminer|xmr-stak)") ||
+   contains("origin.command", "stratum+tcp") ||
+   contains("origin.command", "stratum+ssl"))
+groupBy:
+  - adversary.host
+  - adversary.user

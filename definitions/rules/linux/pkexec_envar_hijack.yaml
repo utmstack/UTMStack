@@ -15,7 +15,7 @@ description: "Identifies an attempt to exploit a local privilege escalation in p
 references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
-where: contains("log.message", "pkexec") && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY") || regexMatch("log.message", "The value for the SHELL variable was not found"))
+where: equals("action", "execve") && contains("origin.command", "pkexec") && (contains("origin.command", "SHELL variable") || contains("origin.command", "PATH variable") || contains("origin.command", "XAUTHORITY") || regexMatch("origin.command", "The value for the SHELL variable was not found"))
 groupBy:
   - adversary.ip
   - adversary.user

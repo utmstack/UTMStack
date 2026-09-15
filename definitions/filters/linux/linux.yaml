@@ -24,6 +24,53 @@ pipeline:
       # ========================================
 
       # Convert SCREAMINGSNAKECASE to camelCase
+      #
+      # IMPORTANT -- two independent bugs stacked here, both confirmed
+      # against real output on V11-DEV-18:
+      #
+      # 1. journald's real `journalctl -o json` field names carry
+      #    underscores (_PID, _UID, _SYSTEMD_UNIT, SYSLOG_IDENTIFIER, ...;
+      #    see the field-name reference below). A previous version of this
+      #    file checked plain-uppercase no-underscore keys that journald
+      #    never emits at all, so nothing in this phase ever fired.
+      # 2. Deeper and still current: the EventProcessor's `json` pipeline
+      #    step (plugins/json/main.go) runs every parsed key through
+      #    go-sdk's SanitizeField() before writing it under log.*, and that
+      #    function's allow-list regex ([^a-zA-Z0-9.]) omits "_" -- so every
+      #    underscore is silently stripped from TOP-LEVEL key names on the
+      #    way into the `log` JSON column. `_HOSTNAME` lands as `log.HOSTNAME`,
+      #    `_SYSTEMD_CGROUP` as `log.SYSTEMDCGROUP`, `subj_user` (auditd) as
+      #    `log.subjuser`, etc. Nested object fields (execve.a0, userauth.acct)
+      #    are unaffected -- SanitizeField only runs on the top-level keys
+      #    plugins/json/main.go iterates, not recursively on nested values.
+      #    Fixed upstream at the source (go-sdk/utils/fields.go, allow-list
+      #    changed to [^a-zA-Z0-9_.]) but that fix is an uncommitted local
+      #    patch as of this writing -- NOT in the EventProcessor image
+      #    currently deployed anywhere. Every `from`/`exists()` below
+      #    therefore intentionally checks the ALREADY-STRIPPED name, not the
+      #    real journald/auditd one, so this filter keeps working against
+      #    today's deployed EventProcessor. Once a build containing the
+      #    go-sdk fix ships, every rename below must be reverted back to the
+      #    real underscored name (e.g. log.HOSTNAME -> log._HOSTNAME,
+      #    log.subjuser -> log.subj_user) or it will silently break again
+      #    the same way, just in the opposite direction.
+      #
+      # journald field-name reference (real names, pre-stripping):
+      #  - "trusted" fields (added by journald about the logging process,
+      #    not settable by the process itself) get a single leading
+      #    underscore: _PID, _UID, _GID, _EXE, _COMM, _CMDLINE, _HOSTNAME,
+      #    _TRANSPORT, _SELINUX_CONTEXT, _SYSTEMD_*, _BOOT_ID, _MACHINE_ID,
+      #    _CAP_EFFECTIVE, _AUDIT_*, _SOURCE_REALTIME_TIMESTAMP,
+      #    _RUNTIME_SCOPE, _STREAM_ID.
+      #  - journald's own internal "address fields" get a double leading
+      #    underscore: __CURSOR, __REALTIME_TIMESTAMP,
+      #    __MONOTONIC_TIMESTAMP, __SEQNUM, __SEQNUM_ID.
+      #  - fields the logging client sets itself (or systemd sets about a
+      #    unit action) have NO leading underscore, but still use
+      #    underscores between words: MESSAGE, PRIORITY, SYSLOG_IDENTIFIER,
+      #    SYSLOG_FACILITY, SYSLOG_PID, SYSLOG_TIMESTAMP, UNIT,
+      #    INVOCATION_ID, CODE_FILE/LINE/FUNC, JOB_ID/TYPE/RESULT,
+      #    MESSAGE_ID.
       - rename:
           from:
             - log.MESSAGE
@@ -123,18 +170,6 @@ pipeline:
 
       - rename:
           from:
-            - log.SESSIONID
-          to: log.sessionId
-          where: exists("log.SESSIONID")
-
-      - rename:
-          from:
-            - log.LEADER
-          to: log.leader
-          where: exists("log.LEADER")
-
-      - rename:
-          from:
             - log.SYSTEMDOWNERUID
           to: log.systemdOwnerUid
           where: exists("log.SYSTEMDOWNERUID")
@@ -144,6 +179,12 @@ pipeline:
             - log.SYSTEMDCGROUP
           to: log.systemdCgroup
           where: exists("log.SYSTEMDCGROUP")
+
+      - rename:
+          from:
+            - log.SYSTEMDINVOCATIONID
+          to: log.systemdInvocationId
+          where: exists("log.SYSTEMDINVOCATIONID")
 
       - rename:
           from:
@@ -237,12 +278,6 @@ pipeline:
 
       - rename:
           from:
-            - log.SYSTEMDINVOCATIONID
-          to: log.systemdInvocationId
-          where: exists("log.SYSTEMDINVOCATIONID")
-
-      - rename:
-          from:
             - log.CODEFILE
           to: log.codeFile
           where: exists("log.CODEFILE")
@@ -318,11 +353,16 @@ pipeline:
           to: origin.host
           where: exists("log.HOSTNAME")
 
+      # journald has no native resolved-username field for arbitrary log
+      # lines -- _UID is the numeric UID journald observed for the logging
+      # process, not a name. For auth-specific events prefer the richer
+      # auditd userauth.acct/subj_user mapping added in Phase 4 below,
+      # which carries an actual account name.
       - rename:
           from:
-            - log.USERID
+            - log.UID
           to: origin.user
-          where: exists("log.USERID")
+          where: 'exists("log.UID") && !exists("origin.user")'
 
       - rename:
           from:
@@ -464,12 +504,81 @@ pipeline:
           to: origin.command
           where: 'equals("log.type", "auditd") && exists("log.proctitle")'
 
-      # Map subj_user to origin.user (SELinux subject user)
+      # Map audit login UID (auid) to origin.user -- the ORIGINAL authenticated
+      # user, persists across su/sudo/setuid (unlike uid/euid, which change on
+      # privilege escalation). Preferred over subj_user below: confirmed on
+      # real V11-DEV-18 traffic that subj_user is "unconfined" (or
+      # "docker-default" for container processes) for nearly everything on
+      # this AppArmor-default Ubuntu host -- a confinement profile label, not
+      # a user identity -- while auid correctly stayed "1000" (the real SSH
+      # login) even for commands that had escalated to uid=0 via sudo/cron.
+      # Still just a numeric UID, not a resolved username -- this filter has
+      # no UID->username lookup capability, so a real name needs either an
+      # agent-side /etc/passwd lookup or SOC-side correlation. auid=="unset"
+      # (auditd's sentinel meaning "no login session": system daemons, cron,
+      # container-internal processes) is deliberately excluded and falls
+      # through to subj_user instead.
       - rename:
           from:
-            - log.subj_user
+            - log.auid
           to: origin.user
-          where: 'equals("log.type", "auditd") && exists("log.subj_user")'
+          where: 'equals("log.type", "auditd") && exists("log.auid") && !equals("log.auid", "unset") && !equals("log.auid", "4294967295")'
+
+      # Map subj_user to origin.user (AppArmor/SELinux subject label) --
+      # fallback only, when auid gave no real login session to attribute to.
+      - rename:
+          from:
+            - log.subjuser
+          to: origin.user
+          where: 'equals("log.type", "auditd") && exists("log.subjuser") && !exists("origin.user")'
+
+      # USER_AUTH records (PAM authentication attempts, e.g. sshd password
+      # auth) nest their fields under "userauth" instead of merging to root
+      # (see agent/collector/auditd/parser.go's default/fallback branch --
+      # only SYSCALL, CWD, PROCTITLE, EXECVE, PATH and SOCKADDR record types
+      # get their own dedicated flattening). subj_user above is the SELinux
+      # subject label ("unconfined"), not the account being authenticated --
+      # confirmed on a real failed-login test against V11-DEV-18, where
+      # subj_user was "unconfined" but userauth.acct was the actual
+      # attempted username. Override with the real account name whenever a
+      # USER_AUTH record is present.
+      - rename:
+          from:
+            - log.userauth.acct
+          to: origin.user
+          where: 'equals("log.type", "auditd") && exists("log.userauth.acct")'
+
+      - rename:
+          from:
+            - log.userauth.addr
+          to: origin.ip
+          where: 'equals("log.type", "auditd") && exists("log.userauth.addr")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: 'equals("log.type", "auditd") && equals("log.userauth.result", "fail")'
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: 'equals("log.type", "auditd") && equals("log.userauth.result", "success")'
+
+      # USER_CMD records (sudo's own command audit -- separate from the
+      # SYSCALL execve record sudo itself triggers) nest under "usercmd",
+      # same reasoning as userauth above. usercmd.cmd carries the full
+      # command sudo ran, which proctitle would otherwise only show as
+      # "sudo <args>" without the invoking user's original request context
+      # in some sudo configurations.
+      - rename:
+          from:
+            - log.usercmd.cmd
+          to: origin.command
+          where: 'equals("log.type", "auditd") && exists("log.usercmd.cmd") && !exists("origin.command")'
 
       # Map cwd to origin.path (current working directory)
       - rename:

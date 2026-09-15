@@ -22,14 +22,21 @@ export interface SocAiMessage {
   actions?: NavAction[]
 }
 
-export type SocAiScope = 'panel' | 'home'
+// 'panel' and 'dashboard-create' both render in the floating SocAiPanel (see
+// activeScope) — separate threads, same UI. 'home' has its own inline
+// transcript (HomeChatTranscript) and never shows in the panel.
+export type SocAiScope = 'panel' | 'home' | 'dashboard-create'
 
 interface SocAiContextValue {
   open: boolean
   expanded: boolean
+  // Which scope's thread the floating panel is currently showing.
+  activeScope: SocAiScope
   messages: SocAiMessage[]
   homeMessages: SocAiMessage[]
-  openPanel: () => void
+  dashboardCreateMessages: SocAiMessage[]
+  // A scope argument switches the panel to that thread before opening it.
+  openPanel: (scope?: SocAiScope) => void
   closePanel: () => void
   togglePanel: () => void
   toggleExpand: () => void
@@ -55,6 +62,7 @@ const PAGE_LABELS: Record<string, string> = {
   '/compliance': 'Compliance',
   '/datasources': 'Data Sources',
   '/integrations': 'Integrations',
+  '/dashboards/new': 'New Dashboard',
 }
 
 function pageContext(pathname: string): string {
@@ -65,8 +73,10 @@ function pageContext(pathname: string): string {
 export function SocAiProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [activeScope, setActiveScope] = useState<SocAiScope>('panel')
   const [messages, setMessages] = useState<SocAiMessage[]>([])
   const [homeMessages, setHomeMessages] = useState<SocAiMessage[]>([])
+  const [dashboardCreateMessages, setDashboardCreateMessages] = useState<SocAiMessage[]>([])
   const idRef = useRef(0)
   const nextId = () => ++idRef.current
   const abortRef = useRef<AbortController | null>(null)
@@ -76,9 +86,18 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const setters: Record<SocAiScope, Dispatch<SetStateAction<SocAiMessage[]>>> = {
     panel: setMessages,
     home: setHomeMessages,
+    'dashboard-create': setDashboardCreateMessages,
+  }
+  const messagesByScope: Record<SocAiScope, SocAiMessage[]> = {
+    panel: messages,
+    home: homeMessages,
+    'dashboard-create': dashboardCreateMessages,
   }
 
-  const openPanel = useCallback(() => setOpen(true), [])
+  const openPanel = useCallback((scope?: SocAiScope) => {
+    if (scope) setActiveScope(scope)
+    setOpen(true)
+  }, [])
   const closePanel = useCallback(() => setOpen(false), [])
   const togglePanel = useCallback(() => setOpen((v) => !v), [])
   const toggleExpand = useCallback(() => setExpanded((v) => !v), [])
@@ -99,11 +118,14 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
 
       // No queueing — ignore a new submit while this scope's last message is
       // still being answered, instead of aborting it out from under itself.
-      const current = scope === 'panel' ? messages : homeMessages
+      const current = messagesByScope[scope]
       const last = current[current.length - 1]
       if (last?.role === 'ai' && last.pending) return
 
-      if (opts?.openPanel !== false) setOpen(true)
+      if (opts?.openPanel !== false) {
+        setActiveScope(scope)
+        setOpen(true)
+      }
       abortRef.current?.abort()
       const ac = new AbortController()
       abortRef.current = ac
@@ -162,12 +184,25 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
         }))
       })
     },
-    [location.pathname, i18n.language, patchMsg, t, messages, homeMessages],
+    [location.pathname, i18n.language, patchMsg, t, messages, homeMessages, dashboardCreateMessages],
   )
 
   const value = useMemo(
-    () => ({ open, expanded, messages, homeMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear }),
-    [open, expanded, messages, homeMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear],
+    () => ({
+      open,
+      expanded,
+      activeScope,
+      messages,
+      homeMessages,
+      dashboardCreateMessages,
+      openPanel,
+      closePanel,
+      togglePanel,
+      toggleExpand,
+      submit,
+      clear,
+    }),
+    [open, expanded, activeScope, messages, homeMessages, dashboardCreateMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear],
   )
 
   return <SocAiContext.Provider value={value}>{children}</SocAiContext.Provider>

@@ -400,6 +400,10 @@
         "dataset": "Datensatz",
         "noDatasetHint": "Wählen Sie einen Datensatz, um Bedingungen und Gruppierung zu aktivieren."
       },
+      "widgetTitle": {
+        "label": "Titel",
+        "placeholder": "Optional — Standard ist der Diagrammtyp"
+      },
       "dataset": {
         "placeholder": "Datensatz auswählen…",
         "loading": "Datensätze werden geladen…"
@@ -546,7 +550,14 @@
     },
     "newDashboard": {
       "title": "Neues Dashboard",
-      "subtitle": "Legen Sie ein leeres Dashboard an. Widgets können Sie nach dem Speichern hinzufügen."
+      "subtitle": "Legen Sie ein leeres Dashboard an. Widgets können Sie nach dem Speichern hinzufügen.",
+      "modeManual": "Manuell erstellen",
+      "modeAi": "Mit KI",
+      "aiLocked": "Aktivieren Sie SOC-AI und konfigurieren Sie es, um dies zu nutzen.",
+      "aiDescriptionLabel": "Was soll dieses Dashboard zeigen?",
+      "aiDescriptionPlaceholder": "z. B. Fehlgeschlagene Logins nach Land, letzte 7 Tage",
+      "aiCreate": "Mit KI erstellen",
+      "aiOpenerWithDetails": "Erstellen Sie ein Dashboard namens \"{{name}}\" mit folgendem Inhalt: {{description}}"
     },
     "newVisualization": {
       "title": "Neues Widget",
@@ -1719,10 +1730,7 @@
   },
   "integrations": {
     "title": "Integrationen",
-    "subtitle_one": "{{count}} von {{total}} Integration konfiguriert.",
-    "subtitle_other": "{{count}} von {{total}} Integrationen konfiguriert.",
     "searchPlaceholder": "Integrationen durchsuchen…",
-    "configuredOnly": "Nur konfigurierte",
     "noMatch": "Keine Integrationen gefunden.",
     "browseMarketplace": "Marketplace durchsuchen",
     "loading": "Integrationen werden geladen…",
@@ -4027,6 +4035,7 @@
     },
     "echoes": {
       "title": "{{count}} Echos",
+      "close": "Schließen",
       "empty": "Für diese Warnung wurden keine Echos erfasst.",
       "loadError": "Echos konnten nicht geladen werden."
     },
@@ -5227,6 +5236,7 @@
     },
     "chat": {
       "title": "SOC-Assistent",
+      "dashboardCreateTitle": "Dashboard-Ersteller",
       "empty": "Fragen Sie alles über Ihre Alarme, Erkennungen oder die Konsole — ich kann das SIEM untersuchen und darin handeln.",
       "tryPrefix": "Versuchen",
       "suggestion": "Wie viele offene Alarme, gruppiert nach Angreifer?",

@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: System Service Discovery Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1007 - System Service Discovery"
+adversary: origin
+description: "Detects execution of commands used to enumerate installed/running services (systemctl list-units, service --status-all,
+              chkconfig --list). Commonly used to identify security agents, backup tools, or other services worth targeting or
+              disabling before further action."
+references:
+  - "https://attack.mitre.org/techniques/T1007/"
+where: equals("action", "execve") && (contains("origin.command", "systemctl list-unit") || contains("origin.command", "service --status-all") || contains("origin.command", "chkconfig --list") || contains("origin.command", "systemctl list-timers"))
+groupBy:
+  - adversary.host
+  - adversary.user

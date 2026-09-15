@@ -22,12 +22,23 @@ description: |
   4. Review if password hashes may have been exfiltrated
   5. Force password resets for all accounts if credential theft is confirmed
   6. Investigate the compromise vector and check for lateral movement
+# "read"/"open"/"copy"/"modified"/"changed"/"write" read like structured
+# access-log-message keywords, not real execve argv text -- a real
+# `cat /etc/shadow` execve's origin.command is just that literal string, it
+# never contains the word "read". Only "cat " (with trailing space) among
+# these actually matches real command text; the rest make their OR branch
+# wider than intended but harmless since it's an OR, not a silent AND-kill
+# like user_added_to_admin_group.yaml had. Left as-is rather than redesigned
+# (out of scope for this pass) -- flagging for a future pass that should
+# replace this whole OR with real command patterns (cat/less/more/head/tail/
+# cp/scp targeting /etc/shadow) instead of these keyword guesses.
 where: |
-  (contains("log.message", "/etc/shadow") || contains("log.message", "/etc/passwd")) &&
-  (contains("log.message", "read") || contains("log.message", "open") ||
-   contains("log.message", "cat ") || contains("log.message", "copy") ||
-   contains("log.message", "modified") || contains("log.message", "changed") ||
-   contains("log.message", "write")) &&
+  equals("action", "execve") &&
+  (contains("origin.command", "/etc/shadow") || contains("origin.command", "/etc/passwd")) &&
+  (contains("origin.command", "read") || contains("origin.command", "open") ||
+   contains("origin.command", "cat ") || contains("origin.command", "copy") ||
+   contains("origin.command", "modified") || contains("origin.command", "changed") ||
+   contains("origin.command", "write")) &&
   !(contains("log.process", "passwd") || contains("log.process", "useradd") ||
     contains("log.process", "usermod") || contains("log.process", "groupadd") ||
     contains("log.process", "chpasswd") || contains("log.process", "login"))

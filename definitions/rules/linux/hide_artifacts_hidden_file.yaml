@@ -1,0 +1,23 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Hidden File or Directory Created in a Staging Path"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 0
+category: "Defense Evasion"
+technique: "T1564.001 - Hide Artifacts: Hidden Files and Directories"
+adversary: origin
+description: "Detects touch/mkdir/mv/cp creating a dot-prefixed (hidden) file or directory under a common staging path (/tmp, /dev/shm,
+              /var/tmp, a user's home directory), a simple but common way to keep a payload out of a casual `ls` listing."
+references:
+  - "https://attack.mitre.org/techniques/T1564/001/"
+where: |
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/touch", "/bin/touch", "/usr/bin/mkdir", "/bin/mkdir", "/usr/bin/mv", "/bin/mv", "/usr/bin/cp", "/bin/cp"]) &&
+  regexMatch("origin.command", "(?:/tmp/|/dev/shm/|/var/tmp/|/home/[^/]+/)\\.[A-Za-z0-9_.-]+")
+groupBy:
+  - adversary.host
+  - adversary.user

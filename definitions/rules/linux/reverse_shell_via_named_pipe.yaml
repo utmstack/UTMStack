@@ -18,7 +18,11 @@ description: "Identifies a reverse shell via the abuse of named pipes on Linux w
 references:
   - "https://attack.mitre.org/tactics/TA0002/"
   - "https://attack.mitre.org/techniques/T1059/004/"
-where: regexMatch("log.message", "((sh|bash|openssl) (-i|-connect))") && exists("log.host.id")
+# exists("origin.host") dropped: origin.host is only populated for
+# journald-sourced Linux events (via log.HOSTNAME), never for the native
+# auditd execve records this rule actually needs -- confirmed via live data
+# on V11-DEV-18 -- so the original condition made this rule permanently dead.
+where: equals("action", "execve") && regexMatch("origin.command", "((sh|bash|openssl) (-i|-connect))")
 groupBy:
   - adversary.ip
   - adversary.user

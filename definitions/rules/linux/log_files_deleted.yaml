@@ -15,7 +15,7 @@ description: "Identifies the deletion of sensitive Linux system logs. This may i
 references:
   - "https://attack.mitre.org/tactics/TA0005/"
   - "https://attack.mitre.org/techniques/T1070/002/"
-where: regexMatch("log.message", "(/var/run/utmp|/var/log/wtmp|/var/log/btmp|/var/log/lastlog|/var/log/faillog|/var/log/syslog|/var/log/messages|/var/log/secure|/var/log/auth.log|/var/log/boot.log|/var/log/kern.log)") && !contains("log.message", "gzip") && regexMatch("log.message", "(rm |shred -u)")
+where: equals("action", "execve") && regexMatch("origin.command", "(/var/run/utmp|/var/log/wtmp|/var/log/btmp|/var/log/lastlog|/var/log/faillog|/var/log/syslog|/var/log/messages|/var/log/secure|/var/log/auth.log|/var/log/boot.log|/var/log/kern.log)") && !contains("origin.command", "gzip") && regexMatch("origin.command", "(rm |shred -u)")
 groupBy:
   - adversary.ip
   - adversary.user

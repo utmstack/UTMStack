@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Filter, Loader2, Pencil, Search, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
@@ -154,7 +154,6 @@ export function IntegrationsPage() {
   const [categoryFilter, setCategoryFilter] = useState('')
   const [customOnly, setCustomOnly] = useState(false)
   const [search, setSearch] = useState('')
-  const [showOnlyConfigured, setShowOnlyConfigured] = useState(false)
   const [open, setOpen] = useState<Integration | null>(null)
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Integration | null>(null)
@@ -184,7 +183,6 @@ export function IntegrationsPage() {
     return displayList
       .filter((i) => (categoryFilter ? i.category === categoryFilter : true))
       .filter((i) => (customOnly ? !i.systemOwner : true))
-      .filter((i) => (showOnlyConfigured ? i.status === 'configured' : true))
       .filter((i) =>
         search
           ? (i.name + i.description + i.category).toLowerCase().includes(search.toLowerCase())
@@ -194,9 +192,7 @@ export function IntegrationsPage() {
       // the rest of the system integrations, then custom ones (just before the
       // "+ Create" card).
       .sort((a, b) => sortRank(a) - sortRank(b))
-  }, [categoryFilter, customOnly, search, showOnlyConfigured, displayList])
-
-  const configuredCount = displayList.filter((i) => i.status === 'configured').length
+  }, [categoryFilter, customOnly, search, displayList])
 
   // The drawer reads the live mapped integration (by id) so its status reflects
   // enable/disable toggles immediately after the modules query refetches.
@@ -214,7 +210,7 @@ export function IntegrationsPage() {
         </div>
       )}
 
-      <IntegrationsHeader configured={configuredCount} total={displayList.length} />
+      <IntegrationsHeader />
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[300px] flex-1">
@@ -248,18 +244,6 @@ export function IntegrationsPage() {
           )}
         >
           {t('integrations.customOnly')}
-        </button>
-        <button
-          onClick={() => setShowOnlyConfigured((v) => !v)}
-          className={cn(
-            'flex h-10 items-center gap-2 rounded-md border px-3 text-sm transition-colors',
-            showOnlyConfigured
-              ? 'border-primary/30 bg-primary/10 text-primary'
-              : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-          )}
-        >
-          <Filter size={14} />
-          {t('integrations.configuredOnly')}
         </button>
       </div>
 

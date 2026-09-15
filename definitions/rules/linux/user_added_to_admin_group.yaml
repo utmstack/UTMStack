@@ -14,7 +14,15 @@ description: "Detects when a user has been added to the administrators group (su
 references:
   - "https://attack.mitre.org/tactics/TA0004"
   - "https://attack.mitre.org/techniques/T1484/"
-where: regexMatch("log.message", "(((adduser|useradd|usermod)(.+)([Aa]dded user|new user|add)(.+)to(.+)group)(.+)sudo)") && contains("log.message", "usermod -aG sudo")
+# The original regexMatch branch (dropped here) required text like "Added
+# user X to group" inside origin.command, ANDed with the real
+# usermod -aG sudo check below -- that phrase reads like adduser's own
+# human-readable log OUTPUT (log.message material for a journald line), not
+# a real execve argv (a real `usermod -aG sudo bob` execve's origin.command
+# is just that literal argv, no "Added user...to...group" phrase). Since it
+# was ANDed rather than ORed with the real check, it made the whole rule
+# permanently dead, not just weaker -- removed rather than gated.
+where: equals("action", "execve") && contains("origin.command", "usermod -aG sudo")
 groupBy:
   - adversary.ip
   - adversary.user

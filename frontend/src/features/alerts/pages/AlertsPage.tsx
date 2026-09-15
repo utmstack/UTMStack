@@ -182,6 +182,7 @@ export function AlertsPage() {
   )
 
   const refresh = useCallback(() => {
+    setPage(0)
     refreshList()
     refreshStats()
   }, [refreshList, refreshStats])
@@ -400,7 +401,7 @@ export function AlertsPage() {
                         {expandedEchoes.has(a.id) && (
                           <tr>
                             <td colSpan={ALERTS_TABLE_COLUMN_COUNT} className="border-b border-border/50 p-0">
-                              <EchoesTimeline parentId={a.id} />
+                              <EchoesTimeline parentId={a.id} onClose={() => toggleEchoes(a.id)} />
                             </td>
                           </tr>
                         )}

@@ -15,7 +15,7 @@ description: "Iodine is a tool for tunneling Internet protocol version 4 (IPV4) 
 references:
   - "https://attack.mitre.org/tactics/TA0011/"
   - "https://attack.mitre.org/techniques/T1572/"
-where: contains("log.message", "iodine")
+where: equals("action", "execve") && contains("origin.command", "iodine")
 groupBy:
   - adversary.ip
   - adversary.user

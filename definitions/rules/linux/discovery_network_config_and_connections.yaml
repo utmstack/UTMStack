@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Network Configuration or Connection Discovery Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1016 - System Network Configuration Discovery"
+adversary: origin
+description: "Detects execution of commands used to enumerate network interfaces, routes, DNS configuration, or active connections
+              (ifconfig, ip, netstat, ss, route, arp, cat /etc/resolv.conf). Common reconnaissance step to understand the host's network
+              position before lateral movement or exfiltration."
+references:
+  - "https://attack.mitre.org/techniques/T1016/"
+  - "https://attack.mitre.org/techniques/T1049/"
+where: equals("action", "execve") && (oneOf("origin.process", ["/usr/bin/netstat", "/bin/netstat", "/usr/bin/ss", "/bin/ss", "/usr/sbin/arp", "/usr/sbin/ifconfig", "/sbin/ifconfig", "/usr/sbin/ip", "/sbin/ip", "/usr/bin/ip"]) || contains("origin.command", "resolv.conf"))
+groupBy:
+  - adversary.host
+  - adversary.user

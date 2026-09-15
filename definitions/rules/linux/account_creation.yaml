@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: New Local Account Created"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: "Persistence"
+technique: "T1136 - Create Account"
+adversary: origin
+description: "Detects execution of useradd/adduser to create a new local account, a common way for an adversary to establish a
+              persistent foothold independent of any compromised credential. Distinct from utmstack_user_added_to_admin_group, which
+              only fires when an existing account is added to a privileged group."
+references:
+  - "https://attack.mitre.org/techniques/T1136/"
+where: equals("action", "execve") && oneOf("origin.process", ["/usr/sbin/useradd", "/usr/sbin/adduser"])
+groupBy:
+  - adversary.host
+  - adversary.user

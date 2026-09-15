@@ -23,8 +23,12 @@ description: |
   4. Check if the crontab change was part of authorized maintenance
   5. Review other persistence mechanisms on the host
   6. If unauthorized, remove the cron entry and investigate the source of compromise
+# `log.process` never existed (fictional field, same class of bug found across
+# other legacy rules this session) -- the crontab/crond/atd client binaries
+# identify themselves via journald's _COMM, which Phase 3 of linux.yaml
+# unconditionally promotes to origin.process for every journald-sourced line.
 where: |
-  (contains("log.process", "crontab") || contains("log.process", "cron") || contains("log.process", "atd")) &&
+  (contains("origin.process", "crontab") || contains("origin.process", "cron") || contains("origin.process", "atd")) &&
   (contains("log.message", "REPLACE") ||
    contains("log.message", "INSTALL") ||
    contains("log.message", "cron.d") ||

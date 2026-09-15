@@ -23,12 +23,22 @@ description: |
   4. Verify the timer was created by an authorized administrator
   5. Compare against baseline of known legitimate timers
   6. If unauthorized, disable the timer and investigate
+# Rewritten after live-testing on V11-DEV-18 disproved the log.message premise
+# entirely: a real `systemctl enable foo.timer` never journals its "Created
+# symlink ...timer" confirmation -- that text is CLI stdout only, confirmed
+# via direct `journalctl` inspection during the test. What systemd[1] DOES
+# journal for this (the generic "Reloading requested/Reloading/Reloading
+# finished" trio) never mentions ".timer" or the unit name, so the AND with
+# contains(log.message,".timer") could never be satisfied by any real timer
+# operation -- this rule was permanently dead. Rewritten to detect the same
+# intent directly from the execve that does it: `systemctl enable/start
+# foo.timer`. This is strictly more reliable than trying to infer it from
+# journald text that was never actually being logged.
 where: |
-  (contains("log.process", "systemctl") || contains("log.process", "systemd")) &&
-  contains("log.message", ".timer") &&
-  (contains("log.message", "Created symlink") || contains("log.message", "enable") ||
-   contains("log.message", "started") || contains("log.message", "Reloading") ||
-   contains("log.message", "loaded"))
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/systemctl", "/bin/systemctl"]) &&
+  (contains("origin.command", "enable") || contains("origin.command", "start")) &&
+  contains("origin.command", ".timer")
 groupBy:
   - adversary.host
   - adversary.user

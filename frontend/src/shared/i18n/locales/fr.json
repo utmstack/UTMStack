@@ -400,6 +400,10 @@
         "dataset": "Jeu de données",
         "noDatasetHint": "Choisissez un jeu de données pour activer les conditions et le regroupement."
       },
+      "widgetTitle": {
+        "label": "Titre",
+        "placeholder": "Facultatif — par défaut, le type de graphique"
+      },
       "dataset": {
         "placeholder": "Sélectionnez un jeu de données…",
         "loading": "Chargement des jeux de données…"
@@ -546,7 +550,14 @@
     },
     "newDashboard": {
       "title": "Nouveau tableau de bord",
-      "subtitle": "Créez un tableau de bord vide. Vous pourrez ajouter des widgets après l'avoir enregistré."
+      "subtitle": "Créez un tableau de bord vide. Vous pourrez ajouter des widgets après l'avoir enregistré.",
+      "modeManual": "Créer manuellement",
+      "modeAi": "Avec l'IA",
+      "aiLocked": "Activez SOC-AI et configurez-le pour utiliser cette fonction.",
+      "aiDescriptionLabel": "Que doit afficher ce tableau de bord ?",
+      "aiDescriptionPlaceholder": "ex. Connexions échouées par pays, 7 derniers jours",
+      "aiCreate": "Créer avec l'IA",
+      "aiOpenerWithDetails": "Créez un tableau de bord nommé « {{name}} » affichant : {{description}}"
     },
     "newVisualization": {
       "title": "Nouveau widget",
@@ -1719,10 +1730,7 @@
   },
   "integrations": {
     "title": "Intégrations",
-    "subtitle_one": "{{count}} sur {{total}} intégration configurée.",
-    "subtitle_other": "{{count}} sur {{total}} intégrations configurées.",
     "searchPlaceholder": "Rechercher des intégrations…",
-    "configuredOnly": "Configurées uniquement",
     "noMatch": "Aucune intégration ne correspond.",
     "browseMarketplace": "Parcourir la marketplace",
     "loading": "Chargement des intégrations…",
@@ -4027,6 +4035,7 @@
     },
     "echoes": {
       "title": "{{count}} échos",
+      "close": "Fermer",
       "empty": "Aucun écho enregistré pour cette alerte.",
       "loadError": "Impossible de charger les échos."
     },
@@ -5235,6 +5244,7 @@
     },
     "chat": {
       "title": "Assistant SOC",
+      "dashboardCreateTitle": "Créateur de tableau de bord",
       "empty": "Posez n'importe quelle question sur vos alertes, vos détections ou la console — je peux enquêter et agir sur le SIEM.",
       "tryPrefix": "Essayez",
       "suggestion": "combien d'alertes ouvertes, regroupées par adversaire ?",

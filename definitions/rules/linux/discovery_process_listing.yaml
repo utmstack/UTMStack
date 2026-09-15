@@ -1,0 +1,20 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Process Discovery Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1057 - Process Discovery"
+adversary: origin
+description: "Detects execution of process-enumeration commands (ps, top, htop, pgrep) often used by adversaries to identify security
+              tooling, other running processes to target, or to confirm whether their own payload is running undetected."
+references:
+  - "https://attack.mitre.org/techniques/T1057/"
+where: equals("action", "execve") && oneOf("origin.process", ["/usr/bin/ps", "/bin/ps", "/usr/bin/pgrep", "/bin/pgrep", "/usr/bin/top", "/usr/bin/htop"])
+groupBy:
+  - adversary.host
+  - adversary.user

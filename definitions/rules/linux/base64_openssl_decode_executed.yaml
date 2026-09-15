@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Base64 or OpenSSL Decode Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+category: "Defense Evasion"
+technique: "T1140 - Deobfuscate/Decode Files or Information"
+adversary: origin
+description: "Detects a standalone base64 -d/--decode or openssl enc -d invocation. Low-confidence alone (routinely used by
+              legitimate scripts, cert handling, CI/CD), but a useful triage building block. Exists as a separate, lower-severity
+              rule from 'Base64 or OpenSSL Decode Piped to a Shell' because the native auditd collector emits one execve event per
+              process in a pipeline -- 'X | base64 -d | bash' never puts 'bash' inside base64's own origin.command; only a
+              single-process 'sh -c \"...|bash\"' compound invocation does. Modeled on SigmaHQ's
+              proc_creation_lnx_base64_decode.yml (level: low)."
+references:
+  - "https://attack.mitre.org/techniques/T1140/"
+  - "https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_base64_decode.yml"
+where: |
+  equals("action", "execve") &&
+  (
+    (oneOf("origin.process", ["/usr/bin/base64", "/bin/base64"]) && contains("origin.command", "-d")) ||
+    (oneOf("origin.process", ["/usr/bin/openssl", "/bin/openssl"]) && contains("origin.command", "enc") && regexMatch("origin.command", "-d\\b"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

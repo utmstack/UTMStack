@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Security Monitoring Service Stopped or Disabled"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "T1489 - Service Stop"
+adversary: origin
+description: "Detects systemctl/service stop, disable, mask, or kill targeting auditd or the UTMStack agent itself -- the most direct
+              way to blind this SIEM's own visibility on a host before further action. Distinct from
+              utmstack_attempt_to_disable_syslog_service, which only covers rsyslog/syslog-ng."
+references:
+  - "https://attack.mitre.org/techniques/T1489/"
+where: |
+  equals("action", "execve") &&
+  oneOf("origin.process", ["/usr/bin/systemctl", "/bin/systemctl", "/usr/sbin/service", "/sbin/service"]) &&
+  (contains("origin.command", "stop") || contains("origin.command", "disable") || contains("origin.command", "mask") || contains("origin.command", "kill")) &&
+  (contains("origin.command", "auditd") || contains("origin.command", "utmstack"))
+groupBy:
+  - adversary.host
+  - adversary.user

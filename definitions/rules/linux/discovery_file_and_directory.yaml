@@ -1,0 +1,28 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Sensitive File/Directory Discovery via find"
+impact:
+  confidentiality: 2
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1083 - File and Directory Discovery"
+adversary: origin
+description: "Detects use of find (or grep -r) scoped to credential-relevant paths (SSH keys, password/config files) or with
+              permission-based search flags (-perm 4000/-perm -u+s), a common way to hunt for SUID binaries or stored secrets after
+              gaining initial access."
+references:
+  - "https://attack.mitre.org/techniques/T1083/"
+where: |
+  equals("action", "execve") && equals("origin.process", "/usr/bin/find") &&
+  (contains("origin.command", "-name id_rsa") ||
+   contains("origin.command", "-name *.pem") ||
+   contains("origin.command", "-perm -4000") ||
+   contains("origin.command", "-perm 4000") ||
+   contains("origin.command", "-perm -u+s") ||
+   contains("origin.command", "authorized_keys"))
+groupBy:
+  - adversary.host
+  - adversary.user

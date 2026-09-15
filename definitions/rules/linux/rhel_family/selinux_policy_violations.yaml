@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -14,7 +14,20 @@ references:
   - https://attack.mitre.org/techniques/T1068/
   - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/troubleshooting-problems-related-to-selinux_using-selinux
 description: |
-  Detects critical SELinux policy violations that may indicate privilege escalation attempts, unauthorized access, or malicious activity bypassing mandatory access controls. This rule identifies AVC denials for sensitive capabilities, attempts to access shadow files, modifications to critical system directories, unconfined processes accessing executables, and unauthorized SELinux management commands.
+  Detects AVC denials for sensitive capabilities/permissions, and journald text indicating SELinux was switched
+  out of enforcing mode.
+
+  Rewritten v2.0.0, with an important caveat this pass could not fully resolve: per
+  agent/collector/auditd/parser.go, any audit record type this collector doesn't explicitly flatten (SYSCALL, CWD,
+  PROCTITLE, EXECVE, PATH, SOCKADDR) falls into a generic fallback that nests ALL of its raw fields under
+  `log.{lowercased_record_type}`, so a real AVC record should land at log.avc.* (e.g. log.avc.tclass,
+  log.avc.scontext, log.avc.tcontext, log.avc.permissive) rather than flat log.type=="AVC"/log.tclass/
+  log.selinux_denied/log.permission as the previous version assumed -- those flat names never existed. This
+  version switches to the nested log.avc.* form, but the exact sub-field names auparse (go-libaudit's audit
+  message parser) produces for an AVC record were NOT verified against a real AVC event in this pass -- V11-DEV-18
+  runs Ubuntu/AppArmor, not SELinux, so no real AVC record was available to confirm against. Treat the
+  log.avc.*-based branch as unverified until confirmed on a real SELinux-enabled host; the log.message-based
+  fallback below is grounded in the real, always-populated field and is the more reliable half of this rule today.
 
   Next Steps:
   1. Immediately review the specific SELinux violation details including source context (scontext), target context (tcontext), and attempted permission
@@ -28,31 +41,26 @@ description: |
   9. Monitor for additional violations from the same source
 where: |
   (
-    equals("log.type", "AVC") &&
-    equals("log.selinux_denied", "denied") &&
+    exists("log.avc") &&
     (
-      (oneOf("log.tclass", ["capability", "capability2", "process", "security"]) && 
-       oneOf("log.permission", ["sys_admin", "sys_module", "sys_ptrace", "setuid", "setgid", "dac_override", "dac_read_search"])) ||
-      (equals("log.tclass", "file") && 
-       contains("log.tcontext", "shadow_t") &&
-       oneOf("log.permission", ["read", "write", "append"])) ||
-      (equals("log.tclass", "dir") &&
-       oneOf("log.path", ["/etc", "/boot", "/usr/lib", "/usr/lib64"]) &&
-       oneOf("log.permission", ["write", "add_name", "remove_name"])) ||
-      (contains("log.scontext", "unconfined_t") &&
-       contains("log.tcontext", "_exec_t")) ||
+      (oneOf("log.avc.tclass", ["capability", "capability2", "process", "security"]) &&
+       oneOf("log.avc.permission", ["sys_admin", "sys_module", "sys_ptrace", "setuid", "setgid", "dac_override", "dac_read_search"])) ||
+      (equals("log.avc.tclass", "file") &&
+       contains("log.avc.tcontext", "shadow_t") &&
+       oneOf("log.avc.permission", ["read", "write", "append"])) ||
+      (contains("log.avc.scontext", "unconfined_t") &&
+       contains("log.avc.tcontext", "_exec_t")) ||
       (oneOf("log.comm", ["setenforce", "semodule", "restorecon"]) &&
-       !contains("log.scontext", "unconfined_t"))
+       !contains("log.avc.scontext", "unconfined_t"))
     )
   ) ||
   (
     contains("log.message", "SELinux") &&
-    (
-      contains("log.message", "enforcing") &&
-      contains("log.message", "disabled")
-    )
+    (contains("log.message", "Disabled at runtime") ||
+     contains("log.message", "permissive mode") ||
+     (contains("log.message", "setenforce") && contains("log.message", "0")))
   )
 groupBy:
-  - lastEvent.log.scontext
-  - lastEvent.log.tcontext
+  - lastEvent.log.avc.scontext
+  - lastEvent.log.avc.tcontext
   - adversary.host

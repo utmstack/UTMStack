@@ -1,0 +1,39 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: System Shutdown or Reboot Command Executed"
+impact:
+  confidentiality: 0
+  integrity: 0
+  availability: 3
+category: "Impact"
+technique: "T1529 - System Shutdown/Reboot"
+adversary: origin
+description: "Detects execution of shutdown/reboot/halt/poweroff/init 0/init 6, or the equivalent systemctl verbs. Routine during
+              planned maintenance, but on a production server outside a known maintenance window it can indicate a destructive
+              final step of an attack, or an adversary forcing a reboot to load a tampered boot component."
+references:
+  - "https://attack.mitre.org/techniques/T1529/"
+# On systemd distros (confirmed on V11-DEV-18, an Ubuntu/systemd host, and true
+# generally -- not host-specific) /usr/sbin/shutdown|reboot|halt|poweroff are
+# the SAME multi-call binary as /usr/bin/systemctl: the kernel's `exe` for the
+# resulting process resolves to systemctl regardless of which name was
+# invoked, so the origin.process oneOf() below can never match on a modern
+# systemd host -- only non-systemd/legacy sysvinit systems would ever hit it.
+# EXECVE's argv[0] (origin.command, via execve.a0) still preserves whatever
+# path the user actually typed, so a real `shutdown -r now` still shows up as
+# origin.command "/usr/sbin/shutdown -r now" even though origin.process is
+# "/usr/bin/systemctl" -- added a command-text fallback and a direct
+# `systemctl reboot|poweroff|halt` verb check to cover both invocation styles.
+where: |
+  equals("action", "execve") &&
+  (
+    oneOf("origin.process", ["/usr/sbin/shutdown", "/sbin/shutdown", "/usr/sbin/reboot", "/sbin/reboot", "/usr/sbin/halt", "/sbin/halt", "/usr/sbin/poweroff", "/sbin/poweroff"]) ||
+    regexMatch("origin.command", "(?:^|\\s)init\\s+[06](?:\\s|$)") ||
+    regexMatch("origin.command", "(?:^|/)(shutdown|reboot|halt|poweroff)\\b") ||
+    (oneOf("origin.process", ["/usr/bin/systemctl", "/bin/systemctl"]) && regexMatch("origin.command", "\\b(reboot|poweroff|halt)\\b"))
+  )
+groupBy:
+  - adversary.host
+  - adversary.user

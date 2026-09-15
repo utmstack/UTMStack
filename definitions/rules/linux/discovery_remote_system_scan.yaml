@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Remote System/Network Scanning Tool Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 1
+category: "Discovery"
+technique: "T1018 - Remote System Discovery"
+adversary: origin
+description: "Detects execution of network/host scanning tools (nmap, masscan, arp-scan, netdiscover) from the endpoint. Legitimate for
+              network admins running from a jump box, but from an ordinary server or workstation this typically indicates lateral
+              movement reconnaissance."
+references:
+  - "https://attack.mitre.org/techniques/T1018/"
+  - "https://attack.mitre.org/techniques/T1046/"
+where: equals("action", "execve") && oneOf("origin.process", ["/usr/bin/nmap", "/usr/local/bin/nmap", "/usr/bin/masscan", "/usr/sbin/arp-scan", "/usr/bin/netdiscover"])
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -147,6 +147,8 @@ export interface DashboardFilterChip {
  */
 export interface BuilderState {
   chartType: ChartTypeId
+  /** Shown on the widget's card header. Empty means fall back to the chart type's name. */
+  title: string
   dataset: string
   /** What the x axis is: buckets of time, or the top values of a field. */
   breakdown: BreakdownMode

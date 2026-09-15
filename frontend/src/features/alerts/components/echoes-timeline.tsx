@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { AlertTriangle, Loader2, Radio } from 'lucide-react'
+import { AlertTriangle, Loader2, Radio, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Pagination } from '@/shared/components/ui/pagination'
 import { EChartsRenderer } from '@/features/dashboard/components/EChartsRenderer'
@@ -13,7 +13,7 @@ interface TooltipParam {
 /* Inline panel rendered as a sibling of an expanded AlertRow. Styled as a
  * message-style card: the cyan Radio icon (matching the table chip) sits at
  * top-center, the scatter timeline sits below it. */
-export function EchoesTimeline({ parentId }: { parentId: string }) {
+export function EchoesTimeline({ parentId, onClose }: { parentId: string; onClose: () => void }) {
   const { t } = useTranslation()
   const { echoes, total, page, pageSize, setPage, setPageSize, loading, error } =
     useAlertEchoes(parentId)
@@ -42,7 +42,15 @@ export function EchoesTimeline({ parentId }: { parentId: string }) {
 
   return (
     <div className="border-b border-border/50 bg-muted/20 px-6 py-4">
-      <div className="mx-auto max-w-2xl rounded-lg border border-cyan-500/30 bg-cyan-500/5 px-5 py-4 shadow-sm">
+      <div className="relative mx-auto max-w-2xl rounded-lg border border-cyan-500/30 bg-cyan-500/5 px-5 py-4 shadow-sm">
+        <button
+          type="button"
+          onClick={onClose}
+          title={t('alerts.echoes.close')}
+          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <X size={14} />
+        </button>
         <div className="flex flex-col items-center gap-1">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/15 text-cyan-600 ring-1 ring-cyan-500/40 dark:text-cyan-300">
             <Radio size={16} />

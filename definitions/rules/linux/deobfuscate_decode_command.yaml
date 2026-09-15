@@ -1,0 +1,28 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Base64 or OpenSSL Decode Piped to a Shell"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 1
+category: "Defense Evasion"
+technique: "T1140 - Deobfuscate/Decode Files or Information"
+adversary: origin
+description: "Detects a base64 -d/--decode or openssl enc -d invocation whose command line also references a shell interpreter,
+              consistent with decoding an obfuscated payload and executing it in one step -- a common one-liner pattern in
+              droppers/loaders. Only fires for the single-process compound form (e.g. 'sh -c \"...|base64 -d|bash\"'), since the
+              native auditd collector emits one execve event per process in a real shell pipeline and a piped 'base64 -d' alone
+              never sees the downstream 'bash' in its own origin.command. See also 'Base64 or OpenSSL Decode Command Executed'
+              (base64_openssl_decode_executed.yaml) for the standalone, lower-confidence variant that catches the common piped case."
+references:
+  - "https://attack.mitre.org/techniques/T1140/"
+  - "https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_base64_execution.yml"
+where: |
+  equals("action", "execve") &&
+  (regexMatch("origin.command", "base64\\s+(-d|--decode)") || regexMatch("origin.command", "openssl\\s+enc\\s+.*-d\\b")) &&
+  (contains("origin.command", "/bin/sh") || contains("origin.command", "/bin/bash") || contains("origin.command", "|sh") || contains("origin.command", "| sh") || contains("origin.command", "|bash") || contains("origin.command", "| bash"))
+groupBy:
+  - adversary.host
+  - adversary.user

@@ -23,14 +23,28 @@ description: |
   4. Review the BPF program type and attached hooks
   5. Investigate for signs of process hiding or network traffic manipulation
   6. If malicious, reboot the system and perform forensic analysis
+# "PROG_LOAD"/"BPF_PROG_TYPE_TRACING"/"BPF_PROG_TYPE_KPROBE"/
+# "BPF_PROG_TYPE_XDP"/"attached"/"loaded" are C constant names / structured
+# monitoring-tool output, not text anyone's real shell command line would
+# contain -- bpftool's actual CLI is `bpftool prog load prog.o /sys/fs/bpf/x`,
+# it never prints or takes literal "PROG_LOAD" as an argument. This makes
+# the second AND clause (and therefore the whole rule) effectively dead for
+# real command-line invocations. Left as-is (out of scope for this pass, not
+# redesigned) -- a real fix should drop the second clause and detect
+# `bpftool prog load`/`bpftool prog attach` directly via oneOf on
+# origin.process + contains("origin.command", "load"/"attach"), since a
+# real eBPF-rootkit loader almost always calls the bpf() syscall
+# programmatically rather than via bpftool anyway (out of reach without a
+# raw bpf(2) syscall audit watch we don't currently have).
 where: |
-  (contains("log.message", "bpf(") || contains("log.message", "BPF") ||
-   contains("log.message", "ebpf") || contains("log.message", "bpftool")) &&
-  (contains("log.message", "PROG_LOAD") || contains("log.message", "prog_load") ||
-   contains("log.message", "BPF_PROG_TYPE_TRACING") ||
-   contains("log.message", "BPF_PROG_TYPE_KPROBE") ||
-   contains("log.message", "BPF_PROG_TYPE_XDP") ||
-   contains("log.message", "attached") || contains("log.message", "loaded")) &&
+  equals("action", "execve") &&
+  (contains("origin.command", "bpf(") || contains("origin.command", "BPF") ||
+   contains("origin.command", "ebpf") || contains("origin.command", "bpftool")) &&
+  (contains("origin.command", "PROG_LOAD") || contains("origin.command", "prog_load") ||
+   contains("origin.command", "BPF_PROG_TYPE_TRACING") ||
+   contains("origin.command", "BPF_PROG_TYPE_KPROBE") ||
+   contains("origin.command", "BPF_PROG_TYPE_XDP") ||
+   contains("origin.command", "attached") || contains("origin.command", "loaded")) &&
   !(contains("log.process", "systemd") || contains("log.process", "cilium") ||
     contains("log.process", "falco") || contains("log.process", "bpftrace"))
 groupBy:

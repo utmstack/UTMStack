@@ -22,13 +22,24 @@ description: |
   4. Check for reverse shells, downloaders, or credential harvesters in the added content
   5. Review all shell RC files for the affected user and system-wide profiles
   6. Remove malicious entries and investigate the compromise vector
+# The second AND clause ("modified"/"opened for writing"/"write"/"changed")
+# reads like structured file-event keywords, not real execve argv text -- a
+# real `echo payload >> ~/.bashrc` or `vim .bashrc` origin.command never
+# contains those words. This makes the whole rule (an AND, not an OR) close
+# to permanently dead for real shell-invoked edits. Not redesigned here
+# (out of scope for this pass, flagging for a follow-up): a real fix would
+# drop this second clause and instead pair the path check with either a
+# oneOf on common editors/appenders (vim/nano/echo/tee/cat/sed) or, better,
+# a PATH-record-based write watch if/when that becomes available through the
+# filter (see RULE_COVERAGE_METHODOLOGY.md open gaps).
 where: |
-  (contains("log.message", ".bashrc") || contains("log.message", ".bash_profile") ||
-   contains("log.message", ".profile") || contains("log.message", "/etc/profile.d/") ||
-   contains("log.message", ".zshrc") || contains("log.message", ".zprofile") ||
-   contains("log.message", "/etc/bash.bashrc") || contains("log.message", "/etc/profile")) &&
-  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
-   contains("log.message", "write") || contains("log.message", "changed"))
+  equals("action", "execve") &&
+  (contains("origin.command", ".bashrc") || contains("origin.command", ".bash_profile") ||
+   contains("origin.command", ".profile") || contains("origin.command", "/etc/profile.d/") ||
+   contains("origin.command", ".zshrc") || contains("origin.command", ".zprofile") ||
+   contains("origin.command", "/etc/bash.bashrc") || contains("origin.command", "/etc/profile")) &&
+  (contains("origin.command", "modified") || contains("origin.command", "opened for writing") ||
+   contains("origin.command", "write") || contains("origin.command", "changed"))
 groupBy:
   - adversary.host
   - adversary.user

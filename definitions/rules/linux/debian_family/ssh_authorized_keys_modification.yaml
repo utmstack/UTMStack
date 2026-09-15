@@ -24,11 +24,19 @@ description: |
   5. Verify the change was authorized by the account owner
   6. Remove unauthorized keys and rotate affected credentials
   7. Monitor for subsequent SSH connections from unknown sources
+# "modified"/"opened for writing"/"changed"/"write" in the second OR read
+# like structured file-event keywords rather than real execve argv text; only
+# the `contains("log.process", "sshd")` branch is grounded in something real
+# (though unusual -- sshd itself doesn't normally exec anything when reading
+# a key). Left as-is (out of scope for this pass, not redesigned) -- a real
+# fix should pair the path check with a oneOf on actual editors/appenders
+# (vim/nano/echo/tee/cat/ssh-copy-id) instead of these keyword guesses.
 where: |
-  (contains("log.message", "authorized_keys") || contains("log.message", "authorized_keys2")) &&
-  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
-   contains("log.message", "changed") || contains("log.process", "sshd") ||
-   contains("log.message", ".ssh") && contains("log.message", "write"))
+  equals("action", "execve") &&
+  (contains("origin.command", "authorized_keys") || contains("origin.command", "authorized_keys2")) &&
+  (contains("origin.command", "modified") || contains("origin.command", "opened for writing") ||
+   contains("origin.command", "changed") || contains("log.process", "sshd") ||
+   contains("origin.command", ".ssh") && contains("origin.command", "write"))
 groupBy:
   - adversary.host
   - adversary.user

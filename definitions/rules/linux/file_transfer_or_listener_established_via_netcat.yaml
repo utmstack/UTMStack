@@ -16,7 +16,7 @@ description: "A netcat process is engaging in network activity on a Linux host. 
 references:
   - "https://attack.mitre.org/tactics/TA0002/"
   - "https://attack.mitre.org/techniques/T1059/004/"
-where: regexMatch("log.message", "((nc|ncat|netcat|netcat.openbsd|netcat.traditional) (-l|-p|-lp|(-e)(.+)(\\/bin\\/bash|\\/bin\\/sh)|(\\/bin\\/bash|\\/bin\\/sh)(.+)(-e)))")
+where: equals("action", "execve") && regexMatch("origin.command", "((nc|ncat|netcat|netcat.openbsd|netcat.traditional) (-l|-p|-lp|(-e)(.+)(\\/bin\\/bash|\\/bin\\/sh)|(\\/bin\\/bash|\\/bin\\/sh)(.+)(-e)))")
 groupBy:
   - adversary.ip
   - adversary.user

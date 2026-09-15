@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Network Sniffing Tool Executed"
+impact:
+  confidentiality: 3
+  integrity: 0
+  availability: 0
+category: "Credential Access"
+technique: "T1040 - Network Sniffing"
+adversary: origin
+description: "Detects execution of packet-capture tools (tcpdump, tshark, dumpcap) that can be used to intercept credentials or other
+              sensitive data traversing the host's network interfaces. Legitimate for troubleshooting, but worth reviewing when run by
+              an unexpected user or outside a maintenance window."
+references:
+  - "https://attack.mitre.org/techniques/T1040/"
+where: equals("action", "execve") && oneOf("origin.process", ["/usr/sbin/tcpdump", "/usr/bin/tcpdump", "/usr/bin/tshark", "/usr/bin/dumpcap"])
+groupBy:
+  - adversary.host
+  - adversary.user

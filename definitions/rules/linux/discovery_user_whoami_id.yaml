@@ -1,0 +1,22 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: User/Owner Discovery Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1033 - System Owner/User Discovery"
+adversary: origin
+description: "Detects execution of commands commonly used to enumerate the current user's identity and privileges (whoami, id, w, who,
+              logname). Legitimate on its own, but a common first step after gaining a foothold to establish what access has been
+              obtained -- especially notable when run by a service account or in a non-interactive session (a web shell, a compromised
+              cron job) rather than an actual logged-in operator."
+references:
+  - "https://attack.mitre.org/techniques/T1033/"
+where: equals("action", "execve") && oneOf("origin.process", ["/usr/bin/whoami", "/bin/whoami", "/usr/bin/id", "/bin/id", "/usr/bin/w", "/usr/bin/who", "/usr/bin/logname"])
+groupBy:
+  - adversary.host
+  - adversary.user

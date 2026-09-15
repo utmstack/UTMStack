@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -14,7 +14,18 @@ references:
   - https://attack.mitre.org/techniques/T1070/
   - https://access.redhat.com/articles/3763
 description: |
-  Detects potential tampering with the RPM database which could indicate an attacker attempting to hide malicious package installations or system modifications. This includes unauthorized access to RPM database files, non-privileged users attempting to rebuild the database, or corruption indicators in RPM logs.
+  Detects `rpm --rebuilddb` run by a non-root user, and journald text suggesting rpmdb corruption.
+
+  Rewritten v2.0.0: the previous version's direct-file-tamper branch checked log.path/log.operation and
+  `oneOf("log.syscall", ["2","257","82","83","87"])` (raw syscall numbers) -- this filter renames log.syscall to
+  `action` and auparse resolves syscalls to their NAME (e.g. "openat"), not a number, so that check could never
+  match even before considering field names. It also assumed /var/lib/rpm/* is under a file-integrity watch
+  (log.eventType=="FILE_MODIFIED") and that install-time provenance is tracked (log.package_source,
+  log.gpg_verification) -- neither exists in this pipeline. This agent does not currently audit writes to
+  /var/lib/rpm/* at all (no `-w` rule for that path); doing so would need adding one to
+  agent/dependency/auditd_linux.go's auditRulesContent. Until then, direct tampering with the RPM database files
+  themselves (bypassing rpm/yum/dnf entirely) is an undetected gap, not something fixable by renaming fields.
+  RHEL/CentOS-only; cannot be live-fire verified on the Debian-family V11-DEV-18 test VM.
 
   Next Steps:
   1. Immediately investigate the source host and verify system integrity
@@ -27,22 +38,10 @@ description: |
   8. Consider rebuilding the system from known good backups if extensive tampering is detected
 where: |
   (
-    contains("log.path", "/var/lib/rpm/") &&
-    (
-      oneOf("log.syscall", ["2", "257", "82", "83", "87"]) ||
-      oneOf("log.operation", ["write", "unlink", "rename", "truncate"])
-    ) &&
-    !oneOf("log.comm", ["rpm", "yum", "dnf", "packagekitd", "systemd"])
-  ) ||
-  (
-    oneOf("log.exe", ["/usr/bin/rpm", "/usr/bin/rpmdb"]) &&
-    contains("log.args", "--rebuilddb") &&
+    equals("action", "execve") &&
+    oneOf("origin.process", ["/usr/bin/rpm", "/usr/bin/rpmdb"]) &&
+    contains("origin.command", "--rebuilddb") &&
     !equals("log.uid", "0")
-  ) ||
-  (
-    equals("log.eventType", "FILE_MODIFIED") &&
-    oneOf("log.file_path", ["/var/lib/rpm/Packages", "/var/lib/rpm/.rpm.lock", "/var/lib/rpm/__db.001", "/var/lib/rpm/__db.002", "/var/lib/rpm/__db.003"]) &&
-    !oneOf("log.process_name", ["rpm", "yum", "dnf", "packagekitd"])
   ) ||
   (
     contains("log.message", "rpmdb") &&
@@ -54,4 +53,4 @@ where: |
   )
 groupBy:
   - adversary.host
-  - target.file
+  - adversary.user

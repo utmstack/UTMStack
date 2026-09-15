@@ -77,10 +77,10 @@ export function DashboardGrid({
         >
           {items.map((item) => {
             const viz = visualizationsById.get(item.i)
-            const chartType = viz ? parseBuilderConfig(viz.config).builder?.chartType : undefined
-            const title = chartType
-              ? t(`dashboards.editor.chartTypes.${chartType}.label`)
-              : t('dashboards.grid.unknownVisualization')
+            const builder = viz ? parseBuilderConfig(viz.config).builder : null
+            const title =
+              builder?.title ||
+              (builder ? t(`dashboards.editor.chartTypes.${builder.chartType}.label`) : t('dashboards.grid.unknownVisualization'))
             return (
               <div key={item.i}>
                 <WidgetCard

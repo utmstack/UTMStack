@@ -25,14 +25,16 @@ description: |
   6. Isolate the affected container host and investigate for lateral movement
   7. Audit container images for vulnerabilities or backdoors
 where: |
-  (contains("log.message", "docker.sock") && contains("log.message", "mount")) ||
-  (contains("log.message", "nsenter") && contains("log.message", "--target")) ||
-  (contains("log.message", "release_agent") && contains("log.message", "cgroup")) ||
-  (contains("log.message", "--privileged") && contains("log.message", "docker")) ||
-  (contains("log.message", "/proc/1/root") || contains("log.message", "/proc/1/ns")) ||
-  (contains("log.message", "CAP_SYS_ADMIN") && contains("log.message", "container")) ||
-  (contains("log.message", "mount") && contains("log.message", "/dev/") &&
-   (contains("log.message", "container") || contains("log.message", "docker")))
+  equals("action", "execve") && (
+  (contains("origin.command", "docker.sock") && contains("origin.command", "mount")) ||
+  (contains("origin.command", "nsenter") && contains("origin.command", "--target")) ||
+  (contains("origin.command", "release_agent") && contains("origin.command", "cgroup")) ||
+  (contains("origin.command", "--privileged") && contains("origin.command", "docker")) ||
+  (contains("origin.command", "/proc/1/root") || contains("origin.command", "/proc/1/ns")) ||
+  (contains("origin.command", "CAP_SYS_ADMIN") && contains("origin.command", "container")) ||
+  (contains("origin.command", "mount") && contains("origin.command", "/dev/") &&
+   (contains("origin.command", "container") || contains("origin.command", "docker")))
+  )
 groupBy:
   - adversary.host
   - adversary.user

@@ -15,7 +15,13 @@ description: "Some normal use of this command may originate from security engine
 references:
   - "https://attack.mitre.org/tactics/TA0007/"
   - "https://attack.mitre.org/techniques/T1046/"
-where: contains("log.message", "nping")
-deduplicateBy:
+# Was deduplicateBy (the only 2 of 70 Linux rules using it, alongside
+# linux_hping_activity.yaml) -- confirmed on real V11-DEV-18 data that it
+# silently drops repeat matches for the same adversary.ip/user (no new alert,
+# no lastEvent/events-array update) rather than accumulating them the way
+# every groupBy rule in this set does. Switched to groupBy for consistency
+# and so repeat nping activity isn't invisibly swallowed.
+where: equals("action", "execve") && contains("origin.command", "nping")
+groupBy:
   - adversary.ip
   - adversary.user

@@ -400,6 +400,10 @@
         "dataset": "Set di dati",
         "noDatasetHint": "Scegli un set di dati per abilitare condizioni e raggruppamento."
       },
+      "widgetTitle": {
+        "label": "Titolo",
+        "placeholder": "Facoltativo — predefinito il tipo di grafico"
+      },
       "dataset": {
         "placeholder": "Seleziona un set di dati…",
         "loading": "Caricamento dei set di dati…"
@@ -546,7 +550,14 @@
     },
     "newDashboard": {
       "title": "Nuova dashboard",
-      "subtitle": "Crea una dashboard vuota. Potrai aggiungere widget dopo averla salvata."
+      "subtitle": "Crea una dashboard vuota. Potrai aggiungere widget dopo averla salvata.",
+      "modeManual": "Crea manualmente",
+      "modeAi": "Con l'IA",
+      "aiLocked": "Attiva SOC-AI e configuralo per usare questa funzione.",
+      "aiDescriptionLabel": "Cosa deve mostrare questa dashboard?",
+      "aiDescriptionPlaceholder": "es. Accessi falliti per paese, ultimi 7 giorni",
+      "aiCreate": "Crea con l'IA",
+      "aiOpenerWithDetails": "Crea una dashboard chiamata \"{{name}}\" che mostri: {{description}}"
     },
     "newVisualization": {
       "title": "Nuovo widget",
@@ -1719,10 +1730,7 @@
   },
   "integrations": {
     "title": "Integrazioni",
-    "subtitle_one": "{{count}} di {{total}} integrazione configurata.",
-    "subtitle_other": "{{count}} di {{total}} integrazioni configurate.",
     "searchPlaceholder": "Cerca integrazioni…",
-    "configuredOnly": "Solo configurate",
     "noMatch": "Nessuna integrazione corrisponde.",
     "browseMarketplace": "Sfoglia marketplace",
     "loading": "Caricamento integrazioni…",
@@ -4027,6 +4035,7 @@
     },
     "echoes": {
       "title": "{{count}} echi",
+      "close": "Chiudi",
       "empty": "Nessun eco registrato per questo avviso.",
       "loadError": "Impossibile caricare gli echi."
     },
@@ -5235,6 +5244,7 @@
     },
     "chat": {
       "title": "Assistente SOC",
+      "dashboardCreateTitle": "Creazione dashboard",
       "empty": "Chiedi qualsiasi cosa sui tuoi alert, sulle rilevazioni o sulla console — posso investigare e agire sul SIEM.",
       "tryPrefix": "Prova",
       "suggestion": "quanti alert aperti, raggruppati per avversario?",

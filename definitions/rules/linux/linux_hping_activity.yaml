@@ -15,7 +15,10 @@ description: "Hping ran on a Linux host. Hping is a FOSS command-line packet ana
 references:
   - "https://attack.mitre.org/tactics/TA0007/"
   - "https://attack.mitre.org/techniques/T1082/"
-where: contains("log.message", "hping")
-deduplicateBy:
+# Was deduplicateBy -- see linux_nping_activity.yaml's comment for why this
+# was switched to groupBy (confirmed on real data: deduplicateBy silently
+# dropped repeat matches instead of accumulating them).
+where: equals("action", "execve") && contains("origin.command", "hping")
+groupBy:
   - adversary.ip
   - adversary.user

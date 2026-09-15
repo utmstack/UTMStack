@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Destructive Disk Wipe Command Executed"
+impact:
+  confidentiality: 0
+  integrity: 3
+  availability: 3
+category: "Impact"
+technique: "T1488 - Disk Content Wipe"
+adversary: origin
+description: "Detects dd writing from /dev/zero or /dev/urandom to a block device, or wipefs/shred targeting a device path -- the
+              signature move of a wiper/ransomware final stage, or a destructive attempt to eliminate forensic evidence at the disk
+              level rather than the file level."
+references:
+  - "https://attack.mitre.org/techniques/T1488/"
+where: |
+  equals("action", "execve") &&
+  ((equals("origin.process", "/bin/dd") || equals("origin.process", "/usr/bin/dd")) && (contains("origin.command", "if=/dev/zero") || contains("origin.command", "if=/dev/urandom")) && contains("origin.command", "of=/dev/")) ||
+  (equals("origin.process", "/usr/sbin/wipefs") && contains("origin.command", "/dev/")) ||
+  ((equals("origin.process", "/usr/bin/shred") || equals("origin.process", "/bin/shred")) && contains("origin.command", "/dev/"))
+groupBy:
+  - adversary.host
+  - adversary.user

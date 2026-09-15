@@ -23,15 +23,29 @@ description: |
   4. Check for data exfiltration or access to restricted network segments
   5. If unauthorized, terminate the SSH session and block the connection
   6. Review SSH configuration to restrict port forwarding if not needed
+# Restructured: the original single AND-of-everything required
+# log.process=="sshd" (the server daemon) together with either literal
+# `ssh -L/-R/-D` client syntax or free-text phrases like "port forwarding" --
+# but sshd's own origin.command is a static "/usr/sbin/sshd -D -R"
+# (confirmed via real V11-DEV-18 data), so neither branch could ever match
+# under that gate: the client-syntax branch needs a real `ssh` client
+# execve (not sshd), and the free-text phrases look like sshd's own verbose
+# log MESSAGE text, which belongs in log.message, not origin.command. Split
+# into what's actually detectable: a real client-side `ssh -L/-R/-D`
+# execve, gated on action=="execve" (no sshd requirement -- this is about
+# someone running the command, not about the daemon); the log.message
+# branch is kept but unverified against real sshd verbose-log phrasing on
+# this system (never confirmed with a real -L/-R/-D session) -- flag this
+# for verification if trusted for detection, rather than treating it as
+# proven.
 where: |
-  contains("log.process", "sshd") &&
-  (regexMatch("log.message", "(?i)ssh\\s+.*-[LRD]\\s+") ||
-   contains("log.message", "port forwarding") ||
-   contains("log.message", "Local forwarding") ||
-   contains("log.message", "Remote forwarding") ||
-   contains("log.message", "Dynamic forwarding") ||
-   contains("log.message", "tunnel") ||
-   regexMatch("log.message", "(?i)open forward.*port"))
+  (equals("action", "execve") && regexMatch("origin.command", "(?i)ssh\\s+.*-[LRD]\\s+")) ||
+  (contains("origin.process", "sshd") &&
+   (contains("log.message", "port forwarding") ||
+    contains("log.message", "Local forwarding") ||
+    contains("log.message", "Remote forwarding") ||
+    contains("log.message", "Dynamic forwarding") ||
+    regexMatch("log.message", "(?i)open forward.*port")))
 groupBy:
   - adversary.host
   - adversary.ip

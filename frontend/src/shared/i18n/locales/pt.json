@@ -400,6 +400,10 @@
         "dataset": "Conjunto de dados",
         "noDatasetHint": "Escolha um conjunto de dados para habilitar condições e agrupamento."
       },
+      "widgetTitle": {
+        "label": "Título",
+        "placeholder": "Opcional — padrão é o tipo de gráfico"
+      },
       "dataset": {
         "placeholder": "Selecione um conjunto de dados…",
         "loading": "Carregando conjuntos de dados…"
@@ -546,7 +550,14 @@
     },
     "newDashboard": {
       "title": "Novo painel",
-      "subtitle": "Crie um painel em branco. Você pode adicionar widgets depois de salvá-lo."
+      "subtitle": "Crie um painel em branco. Você pode adicionar widgets depois de salvá-lo.",
+      "modeManual": "Criar manualmente",
+      "modeAi": "Usando IA",
+      "aiLocked": "Ative o SOC-AI e configure-o para usar isso.",
+      "aiDescriptionLabel": "O que este painel deve mostrar?",
+      "aiDescriptionPlaceholder": "ex. Logins com falha por país, últimos 7 dias",
+      "aiCreate": "Criar com IA",
+      "aiOpenerWithDetails": "Crie um painel chamado \"{{name}}\" mostrando: {{description}}"
     },
     "newVisualization": {
       "title": "Novo widget",
@@ -1719,10 +1730,7 @@
   },
   "integrations": {
     "title": "Integrações",
-    "subtitle_one": "{{count}} de {{total}} integração configurada.",
-    "subtitle_other": "{{count}} de {{total}} integrações configuradas.",
     "searchPlaceholder": "Pesquisar integrações…",
-    "configuredOnly": "Apenas configuradas",
     "noMatch": "Nenhuma integração corresponde.",
     "browseMarketplace": "Explorar marketplace",
     "loading": "Carregando integrações…",
@@ -3977,6 +3985,7 @@
     },
     "chat": {
       "title": "Assistente SOC",
+      "dashboardCreateTitle": "Criador de painéis",
       "empty": "Pergunte o que quiser sobre seus alertas, detecções ou o console — posso investigar e agir no SIEM.",
       "tryPrefix": "Tente",
       "suggestion": "quantos alertas abertos há, agrupados por adversário?",
@@ -4149,6 +4158,7 @@
     },
     "echoes": {
       "title": "{{count}} ecos",
+      "close": "Fechar",
       "empty": "Nenhum eco registrado para este alerta.",
       "loadError": "Não foi possível carregar os ecos."
     },

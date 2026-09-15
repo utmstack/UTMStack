@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Account Deleted or Locked"
+impact:
+  confidentiality: 0
+  integrity: 3
+  availability: 2
+category: "Impact"
+technique: "T1531 - Account Access Removal"
+adversary: origin
+description: "Detects userdel or passwd -l/--lock, which remove or lock a local account. Can be legitimate offboarding, but is also
+              used to deny a defender access during an active incident, or to remove evidence of an account an adversary created and
+              no longer needs."
+references:
+  - "https://attack.mitre.org/techniques/T1531/"
+where: equals("action", "execve") && (equals("origin.process", "/usr/sbin/userdel") || (equals("origin.process", "/usr/bin/passwd") && (contains("origin.command", "-l") || contains("origin.command", "--lock"))))
+groupBy:
+  - adversary.host
+  - adversary.user

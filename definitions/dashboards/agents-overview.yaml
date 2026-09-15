@@ -1,0 +1,143 @@
+# Dashboard version v1.1.0
+#
+# System-owned default dashboard, seeded by
+# backend/modules/dashboards/repository/dashboard_bootstrap.go. Fields used
+# below (dataType, severity, category, technique, name on the alerts/logs
+# datasets) are all real, confirmed top-level columns -- not guessed nested
+# paths -- verified against the live schema and real query results while
+# building the Linux rule set this same week. Every widget's chart type is
+# picked so this renders as more than a wall of single numbers: 4 metrics, 3
+# bar breakdowns, 1 timeline, 1 table.
+name: "Agents"
+description: "Fleet-wide agent activity across Linux, Windows and macOS."
+widgets:
+  # Row 1 (y 0-2): four single numbers.
+  - layout: { x: 0, y: 0, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      dataType: linux
+      chart: metric
+      metric:
+        agg: count
+    config:
+      __builder:
+        chartType: metric
+        title: "Linux Events (24h)"
+
+  - layout: { x: 3, y: 0, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      dataType: windows
+      chart: metric
+      metric:
+        agg: count
+    config:
+      __builder:
+        chartType: metric
+        title: "Windows Events (24h)"
+
+  - layout: { x: 6, y: 0, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      dataType: macos
+      chart: metric
+      metric:
+        agg: count
+    config:
+      __builder:
+        chartType: metric
+        title: "macOS Events (24h)"
+
+  - layout: { x: 9, y: 0, w: 3, h: 2 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+    config:
+      __builder:
+        chartType: metric
+        title: "Total Alerts (24h)"
+
+  # Row 2 (y 2-6): two side-by-side breakdowns.
+  - layout: { x: 0, y: 2, w: 6, h: 4 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by Severity"
+
+  - layout: { x: 6, y: 2, w: 6, h: 4 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: dataType
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by Agent OS"
+
+  # Row 3 (y 6-10): two more breakdowns.
+  - layout: { x: 0, y: 6, w: 6, h: 4 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: category
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by Tactic"
+
+  - layout: { x: 6, y: 6, w: 6, h: 4 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: technique
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Top MITRE Techniques"
+
+  # Row 4 (y 10-14): events over time, split by OS.
+  - layout: { x: 0, y: 10, w: 12, h: 4 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: dataType
+      metric:
+        agg: count
+      interval: 1h
+      limit: 10
+    config:
+      __builder:
+        chartType: line
+        title: "Events Over Time, by OS"
+
+  # Row 5 (y 14-19): the latest alerts, as a table.
+  - layout: { x: 0, y: 14, w: 12, h: 5 }
+    spec:
+      dataset: alerts
+      chart: table
+      metric:
+        agg: count
+      columns: [name, severity, dataType, technique]
+      limit: 10
+    config:
+      __builder:
+        chartType: table
+        title: "Latest Alerts"

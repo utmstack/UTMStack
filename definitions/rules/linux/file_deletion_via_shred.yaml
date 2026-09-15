@@ -16,7 +16,7 @@ description: "Malware or other files dropped or created on a system by an advers
 references:
   - "https://attack.mitre.org/tactics/TA0005/"
   - "https://attack.mitre.org/techniques/T1070/004/"
-where: regexMatch("log.message", "(shred (-u|--remove|-z|--zero))")
+where: equals("action", "execve") && regexMatch("origin.command", "(shred (-u|--remove|-z|--zero))")
 groupBy:
   - adversary.ip
   - adversary.user

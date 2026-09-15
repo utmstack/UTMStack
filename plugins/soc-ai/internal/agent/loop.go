@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -17,6 +18,13 @@ const (
 	keepTailMessages    = 4   // messages kept raw when compacting
 	genericErrorMsg     = "An error has occurred while processing your request."
 )
+
+func errorEventText(err error) string {
+	if errors.Is(err, ErrLLMRateLimited) {
+		return ErrLLMRateLimited.Error()
+	}
+	return genericErrorMsg
+}
 
 var modelContextWindow = []struct {
 	prefix string
@@ -158,7 +166,7 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 			_ = catcher.Error("llm completion failed", err, map[string]any{
 				"process": "plugin_com.utmstack.soc-ai",
 			})
-			sink.emit(Event{Kind: EventError, Text: genericErrorMsg})
+			sink.emit(Event{Kind: EventError, Text: errorEventText(err)})
 			return result, err
 		}
 
@@ -229,7 +237,10 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 		_ = catcher.Error("max-iters finalization llm call failed", ferr, map[string]any{
 			"process": "plugin_com.utmstack.soc-ai",
 		})
-		const msg = "Reached the maximum number of tool iterations and could not finalize."
+		msg := "Reached the maximum number of tool iterations and could not finalize."
+		if errors.Is(ferr, ErrLLMRateLimited) {
+			msg = ErrLLMRateLimited.Error()
+		}
 		sink.emit(Event{Kind: EventFinal, Text: msg})
 		result.Final = msg
 		return result, nil

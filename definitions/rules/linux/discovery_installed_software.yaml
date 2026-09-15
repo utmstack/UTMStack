@@ -1,0 +1,20 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Installed Software Enumeration Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1518 - Software Discovery"
+adversary: origin
+description: "Detects dpkg -l or rpm -qa used to enumerate all installed packages, commonly run to identify exploitable software
+              versions or the presence/absence of security tooling on the host."
+references:
+  - "https://attack.mitre.org/techniques/T1518/"
+where: equals("action", "execve") && (contains("origin.command", "dpkg -l") || contains("origin.command", "dpkg --list") || contains("origin.command", "rpm -qa"))
+groupBy:
+  - adversary.host
+  - adversary.user

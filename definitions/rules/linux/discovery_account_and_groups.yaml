@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "linux"
+name: "System Linux: Account or Permission Group Discovery Command Executed"
+impact:
+  confidentiality: 1
+  integrity: 0
+  availability: 0
+category: "Discovery"
+technique: "T1087 - Account Discovery"
+adversary: origin
+description: "Detects execution of commands used to enumerate local accounts and their group memberships (getent passwd, getent group,
+              cat /etc/passwd, groups, cut against /etc/passwd). Common early reconnaissance to identify privileged accounts to target."
+references:
+  - "https://attack.mitre.org/techniques/T1087/"
+  - "https://attack.mitre.org/techniques/T1069/"
+where: equals("action", "execve") && (contains("origin.command", "getent passwd") || contains("origin.command", "getent group") || contains("origin.command", "cat /etc/passwd") || equals("origin.process", "/usr/bin/groups") || equals("origin.process", "/bin/groups"))
+groupBy:
+  - adversary.host
+  - adversary.user
