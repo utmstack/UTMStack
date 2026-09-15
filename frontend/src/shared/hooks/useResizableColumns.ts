@@ -37,6 +37,8 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
   const [widths, setWidths] = useState<ColSize[]>(initial)
   const dragRef = useRef<{ index: number; startX: number; startW: number; measured: number[] } | null>(null)
 
+  const effectiveWidths = widths.length === initial.length ? widths : initial
+
   useEffect(() => {
     setWidths(initial)
   }, [initial.length, storageKey])
@@ -88,17 +90,17 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
     [min],
   )
 
-  const mins = widths.map((_, i) => minAt(min, i))
+  const mins = effectiveWidths.map((_, i) => minAt(min, i))
   // ponytail: wrap simple fr tracks in minmax so a narrow viewport can't
   // collapse labels below their per-column min. Fixed px tracks and strings
   // that already declare their own function (e.g. `minmax(120px, 1fr)`) are
   // passed through unchanged.
-  const template = widths
+  const template = effectiveWidths
     .map((w, i) => {
       if (typeof w === 'number') return `${w}px`
       return /^[\d.]+fr$/.test(w.trim()) ? `minmax(${mins[i]}px, ${w})` : w
     })
     .join(' ')
 
-  return { widths, template, setWidths, startDrag, mins }
+  return { widths: effectiveWidths, template, setWidths, startDrag, mins }
 }
