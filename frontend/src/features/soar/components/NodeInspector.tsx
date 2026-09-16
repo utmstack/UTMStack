@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, Trash2, Zap } from 'lucide-react'
+import { ChevronDown, Save, Trash2, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import type { FlowNode } from '../types/soar.types'
@@ -21,17 +21,18 @@ interface Props {
    *  ancestors reachable from this node. */
   nodes: Record<string, FlowNode>
   readOnly?: boolean
-  onRename: (newId: string) => void
-  onChange: (patch: Partial<FlowNode>) => void
+  onSave: (nextId: string, patch: Partial<FlowNode>) => boolean
   onDelete: () => void
+  onClose: () => void
 }
 
 /** Right-side properties panel for the selected node: id, kind, executor,
  *  command/params (schema depends on executor), on_success/on_error left
  *  implicit (drawn on the canvas). */
-export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChange, onDelete }: Props) {
+export function NodeInspector({ nodeId, node, nodes, readOnly, onSave, onDelete, onClose }: Props) {
   const { t } = useTranslation()
   const [localId, setLocalId] = useState(nodeId)
+  const [draftNode, setDraftNode] = useState<FlowNode>(node)
   const [paramsText, setParamsText] = useState(() => (node.params ? JSON.stringify(node.params, null, 2) : ''))
   const [paramsError, setParamsError] = useState<string | null>(null)
   const commandRef = useRef<HTMLTextAreaElement>(null)
@@ -61,6 +62,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
 
   useEffect(() => {
     setLocalId(nodeId)
+    setDraftNode(node)
   }, [nodeId])
   useEffect(() => {
     setParamsText(node.params ? JSON.stringify(node.params, null, 2) : '')
@@ -69,19 +71,30 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
 
   const commitId = () => {
     const trimmed = localId.trim()
-    if (trimmed && trimmed !== nodeId) onRename(trimmed)
+    if (trimmed) setLocalId(trimmed)
     else setLocalId(nodeId)
+  }
+
+  const updateDraft = (patch: Partial<FlowNode>) => setDraftNode((current) => ({ ...current, ...patch }))
+
+  const save = () => {
+    const trimmedId = localId.trim()
+    if (!trimmedId) {
+      setLocalId(nodeId)
+      return
+    }
+    if (onSave(trimmedId, draftNode)) onClose()
   }
 
   const commitParams = () => {
     if (!paramsText.trim()) {
-      onChange({ params: undefined })
+      updateDraft({ params: undefined })
       setParamsError(null)
       return
     }
     try {
       const parsed = JSON.parse(paramsText)
-      onChange({ params: parsed })
+      updateDraft({ params: parsed })
       setParamsError(null)
     } catch (e) {
       setParamsError(e instanceof Error ? e.message : t('soar.editor.canvas.invalidJson'))
@@ -92,9 +105,9 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
   // when the field is empty and insert-at-caret otherwise, so users can build
   // a chain of them.
   const insertIntoCommand = (token: string, replaceAll: boolean) => {
-    const cur = node.command ?? ''
+    const cur = draftNode.command ?? ''
     if (replaceAll && !cur.trim()) {
-      onChange({ command: token })
+      updateDraft({ command: token })
       requestAnimationFrame(() => {
         const el = commandRef.current
         if (el) {
@@ -108,7 +121,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
     const start = el?.selectionStart ?? cur.length
     const end = el?.selectionEnd ?? cur.length
     const next = cur.slice(0, start) + token + cur.slice(end)
-    onChange({ command: next })
+    updateDraft({ command: next })
     requestAnimationFrame(() => {
       const el2 = commandRef.current
       if (el2) {
@@ -138,7 +151,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
     })
   }
 
-  const shellKind = shellKindFor(node.platform ?? '', node.shell ?? '')
+  const shellKind = shellKindFor(draftNode.platform ?? '', draftNode.shell ?? '')
 
   return (
     <aside
@@ -150,12 +163,17 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
         className="absolute left-0 top-0 z-10 h-full w-1 cursor-col-resize hover:bg-primary/40"
         title={t('soar.editor.canvas.dragToResize')}
       />
-      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+      <div className="flex items-center justify-between border-b border-border py-2 pl-[30px] pr-3">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('soar.editor.canvas.node')}</div>
         {!readOnly && (
-          <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title={t('soar.editor.canvas.deleteNode')}>
-            <Trash2 size={13} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={save} className="rounded p-1 text-muted-foreground hover:text-foreground" title={t('soar.editor.save')}>
+              <Save size={13} />
+            </button>
+            <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title={t('soar.editor.canvas.deleteNode')}>
+              <Trash2 size={13} />
+            </button>
+          </div>
         )}
       </div>
       <div className="flex-1 space-y-3 overflow-y-auto p-3 text-xs">
@@ -168,7 +186,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
             className="h-8 font-mono"
           />
         </Field>
-        {node.executor === 'shell' && (
+        {draftNode.executor === 'shell' && (
           <>
             <Field label={t('soar.editor.canvas.commandLabel')}>
               {!readOnly && (
@@ -184,89 +202,89 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
               )}
               <textarea
                 ref={commandRef}
-                value={node.command ?? ''}
+                value={draftNode.command ?? ''}
                 readOnly={readOnly}
-                onChange={(e) => onChange({ command: e.target.value })}
+                onChange={(e) => updateDraft({ command: e.target.value })}
                 rows={4}
                 className="w-full rounded-md border border-input bg-background px-2 py-1.5 font-mono text-[11px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 placeholder='usermod -s /sbin/nologin $(alert.target.user)'
               />
             </Field>
             <AgentPicker
-              platform={node.platform}
-              agent={node.agent}
-              excludedAgents={node.excludedAgents}
-              shell={node.shell}
+              platform={draftNode.platform}
+              agent={draftNode.agent}
+              excludedAgents={draftNode.excludedAgents}
+              shell={draftNode.shell}
               readOnly={readOnly}
-              onChange={(patch) => onChange(patch)}
+              onChange={updateDraft}
             />
           </>
         )}
 
-        {node.executor === 'conditional' && (
+        {draftNode.executor === 'conditional' && (
           <Field label={t('soar.editor.conditions')}>
             <ConditionalParamsEditor
               nodeId={nodeId}
               nodes={nodes}
-              params={node.params}
+              params={draftNode.params}
               readOnly={readOnly}
-              onChange={(next) => onChange({ params: next })}
+              onChange={(next) => updateDraft({ params: next })}
             />
           </Field>
         )}
 
-        {node.executor === 'http' && (
+        {draftNode.executor === 'http' && (
           <HttpParamsEditor
             nodeId={nodeId}
             nodes={nodes}
-            params={node.params}
+            params={draftNode.params}
             readOnly={readOnly}
-            onChange={(next) => onChange({ params: next })}
+            onChange={(next) => updateDraft({ params: next })}
           />
         )}
 
-        {node.executor === 'incident' && (
+        {draftNode.executor === 'incident' && (
           <IncidentParamsEditor
             nodeId={nodeId}
             nodes={nodes}
-            params={node.params}
+            params={draftNode.params}
             readOnly={readOnly}
-            onChange={(next) => onChange({ params: next })}
+            onChange={(next) => updateDraft({ params: next })}
           />
         )}
 
-        {node.executor === 'mail' && (
+        {draftNode.executor === 'mail' && (
           <MailParamsEditor
             nodeId={nodeId}
             nodes={nodes}
-            params={node.params}
+            params={draftNode.params}
             readOnly={readOnly}
-            onChange={(next) => onChange({ params: next })}
+            onChange={(next) => updateDraft({ params: next })}
           />
         )}
 
-        {node.executor === 'notify' && (
+        {draftNode.executor === 'notify' && (
           <NotifyParamsEditor
             nodeId={nodeId}
             nodes={nodes}
-            params={node.params}
+            params={draftNode.params}
             readOnly={readOnly}
-            onChange={(next) => onChange({ params: next })}
+            onChange={(next) => updateDraft({ params: next })}
           />
         )}
 
-        {(node.executor === 'llm_enrich' || node.executor === 'llm_action') && (
+        {(draftNode.executor === 'llm_enrich' || draftNode.executor === 'llm_action') && (
           <LLMParamsEditor
             nodeId={nodeId}
             nodes={nodes}
-            params={node.params}
+            params={draftNode.params}
             readOnly={readOnly}
-            executor={node.executor}
-            onChange={(next) => onChange({ params: next })}
+            executor={draftNode.executor}
+            onChange={(next) => updateDraft({ params: next })}
           />
         )}
 
-        {node.executor !== 'shell' && node.executor !== 'conditional' && node.executor !== 'http' && node.executor !== 'incident' && node.executor !== 'mail' && node.executor !== 'notify' && node.executor !== 'llm_enrich' && node.executor !== 'llm_action' && (
+        {draftNode.executor !== 'shell' && draftNode.executor !== 'conditional' && draftNode.executor !== 'http' && draftNode.executor !== 'incident' && draftNode.executor !== 'mail' && draftNode.executor !== 'notify' && draftNode.executor !== 'llm_enrich' && draftNode.executor !== 'llm_action' && (
           <Field label={t('soar.editor.canvas.paramsJson')}>
             {!readOnly && (
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
@@ -292,7 +310,17 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onRename, onChang
         </div>
       </div>
       <div className="border-t border-border p-2">
-        <Button size="sm" variant="outline" className="w-full" onClick={onDelete} disabled={readOnly}>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="flex-1" onClick={onClose}>
+            {t('soar.editor.cancel')}
+          </Button>
+          {!readOnly && (
+            <Button size="sm" className="flex-1" onClick={save}>
+              {t('soar.editor.save')}
+            </Button>
+          )}
+        </div>
+        <Button size="sm" variant="outline" className="mt-2 w-full" onClick={onDelete} disabled={readOnly}>
           {t('soar.editor.canvas.deleteNode')}
         </Button>
       </div>
