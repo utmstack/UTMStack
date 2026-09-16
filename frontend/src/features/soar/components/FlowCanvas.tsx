@@ -140,7 +140,7 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
         if (c.type === 'select') {
           if (c.selected) {
             setSelectedId(c.id)
-            if (c.id === TRIGGER_ID) setInspectorOpen(true)
+            setInspectorOpen(true)
           } else if (!c.selected && selectedId === c.id) setSelectedId(null)
         }
       }
@@ -298,27 +298,35 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
 
   const selected = selectedId ? nodes[selectedId] : null
 
-  const renameNode = (nextId: string) => {
-    if (!selectedId || nextId === selectedId || nodes[nextId]) return
+  const patchNode = (patch: Partial<FlowNode>) => {
+    if (!selectedId || !nodes[selectedId]) return false
+    onChange({ roots, nodes: { ...nodes, [selectedId]: { ...nodes[selectedId], ...patch } } })
+    return true
+  }
+
+  const saveNode = (nextId: string, patch: Partial<FlowNode>) => {
+    if (!selectedId || !nodes[selectedId]) return false
+    const trimmedId = nextId.trim()
+    if (!trimmedId || (trimmedId !== selectedId && nodes[trimmedId])) return false
+    if (trimmedId === selectedId) {
+      return patchNode(patch)
+    }
+
     const nextNodes: Record<string, FlowNode> = {}
     for (const [id, n] of Object.entries(nodes)) {
       const copy: FlowNode = {
         ...n,
-        onSuccess: n.onSuccess?.map((t) => (t === selectedId ? nextId : t)),
-        onError: n.onError?.map((t) => (t === selectedId ? nextId : t)),
+        onSuccess: n.onSuccess?.map((target) => (target === selectedId ? trimmedId : target)),
+        onError: n.onError?.map((target) => (target === selectedId ? trimmedId : target)),
       }
-      nextNodes[id === selectedId ? nextId : id] = copy
+      nextNodes[id === selectedId ? trimmedId : id] = id === selectedId ? { ...copy, ...patch } : copy
     }
-    const nextRoots = roots.map((r) => (r === selectedId ? nextId : r))
-    layoutRef.current[nextId] = layoutRef.current[selectedId]
+    const nextRoots = roots.map((root) => (root === selectedId ? trimmedId : root))
+    layoutRef.current[trimmedId] = layoutRef.current[selectedId]
     delete layoutRef.current[selectedId]
     onChange({ roots: nextRoots, nodes: nextNodes })
-    setSelectedId(nextId)
-  }
-
-  const patchNode = (patch: Partial<FlowNode>) => {
-    if (!selectedId || !nodes[selectedId]) return
-    onChange({ roots, nodes: { ...nodes, [selectedId]: { ...nodes[selectedId], ...patch } } })
+    setSelectedId(trimmedId)
+    return true
   }
 
   const deleteNode = () => {
@@ -339,7 +347,7 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
   }
 
   return (
-    <div className="flex h-full min-h-[560px] overflow-hidden rounded-lg border border-border">
+    <div className="flex h-full min-h-0 overflow-hidden rounded-lg border border-border">
       {paletteOpen ? (
         <div className="relative overflow-y-auto">
           <NodePalette readOnly={readOnly} />
@@ -385,7 +393,7 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
           } as React.CSSProperties}
         >
           <Background gap={16} size={1} />
-          <Controls showInteractive={false} />
+          <Controls position="top-left" showInteractive={false} className="!z-10" />
         </ReactFlow>
       </div>
 
@@ -396,6 +404,10 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
               conditions={conditions}
               readOnly={readOnly}
               onChange={onConditionsChange}
+              onClose={() => {
+                setSelectedId(null)
+                setInspectorOpen(false)
+              }}
             />
             <button
               type="button"
@@ -417,9 +429,12 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
               node={selected}
               nodes={nodes}
               readOnly={readOnly}
-              onRename={renameNode}
-              onChange={patchNode}
+              onSave={saveNode}
               onDelete={deleteNode}
+              onClose={() => {
+                setSelectedId(null)
+                setInspectorOpen(false)
+              }}
             />
             <button
               type="button"

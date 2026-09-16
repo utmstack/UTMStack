@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
+import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 
 interface Props {
@@ -14,10 +15,11 @@ interface Props {
 
 // Floating modal for the flow's identity fields — used to be a top-level
 // SectionCard; now opened from a pencil icon next to the flow title in the
-// header. Live-commits on every keystroke via onChange.
+// header. Changes are committed only when Save is pressed.
 // ponytail: no shared Dialog primitive here, just overlay + card + Esc handler.
 export function FlowIdentityModal({ name, description, maxDepth, readOnly, onChange, onClose }: Props) {
   const { t } = useTranslation()
+  const [draft, setDraft] = useState({ name, description, maxDepth })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -26,6 +28,11 @@ export function FlowIdentityModal({ name, description, maxDepth, readOnly, onCha
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
+
+  const save = () => {
+    onChange(draft)
+    onClose()
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
@@ -47,9 +54,9 @@ export function FlowIdentityModal({ name, description, maxDepth, readOnly, onCha
                 {!readOnly && <span className="ml-0.5 text-red-500">*</span>}
               </label>
               <Input
-                value={name}
+                value={draft.name}
                 readOnly={readOnly}
-                onChange={(e) => onChange({ name: e.target.value })}
+                onChange={(e) => setDraft((current) => ({ ...current, name: e.target.value }))}
                 placeholder={t('soar.editor.namePlaceholder')}
                 className="text-base font-semibold"
                 autoFocus
@@ -63,9 +70,9 @@ export function FlowIdentityModal({ name, description, maxDepth, readOnly, onCha
                 type="number"
                 min={1}
                 max={1000}
-                value={maxDepth}
+                value={draft.maxDepth}
                 readOnly={readOnly}
-                onChange={(e) => onChange({ maxDepth: Number(e.target.value) || 50 })}
+                onChange={(e) => setDraft((current) => ({ ...current, maxDepth: Number(e.target.value) || 50 }))}
                 className="text-sm"
               />
             </div>
@@ -75,14 +82,24 @@ export function FlowIdentityModal({ name, description, maxDepth, readOnly, onCha
               {t('soar.editor.descriptionLabel')}
             </label>
             <textarea
-              value={description}
+              value={draft.description}
               readOnly={readOnly}
-              onChange={(e) => onChange({ description: e.target.value })}
+              onChange={(e) => setDraft((current) => ({ ...current, description: e.target.value }))}
               rows={3}
               placeholder={t('soar.editor.descriptionHint')}
               className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
+        </div>
+        <div className="mt-4 flex justify-end gap-2 border-t border-border pt-3">
+          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+            {t('soar.editor.cancel')}
+          </Button>
+          {!readOnly && (
+            <Button type="button" size="sm" onClick={save}>
+              {t('soar.editor.save')}
+            </Button>
+          )}
         </div>
       </div>
     </div>
