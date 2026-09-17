@@ -1,0 +1,41 @@
+{
+  "technology": "pfSense",
+  "filters": [
+    "filters/pfsense/pfsense_fw.yml"
+  ],
+  "rules": [
+    "rules/pfsense/dns_resolver_cache_poisoning.yml",
+    "rules/pfsense/pfsense_admin_brute_force.yml",
+    "rules/pfsense/snort_suricata_ids_alerts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "pfSense pass",
+      "filter": "pfsense/pfsense_fw.yml",
+      "input": {
+        "log": {
+          "action": "pass"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "pfSense block",
+      "filter": "pfsense/pfsense_fw.yml",
+      "input": {
+        "log": {
+          "action": "block"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
