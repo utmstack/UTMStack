@@ -361,11 +361,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
 
     this.lastRequest=this.elasticDataService.search(this.page, this.itemsPerPage,
       MAX_SEARCH_RESULTS, this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy, true)
-        .pipe(debounceTime(200),take(1),finalize(()=>{
+      sanitizeFilters(!!filtersParam? filtersParam : this.filters), this.sortBy, true)
+        .pipe(debounceTime(300),take(1),finalize(()=>{
           this.loading = false;
           this.flushPendingFilters();
-          this.lastRequest.unsubscribe()
           this.lastRequest=null
          }))
         .subscribe(
@@ -373,7 +372,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.alerts = res.body;
       },
-      (res: HttpResponse<any>) => {
+      (_res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
         this.refreshingAlert = false;
       }
