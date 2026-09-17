@@ -31,6 +31,9 @@ pipeline:
       - json:
           source: log.suricataJson
           where: regexMatch("log.suricataJson", "^\\{.*\\}$")
+      - json:
+          source: raw
+          where: '!exists("log.suricataJson") && regexMatch("raw", "^\\s*\\{")'
 
       # Rename fields to conversion v11 schema
       - rename:
@@ -91,24 +94,24 @@ pipeline:
     
       # Adding severity field based on log.alert.severity
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "low"
+            value: critical
           where: equals("log.alert.severity", 1)
 
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "medium"
+            value: warning
           where: equals("log.alert.severity", 2)
 
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "high"
+            value: info
           where: equals("log.alert.severity", 3)
 
       #.......................................................................
@@ -124,46 +127,9 @@ pipeline:
           to: log.fileInfo
 
       # Implementing action field used for established connections
-      - add:
-          function: "string"
-          params:
-            key: action
-            value: "success"
-          where: (equals("log.eventType", "tls") && exists("log.tls.sessionresumed")) ||
-            (equals("log.eventType", "dns") && equals("log.dns.type", "answer")) ||
-            (equals("log.eventType", "flow") && exists("origin.ip") && exists("target.ip") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
-            (equals("log.eventType", "ssh") && exists("log.ssh.server") && exists("log.ssh.client")) ||
-            (equals("log.eventType", "alert") && exists("origin.ip") && exists("target.ip") && equals("log.alert.action", "allowed") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
-            (equals("log.eventType", "http") && exists("origin.ip") && exists("target.ip") && exists("log.http.status")) ||
-            (equals("log.eventType", "ftp") && exists("origin.ip") && exists("target.ip") && exists("log.ftp.completioncode")) ||
-            (equals("log.eventType", "tftp") && exists("origin.ip") && exists("target.ip") && !equals("log.tftp.packet", "error")) ||
-            (equals("log.eventType", "smb") && exists("origin.ip") && exists("target.ip") && oneOf("log.smb.command", ["NEGOTIATE"]) && oneOf("log.smb.status", ["SUCCESS", "GRANTED", "CONNECTED"])) ||
-            (equals("log.eventType", "rdp") && exists("origin.ip") && exists("target.ip") && (equals("log.rdp.eventType", "connectresponse") || equals("log.rdp.eventType", "tlshandshake"))) ||
-            (equals("log.eventType", "rfb") && exists("origin.ip") && exists("target.ip") && equals("log.rfb.authentication.security-result", "OK")) ||
-            (equals("log.eventType", "mqtt") && exists("origin.ip") && exists("target.ip") && (equals("log.mqtt.connack.returncode", "0") ||  equals("log.mqtt.connack.returncode", "0x00"))) ||
-            (equals("log.eventType", "pgsql") && exists("origin.ip") && exists("target.ip") && (exists("log.pgsql.request.simplequery") ||  exists("log.pgsql.response.commandcompleted") || equals("log.pgsql.response.sslaccepted", "true") || equals("log.pgsql.response.accepted", "true") || exists("log.pgsql.response.authenticationmd5password"))) ||
-            ((equals("log.eventType", "ike") || equals("log.eventType", "ikev1") || equals("log.eventType", "ikev2")) && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "modbus") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "sip") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "quic") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "fileinfo") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "snmp") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "dhcp") && exists("origin.ip") && exists("target.ip") && !equals("log.dhcp.assignedip", "0"))
           
 
       # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "allowed"
-          where: 'exists("log.alert.action") && equals("log.alert.action", "allowed")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.alert.action") && equals("log.alert.action", "blocked")'
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -189,3 +155,100 @@ pipeline:
             - log.syslogTimestamp
             - log.syslogProgram
             - log.syslogPid
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: oneOf("log.verdict.action",["drop","reject"]) || exists("log.verdict.reject") || equals("log.flow.action","drop") || equals("log.alert.action","blocked")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && (equals("log.verdict.action","pass") || equals("log.flow.action","pass"))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && equals("log.flow.state","established") && greaterThan("log.flow.bytestoserver",0) && greaterThan("log.flow.bytestoclient",0)'
+      - add:
+          function: string
+          params:
+            key: connectionStatus
+            value: established
+          where: equals("log.flow.state","established") && !equals("actionResult","denied")
+      - add:
+          function: string
+          params:
+            key: connectionStatus
+            value: closed
+          where: equals("log.flow.state","closed")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

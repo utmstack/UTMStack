@@ -1,0 +1,365 @@
+{
+  "technology": "Suricata",
+  "filters": [
+    "filters/suricata/suricata.yml"
+  ],
+  "rules": [
+    "rules/nids/suricata/baby_shark_c2.yml",
+    "rules/nids/suricata/base64_dns_queries.yml",
+    "rules/nids/suricata/base64_encoded_user_agent.yml",
+    "rules/nids/suricata/cobalt_strike_dns_beacon.yml",
+    "rules/nids/suricata/cobalt_strike_malleable_c2.yml",
+    "rules/nids/suricata/command_and_control_traffic.yml",
+    "rules/nids/suricata/covert_channel_detection.yml",
+    "rules/nids/suricata/data_exfiltration_patterns.yml",
+    "rules/nids/suricata/ddos_attack_patterns.yml",
+    "rules/nids/suricata/dns_mining_pool_lookups.yml",
+    "rules/nids/suricata/dns_oob_interaction_domains.yml",
+    "rules/nids/suricata/dns_tunneling_detection.yml",
+    "rules/nids/suricata/dns_txt_execution_strings.yml",
+    "rules/nids/suricata/exploit_attempt_detection.yml",
+    "rules/nids/suricata/exploit_framework_user_agents.yml",
+    "rules/nids/suricata/hacktool_user_agents.yml",
+    "rules/nids/suricata/icmp_tunneling_detection.yml",
+    "rules/nids/suricata/ipfs_credential_harvesting.yml",
+    "rules/nids/suricata/lateral_movement_indicators.yml",
+    "rules/nids/suricata/malware_callbacks.yml",
+    "rules/nids/suricata/malware_user_agent_strings.yml",
+    "rules/nids/suricata/nids_arp_spoofing.yml",
+    "rules/nids/suricata/nids_ja3_threat_matching.yml",
+    "rules/nids/suricata/nids_malicious_file_downloads.yml",
+    "rules/nids/suricata/nids_ssh_anomalies.yml",
+    "rules/nids/suricata/nids_tls_certificate_anomalies.yml",
+    "rules/nids/suricata/nkn_blockchain_c2.yml",
+    "rules/nids/suricata/port_scan_detection.yml",
+    "rules/nids/suricata/pwndrop_file_hosting.yml",
+    "rules/nids/suricata/rclone_data_exfiltration.yml",
+    "rules/nids/suricata/threat_intelligence_iocs.yml",
+    "rules/nids/suricata/tor_proxy_dns_lookups.yml",
+    "rules/nids/suricata/tunneling_detection.yml",
+    "rules/suricata/high_severity_suricata_alerts_were_detected.yml",
+    "rules/suricata/medium_severity_suricata_alerts_were_detected.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Suricata priority 1",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 1
+          }
+        }
+      },
+      "expected": {
+        "severity": "critical"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata priority 2",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 2
+          }
+        }
+      },
+      "expected": {
+        "severity": "warning"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata priority 3",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 3
+          }
+        }
+      },
+      "expected": {
+        "severity": "info"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata final verdict wins",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "action": "allowed"
+          },
+          "verdict": {
+            "action": "drop"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata IDS allowed is not connection success",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "action": "allowed"
+          }
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult",
+        "action"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "Suricata explicit IPS pass",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "verdict": {
+            "action": "pass"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata confirmed established flow",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "eventtype": "flow",
+          "flow": {
+            "state": "established",
+            "bytestoserver": 400,
+            "bytestoclient": 500
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success",
+        "connectionStatus": "established"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Suricata denied established flow",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "verdict": {
+            "action": "drop"
+          },
+          "flow": {
+            "state": "established",
+            "bytestoserver": 400,
+            "bytestoclient": 500
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [
+        "connectionStatus"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "Suricata priority rule 1",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 1
+          },
+          "eventtype": "alert"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/suricata/high_severity_suricata_alerts_were_detected.yml": true,
+        "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": false
+      }
+    },
+    {
+      "name": "Suricata priority rule 2",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 2
+          },
+          "eventtype": "alert"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/suricata/high_severity_suricata_alerts_were_detected.yml": false,
+        "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": true
+      }
+    },
+    {
+      "name": "Suricata priority rule 3",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "alert": {
+            "severity": 3
+          },
+          "eventtype": "alert"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/suricata/high_severity_suricata_alerts_were_detected.yml": false,
+        "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": false
+      }
+    },
+    {
+      "name": "Suricata NTP ratio 11",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "destport": 123,
+          "flow": {
+            "bytestoclient": 1100,
+            "bytestoserver": 100
+          }
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/nids/suricata/ddos_attack_patterns.yml": true
+      }
+    },
+    {
+      "name": "Suricata NTP ratio 9",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "destport": 123,
+          "flow": {
+            "bytestoclient": 900,
+            "bytestoserver": 100
+          }
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/nids/suricata/ddos_attack_patterns.yml": false
+      }
+    },
+    {
+      "name": "Suricata DDoS flow age 4",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "proto": "UDP",
+          "flow": {
+            "pktstoserver": 2000,
+            "age": 4
+          }
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/nids/suricata/ddos_attack_patterns.yml": true
+      }
+    },
+    {
+      "name": "Suricata DDoS flow age 10",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "proto": "UDP",
+          "flow": {
+            "pktstoserver": 2000,
+            "age": 10
+          }
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/nids/suricata/ddos_attack_patterns.yml": false
+      }
+    },
+    {
+      "name": "Suricata DDoS missing counters",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "destport": 123
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/nids/suricata/ddos_attack_patterns.yml": false
+      }
+    },
+    {
+      "name": "Suricata flow drop overrides established state",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "flow": {
+            "action": "drop",
+            "state": "established",
+            "bytestoserver": 500,
+            "bytestoclient": 200
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [
+        "connectionStatus"
+      ]
+    },
+    {
+      "name": "Suricata flow explicit pass",
+      "filter": "suricata/suricata.yml",
+      "input": {
+        "log": {
+          "flow": {
+            "action": "pass"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [
+        "connectionStatus"
+      ]
+    }
+  ]
+}
