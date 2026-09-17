@@ -1,0 +1,125 @@
+{
+  "technology": "Cisco Meraki",
+  "filters": [
+    "filters/cisco/meraki.yml"
+  ],
+  "rules": [
+    "rules/cisco/meraki/advanced_malware_protection_alerts.yml",
+    "rules/cisco/meraki/air_marshal_rogue_ap.yml",
+    "rules/cisco/meraki/evil_twin_ap_detection.yml",
+    "rules/cisco/meraki/intrusion_detection_alerts.yml",
+    "rules/cisco/meraki/meraki_vpn_brute_force.yml",
+    "rules/cisco/meraki/rogue_ssid_detection.yml",
+    "rules/cisco/meraki/wireless_intrusion_attempts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "meraki_blocked",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "merakiResult": "blocked"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "meraki_allowed",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "merakiResult": "allowed"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "meraki_amp_retrospective",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "dataSource": "mx-lab",
+        "log": {
+          "merakiGroup": "security_event",
+          "genericEvent": "security_filtering_disposition_change disposition=malicious action=allow"
+        }
+      },
+      "expected": {
+        "log.eventType": "security_event",
+        "log.message": "security_filtering_disposition_change disposition=malicious action=allow"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": true
+      }
+    },
+    {
+      "name": "meraki_amp_block",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "dataSource": "mx-lab",
+        "log": {
+          "merakiGroup": "security_event",
+          "genericEvent": "security_filtering_file_scanned disposition=malicious action=block"
+        }
+      },
+      "expected": {
+        "log.eventType": "security_event",
+        "log.message": "security_filtering_file_scanned disposition=malicious action=block"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": true
+      }
+    },
+    {
+      "name": "meraki_amp_clean",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "dataSource": "mx-lab",
+        "log": {
+          "merakiGroup": "security_event",
+          "genericEvent": "security_filtering_file_scanned disposition=clean action=allow"
+        }
+      },
+      "expected": {
+        "log.eventType": "security_event",
+        "log.message": "security_filtering_file_scanned disposition=clean action=allow"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false
+      }
+    },
+    {
+      "name": "meraki_ids_is_not_amp",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "dataSource": "mx-lab",
+        "log": {
+          "merakiGroup": "security_event",
+          "genericEvent": "ids_alerted message: malicious traffic blocked"
+        }
+      },
+      "expected": {
+        "log.eventType": "security_event"
+      },
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false
+      }
+    }
+  ]
+}
