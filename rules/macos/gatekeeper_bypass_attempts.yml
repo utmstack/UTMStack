@@ -30,28 +30,28 @@ description: |
   10. Document the incident and update security policies as needed
 where: |
   (
-    equals("log.process", "syspolicyd") && 
+    equals("origin.process", "syspolicyd") &&
     (
-      regexMatch("log.eventMessage", ".*assessment.*bypass.*") ||
-      regexMatch("log.eventMessage", ".*quarantine.*removed.*") ||
-      regexMatch("log.eventMessage", ".*GKE.*override.*")
+      regexMatch("log.message", ".*assessment.*bypass.*") ||
+      regexMatch("log.message", ".*quarantine.*removed.*") ||
+      regexMatch("log.message", ".*GKE.*override.*")
     )
   ) ||
   (
-    regexMatch("log.eventMessage", ".*xattr.*-d.*com\\.apple\\.quarantine.*") &&
-    equals("log.eventType", "logEvent")
+    regexMatch("log.message", ".*xattr.*-d.*com\\.apple\\.quarantine.*") &&
+    (equals("log.eventType", "logEvent") || equals("log.className", "OSLogEntryLog"))
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/var/db/SystemPolicy.*") &&
-    regexMatch("log.eventMessage", ".*(modify|write|delete).*")
+    regexMatch("origin.path", ".*/var/db/SystemPolicy.*") &&
+    regexMatch("log.message", ".*(modify|write|delete).*")
   ) ||
   (
     equals("log.subsystem", "com.apple.security.assessment") &&
-    (contains("log.eventMessage", "bypass") || contains("log.eventMessage", "override") || contains("log.eventMessage", "disable"))
+    (contains("log.message", "bypass") || contains("log.message", "override") || contains("log.message", "disable"))
   ) ||
   (
-    equals("log.process", "spctl") &&
-    contains("log.eventMessage", "--disable")
+    equals("origin.process", "spctl") &&
+    contains("log.message", "--disable")
   )
 groupBy:
   - adversary.host

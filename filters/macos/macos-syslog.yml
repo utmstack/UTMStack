@@ -1,22 +1,29 @@
+# Compatibility wrapper extraction; macos.yml also handles this format.
 pipeline:
-  - dataTypes:
-      - macos
+  - dataTypes: [macos]
     steps:
-      # 1. Handle Agent Wrapper (Optional)
+      # Optional forwarding wrapper. Anchoring prevents payload text from
+      # overriding the source, and the message is captured exactly once.
       - grok:
           source: raw
           patterns:
-            - fieldName: log.wrapper_open
-              pattern: '\[utm_stack_agent_ds='
-            - fieldName: log.datasource_override
-              pattern: '{{.data}}'
-            - fieldName: log.wrapper_close
+            - fieldName: ''
+              pattern: '^\[utm_stack_agent_ds='
+            - fieldName: log.datasourceoverride
+              pattern: '[^\]\r\n]*'
+            - fieldName: ''
               pattern: '\]-'
+            - fieldName: log.wrapperMessage
+              pattern: '(?s:.*)'
+          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("log.message")
+      - json:
+          source: log.wrapperMessage
+          where: regexMatch("log.wrapperMessage", "^\\s*\\{") && !exists("log.message")
+      - grok:
+          source: log.wrapperMessage
+          patterns:
             - fieldName: log.message
-              pattern: '{{.greedy}}'
-            - fieldName: log.message
-              pattern: '{{.greedy}}'
-      
-      # 2. Cleanup
+              pattern: '(?s:.*)'
+          where: exists("log.wrapperMessage") && !regexMatch("log.wrapperMessage", "^\\s*\\{") && !exists("log.message")
       - delete:
-          fields: [log.wrapper_open, log.wrapper_close]
+          fields: [log.wrapperMessage]
