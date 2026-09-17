@@ -1,0 +1,43 @@
+{
+  "technology": "JSON Input",
+  "filters": [
+    "filters/json/json-input.yml"
+  ],
+  "rules": [
+    "rules/json/json-input/deserialization_attacks.yml",
+    "rules/json/json-input/graphql_abuse.yml",
+    "rules/json/json-input/json_hijacking_attempts.yml",
+    "rules/json/json-input/json_injection_attempts.yml",
+    "rules/json/json-input/jsonp_vulnerabilities.yml",
+    "rules/json/json-input/jwt_algorithm_confusion.yml",
+    "rules/json/json-input/jwt_token_security_issues.yml",
+    "rules/json/json-input/mass_assignment_attack.yml",
+    "rules/json/json-input/nosql_injection_json.yml",
+    "rules/json/json-input/prototype_pollution_attempts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "json_rule_standard_side_fields",
+      "filter": "json/json-input.yml",
+      "input": {
+        "origin": {
+          "ip": "192.0.2.5"
+        },
+        "target": {
+          "host": "web-lab"
+        },
+        "log": {
+          "payload": "<script>alert(1)</script>"
+        }
+      },
+      "expected": {
+        "origin.ip": "192.0.2.5",
+        "target.host": "web-lab"
+      },
+      "absent": [],
+      "rules": {
+        "rules/json/json-input/json_injection_attempts.yml": true
+      }
+    }
+  ]
+}
