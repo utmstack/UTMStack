@@ -1,0 +1,184 @@
+{
+  "technology": "Cisco ASA",
+  "filters": [
+    "filters/cisco/asa.yml"
+  ],
+  "rules": [
+    "rules/cisco/asa/botnet_traffic_detection.yml",
+    "rules/cisco/asa/ips_signature_matches.yml",
+    "rules/cisco/asa/multiple_failed_vpn_attempts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "cisco/asa.yml invalid IPsec 402114",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402114
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402115",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402115
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402116",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402116
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402117",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402117
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402118",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402118
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402119",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402119
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml invalid IPsec 402120",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 402120
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml scan outcome unknown",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 733101
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml explicit shun",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 733102
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml ACL Permitted",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "Permitted"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml ACL Denied",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "Denied"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/asa.yml ACL unknown",
+      "filter": "cisco/asa.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "unknown"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    }
+  ]
+}
