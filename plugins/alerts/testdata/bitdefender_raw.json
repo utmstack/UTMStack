@@ -1,0 +1,947 @@
+[
+  {
+    "name": "blocked incident keeps managed endpoint",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {
+      "target.ip": "192.0.2.10",
+      "log.src": "198.51.100.5",
+      "actionResult": "denied",
+      "target.malware": "Generic.Test"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native first extension key",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test",
+    "expected": {
+      "log.BitdefenderGZModule": "new-incident",
+      "log.endpointKey": "endpoint-test",
+      "log.endpointKeyType": "computer-id"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action blocked",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=blocked BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "blocked",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action Disinfected",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=Disinfected BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "Disinfected",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action deleted",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=deleted BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "deleted",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action restored",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=restored BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "restored",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action quarantined",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=quarantined BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "quarantined",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AV action still present",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=still present BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "still present",
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": [
+      "quarantine_failure_detection"
+    ]
+  },
+  {
+    "name": "AV action ignored",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=ignored BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "ignored"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "AV action no action",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=no action BitdefenderGZMalwareName=Generic.Test",
+    "expected": {
+      "action": "no action"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "block fw",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|fw|3|BitdefenderGZModule=fw BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=portscan_blocked",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "block aph",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|aph|3|BitdefenderGZModule=aph BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=aph_blocked",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "block dp",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|dp|3|BitdefenderGZModule=dp BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=data_protection_blocked",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "block uc",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|uc|3|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=uc_site_blocked",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "phishing report only",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|aph|3|BitdefenderGZModule=aph BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=reportOnly request=https://phishing.example.test/login suser=analyst",
+    "expected": {
+      "origin.url": "https://phishing.example.test/login",
+      "target.user": "analyst"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "phishing_access_blocked"
+    ]
+  },
+  {
+    "name": "encoded URL remains vendor data",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|aph|3|BitdefenderGZModule=aph BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=aph_blocked request=https://example.test/?id\\=1",
+    "expected": {
+      "log.request": "https://example.test/?id\\=1"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "matches": []
+  },
+  {
+    "name": "encoded windows path retains original",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test filePath=C:\\\\Program Files\\\\Example\\\\bad.exe BitdefenderGZMalwareType=file",
+    "expected": {
+      "target.filename": "bad.exe",
+      "log.filePath": "C:\\\\Program Files\\\\Example\\\\bad.exe",
+      "log.BitdefenderGZMalwareType": "file"
+    },
+    "absent": [
+      "target.path",
+      "target.malwareType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "process basename command and hash",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|avc|3|BitdefenderGZModule=avc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test sproc=C:\\\\Windows\\\\System32\\\\cmd.exe BitdefenderGZProcessCommandLine=cmd.exe /c echo test BitdefenderGZMalwareHash=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expected": {
+      "target.process": "cmd.exe",
+      "target.command": "cmd.exe /c echo test",
+      "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "absent": [],
+    "matches": [
+      "zero_day_malware_detection"
+    ]
+  },
+  {
+    "name": "safe POSIX file mapping",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test filePath=/opt/example/bad.bin",
+    "expected": {
+      "target.path": "/opt/example/",
+      "target.filename": "bad.bin"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid hash retained",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareHash=not-a-hash fileHash=bad",
+    "expected": {},
+    "absent": [
+      "target.sha256",
+      "target.md5"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard 0.0.0.0",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=0.0.0.0 BitdefenderGZEventSourceIP=0.0.0.0",
+    "expected": {
+      "log.dvc": "0.0.0.0",
+      "log.BitdefenderGZEventSourceIP": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard ::",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=:: BitdefenderGZEventSourceIP=::",
+    "expected": {
+      "log.dvc": "::",
+      "log.BitdefenderGZEventSourceIP": "::"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard 0:0:0:0:0:0:0:0",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=0:0:0:0:0:0:0:0 BitdefenderGZEventSourceIP=0:0:0:0:0:0:0:0",
+    "expected": {
+      "log.dvc": "0:0:0:0:0:0:0:0",
+      "log.BitdefenderGZEventSourceIP": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard ::ffff:0.0.0.0",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=::ffff:0.0.0.0 BitdefenderGZEventSourceIP=::ffff:0.0.0.0",
+    "expected": {
+      "log.dvc": "::ffff:0.0.0.0",
+      "log.BitdefenderGZEventSourceIP": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard host.example",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=host.example BitdefenderGZEventSourceIP=host.example",
+    "expected": {
+      "log.dvc": "host.example",
+      "log.BitdefenderGZEventSourceIP": "host.example"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard 999.1.2.3",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=999.1.2.3 BitdefenderGZEventSourceIP=999.1.2.3",
+    "expected": {
+      "log.dvc": "999.1.2.3",
+      "log.BitdefenderGZEventSourceIP": "999.1.2.3"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original IP guard -",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|3|BitdefenderGZModule=fw dvc=- BitdefenderGZEventSourceIP=-",
+    "expected": {
+      "log.dvc": "-",
+      "log.BitdefenderGZEventSourceIP": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "network physical roles",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.10 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.10",
+      "target.port": 443,
+      "actionResult": "denied",
+      "target.host": "workstation-test"
+    },
+    "absent": [],
+    "matches": [
+      "network_threat_detection"
+    ]
+  },
+  {
+    "name": "bad local port 0",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|3|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionLocalPort=0",
+    "expected": {},
+    "absent": [
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad local port 65536",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|3|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionLocalPort=65536",
+    "expected": {},
+    "absent": [
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad local port -1",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|3|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionLocalPort=-1",
+    "expected": {},
+    "absent": [
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad local port 443x",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|3|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionLocalPort=443x",
+    "expected": {},
+    "absent": [
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "escaped key cannot forge action",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|aph|3|BitdefenderGZModule=aph BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Message act\\=reportOnly dvc\\=198.51.100.99 act=aph_blocked",
+    "expected": {
+      "action": "aph_blocked",
+      "target.ip": "192.0.2.10",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "spaces preserve detection",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Generic Multi Word Name act=deleted",
+    "expected": {
+      "target.malware": "Generic Multi Word Name",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "unrecognized embedded CEF other",
+    "dataSource": "collector-test",
+    "raw": "not syslog CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "action",
+      "log.BitdefenderGZModule"
+    ],
+    "matches": []
+  },
+  {
+    "name": "unrecognized embedded CEF ",
+    "dataSource": "collector-test",
+    "raw": "not syslog CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "action",
+      "log.BitdefenderGZModule"
+    ],
+    "matches": []
+  },
+  {
+    "name": "foreign vendor header",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Other|Product|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "action",
+      "log.BitdefenderGZModule"
+    ],
+    "matches": []
+  },
+  {
+    "name": "wrapper <134>Sep 17 10:20:30 relay ",
+    "dataSource": "collector-test",
+    "raw": "<134>Sep 17 10:20:30 relay CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {
+      "target.ip": "192.0.2.10",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "wrapper <134>1 2026-09-17T10:20:30Z relay product - - - ",
+    "dataSource": "collector-test",
+    "raw": "<134>1 2026-09-17T10:20:30Z relay product - - - CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test src=198.51.100.5 spt=443 BitdefenderGZMainAction=blocked BitdefenderGZDetectionName=Generic.Test",
+    "expected": {
+      "target.ip": "192.0.2.10",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "antitampering",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|antitampering|3|BitdefenderGZModule=antitampering BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "antivirus_service_stopped"
+    ]
+  },
+  {
+    "name": "realtime disabled sanitized alias",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|modules|3|BitdefenderGZModule=modules BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test malware_status=0",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "realtime_protection_disabled"
+    ]
+  },
+  {
+    "name": "avc disabled",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|modules|3|BitdefenderGZModule=modules BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZAvcStatus=0",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "av_policy_override"
+    ]
+  },
+  {
+    "name": "normal modules enabled",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|modules|3|BitdefenderGZModule=modules BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test malware_status=1 BitdefenderGZAvcStatus=1",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "boot object remains vendor type",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareType=boot",
+    "expected": {
+      "log.BitdefenderGZMalwareType": "boot"
+    },
+    "absent": [
+      "target.malwareType"
+    ],
+    "matches": [
+      "bootkit_detection"
+    ]
+  },
+  {
+    "name": "memory object",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareType=process",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "memory_threat_detection"
+    ]
+  },
+  {
+    "name": "miner signature",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Trojan.Xmrig",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "crypto_mining_detection"
+    ]
+  },
+  {
+    "name": "exchange malware",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|exchange-malware|3|BitdefenderGZModule=exchange-malware BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "email_threat_spreading"
+    ]
+  },
+  {
+    "name": "fileless explicit",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|hd|3|BitdefenderGZModule=hd BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZIsFilelessAttack=true",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "fileless_malware_detection",
+      "zero_day_malware_detection"
+    ]
+  },
+  {
+    "name": "fileless sanitized alias",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|hd|3|BitdefenderGZModule=hd BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test is_fileless_attack=true",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "fileless_malware_detection",
+      "zero_day_malware_detection"
+    ]
+  },
+  {
+    "name": "fileless ambiguous label negative",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|hd|3|BitdefenderGZModule=hd BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZAttackType=suspicious files",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "zero_day_malware_detection"
+    ]
+  },
+  {
+    "name": "AV high severity candidate",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|9|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Generic.Test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "high_severity_threat_detection",
+      "malware_outbreak_multiple_hosts",
+      "multiple_malware_from_single_source"
+    ]
+  },
+  {
+    "name": "targeted high severity",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|hd|9|BitdefenderGZModule=hd BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZAttackTypes=targeted attack",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "apt_detection",
+      "high_severity_threat_detection",
+      "multiple_malware_from_single_source",
+      "zero_day_malware_detection"
+    ]
+  },
+  {
+    "name": "ransomware signature",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Ransom.Test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "ransomware_behavior_detection"
+    ]
+  },
+  {
+    "name": "rootkit signature",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Rootkit.Test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "rootkit_detection",
+      "bootkit_detection"
+    ]
+  },
+  {
+    "name": "USB malware signature",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionName=USB.Worm",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "usb_malware_propagation"
+    ]
+  },
+  {
+    "name": "ordinary device block negative",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|device-control|3|BitdefenderGZModule=device-control BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZAction=blocked",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "sensitive task",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Run script maintenance BitdefenderGZTaskType=280 BitdefenderGZTaskSuccessful=1 suid=admin-id",
+    "expected": {
+      "origin.user": "admin-id"
+    },
+    "absent": [],
+    "matches": [
+      "av_console_lateral_movement"
+    ]
+  },
+  {
+    "name": "normal successful task",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272 BitdefenderGZTaskSuccessful=1 suid=admin-id",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "exclusion task",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update exclusion list BitdefenderGZTaskSuccessful=1",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_exclusions_added"
+    ]
+  },
+  {
+    "name": "failed exclusion task",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update exclusion list BitdefenderGZTaskSuccessful=0 BitdefenderGZErrorCode=5",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ordinary policy task negative",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update policy BitdefenderGZTaskSuccessful=1",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "forged history marker cleared",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test correlationCandidate.multiple_malware_from_single_source=match",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "distinct vendor identifiers keep stable computer identity",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZEndpointId=separate-product-id",
+    "expected": {
+      "log.endpointKey": "endpoint-test",
+      "log.endpointKeyType": "computer-id"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "extension cannot override header",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test eventType=AntiMalware cefSeverity=9 cefExtension=x",
+    "expected": {
+      "log.eventType": "new-incident",
+      "log.cefSeverity": "3",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "escaped extension cannot override header",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=eventType\\=AntiMalware cefSeverity\\=9",
+    "expected": {
+      "log.eventType": "new-incident",
+      "log.cefSeverity": "3",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid or unsupported time 2026-02-29T01:00:00Z",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2026-02-29T01:00:00Z",
+    "expected": {
+      "log.start": "2026-02-29T01:00:00Z"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid or unsupported time 2026-04-31T01:00:00Z",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2026-04-31T01:00:00Z",
+    "expected": {
+      "log.start": "2026-04-31T01:00:00Z"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid or unsupported time 2026-09-00T01:00:00Z",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2026-09-00T01:00:00Z",
+    "expected": {
+      "log.start": "2026-09-00T01:00:00Z"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid or unsupported time 2026-09-17T01:00:00+29:00",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2026-09-17T01:00:00+29:00",
+    "expected": {
+      "log.start": "2026-09-17T01:00:00+29:00"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid or unsupported time 1690000000000",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=1690000000000",
+    "expected": {
+      "log.start": "1690000000000"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "valid time 2024-02-29T01:00:00Z",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2024-02-29T01:00:00Z",
+    "expected": {
+      "deviceTime": "2024-02-29T01:00:00Z"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "valid time 2026-09-17T01:00:00.123+03:00",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test start=2026-09-17T01:00:00.123+03:00",
+    "expected": {
+      "deviceTime": "2026-09-17T01:00:00.123+03:00"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint id fallback",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test BitdefenderGZEndpointId=product-id dvc=192.0.2.10 dvchost=workstation-test",
+    "expected": {
+      "log.endpointKey": "product-id",
+      "log.endpointKeyType": "endpoint-id"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "schemeless phishing domain",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test request=phishing.example.test/signin",
+    "expected": {
+      "origin.domain": "phishing.example.test"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "matches": []
+  },
+  {
+    "name": "escaped scheme-less query domain",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test request=phishing.example.test/?id\\=1",
+    "expected": {
+      "origin.domain": "phishing.example.test"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "matches": []
+  },
+  {
+    "name": "mining domain indicator",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test request=coinhive.example.test/",
+    "expected": {
+      "origin.domain": "coinhive.example.test"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "matches": [
+      "crypto_mining_detection"
+    ]
+  },
+  {
+    "name": "mining name in URL path negative",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test request=safe.example.test/coinhive",
+    "expected": {
+      "origin.domain": "safe.example.test"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "matches": []
+  },
+  {
+    "name": "network other victim has no reporter identity",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.12 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "expected": {
+      "target.ip": "192.0.2.12",
+      "origin.ip": "198.51.100.9",
+      "log.endpointKey": "endpoint-test"
+    },
+    "absent": [
+      "target.host",
+      "target.domain",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
+  },
+  {
+    "name": "managed endpoint is network attacker",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=198.51.100.9 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.10 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block suser=analyst BitdefenderGZComputerFQDN=workstation.example.test",
+    "expected": {
+      "origin.host": "workstation-test",
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.10",
+      "origin.user": "analyst",
+      "origin.domain": "workstation.example.test"
+    },
+    "absent": [
+      "target.host",
+      "target.domain",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
+  },
+  {
+    "name": "network identity fallback is managed reporter",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test dvc=192.0.2.10 BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.12 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "expected": {
+      "log.endpointKey": "192.0.2.10",
+      "log.endpointKeyType": "ip",
+      "target.ip": "192.0.2.12"
+    },
+    "absent": [
+      "target.host",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
+  }
+]

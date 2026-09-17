@@ -1,0 +1,76 @@
+{
+  "technology": "Bitdefender GravityZone",
+  "filters": [
+    "filters/antivirus/bitdefender_gz.yml"
+  ],
+  "rules": [
+    "rules/antivirus/bitdefender_gz/antivirus_service_stopped.yml",
+    "rules/antivirus/bitdefender_gz/apt_detection.yml",
+    "rules/antivirus/bitdefender_gz/av_console_lateral_movement.yml",
+    "rules/antivirus/bitdefender_gz/av_policy_override.yml",
+    "rules/antivirus/bitdefender_gz/bootkit_detection.yml",
+    "rules/antivirus/bitdefender_gz/crypto_mining_detection.yml",
+    "rules/antivirus/bitdefender_gz/email_threat_spreading.yml",
+    "rules/antivirus/bitdefender_gz/fileless_malware_detection.yml",
+    "rules/antivirus/bitdefender_gz/high_severity_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yml",
+    "rules/antivirus/bitdefender_gz/memory_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/multiple_malware_from_single_source.yml",
+    "rules/antivirus/bitdefender_gz/network_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml",
+    "rules/antivirus/bitdefender_gz/quarantine_failure_detection.yml",
+    "rules/antivirus/bitdefender_gz/ransomware_behavior_detection.yml",
+    "rules/antivirus/bitdefender_gz/realtime_protection_disabled.yml",
+    "rules/antivirus/bitdefender_gz/rootkit_detection.yml",
+    "rules/antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
+    "rules/antivirus/bitdefender_gz/usb_malware_propagation.yml",
+    "rules/antivirus/bitdefender_gz/zero_day_malware_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Bitdefender input-supplied classification and history are cleared",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "dataType": "antivirus-bitdefender-gz",
+        "log": {
+          "BitdefenderGZModule": "aph",
+          "act": "reportOnly",
+          "endpointKey": "forged",
+          "correlationCandidate": {
+            "network_threat_detection": "match"
+          }
+        }
+      },
+      "expected": {},
+      "absent": [
+        "log.BitdefenderGZModule",
+        "log.act",
+        "log.endpointKey",
+        "log.correlationCandidate"
+      ],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/antivirus_service_stopped.yml": false,
+        "rules/antivirus/bitdefender_gz/apt_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/av_console_lateral_movement.yml": false,
+        "rules/antivirus/bitdefender_gz/av_policy_override.yml": false,
+        "rules/antivirus/bitdefender_gz/bootkit_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/crypto_mining_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/email_threat_spreading.yml": false,
+        "rules/antivirus/bitdefender_gz/fileless_malware_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/high_severity_threat_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yml": false,
+        "rules/antivirus/bitdefender_gz/memory_threat_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/multiple_malware_from_single_source.yml": false,
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml": false,
+        "rules/antivirus/bitdefender_gz/quarantine_failure_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/ransomware_behavior_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/realtime_protection_disabled.yml": false,
+        "rules/antivirus/bitdefender_gz/rootkit_detection.yml": false,
+        "rules/antivirus/bitdefender_gz/suspicious_exclusions_added.yml": false,
+        "rules/antivirus/bitdefender_gz/usb_malware_propagation.yml": false,
+        "rules/antivirus/bitdefender_gz/zero_day_malware_detection.yml": false
+      }
+    }
+  ]
+}
