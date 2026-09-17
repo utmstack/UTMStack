@@ -1,0 +1,118 @@
+{
+  "technology": "AWS",
+  "filters": [
+    "filters/aws/aws.yml"
+  ],
+  "rules": [
+    "rules/cloud/aws/aws/aws_backup_deletion.yml",
+    "rules/cloud/aws/aws/aws_config_service_disabled.yml",
+    "rules/cloud/aws/aws/aws_console_getsignintoken_abuse.yml",
+    "rules/cloud/aws/aws/aws_ec2_startup_script_modification.yml",
+    "rules/cloud/aws/aws/aws_ecs_credential_theft.yml",
+    "rules/cloud/aws/aws/aws_glue_privilege_escalation.yml",
+    "rules/cloud/aws/aws/aws_golden_saml_attack.yml",
+    "rules/cloud/aws/aws/aws_iam_login_profile_modification.yml",
+    "rules/cloud/aws/aws/aws_kms_key_material_import.yml",
+    "rules/cloud/aws/aws/aws_rds_public_restore.yml",
+    "rules/cloud/aws/aws/aws_s3_versioning_disabled.yml",
+    "rules/cloud/aws/aws/aws_securityhub_finding_evasion.yml",
+    "rules/cloud/aws/aws/aws_snapshot_exfiltration.yml",
+    "rules/cloud/aws/aws/aws_ssm_sendcommand_abuse.yml",
+    "rules/cloud/aws/aws/aws_sso_idp_change.yml",
+    "rules/cloud/aws/aws/aws_sso_suspicious_activities.yml",
+    "rules/cloud/aws/aws/aws_trufflehog_scanning.yml",
+    "rules/cloud/aws/aws/cloudformation_stack_deletion.yml",
+    "rules/cloud/aws/aws/cloudtrail_event_selector_manipulation.yml",
+    "rules/cloud/aws/aws/cloudtrail_logging_disabled.yml",
+    "rules/cloud/aws/aws/console_login_impossible_travel.yml",
+    "rules/cloud/aws/aws/cross_account_access_anomalies.yml",
+    "rules/cloud/aws/aws/ebs_snapshot_sharing_violations.yml",
+    "rules/cloud/aws/aws/ec2_cryptomining_detection.yml",
+    "rules/cloud/aws/aws/ec2_metadata_abuse.yml",
+    "rules/cloud/aws/aws/ecs_eks_container_abuse.yml",
+    "rules/cloud/aws/aws/guardduty_high_severity_findings.yml",
+    "rules/cloud/aws/aws/iam_backdoor_creation_attempts.yml",
+    "rules/cloud/aws/aws/iam_privilege_escalation_paths.yml",
+    "rules/cloud/aws/aws/lambda_privilege_escalation.yml",
+    "rules/cloud/aws/aws/lambda_url_backdoor.yml",
+    "rules/cloud/aws/aws/mass_resource_deletion.yml",
+    "rules/cloud/aws/aws/rds_security_group_changes.yml",
+    "rules/cloud/aws/aws/rds_snapshot_exfiltration.yml",
+    "rules/cloud/aws/aws/root_account_usage_without_mfa.yml",
+    "rules/cloud/aws/aws/route53_dns_hijacking.yml",
+    "rules/cloud/aws/aws/s3_bucket_public_exposure.yml",
+    "rules/cloud/aws/aws/s3_bulk_data_exfiltration.yml",
+    "rules/cloud/aws/aws/secrets_manager_suspicious_access.yml",
+    "rules/cloud/aws/aws/security_group_modifications.yml",
+    "rules/cloud/aws/aws/ssm_session_abuse.yml",
+    "rules/cloud/aws/aws/sts_token_abuse.yml",
+    "rules/cloud/aws/aws/unusual_api_call_patterns.yml",
+    "rules/cloud/aws/aws/vpc_flow_log_anomalies.yml",
+    "rules/cloud/aws/aws/waf_shield_rule_modifications.yml",
+    "rules/cloud/aws/credential_access_aws_iam_assume_role_brute_force.yml",
+    "rules/cloud/aws/credential_access_root_console_failure_brute_force.yml",
+    "rules/cloud/aws/defense_evasion_cloudtrail_logging_deleted.yml",
+    "rules/cloud/aws/defense_evasion_cloudtrail_logging_suspended.yml",
+    "rules/cloud/aws/defense_evasion_config_service_rule_deletion.yml",
+    "rules/cloud/aws/defense_evasion_configuration_recorder_stopped.yml",
+    "rules/cloud/aws/defense_evasion_ec2_flow_log_deletion.yml",
+    "rules/cloud/aws/defense_evasion_guardduty_detector_deletion.yml",
+    "rules/cloud/aws/defense_evasion_s3_bucket_configuration_deletion.yml",
+    "rules/cloud/aws/defense_evasion_waf_acl_deletion.yml",
+    "rules/cloud/aws/defense_evasion_waf_rule_or_rule_group_deletion.yml",
+    "rules/cloud/aws/exfiltration_ec2_full_network_packet_capture_detected.yml",
+    "rules/cloud/aws/exfiltration_ec2_snapshot_change_activity.yml",
+    "rules/cloud/aws/exfiltration_ec2_vm_export_failure.yml",
+    "rules/cloud/aws/exfiltration_rds_snapshot_export.yml",
+    "rules/cloud/aws/impact_cloudtrail_logging_updated.yml",
+    "rules/cloud/aws/impact_cloudwatch_log_group_deletion.yml",
+    "rules/cloud/aws/impact_cloudwatch_log_stream_deletion.yml",
+    "rules/cloud/aws/impact_ec2_disable_ebs_encryption.yml",
+    "rules/cloud/aws/impact_iam_deactivate_mfa_device.yml",
+    "rules/cloud/aws/impact_rds_cluster_deletion.yml",
+    "rules/cloud/aws/initial_access_console_login_root.yml",
+    "rules/cloud/aws/initial_access_password_recovery.yml",
+    "rules/cloud/aws/initial_access_via_system_manager.yml",
+    "rules/cloud/aws/persistence_route_53_domain_transfer_lock_disabled.yml",
+    "rules/cloud/aws/persistence_route_53_domain_transferred_to_another_account.yml",
+    "rules/cloud/aws/privilege_escalation_root_login_without_mfa.yml",
+    "rules/cloud/aws/privilege_escalation_updateassumerolepolicy.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "AWS principal/source/time promoted",
+      "filter": "aws/aws.yml",
+      "input": {
+        "log": {
+          "sourceIPAddress": "198.51.100.10",
+          "eventTime": "2026-09-16T12:00:00Z",
+          "userIdentity": {
+            "arn": "arn:aws:iam::123456789012:user/alice"
+          }
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.10",
+        "origin.user": "arn:aws:iam::123456789012:user/alice",
+        "deviceTime": "2026-09-16T12:00:00Z",
+        "log.userIdentityArn": "arn:aws:iam::123456789012:user/alice"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "AWS service name is not IP",
+      "filter": "aws/aws.yml",
+      "input": {
+        "log": {
+          "sourceIPAddress": "cloudtrail.amazonaws.com"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    }
+  ]
+}
