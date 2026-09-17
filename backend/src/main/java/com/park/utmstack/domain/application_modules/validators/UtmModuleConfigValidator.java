@@ -41,8 +41,9 @@ public class UtmModuleConfigValidator {
                     UtmModuleGroupConfiguration override = findInKeys(keys, dbConf.getConfKey());
                     String value;
                     if (override != null && !Constants.MASKED_VALUE.equals(override.getConfValue())) {
-                        // User provided a new value — use it as plaintext
-                        value = override.getConfValue();
+                        // User provided a new value — encrypt if sensitive so the plugin sees
+                        // the same payload shape as the update flow (DB ciphertext).
+                        value = encryptIfSensitive(override.getConfDataType(), override.getConfValue());
                     } else {
                         // No override or masked
                         value = dbConf.getConfValue();
@@ -58,12 +59,21 @@ public class UtmModuleConfigValidator {
         keys.stream()
                 .filter(k -> !dbKeys.contains(k.getConfKey()))
                 .filter(k -> !Constants.MASKED_VALUE.equals(k.getConfValue()))
-                .map(k -> new UtmModuleGroupConfDTO(k.getConfDataType(), k.getConfKey(), k.getConfValue()))
+                .map(k -> new UtmModuleGroupConfDTO(k.getConfDataType(), k.getConfKey(),
+                        encryptIfSensitive(k.getConfDataType(), k.getConfValue())))
                 .forEach(configDTOs::add);
 
         UtmModuleGroupConfWrapperDTO body = new UtmModuleGroupConfWrapperDTO(configDTOs);
 
         return utmStackConnectionService.validateModuleConfiguration(module.getModuleName().name(), body);
+    }
+
+    private String encryptIfSensitive(String dataType, String value) {
+        if (value == null || value.isEmpty()) return value;
+        if (!Constants.CONF_TYPE_PASSWORD.equals(dataType) && !Constants.CONF_TYPE_FILE.equals(dataType)) {
+            return value;
+        }
+        return CipherUtil.encrypt(value, System.getenv(Constants.ENV_ENCRYPTION_KEY));
     }
 
     private UtmModuleGroupConfiguration findInKeys(List<UtmModuleGroupConfiguration> keys, String confKey) {
