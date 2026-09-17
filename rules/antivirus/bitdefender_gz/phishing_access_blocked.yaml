@@ -37,7 +37,7 @@ description: |
   7. Submit the URL for blocking at the perimeter so the rest of the estate is covered
 where: |
   equals("log.BitdefenderGZModule", "aph") &&
-  equals("actionResult", "success")
+  equals("action", "reportOnly")
 groupBy:
   - target.user
   - adversary.url

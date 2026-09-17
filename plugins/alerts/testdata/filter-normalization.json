@@ -1,0 +1,1964 @@
+[
+  {
+    "name": "cisco/asa.yml invalid IPsec 402114",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402114
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402115",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402115
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402116",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402116
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402117",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402117
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402118",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402118
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402119",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402119
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml invalid IPsec 402120",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 402120
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml scan outcome unknown",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 733101
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml explicit shun",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 733102
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml ACL Permitted",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "Permitted"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml ACL Denied",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "Denied"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/asa.yml ACL unknown",
+    "filter": "cisco/asa.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "unknown"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402114",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402114
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402115",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402115
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402116",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402116
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402117",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402117
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402118",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402118
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402119",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402119
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml invalid IPsec 402120",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 402120
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml scan outcome unknown",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 733101
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml explicit shun",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 733102
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml ACL Permitted",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "Permitted"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml ACL Denied",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "Denied"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "cisco/firepower.yml ACL unknown",
+    "filter": "cisco/firepower.yml",
+    "input": {
+      "log": {
+        "messageId": 106102,
+        "ciscoResult": "unknown"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate \"accept\"",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "\"accept\""
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate \"deny\"",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "\"deny\""
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate ip-conn",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "ip-conn"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate client-rst",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "client-rst"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate timeout",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "timeout"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "FortiGate profile deny overrides policy accept",
+    "filter": "fortinet/fortinet.yml",
+    "input": {
+      "log": {
+        "action": "\"accept\"",
+        "utmaction": "block"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "pfSense pass",
+    "filter": "pfsense/pfsense_fw.yml",
+    "input": {
+      "log": {
+        "action": "pass"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "pfSense block",
+    "filter": "pfsense/pfsense_fw.yml",
+    "input": {
+      "log": {
+        "action": "block"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Sophos HTTP 200",
+    "filter": "sophos/sophos_xg_firewall.yml",
+    "input": {
+      "log": {
+        "statuscode": 200
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Sophos HTTP 302",
+    "filter": "sophos/sophos_xg_firewall.yml",
+    "input": {
+      "log": {
+        "statuscode": 302
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Sophos HTTP 403",
+    "filter": "sophos/sophos_xg_firewall.yml",
+    "input": {
+      "log": {
+        "statuscode": 403
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Sophos HTTP 500",
+    "filter": "sophos/sophos_xg_firewall.yml",
+    "input": {
+      "log": {
+        "statuscode": 500
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Sophos denied block-page HTTP 200",
+    "filter": "sophos/sophos_xg_firewall.yml",
+    "input": {
+      "log": {
+        "statuscode": 200,
+        "subType": "Denied"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Palo Alto explicit deny overrides status success",
+    "filter": "paloalto/pa_firewall.yml",
+    "input": {
+      "log": {
+        "act": "deny",
+        "status": "success"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Palo Alto allow",
+    "filter": "paloalto/pa_firewall.yml",
+    "input": {
+      "log": {
+        "act": "allow"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Palo Alto pending administrative operation",
+    "filter": "paloalto/pa_firewall.yml",
+    "input": {
+      "log": {
+        "result": "Submitted"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Palo Alto source byte and packet counters",
+    "filter": "paloalto/pa_firewall.yml",
+    "input": {
+      "log": {
+        "bytessent": "1024",
+        "bytesreceived": "2048",
+        "pktssent": "3",
+        "pktsreceived": "4"
+      }
+    },
+    "expected": {
+      "origin.bytesSent": 1024,
+      "origin.bytesReceived": 2048,
+      "origin.packagesSent": "3",
+      "origin.packagesReceived": "4"
+    },
+    "absent": [
+      "target.bytesSent"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Suricata priority 1",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 1
+        }
+      }
+    },
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata priority 2",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 2
+        }
+      }
+    },
+    "expected": {
+      "severity": "warning"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata priority 3",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 3
+        }
+      }
+    },
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata final verdict wins",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "action": "allowed"
+        },
+        "verdict": {
+          "action": "drop"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata IDS allowed is not connection success",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "action": "allowed"
+        }
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "action"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Suricata explicit IPS pass",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "verdict": {
+          "action": "pass"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata confirmed established flow",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "eventtype": "flow",
+        "flow": {
+          "state": "established",
+          "bytestoserver": 400,
+          "bytestoclient": 500
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success",
+      "connectionStatus": "established"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Suricata denied established flow",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "verdict": {
+          "action": "drop"
+        },
+        "flow": {
+          "state": "established",
+          "bytestoserver": 400,
+          "bytestoclient": 500
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "connectionStatus"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "ESET event name is not an outcome",
+    "filter": "antivirus/esmc-eset.yml",
+    "input": {
+      "log": {
+        "event": "HIPS_Event"
+      }
+    },
+    "expected": {
+      "log.event": "HIPS_Event"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "ESET actual blocked result",
+    "filter": "antivirus/esmc-eset.yml",
+    "input": {
+      "log": {
+        "event": "HIPS_Event",
+        "result": "Blocked"
+      }
+    },
+    "expected": {
+      "actionResult": "denied",
+      "log.event": "HIPS_Event"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Linux negative syscall return preserved",
+    "filter": "linux/linux.yml",
+    "input": {
+      "log": {
+        "type": "auditd",
+        "exit": -13,
+        "exe": "/usr/bin/cat",
+        "comm": "cat",
+        "cwd": "/home/user"
+      }
+    },
+    "expected": {
+      "log.exitCode": -13,
+      "actionResult": "failure",
+      "origin.path": "/usr/bin/cat",
+      "origin.process": "cat",
+      "log.workingDirectory": "/home/user"
+    },
+    "absent": [
+      "statusCode"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Linux textual job failure",
+    "filter": "linux/linux.yml",
+    "input": {
+      "log": {
+        "JOBRESULT": "failed"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Linux unknown job result",
+    "filter": "linux/linux.yml",
+    "input": {
+      "log": {
+        "JOBRESULT": "dependency"
+      }
+    },
+    "expected": {
+      "log.vendorActionResult": "dependency"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Windows account operation 4725",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4725
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows account operation 4726",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4726
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows account operation 4740",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4740
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows NTLM status 0",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4776,
+        "data": {
+          "Status": "0"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows NTLM status 0x0",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4776,
+        "data": {
+          "Status": "0x0"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows NTLM status 0x00000000",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4776,
+        "data": {
+          "Status": "0x00000000"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows NTLM status 0xC000006A",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "eventCode": 4776,
+        "data": {
+          "Status": "0xC000006A"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Windows missing IP placeholder",
+    "filter": "windows/windows-events.yml",
+    "input": {
+      "log": {
+        "data": {
+          "IpAddress": "-",
+          "TargetUserName": "-"
+        }
+      }
+    },
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.user",
+      "origin.user"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Kaspersky agent must not overwrite sender",
+    "filter": "antivirus/kaspersky.yml",
+    "input": {
+      "log": {
+        "src": "198.51.100.10",
+        "dst": "10.0.0.8",
+        "agt": "10.0.0.2",
+        "originalAgentAddress": "10.0.0.3",
+        "syslogIpHost": "10.0.0.4"
+      }
+    },
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "target.ip": "10.0.0.8",
+      "log.agentAddress": "10.0.0.2"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "CrowdStrike remote/local split",
+    "filter": "crowdstrike/crowdstrike.yml",
+    "input": {
+      "log": {
+        "event": {
+          "SourceIp": "198.51.100.10",
+          "LocalIP": "10.0.0.8"
+        }
+      }
+    },
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "log.eventLocalIP": "10.0.0.8"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "O365 result Failed",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ResultStatus": "Failed"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "O365 result Blocked",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ResultStatus": "Blocked"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "O365 result Succeeded",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ResultStatus": "Succeeded"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "O365 result PartiallySucceeded",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ResultStatus": "PartiallySucceeded"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "O365 failed operation wins over audit Success",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ResultStatus": "Success",
+        "Operation": "UserLoginFailed",
+        "Workload": "AzureActiveDirectory",
+        "ClientIP": "198.51.100.10"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {
+      "rules/office365/credential_access_microsoft_365_potential_password_spraying_attack.yml": true
+    }
+  },
+  {
+    "name": "Azure actual result Denied",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "properties": {
+          "result": "Denied"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Azure actual result Failed",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "properties": {
+          "result": "Failed"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Azure actual result Succeeded",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "properties": {
+          "result": "Succeeded"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "Azure actual result Running",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "properties": {
+          "result": "Running"
+        }
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Azure storage metadata is not host geography",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "AccountName": "storageaccount",
+        "Location": "eastus",
+        "StatusText": "Success",
+        "ResponseBodySize": 100,
+        "ResponseHeaderSize": 20
+      }
+    },
+    "expected": {
+      "origin.bytesReceived": 100,
+      "log.accountName": "storageaccount",
+      "log.location": "eastus"
+    },
+    "absent": [
+      "origin.host",
+      "origin.geolocation",
+      "connectionStatus",
+      "origin.bytesSent"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "GCP numeric protocol",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "jsonPayload": {
+          "protocol": 6
+        }
+      }
+    },
+    "expected": {
+      "protocol": "TCP"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "GCP unknown numeric protocol preserved",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "jsonPayload": {
+          "protocol": 253
+        }
+      }
+    },
+    "expected": {
+      "log.ipProtocolNumber": 253
+    },
+    "absent": [
+      "protocol"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "AWS principal/source/time promoted",
+    "filter": "aws/aws.yml",
+    "input": {
+      "log": {
+        "sourceIPAddress": "198.51.100.10",
+        "eventTime": "2026-09-16T12:00:00Z",
+        "userIdentity": {
+          "arn": "arn:aws:iam::123456789012:user/alice"
+        }
+      }
+    },
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "origin.user": "arn:aws:iam::123456789012:user/alice",
+      "deviceTime": "2026-09-16T12:00:00Z",
+      "log.userIdentityArn": "arn:aws:iam::123456789012:user/alice"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "AWS service name is not IP",
+    "filter": "aws/aws.yml",
+    "input": {
+      "log": {
+        "sourceIPAddress": "cloudtrail.amazonaws.com"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "rules": {}
+  },
+  {
+    "name": "Bitdefender phishing aph_blocked",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "actFull": "aph_blocked",
+        "BitdefenderGZModule": "aph"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml": false
+    }
+  },
+  {
+    "name": "Bitdefender phishing reportOnly",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "actFull": "reportOnly",
+        "BitdefenderGZModule": "aph"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml": true
+    }
+  },
+  {
+    "name": "Bitdefender attacker priority",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "BitdefenderGZDetectionAttackerIp": "198.51.100.10",
+        "BitdefenderGZEventSourceIP": "10.0.0.2"
+      }
+    },
+    "expected": {
+      "origin.ip": "198.51.100.10"
+    },
+    "absent": [],
+    "rules": {}
+  },
+  {
+    "name": "GCP severity EMERGENCY",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "EMERGENCY"
+      }
+    },
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity ALERT",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "ALERT"
+      }
+    },
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity CRITICAL",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "CRITICAL"
+      }
+    },
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity ERROR",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "ERROR"
+      }
+    },
+    "expected": {
+      "severity": "error"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity WARNING",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "WARNING"
+      }
+    },
+    "expected": {
+      "severity": "warning"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity NOTICE",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "NOTICE"
+      }
+    },
+    "expected": {
+      "severity": "info"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity INFO",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "INFO"
+      }
+    },
+    "expected": {
+      "severity": "info"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP severity DEBUG",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "severity": "DEBUG"
+      }
+    },
+    "expected": {
+      "severity": "debug"
+    },
+    "absent": []
+  },
+  {
+    "name": "O365 IPv6 [2001:db8::10]:443",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ClientIP": "[2001:db8::10]:443"
+      }
+    },
+    "expected": {
+      "origin.ip": "2001:db8::10",
+      "origin.port": 443
+    },
+    "absent": []
+  },
+  {
+    "name": "O365 IPv6 2001:db8::10",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ClientIP": "2001:db8::10"
+      }
+    },
+    "expected": {
+      "origin.ip": "2001:db8::10"
+    },
+    "absent": [
+      "origin.port"
+    ]
+  },
+  {
+    "name": "O365 unknown endpoint retained",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ClientIP": "not-an-ip"
+      }
+    },
+    "expected": {
+      "log.unparsedOriginIp": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "O365 port range checked",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "ClientIP": "203.0.113.10:99999"
+      }
+    },
+    "expected": {
+      "origin.ip": "203.0.113.10"
+    },
+    "absent": [
+      "origin.port"
+    ]
+  },
+  {
+    "name": "Crowdstrike endpoint source fallback",
+    "filter": "crowdstrike/crowdstrike.yml",
+    "input": {
+      "log": {
+        "event": {
+          "LocalIP": "10.0.0.10"
+        }
+      }
+    },
+    "expected": {
+      "origin.ip": "10.0.0.10"
+    },
+    "absent": [
+      "target.ip"
+    ]
+  },
+  {
+    "name": "GCP audit status 0",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "protoPayload": {
+          "methodName": "DeleteBucket",
+          "status": {
+            "code": 0
+          }
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP audit status 5",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "protoPayload": {
+          "methodName": "DeleteBucket",
+          "status": {
+            "code": 5
+          }
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": []
+  },
+  {
+    "name": "GCP audit status 7",
+    "filter": "google/gcp.yml",
+    "input": {
+      "log": {
+        "protoPayload": {
+          "methodName": "DeleteBucket",
+          "status": {
+            "code": 7
+          }
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": []
+  },
+  {
+    "name": "Azure result Failed",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "resultType": "Failed"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": []
+  },
+  {
+    "name": "Azure result Succeeded",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "resultType": "Succeeded"
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": []
+  },
+  {
+    "name": "Azure result Denied",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "resultType": "Denied"
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": []
+  },
+  {
+    "name": "Azure result Started",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "resultType": "Started"
+      }
+    },
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "O365 anti-phish policy Success",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "Operation": "Set-AntiPhishPolicy",
+        "ResultStatus": "Success"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/office365/anti_phishing_policy_bypasses.yml": true
+    }
+  },
+  {
+    "name": "O365 anti-phish policy Failed",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "Operation": "Set-AntiPhishPolicy",
+        "ResultStatus": "Failed"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/office365/anti_phishing_policy_bypasses.yml": false
+    }
+  },
+  {
+    "name": "Suricata priority rule 1",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 1
+        },
+        "eventtype": "alert"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/suricata/high_severity_suricata_alerts_were_detected.yml": true,
+      "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": false
+    }
+  },
+  {
+    "name": "Suricata priority rule 2",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 2
+        },
+        "eventtype": "alert"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/suricata/high_severity_suricata_alerts_were_detected.yml": false,
+      "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": true
+    }
+  },
+  {
+    "name": "Suricata priority rule 3",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "alert": {
+          "severity": 3
+        },
+        "eventtype": "alert"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/suricata/high_severity_suricata_alerts_were_detected.yml": false,
+      "rules/suricata/medium_severity_suricata_alerts_were_detected.yml": false
+    }
+  },
+  {
+    "name": "Suricata NTP ratio 11",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "destport": 123,
+        "flow": {
+          "bytestoclient": 1100,
+          "bytestoserver": 100
+        }
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/nids/suricata/ddos_attack_patterns.yml": true
+    }
+  },
+  {
+    "name": "Suricata NTP ratio 9",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "destport": 123,
+        "flow": {
+          "bytestoclient": 900,
+          "bytestoserver": 100
+        }
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/nids/suricata/ddos_attack_patterns.yml": false
+    }
+  },
+  {
+    "name": "Bitdefender CEF priority 0",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "severity": "0",
+        "BitdefenderGZModule": "network-monitor"
+      }
+    },
+    "expected": {
+      "severity": "info",
+      "log.cefSeverity": "0"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+    }
+  },
+  {
+    "name": "Bitdefender CEF priority 3",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "severity": "3",
+        "BitdefenderGZModule": "network-monitor"
+      }
+    },
+    "expected": {
+      "severity": "info",
+      "log.cefSeverity": "3"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+    }
+  },
+  {
+    "name": "Bitdefender CEF priority 6",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "severity": "6",
+        "BitdefenderGZModule": "network-monitor"
+      }
+    },
+    "expected": {
+      "severity": "warning",
+      "log.cefSeverity": "6"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+    }
+  },
+  {
+    "name": "Bitdefender CEF priority 8",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "severity": "8",
+        "BitdefenderGZModule": "network-monitor"
+      }
+    },
+    "expected": {
+      "severity": "error",
+      "log.cefSeverity": "8"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/network_threat_detection.yml": true
+    }
+  },
+  {
+    "name": "Bitdefender CEF priority 10",
+    "filter": "antivirus/bitdefender_gz.yml",
+    "input": {
+      "log": {
+        "severity": "10",
+        "BitdefenderGZModule": "network-monitor"
+      }
+    },
+    "expected": {
+      "severity": "critical",
+      "log.cefSeverity": "10"
+    },
+    "absent": [],
+    "rules": {
+      "rules/antivirus/bitdefender_gz/network_threat_detection.yml": true
+    }
+  },
+  {
+    "name": "Kaspersky CEF side identities",
+    "filter": "antivirus/kaspersky.yml",
+    "input": {
+      "log": {
+        "shost": "client",
+        "suser": "alice",
+        "smac": "00:11:22:33:44:55",
+        "dhost": "server",
+        "duser": "bob",
+        "ahost": "manager",
+        "agt": "10.0.0.99",
+        "cefDeviceSeverity": "10"
+      }
+    },
+    "expected": {
+      "origin.host": "client",
+      "origin.user": "alice",
+      "target.host": "server",
+      "target.user": "bob",
+      "log.agentHost": "manager",
+      "severity": "critical"
+    },
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "Suricata DDoS flow age 4",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "proto": "UDP",
+        "flow": {
+          "pktstoserver": 2000,
+          "age": 4
+        }
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/nids/suricata/ddos_attack_patterns.yml": true
+    }
+  },
+  {
+    "name": "Suricata DDoS flow age 10",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "proto": "UDP",
+        "flow": {
+          "pktstoserver": 2000,
+          "age": 10
+        }
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/nids/suricata/ddos_attack_patterns.yml": false
+    }
+  },
+  {
+    "name": "Suricata DDoS missing counters",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "destport": 123
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/nids/suricata/ddos_attack_patterns.yml": false
+    }
+  },
+  {
+    "name": "Suricata flow drop overrides established state",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "flow": {
+          "action": "drop",
+          "state": "established",
+          "bytestoserver": 500,
+          "bytestoclient": 200
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "connectionStatus"
+    ]
+  },
+  {
+    "name": "Suricata flow explicit pass",
+    "filter": "suricata/suricata.yml",
+    "input": {
+      "log": {
+        "flow": {
+          "action": "pass"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [
+      "connectionStatus"
+    ]
+  },
+  {
+    "name": "O365 successful guessing trigger UserLoggedIn Success",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "Operation": "UserLoggedIn",
+        "ResultStatus": "Success",
+        "Workload": "AzureActiveDirectory",
+        "UserId": "alice@example.test",
+        "ClientIP": "203.0.113.10"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/office365/possible_succesfull_password_guessing_o365.yml": true
+    }
+  },
+  {
+    "name": "O365 successful guessing trigger UserLoginFailed Failed",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "Operation": "UserLoginFailed",
+        "ResultStatus": "Failed",
+        "Workload": "AzureActiveDirectory",
+        "UserId": "alice@example.test",
+        "ClientIP": "203.0.113.10"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/office365/possible_succesfull_password_guessing_o365.yml": false
+    }
+  },
+  {
+    "name": "O365 successful guessing trigger UserLoggedIn Failed",
+    "filter": "office365/o365.yml",
+    "input": {
+      "log": {
+        "Operation": "UserLoggedIn",
+        "ResultStatus": "Failed",
+        "Workload": "AzureActiveDirectory",
+        "UserId": "alice@example.test",
+        "ClientIP": "203.0.113.10"
+      }
+    },
+    "expected": {},
+    "absent": [],
+    "rules": {
+      "rules/office365/possible_succesfull_password_guessing_o365.yml": false
+    }
+  },
+  {
+    "name": "Azure descriptive denial",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "properties": {
+          "result": "Access denied"
+        }
+      }
+    },
+    "expected": {
+      "actionResult": "denied"
+    }
+  },
+  {
+    "name": "Azure explicit failure overrides success event suffix",
+    "filter": "azure/azure-eventhub.yml",
+    "input": {
+      "log": {
+        "resultType": "Failed",
+        "eventType": "Microsoft.ResourceWriteSuccess"
+      }
+    },
+    "expected": {
+      "actionResult": "failure"
+    }
+  }
+]

@@ -380,24 +380,24 @@ pipeline:
 
       # Adding severity field based on log.severity
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "low"
+            value: info
           where: oneOf("log.severity", ["INFO", "NOTICE"])
 
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "medium"
+            value: warning
           where: equals("log.severity", "WARNING")
 
       - add:
-          function: "string"
+          function: string
           params:
             key: severity
-            value: "high"
+            value: error
           where: equals("log.severity", "ERROR")
 
       # Adding action field based on log.httpRequestMethod
@@ -445,10 +445,10 @@ pipeline:
 
       # Adding actionResult field based on log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
       - add:
-          function: "string"
+          function: string
           params:
             key: actionResult
-            value: "accepted"
+            value: success
           where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "ACCEPT")
 
       - add:
@@ -480,11 +480,11 @@ pipeline:
           where: 'exists("log.protoPayloadMethodName") && equals("log.protoPayloadStatusCode", 0)'
 
       - add:
-          function: "string"
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)'
+            value: failure
+          where: exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)
 
       # Adding actionResult for Cloud DNS query logs (dns.googleapis.com).
       - add:
@@ -502,10 +502,10 @@ pipeline:
           where: '!exists("actionResult") && equals("log.jsonPayloadResponseCode", "REFUSED")'
 
       - add:
-          function: "string"
+          function: string
           params:
             key: actionResult
-            value: "failed"
+            value: failure
           where: '!exists("actionResult") && exists("log.jsonPayloadResponseCode")'
 
       # Adding actionResult for plain HTTP request logs (Cloud Run, Load
@@ -525,11 +525,11 @@ pipeline:
           where: 'exists("statusCode") && !exists("actionResult") && oneOf("statusCode", [401, 403])'
 
       - add:
-          function: "string"
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("statusCode") && !exists("actionResult") && greaterOrEqual("statusCode", 400)'
+            value: failure
+          where: exists("statusCode") && !exists("actionResult") && greaterOrEqual("statusCode", 400)
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -547,6 +547,20 @@ pipeline:
             destination: target.geolocation
           where: exists("target.ip")
 
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: oneOf("log.severity",["EMERGENCY","ALERT","CRITICAL"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: equals("log.severity","DEBUG")
+
       # Removing unused fields
       - delete:
           fields:
@@ -557,3 +571,68 @@ pipeline:
             - log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
             - log.severity
             - log.jsonPayloadStructuredRdata
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

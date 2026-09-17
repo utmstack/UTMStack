@@ -38,11 +38,11 @@ where: |
 afterEvents:
   - indexPattern: v11-log-macos-*
     with:
-      - field: system.hostname
+      - field: origin.host
         operator: filter_term
-        value: '{{.system.hostname}}'
+        value: '{{.origin.host}}'
     within: 15m
     count: 2
 groupBy:
   - lastEvent.log.process
-  - lastEvent.system.hostname
+  - adversary.host

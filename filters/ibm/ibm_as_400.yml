@@ -86,3 +86,10 @@ pipeline:
             source: origin.ip
             destination: origin.geolocation
           where: exists("origin.ip")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))

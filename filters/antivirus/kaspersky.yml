@@ -1040,38 +1040,26 @@ pipeline:
 
       - rename:
           from:
-            - log.agt
-          to: origin.ip
+          - log.agt
+          to: log.agentAddress
 
       - rename:
           from:
-            - log.ahost
-          to: target.host
+          - log.ahost
+          to: log.agentHost
 
       - rename:
           from:
-            - log.amac
-          to: origin.mac
+          - log.amac
+          to: log.agentMac
 
       - rename:
           from:
             - log.dhost
           to: target.host
 
-      - rename:
-          from:
-            - log.originalAgentAddress
-          to: origin.ip
 
-      - rename:
-          from:
-            - log.syslogHost
-          to: origin.host
 
-      - rename:
-          from:
-            - log.syslogIpHost
-          to: origin.ip
 
       # .......................................................................#
       # Removing unnecessary characters of the restData
@@ -1107,15 +1095,15 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "Allow"
-          where: 'oneOf("action", ["Allow", "Allowed"])'
+            value: success
+          where: oneOf("action", ["Allow", "Allowed"])
 
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'oneOf("action", ["Block", "Blocked", "blocked", "Redirect", "terminate", "delete", "quarantine"])'
+            value: denied
+          where: oneOf("action", ["Block", "Blocked", "blocked", "Redirect", "terminate", "delete", "quarantine"])
 
       # .......................................................................#
       # Removing unused fields
@@ -1127,3 +1115,63 @@ pipeline:
             - log.cefMsg
             - log.irrelevant
             - log.notDefined
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+
+      # Normalize source fields to the standard event schema.
+      - rename:
+          from:
+          - log.shost
+          to: origin.host
+      - rename:
+          from:
+          - log.suser
+          to: origin.user
+      - rename:
+          from:
+          - log.smac
+          to: origin.mac
+      - rename:
+          from:
+          - log.duser
+          to: target.user
+      - rename:
+          from:
+          - log.dmac
+          to: target.mac
+
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: (greaterOrEqual("log.cefDeviceSeverity",0) && lessOrEqual("log.cefDeviceSeverity",3)) || oneOf("log.cefDeviceSeverity",["Low","low","Unknown"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: (greaterOrEqual("log.cefDeviceSeverity",4) && lessOrEqual("log.cefDeviceSeverity",6)) || oneOf("log.cefDeviceSeverity",["Medium","medium"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: (greaterOrEqual("log.cefDeviceSeverity",7) && lessOrEqual("log.cefDeviceSeverity",8)) || oneOf("log.cefDeviceSeverity",["High","high"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: (greaterOrEqual("log.cefDeviceSeverity",9) && lessOrEqual("log.cefDeviceSeverity",10)) || oneOf("log.cefDeviceSeverity",["Very-High","Very High","very-high"])

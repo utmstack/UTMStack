@@ -234,8 +234,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.errorCode") && !equals("log.errorCode", "AccessDenied")'
+            value: failure
+          where: exists("log.errorCode") && !equals("log.errorCode", "AccessDenied")
 
       - delete:
           fields:
@@ -243,3 +243,23 @@ pipeline:
             - log.responseElements
             - log.userIdentity
             - log.additionalEventData
+
+      # Promote standard fields while retaining vendor fields used by rules.
+      - grok:
+          source: log.sourceIPAddress
+          patterns:
+          - fieldName: origin.ip
+            pattern: '{{.greedy}}'
+          where: inCIDR("log.sourceIPAddress","0.0.0.0/0") || inCIDR("log.sourceIPAddress","::/0")
+      - grok:
+          source: log.userIdentityArn
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: exists("log.userIdentityArn") && !exists("origin.user")
+      - grok:
+          source: log.eventTime
+          patterns:
+          - fieldName: deviceTime
+            pattern: '{{.greedy}}'
+          where: exists("log.eventTime") && !exists("deviceTime")

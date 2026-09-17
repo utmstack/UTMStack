@@ -55,4 +55,4 @@ where: |
 groupBy:
   - lastEvent.log.scontext
   - lastEvent.log.tcontext
-  - origin.host
+  - adversary.host

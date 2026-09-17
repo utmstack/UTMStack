@@ -30,4 +30,4 @@ where: |
   (regexMatch("log.message", "(?i)Syslog\\.global\\.log") && regexMatch("log.message", "(?i)Set-VMHost")) ||
   regexMatch("log.message", "(?i)Get-VMHostSysLogServer")
 groupBy:
-  - adversary.hostname
+  - adversary.host

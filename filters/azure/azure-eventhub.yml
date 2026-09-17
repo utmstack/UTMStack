@@ -7,7 +7,7 @@
 # 4- https://learn.microsoft.com/en-us/azure/event-grid/system-topics
 #
 pipeline:
-  - dataTypes: azure
+  - dataTypes: [azure]
     steps:
       - json:
           source: raw
@@ -17,13 +17,13 @@ pipeline:
       # .......................................................................#
       - rename:
           from:
-            - log.ResponseBodySize
-          to: origin.bytesSent
+          - log.ResponseBodySize
+          to: origin.bytesReceived
 
       - rename:
           from:
-            - log.ResponseHeaderSize
-          to: origin.bytesReceived
+          - log.ResponseHeaderSize
+          to: log.responseHeaderSize
 
       - rename:
           from:
@@ -32,8 +32,8 @@ pipeline:
 
       - rename:
           from:
-            - log.AccountName
-          to: origin.host
+          - log.AccountName
+          to: log.accountName
 
       - rename:
           from:
@@ -47,13 +47,13 @@ pipeline:
 
       - rename:
           from:
-            - log.StatusText
-          to: connectionStatus
+          - log.StatusText
+          to: log.statusText
 
       - rename:
           from:
-            - log.Location
-          to: origin.geolocation.country
+          - log.Location
+          to: log.location
 
       - rename:
           from:
@@ -795,23 +795,31 @@ pipeline:
             - log.properties.upstreamSourcePort
           to: log.propertiesUpstreamSourcePort
 
-      - rename:
-          from:
-            - log.properties.result
-          to: actionResult
-          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
+      # Common Azure resource-log result (kept under log for existing consumers).
+      - grok:
+          source: log.resultType
+          patterns:
+          - fieldName: log.vendorActionResult
+            pattern: '{{.greedy}}'
+          where: exists("log.resultType")
 
       - rename:
           from:
-            - log.Properties.Result
-          to: actionResult
-          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
+          - log.properties.result
+          to: log.vendorActionResult
+          where: '!exists("log.vendorActionResult") && exists("log.properties.result")'
 
       - rename:
           from:
-            - log.properties.resultType
-          to: actionResult
-          where: '!regexMatch("log.properties.result", "(?i)\b(?:denied|blocked|failed)\b")'
+          - log.Properties.Result
+          to: log.vendorActionResult
+          where: '!exists("log.vendorActionResult") && exists("log.Properties.Result")'
+
+      - rename:
+          from:
+          - log.properties.resultType
+          to: log.vendorActionResult
+          where: '!exists("log.vendorActionResult") && exists("log.properties.resultType")'
 
       - rename:
           from:
@@ -984,10 +992,10 @@ pipeline:
           where: '!exists("actionResult") && equalsIgnoreCase("log.data.status", "Succeeded")'
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'failed'
+            value: failure
           where: '!exists("actionResult") && equalsIgnoreCase("log.data.status", "Failed")'
 
       - add:
@@ -998,25 +1006,19 @@ pipeline:
           where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Success")'
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'failed'
+            value: failure
           where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Failure")'
 
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'blocked'
-          where: '!exists("actionResult") && endsWith("log.eventGridEventType", "Cancel")'
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'medium'
-          where: '!exists("severity") && oneOf("actionResult", ["failed", "blocked"])'
+            value: warning
+          where: '!exists("severity") && oneOf("actionResult", ["failure", "denied"])'
 
       - rename:
           from:
@@ -1046,46 +1048,46 @@ pipeline:
 
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'denied'
-          where: regexMatch("log.properties.result", "(?i)\bdenied\b")
+            value: denied
+          where: regexMatch("log.vendorActionResult", "(?i)\\bdenied\\b")
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'blocked'
-          where: regexMatch("log.properties.result", "(?i)\bblocked\b")
+            value: denied
+          where: regexMatch("log.vendorActionResult", "(?i)\\bblocked\\b")
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'failed'
-          where: regexMatch("log.properties.result", "(?i)\bfailed\b")
+            value: failure
+          where: regexMatch("log.vendorActionResult", "(?i)\\bfailed\\b")
 
       # .......................................................................#
       # Adding severity based on log.level
       # .......................................................................#
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'high'
+            value: error
           where: oneOf("log.level", ["ERROR", "Error", "FATAL", "CRITICAL", "Critical"])
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'medium'
+            value: warning
           where: oneOf("log.level", ["WARN", "Warning"])
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'low'
+            value: info
           where: oneOf("log.level", ["Information", "Informational", "INFO", "DEBUG", "TRACE"])
 
       # .......................................................................#
@@ -1164,3 +1166,97 @@ pipeline:
             - origin.bytesSent
             - origin.bytesReceived
           to: float
+
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: oneOf("log.level",["FATAL","CRITICAL","Critical"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: oneOf("log.level",["DEBUG","TRACE"])
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && regexMatch("log.vendorActionResult", "(?i)^(success|succeeded|successful|ok|done|accepted|accept|allowed|allow|permitted|permit|passed|pass|true)$")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: '!equals("actionResult","denied") && regexMatch("log.vendorActionResult", "(?i)^(failure|failed|fail|error|invalid|timeout|false)$")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: regexMatch("log.vendorActionResult", "(?i)^(denied|deny|blocked|block|dropped|drop|rejected|reject|forbidden|unauthorized|quarantined)$")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

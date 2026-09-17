@@ -42,4 +42,4 @@ afterEvents:
     count: 3
 groupBy:
   - adversary.ip
-  - target.hostname
+  - target.host

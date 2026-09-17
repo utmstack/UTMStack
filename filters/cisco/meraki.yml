@@ -103,10 +103,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: equals("log.connectivity", "true")
       # ........................................
       # event uplink connectivity change
@@ -169,10 +169,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && contains("action", "Cellular connection")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: equalsIgnoreCase("log.connectionState", "up")
       # ........................................
       # Event: event, dhcp no offers
@@ -236,10 +236,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && contains("log.genericEvent", "dhcp lease")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: contains("log.genericEvent", "dhcp lease")
       # ........................................
       # Event: event, HTTP GET requests in Meraki MX Security Appliance
@@ -270,12 +270,6 @@ pipeline:
           source: log.genericEvent
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="urls"'
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && log.merakiGroup=="urls"'
       # ........................................
       # Event: flows, IP session initiated in Meraki MX Security Appliance
       # First variant
@@ -342,10 +336,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && equals("log.merakiGroup", "flows")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "src") && equals("log.merakiGroup", "flows") && (startsWith("log.pattern", "0") || startsWith("log.pattern", "allow") || startsWith("log.pattern", "Allow"))'
       - add:
           function: 'string'
@@ -501,31 +495,31 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && equals("log.merakiGroup", "events")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
-          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && equals("log.merakiGroup", "events") && (contains("log.genericEvent", "queued due to no phase 1") || contains("log.genericEvent", "queued due to no phase1") || contains("log.genericEvent", "established"))'
+            value: success
+          where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Site") && equals("log.merakiGroup", "events") && contains("log.genericEvent", "established")'
       # ........................................
       # Event: event spanning-tree guard state change in Meraki MS Switches
       - grok:
           patterns:
-            - fieldName: log.irrelevant
-              pattern: 'Port'
-            - fieldName: origin.port
-              pattern: '{{.integer}}'
-            - fieldName: log.irrelevant
-              pattern: 'received an'
-            - fieldName: protocol
-              pattern: '{{.data}}BPDU'
-            - fieldName: log.irrelevant
-              pattern: 'from'
-            - fieldName: origin.mac
-              pattern: '{{.data}}so'
-            - fieldName: log.irrelevant
-              pattern: 'the port was'
-            - fieldName: actionResult
-              pattern: '{{.greedy}}'
+          - fieldName: log.irrelevant
+            pattern: Port
+          - fieldName: origin.port
+            pattern: '{{.integer}}'
+          - fieldName: log.irrelevant
+            pattern: received an
+          - fieldName: protocol
+            pattern: '{{.data}}BPDU'
+          - fieldName: log.irrelevant
+            pattern: from
+          - fieldName: origin.mac
+            pattern: '{{.data}}so'
+          - fieldName: log.irrelevant
+            pattern: the port was
+          - fieldName: log.merakiResult
+            pattern: '{{.greedy}}'
           source: log.genericEvent
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "Port") && equals("log.merakiGroup", "events")'
       - trim:
@@ -853,10 +847,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && equals("log.merakiGroup", "events") && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && equals("log.merakiGroup", "events") && contains("log.genericEvent", "radio") && contains("log.genericEvent", "channel") && contains("log.genericEvent", "auth_neg_dur") && contains("log.genericEvent", "last_auth_ago")'
       # ........................................
       # Event: event 802.1X (all events) in Meraki MR Access Points
@@ -1008,10 +1002,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && equals("log.merakiGroup", "events") && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "type") && equals("log.merakiGroup", "events") && contains("log.genericEvent", "ip") && contains("log.genericEvent", "vap") && contains("log.genericEvent", "duration") && contains("log.genericEvent", "download") && contains("log.genericEvent", "upload")'
       # ........................................
       # Event: event wireless packet flood detected in Meraki MR Access Points
@@ -1123,32 +1117,32 @@ pipeline:
       # Event: flows, flow allowed by Layer 3 firewall in Meraki MR Access Points
       - grok:
           patterns:
-            - fieldName: actionResult
-              pattern: '{{.word}}'
-            - fieldName: log.irrelevant
-              pattern: 'src(\s)?='
-            - fieldName: origin.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
-            - fieldName: log.irrelevant
-              pattern: 'dst(\s)?='
-            - fieldName: target.ip
-              pattern: '{{.ipv4}}|{{.ipv6}}'
-            - fieldName: log.irrelevant
-              pattern: 'mac(\s)?='
-            - fieldName: origin.mac
-              pattern: '{{.data}}protocol'
-            - fieldName: log.irrelevant
-              pattern: '='
-            - fieldName: protocol
-              pattern: '{{.data}}sport'
-            - fieldName: log.irrelevant
-              pattern: '='
-            - fieldName: origin.port
-              pattern: '{{.integer}}'
-            - fieldName: log.irrelevant
-              pattern: 'dport(\s)?='
-            - fieldName: target.port
-              pattern: '{{.integer}}'
+          - fieldName: log.merakiResult
+            pattern: '{{.word}}'
+          - fieldName: log.irrelevant
+            pattern: src(\s)?=
+          - fieldName: origin.ip
+            pattern: '{{.ipv4}}|{{.ipv6}}'
+          - fieldName: log.irrelevant
+            pattern: dst(\s)?=
+          - fieldName: target.ip
+            pattern: '{{.ipv4}}|{{.ipv6}}'
+          - fieldName: log.irrelevant
+            pattern: mac(\s)?=
+          - fieldName: origin.mac
+            pattern: '{{.data}}protocol'
+          - fieldName: log.irrelevant
+            pattern: '='
+          - fieldName: protocol
+            pattern: '{{.data}}sport'
+          - fieldName: log.irrelevant
+            pattern: '='
+          - fieldName: origin.port
+            pattern: '{{.integer}}'
+          - fieldName: log.irrelevant
+            pattern: dport(\s)?=
+          - fieldName: target.port
+            pattern: '{{.integer}}'
           source: log.genericEvent
           where: '!equals("log.controlFlag", "Init") && (startsWith("log.genericEvent", "allow") || startsWith("log.genericEvent", "deny")) && equals("log.merakiGroup", "flows") && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
       - trim:
@@ -1165,10 +1159,10 @@ pipeline:
           where: '!equals("log.controlFlag", "Init") && (startsWith("log.genericEvent", "allow") || startsWith("log.genericEvent", "deny")) && equals("log.merakiGroup", "flows") && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: '!equals("log.controlFlag", "Init") && startsWith("log.genericEvent", "allow") && equals("log.merakiGroup", "flows") && contains("log.genericEvent", "src") && contains("log.genericEvent", "dst") && contains("log.genericEvent", "sport") && contains("log.genericEvent", "dport") && contains("log.genericEvent", "mac")'
       # Adding action result
       - add:
@@ -1388,12 +1382,6 @@ pipeline:
             - log.vap
           where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: startsWith("log.genericEvent", "airmarshal_events") && contains("log.genericEvent", "type") && contains("log.genericEvent", "ssid") && contains("log.genericEvent", "bssid")
       # ........................................
       # Event: security_event ids_alerted, ids signature matched in Meraki MX Security Appliance
       - grok:
@@ -1469,12 +1457,6 @@ pipeline:
             - protocol
           where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: startsWith("log.genericEvent", "signature") && contains("log.genericEvent", "priority") && contains("log.genericEvent", "timestamp") && contains("log.genericEvent", "direction") && contains("log.genericEvent", "dhost")
       # ............................................................................
       # Cleaning common fields
       - trim:
@@ -1547,3 +1529,76 @@ pipeline:
             - log.controlFlag
             - log.irrelevant
             - log.genericEvent
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equalsIgnoreCase("log.merakiResult","blocked")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

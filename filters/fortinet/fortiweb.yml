@@ -100,8 +100,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("action") && equalsIgnoreCase("action", "Deny")'
+            value: denied
+          where: exists("action") && equalsIgnoreCase("action", "Deny")
 
       # Removing unused caracters
       - trim:
@@ -136,3 +136,15 @@ pipeline:
           fields:
             - log.kvMessage
             - log.irrelevant
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))

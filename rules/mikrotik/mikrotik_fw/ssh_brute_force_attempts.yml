@@ -24,9 +24,9 @@ description: |
   5. Ensure SSH access is restricted to authorized management networks only
   6. Review MikroTik firewall rules and consider disabling SSH access from untrusted networks
 where: |
-  equals("target.port", 22) && equals("protocol", "tcp") && exists("origin.ip") &&
+  equals("target.port", 22) && equalsIgnoreCase("protocol", "tcp") && exists("origin.ip") &&
   (contains("log.chain", "input") || contains("log.action", "drop")
-  || (contains("log.topics", "system") && contains("log.kvMessage", "ssh")))
+  || (contains("log.topics", "system") && contains("raw", "ssh")))
 afterEvents:
   - indexPattern: v11-log-firewall-mikrotik-*
     with:
@@ -38,7 +38,7 @@ afterEvents:
         value: '22'
       - field: protocol
         operator: filter_term
-        value: 'tcp'
+        value: '{{.protocol}}'
     within: 15m
     count: 10
 groupBy:

@@ -47,5 +47,5 @@ afterEvents:
     within: 15m
     count: 3
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

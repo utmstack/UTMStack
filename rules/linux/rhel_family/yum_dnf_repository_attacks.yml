@@ -49,4 +49,4 @@ where: |
   )
 groupBy:
   - lastEvent.log.comm
-  - origin.host
+  - adversary.host

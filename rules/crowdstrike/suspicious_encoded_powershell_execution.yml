@@ -16,5 +16,5 @@ where: >
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(powershell|pwsh).*-(e|en|enc|encodedcommand|ec)\\s+.*")
 groupBy: 
-  - origin.host
+  - adversary.host
   - lastEvent.log.eventCommandLine

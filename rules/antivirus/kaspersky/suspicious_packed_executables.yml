@@ -17,7 +17,7 @@ description: |
   Detects when Kaspersky identifies suspicious packed executables, which are often used by malware to evade detection and analysis. Packed executables use compression or encryption to hide their true content and make reverse engineering more difficult.
   
   Next Steps:
-  1. Identify the affected system from origin.hostname and origin.ip fields
+  1. Identify the affected system from origin.host and origin.ip fields
   2. Review the detected threat details from log.descMsg and log.msg fields
   3. Check the action taken by the antivirus (blocked/detected) in the action field
   4. Verify if the file is legitimate software that uses packing for protection
@@ -37,5 +37,5 @@ where: |
      "PECompact", "Enigma", "Armadillo"]) ||
    contains("log.cat", ["Trojan.Packed", "Packed"]))
 groupBy:
-  - origin.host
-  - origin.ip
+  - adversary.host
+  - adversary.ip

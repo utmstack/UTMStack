@@ -60,5 +60,5 @@ afterEvents:
     within: 30m
     count: 3
 groupBy:
-  - origin.host
+  - adversary.host
   - target.user

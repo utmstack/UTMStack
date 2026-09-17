@@ -34,4 +34,4 @@ where: |
   (regexMatch("log.eventInfo", "(?i)(vm.*escape|breakout|containment.*breach)"))
 groupBy:
   - lastEvent.log.process
-  - adversary.hostname
+  - adversary.host

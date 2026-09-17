@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1082/"
 where: contains("log.message", "hping")
 deduplicateBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

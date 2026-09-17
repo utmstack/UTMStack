@@ -18,5 +18,5 @@ references:
   - "https://attack.mitre.org/techniques/T1547/006/"
 where: regexMatch("log.message", "(insmod (.+).ko)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

@@ -34,5 +34,5 @@ where: |
   (contains("log.message", "mount") && contains("log.message", "/dev/") &&
    (contains("log.message", "container") || contains("log.message", "docker")))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

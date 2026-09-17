@@ -27,7 +27,7 @@ description: |
 where: |
   exists("origin.ip") && exists("target.ip") &&
   oneOf("target.port", [9001, 9030, 9050, 9051]) &&
-  equals("protocol", "6") && greaterThan("log.bytes", 512)
+  oneOf("protocol", ["TCP", "tcp", "6"]) && greaterThan("log.bytes", 512)
 afterEvents:
   - indexPattern: v11-log-netflow-*
     with:

@@ -61,11 +61,6 @@ pipeline:
           to: action
       - rename:
           from:
-            - log.event
-          to: actionResult
-          where: '!regexMatch("log.result", "(?i)\b(?:denied|blocked|failed)\b")'
-      - rename:
-          from:
             - log.sourceaddress
           to: origin.ip
       - rename:
@@ -86,47 +81,29 @@ pipeline:
           to: target.port
 
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'denied'
-          where: regexMatch("log.event", "(?i)\bdenied\b")
 
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'blocked'
-          where: regexMatch("log.event", "(?i)\bblocked\b")
 
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'failed'
-          where: regexMatch("log.event", "(?i)\bfailed\b")
       
       # Adding severity field based on log.severity
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'low'
+            value: info
           where: oneOf("log.severity", ["INFO", "Info"])
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'medium'
+            value: warning
           where: oneOf("log.severity", ["WARNING", "Warning"])
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: severity
-            value: 'high'
+            value: error
           where: oneOf("log.severity", ["ERROR", "Error"])
 
       # Adding geolocation to origin.ip
@@ -150,3 +127,94 @@ pipeline:
           fields:
             - log.jsonMessage
             - log.severity
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: regexMatch("log.result", "(?i)^(success|succeeded|successful|ok|done|accepted|accept|allowed|allow|permitted|permit|passed|pass|true)$")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: regexMatch("log.result", "(?i)^(failure|failed|fail|error|invalid|timeout|false)$")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: regexMatch("log.result", "(?i)^(denied|deny|blocked|block|dropped|drop|rejected|reject|forbidden|unauthorized|quarantined)$")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: regexMatch("action", "(?i)^(deny|denied|block|blocked)$") || regexMatch("log.event", "(?i)^(deny|denied|block|blocked)$")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

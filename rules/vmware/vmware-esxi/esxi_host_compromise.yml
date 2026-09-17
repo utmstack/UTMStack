@@ -42,6 +42,6 @@ where: |
    contains("log.message", "log events removed") ||
    (equals("log.process", "vmkernel") && contains("log.message", "SCSI sense")) ||
    (contains("log.eventInfo", "ransom") || contains("log.eventInfo", "encrypt"))) &&
-  exists("origin.hostname")
+  exists("origin.host")
 groupBy:
-  - adversary.hostname
+  - adversary.host

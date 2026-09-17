@@ -3037,29 +3037,29 @@ pipeline:
             value: "success"
           where: 'oneOf("log.eventCode", [4624, 4648, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'oneOf("log.eventCode", [4725, 4726, 4740])'
+            value: success
+          where: oneOf("log.eventCode", [4725, 4726, 4740])
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'oneOf("log.eventCode", [4625, 4771])'
+            value: failure
+          where: oneOf("log.eventCode", [4625, 4771])
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "success"
-          where: 'equals("log.eventCode", 4776) && equals("log.eventDataStatus", "0")'
+            value: success
+          where: equals("log.eventCode", 4776) && regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$")
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !equals("log.eventDataStatus", "0")'
+            value: failure
+          where: equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$")
 
       - delete:
           fields:
@@ -3071,3 +3071,50 @@ pipeline:
             - log.event
             - log.ecs
             - log.log
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+
+      # Promote standard fields while retaining vendor fields used by rules.
+      - grok:
+          source: log.eventDataSubjectUserName
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: exists("log.eventDataSubjectUserName") && !oneOf("log.eventDataSubjectUserName",["-",""])
+      - grok:
+          source: target.user
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: oneOf("log.eventCode",[4624,4625,4634,4647,4771,4776]) && exists("target.user") && !oneOf("target.user",["-",""])
+
+      # Normalize source fields to the standard event schema.
+      - delete:
+          fields:
+          - origin.user
+          where: oneOf("origin.user",["-",""])
+      - delete:
+          fields:
+          - target.user
+          where: oneOf("target.user",["-",""])
+      - delete:
+          fields:
+          - origin.host
+          where: oneOf("origin.host",["-",""])
+      - delete:
+          fields:
+          - target.host
+          where: oneOf("target.host",["-",""])
+      - delete:
+          fields:
+          - origin.domain
+          where: oneOf("origin.domain",["-",""])
+      - delete:
+          fields:
+          - target.domain
+          where: oneOf("target.domain",["-",""])

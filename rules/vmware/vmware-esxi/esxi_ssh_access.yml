@@ -33,5 +33,5 @@ where: |
     (contains("log.message", "ssh") && contains("log.message", "connection from"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host
   - adversary.ip

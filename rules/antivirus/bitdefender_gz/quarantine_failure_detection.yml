@@ -42,7 +42,7 @@ description: |
 where: |
   equals("log.eventType", "AntiMalware") &&
   (
-    equals("actionResult", "failed") ||
+    oneOf("actionResult", ["failure", "failed"]) ||
     (greaterOrEqual("log.BitdefenderGZPresentMalwareCnt", 1) &&
      equals("log.BitdefenderGZQuarantinedMalwareCnt", 0) &&
      equals("log.BitdefenderGZCleanedMalwareCnt", 0))

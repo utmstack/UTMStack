@@ -24,6 +24,6 @@ description: |
   6. Remove the binary and investigate the initial access vector
   7. Scan the system for additional indicators of compromise
 where: |
-  regexMatch("origin.process", "^/(tmp|dev/shm|var/tmp)/") && !regexMatch("origin.process", "(apt|dpkg|yum|dnf|pip)")
+  (regexMatch("origin.path", "^/(tmp|dev/shm|var/tmp)/") || regexMatch("origin.process", "^/(tmp|dev/shm|var/tmp)/")) && !regexMatch("origin.process", "(apt|dpkg|yum|dnf|pip)")
 deduplicateBy:
   - dataSource
