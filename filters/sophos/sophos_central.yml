@@ -55,33 +55,33 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("log.action") && equals("log.action", "blocked")'
+            value: denied
+          where: exists("log.action") && equals("log.action", "blocked")
 
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && contains("log.type", "Prevented") && !exists("actionResult")'
+            value: denied
+          where: exists("log.type") && contains("log.type", "Prevented") && !exists("actionResult")
 
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && oneOf("log.type", ["Event::Endpoint::HmpaApplicationHijacking", "Event::Endpoint::HmpaPrivGuard"]) && !exists("actionResult")'
+            value: denied
+          where: exists("log.type") && oneOf("log.type", ["Event::Endpoint::HmpaApplicationHijacking", "Event::Endpoint::HmpaPrivGuard"]) && !exists("actionResult")
 
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && contains("log.type", "HmpaCred") && !exists("actionResult")'
+            value: denied
+          where: exists("log.type") && contains("log.type", "HmpaCred") && !exists("actionResult")
 
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.type") && contains("log.type", "AuthenticationFailure") && !exists("actionResult")'
+            value: failure
+          where: exists("log.type") && contains("log.type", "AuthenticationFailure") && !exists("actionResult")

@@ -423,8 +423,7 @@ pipeline:
       - rename:
           from:
             - log.ftpcommand
-          to: command
-
+          to: origin.command
       - rename:
           from:
             - log.FTPurl
@@ -546,7 +545,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - command
+            - origin.command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
@@ -604,7 +603,7 @@ pipeline:
             - log.outInterface
             - log.vLanId
             - log.deviceType
-            - command
+            - origin.command
             - log.clientHostName
             - log.ipAddress
             - log.clientPhysicalAddress
@@ -684,19 +683,7 @@ pipeline:
           to: float
 
       # Adding actionResult based on log.subtype value
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'denied'
-          where: exists("log.subType") && regexMatch("log.subType", "(?i)\bdenied\b")
 
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: exists("log.subType") && oneOf("log.subType", ["Accepted", "Allowed"])
 
       # Renaming "log.statusCode" to "statusCode" to add it to the event structure
       - rename:
@@ -704,22 +691,6 @@ pipeline:
             - log.statusCode
           to: statusCode
           where: exists("log.statusCode")
-
-      # Adding actionResult
-      # denied by default
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'denied'
-          where: exists("statusCode")
-
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: exists("statusCode") && ((greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (greaterOrEqual("statusCode", 300) && lessOrEqual("statusCode", 399) && greaterThan("origin.bytesReceived", 0)))
 
       # Removing unused fields
       - delete:
@@ -757,3 +728,100 @@ pipeline:
             - log.logsubtype
             - log.name
             - log.logtype
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: regexMatch("log.subType", "(?i)^(denied|blocked|dropped)$") || regexMatch("log.status", "(?i)^(deny|denied|block|blocked|drop|dropped)$")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && (regexMatch("log.subType", "(?i)^(accepted|allowed)$") || regexMatch("log.status", "(?i)^(allow|allowed|accept|accepted)$"))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '!exists("actionResult") && oneOf("statusCode", [401,403])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: '!exists("actionResult") && greaterOrEqual("statusCode",400) && lessThan("statusCode",600)'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && greaterOrEqual("statusCode",200) && lessThan("statusCode",400)'
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)

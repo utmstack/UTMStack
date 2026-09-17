@@ -1,0 +1,138 @@
+{
+  "technology": "Sophos",
+  "filters": [
+    "filters/sophos/sophos_central.yml",
+    "filters/sophos/sophos_xg_firewall.yml"
+  ],
+  "rules": [
+    "rules/sophos/sophos_central/behavioral_analysis_alerts.yml",
+    "rules/sophos/sophos_central/endpoint_threat_detection.yml",
+    "rules/sophos/sophos_central/exploit_prevention_triggers.yml",
+    "rules/sophos/sophos_central/managed_threat_response_alerts.yml",
+    "rules/sophos/sophos_central/ransomware_detection.yml",
+    "rules/sophos/sophos_central/server_protection_alerts.yml",
+    "rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yml",
+    "rules/sophos/sophos_central/sophos_central_credential_theft_attack_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_device_compromised.yml",
+    "rules/sophos/sophos_central/sophos_central_exploit_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_malware_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_man_in_the_middle_attack_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_possible_botnet_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_possible_brute_force_attack.yml",
+    "rules/sophos/sophos_central/sophos_central_potential_password_spraying_attack.yml",
+    "rules/sophos/sophos_central/sophos_central_ransomware_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_real_time_protection_disabled.yml",
+    "rules/sophos/sophos_central/sophos_central_unknown_threat_detected.yml",
+    "rules/sophos/sophos_central/tamper_protection_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/advanced_threat_protection_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_denial_of_service.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_firewall_probable_malware_detected.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_high_severity_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_initial_access_by_guest_account.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_ip_spoofing_attack.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_password_guessing_on_administrator_account.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_xg_ips_signatures.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_xg_vpn_auth_failures.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Sophos HTTP 200",
+      "filter": "sophos/sophos_xg_firewall.yml",
+      "input": {
+        "log": {
+          "statuscode": 200
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Sophos HTTP 302",
+      "filter": "sophos/sophos_xg_firewall.yml",
+      "input": {
+        "log": {
+          "statuscode": 302
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Sophos HTTP 403",
+      "filter": "sophos/sophos_xg_firewall.yml",
+      "input": {
+        "log": {
+          "statuscode": 403
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Sophos HTTP 500",
+      "filter": "sophos/sophos_xg_firewall.yml",
+      "input": {
+        "log": {
+          "statuscode": 500
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Sophos denied block-page HTTP 200",
+      "filter": "sophos/sophos_xg_firewall.yml",
+      "input": {
+        "log": {
+          "statuscode": 200,
+          "subType": "Denied"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "sophos_central_denied",
+      "filter": "sophos/sophos_central.yml",
+      "input": {
+        "log": {
+          "action": "blocked"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "sophos_central_failure",
+      "filter": "sophos/sophos_central.yml",
+      "input": {
+        "log": {
+          "type": "Event::Endpoint::AuthenticationFailure"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
