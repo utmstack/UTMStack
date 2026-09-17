@@ -1,0 +1,186 @@
+{
+  "technology": "Cisco Firepower",
+  "filters": [
+    "filters/cisco/firepower.yml"
+  ],
+  "rules": [
+    "rules/cisco/firepower/advanced_malware_protection_alerts.yml",
+    "rules/cisco/firepower/c2_nonstandard_port.yml",
+    "rules/cisco/firepower/intrusion_prevention_high_priority_events.yml",
+    "rules/cisco/firepower/ioc_matches.yml",
+    "rules/cisco/firepower/threat_intelligence_director_alerts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402114",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402114
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402115",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402115
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402116",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402116
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402117",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402117
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402118",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402118
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402119",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402119
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml invalid IPsec 402120",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 402120
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml scan outcome unknown",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 733101
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml explicit shun",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 733102
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml ACL Permitted",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "Permitted"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml ACL Denied",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "Denied"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco/firepower.yml ACL unknown",
+      "filter": "cisco/firepower.yml",
+      "input": {
+        "log": {
+          "messageId": 106102,
+          "ciscoResult": "unknown"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    }
+  ]
+}
