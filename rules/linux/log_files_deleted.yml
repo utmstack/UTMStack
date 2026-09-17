@@ -17,5 +17,5 @@ references:
   - "https://attack.mitre.org/techniques/T1070/002/"
 where: regexMatch("log.message", "(/var/run/utmp|/var/log/wtmp|/var/log/btmp|/var/log/lastlog|/var/log/faillog|/var/log/syslog|/var/log/messages|/var/log/secure|/var/log/auth.log|/var/log/boot.log|/var/log/kern.log)") && !contains("log.message", "gzip") && regexMatch("log.message", "(rm |shred -u)")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user

@@ -20,5 +20,5 @@ references:
   - "https://attack.mitre.org/techniques/T1222/"
 where: regexMatch("log.message", "(chattr (\\+|-)i )")
 groupBy:
-  - origin.ip
-  - origin.user
+  - adversary.ip
+  - adversary.user
