@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"os"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -123,33 +121,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 	bb.FilterRange("@timestamp", "gte", time.Now().UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
 	bb.FilterRange("@timestamp", "lte", time.Now().UTC().Format(time.RFC3339Nano))
 
-	// Compile regex for array index stripping
-	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
-
-	var execute bool = false
-
-	for _, d := range alert.DeduplicateBy {
-		d = strings.TrimSuffix(d, ".keyword")
-
-		value, ok := scalarGroupingValue(alertGroupingValue(*alertString, d))
-		if !ok {
-			continue
-		}
-
-		execute = true
-
-		// Calculate OpenSearch field name by removing array indices
-		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
-			if strings.HasSuffix(s, ".") {
-				return "."
-			}
-			return ""
-		})
-
-		bb.FilterTerm(searchField, value)
-	}
-
-	if !execute {
+	if !addAlertGroupingTerms(bb, *alertString, alert.DeduplicateBy) {
 		return false
 	}
 
@@ -213,33 +185,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	// Original logic: MustNot exists field "parentId"
 	bb.MustNotExists("parentId")
 
-	// Compile regex for array index stripping
-	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
-
-	var execute bool = false
-
-	for _, d := range alert.GroupBy {
-		d = strings.TrimSuffix(d, ".keyword")
-
-		value, ok := scalarGroupingValue(alertGroupingValue(*alertString, d))
-		if !ok {
-			continue
-		}
-
-		execute = true
-
-		// Calculate OpenSearch field name by removing array indices
-		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
-			if strings.HasSuffix(s, ".") {
-				return "."
-			}
-			return ""
-		})
-
-		bb.FilterTerm(searchField, value)
-	}
-
-	if !execute {
+	if !addAlertGroupingTerms(bb, *alertString, alert.GroupBy) {
 		return nil
 	}
 

@@ -1,6 +1,12 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"reflect"
+	"strings"
+
+	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/tidwall/gjson"
 	"testing"
 
@@ -63,6 +69,86 @@ func TestScalarGroupingValue(t *testing.T) {
 	} {
 		if _, ok := scalarGroupingValue(gjson.Parse(tc.input)); ok != tc.valid {
 			t.Errorf("scalarGroupingValue(%s) = %v, want %v", tc.input, ok, tc.valid)
+		}
+	}
+}
+
+// Exercise the same SDK query construction used by both production callers.
+// Empty indices keep this unit test offline: live mapping/.keyword resolution
+// remains a separate OpenSearch integration check.
+func TestAlertGroupingIndexedTerms(t *testing.T) {
+	log, err := structpb.NewStruct(map[string]any{
+		"accounts": []any{map[string]any{"id": "first"}, map[string]any{"id": "selected"}},
+		"attempts": 0, "blocked": false, "object": map[string]any{"nested": true},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	alert := &plugins.Alert{
+		Name:      "Synthetic grouping contract",
+		Adversary: &plugins.Side{Ip: "203.0.113.7"},
+		Events: []*plugins.Event{
+			{Action: "previous-action", Origin: &plugins.Side{User: "previous-user", Ip: "192.0.2.2"}},
+			{Action: "final-action", Origin: &plugins.Side{User: "final-user"}, Log: log.Fields},
+		},
+	}
+	wire, err := utils.ProtoMessageToString(alert)
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder := sdkos.NewBoolBuilder(context.Background(), nil, "grouping-query-test")
+	fields := []string{
+		"lastEvent.action.keyword", "lastEvent.origin.user", "adversary.ip",
+		"lastEvent.log.accounts.1.id.keyword", "lastEvent.log.attempts", "lastEvent.log.blocked",
+		"lastEvent.origin.ip", // Only present on the older event: do not fall back.
+		"lastEvent.log.accounts", "lastEvent.log.object", "lastEvent.log.missing",
+	}
+	if !addAlertGroupingTerms(builder, *wire, fields) {
+		t.Fatal("expected usable grouping terms")
+	}
+	query, errors := builder.BuildWithErrors()
+	if len(errors) != 0 {
+		t.Fatal(errors)
+	}
+	encoded, err := json.Marshal(query)
+	if err != nil {
+		t.Fatal(err)
+	}
+	terms := map[string]any{}
+	for _, clause := range query.Bool.Filter {
+		for field, term := range clause.Term {
+			if strings.HasPrefix(field, "events.") {
+				t.Errorf("wire path leaked into indexed query: %s", field)
+			}
+			terms[field] = term["value"]
+		}
+	}
+	want := map[string]any{
+		"lastEvent.action": "final-action", "lastEvent.origin.user": "final-user",
+		"adversary.ip": "203.0.113.7", "lastEvent.log.accounts.id": "selected",
+		"lastEvent.log.attempts": float64(0), "lastEvent.log.blocked": false,
+	}
+	if !reflect.DeepEqual(terms, want) {
+		t.Fatalf("indexed terms differ: got %s, want %v", encoded, want)
+	}
+}
+
+func TestAlertGroupingDoesNotEnableNameOnlyQuery(t *testing.T) {
+	for _, wire := range []string{
+		`{}`, `{"events":[]}`,
+		`{"events":[{"action":"older"},{}]}`,
+		`{"events":[{"log":{"items":[1],"object":{"id":"x"},"empty":null}}]}`,
+	} {
+		builder := sdkos.NewBoolBuilder(context.Background(), nil, "grouping-query-test")
+		builder.FilterTerm("name", "Synthetic grouping contract")
+		if addAlertGroupingTerms(builder, wire, []string{
+			"lastEvent.action", "lastEvent.log.items", "lastEvent.log.object", "lastEvent.log.empty",
+		}) {
+			t.Fatalf("caller would execute a name-only query for %s", wire)
+		}
+		query := builder.Build()
+		if len(query.Bool.Filter) != 1 {
+			t.Fatalf("unexpected grouping term: %v", query)
 		}
 	}
 }

@@ -1,11 +1,39 @@
 package main
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
+	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/tidwall/gjson"
 )
+
+var groupingArrayIndex = regexp.MustCompile(`\.[0-9]+(\.|$)`)
+
+// addAlertGroupingTerms keeps indexed query paths separate from wire value
+// paths. Both grouping and deduplication use this same query construction.
+// False means there is no usable key: callers must not run a name-only search.
+func addAlertGroupingTerms(builder *sdkos.BoolBuilder, alertJSON string, fields []string) bool {
+	added := false
+	for _, field := range fields {
+		field = strings.TrimSuffix(field, ".keyword")
+		value, ok := scalarGroupingValue(alertGroupingValue(alertJSON, field))
+		if !ok {
+			continue
+		}
+		// OpenSearch flattens array elements under the indexed field name.
+		searchField := groupingArrayIndex.ReplaceAllStringFunc(field, func(index string) string {
+			if strings.HasSuffix(index, ".") {
+				return "."
+			}
+			return ""
+		})
+		builder.FilterTerm(searchField, value)
+		added = true
+	}
+	return added
+}
 
 // alertGroupingValue resolves the fields that rules can use in groupBy and
 // deduplicateBy. The wire Alert has events, while the indexed document exposes
