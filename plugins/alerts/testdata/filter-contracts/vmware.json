@@ -1,0 +1,44 @@
+{
+  "technology": "VMware ESXi",
+  "filters": [
+    "filters/vmware/vmware-esxi.yml"
+  ],
+  "rules": [
+    "rules/vmware/vmware-esxi/esxi_account_manipulation.yml",
+    "rules/vmware/vmware-esxi/esxi_disk_theft.yml",
+    "rules/vmware/vmware-esxi/esxi_firewall_modification.yml",
+    "rules/vmware/vmware-esxi/esxi_host_compromise.yml",
+    "rules/vmware/vmware-esxi/esxi_ransomware_detection.yml",
+    "rules/vmware/vmware-esxi/esxi_ssh_access.yml",
+    "rules/vmware/vmware-esxi/esxi_syslog_disruption.yml",
+    "rules/vmware/vmware-esxi/esxi_vib_sideloading.yml",
+    "rules/vmware/vmware-esxi/hypervisor_escape_attempts.yml",
+    "rules/vmware/vmware-esxi/powercli_script_execution.yml",
+    "rules/vmware/vmware-esxi/vcenter_server_attacks.yml",
+    "rules/vmware/vmware-esxi/vm_escape_detection.yml",
+    "rules/vmware/vmware-esxi/vmware_tools_vulnerabilities.yml",
+    "rules/vmware/vmware-esxi/vsphere_api_abuse.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "vmware_auth_failure",
+      "filter": "vmware/vmware-esxi.yml",
+      "input": {
+        "origin": {
+          "host": "esxi-lab"
+        },
+        "log": {
+          "message": "authentication failed"
+        }
+      },
+      "expected": {
+        "origin.host": "esxi-lab",
+        "actionResult": "failure"
+      },
+      "absent": [
+        "origin.hostname"
+      ],
+      "rules": {}
+    }
+  ]
+}

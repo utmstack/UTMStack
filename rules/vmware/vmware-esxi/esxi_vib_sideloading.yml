@@ -33,4 +33,4 @@ where: |
     (contains("log.message", "esxcli software acceptance") && contains("log.message", "set"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host

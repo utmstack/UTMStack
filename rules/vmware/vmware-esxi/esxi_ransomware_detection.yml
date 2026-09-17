@@ -37,4 +37,4 @@ where: |
     (contains("log.message", "chmod") && contains("log.message", "+x") && contains("log.message", ".sh"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host

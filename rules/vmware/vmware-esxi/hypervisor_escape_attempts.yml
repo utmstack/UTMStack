@@ -33,4 +33,4 @@ where: |
   (regexMatch("log.message", "(?i)CVE-2024-37085")) ||
   (regexMatch("log.message", "(?i)VMCI") && regexMatch("log.message", "(?i)(backdoor|socket|unauthorized)"))
 groupBy:
-  - adversary.hostname
+  - adversary.host

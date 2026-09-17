@@ -37,4 +37,4 @@ where: |
     (contains("log.message", "Syslog.global.logHost") && contains("log.message", "changed"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host
