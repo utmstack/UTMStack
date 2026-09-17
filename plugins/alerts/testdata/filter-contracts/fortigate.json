@@ -14,12 +14,10 @@
   ],
   "fixtures": [
     {
-      "name": "FortiGate \"accept\"",
+      "name": "FortiGate isolated normalized action accept",
       "filter": "fortinet/fortinet.yml",
       "input": {
-        "log": {
-          "action": "\"accept\""
-        }
+        "action": "accept"
       },
       "expected": {
         "actionResult": "success"
@@ -28,12 +26,10 @@
       "rules": {}
     },
     {
-      "name": "FortiGate \"deny\"",
+      "name": "FortiGate isolated normalized action deny",
       "filter": "fortinet/fortinet.yml",
       "input": {
-        "log": {
-          "action": "\"deny\""
-        }
+        "action": "deny"
       },
       "expected": {
         "actionResult": "denied"
@@ -42,60 +38,91 @@
       "rules": {}
     },
     {
-      "name": "FortiGate ip-conn",
+      "name": "FortiGate isolated normalized action blocked",
       "filter": "fortinet/fortinet.yml",
       "input": {
-        "log": {
-          "action": "ip-conn"
-        }
-      },
-      "expected": {
-        "actionResult": "failure"
-      },
-      "absent": [],
-      "rules": {}
-    },
-    {
-      "name": "FortiGate client-rst",
-      "filter": "fortinet/fortinet.yml",
-      "input": {
-        "log": {
-          "action": "client-rst"
-        }
-      },
-      "expected": {},
-      "absent": [
-        "actionResult"
-      ],
-      "rules": {}
-    },
-    {
-      "name": "FortiGate timeout",
-      "filter": "fortinet/fortinet.yml",
-      "input": {
-        "log": {
-          "action": "timeout"
-        }
-      },
-      "expected": {},
-      "absent": [
-        "actionResult"
-      ],
-      "rules": {}
-    },
-    {
-      "name": "FortiGate profile deny overrides policy accept",
-      "filter": "fortinet/fortinet.yml",
-      "input": {
-        "log": {
-          "action": "\"accept\"",
-          "utmaction": "block"
-        }
+        "action": "blocked"
       },
       "expected": {
         "actionResult": "denied"
       },
       "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate isolated normalized action dns",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "action": "dns"
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate isolated normalized action ip-conn",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "action": "ip-conn"
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate isolated normalized action client-rst",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "action": "client-rst"
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate isolated normalized action timeout",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "action": "timeout"
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate numeric string protocol 6",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "protocol": "6"
+      },
+      "expected": {
+        "protocol": "TCP"
+      },
+      "absent": [
+        "log.ipProtocolNumber"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate numeric string protocol 17",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "protocol": "17"
+      },
+      "expected": {
+        "protocol": "UDP"
+      },
+      "absent": [
+        "log.ipProtocolNumber"
+      ],
       "rules": {}
     }
   ]
