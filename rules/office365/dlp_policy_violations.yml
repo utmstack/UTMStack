@@ -41,7 +41,7 @@ where: |
     equals("log.Workload", "Teams") ||
     equals("log.Workload", "SecurityComplianceCenter")
   ) &&
-  !equals("actionResult", "failed")
+  !oneOf("actionResult", ["failure", "failed"])
 groupBy:
   - lastEvent.log.PolicyId
   - lastEvent.log.SensitiveInfoTypeData

@@ -1,0 +1,284 @@
+{
+  "technology": "Microsoft 365",
+  "filters": [
+    "filters/office365/o365.yml"
+  ],
+  "rules": [
+    "rules/office365/anti_phishing_policy_bypasses.yml",
+    "rules/office365/app_consent_grants.yml",
+    "rules/office365/audit_log_tampering.yml",
+    "rules/office365/azure_ad_integration_events.yml",
+    "rules/office365/collection_microsoft_365_new_inbox_rule.yml",
+    "rules/office365/compliance_alert_patterns.yml",
+    "rules/office365/conditional_access_bypasses.yml",
+    "rules/office365/credential_access_microsoft_365_potential_password_spraying_attack.yml",
+    "rules/office365/credential_access_user_excessive_sso_logon_errors.yml",
+    "rules/office365/defense_evasion_microsoft_365_exchange_malware_filter_policy_deletion.yml",
+    "rules/office365/defense_evasion_microsoft_365_exchange_malware_filter_rule_mod.yml",
+    "rules/office365/defense_evasion_microsoft_365_exchange_safe_attach_rule_disabled.yml",
+    "rules/office365/detection_of_a_connection_to_onion_domain.yml",
+    "rules/office365/dlp_policy_violations.yml",
+    "rules/office365/ediscovery_abuse.yml",
+    "rules/office365/exchange_admin_changes.yml",
+    "rules/office365/exfiltration_microsoft_365_exchange_transport_rule_creation.yml",
+    "rules/office365/exfiltration_microsoft_365_exchange_transport_rule_mod.yml",
+    "rules/office365/external_sharing_violations.yml",
+    "rules/office365/forms_sway_phishing.yml",
+    "rules/office365/guest_user_invitation_spikes.yml",
+    "rules/office365/information_barriers_violations.yml",
+    "rules/office365/initial_access_microsoft_365_exchange_anti_phish_policy_deletion.yml",
+    "rules/office365/initial_access_microsoft_365_exchange_anti_phish_rule_mod.yml",
+    "rules/office365/initial_access_microsoft_365_exchange_safelinks_disabled.yml",
+    "rules/office365/insider_risk_indicators.yml",
+    "rules/office365/m365_data_exfiltration_unsanctioned.yml",
+    "rules/office365/m365_federated_domain_added.yml",
+    "rules/office365/m365_oauth_app_file_downloads.yml",
+    "rules/office365/m365_pst_export.yml",
+    "rules/office365/mail_flow_rule_changes.yml",
+    "rules/office365/mail_forwarding_rules.yml",
+    "rules/office365/mailbox_delegation_abuse.yml",
+    "rules/office365/mailbox_export_pst.yml",
+    "rules/office365/mass_email_deletion.yml",
+    "rules/office365/mfa_fatigue_push_spam.yml",
+    "rules/office365/multi_geo_data_violations.yml",
+    "rules/office365/o365-admin-role-assignment.yml",
+    "rules/office365/o365-admin-role-granted.yml",
+    "rules/office365/o365-audit-log-purge.yml",
+    "rules/office365/o365-inbox-forward-rule-exfiltration.yml",
+    "rules/office365/oauth_app_anomalies.yml",
+    "rules/office365/onedrive_mass_file_access.yml",
+    "rules/office365/possible_succesfull_password_guessing_o365.yml",
+    "rules/office365/power_apps_data_leaks.yml",
+    "rules/office365/power_automate_abuse.yml",
+    "rules/office365/power_bi_data_export.yml",
+    "rules/office365/safe_attachment_violations.yml",
+    "rules/office365/safe_links_click_patterns.yml",
+    "rules/office365/service_principal_credential_addition.yml",
+    "rules/office365/sharepoint_mass_downloads.yml",
+    "rules/office365/sharepoint_permission_escalation.yml",
+    "rules/office365/suspicious_inbox_rules.yml",
+    "rules/office365/teams_data_exfiltration.yml",
+    "rules/office365/teams_external_user_abuse.yml",
+    "rules/office365/threat_intelligence_alerts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "O365 result Failed",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ResultStatus": "Failed"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "O365 result Blocked",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ResultStatus": "Blocked"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "O365 result Succeeded",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ResultStatus": "Succeeded"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "O365 result PartiallySucceeded",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ResultStatus": "PartiallySucceeded"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "O365 failed operation wins over audit Success",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ResultStatus": "Success",
+          "Operation": "UserLoginFailed",
+          "Workload": "AzureActiveDirectory",
+          "ClientIP": "198.51.100.10"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {
+        "rules/office365/credential_access_microsoft_365_potential_password_spraying_attack.yml": true
+      }
+    },
+    {
+      "name": "O365 IPv6 [2001:db8::10]:443",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ClientIP": "[2001:db8::10]:443"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::10",
+        "origin.port": 443
+      },
+      "absent": []
+    },
+    {
+      "name": "O365 IPv6 2001:db8::10",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ClientIP": "2001:db8::10"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::10"
+      },
+      "absent": [
+        "origin.port"
+      ]
+    },
+    {
+      "name": "O365 unknown endpoint retained",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ClientIP": "not-an-ip"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "not-an-ip"
+      },
+      "absent": [
+        "origin.ip"
+      ]
+    },
+    {
+      "name": "O365 port range checked",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "ClientIP": "203.0.113.10:99999"
+        }
+      },
+      "expected": {
+        "origin.ip": "203.0.113.10"
+      },
+      "absent": [
+        "origin.port"
+      ]
+    },
+    {
+      "name": "O365 anti-phish policy Success",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "Operation": "Set-AntiPhishPolicy",
+          "ResultStatus": "Success"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/office365/anti_phishing_policy_bypasses.yml": true
+      }
+    },
+    {
+      "name": "O365 anti-phish policy Failed",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "Operation": "Set-AntiPhishPolicy",
+          "ResultStatus": "Failed"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/office365/anti_phishing_policy_bypasses.yml": false
+      }
+    },
+    {
+      "name": "O365 successful guessing trigger UserLoggedIn Success",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "Operation": "UserLoggedIn",
+          "ResultStatus": "Success",
+          "Workload": "AzureActiveDirectory",
+          "UserId": "alice@example.test",
+          "ClientIP": "203.0.113.10"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/office365/possible_succesfull_password_guessing_o365.yml": true
+      }
+    },
+    {
+      "name": "O365 successful guessing trigger UserLoginFailed Failed",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "Operation": "UserLoginFailed",
+          "ResultStatus": "Failed",
+          "Workload": "AzureActiveDirectory",
+          "UserId": "alice@example.test",
+          "ClientIP": "203.0.113.10"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/office365/possible_succesfull_password_guessing_o365.yml": false
+      }
+    },
+    {
+      "name": "O365 successful guessing trigger UserLoggedIn Failed",
+      "filter": "office365/o365.yml",
+      "input": {
+        "log": {
+          "Operation": "UserLoggedIn",
+          "ResultStatus": "Failed",
+          "Workload": "AzureActiveDirectory",
+          "UserId": "alice@example.test",
+          "ClientIP": "203.0.113.10"
+        }
+      },
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/office365/possible_succesfull_password_guessing_o365.yml": false
+      }
+    }
+  ]
+}
