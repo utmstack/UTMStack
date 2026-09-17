@@ -206,73 +206,73 @@ pipeline:
       # First variant
       - grok:
           patterns:
-            - fieldName: log.irrelevant
-              pattern: 'access-list'
-            - fieldName: log.accessList
-              pattern: '{{.data}}\s'
-            - fieldName: actionResult
-              pattern: '{{.word}}'
-            - fieldName: protocol
-              pattern: '{{.word}}'
-            - fieldName: log.irrelevant
-              pattern: 'for user'
-            - fieldName: origin.user
-              pattern: '(''{{.data}}''|{{.data}})\s'
-            - fieldName: log.srcInterface
-              pattern: '{{.data}}/'
-            - fieldName: origin.ip
-              pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: origin.port
-              pattern: '{{.integer}}'
-            - fieldName: log.dstInterface
-              pattern: '{{.data}}/'
-            - fieldName: target.ip
-              pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: target.port
-              pattern: '{{.integer}}'
-            - fieldName: log.irrelevant
-              pattern: 'hit-cnt'
-            - fieldName: log.hitCount
-              pattern: '{{.integer}}'
-            - fieldName: log.rest
-              pattern: '{{.greedy}}'
+          - fieldName: log.irrelevant
+            pattern: access-list
+          - fieldName: log.accessList
+            pattern: '{{.data}}\s'
+          - fieldName: log.ciscoResult
+            pattern: '{{.word}}'
+          - fieldName: protocol
+            pattern: '{{.word}}'
+          - fieldName: log.irrelevant
+            pattern: for user
+          - fieldName: origin.user
+            pattern: ('{{.data}}'|{{.data}})\s
+          - fieldName: log.srcInterface
+            pattern: '{{.data}}/'
+          - fieldName: origin.ip
+            pattern: ({{.ipv4}}|{{.ipv6}})
+          - fieldName: origin.port
+            pattern: '{{.integer}}'
+          - fieldName: log.dstInterface
+            pattern: '{{.data}}/'
+          - fieldName: target.ip
+            pattern: ({{.ipv4}}|{{.ipv6}})
+          - fieldName: target.port
+            pattern: '{{.integer}}'
+          - fieldName: log.irrelevant
+            pattern: hit-cnt
+          - fieldName: log.hitCount
+            pattern: '{{.integer}}'
+          - fieldName: log.rest
+            pattern: '{{.greedy}}'
           source: log.msg
           where: log.messageId==106102 || log.messageId==106103
       # Second variant
       - grok:
           patterns:
-            - fieldName: log.irrelevant
-              pattern: 'access-list'
-            - fieldName: log.accessList
-              pattern: '{{.data}}\s'
-            - fieldName: actionResult
-              pattern: '{{.word}}'
-            - fieldName: protocol
-              pattern: '{{.word}}'
-            - fieldName: log.irrelevant
-              pattern: 'for user'
-            - fieldName: origin.user
-              pattern: '(''{{.data}}''|{{.data}})\s'
-            - fieldName: log.srcInterface
-              pattern: '{{.data}}/'
-            - fieldName: origin.ip
-              pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: origin.port
-              pattern: '\({{.data}}\)'
-            - fieldName: log.irrelevant
-              pattern: '-\>'
-            - fieldName: log.dstInterface
-              pattern: '{{.data}}/'
-            - fieldName: target.ip
-              pattern: '({{.ipv4}}|{{.ipv6}})'
-            - fieldName: target.port
-              pattern: '\({{.data}}\)'
-            - fieldName: log.irrelevant
-              pattern: 'hit-cnt'
-            - fieldName: log.hitCount
-              pattern: '{{.integer}}'
-            - fieldName: log.rest
-              pattern: '{{.greedy}}'
+          - fieldName: log.irrelevant
+            pattern: access-list
+          - fieldName: log.accessList
+            pattern: '{{.data}}\s'
+          - fieldName: log.ciscoResult
+            pattern: '{{.word}}'
+          - fieldName: protocol
+            pattern: '{{.word}}'
+          - fieldName: log.irrelevant
+            pattern: for user
+          - fieldName: origin.user
+            pattern: ('{{.data}}'|{{.data}})\s
+          - fieldName: log.srcInterface
+            pattern: '{{.data}}/'
+          - fieldName: origin.ip
+            pattern: ({{.ipv4}}|{{.ipv6}})
+          - fieldName: origin.port
+            pattern: \({{.data}}\)
+          - fieldName: log.irrelevant
+            pattern: -\>
+          - fieldName: log.dstInterface
+            pattern: '{{.data}}/'
+          - fieldName: target.ip
+            pattern: ({{.ipv4}}|{{.ipv6}})
+          - fieldName: target.port
+            pattern: \({{.data}}\)
+          - fieldName: log.irrelevant
+            pattern: hit-cnt
+          - fieldName: log.hitCount
+            pattern: '{{.integer}}'
+          - fieldName: log.rest
+            pattern: '{{.greedy}}'
           source: log.msg
           where: log.messageId==106102 || log.messageId==106103
       - trim:
@@ -310,18 +310,18 @@ pipeline:
           where: log.messageId==106102 || log.messageId==106103
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
-          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
+            value: success
+          where: exists("log.ciscoResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("log.ciscoResult", "Permitted")
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'denied'
-          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
+            value: denied
+          where: exists("log.ciscoResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("log.ciscoResult", "Denied")
       #......................................................................#
       # ASA-4-109017
       - grok:
@@ -388,10 +388,10 @@ pipeline:
             - origin.user
           where: log.messageId==109101
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==109101
       #......................................................................#
       # ASA-4-109102
@@ -419,10 +419,10 @@ pipeline:
           source: action
           where: log.messageId==109102
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==109102
       #......................................................................#
       # ASA-3-109103
@@ -460,10 +460,10 @@ pipeline:
             - origin.user
           where: log.messageId==109103
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==109103
       #......................................................................#
       # ASA-109201 to 109213
@@ -496,10 +496,10 @@ pipeline:
           where: log.messageId>=109201 && log.messageId<=109213
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId>=109201 && log.messageId<=109213
       #......................................................................#
       # ASA-6-113004
@@ -541,10 +541,10 @@ pipeline:
             - target.ip
           where: log.messageId==113004
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113004
       #......................................................................#
       # ASA-6-113005
@@ -607,10 +607,10 @@ pipeline:
           where: log.messageId==113008
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113008
       #......................................................................#
       # ASA-6-113009
@@ -660,10 +660,10 @@ pipeline:
           where: log.messageId==113009
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113009
       #......................................................................#
       # ASA-6-113010
@@ -751,10 +751,10 @@ pipeline:
           source: action
           where: log.messageId==113012
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113012
       #......................................................................#
       # ASA-6-113013
@@ -943,10 +943,10 @@ pipeline:
           where: log.messageId==113019
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113019
       #......................................................................#
       # ASA-113031,113032,113033
@@ -1056,10 +1056,10 @@ pipeline:
           where: log.messageId==113034 || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==113039
       # Adding action result
       - add:
@@ -1174,10 +1174,10 @@ pipeline:
           where: log.messageId==201003
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==201003
       #......................................................................#
       # ASA-4-209003
@@ -1220,10 +1220,10 @@ pipeline:
           where: log.messageId==209003
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==209003
       #......................................................................#
       # ASA-3-316001
@@ -1384,10 +1384,10 @@ pipeline:
           where: log.messageId==302003 || log.messageId==302004
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302003 || log.messageId==302004
       #......................................................................#
       # ASA-6-302012
@@ -1415,10 +1415,10 @@ pipeline:
           where: log.messageId==302012
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302012
       #......................................................................#
       # ASA-6-302013
@@ -1551,10 +1551,10 @@ pipeline:
           where: log.messageId==302013
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302013
       #......................................................................#
       # ASA-6-302014
@@ -1664,10 +1664,10 @@ pipeline:
           where: log.messageId==302014
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302014
       #......................................................................#
       # ASA-6-302015
@@ -1800,10 +1800,10 @@ pipeline:
           where: log.messageId==302015
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302015
       #......................................................................#
       # ASA-6-302016
@@ -1922,10 +1922,10 @@ pipeline:
           where: log.messageId==302016
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302016
       #......................................................................#
       # ASA-6-302017
@@ -2062,10 +2062,10 @@ pipeline:
           where: log.messageId==302017
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302017
       #......................................................................#
       # ASA-6-302018
@@ -2194,10 +2194,10 @@ pipeline:
           where: log.messageId==302018
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302018
       #......................................................................#
       # ASA-6-302020, 302021
@@ -2422,10 +2422,10 @@ pipeline:
           where: log.messageId==302020 || log.messageId==302021
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302020 || log.messageId==302021
       #......................................................................#
       # ASA-6-302022, 302024, 302026
@@ -2540,10 +2540,10 @@ pipeline:
           where: log.messageId==302022 || log.messageId==302024 || log.messageId==302026
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302022 || log.messageId==302024 || log.messageId==302026
       #......................................................................#
       # ASA-6-302023, 302025, 302027
@@ -2598,10 +2598,10 @@ pipeline:
           where: log.messageId==302023 || log.messageId==302025 || log.messageId==302027
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302023 || log.messageId==302025 || log.messageId==302027
       #......................................................................#
       # ASA-302033,302034
@@ -2669,10 +2669,10 @@ pipeline:
           where: log.messageId==302033 || log.messageId==302034
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302033
       - add:
           function: 'string'
@@ -2853,10 +2853,10 @@ pipeline:
           where: log.messageId==302035
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302035
       #......................................................................#
       # ASA-6-302036
@@ -3003,10 +3003,10 @@ pipeline:
           where: log.messageId==302036
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302036
       #......................................................................#
       # ASA-6-302303
@@ -3084,10 +3084,10 @@ pipeline:
           where: log.messageId==302303
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302303
       #......................................................................#
       # ASA-6-302304
@@ -3157,10 +3157,10 @@ pipeline:
           where: log.messageId==302304
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302304
       #......................................................................#
       # ASA-6-302305
@@ -3318,10 +3318,10 @@ pipeline:
           where: log.messageId==302305
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302305
       #......................................................................#
       # ASA-6-302306
@@ -3452,10 +3452,10 @@ pipeline:
           where: log.messageId==302306
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==302306
       #......................................................................#
       # ASA-6-305009
@@ -4035,10 +4035,10 @@ pipeline:
           where: log.messageId==402114
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402114
       #......................................................................#
       # ASA-4-402115
@@ -4070,10 +4070,10 @@ pipeline:
           where: log.messageId==402115
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402115
       #......................................................................#
       # ASA-4-402116
@@ -4189,10 +4189,10 @@ pipeline:
           where: log.messageId==402116
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402116
       #......................................................................#
       # ASA-4-402117
@@ -4225,10 +4225,10 @@ pipeline:
           where: log.messageId==402117
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402117
       #......................................................................#
       # ASA-4-402118
@@ -4295,10 +4295,10 @@ pipeline:
           where: log.messageId==402118
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402118
       #......................................................................#
       # ASA-4-402119, 402120
@@ -4359,10 +4359,10 @@ pipeline:
           where: log.messageId==402119 || log.messageId==402120
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: failure
           where: log.messageId==402119 || log.messageId==402120
       #......................................................................#
       # ASA-5-402128
@@ -4636,10 +4636,10 @@ pipeline:
           where: log.messageId==603109
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==603109
       #......................................................................#
       # ASA-6-605004
@@ -4739,10 +4739,10 @@ pipeline:
           where: log.messageId==617100
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==617100
       #......................................................................#
       # ASA-2-106018
@@ -4945,10 +4945,10 @@ pipeline:
           where: log.messageId==611307
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==611307
       #......................................................................#
       # ASA-6-611309
@@ -4966,10 +4966,10 @@ pipeline:
           where: log.messageId==611309
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==611309
       #......................................................................#
       # ASA-6-611310,611311
@@ -4989,10 +4989,10 @@ pipeline:
           where: log.messageId==611310 || log.messageId==611311
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==611310
       - add:
           function: 'string'
@@ -5023,10 +5023,10 @@ pipeline:
           where: log.messageId==611314
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==611314
       #......................................................................#
       # ASA-6-611315
@@ -5047,10 +5047,10 @@ pipeline:
           where: log.messageId==611315
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==611315
       #......................................................................#
       # ASA-6-611318
@@ -5181,10 +5181,10 @@ pipeline:
             value: 'denied'
           where: log.messageId==713252
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==713253
       #......................................................................#
       # ASA-6-716001,716002,716003
@@ -5245,10 +5245,10 @@ pipeline:
           where: log.messageId==716001 || log.messageId==716002 || log.messageId==716003
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==716001 || log.messageId==716002
       #......................................................................#
       # ASA-6-716004,716005,716006,716007,716009
@@ -5305,10 +5305,10 @@ pipeline:
             value: 'denied'
           where: log.messageId==716004 || log.messageId==716007 || log.messageId==716009
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==716006
       #......................................................................#
       # ASA-6-716038
@@ -5330,10 +5330,10 @@ pipeline:
           where: log.messageId==716038
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==716038
       # Cleaning fields
       - trim:
@@ -5442,10 +5442,10 @@ pipeline:
             value: 'denied'
           where: log.messageId==719019 || log.messageId==719023
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==719020 || log.messageId==719022
       - add:
           function: 'string'
@@ -5574,10 +5574,10 @@ pipeline:
           where: log.messageId==609002
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'accepted'
+            value: success
           where: log.messageId==609002
       #......................................................................#
       # ASA-6-611305
@@ -5730,12 +5730,6 @@ pipeline:
           to: target.ip
           where: log.messageId==733101 && contains("action", "targeted")
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: log.messageId==733101
       #......................................................................#
       # ASA-4-733102, 733103
       - grok:
@@ -5763,24 +5757,6 @@ pipeline:
           where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "removes")
       #......................................................................#
       # Decoding severity
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'high'
-          where: oneOf("log.severity", ["1", "2", "3"])
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'medium'
-          where: log.severity=="4"
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'low'
-          where: oneOf("log.severity", ["5", "6", "7"])
       #......................................................................#
       # Adding common geolocation
       - dynamic:
@@ -5915,3 +5891,114 @@ pipeline:
             - log.irrelevant
             - log.syslogPri
             - log.rest
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: oneOf("log.messageId", [106001, 106017, 106023, 106100]) && (equalsIgnoreCase("log.ciscoResult", "Deny") || equalsIgnoreCase("log.ciscoResult", "Denied"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.messageId", 733102)
+
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: oneOf("log.severity", [0,1,2])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: oneOf("log.severity", [3])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: oneOf("log.severity", [4])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: oneOf("log.severity", [5,6])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: oneOf("log.severity", [7])
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)
