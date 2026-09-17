@@ -1,0 +1,136 @@
+{
+  "technology": "Deceptive Bytes",
+  "filters": [
+    "filters/antivirus/deceptive-bytes.yml"
+  ],
+  "rules": [
+    "rules/antivirus/deceptive-bytes/advanced_threat_tactic_identification.yml",
+    "rules/antivirus/deceptive-bytes/criminal_group_signatures.yml",
+    "rules/antivirus/deceptive-bytes/data_theft_attempt_indicators.yml",
+    "rules/antivirus/deceptive-bytes/deception_api_call_tracking.yml",
+    "rules/antivirus/deceptive-bytes/deception_token_access_patterns.yml",
+    "rules/antivirus/deceptive-bytes/decoy_share_access_monitoring.yml",
+    "rules/antivirus/deceptive-bytes/decoy_system_enumeration.yml",
+    "rules/antivirus/deceptive-bytes/fake_user_authentication_attempts.yml",
+    "rules/antivirus/deceptive-bytes/honey_table_query_detection.yml",
+    "rules/antivirus/deceptive-bytes/lateral_movement_trap_triggers.yml",
+    "rules/antivirus/deceptive-bytes/living_off_the_land_detection.yml",
+    "rules/antivirus/deceptive-bytes/nation_state_tactic_detection.yml",
+    "rules/antivirus/deceptive-bytes/privilege_escalation_bait_detection.yml",
+    "rules/antivirus/deceptive-bytes/ransomware_behavior_patterns.yml",
+    "rules/antivirus/deceptive-bytes/threat_actor_attribution.yml",
+    "rules/antivirus/deceptive-bytes/zero_day_behavior_patterns.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "deceptive_severity_C",
+      "filter": "antivirus/deceptive-bytes.yml",
+      "input": {
+        "log": {
+          "severityLabelCharacter": "[C]",
+          "action": "blocked"
+        },
+        "origin": {
+          "command": "\"example --flag\""
+        }
+      },
+      "expected": {
+        "severity": "critical",
+        "actionResult": "denied",
+        "origin.command": "example --flag"
+      },
+      "absent": [
+        "command"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "deceptive_severity_D",
+      "filter": "antivirus/deceptive-bytes.yml",
+      "input": {
+        "log": {
+          "severityLabelCharacter": "[D]",
+          "action": "blocked"
+        },
+        "origin": {
+          "command": "\"example --flag\""
+        }
+      },
+      "expected": {
+        "severity": "debug",
+        "actionResult": "denied",
+        "origin.command": "example --flag"
+      },
+      "absent": [
+        "command"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "deceptive_severity_E",
+      "filter": "antivirus/deceptive-bytes.yml",
+      "input": {
+        "log": {
+          "severityLabelCharacter": "[E]",
+          "action": "blocked"
+        },
+        "origin": {
+          "command": "\"example --flag\""
+        }
+      },
+      "expected": {
+        "severity": "error",
+        "actionResult": "denied",
+        "origin.command": "example --flag"
+      },
+      "absent": [
+        "command"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "deceptive_severity_W",
+      "filter": "antivirus/deceptive-bytes.yml",
+      "input": {
+        "log": {
+          "severityLabelCharacter": "[W]",
+          "action": "blocked"
+        },
+        "origin": {
+          "command": "\"example --flag\""
+        }
+      },
+      "expected": {
+        "severity": "warning",
+        "actionResult": "denied",
+        "origin.command": "example --flag"
+      },
+      "absent": [
+        "command"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "deceptive_severity_I",
+      "filter": "antivirus/deceptive-bytes.yml",
+      "input": {
+        "log": {
+          "severityLabelCharacter": "[I]",
+          "action": "blocked"
+        },
+        "origin": {
+          "command": "\"example --flag\""
+        }
+      },
+      "expected": {
+        "severity": "info",
+        "actionResult": "denied",
+        "origin.command": "example --flag"
+      },
+      "absent": [
+        "command"
+      ],
+      "rules": {}
+    }
+  ]
+}
