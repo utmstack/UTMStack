@@ -1,0 +1,245 @@
+{
+  "technology": "Google Cloud",
+  "filters": [
+    "filters/google/gcp.yml"
+  ],
+  "rules": [
+    "rules/cloud/google/anthos_security_events.yml",
+    "rules/cloud/google/binary_authorization_bypasses.yml",
+    "rules/cloud/google/cloud_identity_suspicious_signins.yml",
+    "rules/cloud/google/gcp_account_disabled_hijacked.yml",
+    "rules/cloud/google/gcp_account_disabled_password_leak.yml",
+    "rules/cloud/google/gcp_account_disabled_spamming.yml",
+    "rules/cloud/google/gcp_audit_config_changed.yml",
+    "rules/cloud/google/gcp_audit_log_disabling.yml",
+    "rules/cloud/google/gcp_bigquery_exfiltration.yml",
+    "rules/cloud/google/gcp_breakglass_container_deploy.yml",
+    "rules/cloud/google/gcp_cloud_function_abuse.yml",
+    "rules/cloud/google/gcp_cryptomining_detection.yml",
+    "rules/cloud/google/gcp_custom_role_creation.yml",
+    "rules/cloud/google/gcp_defense_evasion_logging_sink_deletion.yml",
+    "rules/cloud/google/gcp_dlp_reidentification.yml",
+    "rules/cloud/google/gcp_domain_api_access_granted.yml",
+    "rules/cloud/google/gcp_exfiltration_logging_sink_modification.yml",
+    "rules/cloud/google/gcp_firewall_open_ingress.yml",
+    "rules/cloud/google/gcp_firewall_rule_deleted.yml",
+    "rules/cloud/google/gcp_gcs_bucket_created.yml",
+    "rules/cloud/google/gcp_gcs_bucket_deleted.yml",
+    "rules/cloud/google/gcp_gcs_data_access.yml",
+    "rules/cloud/google/gcp_gov_attack.yml",
+    "rules/cloud/google/gcp_iam_policy_changed.yml",
+    "rules/cloud/google/gcp_impact_storage_bucket_deleted.yml",
+    "rules/cloud/google/gcp_kms_key_modifications.yml",
+    "rules/cloud/google/gcp_kubernetes_admission_controller.yml",
+    "rules/cloud/google/gcp_logging_sink_modified.yml",
+    "rules/cloud/google/gcp_packet_capture_abuse.yml",
+    "rules/cloud/google/gcp_privilege_escalation_kubernetes_rolebindings_created_or_patched.yml",
+    "rules/cloud/google/gcp_privileged_role_granted.yml",
+    "rules/cloud/google/gcp_probable_password_guess.yml",
+    "rules/cloud/google/gcp_project_manipulation.yml",
+    "rules/cloud/google/gcp_secret_manager_access.yml",
+    "rules/cloud/google/gcp_service_account_impersonation.yml",
+    "rules/cloud/google/gcp_storage_exfiltration.yml",
+    "rules/cloud/google/gcp_suspicious_login_blocked.yml",
+    "rules/cloud/google/gcp_suspicious_login_less_secure_app.yml",
+    "rules/cloud/google/gcp_suspicious_programmatic_login.yml",
+    "rules/cloud/google/gcp_two_step_verification_disabled.yml",
+    "rules/cloud/google/gcp_workload_identity_abuse.yml",
+    "rules/cloud/google/gcp_workspace_mfa_disabled.yml",
+    "rules/cloud/google/service_account_key_creation_spikes.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "GCP numeric protocol",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "jsonPayload": {
+            "protocol": 6
+          }
+        }
+      },
+      "expected": {
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "GCP unknown numeric protocol preserved",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "jsonPayload": {
+            "protocol": 253
+          }
+        }
+      },
+      "expected": {
+        "log.ipProtocolNumber": 253
+      },
+      "absent": [
+        "protocol"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "GCP severity EMERGENCY",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "EMERGENCY"
+        }
+      },
+      "expected": {
+        "severity": "critical"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity ALERT",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "ALERT"
+        }
+      },
+      "expected": {
+        "severity": "critical"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity CRITICAL",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "CRITICAL"
+        }
+      },
+      "expected": {
+        "severity": "critical"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity ERROR",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "ERROR"
+        }
+      },
+      "expected": {
+        "severity": "error"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity WARNING",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "WARNING"
+        }
+      },
+      "expected": {
+        "severity": "warning"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity NOTICE",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "NOTICE"
+        }
+      },
+      "expected": {
+        "severity": "info"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity INFO",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "INFO"
+        }
+      },
+      "expected": {
+        "severity": "info"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP severity DEBUG",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "severity": "DEBUG"
+        }
+      },
+      "expected": {
+        "severity": "debug"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP audit status 0",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "protoPayload": {
+            "methodName": "DeleteBucket",
+            "status": {
+              "code": 0
+            }
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP audit status 5",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "protoPayload": {
+            "methodName": "DeleteBucket",
+            "status": {
+              "code": 5
+            }
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": []
+    },
+    {
+      "name": "GCP audit status 7",
+      "filter": "google/gcp.yml",
+      "input": {
+        "log": {
+          "protoPayload": {
+            "methodName": "DeleteBucket",
+            "status": {
+              "code": 7
+            }
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": []
+    }
+  ]
+}
