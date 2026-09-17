@@ -24,6 +24,7 @@ description: |
   5. Consider isolating the affected system if malicious activity is confirmed
   6. Check for persistence mechanisms that might be attempting to disable security controls
 where: |
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown"]) &&
   (equals("log.subsystem", "com.apple.endpointsecurity") ||
    contains("log.process", "EndpointSecurity") ||
    contains("log.message", "ES_EVENT_TYPE")) &&
@@ -38,11 +39,11 @@ where: |
 afterEvents:
   - indexPattern: v11-log-macos-*
     with:
-      - field: system.hostname
+      - field: dataSource
         operator: filter_term
-        value: '{{.system.hostname}}'
+        value: '{{.dataSource}}'
     within: 15m
     count: 2
 groupBy:
   - lastEvent.log.process
-  - lastEvent.system.hostname
+  - lastEvent.dataSource

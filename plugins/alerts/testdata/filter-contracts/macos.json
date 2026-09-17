@@ -1,0 +1,85 @@
+{
+  "technology": "macOS",
+  "filters": [
+    "filters/macos/macos.yml",
+    "filters/macos/macos-syslog.yml"
+  ],
+  "rules": [
+    "rules/macos/admin_group_addition.yml",
+    "rules/macos/apple_script_abuse.yml",
+    "rules/macos/browser_child_process_exploitation.yml",
+    "rules/macos/cron_job_persistence.yml",
+    "rules/macos/dylib_hijacking.yml",
+    "rules/macos/endpoint_security_bypass.yml",
+    "rules/macos/folder_action_scripts.yml",
+    "rules/macos/gatekeeper_bypass_attempts.yml",
+    "rules/macos/gatekeeper_xattr_bypass.yml",
+    "rules/macos/gui_input_capture.yml",
+    "rules/macos/hidden_user_creation.yml",
+    "rules/macos/jxa_in_memory_execution.yml",
+    "rules/macos/kernel_extension_loading.yml",
+    "rules/macos/keychain_access_violations.yml",
+    "rules/macos/keychain_credential_dumping.yml",
+    "rules/macos/keychain_dumping_cli.yml",
+    "rules/macos/launch_agent_daemon_persistence.yml",
+    "rules/macos/login_items_persistence.yml",
+    "rules/macos/macos_ransomware_indicators.yml",
+    "rules/macos/notarization_bypass_attempts.yml",
+    "rules/macos/office_macro_exploitation.yml",
+    "rules/macos/osascript_encoded_execution.yml",
+    "rules/macos/plistbuddy_persistence.yml",
+    "rules/macos/privacy_preferences_tampering.yml",
+    "rules/macos/root_account_enable.yml",
+    "rules/macos/security_tools_disabling.yml",
+    "rules/macos/shell_profile_modification.yml",
+    "rules/macos/ssh_key_theft.yml",
+    "rules/macos/sudo_caching_abuse.yml",
+    "rules/macos/system_integrity_protection_bypass.yml",
+    "rules/macos/system_log_clearing.yml",
+    "rules/macos/tcc_database_manipulation.yml",
+    "rules/macos/time_machine_backup_deletion.yml",
+    "rules/macos/wizardupdate_malware.yml",
+    "rules/macos/xcsset_malware.yml",
+    "rules/macos/xprotect_evasion.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "macos_host_scope_mac-lab",
+      "filter": "macos/macos.yml",
+      "input": {
+        "dataSource": "mac-lab",
+        "log": {
+          "subsystem": "com.apple.endpointsecurity",
+          "message": "authorization denied",
+          "process": "EndpointSecurity"
+        }
+      },
+      "expected": {
+        "dataSource": "mac-lab"
+      },
+      "absent": [],
+      "rules": {
+        "rules/macos/endpoint_security_bypass.yml": true
+      }
+    },
+    {
+      "name": "macos_host_scope_unknown",
+      "filter": "macos/macos.yml",
+      "input": {
+        "dataSource": "unknown",
+        "log": {
+          "subsystem": "com.apple.endpointsecurity",
+          "message": "authorization denied",
+          "process": "EndpointSecurity"
+        }
+      },
+      "expected": {
+        "dataSource": "unknown"
+      },
+      "absent": [],
+      "rules": {
+        "rules/macos/endpoint_security_bypass.yml": false
+      }
+    }
+  ]
+}
