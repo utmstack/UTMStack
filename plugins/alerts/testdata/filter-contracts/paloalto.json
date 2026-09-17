@@ -1,0 +1,82 @@
+{
+  "technology": "Palo Alto Networks",
+  "filters": [
+    "filters/paloalto/pa_firewall.yml"
+  ],
+  "rules": [
+    "rules/paloalto/pa_firewall/ioc_threat_intel_match.yml",
+    "rules/paloalto/pa_firewall/panos_admin_brute_force.yml",
+    "rules/paloalto/pa_firewall/panos_dns_security_alerts.yml",
+    "rules/paloalto/pa_firewall/panos_spyware_vulnerability.yml",
+    "rules/paloalto/pa_firewall/panos_url_filtering_blocks.yml",
+    "rules/paloalto/pa_firewall/wildfire_malware_detection.yml",
+    "rules/paloalto/pa_firewall/zero_day_exploit_prevention.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Palo Alto explicit deny overrides status success",
+      "filter": "paloalto/pa_firewall.yml",
+      "input": {
+        "log": {
+          "act": "deny",
+          "status": "success"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Palo Alto allow",
+      "filter": "paloalto/pa_firewall.yml",
+      "input": {
+        "log": {
+          "act": "allow"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Palo Alto pending administrative operation",
+      "filter": "paloalto/pa_firewall.yml",
+      "input": {
+        "log": {
+          "result": "Submitted"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "Palo Alto source byte and packet counters",
+      "filter": "paloalto/pa_firewall.yml",
+      "input": {
+        "log": {
+          "bytessent": "1024",
+          "bytesreceived": "2048",
+          "pktssent": "3",
+          "pktsreceived": "4"
+        }
+      },
+      "expected": {
+        "origin.bytesSent": 1024,
+        "origin.bytesReceived": 2048,
+        "origin.packagesSent": "3",
+        "origin.packagesReceived": "4"
+      },
+      "absent": [
+        "target.bytesSent"
+      ],
+      "rules": {}
+    }
+  ]
+}
