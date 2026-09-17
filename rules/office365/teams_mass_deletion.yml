@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Microsoft Teams Mass Deletion by Single User
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Impact
+technique: "T1485 - Data Destruction"
+adversary: origin
+references:
+  - https://github.com/Azure/Azure-Sentinel/blob/master/Solutions/Microsoft%20365/Hunting%20Queries/MultipleTeamsDeletes.yaml
+  - https://attack.mitre.org/techniques/T1485/
+description: |
+  Detects a single user deleting multiple Microsoft Teams in a short period. Mass team deletion is an indicator of data destruction or an attacker covering their tracks before exiting the tenant.
+
+  Verified against the drop list: operation "TeamDeleted" is NOT dropped (ingested). Microsoft's reference query thresholds at >3 teams; this rule fires on a first TeamDeleted then 4 more within 24h (count 4 => total 5).
+
+  Next Steps:
+  1. Identify the user and the teams they deleted
+  2. Check whether the deletions were authorized (IT change, offboarding cleanup)
+  3. Look for concurrent activity (file deletion, data export, sign-out)
+  4. Determine if the account shows other compromise indicators
+  5. Attempt recovery of deleted teams if unauthorized
+where: |
+  equals("action", "TeamDeleted") && equals("actionResult", "success")
+afterEvents:
+  - indexPattern: v11-log-o365-*
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'TeamDeleted'
+    within: 24h
+    count: 4
+groupBy:
+  - adversary.user
+  - origin.ip

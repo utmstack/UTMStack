@@ -25,7 +25,7 @@ description: |
   6. Check for other suspicious activities by the same user account around the same timeframe
   7. If malicious, disable the forwarding rule and reset user credentials
 where: |
-  oneOf("action", ["NewInboxRule", "Set-InboxRule", "UpdateInboxRules"]) && 
+  oneOf("action", ["New-InboxRule", "Set-InboxRule", "UpdateInboxRules"]) && 
   equals("actionResult", "success") &&
   (contains("log.Parameters", "ForwardTo") || contains("log.Parameters", "ForwardAsAttachmentTo") || contains("log.Parameters", "RedirectTo"))
 groupBy:

@@ -26,18 +26,18 @@ description: |
   7. Implement Teams external access policies to restrict communication
   8. Enable Safe Links and Safe Attachments for Teams
 where: |
+  equals("log.Workload", "MicrosoftTeams") &&
   (equals("action", "MemberAdded") || equals("action", "ChatCreated") || equals("action", "MessageSent")) &&
-  equals("actionResult", "success") &&
-  contains("log.Parameters", "#EXT#")
+  (contains("log.Members", "#EXT#") || contains("log.Parameters", "#EXT#"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Parameters
-        operator: filter_match
-        value: '#EXT#'
+      - field: log.Workload
+        operator: filter_term
+        value: 'MicrosoftTeams'
     within: 1h
     count: 5
 groupBy:

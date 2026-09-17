@@ -1,0 +1,21 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - "o365"
+name: "O365 Mailbox Auto-Forwarding (Set-Mailbox)"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Data Exfiltration"
+technique: "T1114.003 - Email Collection: Email Forwarding Rule"
+adversary: origin
+description: "Detects when a mailbox is configured to automatically forward mail to another address via Set-Mailbox (the OWA \"Forwarding\" setting). The forwarded address appears in the ForwardingSmtpAddress parameter. Attackers set this to exfiltrate all of a mailbox's mail to an off-tenant or external address without creating an inbox rule, so legacy New-InboxRule / Set-InboxRule detections miss it. Note: this rule matches the indexed string element of the Parameters array (ForwardingSmtpAddress, value of the form smtp:<address>). Investigate whether the forwarding address is authorized and whether it is external (off-tenant)."
+references:
+  - "https://learn.microsoft.com/en-us/purview/audit-log-activities"
+  - "https://learn.microsoft.com/en-us/purview/audit-mailbox-settings"
+  - "https://attack.mitre.org/techniques/T1114/003/"
+where: |
+  equals("log.Workload", "Exchange") && equals("action", "Set-Mailbox") && contains("log.Parameters", "smtp:") && equals("actionResult", "success")
+groupBy:
+  - adversary.user
