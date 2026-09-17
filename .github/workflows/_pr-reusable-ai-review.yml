@@ -6,7 +6,7 @@ on:
       default_model:
         required: false
         type: string
-        default: 'gemini-3-flash-lite'
+        default: 'silas-1.7-pro'
         description: "Default model when a prompt doesn't pin one in frontmatter"
     secrets:
       THREATWINDS_API_KEY:

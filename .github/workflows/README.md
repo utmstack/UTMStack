@@ -206,8 +206,9 @@ schema and tier semantics.
 **To scale:** drop a new `.md` into `.github/ai-prompts/`. Discovered at
 runtime — no YAML changes needed.
 
-**Default model:** `gemini-3-flash-lite`. Each prompt can pin its own
-model in frontmatter (`model: gemini-3-pro`, etc.).
+**Default model:** `silas-1.7-pro` (the only model currently available on
+ThreatWinds). Each prompt can pin its own model in frontmatter
+(`model: <id>`).
 
 ### `approver`
 
