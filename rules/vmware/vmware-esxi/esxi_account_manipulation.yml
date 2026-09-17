@@ -40,4 +40,4 @@ where: |
     ))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host

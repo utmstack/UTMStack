@@ -35,10 +35,10 @@ where: |
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*
     with:
-      - field: origin.hostname
+      - field: origin.host
         operator: filter_term
-        value: '{{.origin.hostname}}'
+        value: '{{.origin.host}}'
     within: 15m
     count: 5
 groupBy:
-  - adversary.hostname
+  - adversary.host

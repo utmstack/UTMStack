@@ -40,5 +40,5 @@ where: |
     (contains("log.message", "Datastore") && contains("log.message", "browse") && contains("log.message", ".vmdk"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host
   - adversary.ip

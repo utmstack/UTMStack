@@ -19,7 +19,7 @@ pipeline:
               pattern: '\<{{.data}}\>'
             - fieldName: log.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
-            - fieldName: origin.hostname
+            - fieldName: origin.host
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}(\:)'
@@ -40,7 +40,7 @@ pipeline:
               pattern: '\<{{.data}}\>'
             - fieldName: log.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
-            - fieldName: origin.hostname
+            - fieldName: origin.host
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}'
@@ -55,7 +55,7 @@ pipeline:
               pattern: '\<{{.data}}\>'
             - fieldName: log.deviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}T{{.time}}Z'
-            - fieldName: origin.hostname
+            - fieldName: origin.host
               pattern: '{{.hostname}}'
             - fieldName: log.process
               pattern: '{{.hostname}}'
@@ -136,14 +136,14 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.message") && contains("log.message", "authentication failed")'
+            value: failure
+          where: exists("log.message") && contains("log.message", "authentication failed")
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.message") && contains("log.message", "authentication of user") && contains("log.message", "failed") && !exists("actionResult")'
+            value: failure
+          where: exists("log.message") && contains("log.message", "authentication of user") && contains("log.message", "failed") && !exists("actionResult")
       - add:
           function: string
           params:

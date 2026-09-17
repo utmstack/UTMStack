@@ -38,13 +38,13 @@ where: |
    contains("log.message", "VIB install") ||
    contains("log.message", "authentication failed") ||
    (equals("log.process", "vpxd") && equals("severity", "error"))) &&
-  exists("origin.hostname")
+  exists("origin.host")
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*
     with:
-      - field: origin.hostname
+      - field: origin.host
         operator: filter_term
-        value: '{{.origin.hostname}}'
+        value: '{{.origin.host}}'
     within: 30m
     count: 5
 groupBy:

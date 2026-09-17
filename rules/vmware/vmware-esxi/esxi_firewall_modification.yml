@@ -34,7 +34,7 @@ where: |
       contains("log.message", "set --allowed-all true") ||
       contains("log.message", "set --enabled")
     )) ||
-    (contains("log.message", "iptables") && exists("origin.hostname"))
+    (contains("log.message", "iptables") && exists("origin.host"))
   )
 groupBy:
-  - adversary.hostname
+  - adversary.host
