@@ -95,25 +95,56 @@ pipeline:
 
       # Adding action result
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'success'
-          where: oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful", "PartiallySucceeded", "True"])
+            value: success
+          where: oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful", "True"])
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'failed'
+            value: failure
           where: oneOf("log.ResultStatus", ["Failure", "Failed", "False"])
 
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: 'blocked'
+            value: denied
           where: equals("log.ResultStatus", "Blocked")
+
+      # ClientIP may include a port; retain the reported endpoint for auditing.
+      - grok:
+          source: origin.ip
+          patterns:
+          - fieldName: log.originEndpoint
+            pattern: '{{.greedy}}'
+          where: regexMatch("origin.ip", "^([0-9]{1,3}[.]){3}[0-9]{1,3}:[0-9]+$") || regexMatch("origin.ip", "^\\[[0-9a-fA-F:]+\\]:[0-9]+$")
+      - grok:
+          source: log.originEndpoint
+          patterns:
+          - fieldName: log.originEndpointPort
+            pattern: '{{.greedy}}'
+          where: exists("log.originEndpoint")
+      - trim:
+          fields:
+          - log.originEndpointPort
+          function: regex
+          substring: '^.*:'
+          where: exists("log.originEndpoint")
+      - trim:
+          fields:
+          - origin.ip
+          function: regex
+          substring: ^\[|\]?:[0-9]+$
+          where: exists("log.originEndpoint")
+      - rename:
+          from:
+          - log.originEndpointPort
+          to: origin.port
+          where: exists("log.originEndpoint") && (inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) && lessOrEqual("log.originEndpointPort",65535)
 
       # Adding geolocation to origin ip
       - dynamic:
@@ -131,3 +162,18 @@ pipeline:
       - delete:
           fields:
             - log.AppAccessContext
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: equals("action", "UserLoginFailed")
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
