@@ -1,4 +1,4 @@
-# FortiWeb filter, version 2.1.0
+# FortiWeb filter, version 2.2.0
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/578387/header-body-fields
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/445549/attack
 # KV retains other vendor fields. Authoritative fields are re-extracted with quote-aware
@@ -53,6 +53,7 @@ pipeline:
       - log.httpurl
       - log.httphost
       - log.httpmethod
+      - log.httpagent
       - log.owasptop10
       - log.owaspapitop10
       - log.triggerpolicy
@@ -236,6 +237,15 @@ pipeline:
       source: log.kvMessage
       patterns:
       - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_agent))='
+      - fieldName: log.httpagent
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:owasp_api_top10)='
       - fieldName: log.owaspapitop10
         pattern: '{{.fortiwebKVValue}}'
@@ -272,6 +282,7 @@ pipeline:
       - log.httpurl
       - log.httphost
       - log.httpmethod
+      - log.httpagent
       - log.owasptop10
       - log.owaspapitop10
       - log.triggerpolicy
@@ -297,6 +308,7 @@ pipeline:
       - log.httpurl
       - log.httphost
       - log.httpmethod
+      - log.httpagent
       - log.owasptop10
       - log.owaspapitop10
       - log.triggerpolicy
@@ -312,10 +324,13 @@ pipeline:
       from:
       - log.src
       to: origin.ip
+      # Retain an invalid selected alias in its canonical vendor field.
+      where: (inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0")) && !inCIDR("log.src", "0.0.0.0/32") && !inCIDR("log.src", "::/128")
   - rename:
       from:
       - log.dst
       to: target.ip
+      where: (inCIDR("log.dst", "0.0.0.0/0") || inCIDR("log.dst", "::/0")) && !inCIDR("log.dst", "0.0.0.0/32") && !inCIDR("log.dst", "::/128")
   - rename:
       from:
       - log.srcport
@@ -396,12 +411,7 @@ pipeline:
         key: severity
         value: debug
       where: regexMatch("log.severitylevel", "(?i)^(debug)$")
-  - grok:
-      source: log.httpurl
-      patterns:
-      - fieldName: target.path
-        pattern: '{{.greedy}}'
-      where: startsWith("log.httpurl", "/")
+  # Relative request paths stay in log.httpurl; SDK path is a file directory.
   - grok:
       source: log.httpurl
       patterns:
@@ -414,12 +424,6 @@ pipeline:
       to: log.unparsedOriginPort
       where: exists("origin.port") && !(regexMatch("origin.port", "^[0-9]{1,5}$") && lessOrEqual("origin.port",
         65535))
-  - rename:
-      from:
-      - origin.ip
-      to: log.unparsedOriginIp
-      where: exists("origin.ip") && (!(inCIDR("origin.ip", "0.0.0.0/0") || inCIDR("origin.ip", "::/0")) || oneOf("origin.ip",
-        ["0.0.0.0", "::"]))
   - dynamic:
       plugin: com.utmstack.geolocation
       params:
@@ -432,12 +436,6 @@ pipeline:
       to: log.unparsedTargetPort
       where: exists("target.port") && !(regexMatch("target.port", "^[0-9]{1,5}$") && lessOrEqual("target.port",
         65535))
-  - rename:
-      from:
-      - target.ip
-      to: log.unparsedTargetIp
-      where: exists("target.ip") && (!(inCIDR("target.ip", "0.0.0.0/0") || inCIDR("target.ip", "::/0")) || oneOf("target.ip",
-        ["0.0.0.0", "::"]))
   - dynamic:
       plugin: com.utmstack.geolocation
       params:

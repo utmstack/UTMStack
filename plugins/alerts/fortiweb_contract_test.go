@@ -3,12 +3,14 @@ package main
 // These are offline parser/rule contracts, not the closed EventProcessor. The
 // model concatenates documented grok patterns, executes them with Go RE2, applies
 // the filter's transforms, and uses the real SDK for CEL and Event conversion.
-// KV is omitted deliberately: every asserted/detection field must be recovered
-// by the quote-aware grok steps. Dynamic enrichment and live correlation are not run.
+// KV models observed space splitting so quoted payload tokens can contaminate
+// intermediate fields; authoritative recovery must remove them. External
+// geolocation is not run, but its input addresses are checked before enrichment.
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -105,9 +107,21 @@ func fwRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp 
 	return r
 }
 func fwParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCache) string {
+	return fwParseSource(t, cfg, raw, "synthetic-fortiweb", cache)
+}
+func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-fortiweb", "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-fortiweb", "dataSource": dataSource, "log": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
+		matched := false
+		for _, dataType := range stage.DataTypes {
+			if dataType == "firewall-fortiweb" {
+				matched = true
+			}
+		}
+		if !matched {
+			continue
+		}
 		for _, s := range stage.Steps {
 			b, e := protojson.Marshal(s)
 			if e != nil {
@@ -180,12 +194,39 @@ func fwParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCa
 						}
 					}
 				case "add":
+					if s.Add.Function != "string" {
+						t.Fatalf("unsupported add %s", s.Add.Function)
+					}
 					fwPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						fwPut(draft, p, nil, true)
 					}
-				case "kv", "dynamic": // Intentional exclusions described above.
+				case "kv":
+					if s.Kv.FieldSplit != " " || s.Kv.ValueSplit != "=" {
+						t.Fatal("unsupported KV separators")
+					}
+					value, ok := fwGet(draft, s.Kv.Source)
+					if !ok {
+						continue
+					}
+					for _, token := range strings.Split(value.(string), " ") {
+						pair := strings.SplitN(token, "=", 2)
+						if len(pair) == 2 {
+							key := pair[0]
+							utils.SanitizeField(&key)
+							fwPut(draft, "log."+key, pair[1], false)
+						}
+					}
+				case "dynamic":
+					if s.Dynamic.Plugin != "com.utmstack.geolocation" {
+						t.Fatal("unsupported dynamic plugin")
+					}
+					field := s.Dynamic.Params["source"].GetStringValue()
+					value, ok := fwGet(draft, field)
+					if !ok || net.ParseIP(fmt.Sprint(value)) == nil || net.ParseIP(fmt.Sprint(value)).IsUnspecified() {
+						t.Errorf("invalid address reached geolocation at %s", field)
+					}
 				default:
 					t.Fatalf("unsupported filter step %s", kind)
 				}
@@ -206,6 +247,92 @@ func fwParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCa
 		t.Fatal(e)
 	}
 	return *out
+}
+
+// Private source paths are opt-in and may be a bounded glob. No customer raw
+// strings, IDs or addresses are logged or included in committed fixtures.
+func TestFortiWebPrivateEvidence(t *testing.T) {
+	pattern := os.Getenv("UTM_FORTIWEB_EVIDENCE")
+	if pattern == "" {
+		t.Skip("set UTM_FORTIWEB_EVIDENCE to private sampled-hit JSON paths")
+	}
+	paths, e := filepath.Glob(pattern)
+	if e != nil || len(paths) == 0 {
+		t.Fatal("no private evidence paths")
+	}
+	cfg, rules, cache := fwConfig(t), fwRules(t), plugins.NewCELCache("fortiweb-private")
+	populated, matched := map[string]int{}, map[string]int{}
+	checkedAgent := 0
+	count := 0
+	for _, path := range paths {
+		b, e := os.ReadFile(path)
+		if e != nil {
+			t.Fatal(e)
+		}
+		var hits []struct {
+			Source map[string]any `json:"_source"`
+		}
+		if e = json.Unmarshal(b, &hits); e != nil {
+			t.Fatal(e)
+		}
+		for _, hit := range hits {
+			raw, ok := hit.Source["raw"].(string)
+			if !ok {
+				t.Fatal("raw missing from private evidence")
+			}
+			source, _ := hit.Source["dataSource"].(string)
+			out := fwParseSource(t, cfg, raw, source, cache)
+			stored, e := json.Marshal(hit.Source)
+			if e != nil {
+				t.Fatal(e)
+			}
+			for _, field := range []string{"dataSource", "origin.ip", "target.ip", "origin.port", "target.port"} {
+				before, after := gjson.GetBytes(stored, field), gjson.Get(out, field)
+				if before.Exists() && before.String() != after.String() {
+					t.Errorf("existing private network field changed: %s", field)
+				}
+			}
+			// Independent direct comparison for the demonstrated quoted-string
+			// truncation; field contents remain private even on a failure.
+			if match := regexp.MustCompile(`(?i)(?:^|\s)HTTP_agent=("(?:\\.|[^"\\])*"|[^\s]+)`).FindStringSubmatch(raw); len(match) > 1 {
+				want := strings.TrimSuffix(strings.TrimPrefix(match[1], `"`), `"`)
+				if gjson.Get(out, "log.httpagent").String() != want {
+					t.Error("private user-agent differs from complete raw value")
+				}
+				checkedAgent++
+			}
+			for _, field := range []string{"origin.ip", "target.ip", "actionResult", "protocol", "severity", "target.url", "target.path", "log.msg", "log.subtype", "log.httpagent", "log.fileUploadViolation"} {
+				if gjson.Get(out, field).Exists() {
+					populated[field]++
+				}
+			}
+			for name, rule := range rules {
+				yes, e := cache.Eval(rule.Where, out)
+				if e != nil {
+					t.Fatalf("%s CEL: %v", name, e)
+				}
+				if yes {
+					matched[name]++
+					for _, search := range rule.Correlation {
+						for _, term := range search.With {
+							value := term.Value.GetStringValue()
+							if strings.HasPrefix(value, "{{.") {
+								field := strings.TrimSuffix(strings.TrimPrefix(value, "{{."), "}}")
+								if !gjson.Get(out, field).Exists() {
+									t.Errorf("%s missing private history placeholder %s", name, field)
+								}
+							}
+						}
+					}
+				}
+			}
+			count++
+		}
+	}
+	if count == 0 {
+		t.Fatal("empty private evidence")
+	}
+	t.Logf("private documents=%d complete user-agents compared=%d populated=%v predicates=%v", count, checkedAgent, populated, matched)
 }
 func fwRules(t *testing.T) map[string]*plugins.Rule {
 	t.Helper()
@@ -274,8 +401,12 @@ func TestFortiWebRawContracts(t *testing.T) {
 				if got {
 					for _, search := range r.Correlation {
 						for _, term := range search.With {
-							if !gjson.Get(out, term.Field).Exists() {
-								t.Errorf("%s: matched event lacks history field %s", name, term.Field)
+							value := term.Value.GetStringValue()
+							if strings.HasPrefix(value, "{{.") {
+								field := strings.TrimSuffix(strings.TrimPrefix(value, "{{."), "}}")
+								if !gjson.Get(out, field).Exists() {
+									t.Errorf("%s: matched event lacks history placeholder %s", name, field)
+								}
 							}
 						}
 					}

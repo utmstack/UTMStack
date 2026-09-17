@@ -39,14 +39,15 @@ classifications. The existing sanitized `log.*` names remain available.
 | --- | --- |
 | `src` / `src_ip`, `dst` / `dst_ip` / `dest_ip` | `origin.ip` / `target.ip`; rules map origin to adversary |
 | Source/destination port aliases | SDK numeric ports; invalid values retained under `log.unparsed*Port` |
-| Invalid/unspecified IP | Retained under `log.unparsed*Ip`, removed before geolocation |
+| Invalid/unspecified IP | Retained under canonical vendor `log.src` / `log.dst`; rejected at the original rename before geolocation |
 | `sub_type`, `main_type`, `attack_type` | Full `log.subtype`, `log.maintype`, `log.attacktype` for detection |
 | `signature_id`, `signature_subclass`, OWASP fields | Full existing sanitized vendor fields |
 | `action` | Original decision in `log.action`; attack/traffic activity becomes `action=http_request` |
 | Explicit deny/block variants | `actionResult=denied`; `Alert` and unknown decisions leave the outcome unset |
 | `proto` | Recognized names/identifiers become lowercase `protocol`; original remains in `log.proto` |
 | `severity_level` | Low → info, Medium → warning, High → error; critical/debug retain their standard names; original remains |
-| `HTTP_url`, `HTTP_host` | Relative URL goes to `target.path`; full HTTP(S) URL to `target.url`; Host header stays in `log.httphost` |
+| `HTTP_agent` | Complete quoted user-agent retained in `log.httpagent`; no SDK standard user-agent field |
+| `HTTP_url`, `HTTP_host` | Relative request URL stays in `log.httpurl`; full HTTP(S) URL goes to `target.url`; Host header stays in `log.httphost` |
 
 All ten rules read the fields this filter produces and accept the observed decision
 casing. SQLi, XSS, known exploits, malware, authentication bypass and SSRF/web-shell
@@ -64,28 +65,99 @@ OWASP history additionally constrains severity, main type and OWASP category.
 Routine GEO/IP-reputation blocks, low-severity missing Content-Type, duplicate
 parameters and low-severity information disclosure do not match these rules.
 
+## Meeting follow-up and current evidence
+
+The follow-up uses the same SDK authority as the initial incident review:
+`plugins/alerts/go.mod` pins go-sdk v1.1.31, and names/types come from its protobuf;
+the official wiki supplies field semantics. In particular, `Side.path` is a
+filesystem directory, not a relative HTTP request URL. The new draft removes that
+promotion, retaining `log.httpurl` and existing rule consumers. No rule depends
+on `target.path`. Consumers of the earlier draft's relative `target.path` should
+use `log.httpurl`; no synthetic scheme or Host-header identity is invented.
+
+IP checks now occur at the original `log.src` / `log.dst` promotion, after quote
+cleanup. The existing first-matching-token precedence across `src`/`src_ip` and
+`dst`/`dst_ip`/`dest_ip` is unchanged. Invalid selected values remain in those
+canonical vendor fields, rather than being promoted and moved to an auxiliary
+`log.unparsed*Ip` field afterward. Such auxiliary fields are supported by the SDK;
+the change concerns validation order and preservation of vendor values. Semantic CIDR exclusions reject all unspecified
+representations, including expanded IPv6 and IPv4-mapped zero. Valid IPv6 and
+mapped nonzero IPv4 retain their identities. The existing anchored envelope and
+quote-aware extraction need no parser rewrite; the added tests also exercise
+residual fields created by naive KV parsing before authoritative recovery.
+
+The bounded current sample contains 24 distinct records from two instances
+(12 per instance), selected by recent/subtype strata. Both deployed filter
+copies have SHA-256
+`d88a8909e39f84c70050270f553310b6a9bcf8abfff804e613e69c5b235d8bb6`.
+Private document IDs, raw payloads and instance provenance remain in the private
+evidence pack. Public fixtures are fabricated; this stratified sample is not a
+population-rate estimate.
+
+- All 24 stored source/destination IP pairs and ports agree with the raw values;
+  no role inversion was observed. The model preserves the stored network fields.
+- 23 of 24 stored user-agent values were truncated. All 24 complete values are
+  now recovered and compared directly with their raw quoted value. User-agent
+  stays vendor-specific because the SDK has no equivalent standard field.
+- Eight explicit blocking decisions lack a stored standardized outcome; the
+  model produces `actionResult=denied` for those eight. Existing native decision
+  classifications are preserved. `Alert` and other decisions remain unset without explicit outcome evidence;
+  the sampled `Erase` value is not assigned an unverified success meaning.
+- All 24 request URLs are relative. All observed usernames are placeholders and
+  do not establish a real user identity. Signature CVE data is either a
+  placeholder or a multi-value string; it remains under `log.signaturecveid`.
+- Native event time is retained as a 19-digit Unix-nanosecond value, while indexed
+  `deviceTime` equals ingestion `@timestamp`. A supported epoch-nanosecond
+  conversion is not documented in the available filter wiki. Preserve the native
+  field rather than putting that integer string into the timestamp schema.
+- HTTP response codes and request/response byte fields were not present in this
+  sample. Vendor documentation of such fields does not prove a mapping defect
+  in these observed events.
+
 ## Verification and limits
 
-- Read the filter/rule wiki and SDK v1.1.31 implementation; checked standard fields
-  against the supplied dictionaries and SDK schema. The wiki's lowercase protocol
-  convention resolves the older dictionary's conflicting uppercase recommendation.
-- `go test ./...` in `plugins/alerts` runs the standalone FortiWeb tests: **74 synthetic
-  raw-log cases, each evaluated against all 10 rule predicates**, plus history and
-  alert-side grouping contracts. Strict SDK YAML decoding, real CEL evaluation and
-  final SDK Event conversion are exercised.
-- With the shared runner from PR #2590 temporarily applied, all **96 subtests** pass.
-  The technology manifest supplies an additional invalid-address normalization case.
-- Read-only category aggregates were projected through the new filter/rule contract
-  to check coverage of retained classifications. These are predicate candidates,
-  not observed alerts or a full historical replay.
-- `git diff --check` passes.
+- The standalone suite has **102 fabricated raw cases**, each evaluated against
+  all ten actual SDK rule predicates, with strict configuration decoding and
+  final SDK Event conversion. Original incident fixtures remain covered.
+- Raw tests now include observed space-delimited KV behavior, so fake fields
+  inside quoted messages are created before the filter must clear/recover them.
+  They test malformed quotes, absent original IPs, alias precedence, unspecified
+  representations, quoted IPs, embedded headers, user-agent recovery and relative
+  URLs. External geolocation is not called; every address reaching that step is
+  checked as valid and non-unspecified.
+- All three threshold rules execute actual SDK history requests against a local
+  loopback HTTP mock: count-minus-one/count, inside/expired windows, identity and
+  classification mismatches, benign raw histories and all 19 required placeholder
+  deletions are covered. Existing counts/windows remain 3/15 minutes for Generic
+  Attacks, 3/30 minutes for upload violations and 5/15 minutes for OWASP. Missing
+  required values are rejected by the trigger and by direct SDK placeholder
+  resolution. The seven discrete detections need no history queries.
+- The optional 24-document private replay preserves source/destination IPs,
+  ports and ingress source; all ten predicates execute without CEL errors.
+  Modeled predicate candidates are one Known Exploits, one SQLi, one OWASP and
+  two Generic Attacks events. These are neither observed alerts nor proof that
+  live history thresholds were met; no matches for another class is not a defect.
+- The shared manifest lists the filter and all ten consumers, with one explicit
+  negative control showing that absent extracted identities match none of the ten
+  predicates. This normalization-only control does not prove raw extraction or
+  IP validation; the standalone raw suite supplies that model coverage.
+- The current shared-runner overlay passes 133 test/subtest records; the optional
+  private replay is skipped in that overlay and passes separately when enabled.
+- `go test ./...` in `plugins/alerts` and `git diff --check` pass. SDK history tests
+  use localhost only; no customer endpoint is contacted by the test suite.
 
-The raw contract harness models documented grok concatenation and transforms with
-Go RE2. It deliberately omits KV, dynamic plugins and the closed EventProcessor;
-all asserted/detection fields must therefore come from the quote-aware extraction.
-It does not execute live OpenSearch correlation, deduplication or alert publication.
-The standalone tests need no shared runner. Review shared alert grouping fix #2590
-before rollout, since it affects actual grouping/deduplication behavior.
+The raw harness is an explicit offline model of documented grok concatenation,
+Go RE2, observed KV splitting and filter transforms. It does not run the closed
+EventProcessor, external enrichment, live OpenSearch, deduplication or alert
+publication. Actual history windows use a processing-time lower bound on
+`@timestamp`, not strict event-time sequencing. Classification markers on older
+indexed documents are not backfilled; stage the filter and rule contracts
+together and allow applicable windows to warm up. The standalone tests need no
+shared runner. Review shared alert grouping fix #2590 before rollout, since it
+affects actual grouping/deduplication behavior. Added user-agent recovery is one
+bounded field; assess parser throughput with representative message sizes in
+staging. Cross-appliance history/grouping isolation is not established by this
+sample; the current rules retain their existing source/target/class scope.
 
 Before rollout, stage the filter and rules together and replay sanitized representative
 payloads through the actual collector/engine. Confirm resulting alert IDs, blocked

@@ -14,12 +14,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -40,12 +41,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -66,12 +68,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -92,12 +95,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -118,12 +122,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_xss_detection"
@@ -144,12 +149,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_xss_detection"
@@ -170,12 +176,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_xss_detection"
@@ -196,12 +203,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_xss_detection"
@@ -222,12 +230,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_known_exploits"
@@ -248,12 +257,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_known_exploits"
@@ -274,12 +284,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -300,12 +311,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -326,12 +338,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -352,12 +365,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -378,12 +392,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
-      "log.httphost": "app.example:443"
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "actionResult"
+      "actionResult",
+      "target.path"
     ],
     "matches": [
       "fortiweb_malware_detection"
@@ -404,12 +419,13 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_malware_detection"
@@ -813,10 +829,11 @@
     "name": "invalid_source_0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=0.0.0.0 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.unparsedOriginIp": "0.0.0.0"
+      "log.src": "0.0.0.0"
     },
     "absent": [
-      "origin.ip"
+      "origin.ip",
+      "log.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -824,10 +841,11 @@
     "name": "invalid_source_::",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=:: src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.unparsedOriginIp": "::"
+      "log.src": "::"
     },
     "absent": [
-      "origin.ip"
+      "origin.ip",
+      "log.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -835,10 +853,11 @@
     "name": "invalid_source_not-an-ip",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=not-an-ip src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.unparsedOriginIp": "not-an-ip"
+      "log.src": "not-an-ip"
     },
     "absent": [
-      "origin.ip"
+      "origin.ip",
+      "log.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -846,10 +865,11 @@
     "name": "invalid_target",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=not-an-ip dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.unparsedTargetIp": "not-an-ip"
+      "log.dst": "not-an-ip"
     },
     "absent": [
-      "target.ip"
+      "target.ip",
+      "log.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -953,14 +973,15 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "https"
+      "log.unparsedTargetPort": "https",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "target.port"
+      "target.port",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -980,14 +1001,15 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "-1"
+      "log.unparsedTargetPort": "-1",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "target.port"
+      "target.port",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1007,14 +1029,15 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "65536"
+      "log.unparsedTargetPort": "65536",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "target.port"
+      "target.port",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1034,14 +1057,15 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "1.5"
+      "log.unparsedTargetPort": "1.5",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "target.port"
+      "target.port",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1061,14 +1085,15 @@
       "protocol": "tcp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "999999999999"
+      "log.unparsedTargetPort": "999999999999",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
-      "target.port"
+      "target.port",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1089,12 +1114,13 @@
       "protocol": "udp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1115,12 +1141,13 @@
       "protocol": "udp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1141,12 +1168,13 @@
       "protocol": "icmp",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1167,15 +1195,352 @@
       "protocol": "icmpv6",
       "severity": "error",
       "log.msg": "[policy_name=example] : request matched",
-      "target.path": "/login?q=a=b",
       "log.httphost": "app.example:443",
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "log.httpurl": "/login?q=a=b"
     },
     "absent": [
-      "target.url"
+      "target.url",
+      "target.path"
     ],
     "matches": [
       "fortiweb_sqli_detection"
     ]
+  },
+  {
+    "name": "original src invalid 0.0.0.0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"0.0.0.0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src invalid ::",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "::"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src invalid ::0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "::0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src invalid 0:0:0:0:0:0:0:0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"0:0:0:0:0:0:0:0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src invalid ::ffff:0.0.0.0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::ffff:0.0.0.0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src invalid not-an-ip",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"not-an-ip\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip",
+      "log.unparsedOriginIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original src valid 2001:db8::7",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"2001:db8::7\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "2001:db8::7"
+    },
+    "absent": [
+      "log.src"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "original src valid ::ffff:192.0.2.7",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::ffff:192.0.2.7\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "::ffff:192.0.2.7"
+    },
+    "absent": [
+      "log.src"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "original dst invalid 0.0.0.0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"0.0.0.0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "0.0.0.0"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst invalid ::",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "::"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst invalid ::0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "::0"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst invalid 0:0:0:0:0:0:0:0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"0:0:0:0:0:0:0:0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst invalid ::ffff:0.0.0.0",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::ffff:0.0.0.0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst invalid not-an-ip",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"not-an-ip\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "not-an-ip"
+    },
+    "absent": [
+      "target.ip",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "original dst valid 2001:db8::7",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"2001:db8::7\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "target.ip": "2001:db8::7"
+    },
+    "absent": [
+      "log.dst"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "original dst valid ::ffff:192.0.2.7",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::ffff:192.0.2.7\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "target.ip": "::ffff:192.0.2.7"
+    },
+    "absent": [
+      "log.dst"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "first source alias invalid preserved",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src_ip=not-an-ip src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.src": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "first source alias valid retained",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src_ip=203.0.113.8 src=not-an-ip src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "203.0.113.8"
+    },
+    "absent": [
+      "log.src"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "first target alias invalid preserved",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dest_ip=not-an-ip dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.dst": "not-an-ip"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "first target alias valid retained",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst_ip=203.0.113.7 dst=not-an-ip dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "target.ip": "203.0.113.7"
+    },
+    "absent": [
+      "log.dst"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "unterminated quoted source",
+    "raw": "type=attack src=\"198.51.100.8 dst=192.0.2.7 action=Alert_Deny sub_type=\"SQL Injection\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.src",
+      "log.action"
+    ],
+    "matches": []
+  },
+  {
+    "name": "fake upload marker inside message",
+    "raw": "type=attack src=198.51.100.8 dst=192.0.2.7 action=Alert_Deny sub_type=\"Generic Attacks\" msg=\"ordinary fileUploadViolation=true\"",
+    "expected": {},
+    "absent": [
+      "log.fileUploadViolation"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "no priority with HTML message",
+    "raw": "date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"<script> bad text CEF:0|Fortinet|fake|0|1|msg|1|src=203.0.113.9\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7"
+    },
+    "absent": [],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "unsupported prefix cannot extract payload IP",
+    "raw": "unrecognized prefix msg=\"<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "relative URL containing embedded scheme",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/redirect?next=https://example.invalid/ http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "log.httpurl": "/redirect?next=https://example.invalid/"
+    },
+    "absent": [
+      "target.url",
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "quoted browser agent",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection HTTP_agent=\"Mozilla/5.0 (ExampleOS 1.0) TestBrowser/2.0\"",
+    "expected": {
+      "log.httpagent": "Mozilla/5.0 (ExampleOS 1.0) TestBrowser/2.0",
+      "origin.ip": "198.51.100.8"
+    },
+    "absent": [],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "agent embedded key",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection HTTP_agent=\"ExampleBot src=203.0.113.1 action=Alert_Deny\"",
+    "expected": {
+      "log.httpagent": "ExampleBot src=203.0.113.1 action=Alert_Deny",
+      "origin.ip": "198.51.100.8"
+    },
+    "absent": [],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "fake agent within message",
+    "raw": "type=traffic msg=\"ordinary HTTP_agent=FakeBot\"",
+    "expected": {},
+    "absent": [
+      "log.httpagent"
+    ],
+    "matches": []
   }
 ]

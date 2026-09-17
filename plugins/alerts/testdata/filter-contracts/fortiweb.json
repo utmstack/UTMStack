@@ -17,26 +17,30 @@
   ],
   "fixtures": [
     {
-      "name": "fortiweb_non_ip_is_not_enriched",
+      "name": "FortiWeb absent extracted identity negative control (not raw parsing or IP validation)",
       "filter": "fortinet/fortiweb.yml",
       "input": {
-        "origin": {
-          "ip": "not-an-ip"
-        },
-        "target": {
-          "ip": "0.0.0.0"
-        }
+        "dataType": "firewall-fortiweb",
+        "log": {}
       },
-      "expected": {
-        "log.unparsedOriginIp": "not-an-ip",
-        "log.unparsedTargetIp": "0.0.0.0"
-      },
+      "expected": {},
       "absent": [
         "origin.ip",
         "target.ip",
         "actionResult"
       ],
-      "rules": {}
+      "rules": {
+        "rules/fortinet/fortiweb/authentication_bypass_attempts.yml": false,
+        "rules/fortinet/fortiweb/file_upload_security_violations.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_known_exploits.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_malware_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_sqli_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_ssrf_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_webshell_upload.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_xss_detection.yml": false,
+        "rules/fortinet/fortiweb/owasp_top10_violations.yml": false,
+        "rules/fortinet/fortiweb/web_application_attacks_detection.yml": false
+      }
     }
   ]
 }
