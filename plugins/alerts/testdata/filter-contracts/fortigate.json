@@ -1,0 +1,102 @@
+{
+  "technology": "FortiGate",
+  "filters": [
+    "filters/fortinet/fortinet.yml"
+  ],
+  "rules": [
+    "rules/fortinet/fortinet/admin_account_compromise.yml",
+    "rules/fortinet/fortinet/antivirus_outbreak_detection.yml",
+    "rules/fortinet/fortinet/dlp_data_exfiltration.yml",
+    "rules/fortinet/fortinet/fortigate_admin_session_anomaly.yml",
+    "rules/fortinet/fortinet/fortigate_vpn_brute_force.yml",
+    "rules/fortinet/fortinet/ips_critical_severity_events.yml",
+    "rules/fortinet/fortinet/sandbox_malicious_verdict.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "FortiGate \"accept\"",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "\"accept\""
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate \"deny\"",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "\"deny\""
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate ip-conn",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "ip-conn"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate client-rst",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "client-rst"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate timeout",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "timeout"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "FortiGate profile deny overrides policy accept",
+      "filter": "fortinet/fortinet.yml",
+      "input": {
+        "log": {
+          "action": "\"accept\"",
+          "utmaction": "block"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
