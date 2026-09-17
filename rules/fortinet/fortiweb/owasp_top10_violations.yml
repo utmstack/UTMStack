@@ -1,42 +1,58 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
-  - firewall-fortiweb
+- firewall-fortiweb
 name: FortiWeb OWASP Top 10 Violation Attempts
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Initial Access
-technique: "T1190 - Exploit Public-Facing Application"
+technique: T1190 - Exploit Public-Facing Application
 adversary: origin
 references:
-  - https://docs.fortinet.com/document/fortiweb-cloud/23.3.0/user-guide/552829/known-attacks
-  - https://owasp.org/www-project-top-ten/
-  - https://attack.mitre.org/techniques/T1190/
+- https://docs.fortinet.com/document/fortiweb-cloud/23.3.0/user-guide/552829/known-attacks
+- https://owasp.org/www-project-top-ten/
+- https://attack.mitre.org/techniques/T1190/
 description: |
-  Detects attempts to exploit OWASP Top 10 vulnerabilities including injection flaws, broken authentication, sensitive data exposure, XXE, broken access control, security misconfiguration, and more. This rule triggers when FortiWeb blocks or alerts on attack attempts that match known OWASP Top 10 vulnerability patterns.
+  Detects repeated medium-or-higher HTTP protocol violations that FortiWeb assigns to an OWASP category. Low-severity missing Content-Type, duplicate parameters and information disclosures are excluded from this rule.
 
-  Next Steps:
-  1. Review the blocked request details in FortiWeb logs to understand the attack vector
-  2. Check if the source IP has attempted multiple different attack types
-  3. Verify if the targeted application has any known vulnerabilities
-  4. Consider blocking the source IP if attacks persist
-  5. Review application security headers and WAF rules for the targeted resource
-  6. Check for any successful requests from the same source IP before the block
-  7. Analyze the specific OWASP category and implement additional protections
-  8. Review application code for the detected vulnerability type
+  Both Alert (log-only) and explicit blocking decisions are covered. Check log.action and actionResult to distinguish detection from prevention; neither establishes successful exploitation. Review log.subtype, log.attacktype, log.signatureid and log.msg, then validate the request and outcome in application logs before escalating.
 where: |
-  oneOf("action", ["deny", "alert_deny", "block", "blocked"]) &&
-  regexMatch("log.msg", "(?i)(injection|traversal|xxe|xml external entity|broken auth|sensitive data|security misconfig|owasp|sqli|xss|csrf|command injection|path traversal|lfi|rfi|deserialization)")
+  exists("origin.ip") && exists("target.ip") && equalsIgnoreCase("log.type", "attack") &&
+  regexMatch("log.action", "(?i)^(alert|alert_deny|deny|denied|block|blocked|period_block)$") &&
+  (equalsIgnoreCase("log.maintype", "HTTP Protocol Constraints") && regexMatch("log.owasptop10", "(?i)^A[0-9]{1,2}:") && regexMatch("log.severitylevel", "(?i)^(Medium|High|Critical)$") && regexMatch("log.subtype", "(?i)^(Illegal (URL Parameter Value|Character in URL|HTTP Method)|NULL Character in (URL|Param[e]?ter Value|Parameter Value))$")) &&
+  exists("log.subtype")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortiweb-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 15m
-    count: 5
-groupBy:
-  - adversary.ip
-  - target.ip
+- indexPattern: v11-log-firewall-fortiweb-*
+  with:
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: target.ip
+    operator: filter_term
+    value: '{{.target.ip}}'
+  - field: log.type
+    operator: filter_term
+    value: '{{.log.type}}'
+  - field: log.subtype
+    operator: filter_term
+    value: '{{.log.subtype}}'
+  - field: log.action
+    operator: filter_term
+    value: '{{.log.action}}'
+  - field: log.maintype
+    operator: filter_term
+    value: '{{.log.maintype}}'
+  - field: log.severitylevel
+    operator: filter_term
+    value: '{{.log.severitylevel}}'
+  - field: log.owasptop10
+    operator: filter_term
+    value: '{{.log.owasptop10}}'
+  within: 15m
+  count: 5
+deduplicateBy:
+- adversary.ip
+- target.ip
+- lastEvent.log.subtype

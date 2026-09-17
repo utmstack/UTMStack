@@ -1,0 +1,46 @@
+{
+  "technology": "FortiWeb",
+  "filters": [
+    "filters/fortinet/fortiweb.yml"
+  ],
+  "rules": [
+    "rules/fortinet/fortiweb/authentication_bypass_attempts.yml",
+    "rules/fortinet/fortiweb/file_upload_security_violations.yml",
+    "rules/fortinet/fortiweb/fortiweb_known_exploits.yml",
+    "rules/fortinet/fortiweb/fortiweb_malware_detection.yml",
+    "rules/fortinet/fortiweb/fortiweb_sqli_detection.yml",
+    "rules/fortinet/fortiweb/fortiweb_ssrf_detection.yml",
+    "rules/fortinet/fortiweb/fortiweb_webshell_upload.yml",
+    "rules/fortinet/fortiweb/fortiweb_xss_detection.yml",
+    "rules/fortinet/fortiweb/owasp_top10_violations.yml",
+    "rules/fortinet/fortiweb/web_application_attacks_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "FortiWeb absent extracted identity negative control (not raw parsing or IP validation)",
+      "filter": "fortinet/fortiweb.yml",
+      "input": {
+        "dataType": "firewall-fortiweb",
+        "log": {}
+      },
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "target.ip",
+        "actionResult"
+      ],
+      "rules": {
+        "rules/fortinet/fortiweb/authentication_bypass_attempts.yml": false,
+        "rules/fortinet/fortiweb/file_upload_security_violations.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_known_exploits.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_malware_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_sqli_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_ssrf_detection.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_webshell_upload.yml": false,
+        "rules/fortinet/fortiweb/fortiweb_xss_detection.yml": false,
+        "rules/fortinet/fortiweb/owasp_top10_violations.yml": false,
+        "rules/fortinet/fortiweb/web_application_attacks_detection.yml": false
+      }
+    }
+  ]
+}
