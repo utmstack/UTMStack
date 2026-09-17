@@ -174,7 +174,7 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failed
+            value: failure
           where: equals("log.facility", "DOT1X") && equals("log.facilityMnemonic", "FAIL")
 
       - add:
@@ -188,28 +188,10 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: blocked
+            value: denied
           where: equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["DHCP_SNOOPING_DENY", "INVALID_ARP", "ACL_DENY"])
       #......................................................................#
       # Decoding severity
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'high'
-          where: oneOf("log.severity", ["0", "1", "2", "3"])
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'medium'
-          where: log.severity=="4"
-      - add:
-          function: 'string'
-          params:
-            key: severity
-            value: 'low'
-          where: oneOf("log.severity", ["5", "6", "7"])
       #......................................................................#
       # Removing unused fields
       - delete:
@@ -219,3 +201,35 @@ pipeline:
             - log.tmpFacilityMnemonic
             - log.aclName
             - log.aclAction
+
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: oneOf("log.severity", [0,1,2])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: oneOf("log.severity", [3])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: oneOf("log.severity", [4])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: oneOf("log.severity", [5,6])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: oneOf("log.severity", [7])

@@ -1,0 +1,98 @@
+{
+  "technology": "Cisco Switch",
+  "filters": [
+    "filters/cisco/cs_switch.yml"
+  ],
+  "rules": [
+    "rules/cisco/cs_switch/arp_poisoning_detection.yml",
+    "rules/cisco/cs_switch/mac_address_spoofing.yml",
+    "rules/cisco/cs_switch/vlan_hopping_attempts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "cisco_switch_severity_0",
+      "filter": "cisco/cs_switch.yml",
+      "input": {
+        "log": {
+          "severity": "0",
+          "facility": "DOT1X",
+          "facilityMnemonic": "FAIL"
+        }
+      },
+      "expected": {
+        "severity": "critical",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco_switch_severity_3",
+      "filter": "cisco/cs_switch.yml",
+      "input": {
+        "log": {
+          "severity": "3",
+          "facility": "DOT1X",
+          "facilityMnemonic": "FAIL"
+        }
+      },
+      "expected": {
+        "severity": "error",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco_switch_severity_4",
+      "filter": "cisco/cs_switch.yml",
+      "input": {
+        "log": {
+          "severity": "4",
+          "facility": "DOT1X",
+          "facilityMnemonic": "FAIL"
+        }
+      },
+      "expected": {
+        "severity": "warning",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco_switch_severity_6",
+      "filter": "cisco/cs_switch.yml",
+      "input": {
+        "log": {
+          "severity": "6",
+          "facility": "DOT1X",
+          "facilityMnemonic": "FAIL"
+        }
+      },
+      "expected": {
+        "severity": "info",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "cisco_switch_severity_7",
+      "filter": "cisco/cs_switch.yml",
+      "input": {
+        "log": {
+          "severity": "7",
+          "facility": "DOT1X",
+          "facilityMnemonic": "FAIL"
+        }
+      },
+      "expected": {
+        "severity": "debug",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
