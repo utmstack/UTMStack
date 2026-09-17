@@ -1,0 +1,55 @@
+{
+  "technology": "ESET",
+  "filters": [
+    "filters/antivirus/esmc-eset.yml"
+  ],
+  "rules": [
+    "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml",
+    "rules/antivirus/esmc-eset/botnet_communication_attempts.yml",
+    "rules/antivirus/esmc-eset/eset_agent_tampering.yml",
+    "rules/antivirus/esmc-eset/eset_console_abuse.yml",
+    "rules/antivirus/esmc-eset/eset_quarantine_failures.yml",
+    "rules/antivirus/esmc-eset/exploit_detection_events.yml",
+    "rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yml",
+    "rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yml",
+    "rules/antivirus/esmc-eset/network_attack_detection.yml",
+    "rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yml",
+    "rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yml",
+    "rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yml",
+    "rules/antivirus/esmc-eset/suspicious_process_behavior.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "ESET event name is not an outcome",
+      "filter": "antivirus/esmc-eset.yml",
+      "input": {
+        "log": {
+          "event": "HIPS_Event"
+        }
+      },
+      "expected": {
+        "log.event": "HIPS_Event"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "ESET actual blocked result",
+      "filter": "antivirus/esmc-eset.yml",
+      "input": {
+        "log": {
+          "event": "HIPS_Event",
+          "result": "Blocked"
+        }
+      },
+      "expected": {
+        "actionResult": "denied",
+        "log.event": "HIPS_Event"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
