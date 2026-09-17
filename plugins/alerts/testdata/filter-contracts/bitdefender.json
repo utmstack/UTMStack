@@ -1,0 +1,170 @@
+{
+  "technology": "Bitdefender GravityZone",
+  "filters": [
+    "filters/antivirus/bitdefender_gz.yml"
+  ],
+  "rules": [
+    "rules/antivirus/bitdefender_gz/antivirus_service_stopped.yml",
+    "rules/antivirus/bitdefender_gz/apt_detection.yml",
+    "rules/antivirus/bitdefender_gz/av_console_lateral_movement.yml",
+    "rules/antivirus/bitdefender_gz/av_policy_override.yml",
+    "rules/antivirus/bitdefender_gz/bootkit_detection.yml",
+    "rules/antivirus/bitdefender_gz/crypto_mining_detection.yml",
+    "rules/antivirus/bitdefender_gz/email_threat_spreading.yml",
+    "rules/antivirus/bitdefender_gz/fileless_malware_detection.yml",
+    "rules/antivirus/bitdefender_gz/high_severity_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yml",
+    "rules/antivirus/bitdefender_gz/memory_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/multiple_malware_from_single_source.yml",
+    "rules/antivirus/bitdefender_gz/network_threat_detection.yml",
+    "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml",
+    "rules/antivirus/bitdefender_gz/quarantine_failure_detection.yml",
+    "rules/antivirus/bitdefender_gz/ransomware_behavior_detection.yml",
+    "rules/antivirus/bitdefender_gz/realtime_protection_disabled.yml",
+    "rules/antivirus/bitdefender_gz/rootkit_detection.yml",
+    "rules/antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
+    "rules/antivirus/bitdefender_gz/usb_malware_propagation.yml",
+    "rules/antivirus/bitdefender_gz/zero_day_malware_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Bitdefender phishing aph_blocked",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "actFull": "aph_blocked",
+          "BitdefenderGZModule": "aph"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml": false
+      }
+    },
+    {
+      "name": "Bitdefender phishing reportOnly",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "actFull": "reportOnly",
+          "BitdefenderGZModule": "aph"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/phishing_access_blocked.yaml": true
+      }
+    },
+    {
+      "name": "Bitdefender attacker priority",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "BitdefenderGZDetectionAttackerIp": "198.51.100.10",
+          "BitdefenderGZEventSourceIP": "10.0.0.2"
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.10"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Bitdefender CEF priority 0",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "severity": "0",
+          "BitdefenderGZModule": "network-monitor"
+        }
+      },
+      "expected": {
+        "severity": "info",
+        "log.cefSeverity": "0"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+      }
+    },
+    {
+      "name": "Bitdefender CEF priority 3",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "severity": "3",
+          "BitdefenderGZModule": "network-monitor"
+        }
+      },
+      "expected": {
+        "severity": "info",
+        "log.cefSeverity": "3"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+      }
+    },
+    {
+      "name": "Bitdefender CEF priority 6",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "severity": "6",
+          "BitdefenderGZModule": "network-monitor"
+        }
+      },
+      "expected": {
+        "severity": "warning",
+        "log.cefSeverity": "6"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": false
+      }
+    },
+    {
+      "name": "Bitdefender CEF priority 8",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "severity": "8",
+          "BitdefenderGZModule": "network-monitor"
+        }
+      },
+      "expected": {
+        "severity": "error",
+        "log.cefSeverity": "8"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": true
+      }
+    },
+    {
+      "name": "Bitdefender CEF priority 10",
+      "filter": "antivirus/bitdefender_gz.yml",
+      "input": {
+        "log": {
+          "severity": "10",
+          "BitdefenderGZModule": "network-monitor"
+        }
+      },
+      "expected": {
+        "severity": "critical",
+        "log.cefSeverity": "10"
+      },
+      "absent": [],
+      "rules": {
+        "rules/antivirus/bitdefender_gz/network_threat_detection.yml": true
+      }
+    }
+  ]
+}

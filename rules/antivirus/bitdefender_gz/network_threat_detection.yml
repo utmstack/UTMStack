@@ -37,7 +37,7 @@ description: |
   6. Block the source at the perimeter, and only then close the alert. A blocked attempt means this attack failed, not that the attacker stopped
 where: |
   oneOf("log.BitdefenderGZModule", ["network-monitor", "fw"]) &&
-  greaterOrEqual("severity", 8)
+  (greaterOrEqual("log.cefSeverity", 8) || greaterOrEqual("severity", 8))
 correlation:
   - indexPattern: v11-log-antivirus-bitdefender-gz-*
     within: 2h

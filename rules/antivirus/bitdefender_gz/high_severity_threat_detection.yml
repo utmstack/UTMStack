@@ -38,7 +38,7 @@ description: |
      - Check that signatures were current at deviceTime, using log.BitdefenderGZSignaturesNumber
 where: |
   oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
-  greaterOrEqual("severity", 8)
+  (greaterOrEqual("log.cefSeverity", 8) || greaterOrEqual("severity", 8))
 groupBy:
   - target.host
   - target.malware

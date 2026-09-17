@@ -504,8 +504,8 @@ pipeline:
 
       - rename:
           from:
-            - log.severity
-          to: severity
+          - log.severity
+          to: log.cefSeverity
 
       - rename:
           from:
@@ -560,23 +560,30 @@ pipeline:
 
       - rename:
           from:
-            - log.BitdefenderGZEventSourceIP
+          - log.BitdefenderGZEventSourceIP
           to: origin.ip
+          where: '!exists("origin.ip")'
 
       # Adding actionResult field to indicate whether the action was successful or failed
       - add:
           function: string
           params:
             key: actionResult
+            value: denied
+          where: oneOf("action", ["blocked", "block", "aph_blocked", "portscan_blocked", "quarantined"])
+      - add:
+          function: string
+          params:
+            key: actionResult
             value: success
-          where: 'oneOf("action", ["blocked", "block", "aph_blocked", "portscan_blocked", "deleted", "disinfected", "quarantined", "restored"])'
+          where: oneOf("action", ["deleted", "disinfected", "restored"])
 
       - add:
           function: string
           params:
             key: actionResult
-            value: failed
-          where: 'oneOf("action", ["still present", "ignored", "no action", "reportOnly"])'
+            value: failure
+          where: oneOf("action", ["still present", "ignored", "no action", "reportOnly"])
 
       # Adding geolocation to origin ip
       - dynamic:
@@ -621,3 +628,41 @@ pipeline:
             - log.request
             - log.suser
             - log.fname
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+
+      # Normalize the source event severity.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: (greaterOrEqual("log.cefSeverity",0) && lessOrEqual("log.cefSeverity",3)) || oneOf("log.cefSeverity",["Low","low","Unknown"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: (greaterOrEqual("log.cefSeverity",4) && lessOrEqual("log.cefSeverity",6)) || oneOf("log.cefSeverity",["Medium","medium"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: (greaterOrEqual("log.cefSeverity",7) && lessOrEqual("log.cefSeverity",8)) || oneOf("log.cefSeverity",["High","high"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: (greaterOrEqual("log.cefSeverity",9) && lessOrEqual("log.cefSeverity",10)) || oneOf("log.cefSeverity",["Very-High","Very High","very-high"])
