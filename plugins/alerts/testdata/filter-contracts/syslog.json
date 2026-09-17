@@ -1,0 +1,24 @@
+{
+  "technology": "Generic Syslog",
+  "filters": [
+    "filters/syslog/syslog-generic.yml"
+  ],
+  "rules": [
+    "rules/syslog/cef/file_hash_mismatches.yml",
+    "rules/syslog/cef/syslog_source_impersonation.yml",
+    "rules/syslog/cef/user_agent_anomalies.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "syslog_message_capture",
+      "filter": "syslog/syslog-generic.yml",
+      "input": {
+        "raw": "unstructured test message"
+      },
+      "expected": {
+        "log.message": "unstructured test message",
+        "raw": "unstructured test message"
+      }
+    }
+  ]
+}
