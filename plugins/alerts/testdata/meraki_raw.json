@@ -1,0 +1,1041 @@
+[
+  {
+    "name": "AMP blocked positive",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_file_scanned url=https://files.example.invalid/test.bin src=192.0.2.8:53150 dst=198.51.100.9:80 mac=02:00:00:00:00:08 name='Synthetic test malware' sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=block",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 53150,
+      "target.port": 80,
+      "log.eventType": "security_event",
+      "log.alertType": "security_filtering_file_scanned",
+      "log.disposition": "malicious",
+      "target.url": "https://files.example.invalid/test.bin",
+      "actionResult": "denied",
+      "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "AMP retrospective without endpoint positive",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.disposition": "malicious",
+      "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "actionResult"
+    ],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "AMP clean",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_file_scanned url=https://files.example.invalid/test.bin src=192.0.2.8:53150 dst=198.51.100.9:80 mac=02:00:00:00:00:08 name='Synthetic test malware' sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=clean action=block",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AMP invalid hash",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_file_scanned url=https://files.example.invalid/test.bin src=192.0.2.8:53150 dst=198.51.100.9:80 mac=02:00:00:00:00:08 name='Synthetic test malware' sha256=invalid disposition=malicious action=block",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sha256": "invalid",
+      "log.malwareGroupingKey": "event-invalid-hash",
+      "log.malwareGroupingType": "event"
+    },
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ],
+    "id": "event-invalid-hash"
+  },
+  {
+    "name": "AMP forged disposition",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_file_scanned url=https://files.example.invalid/test.bin src=192.0.2.8:53150 dst=198.51.100.9:80 mac=02:00:00:00:00:08 name='Synthetic disposition=malicious' sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=clean action=block",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AMP absent source identity",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IDS blocked positive",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=1 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.alertType": "ids_alerted",
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.priority": "1",
+      "log.dhost": "02:00:00:00:00:08",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.mac"
+    ],
+    "matches": [
+      "intrusion_detection_alerts"
+    ]
+  },
+  {
+    "name": "IDS ineligible priority 0",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=0 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IDS ineligible priority 3",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=3 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IDS ineligible priority bad",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=bad timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IDS ineligible priority -1",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=-1 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IDS observed without blocked outcome",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=1 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=allowed action=rst message: Synthetic exploit detection",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "intrusion_detection_alerts"
+    ]
+  },
+  {
+    "name": "legacy IDS one endpoint positive",
+    "raw": "1720051237.124589040 LAB-MX ids-alerts signature=119:15:1 priority=2 timestamp=1720051237.1 direction=egress protocol=tcp/ip src=192.0.2.8:56240",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "log.alertType": "ids_alerted"
+    },
+    "absent": [
+      "target.ip",
+      "actionResult"
+    ],
+    "matches": [
+      "intrusion_detection_alerts"
+    ]
+  },
+  {
+    "name": "VPN explicit authentication failure positive",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=198.51.100.8Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "origin.port": 8748,
+      "log.type": "anyconnect_vpn_auth_failure",
+      "actionResult": "failure",
+      "log.vpnAuthenticationFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "meraki_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "VPN explicit authentication success",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_success msg= 'Peer IP=198.51.100.8 Peer port=8748 AAA[8]: AAA authentication successful '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "success",
+      "origin.ip": "198.51.100.8"
+    },
+    "absent": [
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN generic negotiation failure",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_general msg='VPN authentication failed text in a general notice'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid ingress ",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=198.51.100.8Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "",
+    "expected": {},
+    "absent": [
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid ingress unknown",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=198.51.100.8Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "unknown",
+    "expected": {},
+    "absent": [
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid ingress -",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=198.51.100.8Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "-",
+    "expected": {},
+    "absent": [
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer 0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=0.0.0.0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer ::",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "::"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer ::0",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "::0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer 0:0:0:0:0:0:0:0",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=0:0:0:0:0:0:0:0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer ::ffff:0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::ffff:0.0.0.0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN invalid peer not-an-ip",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=not-an-ipPeer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN IPv6 peer positive",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=2001:db8::Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "2001:db8::"
+    },
+    "absent": [],
+    "matches": [
+      "meraki_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "AirMarshal rogue positive",
+    "raw": "1720051237.124589040 LAB-MX events airmarshal_events type= rogue_ssid_detected ssid='Example Lab' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='21' fc_type='0' fc_subtype='5'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.eventType": "airmarshal_events",
+      "log.merakiGroup": "events",
+      "log.type": "rogue_ssid_detected",
+      "origin.mac": "02:00:00:00:00:01"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "actionResult"
+    ],
+    "matches": [
+      "rogue_ssid_detection",
+      "air_marshal_rogue_ap"
+    ]
+  },
+  {
+    "name": "AirMarshal standalone rogue positive",
+    "raw": "airmarshal_events type= rogue_ssid_detected ssid='Example Lab' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='21' fc_type='0' fc_subtype='5'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "rogue_ssid_detection",
+      "air_marshal_rogue_ap"
+    ]
+  },
+  {
+    "name": "AirMarshal spoof positive",
+    "raw": "1720051237.124589040 LAB-MX events airmarshal_events type= ssid_spoofing_detected ssid='Example Lab' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='21' fc_type='0' fc_subtype='5'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "evil_twin_ap_detection"
+    ]
+  },
+  {
+    "name": "AirMarshal ordinary SSID text",
+    "raw": "1720051237.124589040 LAB-MX events airmarshal_events type= association ssid='rogue SSID Evil Twin' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='21' fc_type='0' fc_subtype='5'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "AirMarshal below existing RSSI policy",
+    "raw": "1720051237.124589040 LAB-MX events airmarshal_events type= rogue_ssid_detected ssid='Example Lab' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='-90' fc_type='0' fc_subtype='5'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "rogue_ssid_detection"
+    ]
+  },
+  {
+    "name": "wireless packet flood start positive",
+    "raw": "1720051237.124589040 LAB-MX events type=device_packet_flood packet='deauth' device='02:00:00:00:00:04' radio='0' state='start' alarm_id='4' dos_count='25' inter_arrival='10000'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.mac": "02:00:00:00:00:04",
+      "log.packet": "deauth",
+      "log.state": "start"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": [
+      "wireless_intrusion_attempts"
+    ]
+  },
+  {
+    "name": "wireless packet flood end",
+    "raw": "1720051237.124589040 LAB-MX events type=device_packet_flood packet='deauth' device='02:00:00:00:00:04' radio='0' state='end' alarm_id='4' dos_count='25' inter_arrival='10000'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ordinary wireless notice",
+    "raw": "1720051237.124589040 LAB-MX events type=association msg=\"wireless intrusion association flood\"",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "flows policy allow",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 55719,
+      "target.port": 53,
+      "protocol": "udp",
+      "actionResult": "success",
+      "log.eventType": "flows"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "flows policy deny",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: deny all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "firewall policy allow",
+    "raw": "1720051237.124589040 LAB-MX firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 55719,
+      "target.port": 53,
+      "protocol": "udp",
+      "actionResult": "success",
+      "log.eventType": "firewall"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "firewall policy deny",
+    "raw": "1720051237.124589040 LAB-MX firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: deny all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "cellular_firewall policy allow",
+    "raw": "1720051237.124589040 LAB-MX cellular_firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 55719,
+      "target.port": 53,
+      "protocol": "udp",
+      "actionResult": "success",
+      "log.eventType": "cellular_firewall"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "cellular_firewall policy deny",
+    "raw": "1720051237.124589040 LAB-MX cellular_firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: deny all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vpn_firewall policy allow",
+    "raw": "1720051237.124589040 LAB-MX vpn_firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 55719,
+      "target.port": 53,
+      "protocol": "udp",
+      "actionResult": "success",
+      "log.eventType": "vpn_firewall"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vpn_firewall policy deny",
+    "raw": "1720051237.124589040 LAB-MX vpn_firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: deny all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "MR flow deny",
+    "raw": "1720051237.124589040 LAB-MX flows deny src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "L7 blocked",
+    "raw": "1720051237.124589040 LAB-MX l7_firewall src=192.0.2.8 dst=198.51.100.9 protocol=tcp sport=59526 dport=443 decision=blocked",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "flow source invalid not-an-ip",
+    "raw": "1720051237.124589040 LAB-MX flows src=not-an-ip dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow source invalid 0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX flows src=0.0.0.0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow source invalid ::0",
+    "raw": "1720051237.124589040 LAB-MX flows src=::0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "::0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow source invalid 0:0:0:0:0:0:0:0",
+    "raw": "1720051237.124589040 LAB-MX flows src=0:0:0:0:0:0:0:0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow source invalid ::ffff:0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX flows src=::ffff:0.0.0.0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.sourceIp": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow source IPv6 unspecified suffix preserved",
+    "raw": "1720051237.124589040 LAB-MX flows src=2001:db8:: dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "2001:db8::"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "flow target invalid not-an-ip",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=not-an-ip mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.destinationIp": "not-an-ip"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow target invalid 0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=0.0.0.0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.destinationIp": "0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow target invalid ::0",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=::0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.destinationIp": "::0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow target invalid 0:0:0:0:0:0:0:0",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=0:0:0:0:0:0:0:0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.destinationIp": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow target invalid ::ffff:0.0.0.0",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=::ffff:0.0.0.0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.destinationIp": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flow target IPv6 unspecified suffix preserved",
+    "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=2001:db8:: mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "target.ip": "2001:db8::"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "8021x switch port and identity",
+    "raw": "1720051237.124589040 LAB-MX events type=8021x_auth port='3' identity='test@example.invalid'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.switchPort": "3",
+      "origin.user": "test@example.invalid"
+    },
+    "absent": [
+      "origin.port",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "MR response timing not IP",
+    "raw": "1720051237.124589040 LAB-MX events type=disassociation ip_resp='1.597000' ip_src='192.0.2.8'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.ipResp": "1.597000",
+      "origin.ip": "192.0.2.8"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native RFC3164 wrapper",
+    "raw": "<134>Sep 17 10:30:00 relay.example 1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "native PRI wrapper",
+    "raw": "<134>1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "native RFC3164 relay sequence",
+    "raw": "Sep 17 10:30:00 192.0.2.200 1 1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "unrelated syslog containing embedded Meraki tokens",
+    "raw": "2026-09-17T10:30:00Z server envoy-access: POST /api?message=1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.eventType",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted field cannot forge remote peer",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg='ordinary src=198.51.100.8 dst=192.0.2.7'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "AMP missing hash event-one",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.malwareGroupingKey": "event-one",
+      "log.malwareGroupingType": "event"
+    },
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ],
+    "id": "event-one"
+  },
+  {
+    "name": "AMP missing hash event-two",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.malwareGroupingKey": "event-two",
+      "log.malwareGroupingType": "event"
+    },
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ],
+    "id": "event-two"
+  },
+  {
+    "name": "AMP missing hash and ingress ID",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "log.malwareGroupingKey"
+    ],
+    "matches": [],
+    "id": ""
+  },
+  {
+    "name": "AMP validated hash grouping",
+    "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.malwareGroupingKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "log.malwareGroupingType": "hash",
+      "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "absent": [],
+    "matches": [
+      "advanced_malware_protection_alerts"
+    ]
+  },
+  {
+    "name": "security payload cannot forge AMP class",
+    "raw": "1720051237.124589040 LAB-MX security_event ids_alerted priority=3 name='text security_filtering_file_scanned disposition=malicious sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa action=block'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.alertType": "ids_alerted"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "event payload cannot forge AirMarshal class",
+    "raw": "1720051237.124589040 LAB-MX events type=ordinary msg='text airmarshal_events type=rogue_ssid_detected bssid=02:00:00:00:00:01'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.eventType": "events",
+      "log.type": "ordinary"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ordinary message cannot manufacture DHCP success",
+    "raw": "1720051237.124589040 LAB-MX events type=ordinary msg='dhcp lease of ip 192.0.2.9'",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "URL request positive",
+    "raw": "1720051237.124589040 LAB-MX urls src=192.0.2.8:63735 dst=198.51.100.9:80 mac=02:00:00:00:00:08 request: GET https://app.example.invalid/a?q=b",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "target.url": "https://app.example.invalid/a?q=b",
+      "log.method": "GET"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN connectivity up",
+    "raw": "1720051237.124589040 LAB-MX events type=vpn_connectivity_change vpn_type='site-to-site' peer_contact='198.51.100.9:51856' peer_ident='synthetic-peer' connectivity='true'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "origin.port": 51856,
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "VPN connectivity down",
+    "raw": "1720051237.124589040 LAB-MX events type=vpn_connectivity_change vpn_type='site-to-site' peer_contact='198.51.100.9:51856' peer_ident='synthetic-peer' connectivity='false'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.9"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "DHCP no offers",
+    "raw": "1720051237.124589040 LAB-MX events dhcp no offers for mac 02:00:00:00:00:08 host = 192.0.2.8",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "origin.mac": "02:00:00:00:00:08"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "DHCP lease",
+    "raw": "1720051237.124589040 LAB-MX events dhcp lease of ip 192.0.2.8 from server mac 02:00:00:00:00:09 for client mac 02:00:00:00:00:08 from router 192.0.2.1 on subnet 255.255.255.0 with dns 192.0.2.53, 198.51.100.53",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "origin.mac": "02:00:00:00:00:08",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Cellular up",
+    "raw": "1720051237.124589040 LAB-MX events Cellular connection up",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.connectionState": "up",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Cellular down",
+    "raw": "1720051237.124589040 LAB-MX events Cellular connection down",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.connectionState": "down"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "STP interface blocked",
+    "raw": "1720051237.124589040 LAB-MX events Port 5 received an STP BPDU from 02:00:00:00:00:09 so the port was blocked",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.switchPort": "5",
+      "origin.mac": "02:00:00:00:00:09",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native MR disassociation source",
+    "raw": "1720051237.124589040 LAB-MX events type=disassociation ip_resp='1.597000' ip_src='192.0.2.8'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "log.ipResp": "1.597000"
+    },
+    "absent": [
+      "log.ipResp.geolocation"
+    ],
+    "matches": []
+  },
+  {
+    "name": "VPN quoted payload cannot supply peer or outcome",
+    "raw": "1720051237.124589040 LAB-MX events type=vpn_connectivity_change msg=\"type=vpn_connectivity_change vpn_type='site-to-site'peer_contact='198.51.100.66:443'peer_ident='x'connectivity='true'\"",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "disassociation quoted names cannot supply success",
+    "raw": "1720051237.124589040 LAB-MX events type=disassociation msg=\"radio='0' vap='1' channel='6' auth_neg_dur='1' last_auth_ago='1'\"",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult",
+      "log.radio",
+      "log.channel"
+    ],
+    "matches": []
+  },
+  {
+    "name": "disassociation complete metadata remains vendor",
+    "raw": "1720051237.124589040 LAB-MX events type=disassociation radio='0' vap='1' channel='6' reason='8' instigator='2' duration='11979.728000' auth_neg_dur='24000' last_auth_ago='5.074000' is_wpa='1' full_conn='1.597000' ip_resp='1.597000' ip_src='192.0.2.8' arp_resp='1.265000' arp_src='192.0.2.8' dns_server='192.0.2.53' dns_req_rtt='35000' dns_resp='1.316000' aid='1813578850'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "log.radio": "0",
+      "log.channel": "6",
+      "log.authNegDur": "24000",
+      "log.lastAuthAgo": "5.074000",
+      "log.ipResp": "1.597000",
+      "log.dnsServer": "192.0.2.53"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "embedded legacy header cannot reclassify application data",
+    "raw": "application data=\"Sep 17 2026 12:00:00192.0.2.44:1720051237.124589040LAB-MX flowssrc=192.0.2.8dst=198.51.100.9protocol=udp sport=55719dport=53pattern:allow all\"",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.eventType",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "leading legacy header literal compatibility",
+    "raw": "Sep 17 2026 12:00:00192.0.2.44:1720051237.124589040LAB-MX flowssrc=192.0.2.8dst=198.51.100.9protocol=udp sport=55719dport=53pattern:allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "log.eventType": "flows",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "leading legacy PRI header literal compatibility",
+    "raw": "<134>Sep 17 2026 12:00:00192.0.2.44:1720051237.124589040LAB-MX flowssrc=192.0.2.8dst=198.51.100.9protocol=udp sport=55719dport=53pattern:allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "log.eventType": "flows",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  }
+]
