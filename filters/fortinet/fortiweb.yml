@@ -1,150 +1,449 @@
-# FortiWeb firewall module filter, version 2.0.1
-# Based on real logs provided
-# 
-# Documentations
-# 1- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/470577/introduction 
-# 2- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event 
-# 3- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/280306/how-to-interpret-fortiweb-logs 
-# 
-# Implementation
-# 1. Parsing the RAW field containing the Fortiweb firewall
-# 2. Parsing header Sylog
-# 3. Using the kv filter to parse key-value logs
-# 4. Using grok to parse kv issued fields
-
+# FortiWeb filter, version 2.1.0
+# https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/578387/header-body-fields
+# https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/445549/attack
+# KV retains other vendor fields. Authoritative fields are re-extracted with quote-aware
+# token boundaries: spaces, escaped quotes and embedded key=value text must survive.
+# Retain the existing sanitized log.* names so saved searches remain compatible.
+# Alert means detection/logging, not successful exploitation. Only explicit blocking
+# decisions set actionResult=denied. Raw decisions remain in log.action.
+# HTTP_url is a request path; HTTP_host is an untrusted header, retained in log.httphost.
+# Severity policy: Low -> info, Medium -> warning, High -> error; preserve severitylevel.
+patterns:
+  fortiwebKVPrefix: ^(?:[A-Za-z0-9_.-]+=(?:"(?:\\.|[^"\\])*"|[^\s"]*)\s+)*?
+  fortiwebKVValue: '"(?:\\.|[^"\\])*"|[^\s"]+'
 pipeline:
-  - dataTypes:
-      - firewall-fortiweb
-    steps:
-
-      #Using grok to parse priority if present
-      - grok:
-          patterns:
-            - fieldName: log.priority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.kvMessage
-              pattern: '{{.greedy}}'
-
-      #Using the kv filter with default config, usefull in key-value logs
-      - kv:
-          source: log.kvMessage
-          fieldSplit: " "
-          valueSplit: "="
-
-      # Remove fields that have issues with kv filter
-      - delete:
-          fields:
-            - log.msg
-      
-      # Using grok to parse kv issued fields
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(msg=)'
-            - fieldName: log.msg
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.kvMessage
-
-      # Using grok to remove irrelevant data
-      - grok:
-          patterns:
-            - fieldName: log.msg
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.msg
-
-      # Rename standard fields and fields out of kv result
-      - rename:
-          from:
-            - log.action
-          to: action
-      - rename:
-          from:
-            - log.dst
-          to: target.ip
-      - rename:
-          from:
-            - log.dstport
-          to: target.port
-      - rename:
-          from:
-            - log.src
-          to: origin.ip
-      - rename:
-          from:
-            - log.srcport
-          to: origin.port
-
-      - rename:
-          from:
-            - log.dest_ip
-          to: target.ip
-      - rename:
-          from:
-            - log.dest_port
-          to: target.port
-      - rename:
-          from:
-            - log.src_ip
-          to: origin.ip
-      - rename:
-          from:
-            - log.src_port
-          to: origin.port
-
-      # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: denied
-          where: exists("action") && equalsIgnoreCase("action", "Deny")
-
-      # Removing unused caracters
-      - trim:
-          function: prefix
-          substring: '<'
-          fields:
-            - log.priority
-      - trim:
-          function: suffix
-          substring: '>'
-          fields:
-            - log.priority
-
-      # Adding geolocation to origin.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: origin.ip
-            destination: origin.geolocation
-          where: exists("origin.ip")
-      
-      # Adding geolocation to target.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: target.ip
-            destination: target.geolocation
-          where: exists("target.ip")
-
-      # Removing unused fields
-      - delete:
-          fields:
-            - log.kvMessage
-            - log.irrelevant
-
-      # Keep addresses in IP fields and retain other source values under log.
-      - rename:
-          from:
-          - origin.ip
-          to: log.unparsedOriginIp
-          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
-      - rename:
-          from:
-          - target.ip
-          to: log.unparsedTargetIp
-          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
+- dataTypes:
+  - firewall-fortiweb
+  steps:
+  - grok:
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:<[0-9]+>)?(?:[A-Z][a-z]{2} +[0-9]{1,2} [0-9:]{8} [^ ]+ )?
+      - fieldName: log.kvMessage
+        pattern: '[A-Za-z0-9_.-]+=.*'
+  - grok:
+      patterns:
+      - fieldName: ''
+        pattern: ^<
+      - fieldName: log.priority
+        pattern: '[0-9]+'
+      - fieldName: ''
+        pattern: '>'
+  - kv:
+      source: log.kvMessage
+      fieldSplit: ' '
+      valueSplit: '='
+  - delete:
+      fields:
+      - log.type
+      - log.subtype
+      - log.maintype
+      - log.attacktype
+      - log.signatureid
+      - log.signaturesubclass
+      - log.signaturecveid
+      - log.severitylevel
+      - log.msg
+      - log.action
+      - log.proto
+      - log.src
+      - log.dst
+      - log.srcport
+      - log.dstport
+      - log.httpurl
+      - log.httphost
+      - log.httpmethod
+      - log.owasptop10
+      - log.owaspapitop10
+      - log.triggerpolicy
+      - log.srcip
+      - log.dstip
+      - log.destip
+      - log.destport
+      - log.fileUploadViolation
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:type)='
+      - fieldName: log.type
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:sub_type|subtype)='
+      - fieldName: log.subtype
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:main_type)='
+      - fieldName: log.maintype
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:attack_type)='
+      - fieldName: log.attacktype
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:signature_id)='
+      - fieldName: log.signatureid
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:signature_subclass)='
+      - fieldName: log.signaturesubclass
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:signature_cve_id)='
+      - fieldName: log.signaturecveid
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:severity_level)='
+      - fieldName: log.severitylevel
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:msg)='
+      - fieldName: log.msg
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:action)='
+      - fieldName: log.action
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:proto)='
+      - fieldName: log.proto
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:src|src_ip)='
+      - fieldName: log.src
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:dst|dst_ip|dest_ip)='
+      - fieldName: log.dst
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:src_port|srcport)='
+      - fieldName: log.srcport
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:dst_port|dest_port|dstport)='
+      - fieldName: log.dstport
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_url))='
+      - fieldName: log.httpurl
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_host))='
+      - fieldName: log.httphost
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_method))='
+      - fieldName: log.httpmethod
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:owasp_top10)='
+      - fieldName: log.owasptop10
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:owasp_api_top10)='
+      - fieldName: log.owaspapitop10
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?:trigger_policy)='
+      - fieldName: log.triggerpolicy
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: (?:\s|$)
+  - trim:
+      function: prefix
+      substring: '"'
+      fields:
+      - log.type
+      - log.subtype
+      - log.maintype
+      - log.attacktype
+      - log.signatureid
+      - log.signaturesubclass
+      - log.signaturecveid
+      - log.severitylevel
+      - log.msg
+      - log.action
+      - log.proto
+      - log.src
+      - log.dst
+      - log.srcport
+      - log.dstport
+      - log.httpurl
+      - log.httphost
+      - log.httpmethod
+      - log.owasptop10
+      - log.owaspapitop10
+      - log.triggerpolicy
+  - trim:
+      function: suffix
+      substring: '"'
+      fields:
+      - log.type
+      - log.subtype
+      - log.maintype
+      - log.attacktype
+      - log.signatureid
+      - log.signaturesubclass
+      - log.signaturecveid
+      - log.severitylevel
+      - log.msg
+      - log.action
+      - log.proto
+      - log.src
+      - log.dst
+      - log.srcport
+      - log.dstport
+      - log.httpurl
+      - log.httphost
+      - log.httpmethod
+      - log.owasptop10
+      - log.owaspapitop10
+      - log.triggerpolicy
+  # Keep repeated upload-policy correlation tied to classified violations.
+  - add:
+      function: string
+      params:
+        key: log.fileUploadViolation
+        value: 'true'
+      where: >-
+        ((regexMatch("log.subtype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("log.attacktype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("log.signaturesubclass", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$")) || ((equalsIgnoreCase("log.maintype", "Signature Detection") || (!exists("log.subtype") && !exists("log.attacktype"))) && regexMatch("log.msg", "(?i)\\b(file upload (?:violation|blocked|restriction)|malicious file|anti-virus|antivirus)\\b")))
+  - rename:
+      from:
+      - log.src
+      to: origin.ip
+  - rename:
+      from:
+      - log.dst
+      to: target.ip
+  - rename:
+      from:
+      - log.srcport
+      to: origin.port
+  - rename:
+      from:
+      - log.dstport
+      to: target.port
+  - grok:
+      source: log.action
+      patterns:
+      - fieldName: action
+        pattern: '{{.greedy}}'
+      where: exists("log.action")
+  - add:
+      function: string
+      params:
+        key: action
+        value: http_request
+      where: equalsIgnoreCase("log.type", "attack") || equalsIgnoreCase("log.type", "traffic")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: regexMatch("log.action", "(?i)^(deny|denied|alert_deny|block|blocked|period_block)$")
+  - add:
+      function: string
+      params:
+        key: protocol
+        value: tcp
+      where: regexMatch("log.proto", "(?i)^(tcp|6)$")
+  - add:
+      function: string
+      params:
+        key: protocol
+        value: udp
+      where: regexMatch("log.proto", "(?i)^(udp|17)$")
+  - add:
+      function: string
+      params:
+        key: protocol
+        value: icmp
+      where: regexMatch("log.proto", "(?i)^(icmp|1)$")
+  - add:
+      function: string
+      params:
+        key: protocol
+        value: icmpv6
+      where: regexMatch("log.proto", "(?i)^(icmpv6|ipv6-icmp|58)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: regexMatch("log.severitylevel", "(?i)^(low|information|informational|info)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: regexMatch("log.severitylevel", "(?i)^(medium|warning)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: regexMatch("log.severitylevel", "(?i)^(high|error)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: regexMatch("log.severitylevel", "(?i)^(critical)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: debug
+      where: regexMatch("log.severitylevel", "(?i)^(debug)$")
+  - grok:
+      source: log.httpurl
+      patterns:
+      - fieldName: target.path
+        pattern: '{{.greedy}}'
+      where: startsWith("log.httpurl", "/")
+  - grok:
+      source: log.httpurl
+      patterns:
+      - fieldName: target.url
+        pattern: '{{.greedy}}'
+      where: regexMatch("log.httpurl", "(?i)^https?://")
+  - rename:
+      from:
+      - origin.port
+      to: log.unparsedOriginPort
+      where: exists("origin.port") && !(regexMatch("origin.port", "^[0-9]{1,5}$") && lessOrEqual("origin.port",
+        65535))
+  - rename:
+      from:
+      - origin.ip
+      to: log.unparsedOriginIp
+      where: exists("origin.ip") && (!(inCIDR("origin.ip", "0.0.0.0/0") || inCIDR("origin.ip", "::/0")) || oneOf("origin.ip",
+        ["0.0.0.0", "::"]))
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - rename:
+      from:
+      - target.port
+      to: log.unparsedTargetPort
+      where: exists("target.port") && !(regexMatch("target.port", "^[0-9]{1,5}$") && lessOrEqual("target.port",
+        65535))
+  - rename:
+      from:
+      - target.ip
+      to: log.unparsedTargetIp
+      where: exists("target.ip") && (!(inCIDR("target.ip", "0.0.0.0/0") || inCIDR("target.ip", "::/0")) || oneOf("target.ip",
+        ["0.0.0.0", "::"]))
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: target.ip
+        destination: target.geolocation
+      where: exists("target.ip")
+  - delete:
+      fields:
+      - log.kvMessage
