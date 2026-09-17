@@ -405,7 +405,7 @@ jobs:
           provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
-            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
+            BASE_IMAGE=ghcr.io/utmstack/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
 
   build_backend:
     name: Build Backend Microservice
