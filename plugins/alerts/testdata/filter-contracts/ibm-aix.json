@@ -1,0 +1,50 @@
+{
+  "technology": "IBM AIX",
+  "filters": [
+    "filters/ibm/ibm_aix.yml"
+  ],
+  "rules": [
+    "rules/ibm/ibm_aix/aix_cron_persistence.yml",
+    "rules/ibm/ibm_aix/aix_hmc_access.yml",
+    "rules/ibm/ibm_aix/aix_nim_abuse.yml",
+    "rules/ibm/ibm_aix/aix_rootkit_detection.yml",
+    "rules/ibm/ibm_aix/aix_ssh_key_manipulation.yml",
+    "rules/ibm/ibm_aix/intrusion_detection_events.yml",
+    "rules/ibm/ibm_aix/security_audit_subsystem_alerts.yml",
+    "rules/ibm/ibm_aix/system_integrity_violations.yml",
+    "rules/ibm/ibm_aix/trusted_computing_base_events.yml",
+    "rules/ibm/ibm_aix/trusted_execution_violations.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "ibm_valid_source_ip",
+      "filter": "ibm/ibm_aix.yml",
+      "input": {
+        "origin": {
+          "ip": "2001:db8::7"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::7"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "ibm_hostname_not_ip",
+      "filter": "ibm/ibm_aix.yml",
+      "input": {
+        "origin": {
+          "ip": "lab-host"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "lab-host"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    }
+  ]
+}
