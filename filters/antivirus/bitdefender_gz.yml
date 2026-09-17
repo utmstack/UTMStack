@@ -1199,13 +1199,15 @@ pipeline:
       patterns:
       - fieldName: target.host
         pattern: (?s)^.+$
-      where: exists("log.dvchost") && !oneOf("log.dvchost",["","-","unknown"])
+      where: (exists("log.dvchost") && !oneOf("log.dvchost",["","-","unknown"])) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.BitdefenderGZComputerFQDN
       patterns:
       - fieldName: target.domain
         pattern: (?s)^.+$
-      where: exists("log.BitdefenderGZComputerFQDN") && !oneOf("log.BitdefenderGZComputerFQDN",["","-","unknown"])
+      where: (exists("log.BitdefenderGZComputerFQDN") && !oneOf("log.BitdefenderGZComputerFQDN",["","-","unknown"])) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.deviceExternalId
       patterns:
@@ -1231,11 +1233,11 @@ pipeline:
         value: endpoint-id
       where: exists("log.endpointKey") && !exists("log.endpointKeyType")
   - grok:
-      source: target.host
+      source: log.dvchost
       patterns:
       - fieldName: log.endpointKey
         pattern: (?s)^.+$
-      where: exists("target.host") && !oneOf("target.host",["","-","unknown"]) && !exists("log.endpointKey")
+      where: exists("log.dvchost") && !oneOf("log.dvchost",["","-","unknown"]) && !exists("log.endpointKey")
   - add:
       function: string
       params:
@@ -1243,11 +1245,12 @@ pipeline:
         value: host
       where: exists("log.endpointKey") && !exists("log.endpointKeyType")
   - grok:
-      source: target.ip
+      source: log.dvc
       patterns:
       - fieldName: log.endpointKey
         pattern: (?s)^.+$
-      where: exists("target.ip") && !oneOf("target.ip",["","-","unknown"]) && !exists("log.endpointKey")
+      where: '!exists("log.endpointKey") && (inCIDR("log.dvc","0.0.0.0/0") || inCIDR("log.dvc","::/0")) && !inCIDR("log.dvc","0.0.0.0/32")
+        && !inCIDR("log.dvc","::/128")'
   - add:
       function: string
       params:
@@ -1259,7 +1262,8 @@ pipeline:
       patterns:
       - fieldName: target.user
         pattern: (?s)^.+$
-      where: regexMatch("log.suser","^[^\\\\\\r\\n]+$") && !equals("log.BitdefenderGZModule","task-status")
+      where: (regexMatch("log.suser","^[^\\\\\\r\\n]+$") && !equals("log.BitdefenderGZModule","task-status")) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.suser
       patterns:
@@ -1277,7 +1281,8 @@ pipeline:
       patterns:
       - fieldName: target.user
         pattern: (?s)^.+$
-      where: '!equals("log.BitdefenderGZModule","task-status") && !exists("target.user") && exists("log.suid") && !oneOf("log.suid",["","-"])'
+      where: (!equals("log.BitdefenderGZModule","task-status") && !exists("target.user") && exists("log.suid") && !oneOf("log.suid",["","-"]))
+        && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.BitdefenderGZMalwareName
       patterns:
@@ -1297,6 +1302,7 @@ pipeline:
         pattern: ^(?:.*[/\\])?
       - fieldName: target.process
         pattern: '[^/\\\r\n]+$'
+      where: (true) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.filePath
       patterns:
@@ -1304,19 +1310,22 @@ pipeline:
         pattern: ^(?:.*[/\\])?
       - fieldName: target.process
         pattern: '[^/\\\r\n]+$'
-      where: equals("log.BitdefenderGZModule","avc") && !exists("target.process")
+      where: (equals("log.BitdefenderGZModule","avc") && !exists("target.process")) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.BitdefenderGZProcessCommandLine
       patterns:
       - fieldName: target.command
         pattern: (?s)^.+$
-      where: regexMatch("log.BitdefenderGZProcessCommandLine","^[^\\\\\\r\\n]+$")
+      where: (regexMatch("log.BitdefenderGZProcessCommandLine","^[^\\\\\\r\\n]+$")) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.fname
       patterns:
       - fieldName: target.filename
         pattern: (?s)^.+$
-      where: regexMatch("log.fname","^[^\\\\\\r\\n]+$")
+      where: (regexMatch("log.fname","^[^\\\\\\r\\n]+$")) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip")
+        && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.filePath
       patterns:
@@ -1324,7 +1333,8 @@ pipeline:
         pattern: ^.*[/\\]
       - fieldName: target.filename
         pattern: '[^/\\\r\n]+$'
-      where: '!exists("target.filename")'
+      where: (!exists("target.filename")) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip") && safe("log.dvc","")
+        == safe("target.ip","")))
   - grok:
       source: log.filePath
       patterns:
@@ -1332,25 +1342,29 @@ pipeline:
         pattern: ^/.*/
       - fieldName: ''
         pattern: '[^/]+$'
-      where: regexMatch("log.filePath","^[^\\\\\\r\\n]+$")
+      where: (regexMatch("log.filePath","^[^\\\\\\r\\n]+$")) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip")
+        && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.BitdefenderGZMalwareHash
       patterns:
       - fieldName: target.sha256
         pattern: (?s)^.+$
-      where: regexMatch("log.BitdefenderGZMalwareHash","^[0-9A-Fa-f]{64}$")
+      where: (regexMatch("log.BitdefenderGZMalwareHash","^[0-9A-Fa-f]{64}$")) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.BitdefenderGZFileHashSha256
       patterns:
       - fieldName: target.sha256
         pattern: (?s)^.+$
-      where: regexMatch("log.BitdefenderGZFileHashSha256","^[0-9A-Fa-f]{64}$")
+      where: (regexMatch("log.BitdefenderGZFileHashSha256","^[0-9A-Fa-f]{64}$")) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.fileHash
       patterns:
       - fieldName: target.md5
         pattern: (?s)^.+$
-      where: regexMatch("log.fileHash","^[0-9A-Fa-f]{32}$")
+      where: (regexMatch("log.fileHash","^[0-9A-Fa-f]{32}$")) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip")
+        && safe("log.dvc","") == safe("target.ip","")))
   - grok:
       source: log.request
       patterns:
@@ -1372,8 +1386,9 @@ pipeline:
       patterns:
       - fieldName: target.port
         pattern: (?s)^.+$
-      where: equals("log.BitdefenderGZModule","network-monitor") && regexMatch("log.BitdefenderGZDetectionLocalPort","^[0-9]+$") &&
-        greaterThan("log.BitdefenderGZDetectionLocalPort",0) && lessOrEqual("log.BitdefenderGZDetectionLocalPort",65535)
+      where: (equals("log.BitdefenderGZModule","network-monitor") && regexMatch("log.BitdefenderGZDetectionLocalPort","^[0-9]+$") &&
+        greaterThan("log.BitdefenderGZDetectionLocalPort",0) && lessOrEqual("log.BitdefenderGZDetectionLocalPort",65535)) && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
   - cast:
       fields:
       - target.port
@@ -1494,6 +1509,34 @@ pipeline:
         value: critical
       where: (greaterOrEqual("log.cefSeverity",9) && lessOrEqual("log.cefSeverity",10)) || oneOf("log.cefSeverity",["Very-High","Very
         High","very-high"])
+  - grok:
+      source: log.dvchost
+      patterns:
+      - fieldName: origin.host
+        pattern: (?s)^.+$
+      where: equals("log.BitdefenderGZModule","network-monitor") && exists("origin.ip") && safe("log.dvc","") == safe("origin.ip","")
+        && !exists("origin.host") && !oneOf("log.dvchost",["","-"])
+  - grok:
+      source: log.BitdefenderGZComputerFQDN
+      patterns:
+      - fieldName: origin.domain
+        pattern: (?s)^.+$
+      where: equals("log.BitdefenderGZModule","network-monitor") && exists("origin.ip") && safe("log.dvc","") == safe("origin.ip","")
+        && !exists("origin.domain") && !oneOf("log.BitdefenderGZComputerFQDN",["","-"])
+  - grok:
+      source: log.suser
+      patterns:
+      - fieldName: origin.user
+        pattern: (?s)^.+$
+      where: equals("log.BitdefenderGZModule","network-monitor") && exists("origin.ip") && safe("log.dvc","") == safe("origin.ip","")
+        && !exists("origin.user") && !oneOf("log.suser",["","-"]) && regexMatch("log.suser","^[^\\\\\\r\\n]+$")
+  - grok:
+      source: log.suid
+      patterns:
+      - fieldName: origin.user
+        pattern: (?s)^.+$
+      where: equals("log.BitdefenderGZModule","network-monitor") && exists("origin.ip") && safe("log.dvc","") == safe("origin.ip","")
+        && !exists("origin.user") && !oneOf("log.suid",["","-"])
   - dynamic:
       plugin: com.utmstack.geolocation
       params:

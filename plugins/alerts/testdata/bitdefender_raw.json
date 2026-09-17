@@ -345,12 +345,13 @@
   {
     "name": "network physical roles",
     "dataSource": "collector-test",
-    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.12 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.10 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
     "expected": {
       "origin.ip": "198.51.100.9",
-      "target.ip": "192.0.2.12",
+      "target.ip": "192.0.2.10",
       "target.port": 443,
-      "actionResult": "denied"
+      "actionResult": "denied",
+      "target.host": "workstation-test"
     },
     "absent": [],
     "matches": [
@@ -887,5 +888,60 @@
       "origin.url"
     ],
     "matches": []
+  },
+  {
+    "name": "network other victim has no reporter identity",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.12 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "expected": {
+      "target.ip": "192.0.2.12",
+      "origin.ip": "198.51.100.9",
+      "log.endpointKey": "endpoint-test"
+    },
+    "absent": [
+      "target.host",
+      "target.domain",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
+  },
+  {
+    "name": "managed endpoint is network attacker",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=198.51.100.9 dvchost=workstation-test BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.10 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block suser=analyst BitdefenderGZComputerFQDN=workstation.example.test",
+    "expected": {
+      "origin.host": "workstation-test",
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.10",
+      "origin.user": "analyst",
+      "origin.domain": "workstation.example.test"
+    },
+    "absent": [
+      "target.host",
+      "target.domain",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
+  },
+  {
+    "name": "network identity fallback is managed reporter",
+    "dataSource": "collector-test",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|network-monitor|9|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test dvc=192.0.2.10 BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.12 BitdefenderGZDetectionLocalPort=443 BitdefenderGZMainAction=block",
+    "expected": {
+      "log.endpointKey": "192.0.2.10",
+      "log.endpointKeyType": "ip",
+      "target.ip": "192.0.2.12"
+    },
+    "absent": [
+      "target.host",
+      "target.port"
+    ],
+    "matches": [
+      "network_threat_detection"
+    ]
   }
 ]

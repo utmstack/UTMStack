@@ -15,7 +15,10 @@ review input. No customer configuration, production deployment or merge is inclu
   text cannot invent addresses, actions or classifications. Re-read the protected raw
   header after generic KV parsing so extension keys cannot overwrite its event/severity.
 - Validate original IP fields before promotion and reject equivalent zero-address forms.
-  `dvc` is the managed endpoint. Explicit Network Attack Defense attacker/victim fields
+  `dvc` is the managed endpoint. Device host/domain/user fields follow a matching
+  physical side when a Network Attack Defense record names a different attacker or
+  victim; they are not attached to an unrelated victim IP. A local port is mapped only
+  when the managed endpoint is the victim. Explicit Network Attack Defense attacker/victim fields
   and firewall source fields retain their documented roles. Three sampled incident
   `src` values had displaced the managed endpoint. Their exact CEF roles, and those of
   `spt`, are not established by the available mapping documentation; retain them under
@@ -62,7 +65,7 @@ identity, with vendor/indicator details where available.
 
 ## Validation and limits
 
-- 77 public synthetic CEF fixtures exercise native and bounded syslog envelopes, all
+- 80 public synthetic CEF fixtures exercise native and bounded syslog envelopes, all
   consumers, escaping, header/marker injection controls, endpoint roles, original IP
   guards, namespaces, hashes, ports, timestamps and benign controls.
 - Actual SDK CEL, configuration/Event/Alert serialization and placeholder handling are
