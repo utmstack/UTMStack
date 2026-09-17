@@ -1,0 +1,177 @@
+{
+  "technology": "Windows",
+  "filters": [
+    "filters/windows/windows-events.yml"
+  ],
+  "rules": [
+    "rules/windows/adfs_authentication_anomalies.yml",
+    "rules/windows/adminsdholder_abuse.yml",
+    "rules/windows/asrep_roasting_detection.yml",
+    "rules/windows/audit_log_was_cleared.yml",
+    "rules/windows/audit_or_event_log_tampering.yml",
+    "rules/windows/bruteforce_attack.yml",
+    "rules/windows/bruteforce_multiple_logon_failure_followed_by_success.yml",
+    "rules/windows/certificate_services_abuse.yml",
+    "rules/windows/credential_dumping_tool_indicators.yml",
+    "rules/windows/golden_ticket_detection.yml",
+    "rules/windows/kerberoasting_detection.yml",
+    "rules/windows/lolbin_proxy_execution.yml",
+    "rules/windows/lsass_memdump_handle_access.yml",
+    "rules/windows/masquerading_detection.yml",
+    "rules/windows/ntds_extraction_attempts.yml",
+    "rules/windows/ntlm_downgrade_attack.yml",
+    "rules/windows/office_application_spawned_shell.yml",
+    "rules/windows/possible_exploit_over_reverse_tunneling_using_stolen_credentials.yml",
+    "rules/windows/possible_remote_code_execution_using_printernightmare.yml",
+    "rules/windows/powershell_profiles.yml",
+    "rules/windows/printspooler_service_suspicious_file.yml",
+    "rules/windows/printspooler_suspicious_spl_file.yml",
+    "rules/windows/ransom_inhibit_system_recovery.yml",
+    "rules/windows/ransom_multiple_file_deletion.yml",
+    "rules/windows/ransom_note_creation.yml",
+    "rules/windows/ransom_unusual_file_extension.yml",
+    "rules/windows/remote_file_copy_desktopimgdownldr.yml",
+    "rules/windows/sam_database_access.yml",
+    "rules/windows/sid_history_injection.yml",
+    "rules/windows/silver_ticket_detection.yml",
+    "rules/windows/smbv1_usage_detection.yml",
+    "rules/windows/suspicious_event_as_the_binary_may_have_been_dropped_using_windows_dmin_shares.yml",
+    "rules/windows/suspicious_powershell_obfuscation.yml",
+    "rules/windows/suspicious_scheduled_task_created.yml",
+    "rules/windows/uac_bypass_dll_sideloading.yml",
+    "rules/windows/unusual_dns_service_file_writes.yml",
+    "rules/windows/unusual_process_network_connection.yml",
+    "rules/windows/windows_remote_management_abuse.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Windows account operation 4725",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4725
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows account operation 4726",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4726
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows account operation 4740",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4740
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows NTLM status 0",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4776,
+          "data": {
+            "Status": "0"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows NTLM status 0x0",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4776,
+          "data": {
+            "Status": "0x0"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows NTLM status 0x00000000",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4776,
+          "data": {
+            "Status": "0x00000000"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows NTLM status 0xC000006A",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "eventCode": 4776,
+          "data": {
+            "Status": "0xC000006A"
+          }
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows missing IP placeholder",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "log": {
+          "data": {
+            "IpAddress": "-",
+            "TargetUserName": "-"
+          }
+        }
+      },
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "target.user",
+        "origin.user"
+      ],
+      "rules": {}
+    }
+  ]
+}

@@ -32,6 +32,6 @@ afterEvents:
       within: 5m
       count: 10
 deduplicateBy:
-  - origin.host
+  - adversary.host
   - target.user
-  - origin.ip
+  - adversary.ip
