@@ -14,7 +14,7 @@ references:
   - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
   - https://attack.mitre.org/techniques/T1200/
 description: |
-  Detects when a rogue SSID is identified in the wireless environment. This could indicate an evil twin attack or unauthorized access point deployment attempting to intercept wireless traffic or credentials.
+  Detects the legacy Air Marshal rogue SSID event, indicating an access point detected on the wired LAN. A rogue SSID does not by itself establish corporate SSID spoofing; the separate spoofing event is used for Evil Twin detection.
 
   Next Steps:
   1. Immediately investigate the rogue access point's physical location using the MAC address
@@ -25,10 +25,9 @@ description: |
   6. Update wireless intrusion detection policies if needed
   7. Notify security team and facilities management for potential physical security breach
 where: |
-  equals("log.eventType", "rogue_ssid_detected") || 
-  (equals("log.type", "airmarshal_events") && 
-   equals("log.subtype", "rogue_ssid_detected")) ||
-  (contains("log.message", "rogue") && 
-   contains("log.message", "SSID"))
+  equals("log.eventType", "airmarshal_events") &&
+  equals("log.type", "rogue_ssid_detected")
 groupBy:
-  - adversary.mac
+  - lastEvent.dataSource
+  - lastEvent.log.merakiType
+  - lastEvent.log.bssid
