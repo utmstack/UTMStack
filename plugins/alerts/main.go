@@ -11,7 +11,6 @@ import (
 	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-	"github.com/tidwall/gjson"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -132,8 +131,8 @@ func isDuplicate(alert *plugins.Alert) bool {
 	for _, d := range alert.DeduplicateBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
-		value := gjson.Get(*alertString, d)
-		if value.Type == gjson.Null {
+		value, ok := scalarGroupingValue(alertGroupingValue(*alertString, d))
+		if !ok {
 			continue
 		}
 
@@ -147,13 +146,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 			return ""
 		})
 
-		if value.Type == gjson.String {
-			bb.FilterTerm(searchField, value.String())
-		} else if value.Type == gjson.Number {
-			bb.FilterTerm(searchField, value.Float())
-		} else if value.IsBool() {
-			bb.FilterTerm(searchField, value.Bool())
-		}
+		bb.FilterTerm(searchField, value)
 	}
 
 	if !execute {
@@ -228,8 +221,8 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	for _, d := range alert.GroupBy {
 		d = strings.TrimSuffix(d, ".keyword")
 
-		value := gjson.Get(*alertString, d)
-		if value.Type == gjson.Null {
+		value, ok := scalarGroupingValue(alertGroupingValue(*alertString, d))
+		if !ok {
 			continue
 		}
 
@@ -243,13 +236,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 			return ""
 		})
 
-		if value.Type == gjson.String {
-			bb.FilterTerm(searchField, value.String())
-		} else if value.Type == gjson.Number {
-			bb.FilterTerm(searchField, value.Float())
-		} else if value.IsBool() {
-			bb.FilterTerm(searchField, value.Bool())
-		}
+		bb.FilterTerm(searchField, value)
 	}
 
 	if !execute {

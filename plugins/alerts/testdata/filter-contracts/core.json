@@ -1,0 +1,20 @@
+{
+  "technology": "UTMStack shared contract runner",
+  "filters": [
+    "filters/utmstack/utmstack.yml"
+  ],
+  "rules": [],
+  "fixtures": [
+    {
+      "name": "core_unstructured_message",
+      "filter": "utmstack/utmstack.yml",
+      "input": {
+        "raw": "internal test event"
+      },
+      "expected": {
+        "raw": "internal test event",
+        "log.message": "internal test event"
+      }
+    }
+  ]
+}
