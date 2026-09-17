@@ -1,0 +1,48 @@
+{
+  "technology": "IBM i / AS400",
+  "filters": [
+    "filters/ibm/ibm_as_400.yml"
+  ],
+  "rules": [
+    "rules/ibm/ibm_as_400/as400_audit_journal_disable.yml",
+    "rules/ibm/ibm_as_400/as400_exit_point_tampering.yml",
+    "rules/ibm/ibm_as_400/as400_ifs_access.yml",
+    "rules/ibm/ibm_as_400/as400_job_queue_manipulation.yml",
+    "rules/ibm/ibm_as_400/as400_library_list_manipulation.yml",
+    "rules/ibm/ibm_as_400/as400_program_adopt_abuse.yml",
+    "rules/ibm/ibm_as_400/as400_remote_command.yml",
+    "rules/ibm/ibm_as_400/as400_sql_injection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "ibm_valid_source_ip",
+      "filter": "ibm/ibm_as_400.yml",
+      "input": {
+        "origin": {
+          "ip": "2001:db8::7"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::7"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "ibm_hostname_not_ip",
+      "filter": "ibm/ibm_as_400.yml",
+      "input": {
+        "origin": {
+          "ip": "lab-host"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "lab-host"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    }
+  ]
+}
