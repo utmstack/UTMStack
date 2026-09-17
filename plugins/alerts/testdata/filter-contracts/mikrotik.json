@@ -1,0 +1,58 @@
+{
+  "technology": "MikroTik",
+  "filters": [
+    "filters/mikrotik/mikrotik-fw.yml"
+  ],
+  "rules": [
+    "rules/mikrotik/mikrotik_fw/dns_cache_poisoning.yml",
+    "rules/mikrotik/mikrotik_fw/mikrotik_dns_redirection.yml",
+    "rules/mikrotik/mikrotik_fw/mikrotik_socks_proxy.yml",
+    "rules/mikrotik/mikrotik_fw/mikrotik_user_creation.yml",
+    "rules/mikrotik/mikrotik_fw/routeros_brute_force_attempts.yml",
+    "rules/mikrotik/mikrotik_fw/ssh_brute_force_attempts.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "mikrotik_valid_source_ip",
+      "filter": "mikrotik/mikrotik-fw.yml",
+      "input": {
+        "origin": {
+          "ip": "2001:db8::7"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::7"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "mikrotik_hostname_not_ip",
+      "filter": "mikrotik/mikrotik-fw.yml",
+      "input": {
+        "origin": {
+          "ip": "lab-host"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "lab-host"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "mikrotik_numeric_protocol",
+      "filter": "mikrotik/mikrotik-fw.yml",
+      "input": {
+        "protocol": 6
+      },
+      "expected": {
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
