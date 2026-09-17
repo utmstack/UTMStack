@@ -343,6 +343,12 @@ pipeline:
           from:
             - log.event.LocalIP
           to: origin.ip
+          where: '!exists("origin.ip")'
+
+      - rename:
+          from:
+            - log.event.LocalIP
+          to: log.eventLocalIP
           
       - rename:
           from:
@@ -680,8 +686,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("log.eventSuccess") && oneOf("log.eventSuccess", [false, "false"])'
+            value: failure
+          where: exists("log.eventSuccess") && oneOf("log.eventSuccess", [false, "false"])
       - add:
           function: string
           params:
@@ -692,8 +698,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("statusCode") && greaterOrEqual("statusCode", 400)'
+            value: failure
+          where: exists("statusCode") && greaterOrEqual("statusCode", 400)
 
       # .......................................................................#
       # Normalizing request method and renaming to action
@@ -742,3 +748,15 @@ pipeline:
             - log.event.UserIp
             - log.event.Attributes.user_ip
             - log.event.Attributes.action_target_name
+
+      # Keep addresses in IP fields and retain other source values under log.
+      - rename:
+          from:
+          - origin.ip
+          to: log.unparsedOriginIp
+          where: exists("origin.ip") && (!(inCIDR("origin.ip","0.0.0.0/0") || inCIDR("origin.ip","::/0")) || oneOf("origin.ip",["0.0.0.0","::"]))
+      - rename:
+          from:
+          - target.ip
+          to: log.unparsedTargetIp
+          where: exists("target.ip") && (!(inCIDR("target.ip","0.0.0.0/0") || inCIDR("target.ip","::/0")) || oneOf("target.ip",["0.0.0.0","::"]))
