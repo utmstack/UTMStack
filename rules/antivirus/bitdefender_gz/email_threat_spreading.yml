@@ -1,38 +1,30 @@
-# Rule version v2.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Bitdefender GravityZone Malware Detected on Exchange Server
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Exchange Malware Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Initial Access
-technique: "T1566.001 - Phishing: Spearphishing Attachment"
+technique: 'T1566.001 - Phishing: Spearphishing Attachment'
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1566/001/
-description: |
-  Detects malware found by Bitdefender on an Exchange server. A mail server detection is more urgent than the same malware on a workstation for two reasons: the message may already have been delivered to other recipients, and a mail server is a high-value target whose compromise exposes the organisation's correspondence.
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1566/001/
+description: 'The Exchange antimalware module reports a detection. Determine whether the affected object was quarantined, removed, blocked
+  or delivered using the original vendor details and mail-system records. A matching endpoint hash is a correlation lead, not proof
+  that a specific user opened a message. Investigate affected messages and recipients before choosing containment.
 
-  Next Steps:
-  1. Determine the blast radius before cleaning anything:
-     - Identify the message and every recipient it reached, not just the one that triggered the detection
-     - A single detection on the server usually means the same attachment sits in several mailboxes
-  2. Check whether the message was delivered or quarantined at the gateway - actionResult tells you whether Bitdefender stopped it
-  3. Pull the message back from every mailbox it reached before notifying users, so nobody opens it while you are still working
-  4. Identify who already opened it:
-     - Correlate endpoint AntiMalware detections for the same target.sha256 across the estate
-     - Any endpoint that reported the same hash is a confirmed opener and needs its own investigation
-  5. Look at the sender and the campaign:
-     - A spoofed internal sender means someone's mailbox is already compromised
-     - Check whether other messages from the same source reached the organisation
-  6. Review the Exchange server itself - a detection on the server is a reason to verify the server's own integrity, not only the message
-  7. Feed the sender, subject and hash into mail gateway blocking before closing
-where: |
-  equals("log.BitdefenderGZModule", "exchange-malware")
+  '
+where: 'equals("log.BitdefenderGZModule", "exchange-malware")
+
+  '
 groupBy:
-  - target.host
-  - target.malware
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- target.malware
