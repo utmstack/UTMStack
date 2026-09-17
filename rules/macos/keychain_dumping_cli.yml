@@ -23,12 +23,12 @@ description: |
   5. Review the attack chain leading to keychain access
   6. Consider restricting keychain access via MDM policies
 where: |
-  (equals("log.process", "security") || contains("log.eventMessage", "security ")) &&
-  (contains("log.eventMessage", "dump-keychain") ||
-   contains("log.eventMessage", "find-generic-password") && contains("log.eventMessage", "-w") ||
-   contains("log.eventMessage", "find-internet-password") && contains("log.eventMessage", "-w") ||
-   contains("log.eventMessage", "export-keychain") ||
-   contains("log.eventMessage", "unlock-keychain") && contains("log.eventMessage", "-p"))
+  (equals("origin.process", "security") || contains("log.message", "security ")) &&
+  (contains("log.message", "dump-keychain") ||
+   contains("log.message", "find-generic-password") && contains("log.message", "-w") ||
+   contains("log.message", "find-internet-password") && contains("log.message", "-w") ||
+   contains("log.message", "export-keychain") ||
+   contains("log.message", "unlock-keychain") && contains("log.message", "-p"))
 groupBy:
   - adversary.host
   - adversary.user

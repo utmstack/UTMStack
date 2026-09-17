@@ -15,7 +15,7 @@ references:
   - https://attack.mitre.org/techniques/T1547/006/
 description: |
   Detects suspicious or unauthorized kernel extension (kext) loading attempts that could indicate rootkit installation or system compromise. This rule monitors for kext loading activities that bypass normal security protections, involve unsigned or invalid extensions, or occur in sensitive system directories.
-  
+
   Next Steps:
   1. Investigate the specific kernel extension being loaded and verify its legitimacy
   2. Check if the extension is signed by a trusted developer
@@ -26,43 +26,42 @@ description: |
   7. Review system integrity and scan for additional persistence mechanisms
 where: |
   (
-    regexMatch("log.process", ".*(kextload|kextutil|kextcache).*") &&
+    regexMatch("origin.process", ".*(kextload|kextutil|kextcache).*") &&
     (
-      contains("log.eventMessage", "load") ||
-      contains("log.eventMessage", "install")
+      contains("log.message", "load") ||
+      contains("log.message", "install")
     ) &&
     (
-      !regexMatch("log.processImagePath", ".*/System/Library/.*") ||
-      contains("log.eventMessage", "unsigned") ||
-      regexMatch("log.eventMessage", ".*invalid.*signature.*")
+      contains("log.message", "unsigned") ||
+      regexMatch("log.message", ".*invalid.*signature.*")
     )
   ) ||
   (
     equals("log.subsystem", "com.apple.kernel") &&
-    contains("log.eventMessage", "kext") &&
+    contains("log.message", "kext") &&
     (
-      regexMatch("log.eventMessage", ".*load.*failed.*") ||
-      regexMatch("log.eventMessage", ".*authentication.*error.*") ||
-      contains("log.eventMessage", "rootless")
+      regexMatch("log.message", ".*load.*failed.*") ||
+      regexMatch("log.message", ".*authentication.*error.*") ||
+      contains("log.message", "rootless")
     )
   ) ||
   (
-    equals("log.process", "kernel") &&
-    contains("log.eventMessage", "kext") &&
+    equals("origin.process", "kernel") &&
+    contains("log.message", "kext") &&
     (
-      regexMatch("log.eventMessage", ".*third.*party.*") ||
-      contains("log.eventMessage", "unsigned") ||
-      regexMatch("log.eventMessage", ".*developer.*mode.*")
+      regexMatch("log.message", ".*third.*party.*") ||
+      contains("log.message", "unsigned") ||
+      regexMatch("log.message", ".*developer.*mode.*")
     )
   ) ||
   (
-    contains("log.eventMessage", "/System/Library/Extensions") &&
-    regexMatch("log.eventMessage", ".*(modify|write|create).*") &&
-    !equals("log.process", "kextcache")
+    contains("log.message", "/System/Library/Extensions") &&
+    regexMatch("log.message", ".*(modify|write|create).*") &&
+    exists("origin.process") && !equals("origin.process", "kextcache")
   ) ||
   (
-    equals("log.process", "eslogger") &&
-    regexMatch("log.eventMessage", ".*kext.*bypass.*")
+    equals("origin.process", "eslogger") &&
+    regexMatch("log.message", ".*kext.*bypass.*")
   )
 groupBy:
   - adversary.host

@@ -22,10 +22,10 @@ description: |
   4. Remove unauthorized cron entries
   5. Check for other persistence mechanisms
 where: |
-  (contains("log.eventMessage", "crontab") || equals("log.process", "cron")) &&
-  (contains("log.eventMessage", "REPLACE") || contains("log.eventMessage", "INSTALL") ||
-   contains("log.eventMessage", "BEGIN EDIT") || contains("log.eventMessage", "END EDIT") ||
-   contains("log.eventMessage", "crontab") && contains("log.eventMessage", "modified"))
+  (contains("log.message", "crontab") || equals("origin.process", "cron")) &&
+  (contains("log.message", "REPLACE") || contains("log.message", "INSTALL") ||
+   contains("log.message", "BEGIN EDIT") || contains("log.message", "END EDIT") ||
+   contains("log.message", "crontab") && contains("log.message", "modified"))
 groupBy:
   - adversary.host
   - adversary.user

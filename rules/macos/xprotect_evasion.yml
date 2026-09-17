@@ -29,34 +29,34 @@ where: |
   (
     equals("log.subsystem", "com.apple.XProtectFramework") &&
     (
-      contains("log.eventMessage", "bypass") ||
-      contains("log.eventMessage", "evasion") ||
-      contains("log.eventMessage", "disable")
+      contains("log.message", "bypass") ||
+      contains("log.message", "evasion") ||
+      contains("log.message", "disable")
     )
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
-    regexMatch("log.eventMessage", ".*(modify|write|delete).*")
+    regexMatch("origin.path", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
+    regexMatch("log.message", ".*(modify|write|delete).*")
   ) ||
   (
-    regexMatch("log.eventMessage", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
+    regexMatch("log.message", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
     (
-      regexMatch("log.eventMessage", ".*(modify|tamper|delete).*") ||
-      !equals("log.process", "XProtectService")
+      regexMatch("log.message", ".*(modify|tamper|delete).*") ||
+      (exists("origin.process") && !equals("origin.process", "XProtectService"))
     )
   ) ||
   (
-    equals("log.process", "MRT") &&
-    (contains("log.eventMessage", "kill") || contains("log.eventMessage", "terminate") || contains("log.eventMessage", "stop"))
+    equals("origin.process", "MRT") &&
+    (contains("log.message", "kill") || contains("log.message", "terminate") || contains("log.message", "stop"))
   ) ||
   (
-    regexMatch("log.eventMessage", ".*gk\\.db.*") &&
-    regexMatch("log.eventMessage", ".*(modify|delete|truncate).*")
+    regexMatch("log.message", ".*gk\\.db.*") &&
+    regexMatch("log.message", ".*(modify|delete|truncate).*")
   ) ||
   (
     equals("log.subsystem", "com.apple.MRT") &&
-    (contains("log.eventMessage", "bypass") || contains("log.eventMessage", "disable") || contains("log.eventMessage", "fail"))
+    (contains("log.message", "bypass") || contains("log.message", "disable") || contains("log.message", "fail"))
   )
 groupBy:
-  - lastEvent.log.process
+  - adversary.process
   - adversary.host

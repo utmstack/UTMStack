@@ -24,9 +24,9 @@ description: |
   5. Reset the affected user's password immediately as a precaution
   6. Search for related osascript executions across the environment
 where: |
-  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
-  contains("log.eventMessage", "display dialog") &&
-  (contains("log.eventMessage", "hidden answer") || contains("log.eventMessage", "password"))
+  (equals("origin.process", "osascript") || contains("log.message", "osascript")) &&
+  contains("log.message", "display dialog") &&
+  (contains("log.message", "hidden answer") || contains("log.message", "password"))
 groupBy:
   - adversary.host
   - adversary.user

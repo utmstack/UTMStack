@@ -23,16 +23,20 @@ description: |
   5. Preserve evidence for forensic analysis
   6. Do not pay ransom - engage incident response team
 where: |
-  (contains("log.eventMessage", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
-   regexMatch("log.eventMessage", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
-  (contains("log.eventMessage", "rename") || contains("log.eventMessage", "modified") ||
-   contains("log.eventMessage", "write"))
+  !oneOf("dataSource", ["", "unknown"]) &&
+  (  (contains("log.message", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
+   regexMatch("log.message", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
+  (contains("log.message", "rename") || contains("log.message", "modified") ||
+   contains("log.message", "write")))
 afterEvents:
   - indexPattern: v11-log-macos-*
     with:
-      - field: origin.host
+      - field: dataSource
         operator: filter_term
-        value: '{{.origin.host}}'
+        value: '{{.dataSource}}'
+      - field: log.correlationCandidate.ransomware
+        operator: filter_term
+        value: match
     within: 10m
     count: 50
 groupBy:
