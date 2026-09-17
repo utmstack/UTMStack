@@ -153,19 +153,27 @@ func TestRawFixtureRejectsUnsupportedAddAndMultilineGrok(t *testing.T) {
 			t.Fatalf("unsupported add %q was silently accepted: %v", function, err)
 		}
 	}
-	filter := `pipeline:
+	for _, pattern := range []string{"{{.greedy}}", "(.*)", "(?s:.*)"} {
+		filter := fmt.Sprintf(`pipeline:
   - dataTypes: [fixture-json]
     steps:
       - grok:
           source: raw
-          patterns: [{fieldName: log.message, pattern: '{{.greedy}}'}]
-`
-	if err := os.WriteFile(filepath.Join(root, "filters", "fixture.yml"), []byte(filter), 0600); err != nil {
-		t.Fatal(err)
-	}
-	raw := "first line\nsecond line"
-	fixture := Fixture{Filter: "fixture.yml", Raw: &raw, DataType: "fixture-json", DataSource: "synthetic-host"}
-	if _, _, err := normalize(root, fixture, cache); err == nil || !strings.Contains(err.Error(), "multiline copy grok") {
-		t.Fatalf("multiline .* must not be treated as whole-field copy: %v", err)
+          patterns: [{fieldName: log.message, pattern: %q}]
+`, pattern)
+		if err := os.WriteFile(filepath.Join(root, "filters", "fixture.yml"), []byte(filter), 0600); err != nil {
+			t.Fatal(err)
+		}
+		for _, raw := range []string{"first line\nsecond line", "first line\r\nsecond line"} {
+			fixture := Fixture{Filter: "fixture.yml", Raw: &raw, DataType: "fixture-json", DataSource: "synthetic-host"}
+			out, _, err := normalize(root, fixture, cache)
+			if pattern == "(?s:.*)" {
+				if err != nil || gjson.Get(out, "log.message").String() != raw {
+					t.Fatalf("explicit dot-all copy must preserve the complete message: %s / %v", out, err)
+				}
+			} else if err == nil || !strings.Contains(err.Error(), "multiline copy grok") {
+				t.Fatalf("multiline %s must not be treated as whole-field copy: %v", pattern, err)
+			}
+		}
 	}
 }

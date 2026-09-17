@@ -39,8 +39,10 @@ rule predicate was tested**, which the verbose test output states explicitly.
 `dataType` and `dataSource` and selects matching pipeline stages. It decodes JSON
 objects into `log`, recursively uses `utils.SanitizeField` on JSON keys, then
 models rename/delete/cast/trim, literal `add.function: string` with SDK string
-conversion, and single-line whole-field copy captures. Multiline copies, custom
-`greedy` patterns and non-literal add functions fail explicitly. Executed
+conversion, and whole-field copy captures. Exact `(?s:.*)` captures preserve
+multiline text; `{{.greedy}}` and `(.*)` only model single-line input. Other
+multiline copies, custom `greedy` patterns and non-literal add functions fail
+explicitly. Executed
 unsupported operations fail the fixture rather than being silently skipped.
 Empty/dotted sanitized keys and sanitization collisions also fail: the closed
 executor's behavior for those ambiguous inputs is not established here.

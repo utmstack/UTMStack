@@ -4,7 +4,7 @@ package main
 // It uses the real SDK for YAML decoding, CEL evaluation and final Event conversion.
 // Synthetic-input fixtures skip complex grok, CSV, KV, JSON and dynamic plugins.
 // Opt-in raw fixtures model JSON decoding/key sanitization and reject unsupported
-// executed steps. Only one-field {{.greedy}} and (.*) copy captures are modeled.
+// executed steps. Only one-field {{.greedy}}, (.*) and (?s:.*) copy captures are modeled.
 import (
 	"encoding/json"
 	"fmt"
@@ -116,7 +116,7 @@ func normalize(root string, f Fixture, cache *plugins.CELCache) (string, []strin
 				if f.Raw == nil && (kind == "dynamic" || kind == "json" || kind == "kv" || kind == "csv" || kind == "xml" || kind == "reformat") {
 					continue
 				}
-				simpleGrok := step.Grok != nil && len(step.Grok.Patterns) == 1 && (step.Grok.Patterns[0].Pattern == "{{.greedy}}" || step.Grok.Patterns[0].Pattern == "(.*)")
+				simpleGrok := step.Grok != nil && len(step.Grok.Patterns) == 1 && (step.Grok.Patterns[0].Pattern == "{{.greedy}}" || step.Grok.Patterns[0].Pattern == "(.*)" || step.Grok.Patterns[0].Pattern == "(?s:.*)")
 				if f.Raw == nil && kind == "grok" && !simpleGrok {
 					continue
 				}
@@ -234,7 +234,7 @@ func normalize(root string, f Fixture, cache *plugins.CELCache) (string, []strin
 					}
 					if v, ok := valueAt(draft, source); ok {
 						if str, ok := v.(string); ok {
-							if f.Raw != nil && strings.ContainsAny(str, "\r\n") {
+							if f.Raw != nil && g.Patterns[0].Pattern != "(?s:.*)" && strings.ContainsAny(str, "\r\n") {
 								return "", issues, fmt.Errorf("raw model does not support multiline copy grok")
 							}
 							if f.Raw != nil && g.Patterns[0].Pattern == "{{.greedy}}" && cfg.Patterns["greedy"] != "" && cfg.Patterns["greedy"] != ".*" {
