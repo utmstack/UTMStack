@@ -1,0 +1,71 @@
+{
+  "technology": "SentinelOne",
+  "filters": [
+    "filters/antivirus/sentinel-one.yml"
+  ],
+  "rules": [
+    "rules/antivirus/sentinel-one/agent_tampering_attempts.yml",
+    "rules/antivirus/sentinel-one/ai_based_threat_hunting_alerts.yml",
+    "rules/antivirus/sentinel-one/behavioral_threat_detection.yml",
+    "rules/antivirus/sentinel-one/cloud_workload_protection_alerts.yml",
+    "rules/antivirus/sentinel-one/container_security_alerts.yml",
+    "rules/antivirus/sentinel-one/custom_detection_rule_triggers.yml",
+    "rules/antivirus/sentinel-one/deep_visibility_threat_indicators.yml",
+    "rules/antivirus/sentinel-one/endpoint_detection_response_alerts.yml",
+    "rules/antivirus/sentinel-one/iot_device_compromise_indicators.yml",
+    "rules/antivirus/sentinel-one/kernel_level_threat.yml",
+    "rules/antivirus/sentinel-one/memory_injection_detection.yml",
+    "rules/antivirus/sentinel-one/rollback_operation_patterns.yml",
+    "rules/antivirus/sentinel-one/s1_exclusion_abuse.yml",
+    "rules/antivirus/sentinel-one/s1_policy_downgrade.yml",
+    "rules/antivirus/sentinel-one/storyline_correlation.yml",
+    "rules/antivirus/sentinel-one/suspicious_process_tree.yml",
+    "rules/antivirus/sentinel-one/suspicious_script_execution.yml",
+    "rules/antivirus/sentinel-one/threat_intelligence_matches.yml",
+    "rules/antivirus/sentinel-one/threat_mitigation_failures.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "sentinel_failure_threatStatus",
+      "filter": "antivirus/sentinel-one.yml",
+      "input": {
+        "log": {
+          "threatStatus": "mitigation_failed"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "sentinel_failure_status",
+      "filter": "antivirus/sentinel-one.yml",
+      "input": {
+        "log": {
+          "status": "failed"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "sentinel_failure_mitigationStatus",
+      "filter": "antivirus/sentinel-one.yml",
+      "input": {
+        "log": {
+          "mitigationStatus": "failed"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
