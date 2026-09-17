@@ -1,0 +1,54 @@
+{
+  "technology": "FortiWeb",
+  "filters": [
+    "filters/fortinet/fortiweb.yml"
+  ],
+  "rules": [
+    "rules/fortinet/fortiweb/authentication_bypass_attempts.yml",
+    "rules/fortinet/fortiweb/file_upload_security_violations.yml",
+    "rules/fortinet/fortiweb/fortiweb_sqli_detection.yml",
+    "rules/fortinet/fortiweb/fortiweb_ssrf_detection.yml",
+    "rules/fortinet/fortiweb/fortiweb_webshell_upload.yml",
+    "rules/fortinet/fortiweb/owasp_top10_violations.yml",
+    "rules/fortinet/fortiweb/web_application_attacks_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "fortiweb_Deny",
+      "filter": "fortinet/fortiweb.yml",
+      "input": {
+        "log": {
+          "action": "Deny",
+          "src": "198.51.100.8",
+          "dst": "192.0.2.7"
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.8",
+        "target.ip": "192.0.2.7",
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "fortiweb_Alert",
+      "filter": "fortinet/fortiweb.yml",
+      "input": {
+        "log": {
+          "action": "Alert",
+          "src": "198.51.100.8",
+          "dst": "192.0.2.7"
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.8",
+        "target.ip": "192.0.2.7"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    }
+  ]
+}
