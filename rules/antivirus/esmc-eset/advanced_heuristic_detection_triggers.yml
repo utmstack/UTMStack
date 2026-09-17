@@ -11,11 +11,11 @@ category: Defense Evasion, Privilege Escalation
 technique: "T1055 - Process Injection"
 adversary: origin
 references:
-  - https://help.eset.com/eea/8/en-US/idh_config_threat_sense.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1055/
 description: |
-  Detects when ESET's advanced heuristic engine identifies suspicious behavior patterns that may indicate novel malware or zero-day threats. These detections use DNA signatures and behavioral analysis.
-  
+  Detects three antivirus heuristic detections in thirty minutes on the same managed endpoint when ESET reports an explicit cleaned, deleted, quarantined, or blocked action without an action error. Detection labels are matched in structured threat or scanner fields; remediation does not establish a successful network connection.
+
   Next Steps:
   - Review the affected hostname and user context to understand the scope
   - Check the process name (if available) that triggered the detection
@@ -29,17 +29,33 @@ description: |
   - Review system logs for any unusual activities before and after detection
   - Update ESET signatures and run a full system scan
 where: |
-  oneOf("log.msgType", ["EnterpriseInspectorAlert_Event", "threat_event", "FirewallAggregatedAlert_Event"]) &&
-  contains("log.jsonMessage", ["heuristic", "NewHeur", "suspicious behavior"]) &&
-  contains("log.jsonMessage", ["cleaned", "deleted", "quarantined", "blocked"])
+  (equals("log.eventType", "Threat_Event") &&
+  (regexMatch("log.threatname", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threattype", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scannerid", "(?i)(heuristic|newheur|suspicious behavior)")) &&
+  regexMatch("action", "(?i)^(cleaned|deleted|quarantined|blocked|denied|prevented)$") &&
+  (!exists("log.actionerror") || equals("log.actionerror", "")) &&
+  !equals("log.threathandled", false)) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
-      - field: log.headHostname
+      - field: dataSource
         operator: filter_term
-        value: '{{.log.headHostname}}'
+        value: '{{.dataSource}}'
+      - field: log.endpointKeyType
+        operator: filter_term
+        value: '{{.log.endpointKeyType}}'
+      - field: log.endpointKey
+        operator: filter_term
+        value: '{{.log.endpointKey}}'
+      - field: log.correlationCandidate.heuristicRemediation
+        operator: filter_term
+        value: 'match'
     within: 30m
     count: 3
 groupBy:
-  - lastEvent.log.headHostname
-  - lastEvent.log.msgType
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.eventType
