@@ -30,12 +30,15 @@ description: |
   7. Consider rebuilding the domain if compromise is confirmed
   8. Implement Kerberos armoring and constrained delegation
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  (
   (
     equals("log.eventCode", "4769") &&
     equals("log.channel", "Security") &&
     equals("log.eventDataServiceName", "krbtgt") &&
     !equals("log.eventDataStatus", "0") &&
-    exists("origin.ip")
+    exists("log.authenticationSource")
   ) ||
   (
     equals("log.eventCode", "4768") &&
@@ -51,14 +54,33 @@ where: |
     !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
     !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
   )
+  )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: origin.host
+      - field: dataSource.keyword
         operator: filter_term
-        value: '{{.origin.host}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationSourceType.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceType}}'
+      - field: log.authenticationSourceDomain.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceDomain}}'
+      - field: log.authenticationCandidate.goldenTicketDetection.keyword
+        operator: filter_term
+        value: match
+      - field: log.eventCode
+        operator: filter_term
+        value: '{{.log.eventCode}}'
     within: 30m
     count: 3
 groupBy:
-  - adversary.host
+  - dataSource
+  - lastEvent.log.authenticationSourceType
+  - lastEvent.log.authenticationSource
+  - lastEvent.log.authenticationSourceDomain
   - target.user

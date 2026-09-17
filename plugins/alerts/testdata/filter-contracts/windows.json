@@ -172,6 +172,312 @@
         "origin.user"
       ],
       "rules": {}
+    },
+    {
+      "name": "kerberoasting_detection dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "TicketEncryptionType": 23,
+            "TicketOptions": 0,
+            "ServiceName": "sql-service",
+            "TargetUserName": "alice",
+            "TargetDomainName": "EXAMPLE",
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4769
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.kerberoastingDetection": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/kerberoasting_detection.yml": true
+      }
+    },
+    {
+      "name": "asrep_roasting_detection dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "TicketEncryptionType": 23,
+            "PreAuthType": "0",
+            "TargetUserName": "alice",
+            "TargetDomainName": "EXAMPLE",
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4768
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.asrepRoastingDetection": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/asrep_roasting_detection.yml": true
+      }
+    },
+    {
+      "name": "silver_ticket_detection dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "TicketEncryptionType": 23,
+            "Status": "7",
+            "ServiceName": "sql-service",
+            "TargetUserName": "alice",
+            "TargetDomainName": "EXAMPLE",
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4769
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.silverTicketDetection": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/silver_ticket_detection.yml": true
+      }
+    },
+    {
+      "name": "golden_ticket_detection dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "PrivilegeList": "SeTcbPrivilege",
+            "SubjectUserName": "alice",
+            "SubjectDomainName": "EXAMPLE",
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4672
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.goldenTicketDetection": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/golden_ticket_detection.yml": true
+      }
+    },
+    {
+      "name": "bruteforce_attack dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "TargetUserName": "alice",
+            "TargetDomainName": "EXAMPLE",
+            "Status": 3221225578,
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4625
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.bruteforceAttack": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/bruteforce_attack.yml": true
+      }
+    },
+    {
+      "name": "bruteforce_multiple_logon_failure_followed_by_success dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "Microsoft-Windows-Security-Auditing",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "TargetUserName": "alice",
+            "TargetDomainName": "EXAMPLE",
+            "Status": 0,
+            "IpAddress": "-",
+            "IpPort": "49152"
+          },
+          "eventCode": 4624
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "Microsoft-Windows-Security-Auditing",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/bruteforce_multiple_logon_failure_followed_by_success.yml": true
+      }
+    },
+    {
+      "name": "adfs_authentication_anomalies dash-with-account",
+      "filter": "windows/windows-events.yml",
+      "input": {
+        "dataType": "wineventlog",
+        "dataSource": "dc01",
+        "log": {
+          "timestamp": "2026-09-17T12:00:00Z",
+          "providername": "AD FS",
+          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
+          "recordId": 1234,
+          "channel": "Security",
+          "computer": "dc01.example.test",
+          "data": {
+            "SubjectUserName": "alice",
+            "IpAddress": "-",
+            "IpPort": "49152",
+            "SubjectDomainName": "EXAMPLE"
+          },
+          "eventCode": 342,
+          "message": "token validation failed"
+        }
+      },
+      "expected": {
+        "target.host": "dc01.example.test",
+        "deviceTime": "2026-09-17T12:00:00Z",
+        "log.providerName": "AD FS",
+        "log.authenticationSourceType": "user",
+        "log.authenticationSource": "alice",
+        "origin.port": 49152,
+        "origin.user": "alice",
+        "log.data.IpAddress": "-",
+        "log.authenticationSourceDomain": "EXAMPLE",
+        "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      },
+      "absent": [
+        "log.unparsedOriginIp",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/windows/adfs_authentication_anomalies.yml": true
+      }
     }
   ]
 }

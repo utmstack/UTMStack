@@ -31,6 +31,9 @@ description: |
   7. Enable Group Managed Service Accounts (gMSA) where possible
   8. Monitor for follow-up lateral movement using obtained credentials
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  (
   equals("log.eventCode", "4769") &&
   equals("log.channel", "Security") &&
   equals("log.eventDataTicketEncryptionType", "23") &&
@@ -38,14 +41,36 @@ where: |
   !equals("log.eventDataServiceName", "krbtgt") &&
   !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
   exists("log.eventDataServiceName")
+  )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: origin.ip.keyword
+      - field: dataSource.keyword
         operator: filter_term
-        value: '{{.origin.ip}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationSourceType.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceType}}'
+      - field: log.authenticationSourceDomain.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceDomain}}'
+      - field: log.authenticationCandidate.kerberoastingDetection.keyword
+        operator: filter_term
+        value: match
+      - field: log.eventCode
+        operator: filter_term
+        value: '{{.log.eventCode}}'
+      - field: log.eventDataTicketEncryptionType
+        operator: filter_term
+        value: '{{.log.eventDataTicketEncryptionType}}'
     within: 15m
     count: 3
 groupBy:
-  - adversary.ip
+  - dataSource
+  - lastEvent.log.authenticationSourceType
+  - lastEvent.log.authenticationSource
+  - lastEvent.log.authenticationSourceDomain
   - target.user
