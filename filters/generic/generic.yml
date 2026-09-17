@@ -6,7 +6,7 @@ pipeline:
     steps:
       - grok:
           patterns:
-            - field_name: log.message
+            - fieldName: log.message
               pattern: '(.*)'
           source: raw
       - json:

@@ -1,0 +1,22 @@
+{
+  "technology": "Generic Input",
+  "filters": [
+    "filters/generic/generic.yml"
+  ],
+  "rules": [
+    "rules/generic/generic/cross_source_lateral_movement.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "generic_message_capture",
+      "filter": "generic/generic.yml",
+      "input": {
+        "raw": "unstructured test message"
+      },
+      "expected": {
+        "log.message": "unstructured test message",
+        "raw": "unstructured test message"
+      }
+    }
+  ]
+}
