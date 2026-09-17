@@ -1061,5 +1061,33 @@
     },
     "absent": [],
     "matches": []
+  },
+  {
+    "name": "packed uppercase block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=BLOCKED msg=Packed executable",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_packed_executables"
+    ]
+  },
+  {
+    "name": "lateral uppercase block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=BLOCKED msg=psexec",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "lateral_movement_indicators"
+    ]
+  },
+  {
+    "name": "privilege allowed case",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=ALLOW msg=token manipulation",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": []
   }
 ]

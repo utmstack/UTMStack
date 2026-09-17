@@ -21,7 +21,7 @@ description: "Detects indicators of lateral movement attempts within the network
   \ from the same source host\n6. Consider isolating affected systems if lateral movement is confirmed\n7. Review similar patterns from\
   \ the same source within the detection window\n\nHistory counts only matching CEF candidates from the same collector and source identity.\n"
 where: |
-  equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("action", "blocked")) &&
+  equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
   (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
     "remote", "lateral", "pivot"]) ||
    contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&

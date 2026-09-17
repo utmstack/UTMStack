@@ -27,7 +27,7 @@ description: |
   9. Submit the sample to Kaspersky or third-party sandbox for detailed analysis
   10. Update antivirus signatures and ensure real-time protection is enabled
 where: |
-  equals("log.format","cef") && (oneOf("action", ["blocked", "detected"]) &&
+  equals("log.format","cef") && (regexMatch("action", "(?i)^(blocked|detected)$") &&
   (contains("log.msg", ["Packed", "packer"]) ||
    contains("log.msg", ["packed", "Packed"]) ||
    contains("log.msg", ["NSAnti", "Themida", "VMProtect", "ASPack", "UPX",

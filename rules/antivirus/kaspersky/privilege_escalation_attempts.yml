@@ -27,7 +27,7 @@ description: |
   8. Update Kaspersky signatures and run a full system scan
 where: |
   equals("log.format","cef") && (exists("log.signatureID") &&
-  !equals("action", "Allowed") &&
+  !equals("actionResult", "success") &&
   (contains("log.msg", ["privilege", "elevation", "EXPLOIT", "Exploit",
      "process injection", "token manipulation"]) ||
    contains("log.cs1", "EXPLOIT") ||

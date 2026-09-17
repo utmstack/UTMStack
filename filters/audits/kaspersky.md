@@ -64,7 +64,8 @@ candidates. No new health or native-malware rule was invented from this sample.
 
 CEF consumer repairs include standard source/destination fields, quoted-path `safe`
 lookups, normalized block outcomes, `log.msg` rather than an unproduced `log.message`,
-and the actual standard `actionResult`. The C2 rule requires a C2 indicator; generic
+and the actual standard `actionResult`. Lateral, packed-executable and privilege
+consumers handle equivalent action spellings consistently. The C2 rule requires a C2 indicator; generic
 `NetworkThreat` alone is insufficient. Explicit blocks are excluded for all tested
 spellings, while unknown outcomes are described as unknown, not successful C2.
 
@@ -85,13 +86,13 @@ or changed. Original CEF fields are retained to reduce compatibility losses.
 
 ## Verification and limits
 
-- **82 synthetic raw cases** cover native quoting, malformed input, embedded CEF,
+- **85 synthetic raw cases** cover native quoting, malformed input, embedded CEF,
   reporting/managed-device roles, missing identities, semantic zero IPs, ports, severity,
   outcomes, CEF compatibility and positive/negative predicates for every rule.
 - Actual SDK v1.1.31 performs CEL evaluation, Event conversion and all four historical
   query/threshold suites against a local isolated mock. Tests cover threshold boundaries,
   time windows, collector/source/destination scope, unrelated populations and missing keys.
-- Shared contract overlay: **112 passing test/subtest records**, no failures or skips,
+- Shared contract overlay: **115 passing test/subtest records**, no failures or skips,
   including the separate private ten-record replay.
 - Private raw replay recovers target IP, target host and device time in **10/10** records;
   all 19 attack predicates remain false. No actor or action result is invented.

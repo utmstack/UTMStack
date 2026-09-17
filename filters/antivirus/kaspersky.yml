@@ -1112,7 +1112,7 @@ pipeline:
         key: log.correlationCandidate.lateral_movement_indicators
         value: match
       where: |-
-        equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("action", "blocked")) &&
+        equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
         (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
           "remote", "lateral", "pivot"]) ||
          contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
