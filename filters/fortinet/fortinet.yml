@@ -1,4 +1,4 @@
-# Fortinet firewall module filter, version 3.1.0
+# Fortinet firewall module filter, version 3.2.0
 # Based in docs and samples provided
 # 
 # Documentations
@@ -15,68 +15,1081 @@ pipeline:
       #Using grok to parse priority if present
       - grok:
           patterns:
-            - fieldName: log.priority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.kvMessage
-              pattern: '{{.greedy}}'
+            - {fieldName: log.priority, pattern: '^<[0-9]{1,3}>'}
+            - {fieldName: log.kvMessage, pattern: '{{.greedy}}'}
 
-      #Using the kv filter with default config, usefull in key-value logs
-      - kv:
-          source: log.kvMessage
-          fieldSplit: " "
-          valueSplit: "="
+      # Vendor disk-format samples do not include a syslog priority prefix.
+      - grok:
+          source: raw
+          patterns:
+            - {fieldName: log.kvMessage, pattern: '(?s:.*)'}
+          where: '!exists("log.kvMessage")'
 
-      # Remove fields that have issues with kv filter
-      - delete:
-          fields:
-            - log.msg
-
-      # CEF support: re-parse log.kvMessage to extract CEF header.
-      # Fails silently (all-or-nothing) on non-CEF events.
+      # Extract the CEF extension before KV parsing; header text is not a KV key.
+      # This also accepts the space after "CEF:" used by Fortinet's examples.
       - grok:
           source: log.kvMessage
           patterns:
-            - fieldName: log.syslogTimestamp
-              pattern: '{{.syslogDate}}'
-            - fieldName: log.syslogHost
-              pattern: '{{.notSpace}}'
-            - fieldName: ""
-              pattern: 'CEF:'
-            - fieldName: log.cefVersion
-              pattern: '{{.integer}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefVendor
-              pattern: '{{.data}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefProduct
-              pattern: '{{.data}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefProductVersion
-              pattern: '{{.data}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefSignatureId
-              pattern: '{{.data}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefName
-              pattern: '{{.data}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.cefSeverity
-              pattern: '{{.integer}}'
-            - fieldName: ""
-              pattern: '\|'
-            - fieldName: log.kvMessage
-              pattern: '{{.greedy}}'
+            - {fieldName: '', pattern: '^(?:[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+)?CEF:\s*'}
+            - {fieldName: log.cefVersion, pattern: '[0-9]+'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefVendor, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefProduct, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefProductVersion, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefSignatureId, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefName, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.cefSeverity, pattern: '[^|]*'}
+            - {fieldName: '', pattern: '\|'}
+            - {fieldName: log.kvMessage, pattern: '(?s:.*)'}
 
-      # Recover deviceExternalId mangled by kv (CEF header token).
-      - rename:
-          from: [log.serverrst3deviceExternalId, log.clientrst3deviceExternalId]
-          to: log.deviceExternalId
+      - kv:
+          source: log.kvMessage
+          fieldSplit: ' '
+          valueSplit: '='
+
+      # Rebuild consumed KV fields so tokens inside quoted messages cannot
+      # manufacture an address, identity, action, or rule predicate field.
+      - delete:
+          fields:
+            - log.FTNTFGTapp
+            - log.FTNTFGTappcat
+            - log.FTNTFGTdevtype
+            - log.FTNTFGTdstcity
+            - log.FTNTFGTdstcountry
+            - log.FTNTFGTdstinetsvc
+            - log.FTNTFGTdstintfrole
+            - log.FTNTFGTdstmac
+            - log.FTNTFGTdstname
+            - log.FTNTFGTdstosname
+            - log.FTNTFGTdstregion
+            - log.FTNTFGTdstreputation
+            - log.FTNTFGTduration
+            - log.FTNTFGTeventtime
+            - log.FTNTFGTeventtype
+            - log.FTNTFGTfilehash
+            - log.FTNTFGTfilename
+            - log.FTNTFGTfilesize
+            - log.FTNTFGTgroup
+            - log.FTNTFGTlevel
+            - log.FTNTFGTlocip
+            - log.FTNTFGTlocport
+            - log.FTNTFGTlogdesc
+            - log.FTNTFGTlogid
+            - log.FTNTFGTmastersrcmac
+            - log.FTNTFGTosname
+            - log.FTNTFGTpolicyid
+            - log.FTNTFGTpolicyname
+            - log.FTNTFGTpolicytype
+            - log.FTNTFGTpoluuid
+            - log.FTNTFGTprofile
+            - log.FTNTFGTrcvdpkt
+            - log.FTNTFGTremip
+            - log.FTNTFGTremport
+            - log.FTNTFGTrisk
+            - log.FTNTFGTsentpkt
+            - log.FTNTFGTseverity
+            - log.FTNTFGTsrccountry
+            - log.FTNTFGTsrchwvendor
+            - log.FTNTFGTsrcintfrole
+            - log.FTNTFGTsrcmac
+            - log.FTNTFGTsrcname
+            - log.FTNTFGTsrcserver
+            - log.FTNTFGTstatus
+            - log.FTNTFGTsubtype
+            - log.FTNTFGTtrandisp
+            - log.FTNTFGTtz
+            - log.FTNTFGTuser
+            - log.FTNTFGTutmaction
+            - log.FTNTFGTvd
+            - log.FTNTFGTverdict
+            - log.FTNTFGTvwlid
+            - log.act
+            - log.action
+            - log.agent
+            - log.app
+            - log.cat
+            - log.catdesc
+            - log.dest_ip
+            - log.dest_port
+            - log.deviceExternalId
+            - log.deviceInboundInterface
+            - log.deviceOutboundInterface
+            - log.devid
+            - log.devtype
+            - log.dlpaction
+            - log.dlpprofile
+            - log.dpt
+            - log.dst
+            - log.dstcountry
+            - log.dstip
+            - log.dstmac
+            - log.dstname
+            - log.dstosname
+            - log.dstport
+            - log.dstuser
+            - log.duser
+            - log.eventtype
+            - log.externalId
+            - log.filehash
+            - log.filename
+            - log.group
+            - log.hostname
+            - log.in
+            - log.level
+            - log.locip
+            - log.logdesc
+            - log.logid
+            - log.mastersrcmac
+            - log.msg
+            - log.osname
+            - log.out
+            - log.policyname
+            - log.profile
+            - log.proto
+            - log.rcvdbyte
+            - log.rcvdpkt
+            - log.reason
+            - log.remip
+            - log.risk
+            - log.sentbyte
+            - log.sentpkt
+            - log.severity
+            - log.sourceTranslatedAddress
+            - log.sourceTranslatedPort
+            - log.spt
+            - log.src
+            - log.src_ip
+            - log.src_port
+            - log.srccountry
+            - log.srchwvendor
+            - log.srchwversion
+            - log.srcip
+            - log.srcmac
+            - log.srcname
+            - log.srcport
+            - log.srcswversion
+            - log.status
+            - log.subtype
+            - log.type
+            - log.unauthusersource
+            - log.url
+            - log.user
+            - log.utmaction
+            - log.vd
+            - log.verdict
+            - log.virus
+            - log.virusid
+            - log.vwlquality
+      # The anchored prefix consumes quoted strings atomically. CEF unquoted
+      # values end at the next key or end of input. Skip absent keys cheaply.
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTapp='}
+            - {fieldName: log.FTNTFGTapp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTapp=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTappcat='}
+            - {fieldName: log.FTNTFGTappcat, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTappcat=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdevtype='}
+            - {fieldName: log.FTNTFGTdevtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdevtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstcity='}
+            - {fieldName: log.FTNTFGTdstcity, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstcity=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstcountry='}
+            - {fieldName: log.FTNTFGTdstcountry, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstcountry=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstinetsvc='}
+            - {fieldName: log.FTNTFGTdstinetsvc, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstinetsvc=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstintfrole='}
+            - {fieldName: log.FTNTFGTdstintfrole, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstintfrole=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstmac='}
+            - {fieldName: log.FTNTFGTdstmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstname='}
+            - {fieldName: log.FTNTFGTdstname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstosname='}
+            - {fieldName: log.FTNTFGTdstosname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstosname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstregion='}
+            - {fieldName: log.FTNTFGTdstregion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstregion=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTdstreputation='}
+            - {fieldName: log.FTNTFGTdstreputation, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTdstreputation=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTduration='}
+            - {fieldName: log.FTNTFGTduration, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTduration=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTeventtime='}
+            - {fieldName: log.FTNTFGTeventtime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTeventtime=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTeventtype='}
+            - {fieldName: log.FTNTFGTeventtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTeventtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTfilehash='}
+            - {fieldName: log.FTNTFGTfilehash, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTfilehash=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTfilename='}
+            - {fieldName: log.FTNTFGTfilename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTfilename=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTfilesize='}
+            - {fieldName: log.FTNTFGTfilesize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTfilesize=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTgroup='}
+            - {fieldName: log.FTNTFGTgroup, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTgroup=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTlevel='}
+            - {fieldName: log.FTNTFGTlevel, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTlevel=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTlocip='}
+            - {fieldName: log.FTNTFGTlocip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTlocip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTlocport='}
+            - {fieldName: log.FTNTFGTlocport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTlocport=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTlogdesc='}
+            - {fieldName: log.FTNTFGTlogdesc, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTlogdesc=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTlogid='}
+            - {fieldName: log.FTNTFGTlogid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTlogid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTmastersrcmac='}
+            - {fieldName: log.FTNTFGTmastersrcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTmastersrcmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTosname='}
+            - {fieldName: log.FTNTFGTosname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTosname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTpolicyid='}
+            - {fieldName: log.FTNTFGTpolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTpolicyid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTpolicyname='}
+            - {fieldName: log.FTNTFGTpolicyname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTpolicyname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTpolicytype='}
+            - {fieldName: log.FTNTFGTpolicytype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTpolicytype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTpoluuid='}
+            - {fieldName: log.FTNTFGTpoluuid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTpoluuid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTprofile='}
+            - {fieldName: log.FTNTFGTprofile, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTprofile=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTrcvdpkt='}
+            - {fieldName: log.FTNTFGTrcvdpkt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTrcvdpkt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTremip='}
+            - {fieldName: log.FTNTFGTremip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTremip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTremport='}
+            - {fieldName: log.FTNTFGTremport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTremport=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTrisk='}
+            - {fieldName: log.FTNTFGTrisk, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTrisk=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsentpkt='}
+            - {fieldName: log.FTNTFGTsentpkt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsentpkt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTseverity='}
+            - {fieldName: log.FTNTFGTseverity, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTseverity=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrccountry='}
+            - {fieldName: log.FTNTFGTsrccountry, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrccountry=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrchwvendor='}
+            - {fieldName: log.FTNTFGTsrchwvendor, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrchwvendor=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrcintfrole='}
+            - {fieldName: log.FTNTFGTsrcintfrole, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrcintfrole=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrcmac='}
+            - {fieldName: log.FTNTFGTsrcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrcmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrcname='}
+            - {fieldName: log.FTNTFGTsrcname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrcname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsrcserver='}
+            - {fieldName: log.FTNTFGTsrcserver, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsrcserver=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTstatus='}
+            - {fieldName: log.FTNTFGTstatus, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTstatus=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTsubtype='}
+            - {fieldName: log.FTNTFGTsubtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTsubtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTtrandisp='}
+            - {fieldName: log.FTNTFGTtrandisp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTtrandisp=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTtz='}
+            - {fieldName: log.FTNTFGTtz, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTtz=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTuser='}
+            - {fieldName: log.FTNTFGTuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTuser=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTutmaction='}
+            - {fieldName: log.FTNTFGTutmaction, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTutmaction=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTvd='}
+            - {fieldName: log.FTNTFGTvd, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTvd=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTverdict='}
+            - {fieldName: log.FTNTFGTverdict, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTverdict=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTNTFGTvwlid='}
+            - {fieldName: log.FTNTFGTvwlid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "FTNTFGTvwlid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)act='}
+            - {fieldName: log.act, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "act=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)action='}
+            - {fieldName: log.action, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "action=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)agent='}
+            - {fieldName: log.agent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "agent=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)app='}
+            - {fieldName: log.app, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "app=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)cat='}
+            - {fieldName: log.cat, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "cat=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)catdesc='}
+            - {fieldName: log.catdesc, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "catdesc=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dest_ip='}
+            - {fieldName: log.dest_ip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dest_ip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dest_port='}
+            - {fieldName: log.dest_port, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dest_port=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)deviceExternalId='}
+            - {fieldName: log.deviceExternalId, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "deviceExternalId=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)deviceInboundInterface='}
+            - {fieldName: log.deviceInboundInterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "deviceInboundInterface=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)deviceOutboundInterface='}
+            - {fieldName: log.deviceOutboundInterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "deviceOutboundInterface=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)devid='}
+            - {fieldName: log.devid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "devid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)devtype='}
+            - {fieldName: log.devtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "devtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dlp_?action='}
+            - {fieldName: log.dlpaction, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dlpaction=") || contains("log.kvMessage", "dlp_action=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dlp_?profile='}
+            - {fieldName: log.dlpprofile, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dlpprofile=") || contains("log.kvMessage", "dlp_profile=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dpt='}
+            - {fieldName: log.dpt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dpt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst='}
+            - {fieldName: log.dst, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dst=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstcountry='}
+            - {fieldName: log.dstcountry, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstcountry=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstip='}
+            - {fieldName: log.dstip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstmac='}
+            - {fieldName: log.dstmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstname='}
+            - {fieldName: log.dstname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstosname='}
+            - {fieldName: log.dstosname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstosname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstport='}
+            - {fieldName: log.dstport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstport=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstuser='}
+            - {fieldName: log.dstuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "dstuser=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)duser='}
+            - {fieldName: log.duser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "duser=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)eventtype='}
+            - {fieldName: log.eventtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "eventtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)externalId='}
+            - {fieldName: log.externalId, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "externalId=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)filehash='}
+            - {fieldName: log.filehash, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "filehash=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)filename='}
+            - {fieldName: log.filename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "filename=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)group='}
+            - {fieldName: log.group, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "group=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)hostname='}
+            - {fieldName: log.hostname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "hostname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)in='}
+            - {fieldName: log.in, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "in=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)level='}
+            - {fieldName: log.level, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "level=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)locip='}
+            - {fieldName: log.locip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "locip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)logdesc='}
+            - {fieldName: log.logdesc, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "logdesc=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)logid='}
+            - {fieldName: log.logid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "logid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)mastersrcmac='}
+            - {fieldName: log.mastersrcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "mastersrcmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)msg='}
+            - {fieldName: log.msg, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "msg=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)osname='}
+            - {fieldName: log.osname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "osname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)out='}
+            - {fieldName: log.out, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "out=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)policyname='}
+            - {fieldName: log.policyname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "policyname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)profile='}
+            - {fieldName: log.profile, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "profile=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)proto='}
+            - {fieldName: log.proto, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "proto=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)rcvdbyte='}
+            - {fieldName: log.rcvdbyte, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "rcvdbyte=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)rcvdpkt='}
+            - {fieldName: log.rcvdpkt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "rcvdpkt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)reason='}
+            - {fieldName: log.reason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "reason=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)remip='}
+            - {fieldName: log.remip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "remip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)risk='}
+            - {fieldName: log.risk, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "risk=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sentbyte='}
+            - {fieldName: log.sentbyte, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "sentbyte=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sentpkt='}
+            - {fieldName: log.sentpkt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "sentpkt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)severity='}
+            - {fieldName: log.severity, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "severity=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sourceTranslatedAddress='}
+            - {fieldName: log.sourceTranslatedAddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "sourceTranslatedAddress=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sourceTranslatedPort='}
+            - {fieldName: log.sourceTranslatedPort, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "sourceTranslatedPort=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)spt='}
+            - {fieldName: log.spt, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "spt=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src='}
+            - {fieldName: log.src, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "src=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_ip='}
+            - {fieldName: log.src_ip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "src_ip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_port='}
+            - {fieldName: log.src_port, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "src_port=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srccountry='}
+            - {fieldName: log.srccountry, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srccountry=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srchwvendor='}
+            - {fieldName: log.srchwvendor, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srchwvendor=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srchwversion='}
+            - {fieldName: log.srchwversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srchwversion=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srcip='}
+            - {fieldName: log.srcip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srcip=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srcmac='}
+            - {fieldName: log.srcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srcmac=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srcname='}
+            - {fieldName: log.srcname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srcname=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srcport='}
+            - {fieldName: log.srcport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srcport=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srcswversion='}
+            - {fieldName: log.srcswversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "srcswversion=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)status='}
+            - {fieldName: log.status, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "status=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)subtype='}
+            - {fieldName: log.subtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "subtype=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)type='}
+            - {fieldName: log.type, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "type=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)unauthusersource='}
+            - {fieldName: log.unauthusersource, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "unauthusersource=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)url='}
+            - {fieldName: log.url, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "url=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user='}
+            - {fieldName: log.user, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "user=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)utmaction='}
+            - {fieldName: log.utmaction, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "utmaction=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)vd='}
+            - {fieldName: log.vd, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "vd=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)verdict='}
+            - {fieldName: log.verdict, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "verdict=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)virus='}
+            - {fieldName: log.virus, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "virus=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)virusid='}
+            - {fieldName: log.virusid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "virusid=")
+      - grok:
+          source: log.kvMessage
+          patterns:
+            - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)vwlquality='}
+            - {fieldName: log.vwlquality, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
+            - {fieldName: '', pattern: '(?:\s+[A-Za-z][A-Za-z0-9_]*=|$)'}
+          where: contains("log.kvMessage", "vwlquality=")
 
       # Normalize FTNTFGT* fields to canonical FortiGate names.
       - rename:
@@ -170,18 +1183,92 @@ pipeline:
           from: [log.FTNTFGTsrcserver]
           to: log.srcserver
 
+      - rename:
+          from: [log.FTNTFGTeventtype]
+          to: log.eventtype
+      - rename:
+          from: [log.FTNTFGTseverity]
+          to: log.severity
+      - rename:
+          from: [log.FTNTFGTutmaction]
+          to: log.utmaction
+      - rename:
+          from: [log.FTNTFGTlogdesc]
+          to: log.logdesc
+      - rename:
+          from: [log.FTNTFGTstatus]
+          to: log.status
+      - rename:
+          from: [log.FTNTFGTremip]
+          to: log.remip
+      - rename:
+          from: [log.FTNTFGTlocip]
+          to: log.locip
+      - rename:
+          from: [log.FTNTFGTremport]
+          to: log.remport
+      - rename:
+          from: [log.FTNTFGTlocport]
+          to: log.locport
+      - rename:
+          from: [log.FTNTFGTuser]
+          to: log.user
+      - rename:
+          from: [log.FTNTFGTgroup]
+          to: log.group
+      - rename:
+          from: [log.FTNTFGTsrcname]
+          to: log.srcname
+      - rename:
+          from: [log.FTNTFGTdstname]
+          to: log.dstname
+      - rename:
+          from: [log.FTNTFGTosname]
+          to: log.osname
+      - rename:
+          from: [log.FTNTFGTdstosname]
+          to: log.dstosname
+      - rename:
+          from: [log.FTNTFGTdstmac]
+          to: log.dstmac
+      - rename:
+          from: [log.FTNTFGTprofile]
+          to: log.profile
+      - rename:
+          from: [log.FTNTFGTverdict]
+          to: log.verdict
+      - rename:
+          from: [log.FTNTFGTrisk]
+          to: log.risk
+      - rename:
+          from: [log.FTNTFGTfilehash]
+          to: log.filehash
+      - rename:
+          from: [log.FTNTFGTfilename]
+          to: log.filename
+      - rename:
+          from: [log.FTNTFGTfilesize]
+          to: log.filesize
+      # Fortinet CEF maps its authenticated user to duser.
+      - rename:
+          from: [log.duser]
+          to: log.user
+          where: '!exists("log.user")'
+
+      - rename:
+          from: [log.FTNTFGTvirus]
+          to: log.virus
+
       # Split CEF "cat" (e.g. "traffic:local") → log.type + log.catSubtype.
       - grok:
           source: log.cat
           patterns:
-            - fieldName: log.type
-              pattern: '{{.word}}'
-            - fieldName: ""
-              pattern: ':'
-            - fieldName: log.catSubtype
-              pattern: '{{.word}}'
+            - {fieldName: log.type, pattern: '{{.word}}'}
+            - {fieldName: "", pattern: ':'}
+            - {fieldName: log.catSubtype, pattern: '{{.word}}'}
       - delete:
           fields: [log.cat]
+          where: exists("log.cefVersion")
 
       # CEF long-form aliases → canonical names.
       - rename:
@@ -203,25 +1290,57 @@ pipeline:
           from: [log.sourceTranslatedPort]
           to: log.transport
 
-      # Using grok to parse kv issued fields
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(msg=)'
-            - fieldName: log.msg
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.kvMessage
-
-      # Using grok to remove irrelevant data
-      - grok:
-          patterns:
-            - fieldName: log.msg
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.msg
+      # Remove outer KV quotes before IP validation and numeric conversion.
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.srcip
+            - log.dstip
+            - log.src
+            - log.dst
+            - log.dest_ip
+            - log.src_ip
+            - log.srcport
+            - log.dstport
+            - log.spt
+            - log.dpt
+            - log.src_port
+            - log.dest_port
+            - log.rcvdbyte
+            - log.in
+            - log.rcvdpkt
+            - log.sentbyte
+            - log.out
+            - log.sentpkt
+            - log.proto
+            - origin.packagesSent
+            - origin.packagesReceived
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.srcip
+            - log.dstip
+            - log.src
+            - log.dst
+            - log.dest_ip
+            - log.src_ip
+            - log.srcport
+            - log.dstport
+            - log.spt
+            - log.dpt
+            - log.src_port
+            - log.dest_port
+            - log.rcvdbyte
+            - log.in
+            - log.rcvdpkt
+            - log.sentbyte
+            - log.out
+            - log.sentpkt
+            - log.proto
+            - origin.packagesSent
+            - origin.packagesReceived
 
       # Rename standard fields and fields out of kv result
       - rename:
@@ -229,21 +1348,31 @@ pipeline:
             - log.action
             - log.act
           to: action
+      # Native address wins over its CEF alias; an invalid selected value
+      # stays under its original vendor key and never reaches geolocation.
       - rename:
-          from:
-            - log.dstip
-            - log.dst
+          from: [log.dst]
           to: target.ip
+          where: '!exists("log.dstip") && (inCIDR("log.dst", "0.0.0.0/0") || inCIDR("log.dst", "::/0")) && !inCIDR("log.dst", "0.0.0.0/32") && !inCIDR("log.dst", "::/128")'
+      - rename:
+          from: [log.dstip]
+          to: target.ip
+          where: '(inCIDR("log.dstip", "0.0.0.0/0") || inCIDR("log.dstip", "::/0")) && !inCIDR("log.dstip", "0.0.0.0/32") && !inCIDR("log.dstip", "::/128")'
       - rename:
           from:
             - log.dstport
             - log.dpt
           to: target.port
+      # Native address wins over its CEF alias; an invalid selected value
+      # stays under its original vendor key and never reaches geolocation.
       - rename:
-          from:
-            - log.srcip
-            - log.src
+          from: [log.src]
           to: origin.ip
+          where: '!exists("log.srcip") && (inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0")) && !inCIDR("log.src", "0.0.0.0/32") && !inCIDR("log.src", "::/128")'
+      - rename:
+          from: [log.srcip]
+          to: origin.ip
+          where: '(inCIDR("log.srcip", "0.0.0.0/0") || inCIDR("log.srcip", "::/0")) && !inCIDR("log.srcip", "0.0.0.0/32") && !inCIDR("log.srcip", "::/128")'
       - rename:
           from:
             - log.srcport
@@ -273,6 +1402,7 @@ pipeline:
           from:
             - log.dest_ip
           to: target.ip
+          where: '(inCIDR("log.dest_ip", "0.0.0.0/0") || inCIDR("log.dest_ip", "::/0")) && !inCIDR("log.dest_ip", "0.0.0.0/32") && !inCIDR("log.dest_ip", "::/128")'
       - rename:
           from:
             - log.dest_port
@@ -281,6 +1411,7 @@ pipeline:
           from:
             - log.src_ip
           to: origin.ip
+          where: '(inCIDR("log.src_ip", "0.0.0.0/0") || inCIDR("log.src_ip", "::/0")) && !inCIDR("log.src_ip", "0.0.0.0/32") && !inCIDR("log.src_ip", "::/128")'
       - rename:
           from:
             - log.src_port
@@ -305,24 +1436,6 @@ pipeline:
           to: origin.packagesSent
 
       # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "accept"
-          where: 'equals("action", "accept")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "denied"
-          where: 'equals("action", "deny")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'oneOf("action", ["client-rst", "server-rst", "ip-conn"])'
 
       # Type casting for numeric fields.
       - cast:
@@ -435,6 +1548,156 @@ pipeline:
             - log.srcname
             - log.sourceVendor
 
+      # Preserve complete vendor values and copy semantic equivalents into SDK fields.
+      - trim:
+          function: prefix
+          substring: '"'
+          fields:
+            - log.msg
+            - log.logdesc
+            - log.user
+            - log.group
+            - log.dstuser
+            - log.dstname
+            - log.hostname
+            - log.url
+            - log.osName
+            - log.dstosname
+            - log.dstmac
+            - log.policyname
+            - log.catdesc
+            - log.devtype
+            - log.srchwversion
+            - log.vwlquality
+            - log.agent
+            - log.profile
+            - log.reason
+            - log.filename
+            - log.severity
+            - log.status
+            - log.utmaction
+            - log.verdict
+            - log.risk
+            - log.filehash
+            - log.remip
+            - log.locip
+      - trim:
+          function: suffix
+          substring: '"'
+          fields:
+            - log.msg
+            - log.logdesc
+            - log.user
+            - log.group
+            - log.dstuser
+            - log.dstname
+            - log.hostname
+            - log.url
+            - log.osName
+            - log.dstosname
+            - log.dstmac
+            - log.policyname
+            - log.catdesc
+            - log.devtype
+            - log.srchwversion
+            - log.vwlquality
+            - log.agent
+            - log.profile
+            - log.reason
+            - log.filename
+            - log.severity
+            - log.status
+            - log.utmaction
+            - log.verdict
+            - log.risk
+            - log.filehash
+            - log.remip
+            - log.locip
+      - grok:
+          source: log.srcname
+          patterns:
+            - {fieldName: origin.host, pattern: '(?s:.+)'}
+          where: exists("log.srcname") && !oneOf("log.srcname", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.dstname
+          patterns:
+            - {fieldName: target.host, pattern: '(?s:.+)'}
+          where: exists("log.dstname") && !oneOf("log.dstname", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.osName
+          patterns:
+            - {fieldName: origin.operatingSystem, pattern: '(?s:.+)'}
+          where: exists("log.osName") && !oneOf("log.osName", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.dstosname
+          patterns:
+            - {fieldName: target.operatingSystem, pattern: '(?s:.+)'}
+          where: exists("log.dstosname") && !oneOf("log.dstosname", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.dstmac
+          patterns:
+            - {fieldName: target.mac, pattern: '(?s:.+)'}
+          where: exists("log.dstmac") && !oneOf("log.dstmac", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.user
+          patterns:
+            - {fieldName: origin.user, pattern: '(?s:.+)'}
+          where: exists("log.user") && !oneOf("log.user", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.group
+          patterns:
+            - {fieldName: origin.group, pattern: '(?s:.+)'}
+          where: exists("log.group") && !oneOf("log.group", ["", "-", "N/A", "unknown"])
+      - grok:
+          source: log.dstuser
+          patterns:
+            - {fieldName: target.user, pattern: '(?s:.+)'}
+          where: exists("log.dstuser") && !oneOf("log.dstuser", ["", "-", "N/A", "unknown"])
+      - rename:
+          from: [log.remip]
+          to: origin.ip
+          where: '!exists("origin.ip") && equals("log.type", "event") && equals("log.subtype", "vpn") && (oneOf("action", ["ssl-login-fail", "ssl-login-succ"]) || equals("log.logid", "0101039426")) && (inCIDR("log.remip", "0.0.0.0/0") || inCIDR("log.remip", "::/0")) && !inCIDR("log.remip", "0.0.0.0/32") && !inCIDR("log.remip", "::/128")'
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: oneOf("log.level", ["debug"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: oneOf("log.level", ["information", "informational", "notice"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: oneOf("log.level", ["warning"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: oneOf("log.level", ["error"])
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: oneOf("log.level", ["critical", "alert", "emergency"])
+
+      - grok:
+          source: log.url
+          patterns:
+            - {fieldName: target.url, pattern: '(?s:.+)'}
+          where: regexMatch("log.url", "(?i)^(https?|ftp)://[^\\s]+$")
+      - grok:
+          source: log.hostname
+          patterns:
+            - {fieldName: target.domain, pattern: '(?s:.+)'}
+          where: equals("log.type", "utm") && oneOf("log.subtype", ["webfilter", "app-ctrl", "ips", "ssl"]) && regexMatch("log.hostname", "^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$") && !(inCIDR("log.hostname", "0.0.0.0/0") || inCIDR("log.hostname", "::/0")) && !oneOf("log.hostname", ["unknown", "N/A"])
       # Adding geolocation to origin.ip
       - dynamic:
           plugin: com.utmstack.geolocation
@@ -1316,3 +2579,144 @@ pipeline:
           fields:
             - log.kvMessage
             - log.proto
+
+      # Normalize explicit outcomes; an unknown outcome remains unset.
+      # LOG_ID_TRAFFIC_FAIL_CONN (11) denotes failure; action=dns alone does not.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equalsIgnoreCase("action", "accept")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: equals("log.type", "traffic") && equals("log.logid", "0000000011")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.type", "event") && equals("log.subtype", "system") && equals("log.logid", "0100032001")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: equals("log.type", "event") && (equals("log.subtype", "system") && equals("log.logid", "0100032002") || equals("log.subtype", "vpn") && (equals("log.logid", "0101039426") || equals("action", "ssl-login-fail")))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: regexMatch("action", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.utmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.FTNTFGTutmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$")
+      - add:
+          function: string
+          params:
+            key: connectionStatus
+            value: closed
+          where: oneOf("action", ["close", "client-rst", "server-rst", "timeout"])
+
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMP
+          where: equals("protocol",1)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: TCP
+          where: equals("protocol",6)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: UDP
+          where: equals("protocol",17)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: GRE
+          where: equals("protocol",47)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ESP
+          where: equals("protocol",50)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: AH
+          where: equals("protocol",51)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: ICMPV6
+          where: equals("protocol",58)
+      - add:
+          function: string
+          params:
+            key: protocol
+            value: SCTP
+          where: equals("protocol",132)
+      - rename:
+          from:
+          - protocol
+          to: log.ipProtocolNumber
+          where: exists("protocol") && greaterOrEqual("protocol",0)
+
+      # Ignore input-supplied markers. History counts only equivalent candidates.
+      - delete:
+          fields: [log.correlationCandidate]
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.vpnAuthFailure
+            value: match
+          where: |
+            exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+            (equals("log.type", "event") && equals("log.subtype", "vpn") &&
+            (equals("action", "ssl-login-fail") || equals("log.logid", "0101039426")) &&
+            exists("origin.ip"))
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.ipsCritical
+            value: match
+          where: |
+            exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+            (equals("log.type", "utm") && equals("log.subtype", "ips") &&
+            oneOf("log.severity", ["critical", "high"]) &&
+            equals("actionResult", "denied") && exists("origin.ip"))
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.dlp
+            value: match
+          where: |
+            equals("log.type", "utm") && equals("log.subtype", "dlp") &&
+            exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+            (exists("origin.ip") &&
+            ((equals("log.subtype", "dlp") && oneOf("action", ["block", "blocked"])) ||
+             contains("log.msg", "DLP sensor") ||
+             contains("log.msg", "sensitive data detected") ||
+             (exists("log.dlpprofile") && equals("log.dlpaction", "block")) ||
+             contains("log.msg", "Data pattern matched")))
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.virusOutbreak
+            value: match
+          where: |
+            exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+            (equals("log.type", "utm") && equals("log.subtype", "virus") &&
+            equals("log.eventtype", "infected") && equals("actionResult", "denied") &&
+            exists("origin.ip"))

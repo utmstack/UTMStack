@@ -1,0 +1,833 @@
+[
+  {
+    "name": "quoted policy allow and numeric fields",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" subtype=\"forward\" action=\"accept\" srcip=\"192.0.2.10\" dstip=\"198.51.100.20\" srcport=\"49152\" dstport=\"443\" proto=\"6\" sentbyte=\"42\" rcvdbyte=\"84\" sentpkt=\"2\" rcvdpkt=\"3\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.20",
+      "origin.port": 49152,
+      "target.port": 443,
+      "protocol": "TCP",
+      "origin.bytesSent": 42,
+      "origin.bytesReceived": 84,
+      "origin.packagesSent": "2",
+      "origin.packagesReceived": "3",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome deny",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"deny\"",
+    "expected": {
+      "action": "deny",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome blocked",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"blocked\"",
+    "expected": {
+      "action": "blocked",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome drop",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"drop\"",
+    "expected": {
+      "action": "drop",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome accept",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"accept\"",
+    "expected": {
+      "action": "accept",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "quoted profile denial overrides policy allow",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"accept\" utmaction=\"block\"",
+    "expected": {
+      "actionResult": "denied",
+      "log.utmaction": "block"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "no invented result from dns",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"dns\"",
+    "expected": {
+      "action": "dns"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no invented result from ip-conn",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"ip-conn\"",
+    "expected": {
+      "action": "ip-conn"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no invented result from unknown",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"unknown\"",
+    "expected": {
+      "action": "unknown"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no invented result from info",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"info\"",
+    "expected": {
+      "action": "info"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no invented result from detected",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"detected\"",
+    "expected": {
+      "action": "detected"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no invented result from analytics",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" action=\"analytics\"",
+    "expected": {
+      "action": "analytics"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "documented failed connection dns",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" logid=\"0000000011\" action=\"dns\"",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "documented failed connection ip-conn",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" logid=\"0000000011\" action=\"ip-conn\"",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "closure close",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"close\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "closure client-rst",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"client-rst\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "closure server-rst",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"server-rst\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "closure timeout",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"timeout\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid address retained -",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=- dstip=-",
+    "expected": {
+      "log.srcip": "-",
+      "log.dstip": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.unparsedOriginIp",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid address retained not-an-ip",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=not-an-ip dstip=not-an-ip",
+    "expected": {
+      "log.srcip": "not-an-ip",
+      "log.dstip": "not-an-ip"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.unparsedOriginIp",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid address retained 0.0.0.0",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=0.0.0.0 dstip=0.0.0.0",
+    "expected": {
+      "log.srcip": "0.0.0.0",
+      "log.dstip": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.unparsedOriginIp",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid address retained ::",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=:: dstip=::",
+    "expected": {
+      "log.srcip": "::",
+      "log.dstip": "::"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.unparsedOriginIp",
+      "log.unparsedTargetIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IPv6 addresses",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=2001:db8::10 dstip=2001:db8::20",
+    "expected": {
+      "origin.ip": "2001:db8::10",
+      "target.ip": "2001:db8::20"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native IP takes precedence over CEF alias",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=192.0.2.10 src=203.0.113.10 dstip=198.51.100.20 dst=203.0.113.20",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.20"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid native selection does not fall back to CEF",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcip=- src=203.0.113.10 dstip=- dst=203.0.113.20",
+    "expected": {
+      "log.srcip": "-",
+      "log.dstip": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "message final field recovered",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"accept\" msg=\"message spans words\"",
+    "expected": {
+      "log.msg": "message spans words",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "message middle field recovered",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" msg=\"message spans words\" type=\"traffic\" action=\"accept\"",
+    "expected": {
+      "log.msg": "message spans words",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "quoted embedded keys cannot create standard fields",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" msg=\"srcip=203.0.113.6 dstip=203.0.113.7 srcname=forged action=accept logdesc=Admin login successful\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "origin.host",
+      "action",
+      "log.logdesc"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted message cannot override real values",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcip=192.0.2.10 action=\"deny\" msg=\"srcip=203.0.113.6 action=accept\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "unterminated quoted identity not promoted",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcname=\"incomplete identity srcip=203.0.113.6",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "origin.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted CEF text is payload",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"deny\" msg=\"CEF: 0|Fortinet|Fortigate|7|1|traffic|3|src=203.0.113.6 act=accept\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "log.cefVersion",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "additional observed standard fields",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" srcname=\"client-one\" dstname=\"server-one\" osname=\"UniFi Firmware\" dstosname=\"Server OS\" dstmac=\"00:11:22:33:44:55\" user=\"lab-user\" group=\"Security Team\" policyname=\"Outbound policy\" app=\"Named App\"",
+    "expected": {
+      "origin.host": "client-one",
+      "target.host": "server-one",
+      "origin.operatingSystem": "UniFi Firmware",
+      "target.operatingSystem": "Server OS",
+      "target.mac": "00:11:22:33:44:55",
+      "origin.user": "lab-user",
+      "origin.group": "Security Team",
+      "log.policyname": "Outbound policy",
+      "log.app": "Named App"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "unknown identities not promoted",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" user=\"N/A\" group=\"N/A\" srcname=\"unknown\" dstname=\"-\"",
+    "expected": {},
+    "absent": [
+      "origin.user",
+      "origin.group",
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "absolute URL and destination domain",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"webfilter\" hostname=\"service.example\" url=\"https://service.example/path\"",
+    "expected": {
+      "target.url": "https://service.example/path",
+      "target.domain": "service.example"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "relative URL embedded scheme stays vendor",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"webfilter\" hostname=\"198.51.100.20\" url=\"/redirect/https://service.example/path\"",
+    "expected": {
+      "log.url": "/redirect/https://service.example/path"
+    },
+    "absent": [
+      "target.url",
+      "target.domain",
+      "target.path"
+    ],
+    "matches": []
+  },
+  {
+    "name": "admin success positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=203.0.113.10 action=\"login\" status=\"success\"",
+    "expected": {
+      "actionResult": "success",
+      "origin.user": "admin-lab",
+      "log.logdesc": "Admin login successful"
+    },
+    "absent": [],
+    "matches": [
+      "admin_account_compromise",
+      "fortigate_admin_session_anomaly"
+    ]
+  },
+  {
+    "name": "admin failure history record",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032002\" logdesc=\"Admin login failed\" user=\"admin-lab\" srcip=203.0.113.10 action=\"login\" status=\"failed\"",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "local admin not unusual 10.0.0.10",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=10.0.0.10 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise"
+    ]
+  },
+  {
+    "name": "local admin not unusual 127.0.0.1",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=127.0.0.1 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise"
+    ]
+  },
+  {
+    "name": "local admin not unusual ::1",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=::1 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise"
+    ]
+  },
+  {
+    "name": "local admin not unusual fd00::10",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=fd00::10 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise"
+    ]
+  },
+  {
+    "name": "local admin not unusual fe80::10",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=fe80::10 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise"
+    ]
+  },
+  {
+    "name": "public IPv6 admin positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032001\" logdesc=\"Admin login successful\" user=\"admin-lab\" srcip=2001:4860:4860::8888 action=\"login\" status=\"success\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "admin_account_compromise",
+      "fortigate_admin_session_anomaly"
+    ]
+  },
+  {
+    "name": "VPN authentication positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101039426\" action=\"ssl-login-fail\" logdesc=\"SSL VPN login fail\" remip=203.0.113.10 user=\"vpn-user\" group=\"Remote Users\" msg=\"SSL user failed to log in\"",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "origin.user": "vpn-user",
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": [
+      "fortigate_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "VPN exact failure ID without action",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101039426\" logdesc=\"SSL VPN login fail\" remip=203.0.113.10 user=\"vpn-user\" group=\"Remote Users\" msg=\"SSL user failed to log in\"",
+    "expected": {
+      "origin.ip": "203.0.113.10"
+    },
+    "absent": [],
+    "matches": [
+      "fortigate_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "VPN placeholder user allowed peer correlation",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101039426\" action=\"ssl-login-fail\" logdesc=\"SSL VPN login fail\" remip=203.0.113.10 user=\"N/A\" group=\"Remote Users\" msg=\"SSL user failed to log in\"",
+    "expected": {},
+    "absent": [
+      "origin.user"
+    ],
+    "matches": [
+      "fortigate_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "routine VPN tunnel shutdown",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" action=\"tunnel-down\" logdesc=\"SSL VPN tunnel down\" remip=203.0.113.10",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IPsec negotiation error is not authentication proof",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101037124\" action=\"negotiate\" status=\"negotiate_error\" remip=203.0.113.10 msg=\"IPsec phase 1 error\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IPS critical blocked positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"ips\" eventtype=\"signature\" severity=\"critical\" action=\"dropped\" srcip=203.0.113.10 dstip=192.0.2.20 msg=\"attack signature detected\"",
+    "expected": {
+      "actionResult": "denied",
+      "log.severity": "critical"
+    },
+    "absent": [],
+    "matches": [
+      "ips_critical_severity_events"
+    ]
+  },
+  {
+    "name": "IPS low blocked negative",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"ips\" eventtype=\"signature\" severity=\"low\" action=\"dropped\" srcip=203.0.113.10 dstip=192.0.2.20 msg=\"attack signature detected\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IPS detection alone is not denial",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"ips\" eventtype=\"signature\" severity=\"critical\" action=\"detected\" srcip=203.0.113.10 dstip=192.0.2.20 msg=\"attack signature detected\"",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IPS absent actor cannot resolve history",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"ips\" eventtype=\"signature\" severity=\"critical\" action=\"dropped\" dstip=192.0.2.20 msg=\"attack signature detected\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "DLP blocked positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"dlp\" action=\"block\" srcip=192.0.2.10 dstip=198.51.100.20 profile=\"sensitive-data\" msg=\"DLP sensor blocked transfer\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "dlp_data_exfiltration"
+    ]
+  },
+  {
+    "name": "DLP unrelated administrative message",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" srcip=192.0.2.10 msg=\"DLP sensor changed\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "non-DLP sensitive-data message",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"webfilter\" srcip=192.0.2.10 msg=\"sensitive data detected\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "DLP allowed benign",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"dlp\" action=\"allow\" srcip=192.0.2.10 msg=\"ordinary transfer\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "infected-file outbreak positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"infected\" action=\"blocked\" srcip=192.0.2.10 dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "antivirus_outbreak_detection"
+    ]
+  },
+  {
+    "name": "blocked non-malware analytics",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"analytics\" action=\"blocked\" srcip=192.0.2.10 dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "blocked non-malware oversize",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"oversize\" action=\"blocked\" srcip=192.0.2.10 dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "blocked non-malware scanerror",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"scanerror\" action=\"blocked\" srcip=192.0.2.10 dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "blocked non-malware file-type",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"file-type\" action=\"blocked\" srcip=192.0.2.10 dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "virus target-only cannot prove same source",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"virus\" eventtype=\"infected\" action=\"blocked\" dstip=198.51.100.20 virus=\"EICAR_TEST_FILE\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "sandbox malicious positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"sandbox\" verdict=\"malicious\" filehash=\"lab-file-hash\" srcip=192.0.2.10",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sandbox_malicious_verdict"
+    ]
+  },
+  {
+    "name": "sandbox clean negative",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"sandbox\" verdict=\"clean\" srcip=192.0.2.10",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "missing history scope devid",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101039426\" action=\"ssl-login-fail\" logdesc=\"SSL VPN login fail\" remip=203.0.113.10 user=\"vpn-user\" group=\"Remote Users\" msg=\"SSL user failed to log in\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "missing history scope vd",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" type=\"event\" subtype=\"vpn\" logid=\"0101039426\" action=\"ssl-login-fail\" logdesc=\"SSL VPN login fail\" remip=203.0.113.10 user=\"vpn-user\" group=\"Remote Users\" msg=\"SSL user failed to log in\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "documented CEF header extension",
+    "dataSource": "firewall-lab",
+    "raw": "Dec 27 11:20:48 FGT-LAB CEF: 0|Fortinet|Fortigate|7.4|08192|utm:virus infected blocked|4|deviceExternalId=FGT-LAB FTNTFGTvd=root cat=utm:virus FTNTFGTsubtype=virus FTNTFGTeventtype=infected FTNTFGTlevel=warning src=192.0.2.10 dst=198.51.100.20 spt=49152 dpt=80 act=blocked proto=6 msg=File is infected. FTNTFGTvirus=EICAR_TEST_FILE",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.20",
+      "log.devid": "FGT-LAB",
+      "log.msg": "File is infected.",
+      "protocol": "TCP"
+    },
+    "absent": [],
+    "matches": [
+      "antivirus_outbreak_detection"
+    ]
+  },
+  {
+    "name": "native without syslog priority",
+    "dataSource": "firewall-lab",
+    "raw": "date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcip=192.0.2.10 dstip=198.51.100.20 action=\"deny\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "no PRI with HTML in final message",
+    "dataSource": "firewall-lab",
+    "raw": "date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcip=192.0.2.10 action=\"deny\" msg=\"<script>alert(1)</script>\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "log.type": "traffic",
+      "actionResult": "denied",
+      "log.msg": "<script>alert(1)</script>"
+    },
+    "absent": [
+      "log.priority"
+    ],
+    "matches": []
+  },
+  {
+    "name": "unspecified address representation 0:0:0:0:0:0:0:0",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 devid=\"FGT-LAB\" vd=\"root\" srcip=0:0:0:0:0:0:0:0 dstip=0:0:0:0:0:0:0:0",
+    "expected": {
+      "log.srcip": "0:0:0:0:0:0:0:0",
+      "log.dstip": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "unspecified address representation ::0",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 devid=\"FGT-LAB\" vd=\"root\" srcip=::0 dstip=::0",
+    "expected": {
+      "log.srcip": "::0",
+      "log.dstip": "::0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "unspecified address representation ::ffff:0.0.0.0",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 devid=\"FGT-LAB\" vd=\"root\" srcip=::ffff:0.0.0.0 dstip=::ffff:0.0.0.0",
+    "expected": {
+      "log.srcip": "::ffff:0.0.0.0",
+      "log.dstip": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  }
+]
