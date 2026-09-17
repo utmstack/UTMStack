@@ -1192,5 +1192,165 @@
       "origin.port"
     ],
     "matches": []
+  },
+  {
+    "name": "Zero address expanded IPv6 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0:0:0:0:0:0:0:0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address alternate compressed IPv6 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address mapped dotted IPv4 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address mapped hexadecimal IPv4 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:0:0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0:0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address expanded IPv6 uses workstation fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0:0:0:0:0:0:0:0\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address without qualified fallback is not pooled",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\":4625,\"data\":{\"IpAddress\":\"::ffff:0.0.0.0\",\"TargetUserName\":\"alice\"}}",
+    "expected": {
+      "target.user": "alice",
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.authenticationSource",
+      "log.authenticationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Valid mapped IPv4 remains an IP identity",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:192.0.2.10\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "::ffff:192.0.2.10",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "::ffff:192.0.2.10",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
   }
 ]

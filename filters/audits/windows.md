@@ -14,7 +14,12 @@ also aggregate unrelated sources under one placeholder.
 
 The filter now validates `log.data.IpAddress` at the original rename. Invalid,
 missing and unspecified addresses stay in their original vendor field and
-never enter `origin.ip`. Authentication correlation chooses a real source IP,
+never enter `origin.ip`. The unspecified-address guard uses CIDR membership,
+not literal strings: expanded/compressed IPv6 zero and IPv4-mapped zero spellings
+are rejected while the exact original vendor value is preserved. Tests cover
+account and workstation fallback, no qualified fallback, and a valid mapped-IPv4
+control. These alternate-spelling regressions are synthetic; no additional
+customer occurrence is claimed. Authentication correlation chooses a real source IP,
 then workstation, then actor account, recorded in `log.authenticationSource`
 and `log.authenticationSourceType`. The account fallback identifies an account,
 not a network client. Every affected history search scopes that identity by
@@ -65,9 +70,9 @@ placeholder cleanup, and event-versus-alert grouping remain included.
 
 - `windows_contract_test.go` is standalone and runs with `go test ./...` in
   `plugins/alerts`, without the shared test-runner PR.
-- 53 sanitized raw JSON fixtures exercise valid IPv4/IPv6, missing/placeholder
+- 60 sanitized raw JSON fixtures exercise valid IPv4/IPv6, missing/placeholder
   addresses, host/account fallback, valid/invalid ports, host roles and time.
-- 44 positive predicate cases cover all seven changed correlation consumers.
+- 50 positive predicate cases cover all seven changed correlation consumers.
   Negative identity cases also compile/evaluate all 38 shipped Windows rules.
 - The real SDK executes historical requests against a local mock OpenSearch
   server, including mapping resolution, placeholder expansion, query creation,
