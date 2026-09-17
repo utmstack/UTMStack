@@ -366,6 +366,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.flushPendingFilters();
           this.lastRequest=null
+          this.refreshingAlert = false;
          }))
         .subscribe(
       (res: HttpResponse<any>) => {
@@ -374,7 +375,6 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       },
       (_res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
-        this.refreshingAlert = false;
       }
     );
   }
