@@ -43,4 +43,4 @@ where: |
    oneOf("log.cs1", ["infected", "suspicious"]) ||
    exists("log.cefDeviceSeverity"))
 groupBy:
-  - origin.host
+  - adversary.host

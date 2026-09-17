@@ -32,5 +32,5 @@ where: |
   exists("target.ip") &&
   action != "blocked" && action != "Blocked"
 groupBy:
-  - origin.host
+  - adversary.host
   - target.ip

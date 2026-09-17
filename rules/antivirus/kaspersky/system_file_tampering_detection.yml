@@ -33,4 +33,4 @@ where: |
    contains("log.msg", ["system modification", "unauthorized change"]) ||
    (equals("log.cat", "Behavior Detection") && contains("log.msg", "modify")))
 groupBy:
-  - origin.host
+  - adversary.host

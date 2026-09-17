@@ -32,5 +32,5 @@ where: |
   (contains("log.msg", ["download", "execute", "bypass", "encoded", "obfuscat", "hidden", "malicious"]) ||
    exists("log.actionResult"))
 groupBy:
-  - log.cs4
-  - origin.host
+  - lastEvent.log.cs4
+  - adversary.host

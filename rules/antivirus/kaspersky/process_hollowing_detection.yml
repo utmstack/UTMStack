@@ -31,5 +31,5 @@ where: |
    contains("log.msg", ["hollow", "suspended", "unmap"])) &&
   greaterOrEqual("log.cefDeviceSeverity", "3")
 groupBy:
-  - log.cs5
-  - origin.host
+  - lastEvent.log.cs5
+  - adversary.host

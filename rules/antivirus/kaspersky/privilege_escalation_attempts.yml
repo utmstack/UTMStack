@@ -36,6 +36,6 @@ where: |
    contains("log.cs4", "Exploit") ||
    contains("log.msg", ["privilege", "elevation"]))
 groupBy:
-  - log.signatureID
-  - origin.host
-  - origin.user
+  - lastEvent.log.signatureID
+  - adversary.host
+  - adversary.user
