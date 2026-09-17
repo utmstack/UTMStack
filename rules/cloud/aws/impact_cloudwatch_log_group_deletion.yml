@@ -1,26 +1,31 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: "AWS CloudWatch Log Group Deletion"
+- aws
+name: AWS CloudWatch Log Group Deletion
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Impact"
-technique: "T1485 - Data Destruction"
+category: Impact
+technique: T1485 - Data Destruction
 adversary: origin
-description: "Identifies the deletion of a specified AWS CloudWatch log group. When a log group is deleted, all the archived log events associated with the log group are also permanently deleted"
+description: Identifies the deletion of a specified AWS CloudWatch log group. When a log group is deleted, all the archived
+  log events associated with the log group are also permanently deleted
 references:
-  - "https://attack.mitre.org/tactics/TA0040/"
-  - "https://attack.mitre.org/techniques/T1485/"
-  - "https://attack.mitre.org/tactics/TA0005/"
-  - "https://attack.mitre.org/techniques/T1562/"
-  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-group.html"
-  - "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogGroup.html"
+- https://attack.mitre.org/tactics/TA0040/
+- https://attack.mitre.org/techniques/T1485/
+- https://attack.mitre.org/tactics/TA0005/
+- https://attack.mitre.org/techniques/T1562/
+- https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-group.html
+- https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogGroup.html
 where: |
-  equals("log.eventSource", "logs.amazonaws.com") &&
-  equals("log.eventName", "DeleteLogGroup")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "logs.amazonaws.com") &&
+  equals("log.eventName", "DeleteLogGroup") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

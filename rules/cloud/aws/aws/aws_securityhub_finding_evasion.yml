@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS SecurityHub Finding Evasion
 impact:
   confidentiality: 2
   integrity: 3
   availability: 2
 category: Defense Evasion
-technique: "T1562 - Impair Defenses"
+technique: T1562 - Impair Defenses
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings.html
-  - https://attack.mitre.org/techniques/T1562/
+- https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings.html
+- https://attack.mitre.org/techniques/T1562/
 description: |
   Detects attempts to suppress or manipulate AWS SecurityHub findings through BatchUpdateFindings, DeleteInsight, or UpdateFindings operations. Attackers use these to hide evidence of their activities from security monitoring.
 
@@ -25,21 +24,47 @@ description: |
   6. Restore suppressed findings if the action was unauthorized
   7. Review SecurityHub aggregation and automation rules for tampering
 where: |
-  equals("log.eventSource", "securityhub.amazonaws.com") &&
+  (equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "securityhub.amazonaws.com") &&
   oneOf("log.eventName", ["BatchUpdateFindings", "DeleteInsight", "UpdateFindings", "DeleteActionTarget"]) &&
-  equals("log.errorCode", "") &&
-  !equals("log.userIdentityType", "AWSService")
+  equals("actionResult","success") &&
+  !equals("log.userIdentity.type", "AWSService"))) &&
+  exists("dataSource") &&
+  !equals("dataSource","") &&
+  exists("log.awsAccountKeyType") &&
+  !equals("log.awsAccountKeyType","") &&
+  exists("log.awsAccountKey") &&
+  !equals("log.awsAccountKey","") &&
+  exists("log.awsActorKeyType") &&
+  !equals("log.awsActorKeyType","") &&
+  exists("log.awsActorKey") &&
+  !equals("log.awsActorKey","")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
-      - field: log.userIdentityArn
-        operator: filter_term
-        value: '{{.log.userIdentityArn}}'
-      - field: log.eventSource
-        operator: filter_term
-        value: 'securityhub.amazonaws.com'
-    within: 30m
-    count: 5
+- indexPattern: v11-log-aws-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.awsAccountKeyType
+    operator: filter_term
+    value: '{{.log.awsAccountKeyType}}'
+  - field: log.awsAccountKey
+    operator: filter_term
+    value: '{{.log.awsAccountKey}}'
+  - field: log.awsActorKeyType
+    operator: filter_term
+    value: '{{.log.awsActorKeyType}}'
+  - field: log.awsActorKey
+    operator: filter_term
+    value: '{{.log.awsActorKey}}'
+  - field: log.correlationCandidate.aws_securityhub_finding_evasion
+    operator: filter_term
+    value: match
+  within: 30m
+  count: 5
 groupBy:
-  - adversary.user
-  - lastEvent.log.eventName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.eventName

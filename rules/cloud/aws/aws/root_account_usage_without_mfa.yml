@@ -1,21 +1,20 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Root Account Usage Without MFA
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
-technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+technique: 'T1078.004 - Valid Accounts: Cloud Accounts'
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
-  - https://attack.mitre.org/techniques/T1078/004/
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
+- https://attack.mitre.org/techniques/T1078/004/
 description: |
   Detects usage of AWS root account without Multi-Factor Authentication (MFA). Root account usage should be avoided for daily operations and must always use MFA when necessary. This is a critical security violation as the root account has unrestricted access to all AWS resources.
-  
+
   Next Steps:
   1. Immediately verify if this root account activity is authorized
   2. Check the source IP address and user agent for suspicious patterns
@@ -28,9 +27,15 @@ description: |
   9. Check for any privilege escalation attempts or unusual API calls
   10. Implement additional monitoring for root account activities
 where: |
-  equals("log.userIdentityType", "Root") && 
-  !equals("log.userIdentitySessionContextAttributesMfaAuthenticated", "true") &&
-  equals("log.errorCode", "")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.userIdentity.type","Root") &&
+  equals("actionResult","success") &&
+  (equals("log.userIdentity.sessionContext.attributes.mfaAuthenticated","false") ||
+  (equals("log.eventName","ConsoleLogin") &&
+  equals("log.additionalEventData.MFAUsed","No"))))
 groupBy:
-  - lastEvent.log.sourceIPAddress
-  - lastEvent.log.userIdentityAccountId
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- lastEvent.log.sourceIPAddress
+- lastEvent.log.userIdentityAccountId

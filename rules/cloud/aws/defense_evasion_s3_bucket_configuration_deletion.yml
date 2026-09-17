@@ -1,28 +1,32 @@
-# Rule version v1.0.3
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - "aws"
-name: "AWS S3 Bucket Configuration Deletion"
+- aws
+name: AWS S3 Bucket Configuration Deletion
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Defense Evasion"
-technique: "T1070 - Indicator Removal"
+category: Defense Evasion
+technique: T1070 - Indicator Removal
 adversary: origin
-description: "Identifies the deletion of various Amazon Simple Storage Service (S3) bucket configuration components"
+description: Identifies the deletion of various Amazon Simple Storage Service (S3) bucket configuration components
 references:
-  - "https://attack.mitre.org/techniques/T1070/"
-  - "https://attack.mitre.org/tactics/TA0005/"
-  - "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketPolicy.html"
-  - "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html"
-  - "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html"
-  - "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html"
-  - "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html"
+- https://attack.mitre.org/techniques/T1070/
+- https://attack.mitre.org/tactics/TA0005/
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketPolicy.html
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html
 where: |
-  equals("log.eventSource", "s3.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "s3.amazonaws.com") &&
   oneOf("log.eventName", ["DeleteBucketPolicy", "DeleteBucketReplication",
-  "DeleteBucketCors", "DeleteBucketEncryption", "DeleteBucketLifecycle"])
+  "DeleteBucketCors", "DeleteBucketEncryption", "DeleteBucketLifecycle"]) &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user
