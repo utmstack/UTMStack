@@ -1,0 +1,138 @@
+{
+  "technology": "NetFlow",
+  "filters": [
+    "filters/netflow/netflow.yml"
+  ],
+  "rules": [
+    "rules/netflow/beaconing_behavior_detection.yml",
+    "rules/netflow/data_exfiltration_indicators.yml",
+    "rules/netflow/ddos_traffic_patterns.yml",
+    "rules/netflow/netflow_cryptomining_traffic.yml",
+    "rules/netflow/netflow_doh_detection.yml",
+    "rules/netflow/netflow_icmp_tunnel.yml",
+    "rules/netflow/netflow_internal_scanning.yml",
+    "rules/netflow/netflow_lateral_movement_smb_rdp.yml",
+    "rules/netflow/netflow_long_duration_connections.yml",
+    "rules/netflow/netflow_vpn_unusual_destinations.yml",
+    "rules/netflow/port_scanning_patterns.yml",
+    "rules/netflow/tor_usage_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "netflow_valid_source_ip",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "origin": {
+          "ip": "2001:db8::7"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::7"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "netflow_hostname_not_ip",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "origin": {
+          "ip": "lab-host"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "lab-host"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "netflow_numeric_protocol",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "protocol": 6
+      },
+      "expected": {
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "netflow_tor_scalar_counters",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "origin": {
+          "ip": "192.0.2.5"
+        },
+        "target": {
+          "ip": "198.51.100.9",
+          "port": 9001
+        },
+        "log": {
+          "protocol": "6",
+          "bytes": 2048
+        }
+      },
+      "expected": {
+        "log.bytes": 2048,
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {
+        "rules/netflow/tor_usage_detection.yml": true
+      }
+    },
+    {
+      "name": "netflow_tor_extracted_counters",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "origin": {
+          "ip": "192.0.2.5"
+        },
+        "target": {
+          "ip": "198.51.100.9",
+          "port": 9001
+        },
+        "log": {
+          "protocol": "6",
+          "totalBytes": "2048]\""
+        }
+      },
+      "expected": {
+        "log.totalBytes": "2048",
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {
+        "rules/netflow/tor_usage_detection.yml": true
+      }
+    },
+    {
+      "name": "netflow_tor_small_flow",
+      "filter": "netflow/netflow.yml",
+      "input": {
+        "origin": {
+          "ip": "192.0.2.5"
+        },
+        "target": {
+          "ip": "198.51.100.9",
+          "port": 9001
+        },
+        "log": {
+          "protocol": "6",
+          "bytes": 1
+        }
+      },
+      "expected": {
+        "log.bytes": 1
+      },
+      "absent": [],
+      "rules": {
+        "rules/netflow/tor_usage_detection.yml": false
+      }
+    }
+  ]
+}

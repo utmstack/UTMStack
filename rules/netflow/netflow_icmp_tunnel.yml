@@ -27,7 +27,7 @@ where: |
   exists("origin.ip") &&
   exists("target.ip") &&
   equals("protocol", "ICMP") &&
-  greaterThan("log.bytes", 10000)
+  (greaterThan("log.bytes", 10000) || greaterThan("log.totalBytes", 10000))
 afterEvents:
   - indexPattern: v11-log-netflow-*
     with:

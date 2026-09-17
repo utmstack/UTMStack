@@ -28,8 +28,8 @@ where: |
   exists("target.ip") &&
   (inCIDR("origin.ip", "10.0.0.0/8") || inCIDR("origin.ip", "172.16.0.0/12") || inCIDR("origin.ip", "192.168.0.0/16")) &&
   (inCIDR("target.ip", "10.0.0.0/8") || inCIDR("target.ip", "172.16.0.0/12") || inCIDR("target.ip", "192.168.0.0/16")) &&
-  lessOrEqual("log.packets", 5) &&
-  lessThan("log.bytes", 500)
+  (lessOrEqual("log.packets", 5) || lessOrEqual("log.totalPackets", 5)) &&
+  (lessThan("log.bytes", 500) || lessThan("log.totalBytes", 500))
 afterEvents:
   - indexPattern: v11-log-netflow-*
     with:

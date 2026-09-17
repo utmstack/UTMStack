@@ -26,8 +26,8 @@ description: |
 where: |
   exists("origin.ip") &&
   exists("target.ip") &&
-  lessOrEqual("log.packets", 10) &&
-  lessThan("log.bytes", 1000) &&
+  (lessOrEqual("log.packets", 10) || lessOrEqual("log.totalPackets", 10)) &&
+  (lessThan("log.bytes", 1000) || lessThan("log.totalBytes", 1000)) &&
   greaterThan("target.port", 0) &&
   equals("protocol", "TCP")
 afterEvents:
