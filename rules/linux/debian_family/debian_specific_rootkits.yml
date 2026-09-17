@@ -27,6 +27,6 @@ description: |
   7. Analyze network connections for command and control communications
   8. Update security tools and perform full system scan
 where: |
-  regexMatch("origin.process", "/(reptile|bdvl|azazel|jynx|xorddos)") || (contains("origin.command", "insmod") && regexMatch("origin.command", "(rootkit|hide|backdoor)")) || (contains("origin.command", "ld.so.preload") && regexMatch("origin.command", "(>>|tee|echo)"))
+  (regexMatch("origin.path", "/(reptile|bdvl|azazel|jynx|xorddos)") || regexMatch("origin.process", "/(reptile|bdvl|azazel|jynx|xorddos)")) || (contains("origin.command", "insmod") && regexMatch("origin.command", "(rootkit|hide|backdoor)")) || (contains("origin.command", "ld.so.preload") && regexMatch("origin.command", "(>>|tee|echo)"))
 deduplicateBy:
   - dataSource

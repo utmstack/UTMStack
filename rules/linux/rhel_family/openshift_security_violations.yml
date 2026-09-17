@@ -41,5 +41,5 @@ where: |
     (oneOf("log.resource", ["secrets", "configmaps", "serviceaccounts"]) && equals("log.verb", "get") && equals("log.response_code", 403))
   )
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

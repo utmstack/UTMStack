@@ -1,0 +1,113 @@
+{
+  "technology": "Linux",
+  "filters": [
+    "filters/linux/linux.yml"
+  ],
+  "rules": [
+    "rules/linux/attempt_to_disable_syslog_service.yml",
+    "rules/linux/bruteforce_attack.yml",
+    "rules/linux/chattr_immutable_file.yml",
+    "rules/linux/debian_family/auditd_syslog_disabling.yml",
+    "rules/linux/debian_family/container_escape_techniques.yml",
+    "rules/linux/debian_family/crontab_persistence.yml",
+    "rules/linux/debian_family/debian_kernel_exploits.yml",
+    "rules/linux/debian_family/debian_specific_rootkits.yml",
+    "rules/linux/debian_family/ebpf_rootkit_detection.yml",
+    "rules/linux/debian_family/etc_shadow_access.yml",
+    "rules/linux/debian_family/kernel_exploit_indicators.yml",
+    "rules/linux/debian_family/ld_preload_hijacking.yml",
+    "rules/linux/debian_family/process_masquerading.yml",
+    "rules/linux/debian_family/reverse_shell_detection.yml",
+    "rules/linux/debian_family/shell_rc_file_modification.yml",
+    "rules/linux/debian_family/ssh_authorized_keys_modification.yml",
+    "rules/linux/debian_family/ssh_tunneling_port_forwarding.yml",
+    "rules/linux/debian_family/suid_sgid_binary_creation.yml",
+    "rules/linux/debian_family/suspicious_binary_in_tmp.yml",
+    "rules/linux/debian_family/systemd_timer_persistence.yml",
+    "rules/linux/disable_selinux_attempt.yml",
+    "rules/linux/file_deletion_via_shred.yml",
+    "rules/linux/file_transfer_or_listener_established_via_netcat.yml",
+    "rules/linux/insmod_kernel_module_load.yml",
+    "rules/linux/kde_autostart_modification.yml",
+    "rules/linux/kernel_module_removal.yml",
+    "rules/linux/linux_hping_activity.yml",
+    "rules/linux/linux_iodine_activity.yml",
+    "rules/linux/linux_nping_activity.yml",
+    "rules/linux/log_files_deleted.yml",
+    "rules/linux/modify_ssh_binaries.yml",
+    "rules/linux/perl_tty_shell.yml",
+    "rules/linux/pkexec_envar_hijack.yml",
+    "rules/linux/python_tty_shell.yml",
+    "rules/linux/reverse_shell_via_named_pipe.yml",
+    "rules/linux/rhel_family/boot_loader_attacks.yml",
+    "rules/linux/rhel_family/container_platform_attacks.yml",
+    "rules/linux/rhel_family/openshift_security_violations.yml",
+    "rules/linux/rhel_family/rhel_kernel_exploits.yml",
+    "rules/linux/rhel_family/rhel_specific_malware.yml",
+    "rules/linux/rhel_family/rpm_database_tampering.yml",
+    "rules/linux/rhel_family/secure_boot_violations.yml",
+    "rules/linux/rhel_family/selinux_policy_violations.yml",
+    "rules/linux/rhel_family/systemd_unit_file_attacks.yml",
+    "rules/linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "rules/linux/tc_bpf_filter.yml",
+    "rules/linux/tunneling_via_earthworm.yml",
+    "rules/linux/unshare_namesapce_manipulation.yml",
+    "rules/linux/user_added_to_admin_group.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Linux negative syscall return preserved",
+      "filter": "linux/linux.yml",
+      "input": {
+        "log": {
+          "type": "auditd",
+          "exit": -13,
+          "exe": "/usr/bin/cat",
+          "comm": "cat",
+          "cwd": "/home/user"
+        }
+      },
+      "expected": {
+        "log.exitCode": -13,
+        "actionResult": "failure",
+        "origin.path": "/usr/bin/cat",
+        "origin.process": "cat",
+        "log.workingDirectory": "/home/user"
+      },
+      "absent": [
+        "statusCode"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "Linux textual job failure",
+      "filter": "linux/linux.yml",
+      "input": {
+        "log": {
+          "JOBRESULT": "failed"
+        }
+      },
+      "expected": {
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Linux unknown job result",
+      "filter": "linux/linux.yml",
+      "input": {
+        "log": {
+          "JOBRESULT": "dependency"
+        }
+      },
+      "expected": {
+        "log.vendorActionResult": "dependency"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {}
+    }
+  ]
+}
