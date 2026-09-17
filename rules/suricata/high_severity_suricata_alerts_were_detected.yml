@@ -13,7 +13,7 @@ adversary: origin
 references:
   - "https://suricata.readthedocs.io/en/latest/"
 description: "Suricata has detected a high severity alert. This indicates potential malicious activity targeting the network infrastructure, such as exploitation attempts, malware communication, or suspicious network behavior."
-where: equals("log.eventType", "alert") && equals("severity", "high")
+where: equals("log.eventType", "alert") && equals("log.alert.severity", 1)
 afterEvents:
   - indexPattern: v11-log-suricata-*
     with:

@@ -13,7 +13,7 @@ adversary: target
 description: "Suricata has detected a medium severity alert that may indicate reconnaissance or scanning attempts. This could include port scanning, protocol anomalies, or suspicious network patterns that warrant investigation but may not represent an immediate threat."
 references:
   - "https://suricata.readthedocs.io/en/latest/"
-where: equals("log.eventType", "alert") && equals("severity", "medium")
+where: equals("log.eventType", "alert") && equals("log.alert.severity", 2)
 afterEvents:
   - indexPattern: v11-log-suricata-*
     with:

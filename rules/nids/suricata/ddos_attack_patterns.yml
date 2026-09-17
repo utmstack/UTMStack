@@ -32,17 +32,17 @@ where: |
       contains("log.alert.signature", "DDoS") ||
       contains("log.alert.signature", "amplification"))) ||
     (equals("protocol", "TCP") &&
-     equals("log.tcp.flags", "S") &&
-     greaterThan("log.flow.pkts_toserver", 100) &&
-     lessThan("log.flow.duration", 5)) ||
+     (equals("log.tcp.flags", "S") || (equals("log.tcp.syn", true) && !equals("log.tcp.ack", true))) &&
+     (greaterThan("log.flow.pktstoserver", 100) || greaterThan("log.flow.pkts_toserver", 100)) &&
+     (lessThan("log.flow.age", 5) || (!exists("log.flow.age") && lessThan("log.flow.duration", 5)))) ||
     (equals("protocol", "UDP") &&
-     greaterThan("log.flow.pkts_toserver", 1000) &&
-     lessThan("log.flow.duration", 10)) ||
+     (greaterThan("log.flow.pktstoserver", 1000) || greaterThan("log.flow.pkts_toserver", 1000)) &&
+     (lessThan("log.flow.age", 10) || (!exists("log.flow.age") && lessThan("log.flow.duration", 10)))) ||
     (equals("protocol", "ICMP") &&
-     greaterThan("log.flow.pkts_toserver", 500) &&
-     lessThan("log.flow.duration", 5)) ||
+     (greaterThan("log.flow.pktstoserver", 500) || greaterThan("log.flow.pkts_toserver", 500)) &&
+     (lessThan("log.flow.age", 5) || (!exists("log.flow.age") && lessThan("log.flow.duration", 5)))) ||
     (equals("target.port", 123) &&
-     safe("log.flow.bytes_toclient", 0) > safe("log.flow.bytes_toserver", 0) * 10)
+     safe("log.flow.bytestoclient", safe("log.flow.bytes_toclient", 0.0)) > safe("log.flow.bytestoserver", safe("log.flow.bytes_toserver", 0.0)) * 10.0)
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*
