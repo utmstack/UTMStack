@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/lib/pq v1.12.3
-	github.com/threatwinds/go-sdk v1.1.31
+	github.com/threatwinds/go-sdk v1.1.33
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/yaml v1.6.0

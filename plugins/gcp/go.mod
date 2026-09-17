@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	cloud.google.com/go/pubsub v1.51.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.31
+	github.com/threatwinds/go-sdk v1.1.33
 	google.golang.org/api v0.298.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
