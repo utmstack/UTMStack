@@ -1,0 +1,65 @@
+{
+  "technology": "GitHub",
+  "filters": [
+    "filters/github/github.yml"
+  ],
+  "rules": [
+    "rules/github/action_secret_access.yml",
+    "rules/github/codeowners_modification.yml",
+    "rules/github/dependabot_config_poisoning.yml",
+    "rules/github/environment_protection_bypass.yml",
+    "rules/github/github_app_token_theft.yml",
+    "rules/github/mass_repository_cloning.yml",
+    "rules/github/org_member_role_escalation.yml",
+    "rules/github/repo_visibility_public.yml",
+    "rules/github/secret_scanning_alerts.yml",
+    "rules/github/self_hosted_runner_compromise.yml",
+    "rules/github/sensitive_data_commits.yml",
+    "rules/github/workflow_injection_pr_target.yml",
+    "rules/github/workflow_modifications.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "github_workflow_success",
+      "filter": "github/github.yml",
+      "input": {
+        "log": {
+          "sender": {
+            "login": "operator"
+          },
+          "workflow_run": {
+            "conclusion": "success"
+          }
+        }
+      },
+      "expected": {
+        "origin.user": "operator",
+        "log.senderLogin": "operator",
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "github_workflow_failure",
+      "filter": "github/github.yml",
+      "input": {
+        "log": {
+          "sender": {
+            "login": "operator"
+          },
+          "workflow_run": {
+            "conclusion": "failure"
+          }
+        }
+      },
+      "expected": {
+        "origin.user": "operator",
+        "log.senderLogin": "operator",
+        "actionResult": "failure"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}

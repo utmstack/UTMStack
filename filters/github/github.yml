@@ -679,8 +679,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'oneOf("log.conclusion", ["failure", "timed_out", "startup_failure", "action_required"])'
+            value: failure
+          where: oneOf("log.conclusion", ["failure", "timed_out", "startup_failure", "action_required"])
 
       # Removing unused fields
       - delete:
@@ -697,3 +697,11 @@ pipeline:
             - log.pusher
             - log.repository.owner
             - log.repository
+
+      # Promote standard fields while retaining vendor fields used by rules.
+      - grok:
+          source: log.senderLogin
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: exists("log.senderLogin") && !exists("origin.user")
