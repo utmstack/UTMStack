@@ -26,5 +26,5 @@ description: |
   6. Review Cloud Audit logs for other logging configuration changes
 where: |
   equals("log.protoPayloadServiceName", "logging.googleapis.com") &&
-  oneof("log.protoPayloadMethodName", ["google.logging.v2.ConfigServiceV2.CreateSink", "google.logging.v2.ConfigServiceV2.DeleteSink", "google.logging.v2.ConfigServiceV2.UpdateSink"]) &&
+  oneOf("log.protoPayloadMethodName", ["google.logging.v2.ConfigServiceV2.CreateSink", "google.logging.v2.ConfigServiceV2.DeleteSink", "google.logging.v2.ConfigServiceV2.UpdateSink"]) &&
   exists("origin.user")
