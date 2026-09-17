@@ -1,21 +1,20 @@
-# Rule version v1.0.0
-
+# Rule version v1.1.0
 dataTypes:
-  - antivirus-kaspersky
+- antivirus-kaspersky
 name: Kaspersky WMI Abuse Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Execution
-technique: "T1047 - Windows Management Instrumentation"
+technique: T1047 - Windows Management Instrumentation
 adversary: origin
 references:
-  - https://attack.mitre.org/techniques/T1047/
-  - https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm
+- https://attack.mitre.org/techniques/T1047/
+- https://support.kaspersky.com/KLMS/8.2/en-US/151684.htm
 description: |
   Detects potential Windows Management Instrumentation (WMI) abuse identified by Kaspersky, including suspicious WMI queries, event subscriptions, or process creation via WMI. WMI is a legitimate Windows component often abused by attackers for lateral movement, persistence, and code execution.
-  
+
   Next Steps:
   1. Identify the affected host and user account involved in the WMI activity
   2. Review the specific WMI commands or queries that triggered the alert
@@ -24,9 +23,9 @@ description: |
   5. Verify if this is legitimate administrative activity or potential malicious behavior
   6. If confirmed malicious, isolate the system and perform incident response procedures
 where: |
-  (contains("log.msg", ["WMI", "wmi", "wmic", "winmgmt", "scrcons.exe"]) ||
+  equals("log.format","cef") && ((contains("log.msg", ["WMI", "wmi", "wmic", "winmgmt", "scrcons.exe"]) ||
    contains("log.msg", "WMI")) &&
-  (greaterOrEqual("log.cefDeviceSeverity", "3") || equals("log.cat", "blocked"))
+  (greaterOrEqual("log.cefDeviceSeverity", "3") || equals("log.cat", "blocked")))
 groupBy:
-  - adversary.host
-  - adversary.user
+- adversary.host
+- adversary.user
