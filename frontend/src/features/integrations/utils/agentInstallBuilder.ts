@@ -15,12 +15,30 @@ export interface AgentPlatform {
 export interface AgentInstallConfig {
   actions: AgentActionOption[]
   platforms: AgentPlatform[]
-  getCommand: (action: AgentAction, platformId: string) => string
+  getCommand: (action: AgentAction, platformId: string, options?: AgentInstallOptions) => string
 }
 
 export interface AgentBuilderContext {
   host: string
   token: string
+}
+
+// Mirrors the agent's own `install <server> <key> <skip_cert_validation(yes/no)>
+// [--no-remote-control]` — see agent/cmd/install.go. Defaults match every
+// command this builder generated before these were configurable, so leaving
+// them untouched changes nothing for existing guides/screenshots.
+export interface AgentInstallOptions {
+  /** The install command's skip_cert_validation arg. On by default — most
+   *  deployments talk to a self-signed on-prem instance. */
+  skipCertValidation: boolean
+  /** --no-remote-control: refuse every remote command on this install:
+   *  reversible only by reinstalling. Off by default. */
+  noRemoteControl: boolean
+}
+
+export const DEFAULT_AGENT_INSTALL_OPTIONS: AgentInstallOptions = {
+  skipCertValidation: true,
+  noRemoteControl: false,
 }
 
 const ACTIONS: AgentActionOption[] = [
@@ -50,16 +68,24 @@ const WINDOWS_PLATFORMS: AgentPlatform[] = [
   { id: 'windows-arm64', name: 'ARM64', installerName: WIN_ARM64 },
 ]
 
-function linuxInstall(host: string, token: string, installer: string, flavor: 'ubuntu' | 'fedora'): string {
+function linuxInstall(
+  host: string,
+  token: string,
+  installer: string,
+  flavor: 'ubuntu' | 'fedora',
+  options: AgentInstallOptions,
+): string {
   const pkgInstall = flavor === 'ubuntu'
     ? 'apt update -y && apt install wget -y'
     : 'yum install wget -y'
+  const skipCert = options.skipCertValidation ? 'yes' : 'no'
+  const noRemoteControl = options.noRemoteControl ? ' --no-remote-control' : ''
 
   return `sudo bash -c "${pkgInstall} && mkdir -p /opt/utmstack-linux-agent && \\
     wget --no-check-certificate -P /opt/utmstack-linux-agent \\
     https://${host}/private/dependencies/agent/${installer} && \\
     chmod -R 755 /opt/utmstack-linux-agent/${installer} && \\
-    /opt/utmstack-linux-agent/${installer} install ${host} <secret>${token}</secret> yes"`
+    /opt/utmstack-linux-agent/${installer} install ${host} <secret>${token}</secret> ${skipCert}${noRemoteControl}"`
 }
 
 function linuxUninstall(installer: string): string {
@@ -74,12 +100,15 @@ function linuxUninstall(installer: string): string {
     echo 'UTMStack Agent dependencies removed successfully.'"`
 }
 
-function macosInstall(host: string, token: string, installer: string): string {
+function macosInstall(host: string, token: string, installer: string, options: AgentInstallOptions): string {
+  const skipCert = options.skipCertValidation ? 'yes' : 'no'
+  const noRemoteControl = options.noRemoteControl ? ' --no-remote-control' : ''
+
   return `sudo bash -c "mkdir -p /opt/utmstack-macos-agent && \\
     curl -k -o /opt/utmstack-macos-agent/${installer} \\
     https://${host}/private/dependencies/agent/${installer} && \\
     chmod +x /opt/utmstack-macos-agent/${installer} && \\
-    /opt/utmstack-macos-agent/${installer} install ${host} <secret>${token}</secret> yes"`
+    /opt/utmstack-macos-agent/${installer} install ${host} <secret>${token}</secret> ${skipCert}${noRemoteControl}"`
 }
 
 function macosUninstall(installer: string): string {
@@ -93,15 +122,17 @@ function macosUninstall(installer: string): string {
     echo 'UTMStack Agent removed successfully.'"`
 }
 
-function windowsInstall(host: string, token: string, installer: string): string {
+function windowsInstall(host: string, token: string, installer: string, options: AgentInstallOptions): string {
   const dir = 'C:\\Program Files\\UTMStack\\UTMStack Agent'
+  const skipCert = options.skipCertValidation ? 'yes' : 'no'
+  const noRemoteControl = options.noRemoteControl ? `, '--no-remote-control'` : ''
   // One statement per line (backtick = PowerShell line continuation) so the block
   // wraps top-to-bottom like the bash guides instead of one long horizontal line.
   return `New-Item -ItemType Directory -Force -Path "${dir}"
 & curl.exe -k -o "${dir}\\${installer}" \`
   "https://${host}/private/dependencies/agent/${installer}"
 Start-Process "${dir}\\${installer}" \`
-  -ArgumentList 'install', '${host}', '<secret>${token}</secret>', 'yes' \`
+  -ArgumentList 'install', '${host}', '<secret>${token}</secret>', '${skipCert}'${noRemoteControl} \`
   -NoNewWindow -Wait`
 }
 
@@ -128,11 +159,11 @@ export function buildAgentInstall(agentId: string, ctx: AgentBuilderContext): Ag
     return {
       actions: ACTIONS,
       platforms: LINUX_PLATFORMS,
-      getCommand: (action, platformId) => {
+      getCommand: (action, platformId, options = DEFAULT_AGENT_INSTALL_OPTIONS) => {
         const platform = LINUX_PLATFORMS.find(p => p.id === platformId)
         if (!platform) return ''
         return action === 'install'
-          ? linuxInstall(host, token, platform.installerName, platform.flavor ?? 'ubuntu')
+          ? linuxInstall(host, token, platform.installerName, platform.flavor ?? 'ubuntu', options)
           : linuxUninstall(platform.installerName)
       },
     }
@@ -142,11 +173,11 @@ export function buildAgentInstall(agentId: string, ctx: AgentBuilderContext): Ag
     return {
       actions: ACTIONS,
       platforms: MACOS_PLATFORMS,
-      getCommand: (action, platformId) => {
+      getCommand: (action, platformId, options = DEFAULT_AGENT_INSTALL_OPTIONS) => {
         const platform = MACOS_PLATFORMS.find(p => p.id === platformId)
         if (!platform) return ''
         return action === 'install'
-          ? macosInstall(host, token, platform.installerName)
+          ? macosInstall(host, token, platform.installerName, options)
           : macosUninstall(platform.installerName)
       },
     }
@@ -156,11 +187,11 @@ export function buildAgentInstall(agentId: string, ctx: AgentBuilderContext): Ag
     return {
       actions: ACTIONS,
       platforms: WINDOWS_PLATFORMS,
-      getCommand: (action, platformId) => {
+      getCommand: (action, platformId, options = DEFAULT_AGENT_INSTALL_OPTIONS) => {
         const platform = WINDOWS_PLATFORMS.find(p => p.id === platformId)
         if (!platform) return ''
         return action === 'install'
-          ? windowsInstall(host, token, platform.installerName)
+          ? windowsInstall(host, token, platform.installerName, options)
           : windowsUninstall(platform.installerName)
       },
     }

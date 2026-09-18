@@ -1790,6 +1790,9 @@
         "after3": "El agente auto-reporta CPU / memoria / estado del disco a UTMStack.",
         "actionLabel": "Acción",
         "platformLabel": "Plataforma",
+        "optionsLabel": "Opciones",
+        "skipCertValidation": "No validar el certificado TLS (servidor autofirmado)",
+        "noRemoteControl": "Deshabilitar la ejecución remota de comandos en este host",
         "loadingToken": "Cargando token…",
         "actions": {
           "install": "Instalar",

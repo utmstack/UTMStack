@@ -1943,6 +1943,9 @@
         "after3": "The agent self-reports CPU / memory / disk health back to UTMStack.",
         "actionLabel": "Action",
         "platformLabel": "Platform",
+        "optionsLabel": "Options",
+        "skipCertValidation": "Skip TLS certificate validation (self-signed server)",
+        "noRemoteControl": "Disable remote command execution on this host",
         "loadingToken": "Loading token…",
         "actions": {
           "install": "Install",

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
-import type { AgentInstallConfig } from '@/features/integrations/utils/agentInstallBuilder'
+import type { AgentInstallConfig, AgentInstallOptions } from '@/features/integrations/utils/agentInstallBuilder'
 
 interface AgentInstallSelectorProps {
   config: AgentInstallConfig
@@ -11,9 +11,19 @@ interface AgentInstallSelectorProps {
   command: string
   /** Shell the command runs in — drives syntax highlighting (Windows = powershell). */
   lang?: 'bash' | 'powershell'
+  options: AgentInstallOptions
+  onOptionsChange: (next: AgentInstallOptions) => void
 }
 
-export function AgentInstallSelector({ config, activePlatformId, onSelect, command, lang = 'bash' }: AgentInstallSelectorProps) {
+export function AgentInstallSelector({
+  config,
+  activePlatformId,
+  onSelect,
+  command,
+  lang = 'bash',
+  options,
+  onOptionsChange,
+}: AgentInstallSelectorProps) {
   const { t } = useTranslation()
 
   if (config.platforms.length === 0) {
@@ -42,6 +52,32 @@ export function AgentInstallSelector({ config, activePlatformId, onSelect, comma
               {p.name}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <span className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {t('integrations.setup.agent.optionsLabel')}
+        </span>
+        <div className="flex flex-col gap-1.5">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={options.skipCertValidation}
+              onChange={(e) => onOptionsChange({ ...options, skipCertValidation: e.target.checked })}
+              className="h-4 w-4 rounded border-input"
+            />
+            {t('integrations.setup.agent.skipCertValidation')}
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={options.noRemoteControl}
+              onChange={(e) => onOptionsChange({ ...options, noRemoteControl: e.target.checked })}
+              className="h-4 w-4 rounded border-input"
+            />
+            {t('integrations.setup.agent.noRemoteControl')}
+          </label>
         </div>
       </div>
 

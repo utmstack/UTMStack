@@ -1790,6 +1790,9 @@
         "after3": "Der Agent meldet CPU-/Speicher-/Datenträgerzustand automatisch an UTMStack zurück.",
         "actionLabel": "Aktion",
         "platformLabel": "Plattform",
+        "optionsLabel": "Optionen",
+        "skipCertValidation": "TLS-Zertifikatsprüfung überspringen (selbstsigniert)",
+        "noRemoteControl": "Remote-Befehlsausführung auf diesem Host deaktivieren",
         "loadingToken": "Token wird geladen…",
         "actions": {
           "install": "Installieren",

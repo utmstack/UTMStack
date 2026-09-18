@@ -7,7 +7,7 @@ import { TableRenderer } from '@/features/dashboard/components/renderers/TableRe
 import { RegionMapRenderer } from '@/features/dashboard/components/renderers/RegionMapRenderer'
 import { TextRenderer } from '@/features/dashboard/components/renderers/TextRenderer'
 import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
-import { mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
+import { defaultChartSkeleton, mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
 import { parseSpec, specIsComplete } from '@/features/dashboard/utils/spec'
 import { getChartTypeMeta, type ChartRenderer } from '@/features/dashboard/constants'
@@ -94,7 +94,9 @@ export function WidgetRenderer({
     return <TextRenderer rows={rows} />
   }
 
-  const option = parsed.option ? mergeRowsIntoOption(parsed.option, rows) : parsed.option!
+  const skeleton = defaultChartSkeleton(builderParsed.builder?.chartType, spec?.chart)
+  const baseOption = { ...skeleton, ...builderParsed.option }
+  const option = parsed.option ? mergeRowsIntoOption(baseOption, rows) : parsed.option!
   return <EChartsRenderer option={option} />
 }
 
