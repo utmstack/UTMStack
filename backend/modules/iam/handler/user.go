@@ -83,7 +83,21 @@ func (h *UserHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := h.userUsecase.Create(c.Request.Context(), input, iam_connectors.CreateUserOptions{Invite: true})
+
+	creationOption := iam_connectors.CreateUserOptions{Invite: true}
+
+	if input.Password!=nil && *input.Password!="" {
+
+		if err:=input.CheckValidPassword();err!=nil{
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		creationOption.Invite=false
+		creationOption.Password=*input.Password
+	}
+
+	resp, err := h.userUsecase.Create(c.Request.Context(), input, creationOption )
 	audit.Record(c, audit_connectors.Event{Action: "user.create"}, audit_domain.USER_CREATION_ATTEMPT, audit_domain.USER_CREATION_SUCCESS, err)
 	if err != nil {
 		writeUserError(c, err)
@@ -91,6 +105,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, resp)
 }
+
 
 // @Summary     Update user
 // @Tags        Users

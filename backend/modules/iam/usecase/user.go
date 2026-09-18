@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
@@ -150,6 +149,7 @@ func (u *userUsecase) Create(ctx context.Context, input dto.CreateUserRequest, o
 
 	return u.toDetail(ctx, user)
 }
+
 
 func (u *userUsecase) Update(ctx context.Context, id uuid.UUID, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error) {
 	user, err := u.userRepo.FindByID(ctx, id)

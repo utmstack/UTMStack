@@ -981,7 +981,8 @@
       "roleDeleted": "Role deleted",
       "roleNameInUse": "A role with that identifier already exists",
       "roleImmutable": "System roles cannot be modified",
-      "permissionsLoadFailed": "Could not load permissions"
+      "permissionsLoadFailed": "Could not load permissions",
+      "localUserCreated": "Local user created"
     },
     "members": {
       "searchPlaceholder": "Search by name or email…",
@@ -1058,7 +1059,20 @@
       "sending": "Sending…",
       "send": "Send invite",
       "name": "Name",
-      "emailHint": "This is the address they sign in with."
+      "emailHint": "This is the address they sign in with.",
+      "localDescription": "The account is created with a password and activated immediately. No email is sent.",
+      "modeInvite": "Invite user",
+      "modeLocal": "Create local user",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Set a strong password",
+      "localUserNote": "This user will not receive an email and will be automatically activated.",
+      "createLocal": "Create user",
+      "passwordRules": {
+        "length": "At least 8 characters",
+        "case": "At least one uppercase and one lowercase letter",
+        "special": "At least one special character"
+      },
+      "emailInvalid": "Please enter a valid email address"
     },
     "rolePicker": {
       "none": "No roles available."

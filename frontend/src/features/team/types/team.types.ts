@@ -58,6 +58,7 @@ export interface CreateUserRequest {
   name?: string
   lang_key?: string
   role_names?: string[]
+  password?:string
 }
 
 export interface UpdateUserRequest {
