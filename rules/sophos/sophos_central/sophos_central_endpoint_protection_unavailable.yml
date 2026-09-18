@@ -1,0 +1,24 @@
+dataTypes:
+- sophos-central
+name: Sophos Central Endpoint Protection Unavailable
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 2
+category: Device Health
+technique: Endpoint protection health
+adversary: origin
+references:
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/
+description: Sophos reports an unprotected computer/server or a protection service
+  that is not running, at high or critical vendor severity. Verify installation, service
+  health and approved maintenance. This warning does not establish an attack.
+where: oneOf("log.type",["Event::Endpoint::NotProtected","Event::Endpoint::ServiceNotRunning"])
+  && oneOf("log.severity",["high","critical"])
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip

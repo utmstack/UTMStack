@@ -1,42 +1,67 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - sophos-central
+- sophos-central
 name: Managed Threat Response Critical Alert
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
 category: Threat Detection
-technique: "T1562 - Impair Defenses"
+technique: T1562 - Impair Defenses
 adversary: origin
 references:
-  - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/ThreatAnalysisCenter/index.html
-  - https://attack.mitre.org/tactics/TA0005/
-description: |
-  Detects critical alerts from Sophos Managed Threat Response (MTR) service indicating active threats that require immediate investigation and response, including advanced persistent threats and sophisticated attack techniques.
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/
+- https://attack.mitre.org/tactics/TA0005/
+description: 'Detects critical alerts from Sophos Managed Threat Response (MTR) service indicating active threats
+  that require immediate investigation and response, including advanced persistent threats and sophisticated attack
+  techniques.
+
 
   Next Steps:
+
   1. Review the MTR alert details in Sophos Central console
+
   2. Examine the affected endpoint for signs of compromise
+
   3. Check for lateral movement indicators on the network
+
   4. Verify if the threat has been successfully contained
+
   5. Update security policies based on threat intelligence from the alert
+
   6. Document the incident and response actions taken
-where: |
-  oneOf("log.type", ["mtr_alert", "threat_detection"]) &&
-  oneOf("log.severity", ["critical", "high"])
+
+  '
+where: '(oneOf("log.type", ["mtr_alert", "threat_detection"]) &&
+
+  oneOf("log.severity", ["critical", "high"])) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+  && (regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]")
+  && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]") &&
+  !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"]))'
 afterEvents:
-  - indexPattern: v11-log-sophos-central-*
-    with:
-      - field: log.endpointId
-        operator: filter_term
-        value: '{{.log.endpointId}}'
-      - field: log.severity
-        operator: filter_term
-        value: 'critical'
-    within: 1h
-    count: 3
+- indexPattern: v11-log-sophos-central-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.sophosCentralScope
+    operator: filter_term
+    value: '{{.log.sophosCentralScope}}'
+  - field: log.endpointId
+    operator: filter_term
+    value: '{{.log.endpointId}}'
+  - field: log.correlationCandidate.sophosCentral.mtr
+    operator: filter_term
+    value: match
+  - field: log.severity
+    operator: filter_term
+    value: critical
+  within: 1h
+  count: 3
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip
