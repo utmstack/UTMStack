@@ -3,7 +3,7 @@ dataTypes:
 - azure
 name: High Risk Device Code Sign-in
 impact:
-  confidentiality: 2
+  confidentiality: 3
   integrity: 2
   availability: 1
 category: Initial Access

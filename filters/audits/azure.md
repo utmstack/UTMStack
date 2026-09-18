@@ -72,7 +72,7 @@ matches (for example “Administrative” in endpoint telemetry) are not categor
   negative fixtures. PIM selectors bind the role property name and value to the same item.
   No general `Update user` event is equated with MFA disablement, and risk/token labels no
   longer imply impossible travel, credential theft, Golden SAML or completed exfiltration
-  without evidence. Existing numeric protocol aliases and HTTP action vocabulary are retained.
+  without evidence. Existing rule impact scores, numeric protocol aliases and HTTP action vocabulary are retained.
 
 ## Correlation and duplicate alerts
 

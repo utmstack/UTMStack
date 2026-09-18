@@ -3,7 +3,7 @@ dataTypes:
 - azure
 name: Repeated Successful Key Vault Secret or Key Reads
 impact:
-  confidentiality: 2
+  confidentiality: 3
   integrity: 2
   availability: 1
 category: Collection

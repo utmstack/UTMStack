@@ -4,8 +4,8 @@ dataTypes:
 name: Entra Sign-in with AzureHound User Agent
 impact:
   confidentiality: 2
-  integrity: 2
-  availability: 1
+  integrity: 1
+  availability: 0
 category: Discovery
 technique: ''
 adversary: origin

@@ -3,7 +3,7 @@ dataTypes:
 - azure
 name: Entra Temporary Access Pass Registered
 impact:
-  confidentiality: 2
+  confidentiality: 3
   integrity: 2
   availability: 1
 category: Credential Access

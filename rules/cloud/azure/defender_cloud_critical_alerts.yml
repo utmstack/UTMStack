@@ -3,9 +3,9 @@ dataTypes:
 - azure
 name: Microsoft Defender for Cloud High Severity Alert
 impact:
-  confidentiality: 2
-  integrity: 2
-  availability: 1
+  confidentiality: 3
+  integrity: 3
+  availability: 2
 category: Intrusion Detection
 technique: ''
 adversary: origin
