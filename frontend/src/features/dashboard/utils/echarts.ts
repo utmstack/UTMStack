@@ -1,8 +1,29 @@
-import type { Row } from '@/features/dashboard/types'
+import { getChartTypeMeta } from '@/features/dashboard/constants'
+import type { ChartTypeId, Row, SpecChart } from '@/features/dashboard/types'
 
 export interface ParsedChartConfig {
   option: Record<string, unknown> | null
   error: string | null
+}
+
+/**
+ * mergeRowsIntoOption never invents a `series` (see below) — a config that
+ * names a chart type but never actually wrote the ECharts series/axes
+ * skeleton merges into a legend with nothing to plot. This is that skeleton,
+ * picked from the builder's chart type when one was saved, or failing that
+ * from the spec's chart shape (category/time only — metric and table never
+ * reach this renderer, see WidgetRenderer). A config that already carries
+ * its own series/axes overwrites this when spread on top, so it only ever
+ * fills a real gap.
+ */
+export function defaultChartSkeleton(
+  builderChartType: ChartTypeId | undefined,
+  specChart: SpecChart | undefined
+): Record<string, unknown> {
+  if (builderChartType) return getChartTypeMeta(builderChartType).defaultConfig
+  if (specChart === 'category') return getChartTypeMeta('bar').defaultConfig
+  if (specChart === 'time') return getChartTypeMeta('line').defaultConfig
+  return {}
 }
 
 export function parseChartConfig(raw: string): ParsedChartConfig {

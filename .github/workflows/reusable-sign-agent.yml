@@ -82,11 +82,12 @@ on:
         required: false
       APPLE_SIGNING_IDENTITY:
         required: false
-      APPLE_ID:
+      APPLE_API_KEY_P8:
         required: false
-      APPLE_APP_PASSWORD:
+        description: "Base64-encoded App Store Connect Team Key (.p8) used for notarization. Team-scoped — not tied to any individual Apple ID, never triggers a 2FA prompt."
+      APPLE_API_KEY_ID:
         required: false
-      APPLE_TEAM_ID:
+      APPLE_API_ISSUER_ID:
         required: false
 
 jobs:
@@ -242,12 +243,15 @@ jobs:
       - name: Notarize macOS binaries
         if: inputs.os == 'macos'
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
           BINARIES: ${{ inputs.binaries }}
         run: |
           set -euo pipefail
+          API_KEY_PATH="${RUNNER_TEMP}/AuthKey_${APPLE_API_KEY_ID}.p8"
+          echo "$APPLE_API_KEY_P8" | base64 --decode > "$API_KEY_PATH"
+
           while IFS= read -r raw; do
             bin=$(echo "$raw" | xargs)
             [ -z "$bin" ] && continue
@@ -257,14 +261,16 @@ jobs:
             ( cd "$(dirname "$target")" && zip "$(basename "$target").notarize.zip" "$(basename "$target")" )
 
             xcrun notarytool submit "$zip_path" \
-              --apple-id "$APPLE_ID" \
-              --password "$APPLE_APP_PASSWORD" \
-              --team-id "$APPLE_TEAM_ID" \
+              --key "$API_KEY_PATH" \
+              --key-id "$APPLE_API_KEY_ID" \
+              --issuer "$APPLE_API_ISSUER_ID" \
               --wait
 
             rm -f "$zip_path"
             echo "✓ Notarized ${target}"
           done <<< "$BINARIES"
+
+          rm -f "$API_KEY_PATH"
 
       # =========================================================
       # Upload signed binaries

@@ -5,7 +5,11 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { AgentInstallSelector } from '@/features/integrations/components/setup/AgentInstallSelector'
 import { AgentUninstallSection } from '@/features/integrations/components/setup/AgentUninstallSection'
 import { useConectionKey } from '@/features/integrations/hooks/useConnectionKey'
-import { buildAgentInstall } from '@/features/integrations/utils/agentInstallBuilder'
+import {
+  buildAgentInstall,
+  DEFAULT_AGENT_INSTALL_OPTIONS,
+  type AgentInstallOptions,
+} from '@/features/integrations/utils/agentInstallBuilder'
 import { forwarderHost } from '@/features/integrations/components/setup/collector/ForwarderGuide'
 import type { Integration } from '@/features/integrations/types'
 
@@ -38,7 +42,11 @@ export function AgentSetup({ integration: i }: AgentSetupProps) {
     ? platformId
     : config.platforms[0]?.id ?? ''
 
-  const installCommand = config.getCommand('install', activePlatformId)
+  // Defaults match every install command generated before these existed —
+  // opting in changes nothing until the customer actually toggles one.
+  const [installOptions, setInstallOptions] = useState<AgentInstallOptions>(DEFAULT_AGENT_INSTALL_OPTIONS)
+
+  const installCommand = config.getCommand('install', activePlatformId, installOptions)
   const uninstallCommand = config.getCommand('uninstall', activePlatformId)
 
   // macOS ships an Apple Silicon (arm64) build only — surface the compatibility
@@ -97,6 +105,8 @@ export function AgentSetup({ integration: i }: AgentSetupProps) {
           onSelect={setPlatformId}
           command={installCommand}
           lang={lang}
+          options={installOptions}
+          onOptionsChange={setInstallOptions}
         />
       </Section>
 

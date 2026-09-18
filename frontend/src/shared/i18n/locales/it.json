@@ -1804,6 +1804,9 @@
         "after3": "L'agente auto-segnala lo stato di CPU/memoria/disco a UTMStack.",
         "actionLabel": "Azione",
         "platformLabel": "Piattaforma",
+        "optionsLabel": "Opzioni",
+        "skipCertValidation": "Salta la convalida del certificato TLS (server autofirmato)",
+        "noRemoteControl": "Disabilita l'esecuzione remota di comandi su questo host",
         "loadingToken": "Caricamento token…",
         "actions": {
           "install": "Installa",
