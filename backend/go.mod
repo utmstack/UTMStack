@@ -32,7 +32,7 @@ require (
 	golang.org/x/crypto v0.57.0
 	golang.org/x/sys v0.48.0
 	google.golang.org/api v0.298.0
-	google.golang.org/grpc v1.83.2
+	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.7
