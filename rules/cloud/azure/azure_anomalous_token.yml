@@ -1,32 +1,49 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
+- azure
 name: Azure AD Anomalous Token Detection
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Credential Access
-technique: "T1528 - Steal Application Access Token"
+technique: T1528 - Steal Application Access Token
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
-  - https://attack.mitre.org/techniques/T1528/
-description: |
-  Detects Azure Identity Protection alerts for anomalous tokens with unusual lifetime, unfamiliar locations, or other suspicious properties. These indicate potential token theft or manipulation.
+- https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0
+- https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
+- https://attack.mitre.org/techniques/T1528/
+description: 'Detects Azure Identity Protection alerts for anomalous tokens with unusual lifetime, unfamiliar locations, or other
+  suspicious properties. These indicate potential token theft or manipulation.
+
 
   Next Steps:
+
   1. Review the token properties that triggered the anomaly detection
-  2. Check the user's recent sign-in activity for suspicious patterns
+
+  2. Check the user''s recent sign-in activity for suspicious patterns
+
   3. Verify the source IP and device used for the authentication
+
   4. Check for impossible travel or unfamiliar location patterns
+
   5. If compromise is suspected, revoke all refresh tokens for the user
+
   6. Force MFA re-registration if MFA token was compromised
+
   7. Review conditional access policies for token protection gaps
-where: |
-  contains("log.operationName", "Anomalous Token") ||
-  (contains("log.properties", "riskEventType") && contains("log.properties", "anomalousToken"))
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","risk") && oneOf("log.properties.riskEventType",["anomalousToken"]) && !oneOf("log.properties.riskState",["dismissed",
+  "remediated", "confirmedSafe"])) || (equalsIgnoreCase("log.azureKind","signin") && (exists("log.properties.riskEventTypes_v2.#(==\"anomalousToken\")")
+  || exists("log.properties.riskEventTypesv2.#(==\"anomalousToken\")") || exists("log.properties.riskEventTypes.#(==\"anomalousToken\")"))
+  && !oneOf("log.properties.riskState",["dismissed", "remediated", "confirmedSafe"]))
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

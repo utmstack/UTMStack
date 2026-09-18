@@ -1,46 +1,56 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure AD App Registration with High-Privilege API Permissions
+- azure
+name: Repeated Entra Application Registration or Consent
 impact:
   confidentiality: 3
   integrity: 3
   availability: 1
 category: Persistence
-technique: "T1098.001 - Account Manipulation: Additional Cloud Credentials"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals
-  - https://attack.mitre.org/techniques/T1098/001/
-description: |
-  Detects creation of new Azure AD application registrations which may be used to establish persistence with high-privilege API permissions. Attackers create app registrations with permissions like Mail.ReadWrite, Directory.ReadWrite.All, or RoleManagement.ReadWrite.Directory to maintain access.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals
+- https://attack.mitre.org/techniques/T1098/001/
+description: 'Repeated successful application/service-principal creation or consent by one actor in one directory. Review approved
+  provisioning and consent workflows.
 
-  Next Steps:
-  1. Review the application registration and its requested API permissions
-  2. Verify the creator has authorization to register applications
-  3. Check if admin consent was granted for the application's permissions
-  4. Review the application's redirect URIs for suspicious external domains
-  5. Examine the application's credential types (secrets, certificates)
-  6. If unauthorized, delete the application registration and revoke any granted consents
-  7. Implement app registration policies to restrict who can create applications
-  8. Enable admin consent workflow for application permission requests
-where: |
-  (contains("log.operationName", "Add application") ||
-   contains("log.operationName", "Add service principal") ||
-   contains("log.operationName", "Consent to application")) &&
-  equals("log.categoryValue", "Administrative")
-afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
-      - field: origin.user
-        operator: filter_term
-        value: '{{.origin.user}}'
-      - field: log.categoryValue
-        operator: filter_term
-        value: Administrative
-    within: 1h
-    count: 3
+  '
+where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
+  application") || equalsIgnoreCase("log.azureOperation","Add service principal") || equalsIgnoreCase("log.azureOperation","Consent
+  to application"))) && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
+  && exists("log.azureScope") && !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","")
+  && exists("log.azureActor") && !equals("log.azureActor","")
+
+  '
 groupBy:
-  - lastEvent.log.operationName
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- indexPattern: v11-log-azure-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: log.azureActorType
+    operator: filter_term
+    value: '{{.log.azureActorType}}'
+  - field: log.azureActor
+    operator: filter_term
+    value: '{{.log.azureActor}}'
+  - field: log.correlationCandidate.app_registration_abuse
+    operator: filter_term
+    value: 'true'
+  within: 1h
+  count: 3
