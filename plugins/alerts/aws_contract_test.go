@@ -107,6 +107,11 @@ func awsRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp
 	return r
 }
 func awsParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, enrichment ...map[string]any) string {
+	return awsParseMode(t, cfg, raw, dataSource, cache, false, enrichment...)
+}
+
+// Both modes model the unresolved nested-key behavior of the closed JSON step.
+func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, preserveNested bool, enrichment ...map[string]any) string {
 	t.Helper()
 	draft := map[string]any{"raw": raw, "dataType": "aws", "dataSource": dataSource, "log": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
@@ -219,7 +224,15 @@ func awsParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, 
 					if e := json.Unmarshal([]byte(str), &parsed); e != nil {
 						t.Fatal(e)
 					}
-					for key, value := range awsSanitizeJSON(parsed) {
+					normalized := awsSanitizeJSON(parsed)
+					if preserveNested {
+						normalized = map[string]any{}
+						for key, value := range parsed {
+							utils.SanitizeField(&key)
+							normalized[key] = value
+						}
+					}
+					for key, value := range normalized {
 						awsPut(draft, "log."+key, value, false)
 					}
 				case "cast":
@@ -487,4 +500,45 @@ func TestAWSOfficialExamples(t *testing.T) {
 		}
 	}
 	t.Logf("modeled %d official examples; no live AWS telemetry or alerts", len(docs))
+}
+
+// Stored Azure Event Grid records retain punctuation in nested claim keys. That is
+// not proof of the AWS parser's behavior, so header consumers accept both layouts.
+func TestAWSNestedKeyCompatibility(t *testing.T) {
+	cfg, rules, cache := awsConfig(t), awsRules(t), plugins.NewCELCache("aws-nested-keys")
+	raw := `{"eventVersion":"1.09","eventTime":"2026-09-17T12:00:00Z","eventType":"AwsApiCall","eventName":"PutBucketAcl","eventSource":"s3.amazonaws.com","requestParameters":{"x-amz-acl":"public-read","x-amz-server-side-encryption":"AES256"},"responseElements":{"x-amz-expiration":"expiry-test","x-amz-server-side-encryption":"AES256"},"additionalEventData":{"x-amz-id-2":"request-test"}}`
+	for _, preserved := range []bool{false, true} {
+		t.Run(fmt.Sprint(preserved), func(t *testing.T) {
+			out := awsParseMode(t, cfg, raw, "collector-test", cache, preserved)
+			expected := map[string]string{"log.requestParametersXAmzAcl": "public-read", "log.requestParametersXAmzServerSideEncryption": "AES256", "log.responseElementsXAmzExpiration": "expiry-test", "log.responseElementsXAmzServerSideEncryption": "AES256", "log.additionalEventDataXamzId2": "request-test"}
+			for field, want := range expected {
+				if got := gjson.Get(out, field).String(); got != want {
+					t.Errorf("%s=%q want %q", field, got, want)
+				}
+			}
+			yes, e := cache.Eval(rules["s3_bucket_public_exposure"].Where, out)
+			if e != nil || !yes {
+				t.Fatalf("public ACL lost: %v %v", yes, e)
+			}
+			key := "log.requestParameters.xamzacl"
+			if preserved {
+				key = "log.requestParameters.x-amz-acl"
+			}
+			if gjson.Get(out, key).String() != "public-read" {
+				t.Error("original header lost")
+			}
+			var private map[string]any
+			if err := json.Unmarshal([]byte(raw), &private); err != nil {
+				t.Fatal(err)
+			}
+			private["requestParameters"].(map[string]any)["x-amz-acl"] = "private"
+			private["requestParametersXAmzAcl"] = "public-read"
+			encoded, _ := json.Marshal(private)
+			negative := awsParseMode(t, cfg, string(encoded), "collector-test", cache, preserved)
+			if yes, e := cache.Eval(rules["s3_bucket_public_exposure"].Where, negative); e != nil || yes {
+				t.Fatalf("flat input alias fabricates ACL exposure: %v %v", yes, e)
+			}
+
+		})
+	}
 }

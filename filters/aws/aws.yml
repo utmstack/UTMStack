@@ -132,6 +132,7 @@ pipeline:
   - rename:
       from:
       - log.additionalEventData.xamzid2
+      - log.additionalEventData.x-amz-id-2
       to: log.additionalEventDataXamzId2
   - rename:
       from:
@@ -144,18 +145,22 @@ pipeline:
   - rename:
       from:
       - log.requestParameters.xamzacl
+      - log.requestParameters.x-amz-acl
       to: log.requestParametersXAmzAcl
   - rename:
       from:
       - log.requestParameters.xamzserversideencryption
+      - log.requestParameters.x-amz-server-side-encryption
       to: log.requestParametersXAmzServerSideEncryption
   - rename:
       from:
       - log.responseElements.xamzexpiration
+      - log.responseElements.x-amz-expiration
       to: log.responseElementsXAmzExpiration
   - rename:
       from:
       - log.responseElements.xamzserversideencryption
+      - log.responseElements.x-amz-server-side-encryption
       to: log.responseElementsXAmzServerSideEncryption
   - rename:
       from:

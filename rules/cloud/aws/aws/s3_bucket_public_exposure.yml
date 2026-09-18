@@ -19,7 +19,8 @@ where: |
   (equals("actionResult","success") &&
   (equals("log.eventSource","s3.amazonaws.com") &&
   oneOf("log.eventName",["PutBucketAcl", "PutObjectAcl"]) &&
-  (oneOf("log.requestParameters.xamzacl",["public-read", "public-read-write"]) ||
+  ((oneOf("log.requestParameters.xamzacl",["public-read", "public-read-write"]) ||
+  oneOf("log.requestParameters.x-amz-acl",["public-read", "public-read-write"])) ||
   exists('log.requestParameters.AccessControlPolicy.AccessControlList.Grant.#(Grantee.URI=="http://acs.amazonaws.com/groups/global/AllUsers")')) ||
   equals("log.eventSource","s3.amazonaws.com") &&
   oneOf("log.eventName",["DeleteBucketPublicAccessBlock"]) ||

@@ -52,7 +52,9 @@ still be checked against actual customer records when AWS telemetry is available
   queries. SDK `contains` only handles string fields. Covered consumers include
   startup data, RDS public restore, S3 versioning/ACL/block controls, snapshot
   sharing, EC2 metadata, ECS task definitions and security-group permissions.
-  SDK field sanitization means `x-amz-acl` is read as `xamzacl` after JSON parsing.
+  The SDK sanitization helper strips punctuation, but the closed JSON step
+  may retain punctuation in nested keys. S3 header aliases accept both `x-amz-acl`
+  and `xamzacl`; a compatibility test exercises both extraction layouts.
 - Restrict exposure predicates to permission additions or relaxed controls;
   removing snapshot or security-group permissions does not establish exposure.
   Correct cross-account ARN comparison to exact account boundaries and quote the
@@ -113,7 +115,7 @@ claim to have run live grouping or alert creation.
   assert exact query terms, account/collector/actor/IP scopes, threshold/window
   boundaries, missing placeholders, unrelated populations and sequence/OR behavior.
 - Strict SDK YAML decoding, field-name/type checks, final Event serialization and
-  the shared contract suite pass: **275 pass records, zero skips/failures** in the
+  the shared contract suite pass: **278 pass records, zero skips/failures** in the
   source run with official examples supplied. The history subprocess asserts its
   22 cases internally; the outer pass count is not a count of live detections.
 
