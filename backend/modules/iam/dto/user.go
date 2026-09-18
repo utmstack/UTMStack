@@ -1,8 +1,11 @@
 package dto
 
 import (
+	"fmt"
 	"time"
 
+	"unicode"
+	"unicode/utf8"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 )
 
@@ -20,7 +23,70 @@ type CreateUserRequest struct {
 	Name      string   `json:"name,omitempty"`
 	LangKey   string   `json:"lang_key,omitempty"`
 	RoleNames []string `json:"role_names,omitempty"`
+	Password  *string  `json:"password,omitempty"`
 }
+
+
+func (self *CreateUserRequest) CheckValidPassword() error {
+
+	if self.Password==nil {
+		return fmt.Errorf("no password")
+	}
+
+	password := *self.Password
+
+	if !utf8.ValidString(password) {
+		return fmt.Errorf("password contains invalid UTF-8")
+	}
+
+	passwordRunes := []rune(password)
+
+	if len(passwordRunes) < 8 {
+		return fmt.Errorf("password must have at least 8 characters")
+	}
+
+	var (
+		hasUpper   bool
+		hasLower   bool
+		hasSpecial bool
+	)
+
+	for _, r := range passwordRunes {
+		switch {
+		case unicode.IsUpper(r):
+			hasUpper = true
+
+		case unicode.IsLower(r):
+			hasLower = true
+
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
+			//continue
+
+		case unicode.IsPunct(r) || unicode.IsSymbol(r):
+			hasSpecial = true
+
+		default:
+			return fmt.Errorf("password contains invalid characters")
+		}
+	}
+
+	if !hasUpper {
+		return fmt.Errorf("password must contain at least one uppercase letter")
+	}
+
+	if !hasLower {
+		return fmt.Errorf("password must contain at least one lowercase letter")
+	}
+
+	if !hasSpecial {
+		return fmt.Errorf("password must contain at least one special character")
+	}
+
+	return nil
+}
+
+
+
 
 type UpdateUserRequest struct {
 	Email   string             `json:"email,omitempty" binding:"omitempty,email"`
