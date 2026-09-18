@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"io"
@@ -121,12 +122,12 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
 	} else if len(authConnectionKey) > 0 {
-		if !isConnectionKeyValid(authConnectionKey[0]) {
+		if !m.AuthService.IsConnectionKeyValid(authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	} else if len(authInternalKey) > 0 {
 		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
-		if internalKey != authInternalKey[0] {
+		if subtle.ConstantTimeCompare([]byte(internalKey), []byte(authInternalKey[0])) != 1 {
 			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}
 	} else {
@@ -152,13 +153,4 @@ func verifySignature(payloadBody []byte, secretToken string, signatureHeader str
 	}
 
 	return nil
-}
-
-func isConnectionKeyValid(token string) bool {
-	panelKey, e := GetConnectionKey()
-	if e != nil {
-		return false
-	}
-
-	return token == string(panelKey)
 }
