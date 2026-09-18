@@ -16,6 +16,7 @@ import com.park.utmstack.web.rest.errors.EmailAlreadyUsedException;
 import com.park.utmstack.web.rest.errors.LoginAlreadyUsedException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import com.park.utmstack.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -128,6 +130,37 @@ public class UserResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
+    }
+
+    @PostMapping("/users/local")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @AuditEvent(
+        attemptType = ApplicationEventType.USER_CREATION_ATTEMPT,
+        attemptMessage = "Attempting to create user {login} locally",
+        successType = ApplicationEventType.USER_CREATION_SUCCESS,
+        successMessage = "User {login} created locally (no email activation)"
+    )
+    public ResponseEntity<User> createUserLocal(@Valid @RequestBody ManagedUserVM userDTO) {
+        if (userDTO.getId() != null) {
+            throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+        }
+        if (userRepository.findOneByLogin(userDTO.getLogin()
+            .toLowerCase())
+            .isPresent()) {
+            throw new LoginAlreadyUsedException();
+        }
+        if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
+            .isPresent()) {
+            throw new EmailAlreadyUsedException();
+        }
+        if (!StringUtils.hasText(userDTO.getPassword()) || userDTO.getPassword().length() <= 4) {
+            throw new BadRequestAlertException("Password is invalid: it must be longer than 4 characters", "userManagement", "invalidpassword");
+        }
+        User newUser = userService.createUser(userDTO, userDTO.getPassword());
+        return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
+            .headers(HeaderUtil.createAlert("A user is created with identifier " + newUser.getLogin(),
+                newUser.getLogin()))
+            .body(newUser);
     }
 
     /**
