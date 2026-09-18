@@ -1,0 +1,64 @@
+{
+  "technology": "CrowdStrike",
+  "filters": [
+    "filters/crowdstrike/crowdstrike.yml"
+  ],
+  "rules": [
+    "rules/crowdstrike/critical_role_modification.yml",
+    "rules/crowdstrike/custom_indicator_of_compromise_(IoC)_detected.yml",
+    "rules/crowdstrike/deletion_or_deactivation_of_user_account.yml",
+    "rules/crowdstrike/endpoint_network_containment_action.yml",
+    "rules/crowdstrike/endpoint_or_XDR_detection_alert.yml",
+    "rules/crowdstrike/inhibit_system_recovery.yml",
+    "rules/crowdstrike/ip_whitelisting_modification.yml",
+    "rules/crowdstrike/major_incident_generated.yml",
+    "rules/crowdstrike/multiple_authentication_failures_(possible_brute_force_attack).yml",
+    "rules/crowdstrike/os_credential_dumping_activity.yml",
+    "rules/crowdstrike/real_time_response_rtr_session_execution.yml",
+    "rules/crowdstrike/security_defenses_impaired_or_policy_disabled.yml",
+    "rules/crowdstrike/security_policy_disabled_or_deleted.yml",
+    "rules/crowdstrike/suspicious_downloader_execution_linux_macos.yml",
+    "rules/crowdstrike/suspicious_encoded_powershell_execution.yml",
+    "rules/crowdstrike/suspicious_native_downloaders.yml",
+    "rules/crowdstrike/windows_event_log_clearing.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "CrowdStrike remote/local split",
+      "filter": "crowdstrike/crowdstrike.yml",
+      "input": {
+        "log": {
+          "event": {
+            "SourceIp": "198.51.100.10",
+            "LocalIP": "10.0.0.8"
+          }
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.10",
+        "log.eventLocalIP": "10.0.0.8"
+      },
+      "absent": [
+        "target.ip"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "Crowdstrike endpoint source fallback",
+      "filter": "crowdstrike/crowdstrike.yml",
+      "input": {
+        "log": {
+          "event": {
+            "LocalIP": "10.0.0.10"
+          }
+        }
+      },
+      "expected": {
+        "origin.ip": "10.0.0.10"
+      },
+      "absent": [
+        "target.ip"
+      ]
+    }
+  ]
+}
