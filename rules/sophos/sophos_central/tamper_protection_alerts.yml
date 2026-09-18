@@ -1,34 +1,30 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - sophos-central
-name: Sophos Central Tamper Protection Alert
+- sophos-central
+name: Sophos Central Tamper Protection Warning
 impact:
   confidentiality: 2
   integrity: 3
   availability: 2
 category: Defense Evasion
-technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+technique: 'T1562.001 - Impair Defenses: Disable or Modify Tools'
 adversary: origin
 references:
-  - https://developer.sophos.com/siem-api-schemas
-  - https://attack.mitre.org/techniques/T1562/001/
-description: |
-  Detects when tamper protection is triggered, indicating an attempt to disable or modify Sophos security components. This could indicate malware or an attacker attempting to bypass security controls.
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/AccountHealthCheck/FixEndpointTamperProtect/
+- https://attack.mitre.org/techniques/T1562/001/
+description: Sophos reports a tamper-protection trigger or an account health warning that endpoint/server tamper
+  protection is off. Account health warnings can cover multiple devices; they do not identify an attacker. Resolution
+  events are excluded.
+where: '((equals("log.type", "Event::Endpoint::Threat::TamperProtection") ||
 
-  Next Steps:
-  1. Immediately investigate the affected endpoint to determine the source of the tamper protection trigger
-  2. Check if the endpoint shows signs of malware infection or unauthorized software installation
-  3. Review recent user activity and process execution on the affected system
-  4. Verify the integrity of Sophos security components and ensure they are functioning properly
-  5. Scan the endpoint for threats and malware using full system scans
-  6. If malicious activity is confirmed, isolate the endpoint and perform incident response procedures
-  7. Review security policies and user permissions to prevent future tamper attempts
-  8. Consider implementing additional endpoint monitoring for systems with tamper protection alerts
-where: |
-  equals("log.type", "Event::Endpoint::Threat::TamperProtection") ||
   (equals("log.name", "Tamper protection") && equals("log.severity", "high")) ||
-  (equals("log.type", "Event::Endpoint::TamperProtection") && equals("log.action", "blocked"))
+
+  (equals("log.type", "Event::Endpoint::TamperProtection") && equals("log.action", "blocked"))) || oneOf("log.type",["Event::AccountHealthCheck::EndpointTamperProtectionRaise","Event::AccountHealthCheck::ServerTamperProtectionRaise"]))
+  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip
