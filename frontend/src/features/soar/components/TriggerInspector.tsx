@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Zap } from 'lucide-react'
+import { Button } from '@/shared/components/ui/button'
 import type { FlowCondition } from '../types/soar.types'
 import { TriggerConditionsEditor } from './TriggerConditionsEditor'
 
@@ -8,14 +9,25 @@ interface Props {
   conditions: FlowCondition[]
   readOnly?: boolean
   onChange: (c: FlowCondition[]) => void
+  onClose: () => void
 }
 
 // Side panel that stands in for NodeInspector when the virtual trigger node is
 // selected — hosts the alert-match conditions that used to live in a top-level
 // SectionCard. Same chrome as NodeInspector so the canvas layout stays stable.
-export function TriggerInspector({ conditions, readOnly, onChange }: Props) {
+export function TriggerInspector({ conditions, readOnly, onChange, onClose }: Props) {
   const { t } = useTranslation()
+  const [draftConditions, setDraftConditions] = useState(conditions)
   const [width, setWidth] = useState(520)
+
+  useEffect(() => {
+    setDraftConditions(conditions)
+  }, [conditions])
+
+  const save = () => {
+    onChange(draftConditions)
+    onClose()
+  }
 
   const startResize = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -47,7 +59,7 @@ export function TriggerInspector({ conditions, readOnly, onChange }: Props) {
         className="absolute left-0 top-0 z-10 h-full w-1 cursor-col-resize hover:bg-primary/40"
         title={t('soar.editor.canvas.dragToResize')}
       />
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-border py-2 pl-[30px] pr-3">
         <span className="flex h-6 w-6 items-center justify-center rounded bg-amber-500/15 text-amber-500">
           <Zap size={12} />
         </span>
@@ -59,7 +71,12 @@ export function TriggerInspector({ conditions, readOnly, onChange }: Props) {
         </div>
       </div>
       <div className="flex-1 space-y-3 overflow-y-auto p-3 text-xs">
-        <TriggerConditionsEditor conditions={conditions} readOnly={readOnly} onChange={onChange} />
+        <TriggerConditionsEditor conditions={draftConditions} readOnly={readOnly} onChange={setDraftConditions} />
+      </div>
+      <div className="border-t border-border p-2">
+        <Button size="sm" className="w-full" onClick={readOnly ? onClose : save}>
+          {t('soar.editor.saveAndClose', 'Save and close')}
+        </Button>
       </div>
     </aside>
   )

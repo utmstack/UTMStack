@@ -342,7 +342,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   }, [columns.length, rows])
 
   // The CSV is the table: the analyst's own columns when they picked any, the
-  // default source/important/message layout when they didn't. Exporting a fixed
+  // default source/important layout when they didn't. Exporting a fixed
   // pair of fields instead was how a download of one populated column happened.
   const exportColumns = useMemo<ExportColumn[]>(() => {
     const field = (f: string) => ({
@@ -369,11 +369,11 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   )
   // Grid mins: three fixed leading tracks (row-actions, indicator, time),
   // then either the user-picked field names (manual mode) or source + auto
-  // fields + a flex message column (default mode). Label-based floors keep
+  // fields (default mode). Label-based floors keep
   // header names from cropping when a column is dragged narrow.
   const logGridMins = columns.length > 0
     ? [20, 30, 168, ...colMins(columns)]
-    : [20, 30, 168, 96, ...colMins(autoColumns), 96]
+    : [20, 30, 168, 96, ...colMins(autoColumns)]
   const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
     min: logGridMins,
     storageKey: columnStorageKey,

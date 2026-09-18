@@ -242,8 +242,8 @@ export function FlowEditor({
         />
       )}
 
-      <footer className="flex items-center justify-between gap-2 border-t border-border px-6 py-3">
-        <div>
+      <footer className="flex items-center gap-2 border-t border-border px-6 py-3">
+        <div className="flex items-center gap-2">
           {!creating && !readOnly &&
             (confirmDelete ? (
               <div className="flex items-center gap-2">
@@ -265,32 +265,32 @@ export function FlowEditor({
                 {t('soar.editor.delete')}
               </button>
             ))}
+          {!readOnly && (
+            <>
+              {!creating && (
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.soarFlow') })}
+                  onBroadcast={broadcastUpdate}
+                  disabled={busy}
+                  size="sm"
+                />
+              )}
+              {creating && (
+                <PlatformBroadcastButton
+                  label={t('platformBroadcast.button')}
+                  title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.soarFlow') })}
+                  onBroadcast={broadcastCreate}
+                  disabled={busy}
+                  size="sm"
+                />
+              )}
+              <Button size="sm" disabled={busy} onClick={() => void save()}>
+                {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('soar.editor.save')}
+              </Button>
+            </>
+          )}
         </div>
-        {!readOnly && (
-          <div className="flex items-center gap-2">
-            {!creating && (
-              <PlatformBroadcastButton
-                label={t('platformBroadcast.button')}
-                title={t('platformBroadcast.action.update', { resource: t('platformBroadcast.resource.soarFlow') })}
-                onBroadcast={broadcastUpdate}
-                disabled={busy}
-                size="sm"
-              />
-            )}
-            {creating && (
-              <PlatformBroadcastButton
-                label={t('platformBroadcast.button')}
-                title={t('platformBroadcast.action.create', { resource: t('platformBroadcast.resource.soarFlow') })}
-                onBroadcast={broadcastCreate}
-                disabled={busy}
-                size="sm"
-              />
-            )}
-            <Button size="sm" disabled={busy} onClick={() => void save()}>
-              {busy ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : null} {t('soar.editor.save')}
-            </Button>
-          </div>
-        )}
       </footer>
     </div>
   )
