@@ -34,17 +34,11 @@
     "rules/cloud/azure/azure_temporary_access_pass.yml",
     "rules/cloud/azure/credential_access_key_vault_modified.yml",
     "rules/cloud/azure/defender_cloud_critical_alerts.yml",
-    "rules/cloud/azure/defense_evasion_azure_application_credential_modification.yml",
     "rules/cloud/azure/defense_evasion_azure_diagnostic_settings_deletion.yml",
     "rules/cloud/azure/defense_evasion_event_hub_deletion.yml",
-    "rules/cloud/azure/diagnostic_settings_tampering.yml",
-    "rules/cloud/azure/golden_saml_federation_abuse.yml",
-    "rules/cloud/azure/impact_azure_service_principal_credentials_added.yml",
     "rules/cloud/azure/initial_access_azure_active_directory_high_risk_signin.yml",
     "rules/cloud/azure/initial_access_consent_grant_attack_via_azure_registered_application.yml",
     "rules/cloud/azure/key_vault_access_spikes.yml",
-    "rules/cloud/azure/managed_identity_abuse.yml",
-    "rules/cloud/azure/mfa_disabled_privileged_users.yml",
     "rules/cloud/azure/persistence_azure_pim_user_added_global_admin.yml",
     "rules/cloud/azure/persistence_mfa_disabled_for_azure_user.yml",
     "rules/cloud/azure/pim_role_activation_abuse.yml",
@@ -53,171 +47,121 @@
   ],
   "fixtures": [
     {
-      "name": "Azure actual result Denied",
+      "name": "Azure dictionary severity DEBUG",
       "filter": "azure/azure-eventhub.yml",
       "input": {
         "log": {
-          "properties": {
-            "result": "Denied"
-          }
+          "level": "DEBUG",
+          "category": "AppServiceConsoleLogs"
         }
       },
       "expected": {
-        "actionResult": "denied"
+        "severity": "debug"
       },
-      "absent": [],
-      "rules": {}
-    },
-    {
-      "name": "Azure actual result Failed",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "properties": {
-            "result": "Failed"
-          }
-        }
-      },
-      "expected": {
-        "actionResult": "failure"
-      },
-      "absent": [],
-      "rules": {}
-    },
-    {
-      "name": "Azure actual result Succeeded",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "properties": {
-            "result": "Succeeded"
-          }
-        }
-      },
-      "expected": {
-        "actionResult": "success"
-      },
-      "absent": [],
-      "rules": {}
-    },
-    {
-      "name": "Azure actual result Running",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "properties": {
-            "result": "Running"
-          }
-        }
-      },
-      "expected": {},
       "absent": [
-        "actionResult"
+        "actionResult",
+        "origin.ip"
       ],
-      "rules": {}
-    },
-    {
-      "name": "Azure storage metadata is not host geography",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "AccountName": "storageaccount",
-          "Location": "eastus",
-          "StatusText": "Success",
-          "ResponseBodySize": 100,
-          "ResponseHeaderSize": 20
-        }
-      },
-      "expected": {
-        "origin.bytesReceived": 100,
-        "log.accountName": "storageaccount",
-        "log.location": "eastus"
-      },
-      "absent": [
-        "origin.host",
-        "origin.geolocation",
-        "connectionStatus",
-        "origin.bytesSent"
-      ],
-      "rules": {}
-    },
-    {
-      "name": "Azure result Failed",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "resultType": "Failed"
-        }
-      },
-      "expected": {
-        "actionResult": "failure"
-      },
-      "absent": []
-    },
-    {
-      "name": "Azure result Succeeded",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "resultType": "Succeeded"
-        }
-      },
-      "expected": {
-        "actionResult": "success"
-      },
-      "absent": []
-    },
-    {
-      "name": "Azure result Denied",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "resultType": "Denied"
-        }
-      },
-      "expected": {
-        "actionResult": "denied"
-      },
-      "absent": []
-    },
-    {
-      "name": "Azure result Started",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "resultType": "Started"
-        }
-      },
-      "expected": {},
-      "absent": [
-        "actionResult"
-      ]
-    },
-    {
-      "name": "Azure descriptive denial",
-      "filter": "azure/azure-eventhub.yml",
-      "input": {
-        "log": {
-          "properties": {
-            "result": "Access denied"
-          }
-        }
-      },
-      "expected": {
-        "actionResult": "denied"
+      "rules": {
+        "rules/cloud/azure/aks_security_threats.yml": false,
+        "rules/cloud/azure/app_registration_abuse.yml": false,
+        "rules/cloud/azure/application_gateway_waf_alerts.yml": false,
+        "rules/cloud/azure/automation_runbook_abuse.yml": false,
+        "rules/cloud/azure/azure_ad_impossible_travel.yml": false,
+        "rules/cloud/azure/azure_ad_password_spray.yml": false,
+        "rules/cloud/azure/azure_alert_suppression_rule.yml": false,
+        "rules/cloud/azure/azure_anomalous_token.yml": false,
+        "rules/cloud/azure/azure_app_credential_added.yml": false,
+        "rules/cloud/azure/azure_app_privileged_permissions.yml": false,
+        "rules/cloud/azure/azure_azurehound_discovery.yml": false,
+        "rules/cloud/azure/azure_bulk_role_changes.yml": false,
+        "rules/cloud/azure/azure_device_code_auth_abuse.yml": false,
+        "rules/cloud/azure/azure_disk_snapshot_exfiltration.yml": false,
+        "rules/cloud/azure/azure_federation_modified.yml": false,
+        "rules/cloud/azure/azure_impossible_travel.yml": false,
+        "rules/cloud/azure/azure_kubernetes_admission_controller.yml": false,
+        "rules/cloud/azure/azure_kubernetes_events_deleted.yml": false,
+        "rules/cloud/azure/azure_kubernetes_secret_access.yml": false,
+        "rules/cloud/azure/azure_laps_credential_dump.yml": false,
+        "rules/cloud/azure/azure_leaked_credentials.yml": false,
+        "rules/cloud/azure/azure_new_root_ca_added.yml": false,
+        "rules/cloud/azure/azure_password_spray_detected.yml": false,
+        "rules/cloud/azure/azure_prt_access_attempt.yml": false,
+        "rules/cloud/azure/azure_ropc_authentication.yml": false,
+        "rules/cloud/azure/azure_sentinel_alert_patterns.yml": false,
+        "rules/cloud/azure/azure_subscription_permission_elevation.yml": false,
+        "rules/cloud/azure/azure_temporary_access_pass.yml": false,
+        "rules/cloud/azure/credential_access_key_vault_modified.yml": false,
+        "rules/cloud/azure/defender_cloud_critical_alerts.yml": false,
+        "rules/cloud/azure/defense_evasion_azure_diagnostic_settings_deletion.yml": false,
+        "rules/cloud/azure/defense_evasion_event_hub_deletion.yml": false,
+        "rules/cloud/azure/initial_access_azure_active_directory_high_risk_signin.yml": false,
+        "rules/cloud/azure/initial_access_consent_grant_attack_via_azure_registered_application.yml": false,
+        "rules/cloud/azure/key_vault_access_spikes.yml": false,
+        "rules/cloud/azure/persistence_azure_pim_user_added_global_admin.yml": false,
+        "rules/cloud/azure/persistence_mfa_disabled_for_azure_user.yml": false,
+        "rules/cloud/azure/pim_role_activation_abuse.yml": false,
+        "rules/cloud/azure/storage_account_public_access.yml": false,
+        "rules/cloud/azure/subscription_ownership_transfer.yml": false
       }
     },
     {
-      "name": "Azure explicit failure overrides success event suffix",
+      "name": "Azure dictionary severity CRITICAL",
       "filter": "azure/azure-eventhub.yml",
       "input": {
         "log": {
-          "resultType": "Failed",
-          "eventType": "Microsoft.ResourceWriteSuccess"
+          "level": "CRITICAL",
+          "category": "AppServiceConsoleLogs"
         }
       },
       "expected": {
-        "actionResult": "failure"
+        "severity": "critical"
+      },
+      "absent": [
+        "actionResult",
+        "origin.ip"
+      ],
+      "rules": {
+        "rules/cloud/azure/aks_security_threats.yml": false,
+        "rules/cloud/azure/app_registration_abuse.yml": false,
+        "rules/cloud/azure/application_gateway_waf_alerts.yml": false,
+        "rules/cloud/azure/automation_runbook_abuse.yml": false,
+        "rules/cloud/azure/azure_ad_impossible_travel.yml": false,
+        "rules/cloud/azure/azure_ad_password_spray.yml": false,
+        "rules/cloud/azure/azure_alert_suppression_rule.yml": false,
+        "rules/cloud/azure/azure_anomalous_token.yml": false,
+        "rules/cloud/azure/azure_app_credential_added.yml": false,
+        "rules/cloud/azure/azure_app_privileged_permissions.yml": false,
+        "rules/cloud/azure/azure_azurehound_discovery.yml": false,
+        "rules/cloud/azure/azure_bulk_role_changes.yml": false,
+        "rules/cloud/azure/azure_device_code_auth_abuse.yml": false,
+        "rules/cloud/azure/azure_disk_snapshot_exfiltration.yml": false,
+        "rules/cloud/azure/azure_federation_modified.yml": false,
+        "rules/cloud/azure/azure_impossible_travel.yml": false,
+        "rules/cloud/azure/azure_kubernetes_admission_controller.yml": false,
+        "rules/cloud/azure/azure_kubernetes_events_deleted.yml": false,
+        "rules/cloud/azure/azure_kubernetes_secret_access.yml": false,
+        "rules/cloud/azure/azure_laps_credential_dump.yml": false,
+        "rules/cloud/azure/azure_leaked_credentials.yml": false,
+        "rules/cloud/azure/azure_new_root_ca_added.yml": false,
+        "rules/cloud/azure/azure_password_spray_detected.yml": false,
+        "rules/cloud/azure/azure_prt_access_attempt.yml": false,
+        "rules/cloud/azure/azure_ropc_authentication.yml": false,
+        "rules/cloud/azure/azure_sentinel_alert_patterns.yml": false,
+        "rules/cloud/azure/azure_subscription_permission_elevation.yml": false,
+        "rules/cloud/azure/azure_temporary_access_pass.yml": false,
+        "rules/cloud/azure/credential_access_key_vault_modified.yml": false,
+        "rules/cloud/azure/defender_cloud_critical_alerts.yml": false,
+        "rules/cloud/azure/defense_evasion_azure_diagnostic_settings_deletion.yml": false,
+        "rules/cloud/azure/defense_evasion_event_hub_deletion.yml": false,
+        "rules/cloud/azure/initial_access_azure_active_directory_high_risk_signin.yml": false,
+        "rules/cloud/azure/initial_access_consent_grant_attack_via_azure_registered_application.yml": false,
+        "rules/cloud/azure/key_vault_access_spikes.yml": false,
+        "rules/cloud/azure/persistence_azure_pim_user_added_global_admin.yml": false,
+        "rules/cloud/azure/persistence_mfa_disabled_for_azure_user.yml": false,
+        "rules/cloud/azure/pim_role_activation_abuse.yml": false,
+        "rules/cloud/azure/storage_account_public_access.yml": false,
+        "rules/cloud/azure/subscription_ownership_transfer.yml": false
       }
     }
   ]

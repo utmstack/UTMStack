@@ -1,34 +1,30 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure Defender for Cloud Critical Security Alert
+- azure
+name: Microsoft Defender for Cloud High Severity Alert
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 2
+  confidentiality: 2
+  integrity: 2
+  availability: 1
 category: Intrusion Detection
-technique: "TA0001 - Initial Access"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview
-  - https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas
-  - https://attack.mitre.org/tactics/TA0001/
-description: |
-  Detects critical severity alerts from Azure Defender for Cloud indicating potential active threats, malware infections, or successful breach attempts that require immediate response.
-  
-  Next Steps:
-  1. Review the full alert details in Azure Defender for Cloud portal
-  2. Verify the affected resource and assess the scope of potential compromise
-  3. Check for related suspicious activities on the affected resource
-  4. Implement immediate containment measures if threat is confirmed
-  5. Review security policies and configurations for the affected resource
-  6. Document the incident and update security procedures as needed
-where: |
-  (equals("log.eventName", "Microsoft.Security/locations/alerts/Activate/action") || contains("log.operationName", "Microsoft.Security")) &&
-  equals("log.category", "Security") &&
-  oneOf("log.level", ["Critical", "High", "Error"]) &&
-  (equals("log.properties.severity", "High") || equals("log.properties.alertSeverity", "High"))
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview
+- https://learn.microsoft.com/en-us/azure/defender-for-cloud/alerts-schemas
+- https://attack.mitre.org/tactics/TA0001/
+description: 'A Security-category record reports high alert severity. Alert issuance is not treated as a successful attacker connection.
+
+  '
+where: '(equalsIgnoreCase("log.category","Security") || equalsIgnoreCase("log.category.value","Security")) && (equalsIgnoreCase("log.properties.severity","High")
+  || equalsIgnoreCase("log.properties.Severity","High") || equalsIgnoreCase("log.properties.alertSeverity","High")) && regexMatch("log.azureOperation","(?i)^Microsoft\\.Security/")
+
+  '
 groupBy:
-  - lastEvent.log.correlationId
-  - lastEvent.log.eventDataId
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

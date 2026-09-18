@@ -1,37 +1,30 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure Automation Runbook Abuse
+- azure
+name: Azure Automation Runbook, Job or Schedule Changed
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 2
+  confidentiality: 2
+  integrity: 2
+  availability: 1
 category: Execution
-technique: "T1059 - Command and Scripting Interpreter"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/automation/automation-runbook-types
-  - https://attack.mitre.org/techniques/T1059/
-description: |
-  Detects creation or modification of Azure Automation runbooks which can be abused for code execution with managed identity privileges. Attackers may create runbooks to execute arbitrary code, establish persistence, or perform lateral movement using the automation account's managed identity.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/automation/automation-runbook-types
+- https://attack.mitre.org/techniques/T1059/
+description: 'A successful Azure Automation runbook write/publish, job creation or schedule write. The management operation alone
+  does not prove malicious execution.
 
-  Next Steps:
-  1. Review the runbook content for malicious scripts or commands
-  2. Verify the automation account's managed identity permissions
-  3. Check the user creating or modifying the runbook has authorization
-  4. Review the runbook schedule for unauthorized execution times
-  5. Examine the runbook's Run As account credentials
-  6. If unauthorized, disable the runbook and revoke the automation account's permissions
-  7. Review execution history for already-executed malicious runbooks
-  8. Implement RBAC to restrict automation account management
-where: |
-  contains("log.operationName", "Microsoft.Automation") &&
-  (contains("log.operationName", "runbooks/write") ||
-   contains("log.operationName", "runbooks/publish") ||
-   contains("log.operationName", "jobs/write") ||
-   contains("log.operationName", "schedules/write")) &&
-  equals("log.resultType", "Success")
+  '
+where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && regexMatch("log.azureOperation","(?i)^Microsoft\\.Automation/automationAccounts/(runbooks/(write|publish/action)|jobs/write|schedules/write)$")
+
+  '
 groupBy:
-  - lastEvent.log.operationName
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

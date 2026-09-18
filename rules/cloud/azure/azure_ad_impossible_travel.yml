@@ -1,36 +1,29 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure AD Impossible Travel Sign-In Detection
+- azure
+name: Entra Risky Sign-in
 impact:
-  confidentiality: 3
+  confidentiality: 2
   integrity: 2
   availability: 1
 category: Credential Access
-technique: "T1078 - Valid Accounts"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks
-  - https://attack.mitre.org/techniques/T1078/
-description: |
-  Detects Azure AD sign-ins flagged as risky due to impossible travel, anonymous IP usage, or unfamiliar locations. These risk detections indicate potential credential compromise when a user authenticates from geographically impossible locations or through anonymizing services.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/active-directory/identity-protection/concept-identity-protection-risks
+- https://attack.mitre.org/techniques/T1078/
+description: 'The sign-in carries a high risk level or an active risk state. This signal does not establish impossible travel.
 
-  Next Steps:
-  1. Review the sign-in details including IP addresses and geographic locations
-  2. Check if the user employs VPN services that could explain different locations
-  3. Verify with the user whether the sign-in attempts are legitimate
-  4. Review the risk level and risk detail provided by Azure AD Identity Protection
-  5. Check for MFA challenges and their outcomes during the sign-in
-  6. If compromised, immediately reset user credentials and revoke active sessions
-  7. Enable Conditional Access policies requiring MFA for risky sign-ins
-  8. Review Azure AD sign-in logs for other accounts from the same suspicious IPs
-where: |
-  contains("log.operationName", "Sign-in activity") &&
-  (equals("log.properties.riskLevelDuringSignIn", "high") ||
-   equals("log.properties.riskState", "atRisk") ||
-   contains("log.properties.riskEventTypes", "impossibleTravel") ||
-   contains("log.properties.riskEventTypes", "anonymizedIPAddress"))
+  '
+where: 'equalsIgnoreCase("log.azureKind","signin") && (equalsIgnoreCase("log.properties.riskState","atRisk") || equalsIgnoreCase("log.properties.riskState","confirmedCompromised")
+  || equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high")) && !(equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high"))
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
