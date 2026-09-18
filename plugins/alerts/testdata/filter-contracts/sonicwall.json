@@ -1,0 +1,59 @@
+{
+  "technology": "SonicWall",
+  "filters": [
+    "filters/sonicwall/sonic_wall.yml"
+  ],
+  "rules": [
+    "rules/sonicwall/sonicwall_firewall/anti_spyware_detection.yml",
+    "rules/sonicwall/sonicwall_firewall/botnet_detection.yml",
+    "rules/sonicwall/sonicwall_firewall/capture_atp_verdicts.yml",
+    "rules/sonicwall/sonicwall_firewall/gateway_antivirus_detection.yml",
+    "rules/sonicwall/sonicwall_firewall/intrusion_prevention_alert.yml",
+    "rules/sonicwall/sonicwall_firewall/sonicwall_admin_auth_failures.yml",
+    "rules/sonicwall/sonicwall_firewall/sonicwall_vpn_failures.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "sonicwall_valid_source_ip",
+      "filter": "sonicwall/sonic_wall.yml",
+      "input": {
+        "origin": {
+          "ip": "2001:db8::7"
+        }
+      },
+      "expected": {
+        "origin.ip": "2001:db8::7"
+      },
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "sonicwall_hostname_not_ip",
+      "filter": "sonicwall/sonic_wall.yml",
+      "input": {
+        "origin": {
+          "ip": "lab-host"
+        }
+      },
+      "expected": {
+        "log.unparsedOriginIp": "lab-host"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "sonicwall_numeric_protocol",
+      "filter": "sonicwall/sonic_wall.yml",
+      "input": {
+        "protocol": 6
+      },
+      "expected": {
+        "protocol": "TCP"
+      },
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
