@@ -829,7 +829,8 @@
       "roleDeleted": "Função excluída",
       "roleNameInUse": "Já existe uma função com esse identificador",
       "roleImmutable": "Funções de sistema não podem ser modificadas",
-      "permissionsLoadFailed": "Não foi possível carregar as permissões"
+      "permissionsLoadFailed": "Não foi possível carregar as permissões",
+      "localUserCreated": "Usuário local criado"
     },
     "members": {
       "searchPlaceholder": "Pesquisar por nome ou e-mail…",
@@ -906,7 +907,20 @@
       "sending": "Enviando…",
       "send": "Enviar convite",
       "name": "Nome",
-      "emailHint": "É o endereço com o qual fará login."
+      "emailHint": "É o endereço com o qual fará login.",
+      "localDescription": "A conta é criada com uma senha e ativada imediatamente. Nenhum e-mail é enviado.",
+      "modeInvite": "Convidar usuário",
+      "modeLocal": "Criar usuário local",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Defina uma senha forte",
+      "localUserNote": "Este usuário não receberá um e-mail e será ativado automaticamente.",
+      "createLocal": "Criar usuário",
+      "passwordRules": {
+        "length": "Pelo menos 8 caracteres",
+        "case": "Pelo menos uma letra maiúscula e uma minúscula",
+        "special": "Pelo menos um caractere especial"
+      },
+      "emailInvalid": "Insira um endereço de e-mail válido"
     },
     "rolePicker": {
       "none": "Nenhuma função disponível."

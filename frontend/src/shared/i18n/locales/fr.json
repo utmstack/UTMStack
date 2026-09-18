@@ -829,7 +829,8 @@
       "roleDeleted": "Rôle supprimé",
       "roleNameInUse": "Un rôle avec cet identifiant existe déjà",
       "roleImmutable": "Les rôles système ne peuvent pas être modifiés",
-      "permissionsLoadFailed": "Impossible de charger les permissions"
+      "permissionsLoadFailed": "Impossible de charger les permissions",
+      "localUserCreated": "Utilisateur local créé"
     },
     "members": {
       "searchPlaceholder": "Rechercher par nom ou e-mail…",
@@ -906,7 +907,20 @@
       "sending": "Envoi…",
       "send": "Envoyer l'invitation",
       "name": "Nom",
-      "emailHint": "C'est l'adresse utilisée pour se connecter."
+      "emailHint": "C'est l'adresse utilisée pour se connecter.",
+      "localDescription": "Le compte est créé avec un mot de passe et activé immédiatement. Aucun e-mail n'est envoyé.",
+      "modeInvite": "Inviter un utilisateur",
+      "modeLocal": "Créer un utilisateur local",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "Définir un mot de passe robuste",
+      "localUserNote": "Cet utilisateur ne recevra pas d'e-mail et sera activé automatiquement.",
+      "createLocal": "Créer l'utilisateur",
+      "passwordRules": {
+        "length": "Au moins 8 caractères",
+        "case": "Au moins une majuscule et une minuscule",
+        "special": "Au moins un caractère spécial"
+      },
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide"
     },
     "rolePicker": {
       "none": "Aucun rôle disponible."
