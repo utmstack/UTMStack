@@ -435,6 +435,56 @@ public class ElasticsearchService {
         }
     }
 
+    /**
+     * Returns, in a single request, the echo count and latest echo document for each of the
+     * given parent ids. A parent with no children is simply absent from the returned map.
+     * Each entry is a Map with keys: hasChildren (boolean), echoes (long), last_echo (Map, only when >0).
+     */
+    public Map<String, Map<String, Object>> getEchoesByParentIds(List<String> parentIds, String indexPattern) {
+        final String ctx = CLASSNAME + ".getEchoesByParentIds";
+        try {
+            Map<String, Map<String, Object>> out = new HashMap<>();
+            if (CollectionUtils.isEmpty(parentIds)) return out;
+
+            SearchRequest request = new SearchRequest.Builder()
+                    .index(indexPattern)
+                    .query(q -> q.terms(t -> t
+                            .field("parentId")
+                            .terms(tf -> tf.value(parentIds.stream().map(FieldValue::of).collect(Collectors.toList())))))
+                    .size(0)
+                    .aggregations("by_parent", agg -> agg
+                            .terms(t -> t.field("parentId").size(parentIds.size()))
+                            .aggregations("latest", th -> th.topHits(t -> t
+                                    .size(1)
+                                    .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc))))))
+                    .build();
+
+            SearchResponse<Map> response = search(request, Map.class);
+            var aggs = response.aggregations();
+            if (aggs == null || !aggs.containsKey("by_parent")) return out;
+            var byParent = aggs.get("by_parent").sterms();
+            if (byParent == null) return out;
+
+            for (var bucket : byParent.buckets().array()) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("hasChildren", bucket.docCount() > 0);
+                entry.put("echoes", bucket.docCount());
+                var latestAgg = bucket.aggregations().get("latest");
+                if (latestAgg != null) {
+                    var topHits = latestAgg.topHits();
+                    if (topHits != null && !topHits.hits().hits().isEmpty()) {
+                        var src = topHits.hits().hits().get(0).source();
+                        if (src != null) entry.put("last_echo", src.to(Map.class));
+                    }
+                }
+                out.put(bucket.key(), entry);
+            }
+            return out;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
 
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> type) {
         final String ctx = CLASSNAME + ".search";

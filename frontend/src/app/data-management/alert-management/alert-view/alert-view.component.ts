@@ -7,7 +7,7 @@ import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject, throwError, timer, Subscription} from 'rxjs';
-import {concatMap, filter, retryWhen, takeUntil, tap, finalize} from 'rxjs/operators';
+import {concatMap, filter, retryWhen, takeUntil, tap, finalize,take,debounceTime} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -353,34 +353,30 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
-    if(this.lastTimeout!=-1){
-      clearTimeout(this.lastTimeout)
+
       if(this.lastRequest){
         this.lastRequest.unsubscribe()
         this.lastRequest=null
       }
-    }
-    this.lastTimeout= setTimeout(()=>{
+
     this.lastRequest=this.elasticDataService.search(this.page, this.itemsPerPage,
       MAX_SEARCH_RESULTS, this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy, true)
-        .pipe(finalize(()=>this.lastRequest=null))
+      sanitizeFilters(!!filtersParam? filtersParam : this.filters), this.sortBy, true)
+        .pipe(debounceTime(300),take(1),finalize(()=>{
+          this.loading = false;
+          this.flushPendingFilters();
+          this.lastRequest=null
+          this.refreshingAlert = false;
+         }))
         .subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.alerts = res.body;
-        this.loading = false;
-        this.refreshingAlert = false;
-        this.flushPendingFilters();
       },
-      (res: HttpResponse<any>) => {
+      (_res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
-        this.loading = false;
-        this.refreshingAlert = false;
-        this.flushPendingFilters();
       }
     );
-    },100)
   }
 
   private flushPendingFilters() {
