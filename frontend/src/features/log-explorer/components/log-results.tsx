@@ -5,7 +5,7 @@ import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
-import { MSG_FIELDS, SRC_FIELDS, docPreview, flattenDoc, pick } from '../domain/flatten'
+import { SRC_FIELDS, flattenDoc, pick } from '../domain/flatten'
 
 /**
  * Shared "Discover-style" log results rendering: the table row + the expandable
@@ -44,15 +44,13 @@ function absTimestamp(iso: string) {
     : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-// Grid columns. Manual mode (user picked columns): time + each picked column (last
-// flexes). Default mode: time + source + auto-detected important columns + a
-// flexible message column.
+// Grid columns. Manual mode (user picked columns): time + each picked column.
+// Default mode: time + source + auto-detected important columns.
 const FIELD_COL = 160
-const MESSAGE_COL = 320
 
 export function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
   if (columns.length > 0) return [20, 30, 168, ...columns.map(() => FIELD_COL)]
-  return [20, 30, 168, FIELD_COL, ...autoColumns.map(() => FIELD_COL), MESSAGE_COL]
+  return [20, 30, 168, FIELD_COL, ...autoColumns.map(() => FIELD_COL)]
 }
 
 function gridTemplate(columns: string[], autoColumns: string[] = []): string {
@@ -88,8 +86,8 @@ function ResultsHeaderImpl({
       className="sticky top-0 z-10 grid w-max min-w-full items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
       style={{ gridTemplateColumns: template }}
     >
-      <div data-resizable-col className="relative min-w-0 pr-2">{resizeHandle(0)}</div>
-      <div data-resizable-col className="relative min-w-0 pr-2">{resizeHandle(1)}</div>
+      <div data-resizable-col className="relative min-w-0 pr-2" />
+      <div data-resizable-col className="relative min-w-0 pr-2" />
       <div data-resizable-col className="relative min-w-0 pr-2">
         {t('logExplorer.results.time')}
         {resizeHandle(2)}
@@ -106,7 +104,6 @@ function ResultsHeaderImpl({
               {resizeHandle(i + 4)}
             </div>
           ))}
-          <div data-resizable-col className="relative min-w-0 pr-2 last:pr-0">{t('logExplorer.results.message')}</div>
         </>
       ) : (
         columns.map((c,i) => (
@@ -164,8 +161,7 @@ function ResultRowImpl({
   const source = pick(flat, SRC_FIELDS) ?? '—'
   const level = (pick(flat, LEVEL_FIELDS) ?? '').toLowerCase()
   const tone = LEVEL_TONE[level] ?? { dot: 'bg-muted-foreground/50', tone: 'text-muted-foreground' }
-  const message = pick(flat, MSG_FIELDS)
-  const preview = useMemo(() => (columns.length > 0 || message ? null : docPreview(flat)), [columns.length, message, flat])
+  const resolvedTableCols = tableCols ?? gridTemplate(columns, autoColumns)
 
   return (
     <>
@@ -175,7 +171,7 @@ function ResultRowImpl({
           'grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/40 px-4 py-1 text-xs leading-tight transition-colors last:border-b-0',
           expanded ? 'bg-muted/30' : 'hover:bg-muted/20'
         )}
-        style={{ gridTemplateColumns: tableCols ?? gridTemplate(columns, autoColumns) }}
+        style={{ gridTemplateColumns: resolvedTableCols }}
       >
         <ChevronRight size={13} className={cn('text-muted-foreground/60 transition-transform', expanded && 'rotate-90 text-foreground')} />
         <span className={cn('h-3.5 w-[3px] rounded-full', tone.dot)} />
@@ -197,23 +193,18 @@ function ResultRowImpl({
                 </div>
               )
             })}
-            {message ? (
-              <div className="truncate text-foreground">{message}</div>
-            ) : (
-              <div className="flex items-center overflow-hidden whitespace-nowrap">
-                {preview!.map(([k, v], idx) => (
-                  <span key={idx} className="flex shrink-0 items-center">
-                    {idx > 0 && <span className="px-2.5 text-border">·</span>}
-                    <span className="text-muted-foreground">{k}</span>
-                    <span className="ml-1.5 font-mono text-foreground">{v}</span>
-                  </span>
-                ))}
-              </div>
-            )}
           </>
         )}
       </div>
-      {expanded && <ExpandedPanel flat={flat} doc={doc} onAdd={onAdd} onSurrounding={onSurrounding} />}
+      {expanded && (
+        <ExpandedPanel
+          flat={flat}
+          doc={doc}
+          tableCols={resolvedTableCols}
+          onAdd={onAdd}
+          onSurrounding={onSurrounding}
+        />
+      )}
     </>
   )
 }
@@ -223,11 +214,13 @@ type DetailTab = 'fields' | 'json'
 function ExpandedPanel({
   flat,
   doc,
+  tableCols,
   onAdd,
   onSurrounding,
 }: {
   flat: Record<string, unknown>
   doc: LogDocument
+  tableCols: string
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
@@ -239,8 +232,11 @@ function ExpandedPanel({
   const entries = Object.entries(flat).sort(([a], [b]) => a.localeCompare(b))
 
   return (
-    <div className="border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 last:border-b-0">
-      <div className="flex items-center justify-between gap-4 border-b border-border/40 px-5 py-2.5">
+    <div
+      className="grid w-max min-w-full gap-x-3 border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 px-4 last:border-b-0"
+      style={{ gridTemplateColumns: tableCols }}
+    >
+      <div className="col-span-full flex items-center justify-between gap-4 border-b border-border/40 px-5 py-2.5">
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           {ts && <span className="font-mono">{absTimestamp(ts)}</span>}
           <span className="font-mono">{t('logExplorer.detail.fieldsCount', { count: entries.length })}</span>
@@ -267,7 +263,7 @@ function ExpandedPanel({
         </div>
       </div>
 
-      <div className="flex items-center gap-4 border-b border-border/60 px-5">
+      <div className="col-span-full flex items-center gap-4 border-b border-border/60 px-5">
         <DetailTabBtn id="fields" current={tab} onChange={setTab}>
           {t('logExplorer.detail.parsedFields')}
         </DetailTabBtn>
@@ -276,7 +272,7 @@ function ExpandedPanel({
         </DetailTabBtn>
       </div>
 
-      <div className="p-5">
+      <div className="col-span-full p-5">
         {tab === 'fields' ? (
           <div className="overflow-hidden rounded-md border border-border bg-card">
             {entries.map(([k, v], i) => (
