@@ -27,6 +27,27 @@ func contractPaths(d protoreflect.MessageDescriptor, prefix string, out map[stri
 	}
 }
 
+// The documented Draft lifecycle finalizes after every step has run. Unknown
+// top-level scratch namespaces are permitted only with unconditional whole-root
+// cleanup as the final step of that same stage. Children of known schema namespaces are never
+// exempted, even if a cleanup happens to name them.
+func contractTemporaryRoots(steps []*plugins.Step, eventPaths map[string]bool) map[string]bool {
+	out := map[string]bool{}
+	if len(steps) == 0 {
+		return out
+	}
+	cleanup := steps[len(steps)-1].Delete
+	if cleanup == nil || cleanup.Where != "" {
+		return out
+	}
+	for _, p := range cleanup.Fields {
+		if p != "" && !strings.Contains(p, ".") && !eventPaths[p] {
+			out[p] = true
+		}
+	}
+	return out
+}
+
 // Manifests let independent technology fixes validate their own producers and
 // consumers without requiring unrelated, not-yet-merged normalization fixes.
 func TestFilterAndRuleContracts(t *testing.T) {
@@ -112,6 +133,7 @@ func TestFilterAndRuleContracts(t *testing.T) {
 						t.Fatal(err)
 					}
 					for _, stage := range cfg.Pipeline {
+						temporary := contractTemporaryRoots(stage.Steps, eventPaths)
 						for _, step := range stage.Steps {
 							fields := []string{}
 							if s := step.Rename; s != nil {
@@ -134,7 +156,7 @@ func TestFilterAndRuleContracts(t *testing.T) {
 								fields = append(fields, s.Fields...)
 							}
 							for _, p := range fields {
-								if !eventPath(p) {
+								if !eventPath(p) && !temporary[strings.SplitN(p, ".", 2)[0]] {
 									t.Errorf("unknown event write/cast field %q", p)
 								}
 							}
@@ -201,5 +223,32 @@ func TestFilterAndRuleContracts(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestContractTemporaryRoots(t *testing.T) {
+	paths := map[string]bool{}
+	contractPaths(new(plugins.Event).ProtoReflect().Descriptor(), "", paths)
+	for _, tc := range []struct {
+		name  string
+		steps []*plugins.Step
+		want  bool
+	}{
+		{"final whole root", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch", "origin.hostname", "origin", "raw"}}}}, true},
+		{"conditional", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch"}, Where: "false"}}}, false},
+		{"not final", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch"}}}, {}}, false},
+		{"no cleanup", nil, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := contractTemporaryRoots(tc.steps, paths)
+			if got["scratch"] != tc.want {
+				t.Error("scratch cleanup classification")
+			}
+			for _, invalid := range []string{"origin.hostname", "origin", "raw"} {
+				if got[invalid] {
+					t.Errorf("schema field exempted %s", invalid)
+				}
+			}
+		})
 	}
 }
