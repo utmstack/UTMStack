@@ -16,6 +16,7 @@ import com.park.utmstack.web.rest.errors.EmailAlreadyUsedException;
 import com.park.utmstack.web.rest.errors.LoginAlreadyUsedException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
+import com.park.utmstack.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -116,6 +117,42 @@ public class UserResource {
             } else {
                 User newUser = userService.createUser(userDTO);
                 mailService.sendCreationEmail(newUser);
+                return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
+                    .headers(HeaderUtil.createAlert("A user is created with identifier " + newUser.getLogin(),
+                        newUser.getLogin()))
+                    .body(newUser);
+            }
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @PostMapping("/users/local")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @AuditEvent(
+        attemptType = ApplicationEventType.USER_CREATION_ATTEMPT,
+        attemptMessage = "Attempting to create user {login} locally",
+        successType = ApplicationEventType.USER_CREATION_SUCCESS,
+        successMessage = "User {login} created locally (no email activation)"
+    )
+    public ResponseEntity<User> createUserLocal(@Valid @RequestBody ManagedUserVM userDTO) {
+        final String ctx = CLASSNAME + ".createUserLocal";
+        try {
+            if (userDTO.getId() != null) {
+                throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+            } else if (userRepository.findOneByLogin(userDTO.getLogin()
+                .toLowerCase())
+                .isPresent()) {
+                throw new LoginAlreadyUsedException();
+            } else if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
+                .isPresent()) {
+                throw new EmailAlreadyUsedException();
+            } else {
+                User newUser = userService.createUser(userDTO, userDTO.getPassword());
                 return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
                     .headers(HeaderUtil.createAlert("A user is created with identifier " + newUser.getLogin(),
                         newUser.getLogin()))
