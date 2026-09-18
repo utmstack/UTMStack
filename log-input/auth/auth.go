@@ -121,7 +121,12 @@ func (s *Service) APIKeyTenant(ctx context.Context, apiKey, clientIP string) (st
 }
 
 func (s *Service) InternalKeyValid(key string) bool {
-	return s.cfg.InternalKey != "" && key == s.cfg.InternalKey
+	if s.cfg.InternalKey == "" {
+		return false
+	}
+	// Constant-time: a short-circuiting == leaks key prefix length to a caller
+	// that can measure responses (CWE-208).
+	return subtle.ConstantTimeCompare([]byte(key), []byte(s.cfg.InternalKey)) == 1
 }
 
 // get reads a cached answer. An unreachable Redis reads as a miss so it cannot
