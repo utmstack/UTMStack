@@ -43,12 +43,15 @@ func Download(url, destDir, filename string, opts DownloadOptions) error {
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: opts.SkipTLSVerify,
 		},
+		DisableCompression: true,
 	}
 
 	client := &http.Client{
 		Timeout:   opts.Timeout,
 		Transport: transport,
 	}
+
+	defer transport.CloseIdleConnections()
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
