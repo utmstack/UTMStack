@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS ECS/EKS Container Abuse Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Execution
-technique: "T1610 - Deploy Container"
+technique: T1610 - Deploy Container
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security.html
-  - https://attack.mitre.org/techniques/T1610/
+- https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security.html
+- https://attack.mitre.org/techniques/T1610/
 description: |
   Detects suspicious container operations in AWS ECS and EKS including registration of task definitions with privileged mode, host network access, or sensitive volume mounts. Attackers may deploy malicious containers to execute code, escalate privileges, or access host resources.
 
@@ -26,15 +25,19 @@ description: |
   7. If unauthorized, deregister the task definition and terminate running tasks
   8. Implement OPA/Gatekeeper policies to prevent privileged containers
 where: |
-  (equals("log.eventSource", "ecs.amazonaws.com") &&
-   equals("log.eventName", "RegisterTaskDefinition") &&
-   equals("log.errorCode", "") &&
-   (contains("log.requestParameters", "\"privileged\":true") ||
-    contains("log.requestParameters", "\"networkMode\":\"host\"") ||
-    contains("log.requestParameters", "\"pidMode\":\"host\"") ||
-    contains("log.requestParameters", "/var/run/docker.sock") ||
-    contains("log.requestParameters", "/etc/shadow") ||
-    contains("log.requestParameters", "/root")))
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","ecs.amazonaws.com") &&
+  oneOf("log.eventName",["RegisterTaskDefinition"]) &&
+  equals("actionResult","success") &&
+  (exists('log.requestParameters.containerDefinitions.#(privileged==true)') ||
+  equals("log.requestParameters.networkMode","host") ||
+  equals("log.requestParameters.pidMode","host") ||
+  exists('log.requestParameters.volumes.#(host.sourcePath=="/var/run/docker.sock")') ||
+  exists('log.requestParameters.volumes.#(host.sourcePath=="/etc/shadow")') ||
+  exists('log.requestParameters.volumes.#(host.sourcePath=="/root")')))
 groupBy:
-  - adversary.user
-  - lastEvent.log.eventName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.eventName

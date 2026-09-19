@@ -1,24 +1,29 @@
-# Rule version v1.0.3
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - "aws"
-name: "AWS GuardDuty Detector Deletion"
+- aws
+name: AWS GuardDuty Detector Deletion
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Defense Evasion"
-technique: "T1562 - Impair Defenses"
+category: Defense Evasion
+technique: T1562 - Impair Defenses
 adversary: origin
-description: "Identifies the deletion of an Amazon GuardDuty detector. Upon deletion, GuardDuty stops monitoring the environment and all existing findings are lost"
+description: Identifies the deletion of an Amazon GuardDuty detector. Upon deletion, GuardDuty stops monitoring the environment
+  and all existing findings are lost
 references:
-  - "https://attack.mitre.org/tactics/TA0005/"
-  - "https://attack.mitre.org/techniques/T1562/"
-  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/guardduty/delete-detector.html"
-  - "https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html"
+- https://attack.mitre.org/tactics/TA0005/
+- https://attack.mitre.org/techniques/T1562/
+- https://awscli.amazonaws.com/v2/documentation/api/latest/reference/guardduty/delete-detector.html
+- https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html
 where: |
-  equals("log.eventSource", "guardduty.amazonaws.com") &&
-  equals("log.eventName", "DeleteDetector")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "guardduty.amazonaws.com") &&
+  equals("log.eventName", "DeleteDetector") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

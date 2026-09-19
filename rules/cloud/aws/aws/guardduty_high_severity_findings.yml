@@ -1,31 +1,23 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: AWS GuardDuty High-Severity Finding
+- aws
+name: AWS GuardDuty High or Critical Finding
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: Defense Evasion, Persistence, Privilege Escalation, Initial Access
-technique: "T1078 - Valid Accounts"
+category: Threat Detection
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html
-  - https://attack.mitre.org/techniques/T1078/
+- https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html
 description: |
-  Detects high-severity findings from AWS GuardDuty indicating potential security threats such as malicious activity, unauthorized access, or compromised instances. GuardDuty analyzes CloudTrail events, VPC Flow Logs, and DNS logs to identify threats.
-  
-  Next Steps:
-  1. Review the specific GuardDuty finding details including the threat type and affected resources
-  2. Check the affected AWS account and region for any unauthorized changes
-  3. Investigate the source IP addresses and user activities associated with the finding
-  4. Review CloudTrail logs for suspicious API calls around the time of the finding
-  5. If compromise is confirmed, rotate credentials and review IAM permissions
-  6. Enable AWS CloudTrail logging if not already enabled
-  7. Consider implementing AWS Security Hub for centralized security findings
-where: equals("log.eventSource", "guardduty.amazonaws.com") && greaterOrEqual("log.severity", 7)
+  Detects an explicitly identified GuardDuty EventBridge finding with severity from 7 through 10. The CloudWatch log group must receive those EventBridge events; GuardDuty management API calls are not findings. Review the original finding detail for affected resources and threat context.
+where: |
+  equals("log.awsRecordType","guardduty") &&
+  greaterOrEqual("log.detail.severity",7) &&
+  lessOrEqual("log.detail.severity",10)
 groupBy:
-  - lastEvent.log.accountId
-  - lastEvent.log.region
-  - lastEvent.log.type
+- lastEvent.dataSource
+- lastEvent.log.account
+- lastEvent.log.region
+- lastEvent.log.detail.id
