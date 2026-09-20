@@ -20,6 +20,8 @@ var (
 	dbInitErr  error
 )
 
+const deleteBatchSize = 500
+
 type Database struct {
 	db     *gorm.DB
 	locker sync.RWMutex
@@ -91,7 +93,7 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, err
 
 	var rowsAffected int
 	for currentSize > retentionMegabytes {
-		result := d.db.Where("1 = 1").Order("created_at ASC").Limit(500).Delete(data)
+		result := d.deleteOldestBatch(data, "processed = ?", true)
 		if result.Error != nil {
 			break
 		}
@@ -110,6 +112,14 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, err
 	}
 
 	return rowsAffected, nil
+}
+
+func (d *Database) deleteOldestBatch(data interface{}, cond string, condArgs ...interface{}) *gorm.DB {
+	subquery := d.db.Model(data).Select("id").
+		Where(cond, condArgs...).
+		Order("created_at ASC").
+		Limit(deleteBatchSize)
+	return d.db.Where("id IN (?)", subquery).Delete(data)
 }
 
 func GetDB() (*Database, error) {
