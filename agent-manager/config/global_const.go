@@ -58,13 +58,16 @@ var (
 	UpdatesFolder             = "/updates"
 	UpdatesVersionsPath       = filepath.Join(UpdatesFolder, "version.json")
 	UpdatesDependenciesFolder = "/dependencies"
-	InternalKey               = os.Getenv("INTERNAL_KEY")
-	LogLevel                  = os.Getenv("LOG_LEVEL")
-	EncryptionKey             = os.Getenv("ENCRYPTION_KEY")
-	UTMHost                   = os.Getenv("UTM_HOST")
-	DBHost                    = os.Getenv("DB_HOST")
-	DBPort                    = os.Getenv("DB_PORT")
-	DBUser                    = os.Getenv("DB_USER")
-	DBPassword                = os.Getenv("DB_PASSWORD")
-	DBName                    = os.Getenv("DB_NAME")
+	// EDRMirrorFolder is the read-only mount of the EDR mirror volume
+	// (signature databases + threat-intel feeds produced by the edr service).
+	EDRMirrorFolder = "/edr-mirror"
+	InternalKey     = os.Getenv("INTERNAL_KEY")
+	LogLevel        = os.Getenv("LOG_LEVEL")
+	EncryptionKey   = os.Getenv("ENCRYPTION_KEY")
+	UTMHost         = os.Getenv("UTM_HOST")
+	DBHost          = os.Getenv("DB_HOST")
+	DBPort          = os.Getenv("DB_PORT")
+	DBUser          = os.Getenv("DB_USER")
+	DBPassword      = os.Getenv("DB_PASSWORD")
+	DBName          = os.Getenv("DB_NAME")
 )

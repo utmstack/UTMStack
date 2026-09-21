@@ -120,6 +120,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Volumes: []string{
 			stack.Cert + ":/cert",
 			conf.UpdatesFolder + ":/updates",
+			stack.EDRMirror + ":/edr-mirror:ro",
 		},
 		Environment: []string{
 			"DB_PATH=/data/utmstack.db",
@@ -147,6 +148,33 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		DependsOn: []string{
 			"postgres",
 			"redis",
+		},
+	}
+
+	edrMem := stack.ServiceResources["edr"].AssignedMemory
+	c.Services["edr"] = Service{
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/edr:${UTMSTACK_TAG}"),
+		Volumes: []string{
+			stack.EDRMirror + ":/mirror",
+		},
+		Ports: []string{
+			"9002:9002",
+		},
+		Environment: []string{
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"UTM_HOST=http://backend:8080",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", edrMem)),
+				},
+			},
+		},
+		DependsOn: []string{
+			"backend",
 		},
 	}
 
