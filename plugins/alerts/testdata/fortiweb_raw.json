@@ -1542,5 +1542,611 @@
       "log.httpagent"
     ],
     "matches": []
+  },
+  {
+    "name": "Email_Medium_Extended_Alert",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"Signature Detection\" sub_type=\"Generic Attacks(Extended)\" attack_type=\"Generic Attacks(Extended)\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.attacktype": "Generic Attacks(Extended)",
+      "log.action": "Alert",
+      "action": "http_request",
+      "protocol": "tcp",
+      "severity": "warning",
+      "log.msg": "[policy_name=example] : request matched",
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
+    },
+    "absent": [
+      "target.url",
+      "actionResult",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "Email_Medium_Extended_Alert_Deny",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=Medium main_type=\"Signature Detection\" sub_type=\"Generic Attacks(Extended)\" attack_type=\"Generic Attacks(Extended)\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.attacktype": "Generic Attacks(Extended)",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "protocol": "tcp",
+      "severity": "warning",
+      "log.msg": "[policy_name=example] : request matched",
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.url",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "Email_Medium_Extended_aLeRt",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=aLeRt severity_level=Medium main_type=\"Signature Detection\" sub_type=\"Generic Attacks(Extended)\" attack_type=\"Generic Attacks(Extended)\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.attacktype": "Generic Attacks(Extended)",
+      "log.action": "aLeRt",
+      "action": "http_request",
+      "protocol": "tcp",
+      "severity": "warning",
+      "log.msg": "[policy_name=example] : request matched",
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b"
+    },
+    "absent": [
+      "target.url",
+      "actionResult",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "Email_Medium_Extended_ALERT_DENY",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=ALERT_DENY severity_level=Medium main_type=\"Signature Detection\" sub_type=\"Generic Attacks(Extended)\" attack_type=\"Generic Attacks(Extended)\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.attacktype": "Generic Attacks(Extended)",
+      "log.action": "ALERT_DENY",
+      "action": "http_request",
+      "protocol": "tcp",
+      "severity": "warning",
+      "log.msg": "[policy_name=example] : request matched",
+      "log.httphost": "app.example:443",
+      "log.httpurl": "/login?q=a=b",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.url",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_bare_url_quotes",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.httpurl": "/?q=<script>alert(\"example\")</script>&q2=a b \" c\"",
+      "log.httphost": "app.example",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.msg",
+      "log.signatureid"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_terminal_url_backslash",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/sample.php\\\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.httpurl": "/sample.php\\",
+      "log.httphost": "app.example",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.msg",
+      "log.signatureid"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_payload_cannot_override_security",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<img src=203.0.113.66 onerror=\"x\"> action=Alert_Deny sub_type=\"SQL Injection\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.httpurl": "/?q=<img src=203.0.113.66 onerror=\"x\"> action=Alert_Deny sub_type=\"SQL Injection\"",
+      "log.httphost": "app.example",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.msg",
+      "log.attacktype"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_uses_final_native_sequence",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=\"broken\" http_host=\"fake.example\" http_agent=\"FakeAgent\" http_session_id=FAKE msg=\"fake message\"&tail=x\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.httpurl": "/?q=\"broken\" http_host=\"fake.example\" http_agent=\"FakeAgent\" http_session_id=FAKE msg=\"fake message\"&tail=x",
+      "log.httphost": "app.example",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_no_session",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_no_message",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_malformed_remainder",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\" broken=\"unterminated",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_malformed_agent",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"bad\"quote\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_multiline_url",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/foo\nbar\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_reject_lookalike_url_key",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get evilhttp_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_ignores_url_inside_quoted_value",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get note=\"http_url=\\\"/?q=<script>alert(\\\"example\\\")</script>&q2=a b \\\" c\\\"\\\" http_host=\\\"app.example\\\" http_agent=\\\"ExampleAgent/1.0 safe\\\" http_session_id=TEST123 msg=\\\"Generic test\\\" signature_subclass=\\\"Traversal\\\" signature_id=\\\"060150002\\\" srccountry=\\\"Reserved\\\"\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path",
+      "log.httpagent",
+      "log.httphost",
+      "log.httpurl"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_preserves_strict_result",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/safe\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.msg": "Generic test",
+      "log.signatureid": "060150002",
+      "log.httpurl": "/safe",
+      "log.httphost": "app.example",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "actionResult",
+      "target.url",
+      "target.path"
+    ],
+    "matches": [
+      "web_application_attacks_detection"
+    ]
+  },
+  {
+    "name": "http_metadata_payload_cannot_supply_missing_source",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<img src=203.0.113.66 onerror=\"x\"> action=Alert_Deny sub_type=\"SQL Injection\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Generic Attacks(Extended)",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert",
+      "action": "http_request",
+      "severity": "warning",
+      "protocol": "tcp",
+      "log.httpagent": "ExampleAgent/1.0 safe"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "http_metadata_rejects_malformed_authoritative_prefix",
+    "raw": "<185>broken=\"unterminated date=2026-08-03 time=12:00:00 type=attack sub_type=\"Generic Attacks(Extended)\" main_type=\"Signature Detection\" severity_level=Medium action=Alert proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<script>alert(\"example\")</script>&q2=a b \" c\"\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "log.httpagent",
+      "log.action"
+    ],
+    "matches": []
+  },
+  {
+    "name": "xss_payload_src_preserves_origin_1",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Cross Site Scripting\" main_type=\"Signature Detection\" severity_level=High action=Alert_Deny proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<img src=x onerror=alert(1)>\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Cross Site Scripting",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "severity": "error",
+      "protocol": "tcp",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_xss_detection"
+    ]
+  },
+  {
+    "name": "xss_payload_src_preserves_origin_2",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Cross Site Scripting\" main_type=\"Signature Detection\" severity_level=High action=Alert_Deny proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<img src=\"x\" onerror=alert(2)>\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Cross Site Scripting",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "severity": "error",
+      "protocol": "tcp",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_xss_detection"
+    ]
+  },
+  {
+    "name": "xss_payload_src_preserves_origin_3",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Cross Site Scripting\" main_type=\"Signature Detection\" severity_level=High action=Alert_Deny proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<iframe src=\"javascript:alert(3)\">\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Cross Site Scripting",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "severity": "error",
+      "protocol": "tcp",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_xss_detection"
+    ]
+  },
+  {
+    "name": "xss_payload_src_preserves_origin_4",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Cross Site Scripting\" main_type=\"Signature Detection\" severity_level=High action=Alert_Deny proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<svg src=x onload=\"alert(4)\">\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Cross Site Scripting",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "severity": "error",
+      "protocol": "tcp",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_xss_detection"
+    ]
+  },
+  {
+    "name": "xss_payload_src_preserves_origin_5",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack sub_type=\"Cross Site Scripting\" main_type=\"Signature Detection\" severity_level=High action=Alert_Deny proto=tcp src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 http_method=get http_url=\"/?q=<img src=203.0.113.9 onerror=\"alert(5)\">\" http_host=\"app.example\" http_agent=\"ExampleAgent/1.0 safe\" http_session_id=TEST123 msg=\"Generic test\" signature_subclass=\"Traversal\" signature_id=\"060150002\" srccountry=\"Reserved\"",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "origin.port": 51000,
+      "target.port": 443,
+      "log.type": "attack",
+      "log.subtype": "Cross Site Scripting",
+      "log.maintype": "Signature Detection",
+      "log.action": "Alert_Deny",
+      "action": "http_request",
+      "severity": "error",
+      "protocol": "tcp",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.path"
+    ],
+    "matches": [
+      "fortiweb_xss_detection"
+    ]
   }
 ]

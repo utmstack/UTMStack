@@ -24,8 +24,11 @@ Read-only inspection of retained production events and the loaded configuration 
   traffic and requests to another target. Dedicated XSS and Known Exploits rules
   were missing; the retained Trojans class also warrants a discrete detection.
 
-Source/destination direction in the inspected events was already correct. This is
-not evidence of an IP inversion. YAML newline escaping, `afterEvents`, custom
+The initial bounded sample had correct source/destination fields. A later independent
+raw-source search identified payload `src=` text contaminating indexed origin fields.
+The strict authoritative extraction recovers the original header source; synthetic
+XSS payload controls explicitly exercise that correction. This is payload contamination,
+not a systematic source/destination inversion. YAML newline escaping, `afterEvents`, custom
 `log.*` names and empty noncapturing grok field names are supported, not defects.
 
 ## Producer and consumer changes
@@ -114,9 +117,40 @@ population-rate estimate.
   sample. Vendor documentation of such fields does not prove a mapping defect
   in these observed events.
 
+## Quoted-URL and nonblocking detection follow-up
+
+The filter now recovers HTTP URL, Host and user-agent values when a native quoted
+request URL contains bare quotes or ends in a backslash. The fallback requires a
+strict prefix through the actual `http_url` key, the final complete native HTTP
+field sequence and a strictly parsed remainder through the end. It runs only if
+strict extraction did not obtain a user agent. It changes no IP, action, severity
+or classification extraction. Fake `src`, decisions and metadata blocks inside
+payloads cannot replace the authoritative security header in the regression cases.
+
+The fallback deliberately does not recover message, signature, attack-type or
+OWASP fields through this relaxed URL boundary. Such fields after a malformed URL
+can remain absent. The inspected affected Generic/XSS records retain their header
+subtype and match the intended predicates, but this does not establish coverage
+for other rules that require tail-only evidence. Keep the original raw event for
+investigation; complete recovery of malformed vendor tails is not claimed.
+
+The new fixtures explicitly cover Medium Generic Attacks(Extended) with `Alert`,
+`Alert_Deny` and case variants, each using the actual SDK history executor below
+and at the three-event threshold and outside the 15-minute window. The Generic
+rule has no severity gate; both monitoring and blocking decisions are eligible.
+Additional controls cover malformed URL delimiters, false native-field blocks,
+missing boundaries, multi-line URLs, missing genuine source IPs and five fabricated
+XSS request shapes containing HTML `src=` attributes.
+
+Final Event validation now uses strict protobuf JSON decoding. Private replay
+supports explicit raw-authoritative network expectations for records whose indexed
+source was itself corrupted; it no longer assumes such corruption must be preserved.
+All private evidence stays outside this branch. Public fixtures contain invented
+addresses, hosts, payloads and identifiers.
+
 ## Verification and limits
 
-- The standalone suite has **102 fabricated raw cases**, each evaluated against
+- The standalone suite now has **125 fabricated raw cases**, each evaluated against
   all ten actual SDK rule predicates, with strict configuration decoding and
   final SDK Event conversion. Original incident fixtures remain covered.
 - Raw tests now include observed space-delimited KV behavior, so fake fields
@@ -141,9 +175,12 @@ population-rate estimate.
   negative control showing that absent extracted identities match none of the ten
   predicates. This normalization-only control does not prove raw extraction or
   IP validation; the standalone raw suite supplies that model coverage.
-- The current shared-runner overlay passes 133 test/subtest records; the optional
-  private replay is skipped in that overlay and passes separately when enabled.
-- `go test ./...` in `plugins/alerts` and `git diff --check` pass. SDK history tests
+- The earlier shared-runner overlay passed 133 test/subtest records with private
+  replay skipped. The updated overlay with shared grouping PR #2627 at `7010b8b5`
+  passes **175 test records with no failures or skips**, including the private replay.
+- The updated standalone `go test ./...` in `plugins/alerts` passes 140 test records
+  with the bounded private replay enabled, including complete user-agent comparisons
+  and corrected raw-authoritative source identities. `git diff --check` passes. SDK history tests
   use localhost only; no customer endpoint is contacted by the test suite.
 
 The raw harness is an explicit offline model of documented grok concatenation,
@@ -153,7 +190,7 @@ publication. Actual history windows use a processing-time lower bound on
 `@timestamp`, not strict event-time sequencing. Classification markers on older
 indexed documents are not backfilled; stage the filter and rule contracts
 together and allow applicable windows to warm up. The standalone tests need no
-shared runner. Review shared alert grouping fix #2590 before rollout, since it
+shared runner. Review shared alert grouping fix #2627 before rollout, since it
 affects actual grouping/deduplication behavior. Added user-agent recovery is one
 bounded field; assess parser throughput with representative message sizes in
 staging. Cross-appliance history/grouping isolation is not established by this

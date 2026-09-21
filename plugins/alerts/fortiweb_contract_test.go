@@ -239,7 +239,7 @@ func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, ca
 	}
 	in := string(b)
 	ev := new(plugins.Event)
-	if e = utils.StringToProtoMessage(&in, ev); e != nil {
+	if e = protojson.Unmarshal([]byte(in), ev); e != nil {
 		t.Fatal(e)
 	}
 	out, e := utils.ProtoMessageToString(ev)
@@ -270,7 +270,8 @@ func TestFortiWebPrivateEvidence(t *testing.T) {
 			t.Fatal(e)
 		}
 		var hits []struct {
-			Source map[string]any `json:"_source"`
+			Source          map[string]any `json:"_source"`
+			ExpectedNetwork map[string]any `json:"expectedNetwork"`
 		}
 		if e = json.Unmarshal(b, &hits); e != nil {
 			t.Fatal(e)
@@ -288,7 +289,13 @@ func TestFortiWebPrivateEvidence(t *testing.T) {
 			}
 			for _, field := range []string{"dataSource", "origin.ip", "target.ip", "origin.port", "target.port"} {
 				before, after := gjson.GetBytes(stored, field), gjson.Get(out, field)
-				if before.Exists() && before.String() != after.String() {
+				// Explicit private expectations document raw-authoritative fixes
+				// when the indexed value itself was contaminated by payload text.
+				if expected, ok := hit.ExpectedNetwork[field]; ok {
+					if !after.Exists() || after.String() != fmt.Sprint(expected) {
+						t.Errorf("private raw-authoritative network field differs: %s", field)
+					}
+				} else if before.Exists() && before.String() != after.String() {
 					t.Errorf("existing private network field changed: %s", field)
 				}
 			}

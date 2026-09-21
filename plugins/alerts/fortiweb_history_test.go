@@ -134,6 +134,11 @@ func TestFortiWebSDKHistory(t *testing.T) {
 		within        string
 	}{
 		{"web_application_attacks_detection", "Generic Attacks_Alert_Deny", 3, "15m"},
+		{"web_application_attacks_detection", "Email_Medium_Extended_Alert", 3, "15m"},
+		{"web_application_attacks_detection", "Email_Medium_Extended_Alert_Deny", 3, "15m"},
+		{"web_application_attacks_detection", "Email_Medium_Extended_aLeRt", 3, "15m"},
+		{"web_application_attacks_detection", "Email_Medium_Extended_ALERT_DENY", 3, "15m"},
+
 		{"file_upload_security_violations", "ordinary_php_upload", 3, "30m"},
 		{"owasp_top10_violations", "HTTP_Illegal URL Parameter Value", 5, "15m"},
 	}

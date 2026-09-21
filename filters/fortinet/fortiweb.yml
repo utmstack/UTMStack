@@ -1,4 +1,4 @@
-# FortiWeb filter, version 2.2.0
+# FortiWeb filter, version 2.2.1
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/578387/header-body-fields
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/445549/attack
 # KV retains other vendor fields. Authoritative fields are re-extracted with quote-aware
@@ -260,6 +260,27 @@ pipeline:
         pattern: '{{.fortiwebKVValue}}'
       - fieldName: ''
         pattern: (?:\s|$)
+  # Some native attack URLs contain bare quotes or a terminal backslash.
+  # Recover HTTP metadata only from the final complete native HTTP field block.
+  # Require a strict envelope and remainder; never relax security-field parsing.
+  - grok:
+      source: log.kvMessage
+      patterns:
+      - fieldName: ''
+        pattern: '{{.fortiwebKVPrefix}}(?i:http_url)='
+      - fieldName: log.httpurl
+        pattern: '"[^\r\n]*"'
+      - fieldName: ''
+        pattern: '\s+(?i:http_host)='
+      - fieldName: log.httphost
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: '\s+(?i:http_agent)='
+      - fieldName: log.httpagent
+        pattern: '{{.fortiwebKVValue}}'
+      - fieldName: ''
+        pattern: '\s+(?i:http_session_id)=(?:{{.fortiwebKVValue}})\s+msg=(?:{{.fortiwebKVValue}})(?:\s+[A-Za-z0-9_.-]+=(?:{{.fortiwebKVValue}}))*\s*$'
+      where: '!exists("log.httpagent")'
   - trim:
       function: prefix
       substring: '"'
