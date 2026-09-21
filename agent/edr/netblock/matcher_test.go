@@ -63,3 +63,20 @@ func TestParseIndicatorRejectsGarbage(t *testing.T) {
 		t.Fatal("expected error for bad ip")
 	}
 }
+
+func TestMatcherNames(t *testing.T) {
+	m := NewMatcher()
+	d, _ := ParseIndicator("evil.com", "domain", 2)
+	h, _ := ParseIndicator("c2.bad.net", "hostname", 1)
+	m.Add(d)
+	m.Add(h)
+	if ind, ok := m.MatchName("x.evil.com"); !ok || ind.Value != "evil.com" {
+		t.Fatalf("MatchName(x.evil.com) = %+v ok=%v", ind, ok)
+	}
+	if _, ok := m.MatchName("c2.bad.net"); !ok {
+		t.Fatal("exact hostname should match")
+	}
+	if _, ok := m.MatchName("good.com"); ok {
+		t.Fatal("good.com must not match")
+	}
+}

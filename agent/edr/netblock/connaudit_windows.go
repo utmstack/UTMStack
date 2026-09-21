@@ -5,6 +5,7 @@ package netblock
 
 import (
 	"context"
+	"encoding/binary"
 	"net/netip"
 	"sync"
 	"unsafe"
@@ -24,8 +25,9 @@ type fwpByteBlob struct {
 	Data *uint8
 }
 
-// FWPM_NET_EVENT_SUBSCRIPTION0 (trimmed) — no template = all events; we filter in
-// the callback for classify-drop within our sublayer.
+// FWPM_NET_EVENT_SUBSCRIPTION0 (trimmed) — nil enumTemplate = subscribe to all
+// events. We filter to our blocklist in the manager (store.Match) rather than by
+// classify-drop type, so we never decode the version-sensitive event tail/union.
 type netEventSubscription struct {
 	enumTemplate uintptr
 	flags        uint32
@@ -41,7 +43,6 @@ type winConnAudit struct {
 func NewConnAudit() ConnAudit { return &winConnAudit{} }
 
 func (w *winConnAudit) Run(ctx context.Context, out chan<- BlockEvent) {
-	// Reuse a dedicated dynamic engine handle for the subscription lifetime.
 	var eng windows.Handle
 	type session0 struct {
 		sessionKey       windows.GUID
@@ -53,11 +54,15 @@ func (w *winConnAudit) Run(ctx context.Context, out chan<- BlockEvent) {
 		username         *uint16
 		kernelMode       int32
 	}
-	sess := session0{flags: fwpmSessionFlagDyn}
+	// NON-dynamic session: live net-event subscriptions do not deliver on a dynamic
+	// session (VM-observed — the callback never fires). We unsubscribe explicitly on
+	// ctx.Done. WFP net-event collection defaults ON (outbound drops collected), so
+	// no FwpmEngineSetOption0 is needed. netsh proves WFP records our drops.
+	sess := session0{}
 	r, _, _ := procEngineOpen.Call(0, rpcCAuthnWinNT, 0,
 		uintptr(unsafe.Pointer(&sess)), uintptr(unsafe.Pointer(&eng)))
 	if r != 0 {
-		logWarn("conn audit engine open: 0x%x", r)
+		logWarn("connaudit engine open: 0x%x", r)
 		<-ctx.Done()
 		return
 	}
@@ -66,12 +71,16 @@ func (w *winConnAudit) Run(ctx context.Context, out chan<- BlockEvent) {
 	w.mu.Unlock()
 	defer procEngineClose.Call(uintptr(eng))
 
-	cb := windows.NewCallback(func(ctxPtr uintptr, event *netEvent1) uintptr {
-		be, ok := decodeNetEvent(event)
-		if ok {
-			select {
-			case out <- be:
-			default: // never block the ETW/WFP callback
+	// Real callback: decode the header (validated offsets) and forward. Filtering to
+	// our blocklist happens in the manager, so a system-wide drop we don't care
+	// about resolves to no indicator and is dropped there.
+	cb := windows.NewCallback(func(ctxPtr uintptr, event *netEvent) uintptr {
+		if event != nil {
+			if be, ok := decodeNetEvent(event); ok {
+				select {
+				case out <- be:
+				default: // never block the WFP callback
+				}
 			}
 		}
 		return 0
@@ -82,7 +91,7 @@ func (w *winConnAudit) Run(ctx context.Context, out chan<- BlockEvent) {
 	r, _, _ = procNetEventSub2.Call(uintptr(eng), uintptr(unsafe.Pointer(&sub)),
 		cb, 0, uintptr(unsafe.Pointer(&subHandle)))
 	if r != 0 {
-		logWarn("net event subscribe: 0x%x", r)
+		logWarn("connaudit net-event subscribe: 0x%x", r)
 		<-ctx.Done()
 		return
 	}
@@ -93,69 +102,58 @@ func (w *winConnAudit) Run(ctx context.Context, out chan<- BlockEvent) {
 	procNetEventUnsub.Call(uintptr(eng), uintptr(subHandle))
 }
 
-// netEvent1 mirrors FWPM_NET_EVENT1 header fields we read (timestamp/flags/ip
-// version/protocol/local+remote addr+port) plus the classify-drop union pointer.
-type netEvent1 struct {
-	header  netEventHeader
-	typ     uint32
-	dropPtr *classifyDrop1 // set (non-nil) when typ == classify-drop; pointer-sized union member
+// netEvent is the head of FWPM_NET_EVENT{1..5} — only the header, which is stable
+// across versions for the fields we read. The type + union tail is intentionally
+// not modeled (version-sensitive); we filter by blocklist membership instead.
+type netEvent struct {
+	header netEventHeader
 }
 
+// netEventHeader mirrors FWPM_NET_EVENT_HEADER. Offsets validated on Windows 11
+// (build 26200) from a live classify-drop dump: remoteAddr@36, ports@52/54,
+// appId@64. localAddr/remoteAddr are 16-byte unions (v4 in the first 4 bytes,
+// host-order uint32; v6 = raw network-order bytes).
 type netEventHeader struct {
-	timestamp    windows.Filetime
-	flags        uint32
-	ipVersion    uint32
-	ipProtocol   uint8
-	_            [3]byte
-	localAddrV4  uint32
-	remoteAddrV4 uint32
-	localAddrV6  [16]byte
-	remoteAddrV6 [16]byte
-	localPort    uint16
-	remotePort   uint16
-	scopeID      uint32
-	appID        fwpByteBlob
-	userID       uintptr
+	timestamp  windows.Filetime // [0:8]
+	flags      uint32           // [8:12]  bitmask of valid fields
+	ipVersion  uint32           // [12:16] 0=v4, 1=v6
+	ipProtocol uint32           // [16:20] UINT8 + 3 pad natively
+	localAddr  [16]byte         // [20:36] union {UINT32 v4 | UINT8 v6[16]}
+	remoteAddr [16]byte         // [36:52] union {UINT32 v4 | UINT8 v6[16]}
+	localPort  uint16           // [52:54]
+	remotePort uint16           // [54:56]
+	scopeID    uint32           // [56:60]
+	_          [4]byte          // [60:64] pad (blob is 8-aligned)
+	appID      fwpByteBlob      // [64:80] {size; pad; *data}
+	userID     uintptr          // [80:88]
 }
 
-type classifyDrop1 struct {
-	filterID     uint64
-	layerID      uint16
-	_            [6]byte
-	reauthReason uint32
-	origDir      uint32
-	msFwpDir     uint32
-	isLoopback   int32
-}
-
-const netEventTypeClassifyDrop = 3 // FWPM_NET_EVENT_TYPE_CLASSIFY_DROP
-
-func decodeNetEvent(e *netEvent1) (BlockEvent, bool) {
-	if e == nil || e.typ != netEventTypeClassifyDrop {
+func decodeNetEvent(e *netEvent) (BlockEvent, bool) {
+	if e == nil {
 		return BlockEvent{}, false
 	}
-	h := e.header
+	h := &e.header
 	var ip netip.Addr
-	if h.ipVersion == 0 { // FWP_IP_VERSION_V4
-		ip = netip.AddrFrom4([4]byte{
-			byte(h.remoteAddrV4 >> 24), byte(h.remoteAddrV4 >> 16),
-			byte(h.remoteAddrV4 >> 8), byte(h.remoteAddrV4)})
-	} else {
-		ip = netip.AddrFrom16(h.remoteAddrV6)
+	if h.ipVersion == 0 { // FWP_IP_VERSION_V4: host-order uint32 in the low 4 bytes
+		v := binary.LittleEndian.Uint32(h.remoteAddr[0:4])
+		ip = netip.AddrFrom4([4]byte{byte(v >> 24), byte(v >> 16), byte(v >> 8), byte(v)})
+	} else { // v6: raw network-order bytes
+		var a16 [16]byte
+		copy(a16[:], h.remoteAddr[:])
+		ip = netip.AddrFrom16(a16)
 	}
-	dir := "outbound"
-	if e.dropPtr != nil {
-		if e.dropPtr.msFwpDir == 1 { // FWP_DIRECTION_INBOUND
-			dir = "inbound"
-		}
+	if !ip.IsValid() || ip.IsUnspecified() {
+		return BlockEvent{}, false
 	}
-	be := BlockEvent{
+	// Direction is not decoded from the version-sensitive classify-drop union;
+	// blocklist blocks are overwhelmingly outbound (C2/exfil). Refining this to read
+	// FWP_DIRECTION is a follow-up.
+	return BlockEvent{
 		RemoteIP:    ip,
 		RemotePort:  int(h.remotePort),
-		Direction:   dir,
+		Direction:   "outbound",
 		ProcessPath: appIDPath(h.appID),
-	}
-	return be, true
+	}, true
 }
 
 // appIDPath converts the FWP_BYTE_BLOB app id (device-path UTF16) to a string.
@@ -164,5 +162,5 @@ func appIDPath(blob fwpByteBlob) string {
 		return ""
 	}
 	u16 := unsafe.Slice((*uint16)(unsafe.Pointer(blob.Data)), blob.Size/2)
-	return windows.UTF16ToString(u16)
+	return NormalizeDevicePath(windows.UTF16ToString(u16))
 }

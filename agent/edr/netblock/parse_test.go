@@ -37,6 +37,35 @@ func TestParseAccumulative(t *testing.T) {
 	}
 }
 
+func TestParseAccumulativeTypedDomain(t *testing.T) {
+	body := "evil.example.com\n# comment\n\nBad.Host.Net.\n"
+	inds, err := ParseAccumulativeTyped(gz(body), 2, "domain")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(inds) != 2 {
+		t.Fatalf("want 2, got %d: %+v", len(inds), inds)
+	}
+	for _, i := range inds {
+		if i.Type != "domain" {
+			t.Fatalf("indicator %+v: type = %q, want domain", i, i.Type)
+		}
+		if i.Level != 2 {
+			t.Fatalf("indicator %+v: level = %d, want 2", i, i.Level)
+		}
+	}
+	// Canonicalized: lowercased + trailing dot trimmed.
+	var sawCanon bool
+	for _, i := range inds {
+		if i.Value == "bad.host.net" {
+			sawCanon = true
+		}
+	}
+	if !sawCanon {
+		t.Fatalf("expected canonicalized bad.host.net, got %+v", inds)
+	}
+}
+
 func TestParseDaily(t *testing.T) {
 	body := `{"value":"1.2.3.4","type":"ip","op":"add"}
 {"value":"9.9.9.9","type":"ip","op":"del"}

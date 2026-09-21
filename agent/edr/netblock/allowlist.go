@@ -84,3 +84,22 @@ func (a *Allowlist) Allowed(addr netip.Addr) bool {
 	}
 	return false
 }
+
+// OverlapsAllowed reports whether the prefix p intersects the never-block set:
+// it contains an allowlisted exact IP, or it overlaps an allowlisted prefix.
+// A blacklisted CIDR that contains a resolver / gateway / platform-server IP (or
+// overlaps an allowlisted range) must not be applied as a WFP mask filter, or the
+// host can be cut off from its own management plane.
+func (a *Allowlist) OverlapsAllowed(p netip.Prefix) bool {
+	for addr := range a.exact {
+		if p.Contains(addr) {
+			return true
+		}
+	}
+	for _, ap := range a.prefixes {
+		if p.Overlaps(ap) {
+			return true
+		}
+	}
+	return false
+}

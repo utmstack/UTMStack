@@ -23,8 +23,10 @@ func logInfo(format string, a ...any) { logger.Info("[UTMStack EDR] "+format, a.
 // so enforcement is silently skipped rather than the module crashing.
 type disabledBlocker struct{}
 
-func newDisabledBlocker() (Blocker, error)                   { return disabledBlocker{}, nil }
-func (disabledBlocker) AddIP(a netip.Addr, dir string) error { return nil }
-func (disabledBlocker) RemoveIP(a netip.Addr) error          { return nil }
-func (disabledBlocker) Reset() error                         { return nil }
-func (disabledBlocker) Count() int                           { return 0 }
+func newDisabledBlocker() (Blocker, error)                         { return disabledBlocker{}, nil }
+func (disabledBlocker) AddIP(a netip.Addr, dir string) error       { return nil }
+func (disabledBlocker) RemoveIP(a netip.Addr) error                { return nil }
+func (disabledBlocker) AddPrefix(p netip.Prefix, dir string) error { return nil }
+func (disabledBlocker) RemovePrefix(p netip.Prefix) error          { return nil }
+func (disabledBlocker) Reset() error                               { return nil }
+func (disabledBlocker) Count() int                                 { return 0 }

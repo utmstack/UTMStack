@@ -8,6 +8,8 @@ import "net/netip"
 type Matcher struct {
 	exact    map[netip.Addr]Indicator
 	prefixes []prefixEntry
+	names    *NameSet
+	nameInd  []Indicator
 }
 
 type prefixEntry struct {
@@ -16,7 +18,7 @@ type prefixEntry struct {
 }
 
 func NewMatcher() *Matcher {
-	return &Matcher{exact: map[netip.Addr]Indicator{}}
+	return &Matcher{exact: map[netip.Addr]Indicator{}, names: NewNameSet()}
 }
 
 func (m *Matcher) Add(ind Indicator) {
@@ -29,10 +31,27 @@ func (m *Matcher) Add(ind Indicator) {
 		if p, err := netip.ParsePrefix(ind.Value); err == nil {
 			m.prefixes = append(m.prefixes, prefixEntry{p: p.Masked(), ind: ind})
 		}
+	case "domain", "hostname":
+		m.names.Add(ind.Value)
+		m.nameInd = append(m.nameInd, ind) // keep the Indicator for Match results
 	}
 }
 
-func (m *Matcher) Len() int { return len(m.exact) + len(m.prefixes) }
+func (m *Matcher) Len() int { return len(m.exact) + len(m.prefixes) + m.names.Len() }
+
+// MatchName resolves a DNS query to its blocklist Indicator, if any.
+func (m *Matcher) MatchName(query string) (Indicator, bool) {
+	matched, ok := m.names.Match(query)
+	if !ok {
+		return Indicator{}, false
+	}
+	for _, ind := range m.nameInd {
+		if ind.Value == matched {
+			return ind, true
+		}
+	}
+	return Indicator{Value: matched, Type: "domain"}, true
+}
 
 // MatchIP returns the matched indicator (exact wins over prefix) and true if the
 // address is blacklisted.

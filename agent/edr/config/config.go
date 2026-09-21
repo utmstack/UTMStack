@@ -24,6 +24,20 @@ var (
 	BlocklistDir = filepath.Join(InstallDir, "blocklist")
 )
 
+const (
+	// Agent-facing mirror plane on the UTMStack server: the platform serves
+	// the EDR mirror tree (signature databases + threat-intel feeds) as static
+	// files on the dependencies port. Path segments deliberately avoid
+	// engine/intel vendor names — these URLs surface in warning logs.
+	MirrorPort     = "9001"
+	MirrorBasePath = "/private/edr"
+	// MirrorHTTPPort: the EDR server container serves the signature mirror over
+	// plain HTTP on this port for self-signed (skip_cert_validate) deployments,
+	// where freshclam cannot validate TLS. CVD signature integrity holds
+	// regardless of transport, so the plain-HTTP channel is safe here.
+	MirrorHTTPPort = "9002"
+)
+
 // Allowlist unifies the three "what does the EDR ignore" lists into one block —
 // previously scattered as top-level `exclusions` / `trusted_processes` and a
 // nested `ransomware.command_allowlist`. This is the single home for false-
@@ -91,12 +105,13 @@ type RansomwareConfig struct {
 // exemption, fail-open) are mandatory because it can drop live traffic.
 type BlocklistConfig struct {
 	Enabled            bool     `json:"enabled"`              // default true
-	Enforce            bool     `json:"enforce"`              // default true (false = detect-only)
+	Enforce            bool     `json:"enforce"`              // default true (false = inert in Plan 1 (loads intel, no WFP filters, no telemetry); observation lands in Plan 2)
 	MirrorBaseURL      string   `json:"blocklist_mirror"`     // empty = derive from Server
 	Levels             []int    `json:"levels"`               // default [1]
 	IndicatorTypes     []string `json:"indicator_types"`      // default ["ip"] in Plan 1
 	Direction          string   `json:"direction"`            // "both"|"out"|"in"
 	RefreshHours       int      `json:"refresh_hours"`        // default 6
+	FullResyncHours    int      `json:"full_resync_hours"`    // default 24; how often a cycle does a full accumulative re-sync instead of a daily delta
 	AllowPrivateRanges bool     `json:"allow_private_ranges"` // default true
 	DomainBlockTTLMin  int      `json:"domain_block_ttl_min"` // Plan 2; default 30
 }
@@ -132,10 +147,14 @@ type EDRConfig struct {
 	// Engine tuning (ClamAV Configuration Guide §8). TierOverride forces a tier
 	// ("constrained"|"standard"|"server"); empty = auto-derive from the host.
 	TierOverride string `json:"engine_tier_override"`
-	// SigMirror, when set, points signature updates at a private mirror (e.g.
-	// the UTMStack central server) instead of the official ClamAV CDN. Empty =
-	// pull directly from the official database (database.clamav.net).
+	// SigMirror selects the signature-update source: "" (default) auto-derives
+	// the UTMStack server mirror; "cdn" forces the official public database; any
+	// other value is an explicit mirror URL.
 	SigMirror string `json:"signature_mirror"`
+	// SignatureFallback controls behavior when the private signature mirror is
+	// unreachable: "cdn" (default) falls back to the official public database
+	// for one cycle; "none" stays mirror-only (air-gapped posture).
+	SignatureFallback string `json:"signature_fallback"`
 
 	// Ransomware is the behavioral ransomware guard block (nested; copied wholesale
 	// by Load when present on disk).
@@ -162,13 +181,14 @@ func Default() EDRConfig {
 		// risky on a busy host. The safe default is detect-and-kill. When enabled,
 		// the guard's rails apply (never suspend OS processes; bound by
 		// SuspendTimeoutMs).
-		SuspendOnLaunch:  false,
-		SuspendTimeoutMs: 5000,
-		QuarantineDir:    QuarantineDir,
-		QuarantineDays:   30,
-		ClamdAddr:        "127.0.0.1:3310",
-		ScanConcurrency:  conc,
-		SigUpdateHours:   4,
+		SuspendOnLaunch:   false,
+		SuspendTimeoutMs:  5000,
+		QuarantineDir:     QuarantineDir,
+		QuarantineDays:    30,
+		ClamdAddr:         "127.0.0.1:3310",
+		ScanConcurrency:   conc,
+		SigUpdateHours:    4,
+		SignatureFallback: "cdn",
 		// Sensors left zero: all *bool nil ⇒ every sensor ON by default.
 		Ransomware: RansomwareConfig{
 			Enabled:          true, // on by default; response_mode "suspend" is reversible
@@ -183,9 +203,10 @@ func Default() EDRConfig {
 			Enabled:            true,
 			Enforce:            true,
 			Levels:             []int{1},
-			IndicatorTypes:     []string{"ip"},
+			IndicatorTypes:     []string{"ip", "domain", "hostname"},
 			Direction:          "both",
 			RefreshHours:       6,
+			FullResyncHours:    24,
 			AllowPrivateRanges: true,
 			DomainBlockTTLMin:  30,
 		},
@@ -231,6 +252,9 @@ func Load() (EDRConfig, error) {
 	c.Sensors = onDisk.Sensors
 	c.TierOverride = onDisk.TierOverride
 	c.SigMirror = onDisk.SigMirror
+	if onDisk.SignatureFallback != "" {
+		c.SignatureFallback = onDisk.SignatureFallback
+	}
 	// RansomwareConfig has slice fields, so it is not comparable with != against a
 	// zero literal. Detect an on-disk block via a reliable non-zero scalar and copy
 	// the whole block; an absent block leaves the Default() nested values intact.
@@ -247,13 +271,16 @@ func Load() (EDRConfig, error) {
 			c.Blocklist.Levels = []int{1}
 		}
 		if len(c.Blocklist.IndicatorTypes) == 0 {
-			c.Blocklist.IndicatorTypes = []string{"ip"}
+			c.Blocklist.IndicatorTypes = []string{"ip", "domain", "hostname"}
 		}
 		if c.Blocklist.Direction == "" {
 			c.Blocklist.Direction = "both"
 		}
 		if c.Blocklist.RefreshHours == 0 {
 			c.Blocklist.RefreshHours = 6
+		}
+		if c.Blocklist.FullResyncHours == 0 {
+			c.Blocklist.FullResyncHours = 24
 		}
 	}
 

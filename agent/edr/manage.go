@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/netip"
 	"os"
 	"sort"
 	"strconv"
@@ -18,11 +19,12 @@ import (
 // inspecting and changing the module's configuration and quarantine store. It
 // only ever edits <install>/edr.json (still fully hand-editable) and reads
 // edr.db; the running service polls edr.json and hot-applies reloadable settings
-// (allowlists + ransomware response mode) within a few seconds. Structural
-// settings (enabled, sensors, watched volumes, engine) take effect on the next
+// (allowlists — incl. the network never-block list — ransomware response mode, and
+// blocklist.enforce) within a few seconds. Structural settings (enabled,
+// blocklist.enabled, sensors, watched volumes, engine) take effect on the next
 // disable-edr/enable-edr.
 
-const reloadNote = "saved. The running service applies reloadable settings (allowlists, response mode) within a few seconds; structural changes need disable-edr/enable-edr."
+const reloadNote = "saved. The running service applies reloadable settings (allowlists, response mode, blocklist.enforce) within a few seconds; structural changes (enabled, blocklist.enabled, sensors, engine) need disable-edr/enable-edr."
 
 func printUsage() {
 	fmt.Print(`UTMStack EDR — management CLI
@@ -40,6 +42,14 @@ Module commands (utmstack_edr ...):
   allow path    add|remove|list [value]   File paths the watcher skips
   allow process add|remove|list [value]   Processes/services the EDR won't act on
   allow command add|remove|list [value]   T1490 command substrings exempted
+  allow network add|remove|list [value]   IPs/CIDRs the network blocklist never blocks
+
+Network blocklist knobs (config set <key> <value>):
+  blocklist.enabled true|false            Enable the network blocklist
+  blocklist.enforce true|false            Enforce (drop) vs detect-only
+  blocklist.allow_private_ranges true|false  Never block RFC1918/private IPs
+  blocklist.refresh_hours <n>             Feed refresh interval in hours (>= 0)
+  blocklist.direction both|out|in         Which traffic direction to block
 
   quarantine list                List quarantined items (id | date | detection | path | state)
   quarantine restore <id>        Release an item back to its original path
@@ -195,6 +205,35 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 		return setPositiveInt(&cfg.Ransomware.DecayHalfLifeMs, val)
 	case "ransomware.canary_per_dir":
 		return setPositiveInt(&cfg.Ransomware.CanaryPerDir, val)
+	case "blocklist.enabled":
+		b, err := parseBool(val)
+		if err != nil {
+			return err
+		}
+		cfg.Blocklist.Enabled = b
+	case "blocklist.enforce":
+		b, err := parseBool(val)
+		if err != nil {
+			return err
+		}
+		cfg.Blocklist.Enforce = b
+	case "blocklist.allow_private_ranges":
+		b, err := parseBool(val)
+		if err != nil {
+			return err
+		}
+		cfg.Blocklist.AllowPrivateRanges = b
+	case "blocklist.refresh_hours":
+		n, err := strconv.Atoi(val)
+		if err != nil || n < 0 {
+			return fmt.Errorf("refresh_hours must be a non-negative integer")
+		}
+		cfg.Blocklist.RefreshHours = n
+	case "blocklist.direction":
+		if val != "both" && val != "out" && val != "in" {
+			return fmt.Errorf("direction must be both|out|in")
+		}
+		cfg.Blocklist.Direction = val
 	default:
 		return fmt.Errorf("unknown or read-only key %q (use `allow ...` for whitelists; `config show` to list values)", key)
 	}
@@ -205,7 +244,7 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 
 func runAllow(args []string) {
 	if len(args) < 2 {
-		fmt.Println("usage: utmstack_edr allow path|process|command add|remove|list [value]")
+		fmt.Println("usage: utmstack_edr allow path|process|command|network add|remove|list [value]")
 		os.Exit(1)
 	}
 	category, action := args[0], args[1]
@@ -220,8 +259,10 @@ func runAllow(args []string) {
 		list = &cfg.Allowlist.Processes
 	case "command":
 		list = &cfg.Allowlist.Commands
+	case "network":
+		list = &cfg.Allowlist.Networks
 	default:
-		fmt.Println("category must be path|process|command")
+		fmt.Println("category must be path|process|command|network")
 		os.Exit(1)
 	}
 
@@ -240,6 +281,14 @@ func runAllow(args []string) {
 			os.Exit(1)
 		}
 		val := strings.Join(args[2:], " ")
+		if category == "network" {
+			if _, errAddr := netip.ParseAddr(val); errAddr != nil {
+				if _, errPfx := netip.ParsePrefix(val); errPfx != nil {
+					fmt.Println("network entry must be an IP or CIDR")
+					os.Exit(1)
+				}
+			}
+		}
 		if containsFold(*list, val) {
 			fmt.Printf("%s already allowlisted: %s\n", category, val)
 			return

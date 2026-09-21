@@ -32,4 +32,6 @@ func (s *Store) Match(addr netip.Addr) (Indicator, bool) {
 	return s.cur.Load().MatchIP(addr)
 }
 
+func (s *Store) MatchName(query string) (Indicator, bool) { return s.cur.Load().MatchName(query) }
+
 func (s *Store) Count() int { return s.cur.Load().Len() }
