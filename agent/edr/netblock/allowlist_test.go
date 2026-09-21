@@ -31,6 +31,25 @@ func TestAllowlistDefaults(t *testing.T) {
 	}
 }
 
+func TestAllowlistOverlapsAllowed(t *testing.T) {
+	cfg := config.Default()
+	cfg.Blocklist.AllowPrivateRanges = true
+	al := BuildAllowlist(cfg, SystemNets{
+		Resolvers: []netip.Addr{netip.MustParseAddr("8.8.8.8")},
+	})
+	cases := map[string]bool{
+		"10.0.0.0/8": true,  // overlaps the 10/8 private range
+		"8.8.8.0/24": true,  // contains the 8.8.8.8 resolver (exact IP)
+		"9.9.9.0/24": false, // no overlap with any allowlisted IP/prefix
+	}
+	for cidr, want := range cases {
+		p := netip.MustParsePrefix(cidr)
+		if got := al.OverlapsAllowed(p); got != want {
+			t.Errorf("OverlapsAllowed(%s) = %v, want %v", cidr, got, want)
+		}
+	}
+}
+
 func TestAllowlistPrivateOff(t *testing.T) {
 	cfg := config.Default()
 	cfg.Blocklist.AllowPrivateRanges = false

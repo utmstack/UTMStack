@@ -32,10 +32,11 @@ const (
 	fwpmSessionFlagDyn = 0x00000001            // FWPM_SESSION_FLAG_DYNAMIC
 	fwpActionBlock     = 0x00000001 | 0x00001000 // FWP_ACTION_BLOCK
 	fwpMatchEqual      = 0
-	fwpUint32          = 8  // FWP_UINT32
-	fwpV6AddrMask      = 20 // FWP_V6_ADDR_MASK
-	fwpByteArray16Type = 11 // FWP_BYTE_ARRAY16_TYPE
-	fwpV4AddrMask      = 19 // FWP_V4_ADDR_MASK
+	fwpEmpty           = 0     // FWP_EMPTY (auto weight)
+	fwpUint32          = 3     // FWP_UINT32
+	fwpV6AddrMask      = 0x101 // FWP_V6_ADDR_MASK
+	fwpByteArray16Type = 11    // FWP_BYTE_ARRAY16_TYPE
+	fwpV4AddrMask      = 0x100 // FWP_V4_ADDR_MASK
 )
 
 // Well-known layer + condition GUIDs (windows headers: fwpmu.h / fwpmtypes.h).
@@ -117,7 +118,12 @@ type filter0 struct {
 	numFilterConditions uint32
 	filterConditions    *filterCondition
 	action              filterAction
-	context             uint64
+	// FWPM_FILTER0 has a union { UINT64 rawContext; GUID providerContextKey } here;
+	// the GUID makes it 16 bytes wide (8-byte aligned). Model it as an aligned
+	// uint64 + 8 bytes of pad so `reserved`/`filterId`/`effectiveWeight` land at
+	// their native offsets (a bare uint64 left the struct 8 bytes short).
+	contextRaw          uint64
+	contextPad          [8]byte
 	reserved            uintptr
 	filterID            uint64
 	effectiveWeight     fwpValue
@@ -131,13 +137,17 @@ type filterAction struct {
 // --- Blocker impl ----------------------------------------------------------
 
 type wfpBlocker struct {
-	mu      sync.Mutex
-	engine  windows.Handle
-	filters map[netip.Addr][]uint64 // addr -> filter IDs (v4/v6 × layers)
+	mu            sync.Mutex
+	engine        windows.Handle
+	filters       map[netip.Addr][]uint64   // addr -> filter IDs (v4/v6 × layers)
+	prefixFilters map[netip.Prefix][]uint64 // CIDR -> filter IDs (mask filters × layers)
 }
 
 func NewOSBlocker(sublayerName string) (Blocker, error) {
-	b := &wfpBlocker{filters: map[netip.Addr][]uint64{}}
+	b := &wfpBlocker{
+		filters:       map[netip.Addr][]uint64{},
+		prefixFilters: map[netip.Prefix][]uint64{},
+	}
 	if err := b.open(sublayerName); err != nil {
 		return nil, err
 	}
@@ -231,7 +241,7 @@ func (b *wfpBlocker) commitFilter(layer windows.GUID, cond *filterCondition, kee
 		displayData:         displayData{name: np},
 		layerKey:            layer,
 		subLayerKey:         edrSublayerKey,
-		weight:              fwpValue{typ: fwpUint32, data: 0x8000},
+		weight:              fwpValue{typ: fwpEmpty},
 		numFilterConditions: 1,
 		filterConditions:    cond,
 		action:              filterAction{actionType: fwpActionBlock},
@@ -259,6 +269,60 @@ func (b *wfpBlocker) RemoveIP(addr netip.Addr) error {
 	return nil
 }
 
+func (b *wfpBlocker) AddPrefix(p netip.Prefix, dir string) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	key := p.Masked()
+	if _, ok := b.prefixFilters[key]; ok {
+		return nil
+	}
+	var ids []uint64
+	for _, layer := range layersFor(dir, key.Addr().Is6()) {
+		id, err := b.addPrefixFilter(key, layer)
+		if err != nil {
+			return err
+		}
+		ids = append(ids, id)
+	}
+	b.prefixFilters[key] = ids
+	return nil
+}
+
+func (b *wfpBlocker) RemovePrefix(p netip.Prefix) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	key := p.Masked()
+	for _, id := range b.prefixFilters[key] {
+		procFilterDeleteById.Call(uintptr(b.engine), uintptr(id))
+	}
+	delete(b.prefixFilters, key)
+	return nil
+}
+
+// addPrefixFilter mirrors addFilter but sets the V4/V6 mask from the prefix bits.
+func (b *wfpBlocker) addPrefixFilter(p netip.Prefix, layer windows.GUID) (uint64, error) {
+	cond := filterCondition{fieldKey: condRemoteAddress, matchType: fwpMatchEqual}
+	if p.Addr().Is4() {
+		v4 := v4AddrAndMask{addr: be32(p.Addr().As4()), mask: prefixMask4(p.Bits())}
+		cond.conditionValue = fwpValue{typ: fwpV4AddrMask, data: uintptr(unsafe.Pointer(&v4))}
+		return b.commitFilter(layer, &cond, unsafe.Pointer(&v4))
+	}
+	a16 := p.Addr().As16()
+	v6 := v6AddrAndMask{addr: a16, prefixLength: byte(p.Bits())}
+	cond.conditionValue = fwpValue{typ: fwpV6AddrMask, data: uintptr(unsafe.Pointer(&v6))}
+	return b.commitFilter(layer, &cond, unsafe.Pointer(&v6))
+}
+
+func prefixMask4(bits int) uint32 {
+	if bits <= 0 {
+		return 0
+	}
+	if bits >= 32 {
+		return 0xffffffff
+	}
+	return ^uint32(0) << (32 - bits)
+}
+
 func (b *wfpBlocker) Reset() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -268,13 +332,19 @@ func (b *wfpBlocker) Reset() error {
 		}
 		delete(b.filters, addr)
 	}
+	for key, ids := range b.prefixFilters {
+		for _, id := range ids {
+			procFilterDeleteById.Call(uintptr(b.engine), uintptr(id))
+		}
+		delete(b.prefixFilters, key)
+	}
 	return nil
 }
 
 func (b *wfpBlocker) Count() int {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	return len(b.filters)
+	return len(b.filters) + len(b.prefixFilters)
 }
 
 func be32(b [4]byte) uint32 {

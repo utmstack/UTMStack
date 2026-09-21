@@ -20,7 +20,20 @@ func TestDefaultBlocklist(t *testing.T) {
 	if b.RefreshHours != 6 {
 		t.Fatalf("refresh default 6, got %d", b.RefreshHours)
 	}
-	if len(b.IndicatorTypes) == 0 || b.IndicatorTypes[0] != "ip" {
-		t.Fatalf("indicator types must include ip, got %v", b.IndicatorTypes)
+	if len(b.IndicatorTypes) != 3 {
+		t.Fatalf("indicator types default len = 3, got %v", b.IndicatorTypes)
+	}
+	contains := func(s string) bool {
+		for _, it := range b.IndicatorTypes {
+			if it == s {
+				return true
+			}
+		}
+		return false
+	}
+	for _, want := range []string{"ip", "domain", "hostname"} {
+		if !contains(want) {
+			t.Fatalf("indicator types must include %q, got %v", want, b.IndicatorTypes)
+		}
 	}
 }

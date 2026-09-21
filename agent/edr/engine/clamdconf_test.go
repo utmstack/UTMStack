@@ -84,3 +84,59 @@ func TestRenderFreshclamConfUsesPrivateMirrorWhenSet(t *testing.T) {
 		t.Fatalf("private mirror set → must not also use the official CDN:\n%s", conf)
 	}
 }
+
+func TestResolveMirrorURL(t *testing.T) {
+	cfg := config.Default()
+	if got := ResolveMirrorURL(cfg); got != "" {
+		t.Fatalf("no server registered must resolve empty (CDN), got %q", got)
+	}
+	cfg.Server = "utm.example.com"
+	want := "https://utm.example.com:9001/private/edr/signatures"
+	if got := ResolveMirrorURL(cfg); got != want {
+		t.Fatalf("auto (validated TLS) = %q, want %q", got, want)
+	}
+	// Self-signed deployment (skip_cert_validate): freshclam cannot skip-verify,
+	// so the auto mirror uses the plain-HTTP port; CVD signature guarantees
+	// integrity regardless of transport.
+	cfg.SkipCertValidate = true
+	wantHTTP := "http://utm.example.com:9002/private/edr/signatures"
+	if got := ResolveMirrorURL(cfg); got != wantHTTP {
+		t.Fatalf("auto (skip_cert_validate) = %q, want %q", got, wantHTTP)
+	}
+	cfg.SkipCertValidate = false
+	if got := ResolveMirrorURL(cfg); got != want {
+		t.Fatalf("auto (validated TLS) after toggle = %q, want %q", got, want)
+	}
+	cfg.SigMirror = "cdn"
+	if got := ResolveMirrorURL(cfg); got != "" {
+		t.Fatalf("cdn sentinel must resolve empty, got %q", got)
+	}
+	cfg.SigMirror = "https://m.example.com/sigs"
+	if got := ResolveMirrorURL(cfg); got != "https://m.example.com/sigs" {
+		t.Fatalf("explicit = %q", got)
+	}
+}
+
+func TestRenderFreshclamConfUsesResolvedMirror(t *testing.T) {
+	cfg := config.Default()
+	cfg.Server = "utm.example.com"
+	conf := RenderFreshclamConf(cfg)
+	if !strings.Contains(conf, "PrivateMirror https://utm.example.com:9001/private/edr/signatures") {
+		t.Fatalf("auto mirror missing:\n%s", conf)
+	}
+	cfg.SigMirror = "cdn"
+	conf = RenderFreshclamConf(cfg)
+	if !strings.Contains(conf, "DatabaseMirror database.clamav.net") || strings.Contains(conf, "PrivateMirror") {
+		t.Fatalf("cdn sentinel must force the official CDN:\n%s", conf)
+	}
+}
+
+func TestRenderFreshclamConfCDNForcesOfficial(t *testing.T) {
+	cfg := config.Default()
+	cfg.Server = "utm.example.com"
+	cfg.SigMirror = "https://m.example.com/sigs"
+	conf := RenderFreshclamConfCDN(cfg)
+	if !strings.Contains(conf, "DatabaseMirror database.clamav.net") || strings.Contains(conf, "PrivateMirror") {
+		t.Fatalf("CDN variant must ignore the mirror:\n%s", conf)
+	}
+}

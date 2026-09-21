@@ -19,6 +19,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/edr/event"
 	"github.com/utmstack/UTMStack/agent/edr/feed"
 	"github.com/utmstack/UTMStack/agent/edr/guard"
+	"github.com/utmstack/UTMStack/agent/edr/netblock"
 	"github.com/utmstack/UTMStack/agent/edr/orchestrator"
 	"github.com/utmstack/UTMStack/agent/edr/proctable"
 	"github.com/utmstack/UTMStack/agent/edr/procwatch"
@@ -35,6 +36,8 @@ type program struct {
 	eng      *engine.Engine
 	canaries *ransomware.Manager // set by startPipeline; read by writeStatus
 	rwGuard  *ransomware.Guard   // set by startPipeline; read by writeStatus
+	netblock *netblock.Manager   // set by startPipeline; read by writeStatus
+	sigFeed  *feed.Feed          // set by startPipeline; read by writeStatus
 
 	// Live-reload state (set by startPipeline). The service polls edr.json's
 	// mtime and hot-applies allowlist + response-mode changes without a restart,
@@ -68,10 +71,24 @@ type statusDoc struct {
 	UpdatedAt     string `json:"updated_at"`
 	Product       string `json:"product"`
 
+	// Signature-update freshness (Task 16 — auditable update posture).
+	SignatureSource     string `json:"signature_source"`
+	SignatureLastUpdate string `json:"signature_last_update"`
+
 	RansomwareEnabled     bool   `json:"ransomware_enabled"`
 	RansomwareMode        string `json:"ransomware_mode"`
 	CanaryCount           int    `json:"ransomware_canary_count"`
 	RansomwareFeedHealthy bool   `json:"ransomware_feed_healthy"`
+
+	// Network blocklist health (Task 13 — auditable enforcement posture).
+	BlocklistEnabled             bool  `json:"blocklist_enabled"`
+	BlocklistEnforce             bool  `json:"blocklist_enforce"`
+	BlocklistIndicators          int   `json:"blocklist_indicators"`
+	BlocklistActiveFilters       int   `json:"blocklist_active_filters"`
+	BlocklistEnforcementDegraded bool  `json:"blocklist_enforcement_degraded"`
+	BlocklistFeedStale           bool  `json:"blocklist_feed_stale"`
+	BlocklistFeedAgeSec          int64 `json:"blocklist_feed_age_sec"`
+	BlocklistRecentBlocks        int   `json:"blocklist_recent_blocks"`
 
 	// Effective sensor toggles + allowlist sizes (auditable management posture).
 	SensorFileWatcher  bool `json:"sensor_file_watcher"`
@@ -126,14 +143,14 @@ func (p *program) run() {
 	// (allowlists + response mode) without a restart.
 	reloadTicker := time.NewTicker(3 * time.Second)
 	defer reloadTicker.Stop()
-	writeStatus(cfg, p.eng, p.canaries, p.rwGuard)
+	writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed)
 	for {
 		select {
 		case <-ctx.Done():
 			logger.Info("UTMStack EDR: stopping")
 			return
 		case <-ticker.C:
-			writeStatus(cfg, p.eng, p.canaries, p.rwGuard)
+			writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed)
 		case <-reloadTicker.C:
 			p.maybeReload()
 		}
@@ -174,11 +191,14 @@ func (p *program) maybeReload() {
 	if p.rwGuard != nil {
 		p.rwGuard.SetPolicy(cfg.Ransomware.ResponseMode, cfg.Allowlist.Commands)
 	}
+	if p.netblock != nil {
+		p.netblock.Reload(cfg, resolveSystemNets(cfg))
+	}
 	logger.Info("UTMStack EDR: config reloaded — allowlists (%d paths, %d processes, %d commands) and response mode=%q applied live; structural changes (enable/sensors/volumes/engine) require a restart",
 		len(cfg.Allowlist.Paths), len(cfg.Allowlist.Processes), len(cfg.Allowlist.Commands), cfg.Ransomware.ResponseMode)
 }
 
-func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.Manager, rwGuard *ransomware.Guard) {
+func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.Manager, rwGuard *ransomware.Guard, nb *netblock.Manager, sf *feed.Feed) {
 	healthy := engine.Ping(cfg.ClamdAddr) == nil
 	ver := ""
 	if healthy {
@@ -206,6 +226,23 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		AllowPaths:            len(cfg.Allowlist.Paths),
 		AllowProcesses:        len(cfg.Allowlist.Processes),
 		AllowCommands:         len(cfg.Allowlist.Commands),
+	}
+	doc.SignatureSource = feed.SignatureSource(cfg)
+	if sf != nil {
+		if t := sf.LastSuccess(); !t.IsZero() {
+			doc.SignatureLastUpdate = t.UTC().Format(time.RFC3339)
+		}
+	}
+	if nb != nil {
+		h := nb.Health()
+		doc.BlocklistEnabled = h.Enabled
+		doc.BlocklistEnforce = h.Enforce
+		doc.BlocklistIndicators = h.Indicators
+		doc.BlocklistActiveFilters = h.ActiveFilters
+		doc.BlocklistEnforcementDegraded = h.EnforcementDegraded
+		doc.BlocklistFeedStale = h.FeedStale
+		doc.BlocklistFeedAgeSec = h.FeedAgeSec
+		doc.BlocklistRecentBlocks = h.RecentBlocks
 	}
 	b, _ := json.MarshalIndent(doc, "", "  ")
 	_ = os.WriteFile(config.StatusFile, b, 0o644)
@@ -342,6 +379,22 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		fileFeed := ransomware.NewFeed()
 		goSafe("ransomware", func() { _ = rwGuard.Run(ctx, fileFeed, selfPID, ex.Excluded) })
 	}
+
+	// Network blocklist: ThreatWinds-derived IP/CIDR indicators → WFP enforcement +
+	// connection audit. Feed refreshes from the server mirror; enforcement and
+	// detect-only mode are governed by the blocklist config block. The never-block
+	// allowlist is seeded with host-derived system nets (server IPs, and on Windows
+	// resolvers/gateways) so we can never cut the host off from the platform.
+	if cfg.Blocklist.Enabled {
+		nb := netblock.NewManager(netblock.Deps{
+			Cfg:   cfg,
+			Cache: c,
+			Spool: sp,
+			Sys:   resolveSystemNets(cfg),
+		})
+		p.netblock = nb
+		goSafe("netblock", func() { nb.Run(ctx) })
+	}
 	// The process-creation watcher runs if any consumer needs it: the process
 	// guard, the ransomware T1490 hook, or behavioral process telemetry. The
 	// dispatch gets a nil guard / nil telemetry spool for disabled sensors, so
@@ -356,7 +409,9 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		goSafe("procwatch", func() { pw.Run(ctx) })
 	}
 
-	goSafe("feed", func() { feed.New(cfg, c).Run(ctx) })
+	p.sigFeed = feed.New(cfg, c)
+	p.sigFeed.SetSpool(sp)
+	goSafe("feed", func() { p.sigFeed.Run(ctx) })
 
 	// Scripts/fileless (AMSI): named-pipe scan server + provider registration.
 	if cfg.Sensors.AMSIOn() {
