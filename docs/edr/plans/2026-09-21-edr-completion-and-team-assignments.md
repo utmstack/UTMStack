@@ -72,13 +72,13 @@ copy of the UTMStack v12 tree, because nearly every remaining task touches `back
 
 | Branch | What it is |
 |---|---|
-| `edr-develop` | **Default. Everyone works here.** `release/v12.0.0` with both EDR branches merged |
+| `main` | **Default. Everyone works here.** `release/v12.0.0` with both EDR branches merged |
 | `edr-phase1` | Endpoint module: all of `agent/edr/` plus the thin agent hooks |
 | `feature/edr-server-container` | Master-server container plus its agent-manager, installer and pipeline wiring |
 | `release/v12.0.0` | Mirror of the upstream base, so going upstream later stays a normal pull request |
 | `snapshot-archive` | The old flat safety snapshot, superseded |
 
-Designs, plans and the original requirement documents are in `docs/edr/` on `edr-develop`.
+Designs, plans and the original requirement documents are in `docs/edr/` on `main`.
 `utmstack/UTMStack` (public) remains the eventual upstream; drop `docs/edr/` from any pull
 request that goes there, since it is internal planning.
 
@@ -624,7 +624,7 @@ Work deferred on purpose, but not left open-ended. Each of these has an owner an
    route costs about a week more and gives a real audit trail and real error handling.
 2. ~~When do the two branches go to the shared repository?~~ **Settled 21 Sep:**
    `utmstack/OpenEDR` is the working home; both branches are pushed and merged into
-   `edr-develop`, which is the default branch.
+   `main`, which is the default branch.
 3. **Linux scope.** Which distribution families and which minimum kernel version? Permission-mode
    blocking needs a reasonably recent kernel.
 4. **macOS.** In or out? The agent supports it; the EDR module has no macOS work at all and it is
@@ -667,7 +667,7 @@ four share.
 
 | Due | Task | Owner | What |
 |---|---|---|---|
-| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into edr-develop |
+| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into main |
 | **Thu 24 Sep** | [A0.1](https://github.com/utmstack/OpenEDR/issues/12) | Alex | Publish the endpoint binaries through the build pipeline |
 | **Thu 24 Sep** | [J0.1](https://github.com/utmstack/OpenEDR/issues/15) | Jose | Write the platform parser for EDR events |
 | **Fri 25 Sep** | [Y0.2](https://github.com/utmstack/OpenEDR/issues/11) | Yadian | Review and merge the master-server EDR container branch |

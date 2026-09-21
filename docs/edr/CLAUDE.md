@@ -16,7 +16,7 @@ Authoritative requirements: `UTMStack_Endpoint_Detection_Engineering_Plan.docx` 
 | **Ransomware Guard spec + plan** | `docs/superpowers/specs/2026-07-02-edr-ransomware-guard-design.md` · `docs/superpowers/plans/2026-07-03-edr-ransomware-guard-plan1-core.md` |
 | **Signature-update spec + (deferred) mirror plan** | `docs/superpowers/specs/2026-07-02-edr-signature-update-mechanism.md` · `docs/superpowers/plans/2026-07-02-edr-signature-mirror-plan.md` |
 | **Master-server `edr` container spec + plan** | `docs/superpowers/specs/2026-07-07-edr-server-container-design.md` · `docs/superpowers/plans/2026-07-07-edr-server-container-plan.md` (gap analysis: `docs/2026-07-07-edr-remaining-work.md`) |
-| **Working code repo** | `github.com/utmstack/OpenEDR` branch `edr-develop` — full private working copy of the UTMStack v12 tree. Local full clone: `/Users/atlas/UTMStack/v12`. Older sparse clone (agent only): `utmstack-v12/` |
+| **Working code repo** | `github.com/utmstack/OpenEDR` branch `main` — full private working copy of the UTMStack v12 tree. Local full clone: `/Users/atlas/UTMStack/v12`. Older sparse clone (agent only): `utmstack-v12/` |
 | **EDR module code** | `utmstack-v12/agent/edr/` (its own Go binary `utmstack_edr`) |
 | **Agent-side control/relay** | `utmstack-v12/agent/{cmd,agent,dependency,serv}/` (small additions only) |
 | **Build output** | `utmstack-v12/agent/dist/` |
@@ -187,7 +187,7 @@ remaining task touches `backend/`, `frontend/`, `agent-manager/`, `installer/` o
 
 | Branch in OpenEDR | What it is |
 |---|---|
-| `edr-develop` | **Default. Team works here.** `release/v12.0.0` with both EDR branches merged in |
+| `main` | **Default. Team works here.** `release/v12.0.0` with both EDR branches merged in |
 | `edr-phase1` | Endpoint module: all of `agent/edr/` + the thin agent hooks |
 | `feature/edr-server-container` | Master-server `edr` container + agent-manager/installer/CI wiring |
 | `release/v12.0.0` | Mirror of the upstream base, so merging back upstream stays a normal pull request |
@@ -197,7 +197,7 @@ remaining task touches `backend/`, `frontend/`, `agent-manager/`, `installer/` o
 ready, it goes up as a pull request into `release/v12.0.0` there. Drop `docs/edr/` from that
 pull request — it is internal planning.
 
-Local clones: `/Users/atlas/UTMStack/v12` is the **full** clone (everything; `edr-develop`
+Local clones: `/Users/atlas/UTMStack/v12` is the **full** clone (everything; `main`
 lives here) and `/Users/atlas/UTMStack/EDR/utmstack-v12` is the older sparse clone
 (`agent/` + `shared/` only, branch `edr-phase1`). Both have `origin` = UTMStack and
 `openedr` = OpenEDR. Prefer the full clone for new work.
