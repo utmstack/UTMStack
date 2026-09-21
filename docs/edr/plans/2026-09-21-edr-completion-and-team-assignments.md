@@ -650,8 +650,9 @@ Work deferred on purpose, but not left open-ended. Each of these has an owner an
    `main`, which is the default branch.
 3. **Linux scope.** Which distribution families and which minimum kernel version? Permission-mode
    blocking needs a reasonably recent kernel.
-4. **macOS.** In or out? The agent supports it; the EDR module has no macOS work at all and it is
-   not in this plan.
+4. ~~macOS.~~ **Settled 21 Sep: there will be no macOS EDR.** The agent still runs on macOS, so
+   those endpoints stay in the fleet with no module on them — the console must report them as
+   **not supported**, never as unprotected (A2.4 and N2.1 carry that requirement).
 5. **Code-signing certificate.** Who procures it, and does it cover the native library as well as
    the module?
 6. **Licensing.** Is the EDR metered or licensed separately from data sources? The billing module
@@ -821,5 +822,8 @@ and a date:
 | Behavioural telemetry on Linux (found missing 21 Sep) | Yadian — Y2.7 |
 | Script scanning on Linux — decide and document the limit (found missing 21 Sep) | Yadian — Y2.8 |
 
-The only item deliberately left without a task is **macOS**. The agent supports it; the EDR
-module has no macOS work and none is committed. It is decision 4 in section 10.
+**macOS is out of scope by decision, not by omission** (Rick, 21 September 2026). There will be
+no macOS EDR. The one thing that decision still requires is handling in the console: the agent
+runs on macOS, so those endpoints will sit in the fleet permanently with no module, and they
+must show as **not supported** rather than unprotected. That requirement is in Alex's A2.4 and
+Andres's N2.1. Nothing else in this plan is unassigned.
