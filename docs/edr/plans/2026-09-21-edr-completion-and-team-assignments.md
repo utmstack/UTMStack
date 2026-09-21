@@ -66,14 +66,21 @@ It has never run on a real customer deployment.
 
 ### 1.4 Code location
 
-| What | Where |
-|---|---|
-| Endpoint module | `utmstack/UTMStack`, branch `edr-phase1`, path `agent/edr/` — two commits on top of `release/v12.0.0` |
-| Master-server container | `utmstack/UTMStack`, branch `feature/edr-server-container`, path `edr/` — one commit |
-| Designs and plans | `docs/superpowers/specs/` and `docs/superpowers/plans/` |
-| Private safety copy | `utmstack/OpenEDR` (private), branch `main` — snapshot plus restorable patches |
+**`utmstack/OpenEDR` (private) is the working home for this project.** It is a full working
+copy of the UTMStack v12 tree, because nearly every remaining task touches `backend/`,
+`frontend/`, `agent-manager/`, `installer/` or `definitions/` as well as `agent/edr/`.
 
-Neither branch has been pushed to the shared repository or opened as a pull request yet.
+| Branch | What it is |
+|---|---|
+| `edr-develop` | **Default. Everyone works here.** `release/v12.0.0` with both EDR branches merged |
+| `edr-phase1` | Endpoint module: all of `agent/edr/` plus the thin agent hooks |
+| `feature/edr-server-container` | Master-server container plus its agent-manager, installer and pipeline wiring |
+| `release/v12.0.0` | Mirror of the upstream base, so going upstream later stays a normal pull request |
+| `snapshot-archive` | The old flat safety snapshot, superseded |
+
+Designs, plans and the original requirement documents are in `docs/edr/` on `edr-develop`.
+`utmstack/UTMStack` (public) remains the eventual upstream; drop `docs/edr/` from any pull
+request that goes there, since it is internal planning.
 
 ---
 
@@ -83,15 +90,22 @@ The feature is finished when all of the following are true.
 
 1. An administrator can see, from the UTMStack console, which endpoints have the EDR, whether
    it is healthy, how fresh its signatures are, and what it has caught.
-2. An administrator can change behaviour centrally through a policy — allowlists, which
-   sensors run, how aggressively ransomware is handled, whether connections are blocked —
-   and see the policy actually applied on the endpoint.
-3. An administrator can act on an endpoint from the console without a shell: run a scan,
+2. **Every setting that exists on an endpoint is reachable from the console** — not a curated
+   subset — and can be applied to the whole fleet, to a group, or to selected endpoints, with
+   the more specific policy winning and the resolved result visible before saving.
+3. **A false positive is fixed once, for the whole company.** An administrator marks a
+   detection as benign, chooses how widely that applies, and the file is restored everywhere
+   it was quarantined. Nobody ever has to disable the module to get work done.
+4. An administrator can act on an endpoint from the console without a shell: run a scan,
    restore or permanently remove a quarantined file, kill a process, isolate the host.
-4. Detections become alerts, with correlation rules and automated response playbooks.
-5. Everything above works the same on Windows and on Linux.
-6. The signature and threat-intelligence mirrors run on the customer's own server, and the
+5. There is a **dedicated EDR dashboard** with per-workstation status and health, of the kind
+   a customer would compare against a purpose-built endpoint product's console.
+6. Detections become alerts, with correlation rules and automated response playbooks.
+7. Everything above works the same on Windows and on Linux.
+8. The signature and threat-intelligence mirrors run on the customer's own server, and the
    endpoint binaries are published, signed and installed by the normal agent update path.
+9. We have measured what the product actually stops, on both operating systems, and written
+   down honestly what it does not.
 
 ---
 
@@ -112,15 +126,19 @@ every capability before it is called complete.
 
 ## 4. Phases
 
-| Phase | Goal | Rough length |
+Every task has a hard finish date. These are commitments, not estimates.
+
+| Phase | Goal | Finishes |
 |---|---|---|
-| **Phase 0 — Land what exists** | The two branches are reviewed, merged and building; the server container runs on a real deployment; events become alerts | 2 weeks |
-| **Phase 1 — Console control, Windows** | An administrator can see and drive the EDR from UTMStack on Windows endpoints | 6–8 weeks |
-| **Phase 2 — Linux parity** | Every capability works on Linux and is visible in the same screens | 8–10 weeks |
-| **Phase 3 — Production hardening** | Signed binaries, scale testing, false-positive tuning, the two remaining endpoint gaps | 4 weeks, overlapping Phase 2 |
+| **Phase 0 — Land what exists** | Branches merged and building, binaries published, the engine installs itself, events become alerts | **Fri 2 Oct 2026** |
+| **Phase 1 — Console control, Windows** | An administrator can see and drive the EDR from UTMStack on Windows endpoints | **Fri 23 Oct 2026** |
+| **Phase 2 — Linux parity** | Every capability works on Linux and is visible in the same screens | **Fri 20 Nov 2026** |
+| **Phase 3 — Production hardening** | Signed binaries, scale proven, known defects closed, effectiveness campaign, documentation | **Fri 4 Dec 2026** |
+| **Phase 4 — Next capabilities** | Deferred work that still has a committed date: second-round ransomware sensors, application control, the defect backlog | **Fri 15 Jan 2027** |
 
 Phases 1 and 2 overlap: Yadian moves to Linux as soon as the control path is handed to Alex
-and Andres for wiring.
+and Andres for wiring. Section 12 is the full dated task list, and every task is a GitHub
+issue in `utmstack/OpenEDR` on the org board.
 
 ---
 
@@ -354,6 +372,26 @@ data.
 New feature folder `frontend/src/features/edr/`, registered in `frontend/src/app/routes/index.tsx`
 and in the navigation, gated on `edr.read` and `edr.write`, fully translated.
 
+**Three requirements shape every screen here, and none of them is optional.**
+
+**Every endpoint setting is managed from the console.** The complete surface — sensors,
+allowlists, fail mode, freeze-on-launch and its timeout, quarantine retention, scan
+concurrency, watched volumes, signature source and fallback, engine tier, the whole ransomware
+block, the whole network-blocking block, the scheduled scan, isolation exceptions, and the
+Linux permission mode. The authoritative list is `agent/edr/config/config.go` and it is
+reproduced in full in issue N1.3. An administrator should never need to touch a file on an
+endpoint.
+
+**Configuration is differential.** A policy targets all endpoints, an asset group, or a named
+selection. The more specific layer wins — endpoint beats group beats fleet-wide — and the
+console shows the resolved outcome per endpoint before anything is saved. Layering nobody can
+see the result of is worse than no layering.
+
+**A dedicated dashboard, not a widget.** Fleet posture at the top, activity in the middle, and
+a per-workstation health grid at the bottom that an administrator can scan to find the three
+bad machines out of a hundred. This is the screen a customer will compare against a
+purpose-built endpoint product's console.
+
 **N1.1 — Fleet overview page** (`pages/EdrOverviewPage.tsx`). Coverage (how many endpoints have
 the module, how many are missing it), health, signature freshness, detections over time,
 ransomware and network-block counters, and the list of endpoints needing attention.
@@ -385,7 +423,33 @@ list it appears in, with a one-click release and a clear note about what isolati
 inspect the endpoint, isolate it, restore a file, release it — without leaving the console and
 without reading a log file.
 
-### 6.4 Verification — Jose
+### 6.4 Company-wide false-positive management — Alex and Andres
+
+Every company runs software the scanner will flag that is not malicious: an in-house build
+tool, a licence checker, a bespoke script. Today the only fix is editing a file on each
+affected machine. That does not scale, and it means the first false positive on a busy day gets
+"solved" by someone switching the module off.
+
+**What gets built** (issues A1.7 for the backend, N1.7 for the screens):
+
+- A **company-wide allowlist** the whole fleet inherits, layered like policies are:
+  company-wide, group, or one endpoint. Entry kinds match what the endpoint already
+  understands — file path, program image, command text, network address — plus file hash,
+  because allowlisting one exact build is safer than allowlisting a path anyone can write to.
+- **Promote a detection to an allowlist entry in one action.** From any EDR detection, the
+  administrator confirms how widely it applies and why, and it is done.
+- **Restore the file everywhere it was quarantined**, in the same action. A false positive
+  usually hits many machines at once, and cleaning up one at a time is the part people give up
+  on.
+- **An audit trail on every entry** — who, when, why, and which detection it came from — with
+  an optional expiry, so a temporary exemption does not become permanent by accident.
+- **Limits on over-broad entries.** An allowlist covering a drive root or the system directory
+  is refused with an explanation, not silently narrowed.
+
+The endpoint rule still holds: these entries are **additive** to the built-in lists that ship
+with the product and never replace them.
+
+### 6.5 Verification — Jose
 
 **J1.1 — Windows acceptance of the control path.** Every action, every failure case, on a real
 Windows machine: module absent, module present but stopped, endpoint offline mid-command,
@@ -496,6 +560,38 @@ of hurting a loaded machine; find the limits and set safe defaults.
 | **H6 — Scale test** | Jose | One hundred endpoints reporting status and pulling signatures from one server. Measure the mirror's load and the event volume the behavioural sensor produces |
 | **H7 — Upgrade and rollback** | Yadian | Prove an endpoint upgrades from one module version to the next without losing quarantine, configuration or the event spool, and that a failed upgrade leaves a working agent |
 | **H8 — Customer-facing documentation** | Andres with Jose | What the module does, what it cannot do, how to tune a false positive, what isolation allows through. The honesty rule applies: we detect and kill quickly on Windows, we can genuinely prevent on Linux, and script scanning only sees what the script host chooses to submit |
+| **H9 — Effectiveness campaign** | **All four** | See below |
+
+### The effectiveness campaign (H9) — everyone takes part
+
+Once everything is built, we find out whether it actually works. **All four engineers take
+part**, because four people looking at it from four angles find what one person misses.
+Yadian and Jose lead, since they know the agent's inner workings best.
+
+| Engineer | Their part |
+|---|---|
+| **Jose** | Coordinator and detection effectiveness. Designs the test set, runs real malware, live ransomware in an isolated network, malicious scripts, drop-and-run payloads and known-bad connections against both operating systems. Owns the final report |
+| **Yadian** | Endpoint depth and evasion. Attacks the module itself — stop the service, delete the quarantine store, tamper with the configuration, flood the event spool, kill the engine, start a process faster than the watcher sees it, encrypt faster than the scorer escalates. Every gap is fixed or written down as a known limit |
+| **Alex** | Server and delivery under pressure. Signature updates failing mid-attack, a hundred endpoints reporting at once, a stale mirror, backend throughput when every endpoint reports together |
+| **Andres** | The console under real conditions. Drives a full incident using only the console. Anything needing a shell, a log file or a database query to understand is a defect |
+
+The rule for the report: **measure outcomes, not logs.** A log line saying a process was killed
+is not evidence it was killed — look at the process list, the quarantine store, the file system
+and the alert. The output is one honest document covering what we catch, what we do not, how
+fast, and what a customer must not be told we do. It feeds the documentation and it is the
+basis for how this gets sold.
+
+---
+
+## 8b. Phase 4 — Next capabilities (by Fri 15 Jan 2027)
+
+Work deferred on purpose, but not left open-ended. Each of these has an owner and a date.
+
+| Task | Owner | Due | Detail |
+|---|---|---|---|
+| **X1 — Ransomware sensors, second round** | Yadian | Fri 18 Dec | The guard ships with two signals: decoy files and recovery-tampering commands. Real families reliably trip neither. Adds content randomness, extension churn, modification rate, ransom-note detection and registry tampering, feeding the existing scorer. No single signal may escalate alone |
+| **X3 — Deferred defect backlog** | Alex | Fri 11 Dec | The small known defects recorded and deliberately postponed during development, on both the server and endpoint modules. Each fix needs a test that fails first |
+| **X2 — Application control** | Alex | Fri 15 Jan | The one capability the original requirement document scoped that this programme left out, and the only route to **true prevention on Windows**. Design, prototype and a recommendation — not a commitment to ship. Built on the operating system's own feature; still no kernel driver. The hard part is not enforcement, it is giving a customer a workable policy without a month of effort. Concluding "too risky to roll out" is a successful outcome |
 
 ---
 
@@ -526,8 +622,9 @@ of hurting a loaded machine; find the limits and set safe defaults.
 1. **Control path shape.** Typed messages on the agent stream, as recommended above, or the
    faster route of sending command-line strings through the existing shell channel? The typed
    route costs about a week more and gives a real audit trail and real error handling.
-2. **When do the two branches go to the shared repository?** They are committed locally and
-   backed up privately, but not pushed. Nothing in Phase 0 can start until they are.
+2. ~~When do the two branches go to the shared repository?~~ **Settled 21 Sep:**
+   `utmstack/OpenEDR` is the working home; both branches are pushed and merged into
+   `edr-develop`, which is the default branch.
 3. **Linux scope.** Which distribution families and which minimum kernel version? Permission-mode
    blocking needs a reasonably recent kernel.
 4. **macOS.** In or out? The agent supports it; the EDR module has no macOS work at all and it is
@@ -549,3 +646,140 @@ of hurting a loaded machine; find the limits and set safe defaults.
 | Signature mirror not deployed at a customer | Endpoints fall back to the public network or go stale | Fallback already built; make staleness visible in the console |
 | The endpoint work sits unmerged | Drift against `release/v12.0.0` grows, and one machine holds the only copy | Phase 0 merges first; a private backup already exists |
 | Behavioural telemetry volume | It can crowd out security events and inflate storage | Sensor switch already exists; measure in H6 and set a sane default |
+
+---
+
+## 12. The dated task list
+
+Every task below is a GitHub issue in `utmstack/OpenEDR`, assigned to its owner, carrying its
+milestone and its due date, and tracked on the org board at
+<https://github.com/orgs/utmstack/projects/2>.
+
+**Dates are commitments, not estimates.** They are deliberately tight: the team is using AI
+assistance heavily, which removes most of the typing and a good deal of the reading, so the
+schedule assumes that productivity rather than a traditional one.
+
+Workload: Yadian 18 tasks, Alex 18, Jose 12, Andres 11, plus the effectiveness campaign all
+four share.
+
+
+### Phase 0 — Land what exists (all done by Fri 2 Oct)
+
+| Due | Task | Owner | What |
+|---|---|---|---|
+| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into edr-develop |
+| **Thu 24 Sep** | [A0.1](https://github.com/utmstack/OpenEDR/issues/12) | Alex | Publish the endpoint binaries through the build pipeline |
+| **Thu 24 Sep** | [J0.1](https://github.com/utmstack/OpenEDR/issues/15) | Jose | Write the platform parser for EDR events |
+| **Fri 25 Sep** | [Y0.2](https://github.com/utmstack/OpenEDR/issues/11) | Yadian | Review and merge the master-server EDR container branch |
+| **Tue 29 Sep** | [J0.2](https://github.com/utmstack/OpenEDR/issues/16) | Jose | Write the first twelve EDR correlation rules |
+| **Wed 30 Sep** | [A0.3](https://github.com/utmstack/OpenEDR/issues/14) | Alex | Deploy the EDR server container on a real deployment and prove both transports |
+| **Thu 1 Oct** | [J0.3](https://github.com/utmstack/OpenEDR/issues/17) | Jose | Set alert severity and scoring for EDR detections |
+| **Fri 2 Oct** | [A0.2](https://github.com/utmstack/OpenEDR/issues/13) | Alex | Package the scanning engine and make the endpoint install it by itself |
+| **Fri 2 Oct** | [N0.1](https://github.com/utmstack/OpenEDR/issues/18) | Andres | Present EDR detections properly in alerts and the log explorer |
+
+### Phase 1 — Console control on Windows (all done by Fri 23 Oct)
+
+| Due | Task | Owner | What |
+|---|---|---|---|
+| **Mon 5 Oct** | [A1.2](https://github.com/utmstack/OpenEDR/issues/25) | Alex | Add EDR permissions and the database migration |
+| **Tue 6 Oct** | [Y1.1](https://github.com/utmstack/OpenEDR/issues/19) | Yadian | Define the typed control message contract between the server and the agent |
+| **Thu 8 Oct** | [Y1.2](https://github.com/utmstack/OpenEDR/issues/20) | Yadian | Add machine-readable output to the endpoint module's command-line tool |
+| **Fri 9 Oct** | [A1.1](https://github.com/utmstack/OpenEDR/issues/26) | Alex | Build the backend EDR module and its interface |
+| **Fri 9 Oct** | [J1.2](https://github.com/utmstack/OpenEDR/issues/39) | Jose | Run the Windows Defender coexistence pass |
+| **Fri 9 Oct** | [N1.1](https://github.com/utmstack/OpenEDR/issues/31) | Andres | Build the dedicated EDR dashboard with per-workstation health |
+| **Tue 13 Oct** | [A1.3](https://github.com/utmstack/OpenEDR/issues/27) | Alex | Extend the agent-manager client for the EDR messages |
+| **Tue 13 Oct** | [Y1.3](https://github.com/utmstack/OpenEDR/issues/21) | Yadian | Build the agent-side handler for EDR commands |
+| **Wed 14 Oct** | [N1.2](https://github.com/utmstack/OpenEDR/issues/32) | Andres | Build the endpoint detail panel with its actions |
+| **Thu 15 Oct** | [A1.4](https://github.com/utmstack/OpenEDR/issues/28) | Alex | Settle and implement the EDR storage model |
+| **Thu 15 Oct** | [J1.3](https://github.com/utmstack/OpenEDR/issues/40) | Jose | Write the automated response playbooks |
+| **Thu 15 Oct** | [Y1.4](https://github.com/utmstack/OpenEDR/issues/22) | Yadian | Report endpoint status upstream |
+| **Fri 16 Oct** | [N1.3](https://github.com/utmstack/OpenEDR/issues/33) | Andres | Build the configuration editor — every setting, applied to any set of endpoints |
+| **Tue 20 Oct** | [A1.5](https://github.com/utmstack/OpenEDR/issues/30) | Alex | Add EDR tools to the assistant catalogue |
+| **Tue 20 Oct** | [A1.7](https://github.com/utmstack/OpenEDR/issues/37) | Alex | Build company-wide allowlist and false-positive management (backend) |
+| **Tue 20 Oct** | [N1.4](https://github.com/utmstack/OpenEDR/issues/34) | Andres | Build the fleet quarantine browser |
+| **Tue 20 Oct** | [Y1.5](https://github.com/utmstack/OpenEDR/issues/23) | Yadian | Build central policy distribution |
+| **Thu 22 Oct** | [J1.1](https://github.com/utmstack/OpenEDR/issues/41) | Jose | Accept the console control path on Windows |
+| **Thu 22 Oct** | [N1.5](https://github.com/utmstack/OpenEDR/issues/35) | Andres | Build the network blocking page |
+| **Thu 22 Oct** | [N1.7](https://github.com/utmstack/OpenEDR/issues/38) | Andres | Build the allowlist and false-positive screens |
+| **Fri 23 Oct** | [A1.6](https://github.com/utmstack/OpenEDR/issues/29) | Alex | Build host isolation |
+| **Fri 23 Oct** | [J1.4](https://github.com/utmstack/OpenEDR/issues/42) | Jose | Run the false-positive tuning week |
+| **Fri 23 Oct** | [N1.6](https://github.com/utmstack/OpenEDR/issues/36) | Andres | Make isolated endpoints unmistakable everywhere |
+| **Fri 23 Oct** | [Y1.6](https://github.com/utmstack/OpenEDR/issues/24) | Yadian | Add a scheduled full-disk scan |
+
+### Phase 2 — Linux parity (all done by Fri 20 Nov)
+
+| Due | Task | Owner | What |
+|---|---|---|---|
+| **Wed 28 Oct** | [A2.3](https://github.com/utmstack/OpenEDR/issues/43) | Alex | Build and publish the Linux endpoint binaries |
+| **Wed 28 Oct** | [Y2.1](https://github.com/utmstack/OpenEDR/issues/44) | Yadian | Bring up the endpoint module as a Linux service |
+| **Fri 30 Oct** | [A2.2](https://github.com/utmstack/OpenEDR/issues/45) | Alex | Package and host the scanning engine for Linux |
+| **Fri 6 Nov** | [A2.1](https://github.com/utmstack/OpenEDR/issues/47) | Alex | Build Linux network blocking on nftables |
+| **Fri 6 Nov** | [Y2.2](https://github.com/utmstack/OpenEDR/issues/46) | Yadian | Build the Linux file watcher on fanotify |
+| **Wed 11 Nov** | [Y2.3](https://github.com/utmstack/OpenEDR/issues/48) | Yadian | Build the Linux process watcher on the netlink process connector |
+| **Fri 13 Nov** | [A2.4](https://github.com/utmstack/OpenEDR/issues/52) | Alex | Extend the backend and its interface for Linux endpoints |
+| **Fri 13 Nov** | [J2.2](https://github.com/utmstack/OpenEDR/issues/55) | Jose | Extend the parser and rules for Linux |
+| **Fri 13 Nov** | [N2.1](https://github.com/utmstack/OpenEDR/issues/53) | Andres | Make every EDR screen operating-system aware |
+| **Fri 13 Nov** | [Y2.4](https://github.com/utmstack/OpenEDR/issues/49) | Yadian | Implement process termination and freezing on Linux |
+| **Wed 18 Nov** | [J2.3](https://github.com/utmstack/OpenEDR/issues/56) | Jose | Measure the cost of the Linux sensors under real load |
+| **Wed 18 Nov** | [N2.2](https://github.com/utmstack/OpenEDR/issues/54) | Andres | Make the fleet views correct for mixed environments |
+| **Wed 18 Nov** | [Y2.5](https://github.com/utmstack/OpenEDR/issues/50) | Yadian | Port the ransomware guard to Linux |
+| **Fri 20 Nov** | [J2.1](https://github.com/utmstack/OpenEDR/issues/57) | Jose | Complete the cross-platform capability matrix |
+| **Fri 20 Nov** | [Y2.6](https://github.com/utmstack/OpenEDR/issues/51) | Yadian | Audit every path assumption for Linux |
+
+### Phase 3 — Production hardening (all done by Fri 4 Dec)
+
+| Due | Task | Owner | What |
+|---|---|---|---|
+| **Wed 25 Nov** | [H2](https://github.com/utmstack/OpenEDR/issues/59) | Jose | Prove script blocking on Intel and AMD hardware |
+| **Wed 25 Nov** | [H3](https://github.com/utmstack/OpenEDR/issues/58) | Yadian | Fix the three known ransomware guard defects |
+| **Fri 27 Nov** | [H1](https://github.com/utmstack/OpenEDR/issues/60) | Alex | Sign the Windows binaries |
+| **Mon 30 Nov** | [H4](https://github.com/utmstack/OpenEDR/issues/61) | Alex | Fix the three known network blocking defects |
+| **Mon 30 Nov** | [H5](https://github.com/utmstack/OpenEDR/issues/62) | Yadian | Close the configuration safety trap |
+| **Thu 3 Dec** | [H6](https://github.com/utmstack/OpenEDR/issues/64) | Jose | Run the scale test |
+| **Thu 3 Dec** | [H7](https://github.com/utmstack/OpenEDR/issues/63) | Yadian | Prove upgrade and rollback |
+| **Fri 4 Dec** | [H8](https://github.com/utmstack/OpenEDR/issues/65) | Andres | Write the customer-facing documentation |
+| **Fri 4 Dec** | [H9](https://github.com/utmstack/OpenEDR/issues/66) | Alex + Jose + Yadian + Andres | EDR effectiveness campaign — all four engineers |
+
+### Phase 4 — Next capabilities (all done by Fri 15 Jan 2027)
+
+| Due | Task | Owner | What |
+|---|---|---|---|
+| **Fri 11 Dec** | [X3](https://github.com/utmstack/OpenEDR/issues/68) | Alex | Close the deferred defect backlog |
+| **Fri 18 Dec** | [X1](https://github.com/utmstack/OpenEDR/issues/67) | Yadian | Ransomware guard — the second round of sensors |
+| **Fri 15 Jan** | [X2](https://github.com/utmstack/OpenEDR/issues/69) | Alex | Application control — design, prototype and decide |
+
+---
+
+## 13. Nothing is left without an owner
+
+Every item recorded as pending anywhere in this project's documents now has a named engineer
+and a date:
+
+| Pending item, and where it was recorded | Now owned by |
+|---|---|
+| Signature mirror on the customer's server (gap analysis §1.1) | Alex — A0.3 |
+| Threat-intelligence mirror on the customer's server (gap analysis §1.2) | Alex — A0.3 |
+| Hosting the endpoint binaries at the dependencies endpoint (gap 3) | Alex — A0.1, A2.3 |
+| Engine provisioning on the endpoint (gap 4) | Alex — A0.2, A2.2 |
+| Signature-mirror client polish (gap 5) | Shipped; the last piece, the fallback setting in the command-line tool, is in Yadian's Y1.2 |
+| Network feed client polish (gap 6) | Shipped; upstream path confirmation is in Alex's A0.3 |
+| Authenticode signing (gap 7) | Alex — H1 |
+| Script blocking on Intel/AMD hardware (gap 8) | Jose — H2 |
+| Platform parser for EDR events (gap 9) | Jose — J0.1 |
+| Correlation rules and response playbooks (gap 10) | Jose — J0.2, J0.3, J1.3, J2.2 |
+| Ransomware guard known defects (gap 11) | Yadian — H3 |
+| Network blocking known defects (network blocklist notes) | Alex — H4 |
+| Configuration safety trap, hand-edited settings ignored (network blocklist notes) | Yadian — H5 |
+| Deferred minor defects on both modules (progress ledgers) | Alex — X3 |
+| Second round of ransomware sensors (ransomware design document) | Yadian — X1 |
+| Application control (requirement document; excluded from Phase 1 by design) | Alex — X2 |
+| Scheduled full-disk scan (found missing in this review) | Yadian — Y1.6 |
+| Host isolation (found missing in this review) | Alex — A1.6 |
+| Company-wide false-positive management (Rick, 21 Sep) | Alex — A1.7, Andres — N1.7 |
+| Full configuration surface in the console (Rick, 21 Sep) | Andres — N1.3 |
+| Dedicated per-workstation dashboard (Rick, 21 Sep) | Andres — N1.1 |
+| Effectiveness testing with everyone taking part (Rick, 21 Sep) | All four — H9 |
+| Linux support across every capability | Yadian (sensors), Alex (network, packaging), Andres (screens), Jose (verification) — the Phase 2 tasks |
+
+The only item deliberately left without a task is **macOS**. The agent supports it; the EDR
+module has no macOS work and none is committed. It is decision 4 in section 10.
