@@ -132,8 +132,8 @@ Every task has a hard finish date. These are commitments, not estimates.
 |---|---|---|
 | **Phase 0 — Land what exists** | Branches merged and building, binaries published, the engine installs itself, events become alerts | **Fri 2 Oct 2026** |
 | **Phase 1 — Console control, Windows** | An administrator can see and drive the EDR from UTMStack on Windows endpoints | **Fri 23 Oct 2026** |
-| **Phase 2 — Linux parity** | Every capability works on Linux and is visible in the same screens | **Fri 20 Nov 2026** |
-| **Phase 3 — Production hardening** | Signed binaries, scale proven, known defects closed, effectiveness campaign, documentation | **Fri 4 Dec 2026** |
+| **Phase 2 — Linux parity** | Every capability works on Linux and is visible in the same screens | **Fri 27 Nov 2026** |
+| **Phase 3 — Production hardening** | Signed binaries, scale proven, known defects closed, effectiveness campaign, documentation | **Fri 11 Dec 2026** |
 | **Phase 4 — Next capabilities** | Deferred work that still has a committed date: second-round ransomware sensors, application control, the defect backlog | **Fri 15 Jan 2027** |
 
 Phases 1 and 2 overlap: Yadian moves to Linux as soon as the control path is handed to Alex
@@ -237,15 +237,17 @@ thing that runs on its own.
 
 ### 6.1 The control path — Yadian
 
-Today the only way the server can make an endpoint do something is to send a shell command
-string over the agent stream and read back its text output
-(`agent-manager/protos/agent.proto`, `UtmCommand` and `CommandResult`; handled in
-`agent/agent/incident_response.go`). That is fine for an interactive console and wrong for a
-product feature: no typed result, no way to tell a failure from empty output, and the audit
-trail is a shell line.
+**Settled by Rick on 21 September: EDR control rides the agent stream as typed messages.**
 
-**Recommended approach:** add typed messages to the same stream. One connection, one
-authentication path, no shell.
+**What we are not doing:** the interactive console. That is the existing path where the
+console sends a shell command string to an endpoint and reads its text back
+(`/soar/ws/command/:agentId` → `UtmCommand` and `CommandResult` in
+`agent-manager/protos/agent.proto` → `commandProcessor` in
+`agent/agent/incident_response.go`, which runs it through a shell). That feature keeps working
+for what it is for. **No EDR control goes through it.** It gives no typed result, no way to
+tell a real failure from empty output, and an audit trail that is a shell line.
+
+So: typed messages on the same stream. One connection, one authentication path, no shell.
 
 **Y1.1 — Define the message contract.**
 In `agent-manager/protos/agent.proto` add to the `BidirectionalStream` oneof:
@@ -508,6 +510,28 @@ several places. Audit every path comparison, the allowlist matcher, quarantine s
 decoy placement for correct behaviour with symbolic links, hard links and case-sensitive file
 systems.
 
+**A2.5 — Host isolation on Linux.** The Windows version (A1.6) builds on the Windows filtering
+layer; Linux needs the nftables equivalent, reusing the same table A2.1 creates. Without it a
+customer cannot contain a compromised Linux server from the console, and the ransomware playbook
+silently does nothing there. The fail-open property does not come for free on Linux the way it
+does on Windows — it has to be built.
+
+**A2.6 — Domain blocking on Linux.** Windows watches name lookups through the operating system's
+own tracing and blocks the address a blacklisted domain resolves to. Linux has no equivalent, so
+without this a Linux endpoint blocks **addresses and ranges only** and a blacklisted domain on a
+rotating address walks straight through. Most of the threat feed's value is in the domain lists.
+
+**Y2.7 — Behavioural telemetry on Linux.** The sensor forwards process creation and PowerShell
+script-block records. On Linux the script half does not exist, so the sensor is half dead and
+every correlation rule that depends on command content never fires. Volume is the real risk: a
+busy Linux server spawns far more short-lived processes than a desktop.
+
+**Y2.8 — What replaces script scanning on Linux.** Windows hands script text to a registered
+scanner before it runs. **Linux has no equivalent interface**, so this is a decision with a short
+prototype rather than a build commitment. Permission mode (Y2.2) refuses to execute a malicious
+script *file*; it does not see script text piped into a shell. Deciding not to build it is a
+successful outcome — leaving customers to assume parity with Windows is not.
+
 ### Alex — the pieces that are not sensor work
 
 **A2.1 — Network blocking on Linux** through nftables: its own table and chain so we never
@@ -619,9 +643,8 @@ Work deferred on purpose, but not left open-ended. Each of these has an owner an
 
 ## 10. Decisions needed from Rick before Phase 1 starts
 
-1. **Control path shape.** Typed messages on the agent stream, as recommended above, or the
-   faster route of sending command-line strings through the existing shell channel? The typed
-   route costs about a week more and gives a real audit trail and real error handling.
+1. ~~Control path shape.~~ **Settled 21 Sep:** typed messages on the agent stream. The
+   interactive shell-command console is explicitly not used for EDR control.
 2. ~~When do the two branches go to the shared repository?~~ **Settled 21 Sep:**
    `utmstack/OpenEDR` is the working home; both branches are pushed and merged into
    `main`, which is the default branch.
@@ -662,15 +685,21 @@ schedule assumes that productivity rather than a traditional one.
 The order has been checked: no task is due before something it depends on, and no task shares
 a due date with a dependency it has to consume first.
 
-Workload: Yadian 18 tasks, Alex 18, Jose 12, Andres 11, plus the effectiveness campaign all
-four share.
+A coverage check against every platform-specific source file in the module found four Linux
+capabilities with no owner — host isolation, domain blocking, behavioural telemetry, and
+whatever replaces script scanning. They are now tasks A2.5, A2.6, Y2.7 and Y2.8, which cost one
+week: Phase 2 moved from 20 to 27 November and Phase 3 from 4 to 11 December. Phase 4 absorbed
+it without moving.
+
+Workload: Yadian 21 tasks, Alex 21, Jose 13, Andres 12, including the effectiveness campaign
+all four share.
 
 
 ### Phase 0 — Land what exists (all done by Fri 2 Oct)
 
 | Due | Task | Owner | What |
 |---|---|---|---|
-| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into edr-develop |
+| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into main |
 | **Thu 24 Sep** | [A0.1](https://github.com/utmstack/OpenEDR/issues/12) | Alex | Publish the endpoint binaries through the build pipeline |
 | **Thu 24 Sep** | [J0.1](https://github.com/utmstack/OpenEDR/issues/15) | Jose | Write the platform parser for EDR events |
 | **Fri 25 Sep** | [Y0.2](https://github.com/utmstack/OpenEDR/issues/11) | Yadian | Review and merge the master-server EDR container branch |
@@ -709,7 +738,7 @@ four share.
 | **Fri 23 Oct** | [N1.6](https://github.com/utmstack/OpenEDR/issues/36) | Andres | Make isolated endpoints unmistakable everywhere |
 | **Fri 23 Oct** | [Y1.6](https://github.com/utmstack/OpenEDR/issues/24) | Yadian | Add a scheduled full-disk scan |
 
-### Phase 2 — Linux parity (all done by Fri 20 Nov)
+### Phase 2 — Linux parity (all done by Fri 27 Nov)
 
 | Due | Task | Owner | What |
 |---|---|---|---|
@@ -720,28 +749,32 @@ four share.
 | **Fri 6 Nov** | [Y2.2](https://github.com/utmstack/OpenEDR/issues/46) | Yadian | Build the Linux file watcher on fanotify |
 | **Wed 11 Nov** | [A2.4](https://github.com/utmstack/OpenEDR/issues/52) | Alex | Extend the backend and its interface for Linux endpoints |
 | **Wed 11 Nov** | [Y2.3](https://github.com/utmstack/OpenEDR/issues/48) | Yadian | Build the Linux process watcher on the netlink process connector |
+| **Fri 13 Nov** | [A2.5](https://github.com/utmstack/OpenEDR/issues/70) | Alex | Build host isolation on Linux |
 | **Fri 13 Nov** | [N2.1](https://github.com/utmstack/OpenEDR/issues/53) | Andres | Make every EDR screen operating-system aware |
 | **Fri 13 Nov** | [Y2.4](https://github.com/utmstack/OpenEDR/issues/49) | Yadian | Implement process termination and freezing on Linux |
 | **Tue 17 Nov** | [Y2.6](https://github.com/utmstack/OpenEDR/issues/51) | Yadian | Audit every path assumption for Linux |
+| **Wed 18 Nov** | [A2.6](https://github.com/utmstack/OpenEDR/issues/71) | Alex | Block blacklisted domains on Linux |
 | **Wed 18 Nov** | [J2.3](https://github.com/utmstack/OpenEDR/issues/56) | Jose | Measure the cost of the Linux sensors under real load |
 | **Wed 18 Nov** | [N2.2](https://github.com/utmstack/OpenEDR/issues/54) | Andres | Make the fleet views correct for mixed environments |
 | **Wed 18 Nov** | [Y2.5](https://github.com/utmstack/OpenEDR/issues/50) | Yadian | Port the ransomware guard to Linux |
-| **Fri 20 Nov** | [J2.1](https://github.com/utmstack/OpenEDR/issues/57) | Jose | Complete the cross-platform capability matrix |
-| **Fri 20 Nov** | [J2.2](https://github.com/utmstack/OpenEDR/issues/55) | Jose | Extend the parser and rules for Linux |
+| **Thu 19 Nov** | [Y2.7](https://github.com/utmstack/OpenEDR/issues/72) | Yadian | Build behavioural telemetry on Linux |
+| **Fri 20 Nov** | [Y2.8](https://github.com/utmstack/OpenEDR/issues/73) | Yadian | Decide what replaces script scanning on Linux, and be honest about it |
+| **Tue 24 Nov** | [J2.2](https://github.com/utmstack/OpenEDR/issues/55) | Jose | Extend the parser and rules for Linux |
+| **Fri 27 Nov** | [J2.1](https://github.com/utmstack/OpenEDR/issues/57) | Jose | Complete the cross-platform capability matrix |
 
-### Phase 3 — Production hardening (all done by Fri 4 Dec)
+### Phase 3 — Production hardening (all done by Fri 11 Dec)
 
 | Due | Task | Owner | What |
 |---|---|---|---|
-| **Wed 25 Nov** | [H2](https://github.com/utmstack/OpenEDR/issues/59) | Jose | Prove script blocking on Intel and AMD hardware |
-| **Wed 25 Nov** | [H3](https://github.com/utmstack/OpenEDR/issues/58) | Yadian | Fix the three known ransomware guard defects |
 | **Fri 27 Nov** | [H1](https://github.com/utmstack/OpenEDR/issues/60) | Alex | Sign the Windows binaries |
-| **Mon 30 Nov** | [H4](https://github.com/utmstack/OpenEDR/issues/61) | Alex | Fix the three known network blocking defects |
 | **Mon 30 Nov** | [H5](https://github.com/utmstack/OpenEDR/issues/62) | Yadian | Close the configuration safety trap |
-| **Wed 2 Dec** | [H9](https://github.com/utmstack/OpenEDR/issues/66) | Alex + Jose + Yadian + Andres | EDR effectiveness campaign — all four engineers |
-| **Thu 3 Dec** | [H6](https://github.com/utmstack/OpenEDR/issues/64) | Jose | Run the scale test |
-| **Thu 3 Dec** | [H7](https://github.com/utmstack/OpenEDR/issues/63) | Yadian | Prove upgrade and rollback |
-| **Fri 4 Dec** | [H8](https://github.com/utmstack/OpenEDR/issues/65) | Andres | Write the customer-facing documentation |
+| **Tue 1 Dec** | [H2](https://github.com/utmstack/OpenEDR/issues/59) | Jose | Prove script blocking on Intel and AMD hardware |
+| **Tue 1 Dec** | [H3](https://github.com/utmstack/OpenEDR/issues/58) | Yadian | Fix the three known ransomware guard defects |
+| **Wed 2 Dec** | [H4](https://github.com/utmstack/OpenEDR/issues/61) | Alex | Fix the three known network blocking defects |
+| **Fri 4 Dec** | [H6](https://github.com/utmstack/OpenEDR/issues/64) | Jose | Run the scale test |
+| **Fri 4 Dec** | [H7](https://github.com/utmstack/OpenEDR/issues/63) | Yadian | Prove upgrade and rollback |
+| **Wed 9 Dec** | [H9](https://github.com/utmstack/OpenEDR/issues/66) | Alex + Jose + Yadian + Andres | EDR effectiveness campaign — all four engineers |
+| **Fri 11 Dec** | [H8](https://github.com/utmstack/OpenEDR/issues/65) | Andres | Write the customer-facing documentation |
 
 ### Phase 4 — Next capabilities (all done by Fri 15 Jan 2027)
 
@@ -783,6 +816,10 @@ and a date:
 | Dedicated per-workstation dashboard (Rick, 21 Sep) | Andres — N1.1 |
 | Effectiveness testing with everyone taking part (Rick, 21 Sep) | All four — H9 |
 | Linux support across every capability | Yadian (sensors), Alex (network, packaging), Andres (screens), Jose (verification) — the Phase 2 tasks |
+| Host isolation on Linux (found missing 21 Sep) | Alex — A2.5 |
+| Domain blocking on Linux (found missing 21 Sep) | Alex — A2.6 |
+| Behavioural telemetry on Linux (found missing 21 Sep) | Yadian — Y2.7 |
+| Script scanning on Linux — decide and document the limit (found missing 21 Sep) | Yadian — Y2.8 |
 
 The only item deliberately left without a task is **macOS**. The agent supports it; the EDR
 module has no macOS work and none is committed. It is decision 4 in section 10.
