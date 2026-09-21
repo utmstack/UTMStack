@@ -659,6 +659,9 @@ milestone and its due date, and tracked on the org board at
 assistance heavily, which removes most of the typing and a good deal of the reading, so the
 schedule assumes that productivity rather than a traditional one.
 
+The order has been checked: no task is due before something it depends on, and no task shares
+a due date with a dependency it has to consume first.
+
 Workload: Yadian 18 tasks, Alex 18, Jose 12, Andres 11, plus the effectiveness campaign all
 four share.
 
@@ -667,7 +670,7 @@ four share.
 
 | Due | Task | Owner | What |
 |---|---|---|---|
-| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into main |
+| **Wed 23 Sep** | [Y0.1](https://github.com/utmstack/OpenEDR/issues/10) | Yadian | Review and merge the endpoint module branch into edr-develop |
 | **Thu 24 Sep** | [A0.1](https://github.com/utmstack/OpenEDR/issues/12) | Alex | Publish the endpoint binaries through the build pipeline |
 | **Thu 24 Sep** | [J0.1](https://github.com/utmstack/OpenEDR/issues/15) | Jose | Write the platform parser for EDR events |
 | **Fri 25 Sep** | [Y0.2](https://github.com/utmstack/OpenEDR/issues/11) | Yadian | Review and merge the master-server EDR container branch |
@@ -683,25 +686,25 @@ four share.
 |---|---|---|---|
 | **Mon 5 Oct** | [A1.2](https://github.com/utmstack/OpenEDR/issues/25) | Alex | Add EDR permissions and the database migration |
 | **Tue 6 Oct** | [Y1.1](https://github.com/utmstack/OpenEDR/issues/19) | Yadian | Define the typed control message contract between the server and the agent |
+| **Thu 8 Oct** | [A1.1](https://github.com/utmstack/OpenEDR/issues/26) | Alex | Build the backend EDR module and its interface |
 | **Thu 8 Oct** | [Y1.2](https://github.com/utmstack/OpenEDR/issues/20) | Yadian | Add machine-readable output to the endpoint module's command-line tool |
-| **Fri 9 Oct** | [A1.1](https://github.com/utmstack/OpenEDR/issues/26) | Alex | Build the backend EDR module and its interface |
 | **Fri 9 Oct** | [J1.2](https://github.com/utmstack/OpenEDR/issues/39) | Jose | Run the Windows Defender coexistence pass |
 | **Fri 9 Oct** | [N1.1](https://github.com/utmstack/OpenEDR/issues/31) | Andres | Build the dedicated EDR dashboard with per-workstation health |
 | **Tue 13 Oct** | [A1.3](https://github.com/utmstack/OpenEDR/issues/27) | Alex | Extend the agent-manager client for the EDR messages |
 | **Tue 13 Oct** | [Y1.3](https://github.com/utmstack/OpenEDR/issues/21) | Yadian | Build the agent-side handler for EDR commands |
 | **Wed 14 Oct** | [N1.2](https://github.com/utmstack/OpenEDR/issues/32) | Andres | Build the endpoint detail panel with its actions |
 | **Thu 15 Oct** | [A1.4](https://github.com/utmstack/OpenEDR/issues/28) | Alex | Settle and implement the EDR storage model |
-| **Thu 15 Oct** | [J1.3](https://github.com/utmstack/OpenEDR/issues/40) | Jose | Write the automated response playbooks |
 | **Thu 15 Oct** | [Y1.4](https://github.com/utmstack/OpenEDR/issues/22) | Yadian | Report endpoint status upstream |
+| **Fri 16 Oct** | [A1.6](https://github.com/utmstack/OpenEDR/issues/29) | Alex | Build host isolation |
 | **Fri 16 Oct** | [N1.3](https://github.com/utmstack/OpenEDR/issues/33) | Andres | Build the configuration editor — every setting, applied to any set of endpoints |
 | **Tue 20 Oct** | [A1.5](https://github.com/utmstack/OpenEDR/issues/30) | Alex | Add EDR tools to the assistant catalogue |
-| **Tue 20 Oct** | [A1.7](https://github.com/utmstack/OpenEDR/issues/37) | Alex | Build company-wide allowlist and false-positive management (backend) |
 | **Tue 20 Oct** | [N1.4](https://github.com/utmstack/OpenEDR/issues/34) | Andres | Build the fleet quarantine browser |
 | **Tue 20 Oct** | [Y1.5](https://github.com/utmstack/OpenEDR/issues/23) | Yadian | Build central policy distribution |
+| **Wed 21 Oct** | [A1.7](https://github.com/utmstack/OpenEDR/issues/37) | Alex | Build company-wide allowlist and false-positive management (backend) |
 | **Thu 22 Oct** | [J1.1](https://github.com/utmstack/OpenEDR/issues/41) | Jose | Accept the console control path on Windows |
 | **Thu 22 Oct** | [N1.5](https://github.com/utmstack/OpenEDR/issues/35) | Andres | Build the network blocking page |
 | **Thu 22 Oct** | [N1.7](https://github.com/utmstack/OpenEDR/issues/38) | Andres | Build the allowlist and false-positive screens |
-| **Fri 23 Oct** | [A1.6](https://github.com/utmstack/OpenEDR/issues/29) | Alex | Build host isolation |
+| **Fri 23 Oct** | [J1.3](https://github.com/utmstack/OpenEDR/issues/40) | Jose | Write the automated response playbooks |
 | **Fri 23 Oct** | [J1.4](https://github.com/utmstack/OpenEDR/issues/42) | Jose | Run the false-positive tuning week |
 | **Fri 23 Oct** | [N1.6](https://github.com/utmstack/OpenEDR/issues/36) | Andres | Make isolated endpoints unmistakable everywhere |
 | **Fri 23 Oct** | [Y1.6](https://github.com/utmstack/OpenEDR/issues/24) | Yadian | Add a scheduled full-disk scan |
@@ -710,21 +713,21 @@ four share.
 
 | Due | Task | Owner | What |
 |---|---|---|---|
-| **Wed 28 Oct** | [A2.3](https://github.com/utmstack/OpenEDR/issues/43) | Alex | Build and publish the Linux endpoint binaries |
+| **Mon 26 Oct** | [A2.3](https://github.com/utmstack/OpenEDR/issues/43) | Alex | Build and publish the Linux endpoint binaries |
 | **Wed 28 Oct** | [Y2.1](https://github.com/utmstack/OpenEDR/issues/44) | Yadian | Bring up the endpoint module as a Linux service |
 | **Fri 30 Oct** | [A2.2](https://github.com/utmstack/OpenEDR/issues/45) | Alex | Package and host the scanning engine for Linux |
 | **Fri 6 Nov** | [A2.1](https://github.com/utmstack/OpenEDR/issues/47) | Alex | Build Linux network blocking on nftables |
 | **Fri 6 Nov** | [Y2.2](https://github.com/utmstack/OpenEDR/issues/46) | Yadian | Build the Linux file watcher on fanotify |
+| **Wed 11 Nov** | [A2.4](https://github.com/utmstack/OpenEDR/issues/52) | Alex | Extend the backend and its interface for Linux endpoints |
 | **Wed 11 Nov** | [Y2.3](https://github.com/utmstack/OpenEDR/issues/48) | Yadian | Build the Linux process watcher on the netlink process connector |
-| **Fri 13 Nov** | [A2.4](https://github.com/utmstack/OpenEDR/issues/52) | Alex | Extend the backend and its interface for Linux endpoints |
-| **Fri 13 Nov** | [J2.2](https://github.com/utmstack/OpenEDR/issues/55) | Jose | Extend the parser and rules for Linux |
 | **Fri 13 Nov** | [N2.1](https://github.com/utmstack/OpenEDR/issues/53) | Andres | Make every EDR screen operating-system aware |
 | **Fri 13 Nov** | [Y2.4](https://github.com/utmstack/OpenEDR/issues/49) | Yadian | Implement process termination and freezing on Linux |
+| **Tue 17 Nov** | [Y2.6](https://github.com/utmstack/OpenEDR/issues/51) | Yadian | Audit every path assumption for Linux |
 | **Wed 18 Nov** | [J2.3](https://github.com/utmstack/OpenEDR/issues/56) | Jose | Measure the cost of the Linux sensors under real load |
 | **Wed 18 Nov** | [N2.2](https://github.com/utmstack/OpenEDR/issues/54) | Andres | Make the fleet views correct for mixed environments |
 | **Wed 18 Nov** | [Y2.5](https://github.com/utmstack/OpenEDR/issues/50) | Yadian | Port the ransomware guard to Linux |
 | **Fri 20 Nov** | [J2.1](https://github.com/utmstack/OpenEDR/issues/57) | Jose | Complete the cross-platform capability matrix |
-| **Fri 20 Nov** | [Y2.6](https://github.com/utmstack/OpenEDR/issues/51) | Yadian | Audit every path assumption for Linux |
+| **Fri 20 Nov** | [J2.2](https://github.com/utmstack/OpenEDR/issues/55) | Jose | Extend the parser and rules for Linux |
 
 ### Phase 3 — Production hardening (all done by Fri 4 Dec)
 
@@ -735,10 +738,10 @@ four share.
 | **Fri 27 Nov** | [H1](https://github.com/utmstack/OpenEDR/issues/60) | Alex | Sign the Windows binaries |
 | **Mon 30 Nov** | [H4](https://github.com/utmstack/OpenEDR/issues/61) | Alex | Fix the three known network blocking defects |
 | **Mon 30 Nov** | [H5](https://github.com/utmstack/OpenEDR/issues/62) | Yadian | Close the configuration safety trap |
+| **Wed 2 Dec** | [H9](https://github.com/utmstack/OpenEDR/issues/66) | Alex + Jose + Yadian + Andres | EDR effectiveness campaign — all four engineers |
 | **Thu 3 Dec** | [H6](https://github.com/utmstack/OpenEDR/issues/64) | Jose | Run the scale test |
 | **Thu 3 Dec** | [H7](https://github.com/utmstack/OpenEDR/issues/63) | Yadian | Prove upgrade and rollback |
 | **Fri 4 Dec** | [H8](https://github.com/utmstack/OpenEDR/issues/65) | Andres | Write the customer-facing documentation |
-| **Fri 4 Dec** | [H9](https://github.com/utmstack/OpenEDR/issues/66) | Alex + Jose + Yadian + Andres | EDR effectiveness campaign — all four engineers |
 
 ### Phase 4 — Next capabilities (all done by Fri 15 Jan 2027)
 
