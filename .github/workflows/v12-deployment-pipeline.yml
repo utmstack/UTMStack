@@ -452,15 +452,24 @@ jobs:
     with:
       image_name: frontend
       tag: ${{ needs.setup_deployment.outputs.tag }}
+  build_edr:
+    name: Build EDR Mirror Microservice
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    uses: ./.github/workflows/reusable-golang.yml
+    with:
+      image_name: edr
+      tag: ${{ needs.setup_deployment.outputs.tag }}
   all_builds_complete:
     name: All Builds Complete
     needs: [
       build_agent_manager,
       build_event_processor,
       build_backend,
-      build_frontend
+      build_frontend,
+      build_edr
     ]
-    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' }}
+    if: ${{ always() && needs.build_agent_manager.result == 'success' && needs.build_event_processor.result == 'success' && needs.build_backend.result == 'success' && needs.build_frontend.result == 'success' && needs.build_edr.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - run: echo "✅ All builds completed successfully."

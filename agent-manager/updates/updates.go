@@ -16,9 +16,7 @@ func InitUpdatesManager() {
 	ServeDependencies()
 }
 
-func ServeDependencies() {
-	catcher.Info("Serving dependencies", map[string]any{"path": config.UpdatesDependenciesFolder, "process": "agent-manager"})
-
+func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(
@@ -29,6 +27,17 @@ func ServeDependencies() {
 
 	group := r.Group("/private")
 	group.StaticFS("/dependencies", http.Dir(config.UpdatesDependenciesFolder))
+	// EDR mirror tree, produced by the `edr` service into a shared volume.
+	// If the volume isn't mounted (older installer) this simply 404s.
+	group.StaticFS("/edr", http.Dir(config.EDRMirrorFolder))
+
+	return r
+}
+
+func ServeDependencies() {
+	catcher.Info("Serving dependencies", map[string]any{"path": config.UpdatesDependenciesFolder, "process": "agent-manager"})
+
+	r := newRouter()
 
 	loadedCert, err := tls.LoadX509KeyPair(config.CertPath, config.CertKeyPath)
 	if err != nil {
