@@ -83,6 +83,8 @@ func (d *Database) Close() error {
 
 const HardCapMultiplier = 5
 
+const deleteBatchSize = 500
+
 func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (processedDeleted int, unprocessedDeleted int, err error) {
 	d.locker.Lock()
 	defer d.locker.Unlock()
@@ -92,7 +94,7 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (processe
 	}
 
 	for currentSize > retentionMegabytes {
-		result := d.db.Where("processed = ?", true).Order("created_at ASC").Limit(500).Delete(data)
+		result := d.deleteOldestBatch(data, "processed = ?", true)
 		if result.Error != nil || result.RowsAffected == 0 {
 			break
 		}
@@ -105,7 +107,7 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (processe
 
 	hardCap := retentionMegabytes * HardCapMultiplier
 	for currentSize > hardCap {
-		result := d.db.Where("processed = ?", false).Order("created_at ASC").Limit(500).Delete(data)
+		result := d.deleteOldestBatch(data, "processed = ?", false)
 		if result.Error != nil || result.RowsAffected == 0 {
 			break
 		}
@@ -121,6 +123,14 @@ func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (processe
 	}
 
 	return processedDeleted, unprocessedDeleted, nil
+}
+
+func (d *Database) deleteOldestBatch(data interface{}, cond string, condArgs ...interface{}) *gorm.DB {
+	subquery := d.db.Model(data).Select("id").
+		Where(cond, condArgs...).
+		Order("created_at ASC").
+		Limit(deleteBatchSize)
+	return d.db.Where("id IN (?)", subquery).Delete(data)
 }
 
 func GetDB() (*Database, error) {
