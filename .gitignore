@@ -22,3 +22,11 @@ backend/backend
 
 # Local docker dev harness (compose + build.sh + .env)
 dev-backend/
+
+# EDR build artifacts (cross-compiled binaries + native AMSI test outputs)
+agent/dist/
+agent/*.exe
+agent/edr/**/*.exe
+agent/edr/**/*.dll
+agent/edr/**/*.obj
+agent/edr/**/*.pdb

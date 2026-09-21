@@ -7,6 +7,7 @@ require (
 	github.com/elastic/go-libaudit/v2 v2.6.2
 	github.com/elastic/go-sysinfo v1.15.5
 	github.com/glebarez/sqlite v1.11.0
+	github.com/go-ole/go-ole v1.3.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.2.4
 	github.com/spf13/cobra v1.10.2
@@ -23,6 +24,8 @@ replace github.com/utmstack/UTMStack/shared => ../shared
 
 require (
 	cel.dev/expr v0.25.2 // indirect
+	github.com/0xrawsec/golang-etw v1.6.2 // indirect
+	github.com/0xrawsec/golang-utils v1.3.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect

@@ -1,0 +1,4 @@
+LIBRARY utmstack_amsi
+EXPORTS
+    DllGetClassObject PRIVATE
+    DllCanUnloadNow   PRIVATE
