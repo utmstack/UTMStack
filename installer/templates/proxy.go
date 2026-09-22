@@ -64,7 +64,10 @@ server {
 
     ssl_certificate /utmstack/cert/utm.crt;
     ssl_certificate_key /utmstack/cert/utm.key;
-    ssl_protocols TLSv1.3;
+    # TLS 1.3-only shut out every Windows Server below 2022 (Schannel has no
+    # TLS 1.3 client support before that) -- 1.2 with strong ECDHE/GCM
+    # ciphers restores that without weakening the floor.
+    ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
     ssl_prefer_server_ciphers on;
     ssl_session_cache shared:SSL:10m;
@@ -144,7 +147,7 @@ server {
 
     ssl_certificate /utmstack/cert/utm.crt;
     ssl_certificate_key /utmstack/cert/utm.key;
-    ssl_protocols TLSv1.3;
+    ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
     ssl_prefer_server_ciphers on;
     ssl_session_cache shared:SSL:10m;

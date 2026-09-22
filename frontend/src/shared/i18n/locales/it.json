@@ -5275,7 +5275,8 @@
       "copy": "Copia",
       "copied": "Copiato",
       "errorGeneric": "Si è verificato un errore.",
-      "errorUnreachable": "Impossibile raggiungere l'assistente."
+      "errorUnreachable": "Impossibile raggiungere l'assistente.",
+      "compacting": "Compattazione del contesto…"
     },
     "inheritance": {
       "inherited": "Segue l'impostazione predefinita dell'istanza. Salvando, questo tenant avrà la propria.",

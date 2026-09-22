@@ -96,16 +96,15 @@ func (b *ToolBroker) ListSpecs(ctx context.Context) ([]ToolSpec, error) {
 	}
 	specs := make([]ToolSpec, 0, len(res.Tools))
 	for _, t := range res.Tools {
-		schema, _ := t.InputSchema.(map[string]any)
-		readOnly := !mutatingName(t.Name)
-		if t.Annotations != nil && t.Annotations.ReadOnlyHint {
-			readOnly = true
+		if neverExposeName(t.Name) {
+			continue
 		}
+		schema, _ := t.InputSchema.(map[string]any)
 		specs = append(specs, ToolSpec{
 			Name:        t.Name,
 			Description: t.Description,
 			InputSchema: schema,
-			ReadOnly:    readOnly,
+			ReadOnly:    isReadOnly(t),
 		})
 	}
 	return specs, nil
@@ -155,23 +154,19 @@ func (b *ToolBroker) callOnce(ctx context.Context, name string, args json.RawMes
 	return session.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: arguments})
 }
 
-func mutatingName(name string) bool {
-	tokens := strings.FieldsFunc(strings.ToLower(name), func(r rune) bool {
-		return r == '.' || r == '_' || r == '-' || r == '/'
-	})
-	for _, tok := range tokens {
-		if mutatingVerbs[tok] {
-			return true
-		}
-	}
-	return false
+// isReadOnly trusts only the backend's explicit ReadOnlyHint (fail-closed).
+// The old name-based verb guess let tenants.terminate through as "read-only"
+// since "terminate" wasn't in its whitelist.
+func isReadOnly(t *mcp.Tool) bool {
+	return t.Annotations != nil && t.Annotations.ReadOnlyHint
 }
 
-var mutatingVerbs = map[string]bool{
-	"create": true, "update": true, "delete": true, "convert": true,
-	"set": true, "add": true, "remove": true, "disable": true, "enable": true,
-	"execute": true, "run": true, "shutdown": true, "isolate": true,
-	"block": true, "save": true, "generate": true, "evaluate": true,
-	"activate": true, "deactivate": true, "job": true, "jobs": true,
-	"assign": true, "change": true, "send": true, "mark": true,
+// neverExposeName hard-excludes prefixes with no capability group of their
+// own (tenants.*, platform.*) as a second layer beyond isReadOnly.
+func neverExposeName(name string) bool {
+	prefix := name
+	if i := strings.IndexByte(name, '.'); i >= 0 {
+		prefix = name[:i]
+	}
+	return prefix == "tenants" || prefix == "platform"
 }

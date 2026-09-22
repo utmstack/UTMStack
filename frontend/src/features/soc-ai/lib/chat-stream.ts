@@ -15,7 +15,7 @@ function federationHeaders(): Record<string, string> {
 
 /** One streamed step of an agent run (mirrors the plugin's agent.Event). */
 export interface ChatEvent {
-  kind: 'tool_call' | 'tool_result' | 'final' | 'error'
+  kind: 'tool_call' | 'tool_result' | 'final' | 'error' | 'compaction'
   step?: number
   tool?: string
   args?: unknown

@@ -162,6 +162,13 @@ func formatAuditEvent(msgs []*auparse.AuditMessage) (string, error) {
 		event["paths"] = paths
 	}
 
+	// Drop verified, zero-security-value noise before it's ever shipped --
+	// see isNoiseEvent for what and why. Returning "" here is the signal
+	// ReassemblyComplete uses to advance the cursor without enqueueing.
+	if isNoiseEvent(event) {
+		return "", nil
+	}
+
 	// Marshal to JSON - deterministic output with sorted keys
 	jsonBytes, err := json.Marshal(event)
 	if err != nil {

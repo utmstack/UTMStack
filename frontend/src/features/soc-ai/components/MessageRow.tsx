@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AlertCircle, ArrowUpRight, Check, Copy, Loader2, Wrench, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { useSocAi, type SocAiMessage, type ToolStep } from '../SocAiProvider'
+import { useSocAi, type CurrentStep, type SocAiMessage } from '../SocAiProvider'
 import type { NavAction } from '../lib/chat-stream'
 import { MarkdownMessage } from './MarkdownMessage'
 
@@ -28,11 +28,11 @@ export function MessageRow({ message }: { message: SocAiMessage }) {
     )
   }
 
-  const hasSteps = (message.steps?.length ?? 0) > 0
   return (
     <div className="self-stretch">
-      {hasSteps && <Steps steps={message.steps!} />}
-      {message.pending && !message.text ? (
+      {message.currentStep ? (
+        <StepStatusLine step={message.currentStep} />
+      ) : message.pending && !message.text ? (
         <TypingDots />
       ) : message.error ? (
         <div className="flex items-start gap-2 rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-600 dark:text-red-300">
@@ -50,22 +50,18 @@ export function MessageRow({ message }: { message: SocAiMessage }) {
   )
 }
 
-function Steps({ steps }: { steps: ToolStep[] }) {
+function StepStatusLine({ step }: { step: CurrentStep }) {
   return (
-    <div className="mb-2 space-y-1 rounded-md border border-border bg-muted/30 px-2.5 py-2">
-      {steps.map((s, i) => (
-        <div key={i} className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          {s.status === 'running' ? (
-            <Loader2 size={12} className="shrink-0 animate-spin" />
-          ) : s.status === 'error' ? (
-            <X size={12} className="shrink-0 text-red-500" />
-          ) : (
-            <Check size={12} className="shrink-0 text-emerald-500" />
-          )}
-          <Wrench size={11} className="shrink-0 opacity-60" />
-          <span className="truncate font-mono">{s.tool}</span>
-        </div>
-      ))}
+    <div className="mb-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+      {step.status === 'running' ? (
+        <Loader2 size={12} className="shrink-0 animate-spin" />
+      ) : step.status === 'error' ? (
+        <X size={12} className="shrink-0 text-red-500" />
+      ) : (
+        <Check size={12} className="shrink-0 text-emerald-500" />
+      )}
+      <Wrench size={11} className="shrink-0 opacity-60" />
+      <span className="truncate font-mono">{step.tool}</span>
     </div>
   )
 }

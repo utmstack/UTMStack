@@ -126,30 +126,33 @@ function windowsInstall(host: string, token: string, installer: string, options:
   const dir = 'C:\\Program Files\\UTMStack\\UTMStack Agent'
   const skipCert = options.skipCertValidation ? 'yes' : 'no'
   const noRemoteControl = options.noRemoteControl ? `, '--no-remote-control'` : ''
-  // One statement per line (backtick = PowerShell line continuation) so the block
-  // wraps top-to-bottom like the bash guides instead of one long horizontal line.
-  return `New-Item -ItemType Directory -Force -Path "${dir}"
-& curl.exe -k -o "${dir}\\${installer}" \`
-  "https://${host}/private/dependencies/agent/${installer}"
-Start-Process "${dir}\\${installer}" \`
-  -ArgumentList 'install', '${host}', '<secret>${token}</secret>', '${skipCert}'${noRemoteControl} \`
-  -NoNewWindow -Wait`
+  const url = `https://${host}/private/dependencies/agent/${installer}`
+  const out = `${dir}\\${installer}`
+  // curl.exe only ships from Windows 10 1803 / Server 2019 onward -- Server
+  // 2012/2012 R2/2016 need the WebClient fallback. Both branches also need
+  // TLS 1.2 forced and the self-signed cert accepted (curl.exe -k covers
+  // that on its own, .NET's HTTP stack doesn't default to either on those
+  // older systems).
+  return `[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12; ` +
+    `[Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; ` +
+    `New-Item -ItemType Directory -Force -Path "${dir}" | Out-Null; ` +
+    `if (Get-Command curl.exe -ErrorAction SilentlyContinue) { & curl.exe -k -o "${out}" "${url}" } else { (New-Object Net.WebClient).DownloadFile('${url}', '${out}') }; ` +
+    `Start-Process "${out}" -ArgumentList 'install', '${host}', '<secret>${token}</secret>', '${skipCert}'${noRemoteControl} -NoNewWindow -Wait`
 }
 
 function windowsUninstall(installer: string): string {
   const dir = 'C:\\Program Files\\UTMStack\\UTMStack Agent'
-  // One statement per line so the block flows top-to-bottom (no horizontal scroll).
-  return `Start-Process "${dir}\\${installer}" -ArgumentList 'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
-Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null
-Write-Host "Removing UTMStack Agent dependencies..."
-Start-Sleep -Seconds 10
-Remove-Item '${dir}' -Recurse -Force -ErrorAction Stop
-Write-Host "UTMStack Agent removed successfully."`
+  return `Start-Process "${dir}\\${installer}" -ArgumentList 'uninstall' -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackAgent' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackWindowsLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'stop','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Start-Process -FilePath "sc.exe" -ArgumentList 'delete','UTMStackModulesLogsCollector' -Wait -ErrorAction SilentlyContinue | Out-Null; ` +
+    `Write-Host "Removing UTMStack Agent dependencies..."; ` +
+    `Start-Sleep -Seconds 10; ` +
+    `Remove-Item '${dir}' -Recurse -Force -ErrorAction Stop; ` +
+    `Write-Host "UTMStack Agent removed successfully."`
 }
 
 export function buildAgentInstall(agentId: string, ctx: AgentBuilderContext): AgentInstallConfig {

@@ -12,11 +12,13 @@ import (
 )
 
 const (
-	defaultMaxIters     = 12
-	compactionThreshold = 0.80
-	summaryMaxTokens    = 400 // ~200 words + slack
-	keepTailMessages    = 4   // messages kept raw when compacting
-	genericErrorMsg     = "An error has occurred while processing your request."
+	defaultMaxIters       = 12
+	compactionThreshold   = 0.80
+	summaryMaxTokens      = 400 // ~200 words + slack
+	keepTailMessages      = 4   // messages kept raw when compacting
+	genericErrorMsg       = "An error has occurred while processing your request."
+	toolCallBudgetPerIter = 4
+	maxFailuresPerTool    = 3
 )
 
 func errorEventText(err error) string {
@@ -130,6 +132,7 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 	if maxIters <= 0 {
 		maxIters = defaultMaxIters
 	}
+	maxToolCalls := maxIters * toolCallBudgetPerIter
 
 	msgs := append([]Message{}, task.History...)
 	msgs = append(msgs, Message{Role: RoleUser, Content: task.Input})
@@ -138,6 +141,9 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 	// Skipped in-batch dedup; upgrade to singleflight if same-batch duplicates become measurable.
 	toolCache := map[string]tcOut{}
 	var cacheMu sync.Mutex
+
+	failureCount := map[string]int{}
+	blockedTools := map[string]bool{}
 
 	for step := 1; step <= maxIters; step++ {
 		result.Steps = step
@@ -155,10 +161,20 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 			}
 		}
 
+		stepTools := allowed
+		if len(blockedTools) > 0 {
+			stepTools = make([]ToolSpec, 0, len(allowed))
+			for _, s := range allowed {
+				if !blockedTools[s.Name] {
+					stepTools = append(stepTools, s)
+				}
+			}
+		}
+
 		resp, err := a.llm.Complete(ctx, CompletionRequest{
 			System:    task.System,
 			Messages:  msgs,
-			Tools:     allowed,
+			Tools:     stepTools,
 			Model:     a.model,
 			MaxTokens: a.maxTokens,
 		})
@@ -166,6 +182,13 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 			_ = catcher.Error("llm completion failed", err, map[string]any{
 				"process": "plugin_com.utmstack.soc-ai",
 			})
+
+			if result.ToolCalls > 0 {
+				return a.finalizeGracefully(ctx, task, msgs, result, sink,
+					"The previous step failed unexpectedly. Do not call any more tools. "+
+						"Summarize what you found so far and answer as best you can with the information already gathered.",
+					genericErrorMsg)
+			}
 			sink.emit(Event{Kind: EventError, Text: errorEventText(err)})
 			return result, err
 		}
@@ -186,6 +209,14 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 
 			if !allowedSet[tc.Name] {
 				outs[i] = tcOut{out: "tool not permitted in this mode", isErr: true}
+				continue
+			}
+			if blockedTools[tc.Name] {
+				outs[i] = tcOut{out: fmt.Sprintf("%s has failed %d times this run and is no longer available -- stop calling it and work with what you already have", tc.Name, maxFailuresPerTool), isErr: true}
+				continue
+			}
+			if result.ToolCalls > maxToolCalls {
+				outs[i] = tcOut{out: "tool call budget exceeded for this run -- stop calling tools and answer with what you have", isErr: true}
 				continue
 			}
 
@@ -219,14 +250,28 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 			r := outs[i]
 			msgs = append(msgs, Message{Role: RoleTool, ToolResult: &ToolResult{ID: tc.ID, Name: tc.Name, Content: r.out, IsError: r.isErr}})
 			sink.emit(Event{Kind: EventToolResult, Step: step, Tool: tc.Name, Output: r.out, IsError: r.isErr})
+
+			if !r.isErr || blockedTools[tc.Name] {
+				continue
+			}
+			failureCount[tc.Name]++
+			if failureCount[tc.Name] >= maxFailuresPerTool {
+				blockedTools[tc.Name] = true
+				catcher.Info(fmt.Sprintf("soc-ai: %s failed %d times this run, dropping it from the tool list for the rest of the run", tc.Name, failureCount[tc.Name]), map[string]any{
+					"process": "plugin_com.utmstack.soc-ai",
+				})
+			}
 		}
 	}
 
 	// Loop exhausted: give the model one last chance to finalize with no tools.
-	msgs = append(msgs, Message{
-		Role:    RoleUser,
-		Content: "You have reached the maximum number of tool iterations. Do not call any more tools. Provide your final assessment now based on what you have gathered so far.",
-	})
+	return a.finalizeGracefully(ctx, task, msgs, result, sink,
+		"You have reached the maximum number of tool iterations. Do not call any more tools. Provide your final assessment now based on what you have gathered so far.",
+		"Reached the maximum number of tool iterations and could not finalize.")
+}
+
+func (a *Agent) finalizeGracefully(ctx context.Context, task RunTask, msgs []Message, result RunResult, sink EventSink, prompt, fallbackMsg string) (RunResult, error) {
+	msgs = append(msgs, Message{Role: RoleUser, Content: prompt})
 	finalResp, ferr := a.llm.Complete(ctx, CompletionRequest{
 		System:    task.System,
 		Messages:  msgs,
@@ -234,10 +279,10 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 		MaxTokens: a.maxTokens,
 	})
 	if ferr != nil {
-		_ = catcher.Error("max-iters finalization llm call failed", ferr, map[string]any{
+		_ = catcher.Error("finalization llm call failed", ferr, map[string]any{
 			"process": "plugin_com.utmstack.soc-ai",
 		})
-		msg := "Reached the maximum number of tool iterations and could not finalize."
+		msg := fallbackMsg
 		if errors.Is(ferr, ErrLLMRateLimited) {
 			msg = ErrLLMRateLimited.Error()
 		}

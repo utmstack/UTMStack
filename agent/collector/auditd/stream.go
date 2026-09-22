@@ -49,6 +49,13 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 		return
 	}
 
+	if jsonOutput == "" {
+		// Filtered as noise (see isNoiseEvent) -- nothing to ship, but the
+		// audit.log resume position still needs to advance past it.
+		s.cursor.resolve(seq, true)
+		return
+	}
+
 	log := &plugins.Log{
 		DataType:   string(config.DataTypeLinuxAgent),
 		DataSource: s.hostname,

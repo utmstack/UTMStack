@@ -7,7 +7,7 @@ import { extractNavigation, streamChat, type ChatHistoryTurn, type NavAction } f
 // compaction will still trim if this exceeds the model context window.
 const HISTORY_LIMIT = 10
 
-export interface ToolStep {
+export interface CurrentStep {
   tool: string
   status: 'running' | 'done' | 'error'
 }
@@ -18,7 +18,7 @@ export interface SocAiMessage {
   text: string
   pending?: boolean
   error?: boolean
-  steps?: ToolStep[]
+  currentStep?: CurrentStep | null
   actions?: NavAction[]
 }
 
@@ -134,7 +134,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       setters[scope]((m) => [
         ...m,
         { id: nextId(), role: 'user', text },
-        { id: aiId, role: 'ai', text: '', pending: true, steps: [] },
+        { id: aiId, role: 'ai', text: '', pending: true, currentStep: null },
       ])
 
       const page = pageContext(location.pathname)
@@ -151,23 +151,17 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
           patchMsg(scope, aiId, (msg) => {
             switch (ev.kind) {
               case 'tool_call':
-                return { ...msg, steps: [...(msg.steps ?? []), { tool: ev.tool ?? 'tool', status: 'running' }] }
-              case 'tool_result': {
-                const steps = (msg.steps ?? []).slice()
-                for (let i = steps.length - 1; i >= 0; i--) {
-                  if (steps[i].tool === ev.tool && steps[i].status === 'running') {
-                    steps[i] = { ...steps[i], status: ev.isError ? 'error' : 'done' }
-                    break
-                  }
-                }
-                return { ...msg, steps }
-              }
+                return { ...msg, currentStep: { tool: ev.tool ?? 'tool', status: 'running' } }
+              case 'tool_result':
+                return { ...msg, currentStep: { tool: ev.tool ?? 'tool', status: ev.isError ? 'error' : 'done' } }
+              case 'compaction':
+                return { ...msg, currentStep: { tool: t('socAi.chat.compacting'), status: 'running' } }
               case 'final': {
                 const { text: clean, actions } = extractNavigation(ev.text ?? '')
-                return { ...msg, text: clean, actions, pending: false }
+                return { ...msg, text: clean, actions, pending: false, currentStep: null }
               }
               case 'error':
-                return { ...msg, text: ev.text || t('socAi.chat.errorGeneric'), error: true, pending: false }
+                return { ...msg, text: ev.text || t('socAi.chat.errorGeneric'), error: true, pending: false, currentStep: null }
               default:
                 return msg
             }

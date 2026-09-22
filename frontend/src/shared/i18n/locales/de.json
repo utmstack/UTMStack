@@ -5267,7 +5267,8 @@
       "copy": "Kopieren",
       "copied": "Kopiert",
       "errorGeneric": "Etwas ist schiefgelaufen.",
-      "errorUnreachable": "Der Assistent konnte nicht erreicht werden."
+      "errorUnreachable": "Der Assistent konnte nicht erreicht werden.",
+      "compacting": "Kontext wird komprimiert…"
     },
     "inheritance": {
       "inherited": "Folgt der Instanzvorgabe. Speichern gibt diesem Mandanten eine eigene Konfiguration.",

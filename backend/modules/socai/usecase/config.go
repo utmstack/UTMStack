@@ -27,6 +27,11 @@ var ErrInstanceNotRegistered = errors.New("instance not registered yet — canno
 
 const ensureDefaultRetryInterval = 30 * time.Second
 
+// defaultCapabilities: all six groups on by default (admin can narrow later
+// in Settings -> SOC-AI). Must stay in sync with the group IDs in
+// plugins/soc-ai/internal/agent/groups.go and SocAiSettingsPage.tsx.
+var defaultCapabilities = []string{"alerts", "incidents", "dashboards", "compliance", "correlation", "datasources"}
+
 // StartEnsureDefaultLoop provisions the default ThreatWinds config in the
 // background, retrying until it succeeds. A fresh install's backend can
 // start before the updater service (a separate host process installed after
@@ -109,6 +114,7 @@ func (s *ConfigService) EnsureDefault() bool {
 		MaxTokens:         4096,
 		MaxToolIterations: 12,
 		AutoAnalyze:       true,
+		Capabilities:      defaultCapabilities,
 	}
 	if err := s.store.Save("", fc); err != nil {
 		catcher.Warn("socai: failed to save default ThreatWinds config", map[string]any{"error": err.Error()})

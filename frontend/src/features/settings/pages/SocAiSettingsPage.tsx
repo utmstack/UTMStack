@@ -180,6 +180,10 @@ interface Form {
   capabilities: string[] // enabled permission group ids
 }
 
+// All groups on by default, matching the backend's own fresh-install
+// default (usecase/config.go). Admin can uncheck before saving.
+const DEFAULT_CAPABILITIES = CAPABILITY_GROUPS.map((g) => g.id)
+
 function emptyForm(provider = 'threatwinds'): Form {
   const def = PROVIDERS[provider]
   return {
@@ -193,7 +197,7 @@ function emptyForm(provider = 'threatwinds'): Form {
     maxTokens: '4096',
     maxToolIterations: '12',
     autoAnalyze: true,
-    capabilities: [],
+    capabilities: DEFAULT_CAPABILITIES,
   }
 }
 
@@ -233,7 +237,8 @@ export function SocAiSettingsPage() {
           maxTokens: String(cfg.maxTokens || 4096),
           maxToolIterations: String(cfg.maxToolIterations || 12),
           autoAnalyze: cfg.autoAnalyze,
-          capabilities: cfg.capabilities ?? [],
+          // Respect an explicit [] ; only default when nothing was ever configured.
+          capabilities: cfg.configured ? (cfg.capabilities ?? []) : DEFAULT_CAPABILITIES,
         }
         setForm(v)
         setInitial(v)

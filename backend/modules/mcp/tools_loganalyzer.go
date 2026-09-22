@@ -19,19 +19,25 @@ func registerLogAnalyzer(m *Module) {
 
 // ---- loganalyzer.* (analyzer) ----------------------------------------------
 
+// laTopValuesInput mirrors storePropertyValuesInput's jsonschema conventions
+// (tools_store.go). Top needs `,omitempty` -- without it the MCP schema
+// marked it required, so a model that omitted it got rejected before the
+// handler's own default ever ran.
 type laTopValuesInput struct {
-	Dataset  string                     `json:"dataset"`
-	DataType string                     `json:"data_type,omitempty"`
-	Field    string                     `json:"field"`
+	Dataset  string                     `json:"dataset" jsonschema:"logs | alerts"`
+	DataType string                     `json:"data_type,omitempty" jsonschema:"optional: filter by dataType"`
+	Field    string                     `json:"field" jsonschema:"field to group by -- call store.dataset.fields on the dataset first to discover valid names"`
 	Filters  []common_models.FilterType `json:"filters,omitempty"`
-	Top      int                        `json:"top"`
+	Top      int                        `json:"top,omitempty" jsonschema:"default 10"`
 }
 
 func registerLogAnalyzerAnalyzer(m *Module) {
 	uc := m.deps.LogAnalyzer.GetAnalyzerUsecase()
 
 	Add(m, &mcp.Tool{
-		Name: "loganalyzer.top_values", Title: "Top-N values for a field",
+		Name:        "loganalyzer.top_values",
+		Title:       "Top-N values for a field",
+		Description: "Top-N distinct values of a field, with counts, over the logs or alerts dataset. Call store.dataset.fields first if you don't already know the field names for that dataset.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "loganalyzer.read"},
 		func(ctx context.Context, _ *authz.Actor, in laTopValuesInput) (any, error) {
@@ -43,7 +49,9 @@ func registerLogAnalyzerAnalyzer(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "loganalyzer.chart_view", Title: "Chart view aggregation",
+		Name:        "loganalyzer.chart_view",
+		Title:       "Chart view aggregation",
+		Description: "Time-bucketed or grouped aggregation over the logs or alerts dataset, shaped for charting. Call store.dataset.fields first if you don't already know the field names for that dataset.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "loganalyzer.read"},
 		func(ctx context.Context, _ *authz.Actor, in dto.ChartViewRequest) (any, error) {

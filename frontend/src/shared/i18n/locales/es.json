@@ -4016,7 +4016,8 @@
       "copy": "Copiar",
       "copied": "Copiado",
       "errorGeneric": "Algo salió mal.",
-      "errorUnreachable": "No se pudo contactar al asistente."
+      "errorUnreachable": "No se pudo contactar al asistente.",
+      "compacting": "Compactando contexto…"
     },
     "inheritance": {
       "inherited": "Siguiendo la configuración por defecto de la instancia. Si guardas aquí, este tenant pasa a tener la suya.",

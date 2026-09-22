@@ -5275,7 +5275,8 @@
       "copy": "Copier",
       "copied": "Copié",
       "errorGeneric": "Une erreur s'est produite.",
-      "errorUnreachable": "Impossible de joindre l'assistant."
+      "errorUnreachable": "Impossible de joindre l'assistant.",
+      "compacting": "Compactage du contexte…"
     },
     "inheritance": {
       "inherited": "Suit la valeur par défaut de l'instance. Enregistrer donne à ce locataire sa propre configuration.",

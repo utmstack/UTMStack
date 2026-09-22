@@ -4016,7 +4016,8 @@
       "copy": "Copiar",
       "copied": "Copiado",
       "errorGeneric": "Algo deu errado.",
-      "errorUnreachable": "Não foi possível contatar o assistente."
+      "errorUnreachable": "Não foi possível contatar o assistente.",
+      "compacting": "Compactando contexto…"
     },
     "inheritance": {
       "inherited": "Seguindo o padrão da instância. Salvar aqui dá a este tenant a própria configuração.",

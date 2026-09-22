@@ -4155,7 +4155,8 @@
       "copy": "Copy",
       "copied": "Copied",
       "errorGeneric": "Something went wrong.",
-      "errorUnreachable": "Failed to reach the assistant."
+      "errorUnreachable": "Failed to reach the assistant.",
+      "compacting": "Compacting context…"
     },
     "inheritance": {
       "inherited": "Following the instance default. Saving here gives this tenant its own configuration.",
