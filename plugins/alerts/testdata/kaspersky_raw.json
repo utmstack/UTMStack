@@ -1,0 +1,1093 @@
+[
+  {
+    "name": "KLSRV_HOST_STATUS_CRITICAL",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "ksc-syslog",
+      "log.eventType": "KLSRV_HOST_STATUS_CRITICAL",
+      "target.ip": "192.0.2.8",
+      "target.host": "endpoint-test",
+      "deviceTime": "2026-09-17T12:34:56Z",
+      "log.ksc.reportingHost": "relay.example.test",
+      "log.ksc.kscfqdn": "manager.example.test",
+      "log.ksc.gn": "Managed endpoints",
+      "log.msg": "Device has not connected recently.",
+      "severity": "critical"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.host",
+      "target.group",
+      "action",
+      "actionResult",
+      "log.signatureID"
+    ],
+    "matches": []
+  },
+  {
+    "name": "KLSRV_HOST_OUT_CONTROL",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_OUT_CONTROL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_OUT_CONTROL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "ksc-syslog",
+      "log.eventType": "KLSRV_HOST_OUT_CONTROL",
+      "target.ip": "192.0.2.8",
+      "target.host": "endpoint-test",
+      "deviceTime": "2026-09-17T12:34:56Z",
+      "log.ksc.reportingHost": "relay.example.test",
+      "log.ksc.kscfqdn": "manager.example.test",
+      "log.ksc.gn": "Managed endpoints",
+      "log.msg": "Device has not connected recently.",
+      "severity": "critical"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.host",
+      "target.group",
+      "action",
+      "actionResult",
+      "log.signatureID"
+    ],
+    "matches": []
+  },
+  {
+    "name": "health message cannot become CEF 2",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] ransomware rootkit network attack scheduled task powershell malicious lsass injection WMI",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "ksc-syslog",
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult",
+      "log.signatureID"
+    ],
+    "matches": []
+  },
+  {
+    "name": "health message cannot become CEF 3",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=Allowed msg=botnet",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "ksc-syslog",
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult",
+      "log.signatureID"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted text cannot inject IP",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"failure hip=\\\"198.51.100.9\\\"\" et=\"KLSRV_HOST_STATUS_CRITICAL\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Group \\\\ Team\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "log.ksc.gn": "Group \\\\ Team"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "escaped delimiter",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"message \\] quoted \\\"value\\\"\" hip=\"192.0.2.8\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified 0.0.0.0",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"0.0.0.0\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "0.0.0.0"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified ::",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"::\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "::"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified 0:0:0:0:0:0:0:0",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"0:0:0:0:0:0:0:0\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified ::ffff:0.0.0.0",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"::ffff:0.0.0.0\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified endpoint-test",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"endpoint-test\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "endpoint-test"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified 999.1.1.1",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"999.1.1.1\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "999.1.1.1"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native invalid or unspecified -",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"-\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test",
+      "log.ksc.hip": "-"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native IPv6",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hip=\"2001:db8::8\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.ip": "2001:db8::8"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native parameter order",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 gn=\"Group one\" hip=\"192.0.2.8\" p1=\"message text\" hdn=\"endpoint-test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "target.host": "endpoint-test",
+      "log.ksc.p1": "message text"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native absent address",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hdn=\"endpoint-test\" et=\"KLSRV_HOST_OUT_CONTROL\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.host": "endpoint-test"
+    },
+    "absent": [
+      "target.ip",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native escaped host retained",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 hdn=\"endpoint\\\"test\" hip=\"192.0.2.8\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "log.ksc.hdn": "endpoint\\\"test"
+    },
+    "absent": [
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native NIL timestamp",
+    "raw": "<10>1 - relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.ksc.time": "-"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "native syslog severity 11",
+    "raw": "<11>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "severity": "error"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native syslog severity 12",
+    "raw": "<12>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "severity": "warning"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native syslog severity 13",
+    "raw": "<13>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native syslog severity 14",
+    "raw": "<14>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "native syslog severity 15",
+    "raw": "<15>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {
+      "severity": "debug"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "reject malformed native 23",
+    "raw": "prefix <10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "target.ip",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "reject malformed native 24",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@99999 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "target.ip",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "reject malformed native 25",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8 gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "target.ip",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "reject malformed native 26",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device ] not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "target.ip",
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "code_injection_attempts",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=injection into lsass",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "code_injection_attempts"
+    ]
+  },
+  {
+    "name": "command_and_control_communication",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=beacon detected",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "command_and_control_communication"
+    ]
+  },
+  {
+    "name": "critical_object_detected",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|8|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=MALWARE",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "critical_object_detected"
+    ]
+  },
+  {
+    "name": "data_exfiltration_attempts",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cat=NetworkThreat",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "data_exfiltration_attempts"
+    ]
+  },
+  {
+    "name": "kaspersky_agent_tampering",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=protection disabled",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "kaspersky_agent_tampering"
+    ]
+  },
+  {
+    "name": "kaspersky_ransomware_behavior",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=ransomware identified",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "kaspersky_ransomware_behavior"
+    ]
+  },
+  {
+    "name": "kaspersky_rootkit_detection",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=rootkit identified",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "kaspersky_rootkit_detection"
+    ]
+  },
+  {
+    "name": "lateral_movement_indicators",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=DETECT msg=psexec",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "lateral_movement_indicators"
+    ]
+  },
+  {
+    "name": "lolbins_abuse",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=DETECT msg=certutil download",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "lolbins_abuse"
+    ]
+  },
+  {
+    "name": "privilege_escalation_attempts",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=token manipulation",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "privilege_escalation_attempts"
+    ]
+  },
+  {
+    "name": "process_hollowing_detection",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=DETECT msg=hollow",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "process_hollowing_detection"
+    ]
+  },
+  {
+    "name": "sandbox_evasion_attempts",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=sandbox evasion",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "sandbox_evasion_attempts"
+    ]
+  },
+  {
+    "name": "suspicious_network_activity",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Blocked msg=network attack",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "suspicious_network_activity"
+    ]
+  },
+  {
+    "name": "suspicious_packed_executables",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=blocked msg=Packed executable",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "suspicious_packed_executables"
+    ]
+  },
+  {
+    "name": "suspicious_scheduled_tasks",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=suspicious msg=scheduled task",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "suspicious_scheduled_tasks"
+    ]
+  },
+  {
+    "name": "suspicious_service_installation",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=suspicious msg=Service install",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "suspicious_service_installation"
+    ]
+  },
+  {
+    "name": "system_file_tampering_detection",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=critical file changed",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "system_file_tampering_detection"
+    ]
+  },
+  {
+    "name": "trusted_application_compromise",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|Medium|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=TRUSTED_COMP",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "trusted_application_compromise"
+    ]
+  },
+  {
+    "name": "wmi_abuse_detection",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=WMI",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.format": "cef"
+    },
+    "absent": [],
+    "matches": [
+      "wmi_abuse_detection"
+    ]
+  },
+  {
+    "name": "CEF outcome Allow",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allow",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "Allow",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome Allowed",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allowed",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "Allowed",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome BLOCKED",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=BLOCKED",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "BLOCKED",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome Block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Block",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "Block",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome blocked",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=blocked",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "blocked",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome delete",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=delete",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "delete"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome terminate",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=terminate",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "terminate"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome quarantine",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=quarantine",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "quarantine"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome Redirect",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Redirect",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "Redirect"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome detected",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=detected",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "detected"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF outcome unknown",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=unknown",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "unknown"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "C2 explicit block Block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Block msg=beacon",
+    "dataSource": "collector-test",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "C2 explicit block Blocked",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Blocked msg=beacon",
+    "dataSource": "collector-test",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "C2 explicit block BLOCKED",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=BLOCKED msg=beacon",
+    "dataSource": "collector-test",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "C2 explicit block blocked",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=blocked msg=beacon",
+    "dataSource": "collector-test",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "C2 unknown outcome is not success",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=beacon",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "command_and_control_communication"
+    ]
+  },
+  {
+    "name": "generic network category is not C2",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|1|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cat=NetworkThreat",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid address 0.0.0.0",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=0.0.0.0 dst=0.0.0.0",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.src": "0.0.0.0",
+      "log.dst": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid address 0:0:0:0:0:0:0:0",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=0:0:0:0:0:0:0:0 dst=0:0:0:0:0:0:0:0",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.src": "0:0:0:0:0:0:0:0",
+      "log.dst": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid address ::ffff:0.0.0.0",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=::ffff:0.0.0.0 dst=::ffff:0.0.0.0",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.src": "::ffff:0.0.0.0",
+      "log.dst": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid address host.example.test",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=host.example.test dst=host.example.test",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.src": "host.example.test",
+      "log.dst": "host.example.test"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid address 999.1.1.1",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=999.1.1.1 dst=999.1.1.1",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.src": "999.1.1.1",
+      "log.dst": "999.1.1.1"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF reporter identity separate",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test agt=192.0.2.99 ahost=manager-test amac=00:11:22:33:44:55",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.agentAddress": "192.0.2.99",
+      "log.agentHost": "manager-test"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF escaped equals not a key",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|msg=text src\\=198.51.100.99 dst=192.0.2.8",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.msg": "text src\\=198.51.100.99",
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF header fields protected",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|1|signatureID=999 cefDeviceSeverity=10 msg=ordinary event",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.signatureID": "3",
+      "log.cefDeviceSeverity": "1",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF spoofed derived marker removed",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|endpointKey=spoof correlationCandidate=spoof format=ksc-syslog msg=ordinary event",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "cef"
+    },
+    "absent": [
+      "log.endpointKey",
+      "log.correlationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF ports",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test spt=49152 dpt=443 proto=TCP",
+    "dataSource": "collector-test",
+    "expected": {
+      "origin.port": 49152,
+      "target.port": 443,
+      "protocol": "TCP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF invalid ports",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|spt=65536 dpt=not-a-port",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "CEF wrapper 74",
+    "raw": "<10>CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Blocked",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "cef",
+      "origin.ip": "198.51.100.9",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF wrapper 75",
+    "raw": "<10>1 2026-09-17T12:00:00Z relay-test KSC - - - CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Blocked",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "cef",
+      "origin.ip": "198.51.100.9",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "CEF wrapper 76",
+    "raw": "<10>Sep 17 12:00:00 relay-test KSC: CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Blocked",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "cef",
+      "origin.ip": "198.51.100.9",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "embedded CEF rejected 77",
+    "raw": "unrelated message CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allowed",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "actionResult",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "embedded CEF rejected 78",
+    "raw": "<10>1 2026-09-17T12:00:00Z relay-test app - - [meta x=\"CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allowed",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "log.format",
+      "actionResult",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "ransomware source host fallback",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|shost=source-test msg=ransomware",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "source-test"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": [
+      "kaspersky_ransomware_behavior"
+    ]
+  },
+  {
+    "name": "ransomware no invented source identity",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|msg=ransomware",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "log.endpointKey"
+    ],
+    "matches": []
+  },
+  {
+    "name": "legacy CEF vendor spelling retained",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=Blocked",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.embDeviceVendor": "KasperskyLab",
+      "origin.ip": "198.51.100.9",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "packed uppercase block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=BLOCKED msg=Packed executable",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_packed_executables"
+    ]
+  },
+  {
+    "name": "lateral uppercase block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=BLOCKED msg=psexec",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "lateral_movement_indicators"
+    ]
+  },
+  {
+    "name": "privilege allowed case",
+    "raw": "CEF:0|Kaspersky|Security Center|14|1|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 act=ALLOW msg=token manipulation",
+    "dataSource": "collector-test",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  }
+]
