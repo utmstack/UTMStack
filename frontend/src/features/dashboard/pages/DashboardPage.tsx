@@ -1,180 +1,220 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { LayoutDashboard, Loader2, Plus } from 'lucide-react'
-import { toast } from 'sonner'
-import { Button } from '@/shared/components/ui/button'
-import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
-import { StartFromModal } from '@/shared/components/StartFromModal'
-import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { useDashboard, useDashboards } from '@/features/dashboard/hooks/useDashboards'
-import { createDashboardsService } from '@/features/dashboard/service/dashboards.service'
-import { useVisualizations, useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
-import { useDashboardEditor } from '@/features/dashboard/hooks/useDashboardEditor'
-import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
-import { DashboardEditorBar } from '@/features/dashboard/components/DashboardEditorBar'
-import { DashboardFormDialog } from '@/features/dashboard/components/DashboardFormDialog'
-import { DashboardTimeRange } from '@/features/dashboard/components/DashboardTimeRange'
-import { DashboardRefreshInterval } from '@/features/dashboard/components/DashboardRefreshInterval'
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LayoutDashboard, Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/shared/components/ui/button";
+import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
+import { StartFromModal } from "@/shared/components/StartFromModal";
+import {
+  presetRange,
+  type TimeRange,
+} from "@/shared/components/ui/time-range-picker";
+import {
+  useDashboard,
+  useDashboards,
+} from "@/features/dashboard/hooks/useDashboards";
+import { createDashboardsService } from "@/features/dashboard/service/dashboards.service";
+import {
+  useVisualizations,
+  useVisualizationMutations,
+} from "@/features/dashboard/hooks/useVisualizations";
+import { useDashboardEditor } from "@/features/dashboard/hooks/useDashboardEditor";
+import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
+import { DashboardEditorBar } from "@/features/dashboard/components/DashboardEditorBar";
+import { DashboardFormDialog } from "@/features/dashboard/components/DashboardFormDialog";
+import { DashboardTimeRange } from "@/features/dashboard/components/DashboardTimeRange";
+import { DashboardRefreshInterval } from "@/features/dashboard/components/DashboardRefreshInterval";
 import {
   DashboardFilterBar,
   type ChipValueMap,
-} from '@/features/dashboard/components/DashboardFilterBar'
-import { DashboardGallery } from '@/features/dashboard/components/DashboardGallery'
-import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
-import { useSocAi } from '@/features/soc-ai/SocAiProvider'
-import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
-import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
-import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
-import type { Dashboard, DashboardFilterChip, FilterType, GridLayoutItem } from '@/features/dashboard/types'
+} from "@/features/dashboard/components/DashboardFilterBar";
+import { DashboardGallery } from "@/features/dashboard/components/DashboardGallery";
+import { DashboardPreviewHeader } from "@/features/dashboard/components/DashboardPreviewHeader";
+import { useSocAi } from "@/features/soc-ai/SocAiProvider";
+import { useSocAiConfigured } from "@/features/soc-ai/lib/useSocAiConfig";
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_WIDGET_LAYOUT,
+} from "@/features/dashboard/constants";
+import {
+  nextRow,
+  serializeLayout,
+  toGridItems,
+} from "@/features/dashboard/utils/layout";
+import type {
+  Dashboard,
+  DashboardFilterChip,
+  FilterType,
+  GridLayoutItem,
+} from "@/features/dashboard/types";
 
 export function DashboardPage() {
-  const { t } = useTranslation()
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [search, setSearch] = useState('')
-  const [time, setTime] = useState<TimeRange>(() => presetRange('24h'))
-  const [refreshMs, setRefreshMs] = useState<number | null>(null)
-  const [formOpen, setFormOpen] = useState<null | { mode: 'create' | 'rename'; target: Dashboard | null }>(
-    null
-  )
-  const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
-  const [starting, setStarting] = useState(false)
+  const { t } = useTranslation();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [time, setTime] = useState<TimeRange>(() => presetRange("24h"));
+  const [refreshMs, setRefreshMs] = useState<number | null>(null);
+  const [formOpen, setFormOpen] = useState<null | {
+    mode: "create" | "rename";
+    target: Dashboard | null;
+  }>(null);
+  const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null);
+  const [starting, setStarting] = useState(false);
   // Every dashboard, not the page being browsed/searched — what you can copy
   // must not depend on where you had scrolled to or what you'd typed. Includes
   // dismissed system dashboards: copying is the only way back for one of those,
   // there's no separate "restore".
-  const [copyable, setCopyable] = useState<Dashboard[]>([])
+  const [copyable, setCopyable] = useState<Dashboard[]>([]);
   // Removing a widget now deletes its visualization for good (no more "unlink,
   // keep it around for another dashboard") — confirm before committing a save
   // that includes pending removals.
-  const [confirmRemovals, setConfirmRemovals] = useState(false)
+  const [confirmRemovals, setConfirmRemovals] = useState(false);
   // Chip *values* are session-only (v11 parity): they clear when the user
   // switches dashboards. The *config* lives on dashboard.filters and persists.
-  const [chipValues, setChipValues] = useState<ChipValueMap>({})
+  const [chipValues, setChipValues] = useState<ChipValueMap>({});
   // When entering the preview from the table's edit action we want the layout
   // editor to open automatically once the dashboard data is available.
-  const pendingEditRef = useRef(false)
+  const pendingEditRef = useRef(false);
 
   const dashboards = useDashboards({
     page: 0,
     size: DEFAULT_PAGE_SIZE,
     name: search || undefined,
-  })
-  const dashboardItems = dashboards.list.data?.data ?? []
-  const noDashboards = dashboardItems.length === 0 && !search
+  });
+  const dashboardItems = dashboards.list.data?.data ?? [];
+  const noDashboards = dashboardItems.length === 0 && !search;
 
-  const selectedDashboard = useDashboard(selectedId)
-  const navigate = useNavigate()
-  const location = useLocation()
-  const aiConfigured = useSocAiConfigured()
-  const { openPanel, setDashboardEditTarget } = useSocAi()
+  const selectedDashboard = useDashboard(selectedId);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const aiConfigured = useSocAiConfigured();
+  const { openPanel, setDashboardEditTarget } = useSocAi();
 
   // Coming back from the visualization editor (create/edit/cancel) via its
   // "back to dashboard" navigation — re-select the dashboard it belongs to
   // and resume editing (the only way to reach that editor is from edit mode,
   // so returning should never silently drop back to view mode).
   useEffect(() => {
-    const state = location.state as { selectDashboardId?: string } | null
+    const state = location.state as {
+      selectDashboardId?: string;
+      resumeEditing?: boolean;
+    } | null;
     if (state?.selectDashboardId != null) {
-      setSelectedId(state.selectDashboardId)
-      pendingEditRef.current = true
-      navigate(location.pathname, { replace: true, state: null })
+      setSelectedId(state.selectDashboardId);
+      pendingEditRef.current = state.resumeEditing !== false;
+      navigate(location.pathname, { replace: true, state: null });
     }
     // Only react to navigation-state changes, not every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state])
+  }, [location.state]);
 
   const visualizations = useVisualizations(
-    selectedId != null ? { dashboardId: selectedId, page: 0, size: 500 } : { page: 0, size: 0 }
-  )
-  const vizItems = visualizations.data?.data ?? []
-  const vizMutations = useVisualizationMutations()
+    selectedId != null
+      ? { dashboardId: selectedId, page: 0, size: 500 }
+      : { page: 0, size: 0 },
+  );
+  const vizItems = visualizations.data?.data ?? [];
+  const vizMutations = useVisualizationMutations();
 
   const vizById = useMemo(() => {
-    const m = new Map<string, (typeof vizItems)[number]>()
-    for (const v of vizItems) m.set(v.id, v)
-    return m
-  }, [vizItems])
+    const m = new Map<string, (typeof vizItems)[number]>();
+    for (const v of vizItems) m.set(v.id, v);
+    return m;
+  }, [vizItems]);
 
-  const initialItems = useMemo(() => toGridItems(vizItems), [vizItems])
-  const editor = useDashboardEditor(initialItems)
+  const initialItems = useMemo(() => toGridItems(vizItems), [vizItems]);
+  const editor = useDashboardEditor(initialItems);
 
   const chips = useMemo<DashboardFilterChip[]>(
     () => parseChipConfig(selectedDashboard.data?.filters),
-    [selectedDashboard.data?.filters]
-  )
+    [selectedDashboard.data?.filters],
+  );
 
   // Reset chip *values* whenever the dashboard changes; chip *config* persists.
   useEffect(() => {
-    setChipValues({})
-  }, [selectedId])
+    setChipValues({});
+  }, [selectedId]);
 
   const activeFilters = useMemo<FilterType[]>(
     () => chipsToFilters(chips, chipValues),
-    [chips, chipValues]
-  )
+    [chips, chipValues],
+  );
 
   // Once the selected dashboard resolves after a table "Edit" click, drop into edit mode.
   useEffect(() => {
-    if (!pendingEditRef.current) return
-    if (!selectedDashboard.data) return
+    if (!pendingEditRef.current) return;
+    if (!selectedDashboard.data) return;
     if (selectedDashboard.data.systemOwner) {
-      pendingEditRef.current = false
-      return
+      pendingEditRef.current = false;
+      return;
     }
-    pendingEditRef.current = false
-    editor.enter()
-  }, [selectedDashboard.data, editor])
+    pendingEditRef.current = false;
+    editor.enter();
+  }, [selectedDashboard.data, editor]);
 
   // The copy source list includes dismissed system dashboards — copying one is
   // the only way to get a removed default back, so it has to show up here too.
   const openStartFrom = () => {
-    setStarting(true)
-    const svc = createDashboardsService()
+    setStarting(true);
+    const svc = createDashboardsService();
     Promise.all([
       svc.listDashboards({ page: 0, size: 500 }),
       svc.listDashboards({ page: 0, size: 500, dismissed: true }),
     ])
-      .then(([active, dismissed]) => setCopyable([...(active.data ?? []), ...(dismissed.data ?? [])]))
-      .catch(() => setCopyable([]))
-  }
+      .then(([active, dismissed]) =>
+        setCopyable([...(active.data ?? []), ...(dismissed.data ?? [])]),
+      )
+      .catch(() => setCopyable([]));
+  };
 
   const startFromDashboard = (id: string) => {
-    const src = copyable.find((d) => d.id === id)
-    setStarting(false)
-    if (!src) return
+    const src = copyable.find((d) => d.id === id);
+    setStarting(false);
+    if (!src) return;
     dashboards.duplicateDashboard.mutate(
-      { sourceId: src.id, name: t('dashboards.duplicate.copyName', { name: src.name }) },
+      {
+        sourceId: src.id,
+        name: t("dashboards.duplicate.copyName", { name: src.name }),
+      },
       {
         onSuccess: (created) => {
-          toast.success(t('dashboards.toast.created'))
-          pendingEditRef.current = true
-          setSelectedId(created.id)
+          toast.success(t("dashboards.toast.created"));
+          pendingEditRef.current = true;
+          setSelectedId(created.id);
         },
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.createFailed')),
-      }
-    )
-  }
+        onError: (err) =>
+          toast.error(err.message ?? t("dashboards.toast.createFailed")),
+      },
+    );
+  };
 
-  const handleCreateDashboard = (data: { name: string; description?: string }) => {
+  const handleCreateDashboard = (data: {
+    name: string;
+    description?: string;
+  }) => {
     dashboards.createDashboard.mutate(
-      { name: data.name, description: data.description, config: '' },
+      { name: data.name, description: data.description, config: "" },
       {
         onSuccess: (created) => {
-          toast.success(t('dashboards.toast.created'))
+          toast.success(t("dashboards.toast.created"));
           // Freshly created dashboards drop straight into edit mode.
-          pendingEditRef.current = true
-          setSelectedId(created.id)
-          setFormOpen(null)
+          pendingEditRef.current = true;
+          setSelectedId(created.id);
+          setFormOpen(null);
         },
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.createFailed')),
-      }
-    )
-  }
+        onError: (err) =>
+          toast.error(err.message ?? t("dashboards.toast.createFailed")),
+      },
+    );
+  };
 
-  const handleRenameDashboard = (data: { name: string; description?: string }) => {
-    if (!formOpen?.target) return
-    const target = formOpen.target
+  const handleRenameDashboard = (data: {
+    name: string;
+    description?: string;
+  }) => {
+    if (!formOpen?.target) return;
+    const target = formOpen.target;
     dashboards.updateDashboard.mutate(
       {
         id: target.id,
@@ -184,102 +224,113 @@ export function DashboardPage() {
       },
       {
         onSuccess: () => {
-          toast.success(t('dashboards.toast.updated'))
-          setFormOpen(null)
+          toast.success(t("dashboards.toast.updated"));
+          setFormOpen(null);
         },
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.updateFailed')),
-      }
-    )
-  }
+        onError: (err) =>
+          toast.error(err.message ?? t("dashboards.toast.updateFailed")),
+      },
+    );
+  };
 
   const confirmDeleteDashboard = () => {
-    if (!pendingDelete) return
-    const target = pendingDelete
+    if (!pendingDelete) return;
+    const target = pendingDelete;
     dashboards.deleteDashboard.mutate(target.id, {
       onSuccess: () => {
-        toast.success(t('dashboards.toast.deleted'))
-        if (selectedId === target.id) setSelectedId(null)
-        setPendingDelete(null)
+        toast.success(t("dashboards.toast.deleted"));
+        if (selectedId === target.id) setSelectedId(null);
+        setPendingDelete(null);
       },
-      onError: (err) => toast.error(err.message ?? t('dashboards.toast.deleteFailed')),
-    })
-  }
+      onError: (err) =>
+        toast.error(err.message ?? t("dashboards.toast.deleteFailed")),
+    });
+  };
 
   // No more picking from an existing library — a widget can only ever belong to
   // this dashboard, so "Add widget" goes straight to creating a new one, seeded
   // with the next free grid row.
   const handleAddWidget = () => {
-    if (selectedId == null) return
+    if (selectedId == null) return;
     const layout = serializeLayout({
       x: 0,
       y: nextRow(initialItems),
       w: DEFAULT_WIDGET_LAYOUT.w,
       h: DEFAULT_WIDGET_LAYOUT.h,
-    })
-    navigate(`/dashboards/${selectedId}/visualizations/new`, { state: { layout } })
-  }
+    });
+    navigate(`/dashboards/${selectedId}/visualizations/new`, {
+      state: { layout },
+    });
+  };
 
   const handleEditWidget = (id: string) => {
-    if (selectedId == null) return
-    navigate(`/dashboards/${selectedId}/visualizations/${id}`)
-  }
+    if (selectedId == null) return;
+    navigate(`/dashboards/${selectedId}/visualizations/${id}`);
+  };
 
   const doSave = async () => {
-    if (selectedId == null) return
+    if (selectedId == null) return;
     try {
       // Persist x/y/w/h for every widget whose position or size changed.
-      const baseById = new Map(editor.baseline.map((it) => [it.i, it]))
+      const baseById = new Map(editor.baseline.map((it) => [it.i, it]));
       for (const item of editor.working) {
-        const base = baseById.get(item.i)
+        const base = baseById.get(item.i);
         const changed =
           !base ||
           base.x !== item.x ||
           base.y !== item.y ||
           base.w !== item.w ||
-          base.h !== item.h
-        if (!changed) continue
-        const viz = vizById.get(item.i)
-        if (!viz) continue
+          base.h !== item.h;
+        if (!changed) continue;
+        const viz = vizById.get(item.i);
+        if (!viz) continue;
         await vizMutations.updateVisualization.mutateAsync({
           id: viz.id,
           dashboardId: viz.dashboardId,
           spec: viz.spec,
           config: viz.config,
-          layout: serializeLayout({ x: item.x, y: item.y, w: item.w, h: item.h }),
-        })
+          layout: serializeLayout({
+            x: item.x,
+            y: item.y,
+            w: item.w,
+            h: item.h,
+          }),
+        });
       }
 
       // A removed widget's visualization is gone for good — there's nothing to
       // "unlink" anymore. `confirmRemovals` (below) gates this before it runs.
       for (const removeId of editor.pendingRemovals) {
-        await vizMutations.deleteVisualization.mutateAsync(removeId)
+        await vizMutations.deleteVisualization.mutateAsync(removeId);
       }
 
-      editor.commit()
-      setConfirmRemovals(false)
-      toast.success(t('dashboards.toast.layoutSaved'))
+      editor.commit();
+      setConfirmRemovals(false);
+      toast.success(t("dashboards.toast.layoutSaved"));
     } catch (err) {
-      toast.error((err as Error).message ?? t('dashboards.toast.layoutSaveFailed'))
+      toast.error(
+        (err as Error).message ?? t("dashboards.toast.layoutSaveFailed"),
+      );
     }
-  }
+  };
 
   const handleSave = () => {
-    if (!editor.dirty || selectedId == null) return
+    if (!editor.dirty || selectedId == null) return;
     if (editor.pendingRemovals.length > 0) {
-      setConfirmRemovals(true)
-      return
+      setConfirmRemovals(true);
+      return;
     }
-    void doSave()
-  }
+    void doSave();
+  };
 
   const openFromTable = (id: string, options?: { edit?: boolean }) => {
-    pendingEditRef.current = !!options?.edit
-    setSelectedId(id)
-  }
+    pendingEditRef.current = !!options?.edit;
+    setSelectedId(id);
+  };
 
   const handleSaveFilters = (next: DashboardFilterChip[]) => {
-    const target = selectedDashboard.data
-    if (!target) return
+    const target = selectedDashboard.data;
+    if (!target) return;
     dashboards.updateDashboard.mutate(
       {
         id: target.id,
@@ -290,32 +341,40 @@ export function DashboardPage() {
       },
       {
         onSuccess: () => {
-          toast.success(t('dashboards.toast.filtersSaved'))
+          toast.success(t("dashboards.toast.filtersSaved"));
           // Drop any values whose chip was removed/renamed.
-          const validIds = new Set(next.map((c) => c.id))
+          const validIds = new Set(next.map((c) => c.id));
           setChipValues((prev) => {
-            const out: ChipValueMap = {}
-            for (const k of Object.keys(prev)) if (validIds.has(k)) out[k] = prev[k]
-            return out
-          })
+            const out: ChipValueMap = {};
+            for (const k of Object.keys(prev))
+              if (validIds.has(k)) out[k] = prev[k];
+            return out;
+          });
         },
-        onError: (err) => toast.error(err.message ?? t('dashboards.toast.filtersSaveFailed')),
-      }
-    )
-  }
+        onError: (err) =>
+          toast.error(err.message ?? t("dashboards.toast.filtersSaveFailed")),
+      },
+    );
+  };
 
   const backToList = () => {
-    if (editor.editing) editor.discard()
-    setSelectedId(null)
-  }
+    if (editor.editing) editor.discard();
+    setSelectedId(null);
+  };
 
-  const gridItems: GridLayoutItem[] = editor.editing ? editor.working : initialItems
-  const saving = vizMutations.updateVisualization.isPending || vizMutations.deleteVisualization.isPending
+  const gridItems: GridLayoutItem[] = editor.editing
+    ? editor.working
+    : initialItems;
+  const saving =
+    vizMutations.updateVisualization.isPending ||
+    vizMutations.deleteVisualization.isPending;
 
-  const inPreview = selectedId != null
-  const previewDashboard = selectedDashboard.data ?? null
+  const inPreview = selectedId != null;
+  const previewDashboard = selectedDashboard.data ?? null;
   const canEditPreview =
-    previewDashboard != null && !previewDashboard.systemOwner && !editor.editing
+    previewDashboard != null &&
+    !previewDashboard.systemOwner &&
+    !editor.editing;
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
@@ -327,8 +386,11 @@ export function DashboardPage() {
           onEditWithAi={
             canEditPreview && aiConfigured
               ? () => {
-                  setDashboardEditTarget({ id: previewDashboard.id, name: previewDashboard.name })
-                  openPanel('dashboard-edit')
+                  setDashboardEditTarget({
+                    id: previewDashboard.id,
+                    name: previewDashboard.name,
+                  });
+                  openPanel("dashboard-edit");
                 }
               : undefined
           }
@@ -336,7 +398,10 @@ export function DashboardPage() {
           right={
             <div className="flex flex-wrap items-center gap-2">
               <DashboardTimeRange value={time} onChange={setTime} />
-              <DashboardRefreshInterval value={refreshMs} onChange={setRefreshMs} />
+              <DashboardRefreshInterval
+                value={refreshMs}
+                onChange={setRefreshMs}
+              />
               {editor.editing && (
                 <DashboardEditorBar
                   dirty={editor.dirty}
@@ -357,11 +422,15 @@ export function DashboardPage() {
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background/30 p-6 text-center">
               <LayoutDashboard size={32} className="text-muted-foreground/40" />
               <div>
-                <p className="text-sm font-medium">{t('dashboards.empty.title')}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t('dashboards.empty.body')}</p>
+                <p className="text-sm font-medium">
+                  {t("dashboards.empty.title")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("dashboards.empty.body")}
+                </p>
               </div>
               <Button size="sm" onClick={openStartFrom}>
-                <Plus size={14} className="mr-1" /> {t('dashboards.empty.cta')}
+                <Plus size={14} className="mr-1" /> {t("dashboards.empty.cta")}
               </Button>
             </div>
           ) : (
@@ -377,23 +446,25 @@ export function DashboardPage() {
         </>
       )}
 
-      {inPreview && previewDashboard && (chips.length > 0 || editor.editing) && (
-        <DashboardFilterBar
-          chips={chips}
-          values={chipValues}
-          onChange={setChipValues}
-          editable={editor.editing}
-          savingChips={dashboards.updateDashboard.isPending}
-          onSaveChips={handleSaveFilters}
-        />
-      )}
+      {inPreview &&
+        previewDashboard &&
+        (chips.length > 0 || editor.editing) && (
+          <DashboardFilterBar
+            chips={chips}
+            values={chipValues}
+            onChange={setChipValues}
+            editable={editor.editing}
+            savingChips={dashboards.updateDashboard.isPending}
+            onSaveChips={handleSaveFilters}
+          />
+        )}
 
       {inPreview && (
         <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-background/30 p-2">
           {visualizations.isLoading ? (
             <div className="flex h-full min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
               <Loader2 size={16} className="animate-spin" />
-              {t('dashboards.page.loading')}
+              {t("dashboards.page.loading")}
             </div>
           ) : (
             <DashboardGrid
@@ -412,7 +483,7 @@ export function DashboardPage() {
       )}
 
       <DashboardFormDialog
-        open={formOpen?.mode === 'create'}
+        open={formOpen?.mode === "create"}
         mode="create"
         initial={null}
         busy={dashboards.createDashboard.isPending}
@@ -421,7 +492,7 @@ export function DashboardPage() {
       />
 
       <DashboardFormDialog
-        open={formOpen?.mode === 'rename'}
+        open={formOpen?.mode === "rename"}
         mode="rename"
         initial={formOpen?.target ?? null}
         busy={dashboards.updateDashboard.isPending}
@@ -432,14 +503,20 @@ export function DashboardPage() {
       <ConfirmDialog
         open={pendingDelete != null}
         title={
-          pendingDelete?.systemOwner ? t('dashboards.confirm.dismissTitle') : t('dashboards.confirm.deleteTitle')
+          pendingDelete?.systemOwner
+            ? t("dashboards.confirm.dismissTitle")
+            : t("dashboards.confirm.deleteTitle")
         }
         body={
           pendingDelete?.systemOwner
-            ? t('dashboards.confirm.dismiss', { name: pendingDelete?.name ?? '' })
-            : t('dashboards.confirm.delete', { name: pendingDelete?.name ?? '' })
+            ? t("dashboards.confirm.dismiss", {
+                name: pendingDelete?.name ?? "",
+              })
+            : t("dashboards.confirm.delete", {
+                name: pendingDelete?.name ?? "",
+              })
         }
-        confirmLabel={t('dashboards.list.delete') ?? undefined}
+        confirmLabel={t("dashboards.list.delete") ?? undefined}
         danger={!pendingDelete?.systemOwner}
         busy={dashboards.deleteDashboard.isPending}
         onClose={() => setPendingDelete(null)}
@@ -448,9 +525,11 @@ export function DashboardPage() {
 
       <ConfirmDialog
         open={confirmRemovals}
-        title={t('dashboards.confirm.deleteWidgetsTitle')}
-        body={t('dashboards.confirm.deleteWidgets', { count: editor.pendingRemovals.length })}
-        confirmLabel={t('dashboards.list.delete') ?? undefined}
+        title={t("dashboards.confirm.deleteWidgetsTitle")}
+        body={t("dashboards.confirm.deleteWidgets", {
+          count: editor.pendingRemovals.length,
+        })}
+        confirmLabel={t("dashboards.list.delete") ?? undefined}
         danger
         busy={saving}
         onClose={() => setConfirmRemovals(false)}
@@ -459,46 +538,48 @@ export function DashboardPage() {
 
       {starting && (
         <StartFromModal
-          title={t('dashboards.list.create')}
+          title={t("dashboards.list.create")}
           options={copyable.map((d) => ({ id: d.id, name: d.name }))}
           onScratch={() => {
-            setStarting(false)
-            setFormOpen({ mode: 'create', target: null })
+            setStarting(false);
+            setFormOpen({ mode: "create", target: null });
           }}
           onCopy={startFromDashboard}
           onClose={() => setStarting(false)}
         />
       )}
     </div>
-  )
+  );
 }
 
-export default DashboardPage
+export default DashboardPage;
 
-function parseChipConfig(json: string | undefined | null): DashboardFilterChip[] {
-  if (!json) return []
+function parseChipConfig(
+  json: string | undefined | null,
+): DashboardFilterChip[] {
+  if (!json) return [];
   try {
-    const parsed = JSON.parse(json)
-    return Array.isArray(parsed) ? (parsed as DashboardFilterChip[]) : []
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? (parsed as DashboardFilterChip[]) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
 function chipsToFilters(
   chips: DashboardFilterChip[],
-  values: ChipValueMap
+  values: ChipValueMap,
 ): FilterType[] {
-  const out: FilterType[] = []
+  const out: FilterType[] = [];
   for (const chip of chips) {
-    const v = values[chip.id]
-    if (v == null) continue
+    const v = values[chip.id];
+    if (v == null) continue;
     if (Array.isArray(v)) {
-      if (v.length === 0) continue
-      out.push({ field: chip.field, operator: 'IS_ONE_OF_TERMS', value: v })
-    } else if (typeof v === 'string' && v !== '') {
-      out.push({ field: chip.field, operator: 'IS', value: v })
+      if (v.length === 0) continue;
+      out.push({ field: chip.field, operator: "IS_ONE_OF_TERMS", value: v });
+    } else if (typeof v === "string" && v !== "") {
+      out.push({ field: chip.field, operator: "IS", value: v });
     }
   }
-  return out
+  return out;
 }
