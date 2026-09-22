@@ -328,7 +328,8 @@
       "delete": "Elimina"
     },
     "actions": {
-      "edit": "Modifica"
+      "edit": "Modifica",
+      "editWithAi": "Modifica con l'IA"
     },
     "refresh": {
       "title": "Aggiornamento automatico",
@@ -526,7 +527,9 @@
       "delete": "Eliminare la dashboard «{{name}}»? Questa azione è irreversibile.",
       "deleteWidgetsTitle": "Elimina widget",
       "deleteWidgets_one": "Eliminare questo widget? Questa azione è irreversibile.",
-      "deleteWidgets_other": "Eliminare {{count}} widget? Questa azione è irreversibile."
+      "deleteWidgets_other": "Eliminare {{count}} widget? Questa azione è irreversibile.",
+      "dismissTitle": "Rimuovi dashboard",
+      "dismiss": "Rimuovere la dashboard predefinita \"{{name}}\"? Potrai crearne una nuova a partire da questa con \"Nuova\" → \"Da una esistente\"."
     },
     "page": {
       "noSelection": "Scegli una dashboard dall'elenco, oppure creane una per iniziare.",
@@ -640,6 +643,9 @@
       "removeAria": "Rimuovi filtro",
       "saving": "Salvataggio…",
       "addChip": "Aggiungi filtro"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copia)"
     }
   },
   "settings": {
@@ -5276,7 +5282,9 @@
       "copied": "Copiato",
       "errorGeneric": "Si è verificato un errore.",
       "errorUnreachable": "Impossibile raggiungere l'assistente.",
-      "compacting": "Compattazione del contesto…"
+      "compacting": "Compattazione del contesto…",
+      "dashboardEditTitle": "Editor dashboard",
+      "editingDashboard": "Modifica di: {{name}}"
     },
     "inheritance": {
       "inherited": "Segue l'impostazione predefinita dell'istanza. Salvando, questo tenant avrà la propria.",

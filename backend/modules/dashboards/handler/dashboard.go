@@ -80,16 +80,17 @@ func (h *DashboardHandler) Update(c *gin.Context) {
 // List godoc
 //
 //	@Summary		List dashboards
-//	@Description	Lists dashboards, optionally filtered by name (substring), paginated.
+//	@Description	Lists dashboards, optionally filtered by name (substring), paginated. Dismissed (user-removed system) dashboards are excluded unless dismissed=true.
 //	@Tags			Dashboards
 //	@Security		BearerAuth
 //	@Produce		json
-//	@Param			name	query		string	false	"Filter by name (substring)"
-//	@Param			page	query		int		false	"Page (0-based)"
-//	@Param			size	query		int		false	"Page size"
-//	@Success		200		{array}		domain.Dashboard
-//	@Header			200		{string}	X-Total-Count	"Total records"
-//	@Failure		500		{object}	map[string]string
+//	@Param			name		query		string	false	"Filter by name (substring)"
+//	@Param			dismissed	query		bool	false	"true to list only dismissed system dashboards"
+//	@Param			page		query		int		false	"Page (0-based)"
+//	@Param			size		query		int		false	"Page size"
+//	@Success		200			{array}		domain.Dashboard
+//	@Header			200			{string}	X-Total-Count	"Total records"
+//	@Failure		500			{object}	map[string]string
 //	@Router			/dashboards [get]
 func (h *DashboardHandler) List(c *gin.Context) {
 	var f dto.DashboardFilter

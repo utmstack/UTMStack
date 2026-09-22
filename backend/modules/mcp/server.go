@@ -4,11 +4,26 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 
+	"github.com/google/jsonschema-go/jsonschema"
+	"github.com/google/uuid"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
+
+var uuidTypeSchemas = map[reflect.Type]*jsonschema.Schema{
+	reflect.TypeFor[uuid.UUID](): {Type: "string", Format: "uuid"},
+}
+
+func inputSchemaFor[In any]() (*jsonschema.Schema, error) {
+	t := reflect.TypeFor[In]()
+	if t == reflect.TypeFor[any]() {
+		return &jsonschema.Schema{Type: "object"}, nil
+	}
+	return jsonschema.ForType(t, &jsonschema.ForOptions{TypeSchemas: uuidTypeSchemas})
+}
 
 // buildServer constructs the *mcp.Server and registers every tool, prompt,
 // and resource. Called exactly once from NewModule.
@@ -130,6 +145,13 @@ type Handler[In, Out any] func(ctx context.Context, actor *authz.Actor, in In) (
 func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 	m.toolCount++
 	toolName := t.Name
+	if t.InputSchema == nil {
+		schema, err := inputSchemaFor[In]()
+		if err != nil {
+			panic(fmt.Sprintf("mcp.Add: tool %q: inferring input schema: %v", toolName, err))
+		}
+		t.InputSchema = schema
+	}
 	mcp.AddTool(m.server, t, func(ctx context.Context, _ *mcp.CallToolRequest, in In) (*mcp.CallToolResult, Out, error) {
 		var zero Out
 		actor := ActorFromContext(ctx)

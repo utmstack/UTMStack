@@ -14,7 +14,7 @@ description: "Adversaries may use Valid Accounts to interact with a remote netwo
               The adversary may then perform actions as the logged-on user."
 references:
   - "https://attack.mitre.org/techniques/T1021/002/"
-where: regexMatch("log.eventDataImagePath", "(^%systemroot%\\(.+)\\(.+).exe)") && equals("log.eventCode", 7045) && oneOf("log.channel", ["system", "System"])
+where: regexMatch("log.eventDataImagePath", "(?i)^%systemroot%\\\\.*\\.exe$") && equals("log.eventCode", 7045) && oneOf("log.channel", ["system", "System"])
 groupBy:
   - target.host
   - adversary.user

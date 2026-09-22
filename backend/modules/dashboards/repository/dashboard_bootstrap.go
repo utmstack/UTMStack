@@ -76,6 +76,12 @@ func (b *DashboardBootstrap) seedOne(ctx context.Context, def DashboardDefinitio
 		err := tx.Where("name = ?", def.Name).First(&existing).Error
 		switch {
 		case err == nil:
+			// The user removed this default. Respect that across boots
+			// instead of silently bringing it back — it stays dismissed
+			// (and its widgets untouched) until explicitly restored.
+			if existing.DismissedAt != nil {
+				return nil
+			}
 			existing.Description = def.Description
 			existing.SystemOwner = true
 			existing.ModifiedDate = now

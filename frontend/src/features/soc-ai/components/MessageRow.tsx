@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowUpRight, Check, Copy, Loader2, Wrench, X } from 'lucide-react'
+import { AlertCircle, ArrowUpRight, Check, Copy, Loader2, Wrench } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useSocAi, type CurrentStep, type SocAiMessage } from '../SocAiProvider'
 import type { NavAction } from '../lib/chat-stream'
+import { humanizeToolLabel } from '../lib/tool-labels'
 import { MarkdownMessage } from './MarkdownMessage'
 
 // Logical navigation destinations the agent may emit → app routes. Filters/time
@@ -50,19 +51,34 @@ export function MessageRow({ message }: { message: SocAiMessage }) {
   )
 }
 
+// Renders the agent's current sub-step (e.g. "Listing dashboards…") while a
+// run is in flight. Deliberately has no success/error glyph: a tool call that
+// fails mid-run is often just the agent retrying with different arguments,
+// not a real failure — that only shows once as the red error banner if the
+// whole run ends up failing. Showing a stop-sign X per intermediate step
+// reads as broken even when the run is proceeding normally.
 function StepStatusLine({ step }: { step: CurrentStep }) {
   return (
     <div className="mb-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-      {step.status === 'running' ? (
-        <Loader2 size={12} className="shrink-0 animate-spin" />
-      ) : step.status === 'error' ? (
-        <X size={12} className="shrink-0 text-red-500" />
-      ) : (
-        <Check size={12} className="shrink-0 text-emerald-500" />
-      )}
+      <Loader2 size={12} className="shrink-0 animate-spin" />
       <Wrench size={11} className="shrink-0 opacity-60" />
-      <span className="truncate font-mono">{step.tool}</span>
+      <span className="truncate">{humanizeToolLabel(step.tool)}</span>
+      <EllipsisDots />
     </div>
+  )
+}
+
+function EllipsisDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1 w-1 animate-bounce rounded-full bg-current"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
+    </span>
   )
 }
 

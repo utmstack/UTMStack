@@ -179,6 +179,41 @@ pipeline:
             - log.data.ProcessName
           to: log.eventDataProcessName
 
+      # 4688 (process creation) carries the new process's path in
+      # NewProcessName, not ProcessName -- a distinct field, not just an
+      # alternate source name for eventDataProcessName (which for other
+      # event types means the *accessing* process, not the one being
+      # created).
+      - rename:
+          from:
+            - log.data.NewProcessName
+          to: log.eventDataNewProcessName
+
+      # 4698-4702 (scheduled task create/delete/enable/disable/update) --
+      # previously only got a human-readable log.eventName label, the
+      # actual task identity/content was never extracted.
+      - rename:
+          from:
+            - log.data.TaskName
+          to: log.eventDataTaskName
+
+      - rename:
+          from:
+            - log.data.TaskContent
+          to: log.eventDataTaskContent
+
+      # 2006/2033/2052/2059 (Windows Firewall rule/config deleted) --
+      # the process that made the change.
+      - rename:
+          from:
+            - log.data.ModifyingApplication
+          to: log.eventDataModifyingApplication
+
+      - rename:
+          from:
+            - log.data.ServiceFileName
+          to: log.eventDataServiceFileName
+
       - rename:
           from:
             - log.data.RestrictedAdminMode

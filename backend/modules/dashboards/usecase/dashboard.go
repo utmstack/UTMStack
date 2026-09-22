@@ -68,6 +68,12 @@ func (u *dashboardUsecase) List(ctx context.Context, f dto.DashboardFilter) ([]d
 	return u.repo.List(ctx, f)
 }
 
+// Delete removes a tenant-owned dashboard outright. A system-owned one can't
+// be hard-deleted — DashboardBootstrap reseeds it by name on every boot — so
+// instead it's dismissed: hidden from List and skipped by the next reseed.
+// There's no undo; a dismissed dashboard's row stays around only so it can
+// still be picked as a copy source (List with Dismissed=true) when creating
+// a new one.
 func (u *dashboardUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	existing, err := u.repo.FindByID(ctx, id)
 	if err != nil {
@@ -77,7 +83,10 @@ func (u *dashboardUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 		return domain.ErrNotFound
 	}
 	if existing.SystemOwner {
-		return domain.ErrSystemOwned
+		now := time.Now().UTC()
+		existing.DismissedAt = &now
+		existing.ModifiedDate = now
+		return u.repo.Save(ctx, existing)
 	}
 	return u.repo.Delete(ctx, id)
 }

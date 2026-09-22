@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Scheduled Task Created with Suspicious Action"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: "Persistence"
+technique: "T1053.005 - Scheduled Task/Job: Scheduled Task"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1053/005/"
+description: |
+  A scheduled task was created whose action runs a command interpreter,
+  encoded PowerShell, or a living-off-the-land binary commonly abused for
+  download-and-execute (mshta, certutil, regsvr32, rundll32, bitsadmin,
+  wscript/cscript) -- or that points at a Temp/AppData path. Scheduled
+  tasks are one of the most common persistence mechanisms; a legitimate
+  task's action is almost always a signed, fixed application path, not an
+  interpreter invocation.
+
+  Next Steps:
+  1. Review the full task content (trigger, action, arguments)
+  2. Identify who/what created the task (SubjectUserName)
+  3. Check whether the referenced binary/script still exists on disk
+  4. Disable or delete the task if confirmed malicious
+where: |
+  equals("log.eventCode", 4698) &&
+  equals("log.channel", "Security") &&
+  (
+    regexMatch("log.eventDataTaskContent", "(?i)(powershell(\\.exe)?\\s|cmd(\\.exe)?\\s+/c|mshta\\.exe|certutil\\.exe\\s+-decode|regsvr32\\.exe\\s+/i:|rundll32\\.exe.*,|bitsadmin\\s+/transfer|wscript\\.exe|cscript\\.exe)") ||
+    regexMatch("log.eventDataTaskContent", "(?i)(\\\\Temp\\\\|\\\\AppData\\\\)")
+  )
+groupBy:
+  - target.host
+  - adversary.user

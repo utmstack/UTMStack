@@ -328,7 +328,8 @@
       "delete": "Löschen"
     },
     "actions": {
-      "edit": "Bearbeiten"
+      "edit": "Bearbeiten",
+      "editWithAi": "Mit KI bearbeiten"
     },
     "refresh": {
       "title": "Automatische Aktualisierung",
@@ -526,7 +527,9 @@
       "delete": "Dashboard „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "deleteWidgetsTitle": "Widgets löschen",
       "deleteWidgets_one": "Dieses Widget löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "deleteWidgets_other": "{{count}} Widgets löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      "deleteWidgets_other": "{{count}} Widgets löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "dismissTitle": "Dashboard entfernen",
+      "dismiss": "Standard-Dashboard „{{name}}\" entfernen? Du kannst später über „Neu\" → „Von einer vorhandenen\" ein neues daraus erstellen."
     },
     "page": {
       "noSelection": "Wählen Sie ein Dashboard aus der Liste aus oder legen Sie eines an, um zu beginnen.",
@@ -640,6 +643,9 @@
       "removeAria": "Filter entfernen",
       "saving": "Speichern…",
       "addChip": "Filter hinzufügen"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (Kopie)"
     }
   },
   "settings": {
@@ -5268,7 +5274,9 @@
       "copied": "Kopiert",
       "errorGeneric": "Etwas ist schiefgelaufen.",
       "errorUnreachable": "Der Assistent konnte nicht erreicht werden.",
-      "compacting": "Kontext wird komprimiert…"
+      "compacting": "Kontext wird komprimiert…",
+      "dashboardEditTitle": "Dashboard-Editor",
+      "editingDashboard": "Bearbeite: {{name}}"
     },
     "inheritance": {
       "inherited": "Folgt der Instanzvorgabe. Speichern gibt diesem Mandanten eine eigene Konfiguration.",

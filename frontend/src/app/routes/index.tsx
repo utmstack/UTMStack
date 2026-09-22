@@ -9,7 +9,6 @@ import { FederationTeamPage } from '@/features/federation/pages/FederationTeamPa
 import { HomePage } from '@/features/home/pages/HomePage'
 import {
   DashboardPage,
-  NewDashboardPage,
   NewVisualizationPage,
   EditVisualizationPage,
 } from '@/features/dashboard'
@@ -110,7 +109,6 @@ export function AppRoutes() {
         {/* Dashboards */}
         <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
         <Route path="dashboards/list" element={<DashboardPage />} />
-        <Route path="dashboards/new" element={<NewDashboardPage />} />
         <Route path="dashboards/:dashboardId/visualizations/new" element={<NewVisualizationPage />} />
         <Route path="dashboards/:dashboardId/visualizations/:id" element={<EditVisualizationPage />} />
 

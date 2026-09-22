@@ -1,0 +1,21 @@
+# Rule version v1.3.0 (validated 2026-07-01 on v11, ported from there -- replaces
+# this repo's earlier v1.0.0 draft, which used the -EncodedCommand/-enc branch
+# this version explicitly removed after finding it too noisy in production)
+dataTypes:
+  - wineventlog
+name: 'Windows: Suspicious PowerShell (Encoded / Download Cradle / AMSI Bypass)'
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Execution
+technique: 'T1059.001 - Command and Scripting Interpreter: PowerShell'
+adversary: origin
+description: 'Detects high-risk PowerShell script-block content: download cradles, encoded/hidden execution, reflective loading and AMSI bypass markers. Matches the 4104 script-block text (not the -EncodedCommand flag, to avoid benign false positives). v1.3.0: excludes the benign injected PSBreakpoint/AMSI "sentinel" instrumentation harness (markers: sentinelbreakpoints, \windows\sentinel\, Po_wer_Spl_oit_Indicators) that otherwise false-positives on the literal "AmsiInitFailed" token it emits on every PowerShell session. The exclusion is per-script-block, so a real payload executed through the harness is a separate 4104 event and still fires.'
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+where: |
+  equals("log.eventCode", "4104") && !regexMatch("log.eventDataScriptBlockText", "(?i)(sentinelbreakpoints|windows.sentinel.[0-9]|po_wer_spl_oit_indicators)") && (regexMatch("log.eventDataScriptBlockText", "(?i)(amsiutils|amsiinitfailed|amsiscanbuffer|virtualalloc|writeprocessmemory|getdelegateforfunctionpointer|invoke-mimikatz|invoke-shellcode|invoke-dllinjection|createremotethread)") || (regexMatch("log.eventDataScriptBlockText", "(?i)(downloadstring|downloadfile|downloaddata|invoke-webrequest|net.webclient|start-bitstransfer)") && regexMatch("log.eventDataScriptBlockText", "(?i)(iex|invoke-expression|-enc |-encodedcommand|-w hidden|-windowstyle hidden|frombase64string)")))
+groupBy:
+  - dataSource
+deduplicateBy: []

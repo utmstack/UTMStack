@@ -48,15 +48,41 @@ func TestUpdatingASystemDashboardIsRefused(t *testing.T) {
 	}
 }
 
-func TestDeletingASystemDashboardIsRefused(t *testing.T) {
+// DashboardBootstrap reseeds system dashboards by name on every boot, so a
+// hard delete would just come back on the next restart. Deleting one instead
+// dismisses it (soft) — the bootstrap skips a dismissed row, so it stays gone
+// for good. There's no undo; the dismissed row only sticks around so it can
+// still be used as a copy source when creating a new dashboard.
+func TestDeletingASystemDashboardDismissesItInstead(t *testing.T) {
 	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, SystemOwner: true}}
 	uc := NewDashboardUsecase(repo)
 
-	if err := uc.Delete(context.Background(), someID); !errors.Is(err, domain.ErrSystemOwned) {
-		t.Errorf("err = %v, want ErrSystemOwned", err)
+	if err := uc.Delete(context.Background(), someID); err != nil {
+		t.Fatalf("Delete: %v", err)
 	}
 	if repo.del {
-		t.Error("the delete reached the repository")
+		t.Error("the hard delete reached the repository — a system dashboard must not be hard-deleted")
+	}
+	if !repo.saved {
+		t.Fatal("the dismiss did not reach the repository")
+	}
+	if repo.row.DismissedAt == nil {
+		t.Error("DismissedAt was not set")
+	}
+}
+
+func TestDeletingATenantDashboardStillHardDeletes(t *testing.T) {
+	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, SystemOwner: false}}
+	uc := NewDashboardUsecase(repo)
+
+	if err := uc.Delete(context.Background(), someID); err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if !repo.del {
+		t.Error("the delete did not reach the repository")
+	}
+	if repo.saved {
+		t.Error("a dismiss (Save) happened for a tenant-owned dashboard")
 	}
 }
 

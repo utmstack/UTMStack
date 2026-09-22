@@ -1,0 +1,38 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: SysKey Registry Subkey Access"
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: "Discovery"
+technique: "T1012 - Query Registry"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1012/"
+  - "https://threathunterplaybook.com/hunts/windows/190625-RegKeyAccessSyskey/notebook.html"
+description: |
+  A handle was requested or an operation performed against one of the four
+  LSA registry subkeys (JD, GBG, Skew1, Data) that together encode the
+  SysKey/bootkey used to encrypt the local SAM database. Reading these is
+  the first step credential-dumping tools (Mimikatz lsadump::sam,
+  secretsdump.py) take to decrypt SAM offline -- normal administration
+  never touches these specific subkeys. Narrower and higher-fidelity than
+  generic SAM hive access (sam_database_access.yaml), which this
+  complements rather than duplicates.
+
+  Next Steps:
+  1. Identify the process and user that accessed the key
+  2. Check whether the same host shows SAM/SECURITY hive access around the same time
+  3. Treat as a confirmed credential-dumping attempt if combined with a SAM save/export
+  4. Isolate the host and rotate local account credentials
+where: |
+  oneOf("log.eventCode", [4656, 4663]) &&
+  equals("log.channel", "Security") &&
+  equals("log.eventDataObjectType", "Key") &&
+  regexMatch("log.eventDataObjectName", "(?i)\\\\Lsa\\\\(JD|GBG|Skew1|Data)$")
+groupBy:
+  - target.host
+  - adversary.user

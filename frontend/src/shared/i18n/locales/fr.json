@@ -328,7 +328,8 @@
       "delete": "Supprimer"
     },
     "actions": {
-      "edit": "Modifier"
+      "edit": "Modifier",
+      "editWithAi": "Modifier avec l'IA"
     },
     "refresh": {
       "title": "Actualisation automatique",
@@ -526,7 +527,9 @@
       "delete": "Supprimer le tableau de bord « {{name}} » ? Cette action est irréversible.",
       "deleteWidgetsTitle": "Supprimer les widgets",
       "deleteWidgets_one": "Supprimer ce widget ? Cette action est irréversible.",
-      "deleteWidgets_other": "Supprimer {{count}} widgets ? Cette action est irréversible."
+      "deleteWidgets_other": "Supprimer {{count}} widgets ? Cette action est irréversible.",
+      "dismissTitle": "Retirer le tableau de bord",
+      "dismiss": "Supprimer le tableau de bord par défaut « {{name}} » ? Vous pourrez en créer un nouveau à partir de celui-ci avec « Nouveau » → « À partir d'une existante »."
     },
     "page": {
       "noSelection": "Choisissez un tableau de bord dans la liste ou créez-en un pour commencer.",
@@ -640,6 +643,9 @@
       "removeAria": "Supprimer le filtre",
       "saving": "Enregistrement…",
       "addChip": "Ajouter un filtre"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copie)"
     }
   },
   "settings": {
@@ -5276,7 +5282,9 @@
       "copied": "Copié",
       "errorGeneric": "Une erreur s'est produite.",
       "errorUnreachable": "Impossible de joindre l'assistant.",
-      "compacting": "Compactage du contexte…"
+      "compacting": "Compactage du contexte…",
+      "dashboardEditTitle": "Éditeur de tableau de bord",
+      "editingDashboard": "Modification : {{name}}"
     },
     "inheritance": {
       "inherited": "Suit la valeur par défaut de l'instance. Enregistrer donne à ce locataire sa propre configuration.",

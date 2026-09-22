@@ -328,7 +328,8 @@
       "delete": "Eliminar"
     },
     "actions": {
-      "edit": "Editar"
+      "edit": "Editar",
+      "editWithAi": "Editar con IA"
     },
     "refresh": {
       "title": "Actualización automática",
@@ -526,7 +527,9 @@
       "delete": "¿Eliminar el panel «{{name}}»? Esta acción no se puede deshacer.",
       "deleteWidgetsTitle": "Eliminar widgets",
       "deleteWidgets_one": "¿Eliminar este widget? Esta acción no se puede deshacer.",
-      "deleteWidgets_other": "¿Eliminar {{count}} widgets? Esta acción no se puede deshacer."
+      "deleteWidgets_other": "¿Eliminar {{count}} widgets? Esta acción no se puede deshacer.",
+      "dismissTitle": "Quitar panel",
+      "dismiss": "¿Quitar el panel predeterminado «{{name}}»? Después podrás crear uno nuevo a partir de él con \"Nuevo\" → \"Desde una existente\"."
     },
     "page": {
       "noSelection": "Elige un panel de la lista o crea uno para comenzar.",
@@ -640,6 +643,9 @@
       "removeAria": "Eliminar filtro",
       "saving": "Guardando…",
       "addChip": "Añadir filtro"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copia)"
     }
   },
   "settings": {
@@ -4017,7 +4023,9 @@
       "copied": "Copiado",
       "errorGeneric": "Algo salió mal.",
       "errorUnreachable": "No se pudo contactar al asistente.",
-      "compacting": "Compactando contexto…"
+      "compacting": "Compactando contexto…",
+      "dashboardEditTitle": "Editor de paneles",
+      "editingDashboard": "Editando: {{name}}"
     },
     "inheritance": {
       "inherited": "Siguiendo la configuración por defecto de la instancia. Si guardas aquí, este tenant pasa a tener la suya.",

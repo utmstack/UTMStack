@@ -7,20 +7,39 @@ import { MessageRow } from './MessageRow'
 
 // Panel-visible scopes only — 'home' has its own inline transcript and never
 // shows here, so it needs no title/empty-state copy in this map.
-const SCOPE_TITLE_KEY: Record<'panel' | 'dashboard-create', string> = {
+const SCOPE_TITLE_KEY: Record<'panel' | 'dashboard-create' | 'dashboard-edit', string> = {
   panel: 'socAi.chat.title',
   'dashboard-create': 'socAi.chat.dashboardCreateTitle',
+  'dashboard-edit': 'socAi.chat.dashboardEditTitle',
 }
 
 export function SocAiPanel() {
   const { t } = useTranslation()
-  const { open, expanded, activeScope, messages, dashboardCreateMessages, closePanel, toggleExpand, clear, submit } =
-    useSocAi()
+  const {
+    open,
+    expanded,
+    activeScope,
+    messages,
+    dashboardCreateMessages,
+    dashboardEditMessages,
+    dashboardEditTarget,
+    closePanel,
+    toggleExpand,
+    clear,
+    submit,
+  } = useSocAi()
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const activeMessages = activeScope === 'dashboard-create' ? dashboardCreateMessages : messages
-  const titleKey = SCOPE_TITLE_KEY[activeScope === 'dashboard-create' ? 'dashboard-create' : 'panel']
+  const activeMessages =
+    activeScope === 'dashboard-create'
+      ? dashboardCreateMessages
+      : activeScope === 'dashboard-edit'
+        ? dashboardEditMessages
+        : messages
+  // 'home' never opens this panel (see the comment above), so it has no
+  // entry here — fall back to the general panel title if it ever does.
+  const titleKey = SCOPE_TITLE_KEY[activeScope as keyof typeof SCOPE_TITLE_KEY] ?? SCOPE_TITLE_KEY.panel
 
   // Stick to the bottom as messages stream in.
   useEffect(() => {
@@ -48,9 +67,16 @@ export function SocAiPanel() {
       )}
     >
       <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2 text-[15px] font-semibold">
-          <Sparkles size={18} className="text-primary" />
-          <span>{t(titleKey)}</span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[15px] font-semibold">
+            <Sparkles size={18} className="text-primary" />
+            <span>{t(titleKey)}</span>
+          </div>
+          {activeScope === 'dashboard-edit' && dashboardEditTarget && (
+            <p className="mt-0.5 truncate pl-[26px] text-xs text-muted-foreground">
+              {t('socAi.chat.editingDashboard', { name: dashboardEditTarget.name })}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-0.5">
           <IconBtn label={expanded ? t('socAi.chat.collapse') : t('socAi.chat.expand')} onClick={toggleExpand}>

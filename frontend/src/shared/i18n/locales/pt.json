@@ -328,7 +328,8 @@
       "delete": "Excluir"
     },
     "actions": {
-      "edit": "Editar"
+      "edit": "Editar",
+      "editWithAi": "Editar com IA"
     },
     "refresh": {
       "title": "Atualização automática",
@@ -526,7 +527,9 @@
       "delete": "Excluir o painel \"{{name}}\"? Esta ação não pode ser desfeita.",
       "deleteWidgetsTitle": "Excluir widgets",
       "deleteWidgets_one": "Excluir este widget? Esta ação não pode ser desfeita.",
-      "deleteWidgets_other": "Excluir {{count}} widgets? Esta ação não pode ser desfeita."
+      "deleteWidgets_other": "Excluir {{count}} widgets? Esta ação não pode ser desfeita.",
+      "dismissTitle": "Remover painel",
+      "dismiss": "Remover o painel padrão \"{{name}}\"? Você poderá criar um novo a partir dele depois com \"Novo\" → \"De uma existente\"."
     },
     "page": {
       "noSelection": "Escolha um painel na lista ou crie um para começar.",
@@ -640,6 +643,9 @@
       "removeAria": "Remover filtro",
       "saving": "Salvando…",
       "addChip": "Adicionar filtro"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (cópia)"
     }
   },
   "settings": {
@@ -4017,7 +4023,9 @@
       "copied": "Copiado",
       "errorGeneric": "Algo deu errado.",
       "errorUnreachable": "Não foi possível contatar o assistente.",
-      "compacting": "Compactando contexto…"
+      "compacting": "Compactando contexto…",
+      "dashboardEditTitle": "Editor de painéis",
+      "editingDashboard": "Editando: {{name}}"
     },
     "inheritance": {
       "inherited": "Seguindo o padrão da instância. Salvar aqui dá a este tenant a própria configuração.",

@@ -18,7 +18,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1003/"
   - "https://attack.mitre.org/techniques/T1003/001/"
-where: equals("log.eventCode", 4656) && regexMatch("log.eventDataObjectName", "(:\\Windows\\System32\\lsass.exe|\\Device\\HarddiskVolume[A-Za-z?:\\]([A-Za-z?])?\\Windows\\System32\\lsass.exe)") && !regexMatch("log.eventDataProcessName", "(:\\Program Files\\(.+).exe|:\\Program Files (x86)\\(.+).exe|:\\Windows\\system32\\wbem\\WmiPrvSE.exe|:\\Windows\\System32\\dllhost.exe|:\\Windows\\System32\\svchost.exe|:\\Windows\\System32\\msiexec.exe|:\\ProgramData\\Microsoft\\Windows Defender\\(.+).exe|:\\Windows\\explorer.exe)") &&
+where: equals("log.eventCode", 4656) && regexMatch("log.eventDataObjectName", "(?i)(C:\\\\Windows\\\\System32\\\\lsass\\.exe|\\\\Device\\\\HarddiskVolume[0-9]+\\\\Windows\\\\System32\\\\lsass\\.exe)") && !regexMatch("log.eventDataProcessName", "(?i)(C:\\\\Program Files\\\\.*\\.exe|C:\\\\Program Files \\(x86\\)\\\\.*\\.exe|C:\\\\Windows\\\\system32\\\\wbem\\\\WmiPrvSE\\.exe|C:\\\\Windows\\\\System32\\\\dllhost\\.exe|C:\\\\Windows\\\\System32\\\\svchost\\.exe|C:\\\\Windows\\\\System32\\\\msiexec\\.exe|C:\\\\ProgramData\\\\Microsoft\\\\Windows Defender\\\\.*\\.exe|C:\\\\Windows\\\\explorer\\.exe)") &&
       oneOf("log.eventDataAccessMask", ["2097151", "4112", "1040", "1180185", "2031615"])
 groupBy:
   - adversary.ip

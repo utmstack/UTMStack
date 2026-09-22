@@ -4,8 +4,10 @@ import { Loader2, Sparkles, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { Textarea } from '@/shared/components/ui/textarea'
 import { useSocAi } from '@/features/soc-ai/SocAiProvider'
 import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss'
 import type { Dashboard } from '@/features/dashboard/types'
 
 export function DashboardFormDialog({
@@ -38,6 +40,8 @@ export function DashboardFormDialog({
     }
   }, [open, initial])
 
+  const backdrop = useBackdropDismiss(onClose)
+
   if (!open) return null
 
   const useAiMode = mode === 'create' && creationMode === 'ai'
@@ -66,12 +70,9 @@ export function DashboardFormDialog({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-      onClick={onClose}
+      {...backdrop}
     >
-      <div
-        className="flex w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl">
         <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold">
             {mode === 'create' ? t('dashboards.form.createTitle') : t('dashboards.form.renameTitle')}
@@ -135,7 +136,7 @@ export function DashboardFormDialog({
             <label className="mb-1.5 block text-xs font-medium text-foreground/80">
               {useAiMode ? t('dashboards.newDashboard.aiDescriptionLabel') : t('dashboards.form.description')}
             </label>
-            <Input
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={
@@ -143,6 +144,7 @@ export function DashboardFormDialog({
                   ? t('dashboards.newDashboard.aiDescriptionPlaceholder')
                   : t('dashboards.form.descriptionPlaceholder')) ?? ''
               }
+              maxRows={8}
             />
           </div>
         </div>

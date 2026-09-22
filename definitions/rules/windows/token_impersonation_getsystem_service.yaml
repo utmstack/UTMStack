@@ -1,0 +1,40 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: GetSystem-Style Service Installed for SYSTEM Token Impersonation"
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: "Privilege Escalation"
+technique: "T1134.001 - Access Token Manipulation: Token Impersonation/Theft"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1134/001/"
+  - "https://www.ired.team/offensive-security/privilege-escalation/t1134.1-access-token-impersonation-and-theft"
+description: |
+  A service was installed whose binary path matches one of the known
+  Meterpreter/Cobalt Strike "getsystem" techniques: a named-pipe
+  echo/impersonation trick run through cmd.exe, a rundll32 DLL-based
+  technique, or a service pointed at the local ADMIN$ share
+  (\\127.0.0.1\ADMIN$\). All three are used to spawn a SYSTEM-level
+  process via a short-lived service and then impersonate its token --
+  none of them resemble a legitimate installer's ImagePath.
+
+  Next Steps:
+  1. Identify the process/user that installed the service
+  2. Check whether the service still exists or was already deleted (typical of getsystem)
+  3. Look for a subsequent SYSTEM-privileged process from the same host
+  4. Treat as a confirmed local privilege escalation attempt
+where: |
+  equals("log.eventCode", 4697) &&
+  equals("log.channel", "Security") &&
+  (
+    regexMatch("log.eventDataServiceFileName", "(?i)cmd\\.exe\\s*/c\\s*echo") ||
+    regexMatch("log.eventDataServiceFileName", "(?i)rundll32\\.exe.*,a\\s") ||
+    contains("log.eventDataServiceFileName", "\\\\127.0.0.1\\ADMIN$\\")
+  )
+groupBy:
+  - target.host
+  - adversary.user

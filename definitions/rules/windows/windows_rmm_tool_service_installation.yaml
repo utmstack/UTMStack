@@ -1,0 +1,42 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Unauthorized RMM Tool Service Installation"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: "Command and Control"
+technique: "T1219.002 - Remote Access Software: Remote Desktop Software"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1219/002/"
+  - "https://thedfirreport.com/2022/11/28/emotet-strikes-again-lnk-file-leads-to-domain-wide-ransomware/"
+description: |
+  A service was installed for a remote-monitoring-and-management (RMM) tool
+  -- Mesh Agent or TacticalRMM -- that this environment doesn't officially
+  deploy. These are legitimate admin tools, but ransomware affiliates and
+  initial-access brokers (e.g. the Emotet-to-ransomware chain this
+  technique is documented from) commonly abuse them for persistent,
+  encrypted C2 that blends in with normal remote-support traffic, since
+  installing one gives full remote control without needing a custom
+  implant.
+
+  Next Steps:
+  1. Confirm whether this RMM tool is one your org actually uses for this host
+  2. If unauthorized, identify who/what installed the service and how they got access
+  3. Check for other services/scheduled tasks installed around the same time
+  4. Uninstall the tool and isolate the host if the install wasn't authorized
+where: |
+  equals("log.eventCode", 7045) &&
+  oneOf("log.channel", ["system", "System"]) &&
+  (
+    contains("log.eventDataImagePath", "MeshAgent.exe") ||
+    contains("log.eventDataServiceName", "Mesh Agent") ||
+    contains("log.eventDataImagePath", "tacticalrmm.exe") ||
+    contains("log.eventDataServiceName", "TacticalRMM Agent Service")
+  )
+groupBy:
+  - target.host
+  - adversary.user

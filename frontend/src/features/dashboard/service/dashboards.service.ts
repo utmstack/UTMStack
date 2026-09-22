@@ -11,6 +11,7 @@ const BASE_URL = '/dashboards'
 function buildQuery(params: DashboardListParams): string {
   const p = new URLSearchParams()
   if (params.name) p.set('name', params.name)
+  if (params.dismissed != null) p.set('dismissed', String(params.dismissed))
   if (params.page != null) p.set('page', String(params.page))
   if (params.size != null) p.set('size', String(params.size))
   const q = p.toString()

@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Suspicious Service Installation"
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: "Execution"
+technique: "T1569.002 - System Services: Service Execution"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1569/002/"
+  - "https://attack.mitre.org/techniques/T1543/003/"
+description: |
+  A service was installed with an executable path outside the normal system
+  locations, or one that runs a command interpreter / encoded PowerShell
+  directly -- the pattern PsExec, Cobalt Strike and similar lateral-movement
+  and persistence tooling use (T1569.002 for one-shot remote execution via a
+  short-lived service; T1543.003 when the service is left behind for
+  persistence). A legitimate installer's service almost always points at its
+  own Program Files binary, not System32\cmd.exe or a Temp/AppData path.
+
+  Next Steps:
+  1. Identify what created the service (parent process, source IP/user if remote)
+  2. Inspect the full ImagePath for the actual command being run
+  3. Check whether the service still exists or was ephemeral (PsExec-style)
+  4. Correlate with recent authentication events on this host
+where: |
+  equals("log.eventCode", 7045) &&
+  oneOf("log.channel", ["system", "System"]) &&
+  !contains("log.eventDataImagePath", "\\ProgramData\\Microsoft\\Windows Defender\\") &&
+  (
+    regexMatch("log.eventDataImagePath", "(?i)(\\\\Temp\\\\|\\\\AppData\\\\|\\\\ProgramData\\\\|\\\\Users\\\\Public\\\\|\\\\PerfLogs\\\\)") ||
+    regexMatch("log.eventDataImagePath", "(?i)(cmd\\.exe\\s+/c|powershell\\.exe.*(-enc|-e |-EncodedCommand)|-nop\\s+-w\\s+hidden)") ||
+    contains("log.eventDataServiceName", "PSEXESVC")
+  )
+groupBy:
+  - target.host
+  - adversary.user

@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, Pencil, Sparkles, Trash2 } from 'lucide-react'
 import type { Dashboard } from '@/features/dashboard/types'
 
 export function DashboardPreviewHeader({
   dashboard,
   onBack,
   onEdit,
+  onEditWithAi,
   onDelete,
   right,
 }: {
@@ -14,6 +15,9 @@ export function DashboardPreviewHeader({
   onBack: () => void
   /** Enter widget-layout edit mode. Omit while already editing or for systemOwner dashboards. */
   onEdit?: () => void
+  /** Open the assistant, scoped to this dashboard. Omit while layout-editing, for systemOwner dashboards, or when SOC-AI isn't configured. */
+  onEditWithAi?: () => void
+  /** Delete (tenant-owned) or dismiss (system-owned) — the backend decides which; always available. */
   onDelete: (d: Dashboard) => void
   /** Consumption controls (time range) or the editor bar while editing. */
   right?: ReactNode
@@ -41,6 +45,16 @@ export function DashboardPreviewHeader({
 
       <div className="flex shrink-0 items-center gap-2">
         {right}
+        {canModify && onEditWithAi && (
+          <button
+            type="button"
+            onClick={onEditWithAi}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-3 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+          >
+            <Sparkles size={14} />
+            {t('dashboards.actions.editWithAi')}
+          </button>
+        )}
         {canModify && onEdit && (
           <button
             type="button"
@@ -52,17 +66,15 @@ export function DashboardPreviewHeader({
             <Pencil size={15} />
           </button>
         )}
-        {canModify && (
-          <button
-            type="button"
-            onClick={() => onDelete(dashboard)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            aria-label={t('dashboards.list.delete') ?? 'Delete'}
-            title={t('dashboards.list.delete') ?? 'Delete'}
-          >
-            <Trash2 size={15} />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => onDelete(dashboard)}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          aria-label={t('dashboards.list.delete') ?? 'Delete'}
+          title={t('dashboards.list.delete') ?? 'Delete'}
+        >
+          <Trash2 size={15} />
+        </button>
       </div>
     </div>
   )

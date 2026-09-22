@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Firewall Rule or Configuration Deleted"
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 2
+category: "Defense Evasion"
+technique: "T1562.004 - Impair Defenses: Disable or Modify System Firewall"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1562/004/"
+description: |
+  A rule (or all rules) was deleted from the Windows Defender Firewall
+  exception list by a process other than the OS's own firewall service or
+  Defender -- a common step before staging a listener or exfiltration
+  channel that the default firewall policy would otherwise block.
+
+  Next Steps:
+  1. Identify the deleted rule(s) and what they previously restricted
+  2. Identify the process/user that made the change
+  3. Check for new inbound listeners or outbound connections right after
+  4. Restore the firewall policy if the change wasn't authorized
+where: |
+  oneOf("log.eventCode", [2006, 2033, 2052, 2059]) &&
+  contains("log.channel", "Windows Firewall With Advanced Security") &&
+  !equals("log.eventDataModifyingApplication", "") &&
+  !endsWith("log.eventDataModifyingApplication", ":\\Windows\\System32\\svchost.exe") &&
+  !contains("log.eventDataModifyingApplication", ":\\Program Files\\") &&
+  !contains("log.eventDataModifyingApplication", ":\\Program Files (x86)\\") &&
+  !contains("log.eventDataModifyingApplication", ":\\ProgramData\\Microsoft\\Windows Defender\\")
+groupBy:
+  - target.host
+  - adversary.user

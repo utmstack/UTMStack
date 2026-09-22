@@ -5,6 +5,10 @@ export interface Dashboard {
   config?: string
   filters?: string
   systemOwner?: boolean
+  // Set when the user removed a system dashboard — a soft delete, since the
+  // backend reseeds system dashboards on every boot. Absent/undefined means
+  // visible; present means it's hidden and restorable.
+  dismissedAt?: string
   createdDate?: string
   modifiedDate?: string
 }
@@ -55,6 +59,8 @@ export interface VisualizationUpdateInput {
 
 export interface DashboardListParams {
   name?: string
+  /** true to list only dismissed (user-removed) system dashboards. */
+  dismissed?: boolean
   page?: number
   size?: number
 }

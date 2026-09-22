@@ -1,0 +1,48 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Pass the Hash Activity"
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: "Lateral Movement"
+technique: "T1550.002 - Use Alternate Authentication Material: Pass the Hash"
+adversary: origin
+references:
+  - "https://attack.mitre.org/techniques/T1550/002/"
+  - "https://blog.stealthbits.com/how-to-detect-pass-the-hash-attacks/"
+description: |
+  A network logon carries the specific artifacts Pass-the-Hash tooling
+  leaves behind: an NTLM logon (LogonProcessName NtLmSsp) with KeyLength 0
+  and SubjectUserSid S-1-0-0 (no real originating account, since the
+  attacker never had the plaintext password), or a LogonType 9
+  (NewCredentials, e.g. runas /netonly) via the seclogo provider. Legitimate
+  interactive/network logons carry a real key length and a real subject.
+
+  Next Steps:
+  1. Identify the target account and whether it has elevated privileges
+  2. Trace the source IP/host of the logon
+  3. Check for the same pattern against other hosts (lateral movement)
+  4. Rotate credentials for the affected account
+where: |
+  equals("log.eventCode", 4624) &&
+  equals("log.channel", "Security") &&
+  !equals("target.user", "ANONYMOUS LOGON") &&
+  (
+    (
+      equals("log.eventDataSubjectUserSid", "S-1-0-0") &&
+      equals("log.eventDataLogonType", "3") &&
+      equals("log.eventDataLogonProcessName", "NtLmSsp") &&
+      equals("log.eventDataKeyLength", "0")
+    ) ||
+    (
+      equals("log.eventDataLogonType", "9") &&
+      equals("log.eventDataLogonProcessName", "seclogo")
+    )
+  )
+groupBy:
+  - target.host
+  - target.user
+  - adversary.ip

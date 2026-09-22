@@ -328,7 +328,8 @@
       "delete": "Delete"
     },
     "actions": {
-      "edit": "Edit"
+      "edit": "Edit",
+      "editWithAi": "Edit with AI"
     },
     "refresh": {
       "title": "Auto refresh",
@@ -527,7 +528,9 @@
       "delete": "Delete dashboard \"{{name}}\"? This cannot be undone.",
       "deleteWidgetsTitle": "Delete widgets",
       "deleteWidgets_one": "Delete this widget? This cannot be undone.",
-      "deleteWidgets_other": "Delete {{count}} widgets? This cannot be undone."
+      "deleteWidgets_other": "Delete {{count}} widgets? This cannot be undone.",
+      "dismissTitle": "Remove dashboard",
+      "dismiss": "Remove the default dashboard \"{{name}}\"? You can start a new one from it later — \"New\" → \"From an existing one\"."
     },
     "page": {
       "noSelection": "Pick a dashboard from the list, or create one to get started.",
@@ -666,6 +669,9 @@
       "title": "No dashboards yet",
       "body": "Create your first dashboard to see your security data at a glance.",
       "cta": "Create dashboard"
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copy)"
     }
   },
   "settings": {
@@ -4156,7 +4162,9 @@
       "copied": "Copied",
       "errorGeneric": "Something went wrong.",
       "errorUnreachable": "Failed to reach the assistant.",
-      "compacting": "Compacting context…"
+      "compacting": "Compacting context…",
+      "dashboardEditTitle": "Dashboard editor",
+      "editingDashboard": "Editing: {{name}}"
     },
     "inheritance": {
       "inherited": "Following the instance default. Saving here gives this tenant its own configuration.",

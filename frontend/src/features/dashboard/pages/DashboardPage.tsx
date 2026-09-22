@@ -5,8 +5,10 @@ import { LayoutDashboard, Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
+import { StartFromModal } from '@/shared/components/StartFromModal'
 import { presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { useDashboard, useDashboards } from '@/features/dashboard/hooks/useDashboards'
+import { createDashboardsService } from '@/features/dashboard/service/dashboards.service'
 import { useVisualizations, useVisualizationMutations } from '@/features/dashboard/hooks/useVisualizations'
 import { useDashboardEditor } from '@/features/dashboard/hooks/useDashboardEditor'
 import { DashboardGrid } from '@/features/dashboard/components/DashboardGrid'
@@ -20,6 +22,8 @@ import {
 } from '@/features/dashboard/components/DashboardFilterBar'
 import { DashboardGallery } from '@/features/dashboard/components/DashboardGallery'
 import { DashboardPreviewHeader } from '@/features/dashboard/components/DashboardPreviewHeader'
+import { useSocAi } from '@/features/soc-ai/SocAiProvider'
+import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
 import { DEFAULT_PAGE_SIZE, DEFAULT_WIDGET_LAYOUT } from '@/features/dashboard/constants'
 import { nextRow, serializeLayout, toGridItems } from '@/features/dashboard/utils/layout'
 import type { Dashboard, DashboardFilterChip, FilterType, GridLayoutItem } from '@/features/dashboard/types'
@@ -34,6 +38,12 @@ export function DashboardPage() {
     null
   )
   const [pendingDelete, setPendingDelete] = useState<Dashboard | null>(null)
+  const [starting, setStarting] = useState(false)
+  // Every dashboard, not the page being browsed/searched — what you can copy
+  // must not depend on where you had scrolled to or what you'd typed. Includes
+  // dismissed system dashboards: copying is the only way back for one of those,
+  // there's no separate "restore".
+  const [copyable, setCopyable] = useState<Dashboard[]>([])
   // Removing a widget now deletes its visualization for good (no more "unlink,
   // keep it around for another dashboard") — confirm before committing a save
   // that includes pending removals.
@@ -56,6 +66,8 @@ export function DashboardPage() {
   const selectedDashboard = useDashboard(selectedId)
   const navigate = useNavigate()
   const location = useLocation()
+  const aiConfigured = useSocAiConfigured()
+  const { openPanel, setDashboardEditTarget } = useSocAi()
 
   // Coming back from the visualization editor (create/edit/cancel) via its
   // "back to dashboard" navigation — re-select the dashboard it belongs to
@@ -113,6 +125,36 @@ export function DashboardPage() {
     pendingEditRef.current = false
     editor.enter()
   }, [selectedDashboard.data, editor])
+
+  // The copy source list includes dismissed system dashboards — copying one is
+  // the only way to get a removed default back, so it has to show up here too.
+  const openStartFrom = () => {
+    setStarting(true)
+    const svc = createDashboardsService()
+    Promise.all([
+      svc.listDashboards({ page: 0, size: 500 }),
+      svc.listDashboards({ page: 0, size: 500, dismissed: true }),
+    ])
+      .then(([active, dismissed]) => setCopyable([...(active.data ?? []), ...(dismissed.data ?? [])]))
+      .catch(() => setCopyable([]))
+  }
+
+  const startFromDashboard = (id: string) => {
+    const src = copyable.find((d) => d.id === id)
+    setStarting(false)
+    if (!src) return
+    dashboards.duplicateDashboard.mutate(
+      { sourceId: src.id, name: t('dashboards.duplicate.copyName', { name: src.name }) },
+      {
+        onSuccess: (created) => {
+          toast.success(t('dashboards.toast.created'))
+          pendingEditRef.current = true
+          setSelectedId(created.id)
+        },
+        onError: (err) => toast.error(err.message ?? t('dashboards.toast.createFailed')),
+      }
+    )
+  }
 
   const handleCreateDashboard = (data: { name: string; description?: string }) => {
     dashboards.createDashboard.mutate(
@@ -282,6 +324,14 @@ export function DashboardPage() {
           dashboard={previewDashboard}
           onBack={backToList}
           onEdit={canEditPreview ? editor.enter : undefined}
+          onEditWithAi={
+            canEditPreview && aiConfigured
+              ? () => {
+                  setDashboardEditTarget({ id: previewDashboard.id, name: previewDashboard.name })
+                  openPanel('dashboard-edit')
+                }
+              : undefined
+          }
           onDelete={(d) => setPendingDelete(d)}
           right={
             <div className="flex flex-wrap items-center gap-2">
@@ -310,7 +360,7 @@ export function DashboardPage() {
                 <p className="text-sm font-medium">{t('dashboards.empty.title')}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{t('dashboards.empty.body')}</p>
               </div>
-              <Button size="sm" onClick={() => setFormOpen({ mode: 'create', target: null })}>
+              <Button size="sm" onClick={openStartFrom}>
                 <Plus size={14} className="mr-1" /> {t('dashboards.empty.cta')}
               </Button>
             </div>
@@ -321,7 +371,7 @@ export function DashboardPage() {
               search={search}
               onSearchChange={setSearch}
               onSelect={(id) => openFromTable(id)}
-              onCreate={() => setFormOpen({ mode: 'create', target: null })}
+              onCreate={openStartFrom}
             />
           )}
         </>
@@ -381,10 +431,16 @@ export function DashboardPage() {
 
       <ConfirmDialog
         open={pendingDelete != null}
-        title={t('dashboards.confirm.deleteTitle')}
-        body={t('dashboards.confirm.delete', { name: pendingDelete?.name ?? '' })}
+        title={
+          pendingDelete?.systemOwner ? t('dashboards.confirm.dismissTitle') : t('dashboards.confirm.deleteTitle')
+        }
+        body={
+          pendingDelete?.systemOwner
+            ? t('dashboards.confirm.dismiss', { name: pendingDelete?.name ?? '' })
+            : t('dashboards.confirm.delete', { name: pendingDelete?.name ?? '' })
+        }
         confirmLabel={t('dashboards.list.delete') ?? undefined}
-        danger
+        danger={!pendingDelete?.systemOwner}
         busy={dashboards.deleteDashboard.isPending}
         onClose={() => setPendingDelete(null)}
         onConfirm={confirmDeleteDashboard}
@@ -400,6 +456,19 @@ export function DashboardPage() {
         onClose={() => setConfirmRemovals(false)}
         onConfirm={() => void doSave()}
       />
+
+      {starting && (
+        <StartFromModal
+          title={t('dashboards.list.create')}
+          options={copyable.map((d) => ({ id: d.id, name: d.name }))}
+          onScratch={() => {
+            setStarting(false)
+            setFormOpen({ mode: 'create', target: null })
+          }}
+          onCopy={startFromDashboard}
+          onClose={() => setStarting(false)}
+        />
+      )}
     </div>
   )
 }

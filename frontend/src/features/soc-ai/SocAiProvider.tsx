@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
+import { DASHBOARDS_QUERY_KEYS } from '@/features/dashboard/hooks/useDashboards'
+import { VISUALIZATIONS_QUERY_KEYS } from '@/features/dashboard/hooks/useVisualizations'
 import { extractNavigation, streamChat, type ChatHistoryTurn, type NavAction } from './lib/chat-stream'
 
 // How many prior text turns to replay to the backend as chat memory. Server-side
@@ -22,10 +25,16 @@ export interface SocAiMessage {
   actions?: NavAction[]
 }
 
-// 'panel' and 'dashboard-create' both render in the floating SocAiPanel (see
-// activeScope) — separate threads, same UI. 'home' has its own inline
-// transcript (HomeChatTranscript) and never shows in the panel.
-export type SocAiScope = 'panel' | 'home' | 'dashboard-create'
+// 'panel', 'dashboard-create' and 'dashboard-edit' all render in the floating
+// SocAiPanel (see activeScope) — separate threads, same UI. 'home' has its
+// own inline transcript (HomeChatTranscript) and never shows in the panel.
+export type SocAiScope = 'panel' | 'home' | 'dashboard-create' | 'dashboard-edit'
+
+/** Which existing dashboard the 'dashboard-edit' thread is currently scoped to. */
+export interface DashboardEditTarget {
+  id: string
+  name: string
+}
 
 interface SocAiContextValue {
   open: boolean
@@ -35,6 +44,11 @@ interface SocAiContextValue {
   messages: SocAiMessage[]
   homeMessages: SocAiMessage[]
   dashboardCreateMessages: SocAiMessage[]
+  dashboardEditMessages: SocAiMessage[]
+  dashboardEditTarget: DashboardEditTarget | null
+  // Called right before opening the panel with scope 'dashboard-edit' so every
+  // message sent in that thread carries which dashboard is being worked on.
+  setDashboardEditTarget: (target: DashboardEditTarget | null) => void
   // A scope argument switches the panel to that thread before opening it.
   openPanel: (scope?: SocAiScope) => void
   closePanel: () => void
@@ -77,21 +91,26 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<SocAiMessage[]>([])
   const [homeMessages, setHomeMessages] = useState<SocAiMessage[]>([])
   const [dashboardCreateMessages, setDashboardCreateMessages] = useState<SocAiMessage[]>([])
+  const [dashboardEditMessages, setDashboardEditMessages] = useState<SocAiMessage[]>([])
+  const [dashboardEditTarget, setDashboardEditTarget] = useState<DashboardEditTarget | null>(null)
   const idRef = useRef(0)
   const nextId = () => ++idRef.current
   const abortRef = useRef<AbortController | null>(null)
   const location = useLocation()
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
 
   const setters: Record<SocAiScope, Dispatch<SetStateAction<SocAiMessage[]>>> = {
     panel: setMessages,
     home: setHomeMessages,
     'dashboard-create': setDashboardCreateMessages,
+    'dashboard-edit': setDashboardEditMessages,
   }
   const messagesByScope: Record<SocAiScope, SocAiMessage[]> = {
     panel: messages,
     home: homeMessages,
     'dashboard-create': dashboardCreateMessages,
+    'dashboard-edit': dashboardEditMessages,
   }
 
   const openPanel = useCallback((scope?: SocAiScope) => {
@@ -137,7 +156,14 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
         { id: aiId, role: 'ai', text: '', pending: true, currentStep: null },
       ])
 
-      const page = pageContext(location.pathname)
+      // 'dashboard-edit' has no fixed route of its own (it's opened from
+      // inside whichever dashboard the user is previewing), so its page
+      // context comes from the target set by the "Edit with AI" button
+      // instead of the current path.
+      const page =
+        scope === 'dashboard-edit' && dashboardEditTarget
+          ? `Dashboard editor — the user is editing dashboard "${dashboardEditTarget.name}" (dashboard id: ${dashboardEditTarget.id}). Use the dashboards/visualizations tools with this id to add, update, or remove its widgets; check what's already there first (dashboards.get / visualizations.list) before changing it.`
+          : pageContext(location.pathname)
       const lang = (i18n.language || 'en').split('-')[0]
 
       const history: ChatHistoryTurn[] = current
@@ -166,6 +192,14 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
                 return msg
             }
           })
+          // The dashboard-edit thread writes straight to the backend via MCP
+          // tools — the dashboard grid has no other way to learn its widgets
+          // changed, so refetch once the run settles (successfully or not,
+          // since a failed run may still have created a few widgets first).
+          if (scope === 'dashboard-edit' && (ev.kind === 'final' || ev.kind === 'error')) {
+            void queryClient.invalidateQueries({ queryKey: DASHBOARDS_QUERY_KEYS.all })
+            void queryClient.invalidateQueries({ queryKey: VISUALIZATIONS_QUERY_KEYS.all })
+          }
         },
         ac.signal,
       ).catch((err) => {
@@ -178,7 +212,18 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
         }))
       })
     },
-    [location.pathname, i18n.language, patchMsg, t, messages, homeMessages, dashboardCreateMessages],
+    [
+      location.pathname,
+      i18n.language,
+      patchMsg,
+      t,
+      messages,
+      homeMessages,
+      dashboardCreateMessages,
+      dashboardEditMessages,
+      dashboardEditTarget,
+      queryClient,
+    ],
   )
 
   const value = useMemo(
@@ -189,6 +234,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       messages,
       homeMessages,
       dashboardCreateMessages,
+      dashboardEditMessages,
+      dashboardEditTarget,
+      setDashboardEditTarget,
       openPanel,
       closePanel,
       togglePanel,
@@ -196,7 +244,22 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       submit,
       clear,
     }),
-    [open, expanded, activeScope, messages, homeMessages, dashboardCreateMessages, openPanel, closePanel, togglePanel, toggleExpand, submit, clear],
+    [
+      open,
+      expanded,
+      activeScope,
+      messages,
+      homeMessages,
+      dashboardCreateMessages,
+      dashboardEditMessages,
+      dashboardEditTarget,
+      openPanel,
+      closePanel,
+      togglePanel,
+      toggleExpand,
+      submit,
+      clear,
+    ],
   )
 
   return <SocAiContext.Provider value={value}>{children}</SocAiContext.Provider>

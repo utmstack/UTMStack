@@ -39,6 +39,11 @@ func (r *pgDashboardRepository) List(ctx context.Context, f dto.DashboardFilter)
 	if f.Name != "" {
 		q = q.Where("name ILIKE ?", "%"+f.Name+"%")
 	}
+	if f.Dismissed != nil && *f.Dismissed {
+		q = q.Where("dismissed_at IS NOT NULL")
+	} else {
+		q = q.Where("dismissed_at IS NULL")
+	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err

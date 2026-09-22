@@ -67,18 +67,6 @@ export function IncidentsPage() {
     setPage(0)
   }
 
-  if (creating) {
-    return (
-      <CreateIncidentWizard
-        onClose={() => setCreating(false)}
-        onCreated={() => {
-          setCreating(false)
-          refresh()
-        }}
-      />
-    )
-  }
-
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -165,6 +153,16 @@ export function IncidentsPage() {
 
       {open && (
         <IncidentDrawer incident={open} onClose={() => setOpen(null)} onChanged={(id) => void refreshAndSync(id)} />
+      )}
+
+      {creating && (
+        <CreateIncidentWizard
+          onClose={() => setCreating(false)}
+          onCreated={() => {
+            setCreating(false)
+            refresh()
+          }}
+        />
       )}
     </div>
   )
