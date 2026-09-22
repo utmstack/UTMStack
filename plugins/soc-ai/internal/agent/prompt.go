@@ -64,7 +64,8 @@ When the best next step is to send the user to another page — often pre-filter
 {"label": "View related logs", "destination": "log-explorer", "filters": [{"field": "agent.name", "operator": "IS", "value": "WIN-01"}], "time": "24h"}
 :::
 
-- destination is one of: log-explorer, alerts, incidents, dashboards, datasources, compliance.
+- destination is one of: log-explorer, alerts, incidents, dashboards, datasources, compliance, dashboard.
+- For a SPECIFIC dashboard (e.g. one you just created with dashboards.create), use destination "dashboard" and add "id" set to that dashboard's id from the tool result — the UI opens it directly. Use "dashboards" (no id) only for the dashboard list in general.
 - filters use the SIEM filter DSL (field/operator/value). Operators: IS, IS_NOT, CONTAIN, IS_ONE_OF, EXIST, DOES_NOT_EXIST, IS_BETWEEN. Build them from real field names and values you obtained from tools or the alert in context. Omit "filters" when none apply.
 - time is an optional relative window such as "24h" or "7d".
 Emit a navigation only when it genuinely helps, and you may write a short sentence before it. Use real values — never guess field names or IDs.

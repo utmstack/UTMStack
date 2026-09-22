@@ -128,9 +128,8 @@ const visualizationSpecDoc = "Creates one chart widget on a dashboard, given its
 	"config is the ECharts option merged with the query's data. Pass \"{}\" for a sensible auto-built chart " +
 	"(bar/line for category/time, a big number for metric, a grid for table) — never omit it or pass an empty string, " +
 	"that renders as a visible error instead of a chart. A partial option (e.g. {\"color\":[...]}) is merged over the default. " +
-	"Do NOT put a title inside config — use the title field below.\n\n" +
-	"title is the widget's header text shown in the dashboard grid (e.g. \"Alerts by severity\"). Always set it; " +
-	"without it the widget renders with a generic placeholder header.\n\n" +
+	"title (required) is the widget's header text shown in the dashboard grid (e.g. \"Alerts by severity\"). " +
+	"Do not put a title inside config.\n\n" +
 	"layout is this widget's grid position: {\"x\":int,\"y\":int,\"w\":int,\"h\":int} on the dashboard's 12-column grid " +
 	"(row height 50px). The default size is w:4 h:8 — three widgets fit per row at that width. " +
 	"Give each widget on the same dashboard a different x/y so they don't overlap; increasing y for each new row is enough."
@@ -186,6 +185,9 @@ func registerDashboardVisualizations(m *Module) {
 		Description: visualizationSpecDoc,
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
+			if strings.TrimSpace(in.Title) == "" {
+				return nil, fmt.Errorf("title is required")
+			}
 			cfg, err := withWidgetTitle(in.Spec, in.Config, in.Title)
 			if err != nil {
 				return nil, err

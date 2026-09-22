@@ -1,32 +1,44 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowUpRight, Check, Copy, Loader2, Wrench } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
-import { useSocAi, type CurrentStep, type SocAiMessage } from '../SocAiProvider'
-import type { NavAction } from '../lib/chat-stream'
-import { humanizeToolLabel } from '../lib/tool-labels'
-import { MarkdownMessage } from './MarkdownMessage'
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertCircle,
+  ArrowUpRight,
+  Check,
+  Copy,
+  Loader2,
+  Wrench,
+} from "lucide-react";
+import { cn } from "@/shared/lib/utils";
+import {
+  useSocAi,
+  type CurrentStep,
+  type SocAiMessage,
+} from "../SocAiProvider";
+import type { NavAction } from "../lib/chat-stream";
+import { humanizeToolLabel } from "../lib/tool-labels";
+import { MarkdownMessage } from "./MarkdownMessage";
 
 // Logical navigation destinations the agent may emit → app routes. Filters/time
 // travel in router state for the target page to apply (where supported).
 const DEST_ROUTE: Record<string, string> = {
-  'log-explorer': '/log-explorer',
-  alerts: '/threat-management/alerts',
-  incidents: '/threat-management/incidents',
-  adversaries: '/threat-management/adversaries',
-  compliance: '/compliance',
-  datasources: '/datasources',
-  dashboards: '/home',
-}
+  "log-explorer": "/log-explorer",
+  alerts: "/threat-management/alerts",
+  incidents: "/threat-management/incidents",
+  adversaries: "/threat-management/adversaries",
+  compliance: "/compliance",
+  datasources: "/datasources",
+  dashboards: "/dashboards/list",
+  dashboard: "/dashboards/list",
+};
 
 export function MessageRow({ message }: { message: SocAiMessage }) {
-  if (message.role === 'user') {
+  if (message.role === "user") {
     return (
       <div className="max-w-[80%] self-end rounded-2xl rounded-br-md bg-foreground/[0.07] px-3.5 py-1.5 text-foreground [overflow-wrap:anywhere]">
         {message.text}
       </div>
-    )
+    );
   }
 
   return (
@@ -43,12 +55,14 @@ export function MessageRow({ message }: { message: SocAiMessage }) {
       ) : (
         <>
           <MarkdownMessage text={message.text} />
-          {message.actions && message.actions.length > 0 && <Actions actions={message.actions} />}
+          {message.actions && message.actions.length > 0 && (
+            <Actions actions={message.actions} />
+          )}
           <CopyButton text={message.text} />
         </>
       )}
     </div>
-  )
+  );
 }
 
 // Renders the agent's current sub-step (e.g. "Listing dashboards…") while a
@@ -65,7 +79,7 @@ function StepStatusLine({ step }: { step: CurrentStep }) {
       <span className="truncate">{humanizeToolLabel(step.tool)}</span>
       <EllipsisDots />
     </div>
-  )
+  );
 }
 
 function EllipsisDots() {
@@ -79,19 +93,23 @@ function EllipsisDots() {
         />
       ))}
     </span>
-  )
+  );
 }
 
 function Actions({ actions }: { actions: NavAction[] }) {
-  const navigate = useNavigate()
-  const { closePanel } = useSocAi()
+  const navigate = useNavigate();
+  const { closePanel } = useSocAi();
 
   const go = (a: NavAction) => {
-    const route = DEST_ROUTE[a.destination]
-    if (!route) return
-    closePanel()
-    navigate(route, { state: { socaiFilters: a.filters ?? [], socaiTime: a.time } })
-  }
+    const route = DEST_ROUTE[a.destination];
+    if (!route) return;
+    closePanel();
+    const state =
+      a.destination === "dashboard" && a.id
+        ? { selectDashboardId: a.id, resumeEditing: false }
+        : { socaiFilters: a.filters ?? [], socaiTime: a.time };
+    navigate(route, { state });
+  };
 
   return (
     <div className="mt-3 flex flex-wrap gap-2">
@@ -104,12 +122,12 @@ function Actions({ actions }: { actions: NavAction[] }) {
             onClick={() => go(a)}
             className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/5 px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
           >
-            {a.label || 'Open'}
+            {a.label || "Open"}
             <ArrowUpRight size={13} />
           </button>
         ))}
     </div>
-  )
+  );
 }
 
 function TypingDots() {
@@ -123,28 +141,28 @@ function TypingDots() {
         />
       ))}
     </div>
-  )
+  );
 }
 
 function CopyButton({ text }: { text: string }) {
-  const { t } = useTranslation()
-  const [copied, setCopied] = useState(false)
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
   const copy = () => {
-    void navigator.clipboard?.writeText(text)
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 1500)
-  }
+    void navigator.clipboard?.writeText(text);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1500);
+  };
   return (
     <button
       type="button"
       onClick={copy}
       className={cn(
-        'mt-2.5 inline-flex h-6 items-center gap-1.5 rounded-md border border-transparent px-2 text-xs font-medium text-muted-foreground transition-colors hover:border-border hover:bg-muted hover:text-foreground',
-        copied && 'border-primary/35 bg-primary/10 text-primary',
+        "mt-2.5 inline-flex h-6 items-center gap-1.5 rounded-md border border-transparent px-2 text-xs font-medium text-muted-foreground transition-colors hover:border-border hover:bg-muted hover:text-foreground",
+        copied && "border-primary/35 bg-primary/10 text-primary",
       )}
     >
       {copied ? <Check size={13} /> : <Copy size={13} />}
-      {copied ? t('socAi.chat.copied') : t('socAi.chat.copy')}
+      {copied ? t("socAi.chat.copied") : t("socAi.chat.copy")}
     </button>
-  )
+  );
 }
