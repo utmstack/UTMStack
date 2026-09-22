@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"os"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
-	"github.com/tidwall/gjson"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -124,39 +121,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 	bb.FilterRange("@timestamp", "gte", time.Now().UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
 	bb.FilterRange("@timestamp", "lte", time.Now().UTC().Format(time.RFC3339Nano))
 
-	// Compile regex for array index stripping
-	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
-
-	var execute bool = false
-
-	for _, d := range alert.DeduplicateBy {
-		d = strings.TrimSuffix(d, ".keyword")
-
-		value := gjson.Get(*alertString, d)
-		if value.Type == gjson.Null {
-			continue
-		}
-
-		execute = true
-
-		// Calculate OpenSearch field name by removing array indices
-		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
-			if strings.HasSuffix(s, ".") {
-				return "."
-			}
-			return ""
-		})
-
-		if value.Type == gjson.String {
-			bb.FilterTerm(searchField, value.String())
-		} else if value.Type == gjson.Number {
-			bb.FilterTerm(searchField, value.Float())
-		} else if value.IsBool() {
-			bb.FilterTerm(searchField, value.Bool())
-		}
-	}
-
-	if !execute {
+	if !addAlertGroupingTerms(bb, *alertString, alert.DeduplicateBy) {
 		return false
 	}
 
@@ -220,39 +185,7 @@ func getPreviousAlertId(alert *plugins.Alert) *string {
 	// Original logic: MustNot exists field "parentId"
 	bb.MustNotExists("parentId")
 
-	// Compile regex for array index stripping
-	reArrayIndex := regexp.MustCompile(`\.[0-9]+(\.|$)`)
-
-	var execute bool = false
-
-	for _, d := range alert.GroupBy {
-		d = strings.TrimSuffix(d, ".keyword")
-
-		value := gjson.Get(*alertString, d)
-		if value.Type == gjson.Null {
-			continue
-		}
-
-		execute = true
-
-		// Calculate OpenSearch field name by removing array indices
-		searchField := reArrayIndex.ReplaceAllStringFunc(d, func(s string) string {
-			if strings.HasSuffix(s, ".") {
-				return "."
-			}
-			return ""
-		})
-
-		if value.Type == gjson.String {
-			bb.FilterTerm(searchField, value.String())
-		} else if value.Type == gjson.Number {
-			bb.FilterTerm(searchField, value.Float())
-		} else if value.IsBool() {
-			bb.FilterTerm(searchField, value.Bool())
-		}
-	}
-
-	if !execute {
+	if !addAlertGroupingTerms(bb, *alertString, alert.GroupBy) {
 		return nil
 	}
 
