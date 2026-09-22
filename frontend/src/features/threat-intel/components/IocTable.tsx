@@ -19,7 +19,7 @@ interface IocTableProps {
   onLoadMore?: () => void
 }
 
-const IOC_COLS = [4, 90, '1fr', 130, '1fr', 110, 36]
+const IOC_COLS = [4, 90, '1fr', 130, '1fr', 190, 36]
 
 export function IocTable({
   iocs,
@@ -37,15 +37,15 @@ export function IocTable({
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const iocHeaders = [
-    '',
+    { content: '', resizable: false },
     t('threatIntel.iocs.table.type'),
     t('threatIntel.iocs.table.indicator'),
     t('threatIntel.iocs.table.reputation'),
     t('threatIntel.iocs.table.tags'),
-    t('threatIntel.iocs.table.lastSeen'),
+    { content: t('threatIntel.iocs.table.lastSeen'), resizable: false },
     '',
   ]
-  const iocLabelMins = colMins(iocHeaders.slice(1, -1))
+  const iocLabelMins = colMins(iocHeaders.slice(1, -1).map((header) => typeof header === 'string' ? header : ''))
   const { template: tableCols, startDrag } = useResizableColumns(IOC_COLS, {
     min: [4, ...iocLabelMins, 36],
     storageKey: 'threat-intel-ioc-table-columns',
@@ -74,7 +74,6 @@ export function IocTable({
             tableCols={tableCols}
             startDrag={startDrag}
             className="sticky top-0 z-10"
-            cellClassName="[&:nth-child(4)]:text-right"
           />
           {iocs.map((ioc) => (
             <IocRow key={ioc.id} ioc={ioc} tableCols={tableCols} onOpen={() => onOpen(ioc.id)} />

@@ -6,6 +6,7 @@ import { ColumnResizeHandle } from './column-resize-handle'
 export interface ResizableTableHeaderCell {
   content: ReactNode
   className?: string
+  resizable?: boolean
 }
 
 interface ResizableTableHeaderProps {
@@ -33,17 +34,20 @@ export function ResizableTableHeader({
   return (
     <thead className={className}>
       <tr className={rowClassName}>
-        {cells.map((cell, index) => (
-          <th
-            key={index}
-            data-resizable-col
-            className={cn('relative', cellClassName, cell.className)}
-            style={widthStyle(widths[index])}
-          >
-            {cell.content}
-            {index < cells.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
-          </th>
-        ))}
+        {cells.map((cell, index) => {
+          const isResizable = cell.resizable ?? true
+          return (
+            <th
+              key={index}
+              data-resizable-col
+              className={cn('relative', cellClassName, cell.className)}
+              style={widthStyle(widths[index])}
+            >
+              {cell.content}
+              {isResizable && index < cells.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+            </th>
+          )
+        })}
       </tr>
     </thead>
   )

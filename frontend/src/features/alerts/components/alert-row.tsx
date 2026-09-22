@@ -67,7 +67,7 @@ export function AlertRow({
         </span>
 
       </td>
-      <td className={TD}>
+      <td className={cn(TD, 'text-center')}>
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -75,13 +75,15 @@ export function AlertRow({
           }}
           title={t('alerts.row.createRuleFromAlert')}
           aria-label={t('alerts.row.createRuleFromAlert')}
-          className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 transition hover:bg-background hover:text-primary"
+          className="mx-auto flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 transition hover:bg-background hover:text-primary"
         >
           <Tag size={13} />
         </button>
       </td>
-      <td className={TD}>
-        <AlertIncidentTarget alert={a} onIncident={onIncident} />
+      <td className={cn(TD, 'text-center')}>
+        <div className="flex justify-center">
+          <AlertIncidentTarget alert={a} onIncident={onIncident} />
+        </div>
       </td>
       <td className={`${TD} max-w-[480px]`}>
         <div className="flex items-center gap-2">

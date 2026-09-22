@@ -24,10 +24,10 @@ export function AlertsTableHeader({
   return (
     <ResizableTableHeader
       cells={[
-        { content: null, className: `${TH} w-[6px] p-0` },
-        { content: <button onClick={onTogglePage} className="flex h-4 w-4 items-center justify-center rounded border border-input">{allChecked && <span className="h-2 w-2 rounded-sm bg-primary" />}</button>, className: `${TH} w-px` },
-        { content: t('alerts.table.actions'), className: `${TH} text-center` },
-        { content: null, className: `${TH} text-center` },
+        { content: null, className: `${TH} w-[6px] p-0`, resizable: false },
+        { content: <button onClick={onTogglePage} className="flex h-4 w-4 items-center justify-center rounded border border-input">{allChecked && <span className="h-2 w-2 rounded-sm bg-primary" />}</button>, className: `${TH} w-px`, resizable: false },
+        { content: t('alerts.table.actions'), className: `${TH} text-center`, resizable: false },
+        { content: null, className: `${TH} text-center`, resizable: false },
         { content: t('alerts.table.alert'), className: TH },
         { content: t('alerts.table.status'), className: TH },
         { content: t('alerts.table.technique'), className: TH },

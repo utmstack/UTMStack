@@ -32,12 +32,13 @@ export function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, 
     min: [48, ...alertingRulesLabelMins],
     storageKey: 'alerting-rules-table-columns',
   })
+  const tableWidth = widths.reduce<number>((total, width) => total + (typeof width === 'number' ? width : 0), 0)
   return (
     <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-xl border border-border">
-      <table className="min-w-full border-collapse table-fixed">
+      <table className="border-collapse table-fixed" style={{ width: 'max-content', minWidth: `${Math.max(tableWidth, 100)}px` }}>
         <ResizableTableHeader
           cells={[
-            { content: <div className="flex justify-center"><SelectAllCheckbox checked={allChecked} indeterminate={someChecked} onChange={onSelectAll} label={t('alertingRules.table.selectAll')} /></div>, className: `${TH} text-center` },
+            { content: <div className="flex justify-center"><SelectAllCheckbox checked={allChecked} indeterminate={someChecked} onChange={onSelectAll} label={t('alertingRules.table.selectAll')} /></div>, className: `${TH} text-center`, resizable: false },
             { content: t('alertingRules.table.name'), className: TH },
             { content: t('alertingRules.table.dataTypes'), className: TH },
             { content: t('alertingRules.table.category'), className: TH },

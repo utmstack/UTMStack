@@ -210,7 +210,7 @@ export function FlowsPage() {
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-auto">
-          <table className="border-collapse table-fixed" style={{ minWidth: '100%', width: `${flowsTableWidth}px` }}>
+          <table className="border-collapse table-fixed" style={{ width: 'max-content', minWidth: `${Math.max(flowsTableWidth, 100)}px` }}>
             <colgroup>
               {widths.map((width, index) => (
                 <col key={index} style={{ width: typeof width === 'number' ? `${width}px` : width }} />

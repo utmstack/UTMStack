@@ -47,10 +47,19 @@ function absTimestamp(iso: string) {
 // Grid columns. Manual mode (user picked columns): time + each picked column.
 // Default mode: time + source + auto-detected important columns.
 const FIELD_COL = 160
+const LAST_FIELD_COL = 230
+const ORIGIN_IP_COL = 320
+
+function fieldColumnSize(field: string, isLast: boolean): number {
+  if (field === 'origin.ip') return ORIGIN_IP_COL
+  return isLast ? LAST_FIELD_COL : FIELD_COL
+}
 
 export function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
-  if (columns.length > 0) return [20, 30, 168, ...columns.map(() => FIELD_COL)]
-  return [20, 30, 168, FIELD_COL, ...autoColumns.map(() => FIELD_COL)]
+  if (columns.length > 0) {
+    return [20, 30, 168, ...columns.map((field, index) => fieldColumnSize(field, index === columns.length - 1))]
+  }
+  return [20, 30, 168, autoColumns.length === 0 ? LAST_FIELD_COL : FIELD_COL, ...autoColumns.map((field, index) => fieldColumnSize(field, index === autoColumns.length - 1))]
 }
 
 function gridTemplate(columns: string[], autoColumns: string[] = []): string {
@@ -79,8 +88,9 @@ function ResultsHeaderImpl({
 }) {
   const { t } = useTranslation()
   const template = tableCols ?? gridTemplate(columns, autoColumns)
-  const resizeHandle = (index: number) =>
-    startDrag && <ColumnResizeHandle onMouseDown={startDrag(index)} />
+  const renderedColumnCount = 3 + (columns.length > 0 ? columns.length : 1 + autoColumns.length)
+  const resizeHandle = (index: number, columnIndex: number) =>
+    columnIndex < renderedColumnCount - 1 && startDrag && <ColumnResizeHandle onMouseDown={startDrag(index)} />
   return (
     <div
       className="sticky top-0 z-10 grid w-max min-w-full items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
@@ -90,18 +100,18 @@ function ResultsHeaderImpl({
       <div data-resizable-col className="relative min-w-0 pr-2" />
       <div data-resizable-col className="relative min-w-0 pr-2">
         {t('logExplorer.results.time')}
-        {resizeHandle(2)}
+        {resizeHandle(2, 2)}
       </div>
       {columns.length === 0 ? (
         <>
           <div data-resizable-col className="relative min-w-0 pr-2">
             {t('logExplorer.results.source')}
-            {resizeHandle(3)}
+            {resizeHandle(3, 3)}
           </div>
           {autoColumns.map((c,i) => (
             <div key={i} data-resizable-col className="relative min-w-0 truncate pr-2" title={c}>
               {fieldLabel(c)}
-              {resizeHandle(i + 4)}
+              {resizeHandle(i + 4, i + 4)}
             </div>
           ))}
         </>
@@ -120,7 +130,7 @@ function ResultsHeaderImpl({
                 <X size={11} />
               </button>
             )}
-            {i < columns.length - 1 && resizeHandle(i + 3)}
+            {resizeHandle(i + 3, i + 3)}
           </div>
         ))
       )}

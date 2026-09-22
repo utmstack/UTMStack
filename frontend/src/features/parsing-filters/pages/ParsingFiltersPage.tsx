@@ -258,8 +258,8 @@ export function ParsingFiltersPage() {
                 { content: parsingFiltersHeaders[0], className: TH },
                 { content: parsingFiltersHeaders[1], className: TH },
                 { content: parsingFiltersHeaders[2], className: TH },
-                { content: parsingFiltersHeaders[3], className: `${TH} text-center` },
-                { content: null, className: TH },
+                { content: parsingFiltersHeaders[3], className: `${TH} text-center`, resizable: false },
+                { content: null, className: TH, resizable: false },
                 { content: null, className: TH },
               ]}
               widths={widths}
