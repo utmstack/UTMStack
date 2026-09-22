@@ -95,6 +95,9 @@ message BidirectionalStream {
     Heartbeat heartbeat = 3;
     ConfigState config_state = 4;
     ConfigUpdate config_update = 5;
+    EdrCommand edr_command = 6;
+    EdrResult edr_result = 7;
+    EdrStatusReport edr_status_report = 8;
   }
 }
 
@@ -170,4 +173,29 @@ message AgentCommand {
   string reason = 9;
   string origin_type = 10;
   string origin_id = 11;
+}
+
+message EdrCommand {
+  string agent_id = 1;
+  string cmd_id = 2;
+  string action = 3;   // enable, disable, status, policy_set, quarantine_list, quarantine_restore, quarantine_purge, scan_path, full_scan, kill_process, allow_add, allow_remove, blocklist_refresh, isolate, release_isolation
+  string payload = 4;  // JSON argument object
+  string executed_by = 5;
+  string reason = 6;
+}
+
+message EdrResult {
+  string agent_id = 1;
+  string cmd_id = 2;
+  bool ok = 3;
+  string error = 4;
+  string payload = 5;  // JSON result object
+  google.protobuf.Timestamp executed_at = 6;
+}
+
+message EdrStatusReport {
+  string agent_id = 1;
+  string status_json = 2;
+  string policy_version = 3;
+  google.protobuf.Timestamp reported_at = 4;
 }
