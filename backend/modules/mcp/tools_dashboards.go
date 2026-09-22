@@ -2,11 +2,15 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/modules/dashboards/dto"
+	"github.com/utmstack/utmstack/backend/modules/dashboards/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/database"
 )
@@ -95,6 +99,7 @@ func registerDashboardDashboards(m *Module) {
 type visualizationUpsertInput struct {
 	ID          uuid.UUID `json:"id,omitempty"`
 	DashboardID uuid.UUID `json:"dashboard_id"`
+	Title       string    `json:"title,omitempty"`
 	Spec        string    `json:"spec"`
 	Config      string    `json:"config,omitempty"`
 	Layout      string    `json:"layout,omitempty"`
@@ -122,10 +127,56 @@ const visualizationSpecDoc = "Creates one chart widget on a dashboard, given its
 	"Example — alerts by severity: {\"dataset\":\"alerts\",\"chart\":\"category\",\"dimension\":\"severity\",\"metric\":{\"agg\":\"count\"}}\n\n" +
 	"config is the ECharts option merged with the query's data. Pass \"{}\" for a sensible auto-built chart " +
 	"(bar/line for category/time, a big number for metric, a grid for table) — never omit it or pass an empty string, " +
-	"that renders as a visible error instead of a chart. A partial option (e.g. {\"color\":[...]} or a custom \"title\") is merged over the default.\n\n" +
+	"that renders as a visible error instead of a chart. A partial option (e.g. {\"color\":[...]}) is merged over the default. " +
+	"Do NOT put a title inside config — use the title field below.\n\n" +
+	"title is the widget's header text shown in the dashboard grid (e.g. \"Alerts by severity\"). Always set it; " +
+	"without it the widget renders with a generic placeholder header.\n\n" +
 	"layout is this widget's grid position: {\"x\":int,\"y\":int,\"w\":int,\"h\":int} on the dashboard's 12-column grid " +
 	"(row height 50px). The default size is w:4 h:8 — three widgets fit per row at that width. " +
 	"Give each widget on the same dashboard a different x/y so they don't overlap; increasing y for each new row is enough."
+
+var specChartToBuilderType = map[domain.Chart]string{
+	"metric":   "metric",
+	"category": "bar",
+	"time":     "line",
+	"table":    "table",
+}
+
+func withWidgetTitle(specJSON, configJSON, title string) (string, error) {
+	var cfg map[string]any
+	if strings.TrimSpace(configJSON) == "" {
+		cfg = map[string]any{}
+	} else if err := json.Unmarshal([]byte(configJSON), &cfg); err != nil {
+		return "", fmt.Errorf("invalid config JSON: %s", err.Error())
+	}
+
+	builder, _ := cfg["__builder"].(map[string]any)
+	if builder == nil {
+		builder = map[string]any{}
+	}
+
+	var spec domain.Spec
+	if err := json.Unmarshal([]byte(specJSON), &spec); err == nil {
+		if ct, ok := specChartToBuilderType[spec.Chart]; ok {
+			if _, exists := builder["chartType"]; !exists {
+				builder["chartType"] = ct
+			}
+		}
+	}
+
+	if strings.TrimSpace(title) != "" {
+		builder["title"] = title
+	}
+
+	if len(builder) > 0 {
+		cfg["__builder"] = builder
+	}
+	out, err := json.Marshal(cfg)
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
+}
 
 func registerDashboardVisualizations(m *Module) {
 	uc := m.deps.Dashboards.GetVisualizationUsecase()
@@ -135,9 +186,13 @@ func registerDashboardVisualizations(m *Module) {
 		Description: visualizationSpecDoc,
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
+			cfg, err := withWidgetTitle(in.Spec, in.Config, in.Title)
+			if err != nil {
+				return nil, err
+			}
 			return uc.Create(ctx, &domain.Visualization{
 				DashboardID: in.DashboardID,
-				Spec:        in.Spec, Config: in.Config, Layout: in.Layout,
+				Spec:        in.Spec, Config: cfg, Layout: in.Layout,
 			}, actor.Email)
 		})
 
@@ -146,9 +201,13 @@ func registerDashboardVisualizations(m *Module) {
 		Description: visualizationSpecDoc,
 	}, Gate{Permission: "dashboards.write"},
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
+			cfg, err := withWidgetTitle(in.Spec, in.Config, in.Title)
+			if err != nil {
+				return nil, err
+			}
 			return uc.Update(ctx, &domain.Visualization{
 				ID: in.ID, DashboardID: in.DashboardID,
-				Spec: in.Spec, Config: in.Config, Layout: in.Layout,
+				Spec: in.Spec, Config: cfg, Layout: in.Layout,
 			}, actor.Email)
 		})
 
@@ -173,6 +232,28 @@ func registerDashboardVisualizations(m *Module) {
 	}, Gate{Permission: "dashboards.read"},
 		func(ctx context.Context, _ *authz.Actor, in dashboardIDInput) (any, error) {
 			return uc.GetByID(ctx, in.ID)
+		})
+
+	Add(m, &mcp.Tool{
+		Name: "visualizations.query", Title: "Answer a visualization spec",
+		Description: "Runs a widget spec against the event store and returns its data — " +
+			"the same answer the widget would render. Use it to preview or verify a spec before " +
+			"creating the widget, or to check why one shows no data. " +
+			"spec is the JSON string in exactly the same format as visualizations.create's spec field. " +
+			"Returns total (metric/table), buckets (category), points or series (time), or rows (table).",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, Gate{Permission: "dashboards.read"},
+		func(ctx context.Context, _ *authz.Actor, in struct {
+			Spec string `json:"spec"`
+		}) (any, error) {
+			if m.deps.Events == nil {
+				return nil, fmt.Errorf("event store not configured")
+			}
+			var spec domain.Spec
+			if err := json.Unmarshal([]byte(in.Spec), &spec); err != nil {
+				return nil, fmt.Errorf("invalid spec JSON: %s", err.Error())
+			}
+			return usecase.NewQueryService(m.deps.Events).Run(ctx, spec)
 		})
 
 	Add(m, &mcp.Tool{
