@@ -23,6 +23,15 @@ func scopeTenant(ctx context.Context, q *gorm.DB) *gorm.DB {
 	if tid != uuid.Nil {
 		return q.Where("tenant_id = ?", tid)
 	}
+	// A ctx authorised to read across tenants — the internal shared-key actor via
+	// WithAllTenantsRead, or maintenance via WithAllTenants — spans every tenant,
+	// so the read runs unscoped. This mirrors the gorm restrictRead callback, which
+	// keys off the same marker. It is read-only: restrictWrite keys off the strong
+	// spansAllTenants marker, which the internal actor lacks, so an unscoped write
+	// still fails closed with tenancy.ErrNoTenant.
+	if tenancy.ReadsAllTenants(ctx) {
+		return q
+	}
 	// Fail closed. The gorm tenancy plugin already aborts an unscoped query on a
 	// multi-tenant install, but this must not be the thing that reads every
 	// tenant's incidents if that plugin is ever unregistered or bypassed. On a
