@@ -1,22 +1,27 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - "sophos-central"
-name: "Application Hijacking prevented in Sophos Central"
+- sophos-central
+name: Application Hijacking prevented in Sophos Central
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: "Persistence"
-technique: "T1574 - Hijack Execution Flow"
+category: Persistence
+technique: T1574 - Hijack Execution Flow
 adversary: origin
 references:
-  - "https://attack.mitre.org/tactics/TA0003/"
-  - "https://attack.mitre.org/techniques/T1574/"
-description: "Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs. 
-              Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over time. 
-              Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control or other restrictions on execution."
-where: equals("log.type", "Event::Endpoint::HmpaApplicationHijacking")
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
+- https://attack.mitre.org/tactics/TA0003/
+- https://attack.mitre.org/techniques/T1574/
+description: Adversaries may execute their own malicious payloads by hijacking the way operating systems run programs.
+  Hijacking execution flow can be for the purposes of persistence, since this hijacked execution may reoccur over
+  time. Adversaries may also use these mechanisms to elevate privileges or evade defenses, such as application control
+  or other restrictions on execution.
+where: (equals("log.type", "Event::Endpoint::HmpaApplicationHijacking")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip
