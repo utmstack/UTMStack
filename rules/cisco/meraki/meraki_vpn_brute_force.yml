@@ -11,10 +11,11 @@ category: Credential Access
 technique: "T1110 - Brute Force"
 adversary: origin
 references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
   - https://documentation.meraki.com/MX/Client_VPN/Client_VPN_Overview
   - https://attack.mitre.org/techniques/T1110/
 description: |
-  Detects multiple failed client VPN authentication attempts from the same source IP on Meraki MX appliances, indicating potential brute force attacks against VPN credentials.
+  Detects at least ten explicit AnyConnect VPN authentication failures within fifteen minutes from the same source IP, collector, and Meraki appliance. Connection teardown and site-to-site tunnel negotiation failures do not establish a credential failure.
 
   Next Steps:
   1. Review the source IP address and check geographic location
@@ -24,17 +25,29 @@ description: |
   5. Review VPN authentication settings and ensure MFA is enabled
   6. Notify the targeted user if the account is legitimate
 where: |
-  (oneOf("log.eventType", ["vpn_auth_failure", "client_vpn_auth_failure"]) ||
-   (contains("log.message", "VPN") && contains("log.message", ["auth fail", "authentication failed", "invalid credentials"]))) &&
-  exists("origin.ip")
+  equals("log.eventType", "events") &&
+  equals("log.type", "anyconnect_vpn_auth_failure") &&
+  exists("origin.ip") &&
+  exists("log.merakiType") && !oneOf("log.merakiType", ["", "unknown", "-"]) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"])
 afterEvents:
   - indexPattern: v11-log-firewall-meraki-*
     with:
+      - field: dataSource
+        operator: filter_term
+        value: '{{.dataSource}}'
+      - field: log.merakiType
+        operator: filter_term
+        value: '{{.log.merakiType}}'
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
+      - field: log.vpnAuthenticationFailure
+        operator: filter_term
+        value: 'match'
     within: 15m
     count: 10
 groupBy:
+  - lastEvent.dataSource
+  - lastEvent.log.merakiType
   - adversary.ip
-  - adversary.user
