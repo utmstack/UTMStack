@@ -7,9 +7,8 @@ import (
 const defaultAlertsTable = "alerts"
 
 type TWConfig struct {
-	InternalKey    string
-	BackendURL     string
-	ThreadWindsURL string
+	InternalKey string
+	BackendURL  string
 
 	ClickHouseHost     string
 	ClickHousePort     string
@@ -17,18 +16,11 @@ type TWConfig struct {
 	ClickHouseUser     string
 	ClickHousePassword string
 	AlertsTable        string
-
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
 }
 
 func GetTWConfig() (*TWConfig, error) {
 	utmCfg := plugins.PluginCfg("com.utmstack")
 	chCfg := plugins.PluginCfg("clickhouse")
-	pgCfg := utmCfg.Get("postgresql")
 
 	table := chCfg.Get("alertsTable").String()
 	if table == "" {
@@ -36,9 +28,8 @@ func GetTWConfig() (*TWConfig, error) {
 	}
 
 	cfg := &TWConfig{
-		InternalKey:    utmCfg.Get("internalKey").String(),
-		BackendURL:     utmCfg.Get("backend").String(),
-		ThreadWindsURL: GetThreadWindsURL(),
+		InternalKey: utmCfg.Get("internalKey").String(),
+		BackendURL:  utmCfg.Get("backend").String(),
 
 		ClickHouseHost:     chCfg.Get("host").String(),
 		ClickHousePort:     chCfg.Get("port").String(),
@@ -46,12 +37,6 @@ func GetTWConfig() (*TWConfig, error) {
 		ClickHouseUser:     chCfg.Get("user").String(),
 		ClickHousePassword: chCfg.Get("password").String(),
 		AlertsTable:        table,
-
-		DBHost:     pgCfg.Get("server").String(),
-		DBPort:     pgCfg.Get("port").String(),
-		DBUser:     pgCfg.Get("user").String(),
-		DBPassword: pgCfg.Get("password").String(),
-		DBName:     pgCfg.Get("database").String(),
 	}
 
 	return cfg, nil

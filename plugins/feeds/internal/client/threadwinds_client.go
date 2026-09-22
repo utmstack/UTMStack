@@ -7,164 +7,183 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/utmstack/UTMStack/plugins/feeds/config"
+)
+
+const (
+	ingestPath        = "/api/ingest/v1/entity"
+	maxIngestAttempts = 3
+	entitySleep       = 100 * time.Millisecond
 )
 
 type ThreadWindsClient struct {
-	baseURL    string
-	apiKey     string
-	apiSecret  string
-	httpClient *http.Client
-	mu         sync.RWMutex
+	baseURL     string
+	instanceID  string
+	instanceKey string
+	httpClient  *http.Client
 }
 
-func NewThreadWindsClient(cfg *config.TWConfig) *ThreadWindsClient {
+func NewThreadWindsClient(ic *CustomersManagerClient) *ThreadWindsClient {
 	return &ThreadWindsClient{
-		baseURL: cfg.ThreadWindsURL,
+		baseURL:     ic.Server + "/proxy",
+		instanceID:  ic.InstanceID,
+		instanceKey: ic.InstanceKey,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 	}
 }
 
-func (c *ThreadWindsClient) UpdateCredentials(apiKey, apiSecret string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	c.apiKey = apiKey
-	c.apiSecret = apiSecret
-
-	catcher.Info("ThreadWinds credentials updated", nil)
+type EntityIngestResult struct {
+	Entity *entities.Entity
+	Err    error
+	Status int
 }
 
-func (c *ThreadWindsClient) ingestEntity(ctx context.Context, entity *entities.Entity) error {
-	url := fmt.Sprintf("%s/api/ingest/v1/entity", c.baseURL)
-
-	payload, err := json.Marshal(entity)
-	if err != nil {
-		return catcher.Error("failed to marshal entity", err, map[string]any{
-			"entity_type": entity.Type,
-		})
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(payload))
-	if err != nil {
-		return catcher.Error("failed to create request", err, map[string]any{
-			"entity_type": entity.Type,
-		})
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("api-key", c.apiKey)
-	req.Header.Set("api-secret", c.apiSecret)
-
-	return c.executeWithRetry(req, entity.Type)
+type IngestOutcome struct {
+	OKCount             int
+	Failures            []EntityIngestResult
+	ProvisioningBlocked bool
 }
 
-func (c *ThreadWindsClient) executeWithRetry(req *http.Request, entityType string) error {
-	maxRetries := 3
+func (c *ThreadWindsClient) IngestBatch(ctx context.Context, batch []*entities.Entity) IngestOutcome {
+	outcome := IngestOutcome{}
+
+	for i, entity := range batch {
+		select {
+		case <-ctx.Done():
+			return outcome
+		default:
+		}
+
+		payload, err := json.Marshal(entity)
+		if err != nil {
+			outcome.Failures = append(outcome.Failures, EntityIngestResult{
+				Entity: entity,
+				Err:    catcher.Error("failed to marshal entity", err, map[string]any{"entity_type": entity.Type}),
+			})
+			continue
+		}
+
+		status, provisioningBlocked, err := c.ingestOne(ctx, payload, entity.Type)
+		if err != nil {
+			outcome.Failures = append(outcome.Failures, EntityIngestResult{
+				Entity: entity,
+				Err:    err,
+				Status: status,
+			})
+			_ = catcher.Error("failed to ingest entity", err, map[string]any{
+				"entity_type": entity.Type,
+				"batch_index": i,
+				"status":      status,
+			})
+			if provisioningBlocked {
+				outcome.ProvisioningBlocked = true
+				break
+			}
+			continue
+		}
+
+		outcome.OKCount++
+
+		if i < len(batch)-1 {
+			time.Sleep(entitySleep)
+		}
+	}
+
+	return outcome
+}
+
+func (c *ThreadWindsClient) ingestOne(ctx context.Context, payload []byte, entityType string) (int, bool, error) {
+	url := c.baseURL + ingestPath
 	backoff := time.Second
 
-	for attempt := 1; attempt <= maxRetries; attempt++ {
+	var lastErr error
+	for attempt := 1; attempt <= maxIngestAttempts; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+		if err != nil {
+			return 0, false, catcher.Error("failed to create request", err, map[string]any{
+				"entity_type": entityType,
+			})
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("id", c.instanceID)
+		req.Header.Set("key", c.instanceKey)
+
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			catcher.Error("http request failed", err, map[string]any{
+			lastErr = catcher.Error("http request failed", err, map[string]any{
 				"attempt":     attempt,
 				"entity_type": entityType,
 			})
-			if attempt < maxRetries {
+			if attempt < maxIngestAttempts {
 				time.Sleep(backoff)
 				backoff *= 2
 				continue
 			}
-			return catcher.Error("failed after max attempts", err, map[string]any{
-				"max_retries": maxRetries,
+			return 0, false, lastErr
+		}
+
+		body, readErr := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		if readErr != nil {
+			lastErr = catcher.Error("failed to read response body", readErr, map[string]any{
 				"entity_type": entityType,
 			})
+			if attempt < maxIngestAttempts {
+				time.Sleep(backoff)
+				backoff *= 2
+				continue
+			}
+			return resp.StatusCode, false, lastErr
 		}
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return catcher.Error("failed to read response body", err, map[string]any{
-				"entity_type": entityType,
-			})
-		}
-		resp.Body.Close()
+		switch {
+		case resp.StatusCode == http.StatusAccepted:
+			return resp.StatusCode, false, nil
 
-		if resp.StatusCode == http.StatusAccepted {
-			return nil
-		}
-
-		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-			return catcher.Error("client error from ThreadWinds", nil, map[string]any{
-				"status": resp.StatusCode,
-			})
-		}
-
-		if resp.StatusCode >= 500 && attempt < maxRetries {
-			catcher.Error("server error, retrying", fmt.Errorf("server error %d", resp.StatusCode), map[string]any{
-				"attempt":     attempt,
+		case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusUnprocessableEntity:
+			_ = catcher.Error("proxy provisioning error, not retrying", nil, map[string]any{
+				"status":      resp.StatusCode,
 				"entity_type": entityType,
 				"response":    string(body),
 			})
-			time.Sleep(backoff)
-			backoff *= 2
-			continue
-		}
+			return resp.StatusCode, true, fmt.Errorf("proxy provisioning error: status %d", resp.StatusCode)
 
-		return catcher.Error("unexpected status code from ThreadWinds", nil, map[string]any{
-			"status": resp.StatusCode,
-		})
-	}
-
-	return catcher.Error("max retries exceeded", nil, map[string]any{
-		"entity_type": entityType,
-	})
-}
-
-func (c *ThreadWindsClient) IngestBatch(ctx context.Context, entityBatch []*entities.Entity) error {
-	successCount := 0
-	errorCount := 0
-
-	for i, entity := range entityBatch {
-		select {
-		case <-ctx.Done():
-			return catcher.Error("batch ingestion cancelled", ctx.Err(), map[string]any{
-				"processed": successCount,
+		case resp.StatusCode == http.StatusNotFound:
+			_ = catcher.Error("proxy path not allowed", nil, map[string]any{
+				"status":      resp.StatusCode,
+				"entity_type": entityType,
+				"response":    string(body),
 			})
+			return resp.StatusCode, false, fmt.Errorf("proxy path not allowed: status %d", resp.StatusCode)
+
+		case resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500:
+			lastErr = fmt.Errorf("retryable proxy error: status %d, response %s", resp.StatusCode, string(body))
+			_ = catcher.Error("retryable proxy error", lastErr, map[string]any{
+				"attempt":     attempt,
+				"status":      resp.StatusCode,
+				"entity_type": entityType,
+			})
+			if attempt < maxIngestAttempts {
+				time.Sleep(backoff)
+				backoff *= 2
+				continue
+			}
+			return resp.StatusCode, false, lastErr
+
 		default:
-		}
-
-		err := c.ingestEntity(ctx, entity)
-		if err != nil {
-			errorCount++
-			catcher.Error("failed to ingest entity", err, map[string]any{
-				"entity_type":   entity.Type,
-				"batch_index":   i,
-				"success_count": successCount,
-				"error_count":   errorCount,
+			_ = catcher.Error("unexpected status from proxy", nil, map[string]any{
+				"status":      resp.StatusCode,
+				"entity_type": entityType,
+				"response":    string(body),
 			})
-			continue
-		}
-		successCount++
-
-		if i < len(entityBatch)-1 {
-			time.Sleep(100 * time.Millisecond)
+			return resp.StatusCode, false, fmt.Errorf("unexpected status from proxy: %d", resp.StatusCode)
 		}
 	}
 
-	if errorCount > 0 {
-		return catcher.Error("batch completed with errors", nil, map[string]any{
-			"error_count":   errorCount,
-			"success_count": successCount,
-			"total_count":   len(entityBatch),
-		})
-	}
-
-	return nil
+	return 0, false, lastErr
 }

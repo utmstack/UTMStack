@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -61,7 +60,7 @@ func (b *EntityBuilder) MapAndRegisterFieldsToEntities(
 		assocContext := association.AssociationContext{
 			AlertID:     alert.ID,
 			EventID:     event.ID,
-			IncidentID:  fmt.Sprintf("%d", incident.ID),
+			IncidentID:  incident.ID,
 			SourceField: sourceField,
 		}
 		associationBuilder.RegisterEntity(entity, entityID, field.Path, assocContext)
@@ -76,7 +75,7 @@ func (b *EntityBuilder) buildEnrichmentContext(
 	sourceType string,
 ) mapper.EntityEnrichmentContext {
 	ctx := mapper.EntityEnrichmentContext{
-		IncidentID: fmt.Sprintf("%d", incident.ID),
+		IncidentID: incident.ID,
 		AlertID:    alert.ID,
 		EventID:    eventID,
 		Severity:   incident.Severity,

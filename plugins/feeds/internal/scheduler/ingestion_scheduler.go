@@ -69,10 +69,6 @@ func (s *IngestionScheduler) runIngestionCycle(ctx context.Context) {
 		return
 	}
 
-	if twConfig.Configured() {
-		s.threadwindsClient.UpdateCredentials(twConfig.APIKey, twConfig.APISecret)
-	}
-
 	incidents, err := s.backendClient.GetRecentIncidents(cycleCtx)
 	if err != nil {
 		catcher.Error("failed to fetch incidents", err, nil)
@@ -85,6 +81,7 @@ func (s *IngestionScheduler) runIngestionCycle(ctx context.Context) {
 	}
 
 	totalEntities := 0
+	provisioningBlocked := false
 	for i, incident := range incidents {
 		select {
 		case <-cycleCtx.Done():
@@ -97,7 +94,7 @@ func (s *IngestionScheduler) runIngestionCycle(ctx context.Context) {
 		default:
 		}
 
-		entitiesCount, err := s.incidentProcessor.ProcessIncident(cycleCtx, incident)
+		entitiesCount, blocked, err := s.incidentProcessor.ProcessIncident(cycleCtx, incident)
 		if err != nil {
 			catcher.Error("failed to process incident", err, map[string]any{
 				"incident_id":   incident.ID,
@@ -106,12 +103,20 @@ func (s *IngestionScheduler) runIngestionCycle(ctx context.Context) {
 			continue
 		}
 		totalEntities += entitiesCount
+		if blocked {
+			provisioningBlocked = true
+			catcher.Info("provisioning blocked, stopping the ingestion cycle", map[string]any{
+				"incident_id": incident.ID,
+			})
+			break
+		}
 	}
 
 	duration := time.Since(startTime)
 	catcher.Info("ingestion cycle completed", map[string]any{
-		"duration_seconds":    duration.Seconds(),
-		"incidents_processed": len(incidents),
-		"total_entities":      totalEntities,
+		"duration_seconds":     duration.Seconds(),
+		"incidents_processed":  len(incidents),
+		"total_entities":       totalEntities,
+		"provisioning_blocked": provisioningBlocked,
 	})
 }

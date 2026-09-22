@@ -1,18 +1,16 @@
 package client
 
 import (
-	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-
-	sdkutils "github.com/threatwinds/go-sdk/utils"
 	"github.com/utmstack/UTMStack/plugins/feeds/utils"
 )
 
 const (
-	instanceConfigPath = "/updates/instance-config.yml"
+	instanceConfigPath   = "/updates/instance-config.yml"
+	instanceLoadInterval = 5 * time.Second
+	instanceLoadDeadline = 10 * time.Minute
 )
 
 type CustomersManagerClient struct {
@@ -21,59 +19,46 @@ type CustomersManagerClient struct {
 	InstanceKey string `yaml:"instance_key"`
 }
 
-type RegistrationResponse struct {
-	APIKey    string `json:"api_key"`
-	APISecret string `json:"api_secret"`
-}
-
 func (c *CustomersManagerClient) LoadInstanceConfig() error {
-	time.Sleep(10 * time.Second)
+	deadline := time.Now().Add(instanceLoadDeadline)
+	var lastErr error
 
-	loadFunc := func() error {
-		if !utils.CheckIfPathExist(instanceConfigPath) {
-			return catcher.Error("config file not found", nil, nil)
+	for {
+		lastErr = c.tryLoadInstanceConfig()
+		if lastErr == nil {
+			catcher.Info("instance configuration loaded", nil)
+			return nil
 		}
 
-		if err := utils.ReadYAML(instanceConfigPath, c); err != nil {
-			return catcher.Error("failed to read or parse YAML config", err, nil)
+		if time.Now().Add(instanceLoadInterval).After(deadline) {
+			break
 		}
 
-		if c.Server == "" || c.InstanceID == "" || c.InstanceKey == "" {
-			return catcher.Error("missing required fields in config", nil, nil)
-		}
-
-		return nil
+		_ = catcher.Error("instance configuration load failed, retrying", lastErr, map[string]any{
+			"next_attempt_in": instanceLoadInterval.String(),
+		})
+		time.Sleep(instanceLoadInterval)
 	}
 
-	return utils.Retry(loadFunc, "instance config loading", utils.DefaultRetryConfig())
+	return lastErr
 }
 
-func (c *CustomersManagerClient) RegisterUserReporter() (*RegistrationResponse, error) {
+func (c *CustomersManagerClient) tryLoadInstanceConfig() error {
+	if !utils.CheckIfPathExist(instanceConfigPath) {
+		return catcher.Error("instance config file not found", nil, map[string]any{
+			"path": instanceConfigPath,
+		})
+	}
+
+	if err := utils.ReadYAML(instanceConfigPath, c); err != nil {
+		return catcher.Error("failed to read or parse instance config", err, nil)
+	}
+
 	if c.Server == "" || c.InstanceID == "" || c.InstanceKey == "" {
-		return nil, catcher.Error("instance configuration not loaded", nil, nil)
+		return catcher.Error("missing required fields in instance config", nil, map[string]any{
+			"path": instanceConfigPath,
+		})
 	}
 
-	endpoint := fmt.Sprintf("%s/api/v1/intelligence/register", c.Server)
-
-	headers := map[string]string{
-		"accept": "application/json",
-		"id":     c.InstanceID,
-		"Key":    c.InstanceKey,
-	}
-
-	credentials, _, err := sdkutils.DoReq[RegistrationResponse](
-		endpoint,
-		nil,
-		http.MethodPost,
-		headers,
-		false,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	catcher.Info("Successfully registered ThreadWinds intelligence reporter", nil)
-
-	return &credentials, nil
+	return nil
 }
