@@ -1,4 +1,4 @@
-# Palo Alto Firewall, version 3.0.1
+# Palo Alto Firewall, version 3.0.2
 # Based in docs and samples log provided
 # Support Syslog CEF && LEEF format && CSV format && KV format
 #
@@ -1543,14 +1543,14 @@ pipeline:
           source: log.cefOrLeefMsgAll
 
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: '{{.data}}(panOSContainerNameSpace=)'
-          - fieldName: log.panOSContainerNameSpace
-            pattern: '{{.data}}({{.word}}=)'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: log.cefOrLeefMsgAll
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(panOSContainerNameSpace=)'
+            - fieldName: log.panOSContainerNameSpace
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefOrLeefMsgAll
         
       - grok:
           patterns:
@@ -1743,14 +1743,14 @@ pipeline:
           source: log.cefOrLeefMsgAll
 
       - grok:
-        patterns:
-          - fieldName: log.irrelevant
-            pattern: '{{.data}}(panOSDGl1=)'
-          - fieldName: log.panOSDGl1
-            pattern: '{{.data}}({{.word}}=)'
-          - fieldName: log.irrelevant
-            pattern: '{{.greedy}}'
-        source: log.cefOrLeefMsgAll
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}(panOSDGl1=)'
+            - fieldName: log.panOSDGl1
+              pattern: '{{.data}}({{.word}}=)'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.cefOrLeefMsgAll
     
       - grok:
           patterns:
@@ -6381,7 +6381,7 @@ pipeline:
       # Detect if its a TUNNEL INSPECTION log
       # ..........................................................................#
       - csv:
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ","
           headers:
             - log.receive_time
@@ -6472,7 +6472,7 @@ pipeline:
       # Detect if its a SCTP log
       # ..........................................................................#
       - csv:
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ","
           headers:
             - log.receive_time
@@ -6545,7 +6545,7 @@ pipeline:
       # Detect if its a CONFIG log
       #......................................................................#
       - csv:
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ','
           headers:
             - log.receive_time
@@ -6580,7 +6580,7 @@ pipeline:
       # Detect if its a AUTHENTICATION log
       #......................................................................#
       - csv:
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ','
           headers:
             - log.receive_time
@@ -6633,7 +6633,7 @@ pipeline:
       # Detect if its a SYSTEM log
       #......................................................................#
       - csv:  
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ','
           headers:
             - log.receive_time
@@ -6667,7 +6667,7 @@ pipeline:
       # Detect if its a CORRELATED EVENTS log
       #......................................................................#
       - csv:
-          from: log.csvMsgAll 
+          source: log.csvMsgAll
           separator: ","
           headers:
             - log.receive_time
@@ -6697,7 +6697,7 @@ pipeline:
       # Detect if its a GTP log
       #......................................................................#
       - csv:
-          from: log.csvMsgAll
+          source: log.csvMsgAll
           separator: ","
           headers:
             - log.receive_time
@@ -6904,15 +6904,15 @@ pipeline:
       # ................................................#
       - cast:
           fields:
-            - target.bytessent
-            - target.bytesreceived
+            - target.bytesSent
+            - target.bytesReceived
           to: float
       
       - cast:
           fields:
-            - target.pktssent
+            - target.packagesSent
             - target.packagesReceived
-          to: int64
+          to: int
 
       - cast:
           fields:
