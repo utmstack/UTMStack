@@ -1,0 +1,104 @@
+<!--
+  Server settings that bound what ClickHouse spends on itself.
+
+  The stock image turns on nine system log tables, none of which carry a TTL,
+  and they cost far more than they look. On an idle install with no events
+  ingested at all, they produced 2.68 GiB on disk in 47 hours: trace_log alone
+  reached 176 million rows, 88 million of them memory-profiler samples emitted
+  every 4 MiB of allocation, and text_log recorded every stack trace at trace
+  level.
+
+  metric_log is worse than large, it is wide: one column per ProfileEvent and
+  CurrentMetric, 1435 of them, written once a second. Once its parts pass
+  min_bytes_for_wide_part they are stored Wide, and a Wide merge opens a
+  compressed write buffer per column stream before it reads a single row — 2.11
+  GiB reserved up front, measured. A server capped below that can never finish
+  the merge, retries it forever, and each failure writes another stack trace
+  into the logs that caused it.
+
+  So the ones removed here are removed because their cost is unbounded and none
+  of them answers a question UTMStack asks. What stays is what a support case
+  actually needs: query_log for what ran, part_log for how merges behaved,
+  error_log because seven columns a second is cheap, crash_log because it is
+  written once. All of them get a TTL, since the reason the others grew without
+  limit was that nothing ever deleted them.
+-->
+<clickhouse>
+    <!--
+      The image ships docker_related_config.xml in config.d carrying exactly
+      these three lines, and the stack mounts a host directory over config.d,
+      which hides it. Without them the server keeps the compiled default and
+      binds to loopback only, so every other container gets connection refused
+      on 9000 — the backend cannot read statistics and the event processor
+      cannot write a single event. The directory has to be a mount, because the
+      backend writes the cold storage declaration into it at runtime, so what
+      the mount hides has to be restored here.
+    -->
+    <listen_host>::</listen_host>
+    <listen_host>0.0.0.0</listen_host>
+    <listen_try>1</listen_try>
+
+    <metric_log remove="1"/>
+    <trace_log remove="1"/>
+    <text_log remove="1"/>
+    <asynchronous_metric_log remove="1"/>
+    <query_metric_log remove="1"/>
+    <query_thread_log remove="1"/>
+    <query_views_log remove="1"/>
+    <processors_profile_log remove="1"/>
+    <opentelemetry_span_log remove="1"/>
+    <asynchronous_insert_log remove="1"/>
+    <iceberg_metadata_log remove="1"/>
+    <blob_storage_log remove="1"/>
+    <s3queue_log remove="1"/>
+    <backup_log remove="1"/>
+
+    <query_log replace="1">
+        <database>system</database>
+        <table>query_log</table>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    </query_log>
+
+    <part_log replace="1">
+        <database>system</database>
+        <table>part_log</table>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    </part_log>
+
+    <error_log replace="1">
+        <database>system</database>
+        <table>error_log</table>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <collect_interval_milliseconds>1000</collect_interval_milliseconds>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    </error_log>
+
+    <crash_log replace="1">
+        <database>system</database>
+        <table>crash_log</table>
+        <flush_interval_milliseconds>1000</flush_interval_milliseconds>
+    </crash_log>
+
+    <!--
+      The memory profiler samples a stack trace every 4 MiB allocated, server
+      wide. Under memory pressure that is thousands of samples a second, and
+      the pressure is what makes it fire — it is loudest exactly when the
+      server can least afford it. Off, not merely unwritten: the sampling costs
+      whether or not a table is there to receive it.
+    -->
+    <total_memory_profiler_step>0</total_memory_profiler_step>
+
+    <!--
+      Both caches default to a size chosen for a dedicated host — 5 GiB of
+      marks and 8 GiB uncompressed — which is more than the whole container is
+      given. They are caps rather than allocations, so nothing reserves that
+      much on start, but the cap is what the cache will grow to, and a cache
+      that grows into the merge budget takes the server down the same way
+      metric_log did. The uncompressed cache is off (use_uncompressed_cache
+      defaults to 0), so it gets nothing.
+    -->
+    <mark_cache_size>268435456</mark_cache_size>
+    <uncompressed_cache_size>0</uncompressed_cache_size>
+</clickhouse>

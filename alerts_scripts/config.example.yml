@@ -1,0 +1,35 @@
+# UTMStack Windows brute-force event generator — example config
+#
+# Run with:
+#   ./generate_events.py --config config.example.yml --scenario all
+
+# Target Windows hosts (must have UTMStack agent installed and forwarding wineventlog)
+targets:
+  - 57.131.4.41
+#  - 192.168.1.11
+
+# Usernames to spray with random bad passwords (these become target.user in 4625)
+users:
+#  - administrator
+  - felipe
+#  - svc_backup
+
+# Windows domain. Leave empty for local accounts / workgroup.
+domain: ""
+
+# Failed attempts per user. Rules trigger at 10; using 30 to overshoot well past the threshold.
+attempts: 30
+
+# Seconds between attempts. Keep under (5min / attempts) for rules 1 & 2,
+# and under (15min / attempts) for the RDP rule.
+delay: 1.0
+
+# Default scenario when not given on CLI:
+#   bruteforce      → rule 1 (multiple failed logons)
+#   logon-success   → rule 2 (failures followed by success)
+#   all             → both rules
+scenario: all
+
+# Required for logon-success / all scenarios — a real valid account on the target.
+valid_user: felipe
+valid_pass: "Asn.12345"

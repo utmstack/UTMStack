@@ -1,0 +1,27 @@
+services:
+  utmstack:
+    container_name: utmstack
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    cgroup: host
+    hostname: utmstack
+    ports:
+      # host  : container
+      - "8443:443"     # frontend (TLS), browse https://localhost:8443
+      - "8080:80"      # frontend (HTTP redirect)
+      - "10001:10001"  # frontend (direct, bypassing host nginx)
+      - "9000:9000"    # agent-manager gRPC
+      - "9001:9001"    # agent-manager
+    volumes:
+      - utmstack-data:/utmstack
+      - utmstack-docker:/var/lib/docker
+    tmpfs:
+      - /run
+      - /run/lock
+    restart: unless-stopped
+
+volumes:
+  utmstack-data:
+  utmstack-docker:

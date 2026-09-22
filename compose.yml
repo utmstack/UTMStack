@@ -1,0 +1,118 @@
+services:
+#  postgres:
+#    image: postgres:16
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=DF7JOMKyU6oNwmy4
+#      - POSTGRES_DB=utmstack
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - pg_data:/var/lib/postgresql/data
+#
+#  clickhouse:
+#    # 25.8 is what the installer pins to — 24.x rejects the JSON column type
+#    # this schema uses, 25.3 cannot parse nested objects through JSONEachRow.
+#    image: clickhouse/clickhouse-server:25.8
+#    environment:
+#      - CLICKHOUSE_DB=utmstack
+#      - CLICKHOUSE_USER=default
+#      - CLICKHOUSE_PASSWORD=
+#      - CLICKHOUSE_SKIP_USER_SETUP=1
+#    ulimits:
+#      nofile: { soft: 262144, hard: 262144 }
+#    ports:
+#      - "9000:9000"
+#      - "8123:8123"
+#    volumes:
+#      - ch_data:/var/lib/clickhouse
+#      # ponytail: schema loaded once on empty data dir by CH's initdb hook.
+#      - ./installer/docker/clickhouse-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+#      - ./installer/docker/clickhouse-settings.xml:/etc/clickhouse-server/users.d/00-utmstack.xml:ro
+#
+#  mailhog:
+#    image: mailhog/mailhog:latest
+#    ports:
+#      - "1025:1025"   # SMTP
+#      - "8025:8025"   # web UI
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    #depends_on: [postgres, clickhouse, mailhog]
+    network_mode: "host"
+    volumes:
+      - "./backend/migrations:/app/migrations"
+      - "./clickhouse-conf:/clickhouse-conf"
+      - "./backend/backend:/app/backend"
+      - "./instance-config.yml:/updates/instance-config.yml"
+    #ports:
+    #  - "8080:8080"
+    environment:
+     - APP_TFA_ENABLED=false
+     - CLICKHOUSE_CONFIG_DIR=/clickhouse-conf
+     - CLICKHOUSE_DB=utmstack
+     - CLICKHOUSE_HOST=10.11.11.19
+     - CLICKHOUSE_PASSWORD=7muoARY62tqS2Dfj
+     - CLICKHOUSE_PORT=9000
+     - CLICKHOUSE_USER=default
+     - DB_HOST=10.11.11.19
+     - DB_NAME=utmstack
+     - DB_PASS=7muoARY62tqS2Dfj
+     - DB_PORT=5432
+     - DB_USER=postgres
+     - DEV_MODE=true
+     - ENCRYPTION_KEY=wnlEBd2vJucdrdZXevzwoXlne0e2RwkC
+     - EVENT_PROCESSOR_HOST=10.11.11.19
+     - EVENT_PROCESSOR_PORT=9002
+     - GRPC_AGENT_MANAGER_HOST=agentmanager
+     - GRPC_AGENT_MANAGER_PORT=9000
+     - INTERNAL_KEY=wnlEBd2vJucdrdZXevzwoXlne0e2RwkC
+     - PLAYGROUND_BASE_URL=http://10.11.11.19:8091
+     - SERVER_NAME=v11-ENTERPRISE-19
+     - SOC_AI_BASE_URL=https://10.11.11.19:8090
+     - UPLOAD_DIR=/uploads
+     - UTMSTACK_ADMIN_PASSWORD=7muoARY62tqS2Dfj
+     - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+
+
+      #local
+     # - DEV_MODE=true
+     # - DEV_LICENSE=mssp
+     # - SERVER_NAME=local
+
+     # - DB_HOST=postgres
+     # - DB_PORT=5432
+     # - DB_USER=postgres
+     # - DB_PASS=DF7JOMKyU6oNwmy4
+     # - DB_NAME=utmstack
+
+     # - ELASTICSEARCH_HOST=opensearch
+     # - ELASTICSEARCH_PORT=9200
+     # - ELASTICSEARCH_USER=admin
+     # - ELASTICSEARCH_PASSWORD=YubmEuXr24xDB9Bs
+
+     # - CLICKHOUSE_HOST=clickhouse
+     # - CLICKHOUSE_PORT=9000
+     # - CLICKHOUSE_DB=utmstack
+     # - CLICKHOUSE_USER=default
+     # - CLICKHOUSE_PASSWORD=
+
+     # # Optional gRPC / AI deps — backend just logs and continues when down.
+     # - GRPC_AGENT_MANAGER_HOST=agentmanager
+     # - GRPC_AGENT_MANAGER_PORT=9001
+     # - EVENT_PROCESSOR_HOST=event-processor
+     # - EVENT_PROCESSOR_PORT=9002
+     # - SOC_AI_BASE_URL=
+
+     # - INTERNAL_KEY=qNANPjjNm7eantt7sgld0iSWFFeGKz5i
+     # - ENCRYPTION_KEY=qNANPjjNm7eantt7sgld0iSWFFeGKz5i
+     # - APP_TFA_ENABLED=false
+     # - UTMSTACK_ADMIN_PASSWORD=UTMStack.2024!
+
+volumes:
+  pg_data:
+  os_data:
+  ch_data:
