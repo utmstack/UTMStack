@@ -1,25 +1,31 @@
-# Rule version v1.0.4
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: "Azure Active Directory High Risk Sign-in"
+- azure
+name: Azure Active Directory High Risk Sign-in
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: "Initial Access"
-technique: "T1078 - Valid Accounts"
+category: Initial Access
+technique: T1078 - Valid Accounts
 adversary: origin
-description: "Identifies high risk Azure Active Directory (AD) sign-ins by leveraging Microsoft's Identity Protection machine learning and heuristics. Identity Protection categorizes risk into three tiers: low, medium, and high. While Microsoft does not provide specific details about how risk is calculated, each level brings higher confidence that the user or sign-in is compromised. This rule triggers on 'high' risk level sign-ins, which indicate strong indicators of compromise such as impossible travel, anonymous IP usage, or leaked credentials."
+description: 'Identifies high risk Azure Active Directory (AD) sign-ins by leveraging Microsoft''s Identity Protection machine
+  learning and heuristics. Identity Protection categorizes risk into three tiers: low, medium, and high. While Microsoft does not
+  provide specific details about how risk is calculated, each level brings higher confidence that the user or sign-in is compromised.
+  This rule triggers on ''high'' risk level sign-ins, which indicate strong indicators of compromise such as impossible travel,
+  anonymous IP usage, or leaked credentials.'
 references:
-  - "https://attack.mitre.org/techniques/T1078/"
-  - "https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks"
-  - "https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs"
-where: |
-  equalsIgnoreCase("log.category", "SignInLogs") &&
-  equalsIgnoreCase("log.properties.RiskLevelDuringSignIn", "high") &&
-  equalsIgnoreCase("log.propertiesTokenIssuerType", "AzureAD") &&
-  equals("log.resultType", "0")
+- https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0
+- https://attack.mitre.org/techniques/T1078/
+- https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
+- https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/signinlogs
+where: 'equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high")
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

@@ -1,41 +1,68 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
+- azure
 name: Application Gateway WAF Security Alerts
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Initial Access
-technique: "T1190 - Exploit Public-Facing Application"
+technique: T1190 - Exploit Public-Facing Application
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs
-  - https://attack.mitre.org/techniques/T1190/
-description: |
-  Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious activity. This rule triggers when WAF blocks or detects suspicious requests that match security rules.
-  
+- https://learn.microsoft.com/en-us/azure/application-gateway/monitor-application-gateway-reference
+- https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/web-application-firewall-logs
+- https://attack.mitre.org/techniques/T1190/
+description: 'Detects Web Application Firewall alerts from Azure Application Gateway indicating potential web attacks or malicious
+  activity. This rule triggers when WAF blocks or detects suspicious requests that match security rules.
+
+
   **Next Steps:**
+
   1. Review the specific WAF rule ID and message details to understand the attack type
+
   2. Analyze the source IP address for reputation and geographic location
+
   3. Examine the request URL, headers, and payload for attack indicators
+
   4. Check for additional requests from the same source IP within the time window
+
   5. Verify if this is a legitimate application behavior or actual attack attempt
+
   6. Consider implementing additional WAF rules or IP blocking if confirmed malicious
+
   7. Review application logs for any successful bypass attempts
-where: |
-  (equals("log.operationName", "ApplicationGatewayFirewallLog") || equals("log.type", "ApplicationGatewayFirewallLog")) &&
-  equals("log.action", "Blocked") &&
-  exists("log.ruleId")
-afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 10m
-    count: 5
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","waf") && equalsIgnoreCase("actionResult","denied") && exists("log.properties.ruleId"))
+  && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope")
+  && !equals("log.azureScope","") && exists("origin.ip") && !equals("origin.ip","")
+
+  '
 groupBy:
-  - lastEvent.log.ruleId
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- indexPattern: v11-log-azure-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.application_gateway_waf_alerts
+    operator: filter_term
+    value: 'true'
+  within: 10m
+  count: 5
