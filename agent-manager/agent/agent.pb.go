@@ -523,6 +523,9 @@ type BidirectionalStream struct {
 	//	*BidirectionalStream_Heartbeat
 	//	*BidirectionalStream_ConfigState
 	//	*BidirectionalStream_ConfigUpdate
+	//	*BidirectionalStream_EdrCommand
+	//	*BidirectionalStream_EdrResult
+	//	*BidirectionalStream_EdrStatusReport
 	StreamMessage isBidirectionalStream_StreamMessage `protobuf_oneof:"stream_message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -610,6 +613,33 @@ func (x *BidirectionalStream) GetConfigUpdate() *ConfigUpdate {
 	return nil
 }
 
+func (x *BidirectionalStream) GetEdrCommand() *EdrCommand {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_EdrCommand); ok {
+			return x.EdrCommand
+		}
+	}
+	return nil
+}
+
+func (x *BidirectionalStream) GetEdrResult() *EdrResult {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_EdrResult); ok {
+			return x.EdrResult
+		}
+	}
+	return nil
+}
+
+func (x *BidirectionalStream) GetEdrStatusReport() *EdrStatusReport {
+	if x != nil {
+		if x, ok := x.StreamMessage.(*BidirectionalStream_EdrStatusReport); ok {
+			return x.EdrStatusReport
+		}
+	}
+	return nil
+}
+
 type isBidirectionalStream_StreamMessage interface {
 	isBidirectionalStream_StreamMessage()
 }
@@ -634,6 +664,18 @@ type BidirectionalStream_ConfigUpdate struct {
 	ConfigUpdate *ConfigUpdate `protobuf:"bytes,5,opt,name=config_update,json=configUpdate,proto3,oneof"`
 }
 
+type BidirectionalStream_EdrCommand struct {
+	EdrCommand *EdrCommand `protobuf:"bytes,6,opt,name=edr_command,json=edrCommand,proto3,oneof"`
+}
+
+type BidirectionalStream_EdrResult struct {
+	EdrResult *EdrResult `protobuf:"bytes,7,opt,name=edr_result,json=edrResult,proto3,oneof"`
+}
+
+type BidirectionalStream_EdrStatusReport struct {
+	EdrStatusReport *EdrStatusReport `protobuf:"bytes,8,opt,name=edr_status_report,json=edrStatusReport,proto3,oneof"`
+}
+
 func (*BidirectionalStream_Command) isBidirectionalStream_StreamMessage() {}
 
 func (*BidirectionalStream_Result) isBidirectionalStream_StreamMessage() {}
@@ -643,6 +685,12 @@ func (*BidirectionalStream_Heartbeat) isBidirectionalStream_StreamMessage() {}
 func (*BidirectionalStream_ConfigState) isBidirectionalStream_StreamMessage() {}
 
 func (*BidirectionalStream_ConfigUpdate) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_EdrCommand) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_EdrResult) isBidirectionalStream_StreamMessage() {}
+
+func (*BidirectionalStream_EdrStatusReport) isBidirectionalStream_StreamMessage() {}
 
 type ConfigState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1198,6 +1246,253 @@ func (x *AgentCommand) GetOriginId() string {
 	return ""
 }
 
+// EdrCommand is a typed control message from the server to the agent for the
+// EDR module. It rides the AgentStream oneof, not the interactive console
+// (UtmCommand): the action is a closed vocabulary and the payload is a JSON
+// argument object, so results are structured and the audit trail names the
+// action, not a shell line.
+type EdrCommand struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	CmdId         string                 `protobuf:"bytes,2,opt,name=cmd_id,json=cmdId,proto3" json:"cmd_id,omitempty"`
+	Action        string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`   // enable, disable, status, policy_set, quarantine_list, quarantine_restore, quarantine_purge, scan_path, full_scan, kill_process, allow_add, allow_remove, blocklist_refresh, isolate, release_isolation
+	Payload       string                 `protobuf:"bytes,4,opt,name=payload,proto3" json:"payload,omitempty"` // JSON argument object
+	ExecutedBy    string                 `protobuf:"bytes,5,opt,name=executed_by,json=executedBy,proto3" json:"executed_by,omitempty"`
+	Reason        string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EdrCommand) Reset() {
+	*x = EdrCommand{}
+	mi := &file_agent_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EdrCommand) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EdrCommand) ProtoMessage() {}
+
+func (x *EdrCommand) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EdrCommand.ProtoReflect.Descriptor instead.
+func (*EdrCommand) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *EdrCommand) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *EdrCommand) GetCmdId() string {
+	if x != nil {
+		return x.CmdId
+	}
+	return ""
+}
+
+func (x *EdrCommand) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *EdrCommand) GetPayload() string {
+	if x != nil {
+		return x.Payload
+	}
+	return ""
+}
+
+func (x *EdrCommand) GetExecutedBy() string {
+	if x != nil {
+		return x.ExecutedBy
+	}
+	return ""
+}
+
+func (x *EdrCommand) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+// EdrResult is the agent's typed reply to an EdrCommand, correlated by
+// cmd_id. ok=false pairs with a machine-readable error (lowercase
+// snake_case); payload carries a JSON result object when ok=true.
+type EdrResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	CmdId         string                 `protobuf:"bytes,2,opt,name=cmd_id,json=cmdId,proto3" json:"cmd_id,omitempty"`
+	Ok            bool                   `protobuf:"varint,3,opt,name=ok,proto3" json:"ok,omitempty"`
+	Error         string                 `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	Payload       string                 `protobuf:"bytes,5,opt,name=payload,proto3" json:"payload,omitempty"` // JSON result object
+	ExecutedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=executed_at,json=executedAt,proto3" json:"executed_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EdrResult) Reset() {
+	*x = EdrResult{}
+	mi := &file_agent_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EdrResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EdrResult) ProtoMessage() {}
+
+func (x *EdrResult) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EdrResult.ProtoReflect.Descriptor instead.
+func (*EdrResult) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *EdrResult) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *EdrResult) GetCmdId() string {
+	if x != nil {
+		return x.CmdId
+	}
+	return ""
+}
+
+func (x *EdrResult) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+func (x *EdrResult) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *EdrResult) GetPayload() string {
+	if x != nil {
+		return x.Payload
+	}
+	return ""
+}
+
+func (x *EdrResult) GetExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExecutedAt
+	}
+	return nil
+}
+
+// EdrStatusReport is sent by the agent without being asked — periodically
+// and after state changes — carrying the module's status.json contents so
+// the server can track engine health, signature version and sensor state.
+type EdrStatusReport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	StatusJson    string                 `protobuf:"bytes,2,opt,name=status_json,json=statusJson,proto3" json:"status_json,omitempty"`
+	PolicyVersion string                 `protobuf:"bytes,3,opt,name=policy_version,json=policyVersion,proto3" json:"policy_version,omitempty"`
+	ReportedAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=reported_at,json=reportedAt,proto3" json:"reported_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EdrStatusReport) Reset() {
+	*x = EdrStatusReport{}
+	mi := &file_agent_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EdrStatusReport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EdrStatusReport) ProtoMessage() {}
+
+func (x *EdrStatusReport) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EdrStatusReport.ProtoReflect.Descriptor instead.
+func (*EdrStatusReport) Descriptor() ([]byte, []int) {
+	return file_agent_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *EdrStatusReport) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *EdrStatusReport) GetStatusJson() string {
+	if x != nil {
+		return x.StatusJson
+	}
+	return ""
+}
+
+func (x *EdrStatusReport) GetPolicyVersion() string {
+	if x != nil {
+		return x.PolicyVersion
+	}
+	return ""
+}
+
+func (x *EdrStatusReport) GetReportedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ReportedAt
+	}
+	return nil
+}
+
 var File_agent_proto protoreflect.FileDescriptor
 
 const file_agent_proto_rawDesc = "" +
@@ -1242,13 +1537,18 @@ const file_agent_proto_rawDesc = "" +
 	"\aaliases\x18\r \x01(\tR\aaliases\x12\x1c\n" +
 	"\taddresses\x18\x0e \x01(\tR\taddresses\x12\x1b\n" +
 	"\ttenant_id\x18\x0f \x01(\tR\btenantId\x12*\n" +
-	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\xad\x02\n" +
+	"\x11no_remote_control\x18\x10 \x01(\bR\x0fnoRemoteControl\"\xdc\x03\n" +
 	"\x13BidirectionalStream\x12-\n" +
 	"\acommand\x18\x01 \x01(\v2\x11.agent.UtmCommandH\x00R\acommand\x12.\n" +
 	"\x06result\x18\x02 \x01(\v2\x14.agent.CommandResultH\x00R\x06result\x120\n" +
 	"\theartbeat\x18\x03 \x01(\v2\x10.agent.HeartbeatH\x00R\theartbeat\x127\n" +
 	"\fconfig_state\x18\x04 \x01(\v2\x12.agent.ConfigStateH\x00R\vconfigState\x12:\n" +
-	"\rconfig_update\x18\x05 \x01(\v2\x13.agent.ConfigUpdateH\x00R\fconfigUpdateB\x10\n" +
+	"\rconfig_update\x18\x05 \x01(\v2\x13.agent.ConfigUpdateH\x00R\fconfigUpdate\x124\n" +
+	"\vedr_command\x18\x06 \x01(\v2\x11.agent.EdrCommandH\x00R\n" +
+	"edrCommand\x121\n" +
+	"\n" +
+	"edr_result\x18\a \x01(\v2\x10.agent.EdrResultH\x00R\tedrResult\x12D\n" +
+	"\x11edr_status_report\x18\b \x01(\v2\x16.agent.EdrStatusReportH\x00R\x0fedrStatusReportB\x10\n" +
 	"\x0estream_message\"\x8c\x01\n" +
 	"\vConfigState\x12?\n" +
 	"\trevisions\x18\x01 \x03(\v2!.agent.ConfigState.RevisionsEntryR\trevisions\x1a<\n" +
@@ -1302,7 +1602,31 @@ const file_agent_proto_rawDesc = "" +
 	"\vorigin_type\x18\n" +
 	" \x01(\tR\n" +
 	"originType\x12\x1b\n" +
-	"\torigin_id\x18\v \x01(\tR\boriginId*W\n" +
+	"\torigin_id\x18\v \x01(\tR\boriginId\"\xa9\x01\n" +
+	"\n" +
+	"EdrCommand\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x15\n" +
+	"\x06cmd_id\x18\x02 \x01(\tR\x05cmdId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12\x18\n" +
+	"\apayload\x18\x04 \x01(\tR\apayload\x12\x1f\n" +
+	"\vexecuted_by\x18\x05 \x01(\tR\n" +
+	"executedBy\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\"\xba\x01\n" +
+	"\tEdrResult\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x15\n" +
+	"\x06cmd_id\x18\x02 \x01(\tR\x05cmdId\x12\x0e\n" +
+	"\x02ok\x18\x03 \x01(\bR\x02ok\x12\x14\n" +
+	"\x05error\x18\x04 \x01(\tR\x05error\x12\x18\n" +
+	"\apayload\x18\x05 \x01(\tR\apayload\x12;\n" +
+	"\vexecuted_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"executedAt\"\xb1\x01\n" +
+	"\x0fEdrStatusReport\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1f\n" +
+	"\vstatus_json\x18\x02 \x01(\tR\n" +
+	"statusJson\x12%\n" +
+	"\x0epolicy_version\x18\x03 \x01(\tR\rpolicyVersion\x12;\n" +
+	"\vreported_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"reportedAt*W\n" +
 	"\x12AgentCommandStatus\x12\x10\n" +
 	"\fNOT_EXECUTED\x10\x00\x12\t\n" +
 	"\x05QUEUE\x10\x01\x12\v\n" +
@@ -1337,7 +1661,7 @@ func file_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_agent_proto_goTypes = []any{
 	(AgentCommandStatus)(0),            // 0: agent.AgentCommandStatus
 	(*ConnectionKeyRequest)(nil),       // 1: agent.ConnectionKeyRequest
@@ -1354,57 +1678,65 @@ var file_agent_proto_goTypes = []any{
 	(*CommandResult)(nil),              // 12: agent.CommandResult
 	(*ListAgentsCommandsResponse)(nil), // 13: agent.ListAgentsCommandsResponse
 	(*AgentCommand)(nil),               // 14: agent.AgentCommand
-	nil,                                // 15: agent.ConfigState.RevisionsEntry
-	(Status)(0),                        // 16: agent.Status
-	(*Heartbeat)(nil),                  // 17: agent.Heartbeat
-	(*timestamppb.Timestamp)(nil),      // 18: google.protobuf.Timestamp
-	(*DeleteRequest)(nil),              // 19: agent.DeleteRequest
-	(*ListRequest)(nil),                // 20: agent.ListRequest
-	(*ConnectorAuthRequest)(nil),       // 21: agent.ConnectorAuthRequest
-	(*AuthResponse)(nil),               // 22: agent.AuthResponse
-	(*ConnectorAuthResponse)(nil),      // 23: agent.ConnectorAuthResponse
+	(*EdrCommand)(nil),                 // 15: agent.EdrCommand
+	(*EdrResult)(nil),                  // 16: agent.EdrResult
+	(*EdrStatusReport)(nil),            // 17: agent.EdrStatusReport
+	nil,                                // 18: agent.ConfigState.RevisionsEntry
+	(Status)(0),                        // 19: agent.Status
+	(*Heartbeat)(nil),                  // 20: agent.Heartbeat
+	(*timestamppb.Timestamp)(nil),      // 21: google.protobuf.Timestamp
+	(*DeleteRequest)(nil),              // 22: agent.DeleteRequest
+	(*ListRequest)(nil),                // 23: agent.ListRequest
+	(*ConnectorAuthRequest)(nil),       // 24: agent.ConnectorAuthRequest
+	(*AuthResponse)(nil),               // 25: agent.AuthResponse
+	(*ConnectorAuthResponse)(nil),      // 26: agent.ConnectorAuthResponse
 }
 var file_agent_proto_depIdxs = []int32{
 	5,  // 0: agent.ListAgentsResponse.rows:type_name -> agent.Agent
-	16, // 1: agent.Agent.status:type_name -> agent.Status
+	19, // 1: agent.Agent.status:type_name -> agent.Status
 	11, // 2: agent.BidirectionalStream.command:type_name -> agent.UtmCommand
 	12, // 3: agent.BidirectionalStream.result:type_name -> agent.CommandResult
-	17, // 4: agent.BidirectionalStream.heartbeat:type_name -> agent.Heartbeat
+	20, // 4: agent.BidirectionalStream.heartbeat:type_name -> agent.Heartbeat
 	7,  // 5: agent.BidirectionalStream.config_state:type_name -> agent.ConfigState
 	8,  // 6: agent.BidirectionalStream.config_update:type_name -> agent.ConfigUpdate
-	15, // 7: agent.ConfigState.revisions:type_name -> agent.ConfigState.RevisionsEntry
-	18, // 8: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
-	14, // 9: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
-	18, // 10: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
-	18, // 11: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 12: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
-	3,  // 13: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
-	3,  // 14: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
-	19, // 15: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
-	20, // 16: agent.AgentService.ListAgents:input_type -> agent.ListRequest
-	21, // 17: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
-	6,  // 18: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
-	20, // 19: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
-	11, // 20: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
-	1,  // 21: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
-	1,  // 22: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
-	9,  // 23: agent.PanelService.SetAgentConfig:input_type -> agent.SetAgentConfigRequest
-	22, // 24: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
-	22, // 25: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
-	22, // 26: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
-	4,  // 27: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
-	23, // 28: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
-	6,  // 29: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
-	13, // 30: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
-	12, // 31: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
-	2,  // 32: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
-	2,  // 33: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
-	10, // 34: agent.PanelService.SetAgentConfig:output_type -> agent.SetAgentConfigResponse
-	24, // [24:35] is the sub-list for method output_type
-	13, // [13:24] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	15, // 7: agent.BidirectionalStream.edr_command:type_name -> agent.EdrCommand
+	16, // 8: agent.BidirectionalStream.edr_result:type_name -> agent.EdrResult
+	17, // 9: agent.BidirectionalStream.edr_status_report:type_name -> agent.EdrStatusReport
+	18, // 10: agent.ConfigState.revisions:type_name -> agent.ConfigState.RevisionsEntry
+	21, // 11: agent.CommandResult.executed_at:type_name -> google.protobuf.Timestamp
+	14, // 12: agent.ListAgentsCommandsResponse.rows:type_name -> agent.AgentCommand
+	21, // 13: agent.AgentCommand.created_at:type_name -> google.protobuf.Timestamp
+	21, // 14: agent.AgentCommand.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 15: agent.AgentCommand.command_status:type_name -> agent.AgentCommandStatus
+	21, // 16: agent.EdrResult.executed_at:type_name -> google.protobuf.Timestamp
+	21, // 17: agent.EdrStatusReport.reported_at:type_name -> google.protobuf.Timestamp
+	3,  // 18: agent.AgentService.RegisterAgent:input_type -> agent.AgentRequest
+	3,  // 19: agent.AgentService.UpdateAgent:input_type -> agent.AgentRequest
+	22, // 20: agent.AgentService.DeleteAgent:input_type -> agent.DeleteRequest
+	23, // 21: agent.AgentService.ListAgents:input_type -> agent.ListRequest
+	24, // 22: agent.AgentService.GetAgentAuth:input_type -> agent.ConnectorAuthRequest
+	6,  // 23: agent.AgentService.AgentStream:input_type -> agent.BidirectionalStream
+	23, // 24: agent.AgentService.ListAgentCommands:input_type -> agent.ListRequest
+	11, // 25: agent.PanelService.ProcessCommand:input_type -> agent.UtmCommand
+	1,  // 26: agent.PanelService.GetConnectionKey:input_type -> agent.ConnectionKeyRequest
+	1,  // 27: agent.PanelService.RotateConnectionKey:input_type -> agent.ConnectionKeyRequest
+	9,  // 28: agent.PanelService.SetAgentConfig:input_type -> agent.SetAgentConfigRequest
+	25, // 29: agent.AgentService.RegisterAgent:output_type -> agent.AuthResponse
+	25, // 30: agent.AgentService.UpdateAgent:output_type -> agent.AuthResponse
+	25, // 31: agent.AgentService.DeleteAgent:output_type -> agent.AuthResponse
+	4,  // 32: agent.AgentService.ListAgents:output_type -> agent.ListAgentsResponse
+	26, // 33: agent.AgentService.GetAgentAuth:output_type -> agent.ConnectorAuthResponse
+	6,  // 34: agent.AgentService.AgentStream:output_type -> agent.BidirectionalStream
+	13, // 35: agent.AgentService.ListAgentCommands:output_type -> agent.ListAgentsCommandsResponse
+	12, // 36: agent.PanelService.ProcessCommand:output_type -> agent.CommandResult
+	2,  // 37: agent.PanelService.GetConnectionKey:output_type -> agent.ConnectionKeyResponse
+	2,  // 38: agent.PanelService.RotateConnectionKey:output_type -> agent.ConnectionKeyResponse
+	10, // 39: agent.PanelService.SetAgentConfig:output_type -> agent.SetAgentConfigResponse
+	29, // [29:40] is the sub-list for method output_type
+	18, // [18:29] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_agent_proto_init() }
@@ -1419,6 +1751,9 @@ func file_agent_proto_init() {
 		(*BidirectionalStream_Heartbeat)(nil),
 		(*BidirectionalStream_ConfigState)(nil),
 		(*BidirectionalStream_ConfigUpdate)(nil),
+		(*BidirectionalStream_EdrCommand)(nil),
+		(*BidirectionalStream_EdrResult)(nil),
+		(*BidirectionalStream_EdrStatusReport)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1426,7 +1761,7 @@ func file_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_proto_rawDesc), len(file_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
