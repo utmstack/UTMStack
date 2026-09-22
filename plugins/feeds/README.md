@@ -5,14 +5,12 @@
 
 UTMStack Plugin for ThreadWinds Ingestion is a connector developed in Golang that extracts security entities from `UTMStack incidents and alerts` and sends them to the `ThreadWinds` threat intelligence platform.
 
-This plugin processes incidents from UTMStack, extracts entities (IPs, domains, hashes, emails, etc.) from their associated alerts and events, and ingests them into ThreadWinds for global threat intelligence correlation and enrichment.
+It periodically polls for recent incidents, extracts the relevant entities (IPs, domains, hashes, emails, etc.) from their associated alerts and events, builds associations between them, and contributes them to ThreadWinds for global threat intelligence correlation and enrichment.
 
-The connector automatically registers with ThreadWinds services using the admin email from the UTMStack system. It periodically polls for recent incidents, extracts all relevant entities (network indicators, file hashes, user identities, etc.), builds associations between entities, and sends them to ThreadWinds for analysis.
+## Configuration
 
-### Requirements
-**ThreadWinds Credentials:**
+The functionality is enabled or disabled via the on/off switch provided in the UI. When disabled (or if the file does not exist), the plugin performs no action. The installer creates the file with the option enabled by default for new installations and does not modify it subsequently.
 
-- API Key
-- API Secret
+## Requirements
 
-Please note that the connector automatically registers with ThreadWinds using the admin email if credentials are not already configured. The connector requires a valid admin email to run.
+The plugin requires the instance configuration provided by the installer. If that configuration is not available, the plugin will not start.

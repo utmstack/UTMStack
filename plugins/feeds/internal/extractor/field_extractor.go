@@ -269,14 +269,6 @@ func (e *FieldExtractor) extractFromSide(side *models.Side, prefix string) []*mo
 		})
 	}
 
-	if side.WindowsServiceDisplayName != "" {
-		fields = append(fields, &models.FlattenedField{
-			Path:  prefix + ".windowsServiceDisplayName",
-			Key:   "windows-service-display-name",
-			Value: side.WindowsServiceDisplayName,
-		})
-	}
-
 	if side.WindowsServiceName != "" {
 		fields = append(fields, &models.FlattenedField{
 			Path:  prefix + ".windowsServiceName",

@@ -115,7 +115,7 @@ type EntityEnrichmentContext struct {
 	AlertID    string
 	EventID    string
 
-	Severity int
+	Severity string
 	DataType string
 
 	SourceType string
@@ -128,11 +128,11 @@ type EntityEnrichmentContext struct {
 	AccuracyRadius *float64
 }
 
-func calculateReputation(severity int) int {
-	switch {
-	case severity >= 7:
+func calculateReputation(severity string) int {
+	switch severity {
+	case "high":
 		return -3
-	case severity >= 4:
+	case "medium":
 		return -1
 	default:
 		return 0

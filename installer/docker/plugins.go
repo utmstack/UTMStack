@@ -2,6 +2,7 @@ package docker
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/installer/config"
@@ -46,6 +47,17 @@ type PostgreConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
+}
+
+// feedsFile is the minimal shape for system_plugins_feeds.yaml. The existing
+// PluginConfig carries many omitempty fields that would not marshal to the
+// minimal shape, so a dedicated struct keeps the seed exact.
+type feedsFile struct {
+	Plugins map[string]feedsCfg `yaml:"plugins"`
+}
+
+type feedsCfg struct {
+	Enabled bool `yaml:"enabled"`
 }
 
 func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
@@ -125,6 +137,13 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	err = utils.WriteYAML(filepath.Join(pipelineDir, "clickhouse_plugins.yaml"), clickHousePipeline)
 	if err != nil {
 		return fmt.Errorf("error writing ClickHouse pipeline config: %w", err)
+	}
+
+	feedsPath := filepath.Join(pipelineDir, "system_plugins_feeds.yaml")
+	if _, err := os.Stat(feedsPath); os.IsNotExist(err) {
+		if err := utils.WriteYAML(feedsPath, feedsFile{Plugins: map[string]feedsCfg{"feeds": {Enabled: true}}}); err != nil {
+			return fmt.Errorf("error writing feeds plugin config: %w", err)
+		}
 	}
 
 	return nil

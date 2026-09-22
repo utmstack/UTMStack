@@ -21,7 +21,7 @@ func (a *App) loadConfiguration() error {
 func (a *App) initializeClients() error {
 	catcher.Info("initializing clients", nil)
 
-	clients, err := client.NewClientDependencies(a.config)
+	clients, err := client.NewClientDependencies(a.config, a.ic)
 	if err != nil {
 		return catcher.Error("failed to initialize clients", err, nil)
 	}

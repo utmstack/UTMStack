@@ -22,13 +22,12 @@ const (
 )
 
 type PluginConfig struct {
-	Enabled   bool
-	APIKey    string // decrypted
-	APISecret string // decrypted
+	Enabled bool
 }
 
-func (c PluginConfig) Configured() bool { return c.APIKey != "" && c.APISecret != "" }
-
+// fileConfig keeps the api_key/api_secret tags for forward compatibility:
+// legacy files that still carry them parse cleanly, but the values are
+// ignored — the plugin no longer holds ThreadWinds credentials.
 type fileConfig struct {
 	Enabled   bool   `yaml:"enabled"`
 	APIKey    string `yaml:"api_key"`
@@ -59,7 +58,6 @@ func setPluginConfig(c PluginConfig) {
 
 func StartConfigurationSystem() {
 	pipelineDir := pipelineDirDefault
-	var encKey string
 
 	for {
 		cfg := plugins.PluginCfg("com.utmstack")
@@ -67,7 +65,6 @@ func StartConfigurationSystem() {
 			if d := cfg.Get("pipelineDir").String(); d != "" {
 				pipelineDir = d
 			}
-			encKey = cfg.Get("encryptionKey").String()
 			break
 		}
 		_ = catcher.Error("platform configuration not ready", nil, map[string]any{"process": processName})
@@ -75,7 +72,7 @@ func StartConfigurationSystem() {
 	}
 
 	filePath := filepath.Join(pipelineDir, pluginFile)
-	load := func() { setPluginConfig(readPluginConfig(filePath, encKey)) }
+	load := func() { setPluginConfig(readPluginConfig(filePath)) }
 	load()
 
 	go watch(pipelineDir, filePath, load)
@@ -123,7 +120,7 @@ func watch(pipelineDir, filePath string, load func()) {
 	}
 }
 
-func readPluginConfig(path, encKey string) PluginConfig {
+func readPluginConfig(path string) PluginConfig {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -145,17 +142,5 @@ func readPluginConfig(path, encKey string) PluginConfig {
 		return PluginConfig{}
 	}
 
-	c := PluginConfig{Enabled: fc.Enabled, APIKey: fc.APIKey, APISecret: fc.APISecret}
-	if encKey == "" {
-		return c
-	}
-
-	cipher := NewCipher(encKey)
-	if dec, err := cipher.Decrypt(fc.APIKey); err == nil {
-		c.APIKey = dec
-	}
-	if dec, err := cipher.Decrypt(fc.APISecret); err == nil {
-		c.APISecret = dec
-	}
-	return c
+	return PluginConfig{Enabled: fc.Enabled}
 }

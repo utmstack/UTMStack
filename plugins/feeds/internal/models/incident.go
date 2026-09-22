@@ -3,19 +3,20 @@ package models
 import "time"
 
 type Incident struct {
-	ID          int64     `json:"id"`
+	ID          string    `json:"id"`
 	Name        string    `json:"incidentName"`
-	Description string    `json:"incidentDescription"`
+	Description *string   `json:"incidentDescription"`
 	Status      string    `json:"incidentStatus"`
-	Severity    int       `json:"incidentSeverity"`
+	Severity    string    `json:"incidentSeverity"`
 	CreatedDate time.Time `json:"incidentCreatedDate"`
+	AlertCount  int       `json:"alertCount"`
 }
 
 type IncidentAlert struct {
-	ID            int64  `json:"id"`
-	IncidentID    int64  `json:"incidentId"`
+	ID            string `json:"id"`
+	IncidentID    string `json:"incidentId"`
 	AlertID       string `json:"alertId"`
 	AlertName     string `json:"alertName"`
-	AlertStatus   int    `json:"alertStatus"`
-	AlertSeverity int    `json:"alertSeverity"`
+	AlertSeverity string `json:"alertSeverity"`
+	AlertStatus   string `json:"alertStatus"`
 }

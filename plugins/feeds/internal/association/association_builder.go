@@ -130,14 +130,6 @@ func (b *AssociationBuilder) createAssociation(source, target *EntityReference, 
 	sourceEntity.Associations = append(sourceEntity.Associations, associatedEntity)
 }
 
-func (b *AssociationBuilder) CountAssociations(entities []*entities.Entity) int {
-	count := 0
-	for _, entity := range entities {
-		count += len(entity.Associations)
-	}
-	return count
-}
-
 func (b *AssociationBuilder) ClearRegistry() {
 	b.entityRegistry = &sync.Map{}
 	b.seenHashes = &sync.Map{}

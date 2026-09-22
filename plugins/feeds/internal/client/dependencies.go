@@ -12,7 +12,7 @@ type ClientDependencies struct {
 	Alerts      *AlertClient
 }
 
-func NewClientDependencies(cfg *config.TWConfig) (*ClientDependencies, error) {
+func NewClientDependencies(cfg *config.TWConfig, ic *CustomersManagerClient) (*ClientDependencies, error) {
 	catcher.Info("initializing client dependencies", nil)
 
 	alerts, err := NewAlertClient(cfg)
@@ -22,8 +22,8 @@ func NewClientDependencies(cfg *config.TWConfig) (*ClientDependencies, error) {
 
 	deps := &ClientDependencies{
 		Backend:     NewBackendClient(cfg),
-		CM:          &CustomersManagerClient{},
-		ThreadWinds: NewThreadWindsClient(cfg),
+		CM:          ic,
+		ThreadWinds: NewThreadWindsClient(ic),
 		Alerts:      alerts,
 	}
 

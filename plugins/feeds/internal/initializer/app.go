@@ -12,24 +12,21 @@ import (
 
 type App struct {
 	config    *config.TWConfig
+	ic        *client.CustomersManagerClient
 	clients   *client.ClientDependencies
 	scheduler *scheduler.IngestionScheduler
 	eg        *errgroup.Group
 	egCtx     context.Context
 }
 
-func NewApp(ctx context.Context) (*App, error) {
-	app := &App{}
+func NewApp(ctx context.Context, ic *client.CustomersManagerClient) (*App, error) {
+	app := &App{ic: ic}
 
 	if err := app.loadConfiguration(); err != nil {
 		return nil, err
 	}
 
 	if err := app.initializeClients(); err != nil {
-		return nil, err
-	}
-
-	if err := app.configureThreadWinds(ctx); err != nil {
 		return nil, err
 	}
 
