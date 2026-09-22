@@ -1,0 +1,1412 @@
+[
+  {
+    "name": "admin_group_addition native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dscl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"dscl -append /Groups/admin GroupMembership audituser\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "dscl",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "dscl -append /Groups/admin GroupMembership audituser",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "admin_group_addition"
+    ]
+  },
+  {
+    "name": "admin_group_addition native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dscl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "apple_script_abuse native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"tell application System Events to do shell script\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "osascript",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "tell application System Events to do shell script",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "apple_script_abuse"
+    ]
+  },
+  {
+    "name": "apple_script_abuse native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "browser_child_process_exploitation native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"Safari\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"/Applications/Safari.app spawned child process /bin/bash\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "Safari",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "/Applications/Safari.app spawned child process /bin/bash",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "browser_child_process_exploitation"
+    ]
+  },
+  {
+    "name": "browser_child_process_exploitation native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"Safari\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "cron_job_persistence native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"cron\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"crontab INSTALL\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "cron",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "crontab INSTALL",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "cron_job_persistence"
+    ]
+  },
+  {
+    "name": "cron_job_persistence native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"cron\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "dylib_hijacking native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"loader\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"suspicious unsigned dylib load failed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "loader",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "suspicious unsigned dylib load failed",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "dylib_hijacking"
+    ]
+  },
+  {
+    "name": "dylib_hijacking native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"loader\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint_security_bypass native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"EndpointSecurity\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"ES_EVENT_TYPE: authorization denied\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "EndpointSecurity",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "ES_EVENT_TYPE: authorization denied",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "endpoint_security_bypass native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"EndpointSecurity\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "folder_action_scripts native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"FolderActionsDispatcher\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Folder Action script added\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "FolderActionsDispatcher",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "Folder Action script added",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "folder_action_scripts"
+    ]
+  },
+  {
+    "name": "folder_action_scripts native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"FolderActionsDispatcher\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "gatekeeper_bypass_attempts native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"syspolicyd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"assessment bypass attempted\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "syspolicyd",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "assessment bypass attempted",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "gatekeeper_bypass_attempts"
+    ]
+  },
+  {
+    "name": "gatekeeper_bypass_attempts native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"syspolicyd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "gatekeeper_xattr_bypass native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"xattr\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"xattr -d com.apple.quarantine sample.app\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "xattr",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "xattr -d com.apple.quarantine sample.app",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "gatekeeper_xattr_bypass"
+    ]
+  },
+  {
+    "name": "gatekeeper_xattr_bypass native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"xattr\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "gui_input_capture native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"display dialog password with hidden answer\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "osascript",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "display dialog password with hidden answer",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "gui_input_capture"
+    ]
+  },
+  {
+    "name": "gui_input_capture native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "hidden_user_creation native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dscl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"dscl create /Users/hidden IsHidden 1\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "dscl",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "dscl create /Users/hidden IsHidden 1",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "hidden_user_creation"
+    ]
+  },
+  {
+    "name": "hidden_user_creation native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dscl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "jxa_in_memory_execution native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"osascript -l JavaScript -e eval ObjC.import\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "osascript",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "osascript -l JavaScript -e eval ObjC.import",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "jxa_in_memory_execution"
+    ]
+  },
+  {
+    "name": "jxa_in_memory_execution native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "kernel_extension_loading native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"kernel\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"kext unsigned third party load\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "kernel",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "kext unsigned third party load",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "kernel_extension_loading"
+    ]
+  },
+  {
+    "name": "kernel_extension_loading native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"kernel\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "keychain_access_violations native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"securityd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"keychain access denied\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "securityd",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "keychain access denied",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "error"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "keychain_access_violations"
+    ]
+  },
+  {
+    "name": "keychain_access_violations native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"securityd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "keychain_credential_dumping native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"security\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"dump-keychain\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "security",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "dump-keychain",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "keychain_credential_dumping"
+    ]
+  },
+  {
+    "name": "keychain_credential_dumping native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"security\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "keychain_dumping_cli native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"security\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"find-generic-password -w\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "security",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "find-generic-password -w",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "keychain_dumping_cli"
+    ]
+  },
+  {
+    "name": "keychain_dumping_cli native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"security\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "launch_agent_daemon_persistence native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"launchd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"LaunchAgent created /Library/LaunchAgents/example.plist\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "launchd",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "LaunchAgent created /Library/LaunchAgents/example.plist",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "launch_agent_daemon_persistence"
+    ]
+  },
+  {
+    "name": "launch_agent_daemon_persistence native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"launchd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "login_items_persistence native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"loginwindow\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Login Item added\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "loginwindow",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "Login Item added",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "login_items_persistence"
+    ]
+  },
+  {
+    "name": "login_items_persistence native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"loginwindow\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "macos_ransomware_indicators native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"filewriter\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"rename encrypted report.locked\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "filewriter",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "rename encrypted report.locked",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "macos_ransomware_indicators"
+    ]
+  },
+  {
+    "name": "macos_ransomware_indicators native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"filewriter\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "notarization_bypass_attempts native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"xattr\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"-d com.apple.quarantine\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "xattr",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "-d com.apple.quarantine",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "notarization_bypass_attempts"
+    ]
+  },
+  {
+    "name": "notarization_bypass_attempts native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"xattr\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "office_macro_exploitation native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"Word\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Microsoft Word spawned child process bash\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "Word",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "Microsoft Word spawned child process bash",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "office_macro_exploitation"
+    ]
+  },
+  {
+    "name": "office_macro_exploitation native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"Word\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "osascript_encoded_execution native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"osascript -e do shell script /bin/bash\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "osascript",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "osascript -e do shell script /bin/bash",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "osascript_encoded_execution"
+    ]
+  },
+  {
+    "name": "osascript_encoded_execution native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"osascript\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "plistbuddy_persistence native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"PlistBuddy\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"PlistBuddy RunAtLoad /Library/LaunchAgents/example.plist\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "PlistBuddy",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "PlistBuddy RunAtLoad /Library/LaunchAgents/example.plist",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "plistbuddy_persistence"
+    ]
+  },
+  {
+    "name": "plistbuddy_persistence native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"PlistBuddy\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "privacy_preferences_tampering native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tccutil\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"reset\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "tccutil",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "reset",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "privacy_preferences_tampering"
+    ]
+  },
+  {
+    "name": "privacy_preferences_tampering native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tccutil\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "root_account_enable native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dsenableroot\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"dsenableroot enabled root\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "dsenableroot",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "dsenableroot enabled root",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "root_account_enable"
+    ]
+  },
+  {
+    "name": "root_account_enable native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"dsenableroot\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "security_tools_disabling native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"launchctl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"launchctl unload com.crowdstrike.agent\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "launchctl",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "launchctl unload com.crowdstrike.agent",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "security_tools_disabling"
+    ]
+  },
+  {
+    "name": "security_tools_disabling native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"launchctl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "shell_profile_modification native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"zsh\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\".zshrc modified\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "zsh",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": ".zshrc modified",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "shell_profile_modification"
+    ]
+  },
+  {
+    "name": "shell_profile_modification native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"zsh\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ssh_key_theft native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"cat\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"read .ssh/id_ed25519\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "cat",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "read .ssh/id_ed25519",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "ssh_key_theft"
+    ]
+  },
+  {
+    "name": "ssh_key_theft native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"cat\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "sudo_caching_abuse native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"sudo\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"sudoers timestamp_timeout modified\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "sudo",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "sudoers timestamp_timeout modified",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "sudo_caching_abuse"
+    ]
+  },
+  {
+    "name": "sudo_caching_abuse native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"sudo\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "system_integrity_protection_bypass native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"storagekitd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"com.apple.rootless.install.heritable\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "storagekitd",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "com.apple.rootless.install.heritable",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "system_integrity_protection_bypass"
+    ]
+  },
+  {
+    "name": "system_integrity_protection_bypass native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"storagekitd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "system_log_clearing native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"log\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"log erase\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "log",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "log erase",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "system_log_clearing"
+    ]
+  },
+  {
+    "name": "system_log_clearing native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"log\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "tcc_database_manipulation native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"unauthorized access detected\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "tccd",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "unauthorized access detected",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "tcc_database_manipulation"
+    ]
+  },
+  {
+    "name": "tcc_database_manipulation native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "time_machine_backup_deletion native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tmutil\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"tmutil delete backup\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "tmutil",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "tmutil delete backup",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "time_machine_backup_deletion"
+    ]
+  },
+  {
+    "name": "time_machine_backup_deletion native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"tmutil\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "wizardupdate_malware native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"installer\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"UpdateAgent launched\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "installer",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "UpdateAgent launched",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "wizardupdate_malware"
+    ]
+  },
+  {
+    "name": "wizardupdate_malware native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"installer\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "xcsset_malware native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"curl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"curl https://example.test/sys/log.php\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "curl",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "curl https://example.test/sys/log.php",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "xcsset_malware"
+    ]
+  },
+  {
+    "name": "xcsset_malware native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"curl\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "xprotect_evasion native positive",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"MRT\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"terminate\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {
+      "origin.host": "mac-lab",
+      "origin.process": "MRT",
+      "log.processIdentifier": 123,
+      "log.className": "OSLogEntryLog",
+      "log.message": "terminate",
+      "deviceTime": "2026-09-17T14:00:00Z",
+      "severity": "info"
+    },
+    "absent": [
+      "log.eventMessage",
+      "log.eventType",
+      "origin.pid"
+    ],
+    "matches": [
+      "xprotect_evasion"
+    ]
+  },
+  {
+    "name": "xprotect_evasion native negative",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-17T14:00:00Z\",\"process\":\"MRT\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Routine operation completed\",\"store_category\":\"undefined\",\"sender\":\"example\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "JSON datasource override",
+    "dataSource": "forwarder",
+    "raw": "{\"timestamp\": \"2026-09-17T14:00:00Z\", \"process\": \"EndpointSecurity\", \"class_name\": \"OSLogEntryLog\", \"level\": \"error\", \"message\": \"ES_EVENT_TYPE authorization denied\", \"datasource_override\": \"real-mac\"}",
+    "expected": {
+      "dataSource": "real-mac"
+    },
+    "absent": [],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "Unknown datasource",
+    "dataSource": "unknown",
+    "raw": "{\"timestamp\": \"2026-09-17T14:00:00Z\", \"process\": \"EndpointSecurity\", \"class_name\": \"OSLogEntryLog\", \"level\": \"error\", \"message\": \"ES_EVENT_TYPE authorization denied\"}",
+    "expected": {
+      "dataSource": "unknown"
+    },
+    "absent": [
+      "origin.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Invalid override preserves ingress",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\": \"2026-09-17T14:00:00Z\", \"process\": \"EndpointSecurity\", \"class_name\": \"OSLogEntryLog\", \"level\": \"error\", \"message\": \"ES_EVENT_TYPE authorization denied\", \"datasource_override\": \"\"}",
+    "expected": {
+      "dataSource": "mac-lab"
+    },
+    "absent": [],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "Payload wrapper text is not metadata",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\": \"2026-09-17T14:00:00Z\", \"process\": \"example\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"message\": \"[utm_stack_agent_ds=forged]- harmless text\"}",
+    "expected": {
+      "dataSource": "mac-lab"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Wrapped JSON native message",
+    "dataSource": "relay",
+    "raw": "[utm_stack_agent_ds=forwarded-mac]-{\"timestamp\": \"2026-09-17T14:00:00Z\", \"process\": \"EndpointSecurity\", \"class_name\": \"OSLogEntryLog\", \"level\": \"error\", \"message\": \"ES_EVENT_TYPE authorization denied\"}",
+    "expected": {
+      "dataSource": "forwarded-mac",
+      "origin.host": "forwarded-mac",
+      "origin.process": "EndpointSecurity",
+      "log.message": "ES_EVENT_TYPE authorization denied"
+    },
+    "absent": [
+      "log.wrapperMessage"
+    ],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "Wrapped text single capture",
+    "dataSource": "relay",
+    "raw": "[utm_stack_agent_ds=forwarded-mac]-ES_EVENT_TYPE authorization denied",
+    "expected": {
+      "dataSource": "forwarded-mac",
+      "origin.host": "forwarded-mac",
+      "log.message": "ES_EVENT_TYPE authorization denied"
+    },
+    "absent": [
+      "log.wrapperMessage"
+    ],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "Legacy aliases retain searchable originals",
+    "dataSource": "relay",
+    "raw": "{\"eventMessage\": \"ES_EVENT_TYPE authorization denied\", \"process\": \"EndpointSecurity\", \"messageType\": \"error\", \"processImagePath\": \"/usr/libexec/EndpointSecurity\"}",
+    "expected": {
+      "log.eventMessage": "ES_EVENT_TYPE authorization denied",
+      "log.message": "ES_EVENT_TYPE authorization denied",
+      "log.level": "error",
+      "log.messageType": "error",
+      "origin.path": "/usr/libexec/EndpointSecurity"
+    },
+    "absent": [
+      "log.wrapperMessage"
+    ],
+    "matches": [
+      "endpoint_security_bypass"
+    ]
+  },
+  {
+    "name": "Native level debug",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"debug\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {
+      "severity": "debug"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Native level info",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"info\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Native level notice",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"notice\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Native level error",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"error\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {
+      "severity": "error"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Native level fault",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"fault\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Native level undefined",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"level\": \"undefined\", \"class_name\": \"OSLogEntryLog\", \"process\": \"example\"}",
+    "expected": {},
+    "absent": [
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Native fields take precedence over legacy aliases",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"eventMessage\": \"ES_EVENT_TYPE authorization denied\", \"process\": \"example\", \"level\": \"notice\", \"messageType\": \"error\"}",
+    "expected": {
+      "log.message": "Routine operation completed",
+      "log.level": "notice",
+      "log.eventMessage": "ES_EVENT_TYPE authorization denied",
+      "log.messageType": "error"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Existing noise policy drop",
+    "dataSource": "mac-lab",
+    "raw": "{\"message\": \"Routine operation completed\", \"process\": \"example\", \"level\": \"notice\", \"subsystem\": \"com.apple.cloudkit\"}",
+    "drop": true,
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Wrapper 'unknown' preserves ingress",
+    "dataSource": "mac-lab.example",
+    "raw": "[utm_stack_agent_ds=unknown]-ordinary message",
+    "expected": {
+      "dataSource": "mac-lab.example",
+      "origin.host": "mac-lab.example",
+      "log.datasourceoverride": "unknown",
+      "log.message": "ordinary message"
+    },
+    "absent": [
+      "origin.path",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Wrapper '' preserves ingress",
+    "dataSource": "mac-lab.example",
+    "raw": "[utm_stack_agent_ds=]-ordinary message",
+    "expected": {
+      "dataSource": "mac-lab.example",
+      "origin.host": "mac-lab.example",
+      "log.datasourceoverride": "",
+      "log.message": "ordinary message"
+    },
+    "absent": [
+      "origin.path",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Wrapper 'bad source' preserves ingress",
+    "dataSource": "mac-lab.example",
+    "raw": "[utm_stack_agent_ds=bad source]-ordinary message",
+    "expected": {
+      "dataSource": "mac-lab.example",
+      "origin.host": "mac-lab.example",
+      "log.datasourceoverride": "bad source",
+      "log.message": "ordinary message"
+    },
+    "absent": [
+      "origin.path",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Malformed wrapper preserves ingress",
+    "dataSource": "mac-lab.example",
+    "raw": "[utm_stack_agent_ds=other.example ordinary message",
+    "expected": {
+      "dataSource": "mac-lab.example",
+      "origin.host": "mac-lab.example"
+    },
+    "absent": [
+      "log.message",
+      "log.datasourceoverride"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Multiline wrapped text remains complete",
+    "dataSource": "mac-lab.example",
+    "raw": "[utm_stack_agent_ds=wrapped.example]-first line\nsecond line",
+    "expected": {
+      "dataSource": "wrapped.example",
+      "origin.host": "wrapped.example",
+      "log.message": "first line\nsecond line"
+    },
+    "absent": [
+      "log.datasourceoverride"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Multiline legacy message remains complete",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"eventMessage\": \"first line\\nsecond line\", \"process\": \"example\", \"messageType\": \"notice\"}",
+    "expected": {
+      "log.message": "first line\nsecond line",
+      "log.eventMessage": "first line\nsecond line",
+      "log.level": "notice",
+      "severity": "info",
+      "origin.process": "example"
+    },
+    "absent": [
+      "origin.path"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Legacy notice noise applies after alias normalization",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"eventMessage\": \"ordinary message\", \"messageType\": \"notice\", \"subsystem\": \"com.apple.cloudkit\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [],
+    "drop": true
+  },
+  {
+    "name": "Ordinary kextload without image path is not suspicious",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"process\": \"kextload\", \"message\": \"load extension\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"timestamp\": \"2026-09-17T14:00:00Z\"}",
+    "expected": {},
+    "absent": [
+      "origin.path"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Executable path does not prove extension location",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"process\": \"kextload\", \"processImagePath\": \"/usr/sbin/kextload\", \"message\": \"load extension\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"timestamp\": \"2026-09-17T14:00:00Z\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Unsigned kextload remains suspicious without image path",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"process\": \"kextload\", \"message\": \"load unsigned extension\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"timestamp\": \"2026-09-17T14:00:00Z\"}",
+    "expected": {},
+    "absent": [
+      "origin.path"
+    ],
+    "matches": [
+      "kernel_extension_loading"
+    ]
+  },
+  {
+    "name": "Missing process does not prove XProtectService exclusion",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"message\": \"XProtect.yara read\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"timestamp\": \"2026-09-17T14:00:00Z\"}",
+    "expected": {},
+    "absent": [
+      "origin.process"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Missing process does not prove kextcache exclusion",
+    "dataSource": "mac-lab.example",
+    "raw": "{\"message\": \"/System/Library/Extensions write\", \"class_name\": \"OSLogEntryLog\", \"level\": \"notice\", \"timestamp\": \"2026-09-17T14:00:00Z\"}",
+    "expected": {},
+    "absent": [
+      "origin.process"
+    ],
+    "matches": []
+  }
+]
