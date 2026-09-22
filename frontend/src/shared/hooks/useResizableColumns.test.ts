@@ -33,6 +33,36 @@ describe('useResizableColumns', () => {
     expect(result.current.template).toBe('10px')
   })
 
+  test('mousedown on a resize handle does not rewrite widths before a real drag starts', () => {
+    const { result } = renderHook(() => useResizableColumns([100, 120, 80]))
+
+    const handle = document.createElement('div')
+    const firstCell = document.createElement('div')
+    const secondCell = document.createElement('div')
+    const row = document.createElement('div')
+
+    Object.defineProperty(handle, 'closest', { value: () => firstCell, configurable: true })
+    Object.defineProperty(firstCell, 'parentElement', { value: row, configurable: true })
+    Object.defineProperty(firstCell, 'getBoundingClientRect', { value: () => ({ width: 110 }), configurable: true })
+    Object.defineProperty(secondCell, 'getBoundingClientRect', { value: () => ({ width: 100 }), configurable: true })
+    Object.defineProperty(row, 'children', {
+      value: [firstCell, secondCell],
+      configurable: true,
+    })
+
+    act(() => {
+      result.current.startDrag(0)({
+        preventDefault: () => undefined,
+        stopPropagation: () => undefined,
+        clientX: 10,
+        clientY: 20,
+        currentTarget: handle,
+      } as any)
+    })
+
+    expect(result.current.widths).toEqual([100, 120, 80])
+  })
+
   test('per-column min array is used to floor flex tracks in the template', () => {
     const { result } = renderHook(() =>
       useResizableColumns([32, '1fr', '1fr'], { min: [32, 120, 80] }),

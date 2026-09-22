@@ -35,7 +35,7 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
   const min = opts.min
   const storageKey = opts.storageKey
   const [widths, setWidths] = useState<ColSize[]>(initial)
-  const dragRef = useRef<{ index: number; startX: number; startW: number; measured: number[] } | null>(null)
+  const dragRef = useRef<{ index: number; startX: number; startY: number; startW: number; measured: number[]; moved: boolean } | null>(null)
 
   const effectiveWidths = widths.length === initial.length ? widths : initial
 
@@ -47,8 +47,12 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
     const onMove = (e: globalThis.MouseEvent) => {
       const d = dragRef.current
       if (!d) return
+      if (!d.moved && Math.abs(e.clientX - d.startX) < 2 && Math.abs(e.clientY - d.startY) < 2) return
+      d.moved = true
       e.preventDefault()
-      const w = Math.max(minAt(min, d.index), d.startW + (e.clientX - d.startX))
+      const minWidth = minAt(min, d.index)
+      const rawWidth = d.startW + (e.clientX - d.startX)
+      const w = Math.max(minWidth, rawWidth)
       setWidths((prev) => {
         const next = d.measured.length === prev.length ? d.measured.slice() : prev.slice()
         next[d.index] = w
@@ -81,9 +85,8 @@ export function useResizableColumns(initial: ColSize[], opts: Opts = {}) {
             .filter((child): child is HTMLElement => child instanceof HTMLElement && child.hasAttribute('data-resizable-col'))
             .map((child, i) => Math.max(minAt(min, i), child.getBoundingClientRect().width))
         : []
-      const startW = measured[index] ?? cell?.getBoundingClientRect().width ?? minAt(min, index)
-      if (measured.length > 0) setWidths(measured)
-      dragRef.current = { index, startX: e.clientX, startW, measured }
+      const startW = Math.max(minAt(min, index), measured[index] ?? cell?.getBoundingClientRect().width ?? minAt(min, index))
+      dragRef.current = { index, startX: e.clientX, startY: e.clientY, startW, measured, moved: false }
       document.body.style.cursor = 'col-resize'
       document.body.style.userSelect = 'none'
     },

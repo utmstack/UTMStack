@@ -372,8 +372,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   // fields (default mode). Label-based floors keep
   // header names from cropping when a column is dragged narrow.
   const logGridMins = columns.length > 0
-    ? [20, 30, 168, ...colMins(columns)]
-    : [20, 30, 168, 96, ...colMins(autoColumns)]
+    ? [20, 30, 168, ...columns.map((field) => field === 'origin.ip' ? 320 : colMins([field])[0])]
+    : [20, 30, 168, 96, ...autoColumns.map((field) => field === 'origin.ip' ? 320 : colMins([field])[0])]
   const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
     min: logGridMins,
     storageKey: columnStorageKey,

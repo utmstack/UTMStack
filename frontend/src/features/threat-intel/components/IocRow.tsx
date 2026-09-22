@@ -32,7 +32,7 @@ export function IocRow({ ioc, tableCols, onOpen }: IocRowProps) {
         </span>
       </div>
       <div className="min-w-0 truncate font-mono">{searchItemValue(ioc)}</div>
-      <div className="text-right">
+      <div>
         <span className={cn('text-[11px] font-medium', rep.tone)}>
           {t(reputationLabelKey(ioc.reputation))}
         </span>
@@ -47,7 +47,7 @@ export function IocRow({ ioc, tableCols, onOpen }: IocRowProps) {
           <span className="text-[10px] text-muted-foreground">+{ioc.tags.length - 3}</span>
         )}
       </div>
-      <div className="font-mono text-[11px] text-muted-foreground">
+      <div className="whitespace-nowrap font-mono text-[11px] text-muted-foreground">
         {ioc.lastSeen ? absTimestamp(ioc.lastSeen) : '—'}
       </div>
       <div className="flex justify-end opacity-0 group-hover:opacity-100">

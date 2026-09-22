@@ -6,7 +6,7 @@ export function FeedsHeader({ tableCols, startDrag }: { tableCols: string; start
   const { t } = useTranslation()
   return (
     <ResizableGridHeader
-      headers={['', t('threatIntel.feeds.table.name'), t('threatIntel.feeds.table.type'), t('threatIntel.feeds.table.accuracy')]}
+      headers={[{ content: '', resizable: false }, t('threatIntel.feeds.table.name'), t('threatIntel.feeds.table.type'), t('threatIntel.feeds.table.accuracy')]}
       tableCols={tableCols}
       startDrag={startDrag}
     />

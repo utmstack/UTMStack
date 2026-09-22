@@ -115,9 +115,9 @@ export function UserAuditorPage() {
     t('userAuditor.list.lastLogon'),
     t('userAuditor.list.lastSeen'),
     t('userAuditor.list.tenant'),
-  ])
+  ], { floor: 72 })
   const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
-    min: [32, ...listLabelMins, 36],
+    min: [40, ...listLabelMins.slice(0, 5), 160, 48],
     storageKey: 'user-auditor-table-columns',
   })
 
@@ -514,12 +514,15 @@ function ListHeader({ t, tableCols, startDrag }: { t: TFunction; tableCols: stri
       className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
       style={{ gridTemplateColumns: tableCols }}
     >
-      {headers.map((header, index) => (
-        <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
-          {header}
-          {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
-        </div>
-      ))}
+      {headers.map((header, index) => {
+        const isResizable = index > 0 && index < headers.length - 2
+        return (
+          <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
+            {header}
+            {isResizable && index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { ColumnResizeHandle } from './column-resize-handle'
 
 interface ResizableGridHeaderProps {
-  headers: ReactNode[]
+  headers: Array<ReactNode | { content: ReactNode; resizable?: boolean }>
   tableCols: string
   startDrag: ReturnType<typeof useResizableColumns>['startDrag']
   className?: string
@@ -26,12 +26,16 @@ export function ResizableGridHeader({
       )}
       style={{ gridTemplateColumns: tableCols }}
     >
-      {headers.map((header, index) => (
-        <div key={index} data-resizable-col className={cn('relative min-w-0 pr-2 last:pr-0', cellClassName)}>
-          {header}
-          {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
-        </div>
-      ))}
+      {headers.map((header, index) => {
+        const item = typeof header === 'object' && header !== null && 'content' in header ? header : { content: header, resizable: true }
+        const isResizable = item.resizable ?? true
+        return (
+          <div key={index} data-resizable-col className={cn('relative min-w-0 pr-2 last:pr-0', cellClassName)}>
+            {item.content}
+            {isResizable && index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+          </div>
+        )
+      })}
     </div>
   )
 }
