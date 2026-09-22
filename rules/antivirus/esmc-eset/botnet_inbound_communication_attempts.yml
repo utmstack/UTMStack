@@ -2,23 +2,23 @@
 
 dataTypes:
   - antivirus-esmc-eset
-name: ESET Outbound Botnet Communication Detection
+name: ESET Inbound Botnet Communication Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Command and Control
 technique: "T1071 - Application Layer Protocol"
-adversary: target
+adversary: origin
 references:
   - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1071/
 description: |
-  Detects an outbound firewall detection whose event or detection name identifies botnet command-and-control activity. The managed endpoint is the network source and the remote destination is the alert adversary. A blocked attempt does not establish an active infection or successful communication; review the reported action and endpoint evidence. Records without a known direction cannot select a remote adversary side.
+  Detects an inbound firewall detection whose event or detection name identifies botnet command-and-control activity. The managed endpoint is the network destination and the remote source is the alert adversary. A blocked attempt does not establish an active infection or successful communication; review the reported action and endpoint evidence. Records without a known direction cannot select a remote adversary side.
 
   Next Steps:
   1. Review the managed endpoint and the reported outcome before choosing containment
-  2. Use the managed endpoint identity and network origin to identify the affected system
+  2. Use the managed endpoint identity and network destination to identify the affected system
   3. Review the structured event, detection name, endpoint addresses, and process fields; use the protected raw event for additional context
   4. Investigate relevant process activity on the affected host
   5. Scan the system with ESET and assess any detections
@@ -29,7 +29,7 @@ description: |
 where: |
   (equals("log.eventType", "FirewallAggregated_Event") &&
   (regexMatch("log.threatname", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
-  equals("log.inbound", false) && exists("target.ip")) &&
+  equals("log.inbound", true) && exists("origin.ip")) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
