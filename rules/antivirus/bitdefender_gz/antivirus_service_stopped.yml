@@ -1,41 +1,28 @@
-# Rule version v2.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Bitdefender GravityZone Antivirus Service Stopped or Tampered
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Antitampering Detection
 impact:
   confidentiality: 2
   integrity: 3
   availability: 3
 category: Defense Evasion
-technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+technique: 'T1562.001 - Impair Defenses: Disable or Modify Tools'
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1562/001/
-description: |
-  Detects when the Bitdefender security agent is disabled, stopped, or under an integrity attack. Three independent signals, all directly emitted by the vendor:
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1562/001/
+description: 'GravityZone reported an antitampering event. This identifies attempted interference with protection; it does not by itself
+  prove that a service stopped or that the attempt succeeded. Review the vendor event details, endpoint state and authorized maintenance
+  before containment.
 
-  - Antitampering event with detection_technique "Callback Evasion". Bitdefender's own definition: a post-tampering incident where critical protection mechanisms have been disabled. This is the strongest possible signal that the agent is compromised.
-  - Antitampering event with detection_technique "Vulnerable Drivers". A driver exploitable against the security agent is present on the endpoint, which is the precursor to tampering.
-  - Product Modules Status event reporting that the Antimalware (malware_status) or Advanced Threat Control (avc_status) module has flipped to disabled (value 0).
-
-  Next Steps:
-  1. Isolate the endpoint from the network. The agent is either disabled or being actively targeted, and normal telemetry from this host is now untrusted.
-  2. Identify what changed:
-     - For antitampering events, log.BitdefenderGZDriverName / log.driverName names the driver and log.BitdefenderGZDetectionAction shows whether Bitdefender blocked it (deny/kill) or only observed it (reportOnly). reportOnly means the tampering succeeded.
-     - For modules events, log.BitdefenderGZMalwareStatus and log.BitdefenderGZAvcStatus show which protection was turned off.
-  3. Correlate with logon and admin activity on the same target.host in the surrounding minutes. Legitimate module changes are rare and normally come from a scheduled policy push; ad-hoc changes deserve attention.
-  4. Assume the endpoint is compromised until proven otherwise. Any threats that arrived while protection was down would not have been detected.
-  5. Re-enable protection through GravityZone Control Center, do not rely on the local agent. If the module refuses to come back up, treat as a reimage candidate.
-where: |
-  equals("log.BitdefenderGZModule", "antitampering") ||
-  (equals("log.BitdefenderGZModule", "modules") &&
-   (equals("log.malware_status", "0") ||
-    equals("log.avc_status", "0") ||
-    equals("log.BitdefenderGZMalwareStatus", "0") ||
-    equals("log.BitdefenderGZAvcStatus", "0")))
+  '
+where: equals("log.BitdefenderGZModule", "antitampering")
 groupBy:
-  - target.host
-  - lastEvent.log.BitdefenderGZModule
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- lastEvent.log.BitdefenderGZModule
