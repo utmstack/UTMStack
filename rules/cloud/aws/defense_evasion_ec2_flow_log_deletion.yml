@@ -1,24 +1,29 @@
-# Rule version v1.0.3
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - "aws"
-name: "AWS EC2 Flow Log Deletion"
+- aws
+name: AWS EC2 Flow Log Deletion
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Defense Evasion"
-technique: "T1562 - Impair Defenses"
+category: Defense Evasion
+technique: T1562 - Impair Defenses
 adversary: origin
-description: "Identifies the deletion of one or more flow logs in AWS Elastic Compute Cloud (EC2). An adversary may delete flow logs in an attempt to evade defenses"
+description: Identifies the deletion of one or more flow logs in AWS Elastic Compute Cloud (EC2). An adversary may delete
+  flow logs in an attempt to evade defenses
 references:
-  - "https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-flow-logs.html"
-  - "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteFlowLogs.html"
-  - "https://attack.mitre.org/tactics/TA0005/"
-  - "https://attack.mitre.org/techniques/T1562/"
+- https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-flow-logs.html
+- https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteFlowLogs.html
+- https://attack.mitre.org/tactics/TA0005/
+- https://attack.mitre.org/techniques/T1562/
 where: |
-  equals("log.eventSource", "ec2.amazonaws.com") &&
-  equals("log.eventName", "DeleteFlowLogs")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "DeleteFlowLogs") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

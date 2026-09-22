@@ -1,21 +1,19 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Unusual API Call Patterns
 impact:
   confidentiality: 2
   integrity: 1
   availability: 1
-category: Execution
-technique: "T1106 - Execution through API"
+category: Discovery
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
-  - https://attack.mitre.org/techniques/T1106/
+- https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
+- https://attack.mitre.org/techniques/T1580/
 description: |
   Detects unusual API call patterns in AWS that may indicate unauthorized access or reconnaissance activities. This rule triggers when multiple sensitive API calls are made from the same source IP within a short time window, suggesting potential enumeration or discovery activities by attackers.
-  
+
   Next Steps:
   - Review the source IP address and determine if it's authorized for AWS API access
   - Check if the user identity associated with these calls is legitimate and expected
@@ -26,23 +24,46 @@ description: |
   - Consider blocking the source IP if unauthorized activity is confirmed
   - Implement additional monitoring for the affected account and resources
 where: |
-  exists("log.eventSource") && 
+  (equals("log.awsRecordType","cloudtrail") &&
+  (exists("log.eventSource") &&
+
   exists("log.sourceIPAddress") &&
   exists("log.eventName") &&
   (
     oneOf("log.eventName", ["DescribeSecurityGroups", "DescribeNetworkAcls", "DescribeVpcs", "DescribeSubnets", "DescribeRouteTables", "DescribeInstances", "DescribeSnapshots", "DescribeVolumes", "DescribeImages", "DescribeKeyPairs", "ListBuckets", "GetBucketAcl", "GetBucketPolicy", "ListAccessKeys", "ListUsers", "ListRoles", "ListPolicies", "GetAccountAuthorizationDetails", "GenerateCredentialReport", "GetCredentialReport"])
   ) &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))) &&
+  exists("dataSource") &&
+  !equals("dataSource","") &&
+  exists("log.awsAccountKeyType") &&
+  !equals("log.awsAccountKeyType","") &&
+  exists("log.awsAccountKey") &&
+  !equals("log.awsAccountKey","") &&
+  exists("origin.ip") &&
+  !equals("origin.ip","")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
-      - field: log.sourceIPAddress
-        operator: filter_term
-        value: '{{.log.sourceIPAddress}}'
-      - field: log.eventName
-        operator: filter_match
-        value: 'Describe List Get Generate'
-    within: 10m
-    count: 50
+- indexPattern: v11-log-aws-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.awsAccountKeyType
+    operator: filter_term
+    value: '{{.log.awsAccountKeyType}}'
+  - field: log.awsAccountKey
+    operator: filter_term
+    value: '{{.log.awsAccountKey}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.unusual_api_call_patterns
+    operator: filter_term
+    value: match
+  within: 10m
+  count: 50
 groupBy:
-  - lastEvent.log.sourceIPAddress
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- lastEvent.log.sourceIPAddress
+technique: T1580 - Cloud Infrastructure Discovery

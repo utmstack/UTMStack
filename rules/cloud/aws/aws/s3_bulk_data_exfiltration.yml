@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS S3 Bulk Data Exfiltration Detected
 impact:
   confidentiality: 2
   integrity: 1
   availability: 1
 category: Data Exfiltration
-technique: "T1530 - Data from Cloud Storage Object"
+technique: T1530 - Data from Cloud Storage Object
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html
-  - https://attack.mitre.org/techniques/T1530/
+- https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudtrail-logging.html
+- https://attack.mitre.org/techniques/T1530/
 description: |
   Detects bulk GetObject operations from S3 buckets indicating potential data exfiltration. When an attacker gains access to AWS credentials, they may attempt to download large amounts of data from S3 buckets in a short period.
 
@@ -26,20 +25,46 @@ description: |
   7. Enable S3 server access logging for affected buckets
   8. Review S3 bucket policies and tighten access controls
 where: |
-  equals("log.eventSource", "s3.amazonaws.com") &&
+  (equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "s3.amazonaws.com") &&
   equals("log.eventName", "GetObject") &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))) &&
+  exists("dataSource") &&
+  !equals("dataSource","") &&
+  exists("log.awsAccountKeyType") &&
+  !equals("log.awsAccountKeyType","") &&
+  exists("log.awsAccountKey") &&
+  !equals("log.awsAccountKey","") &&
+  exists("log.awsActorKeyType") &&
+  !equals("log.awsActorKeyType","") &&
+  exists("log.awsActorKey") &&
+  !equals("log.awsActorKey","")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
-      - field: log.userIdentityArn
-        operator: filter_term
-        value: '{{.log.userIdentityArn}}'
-      - field: log.eventName
-        operator: filter_term
-        value: GetObject
-    within: 15m
-    count: 100
+- indexPattern: v11-log-aws-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.awsAccountKeyType
+    operator: filter_term
+    value: '{{.log.awsAccountKeyType}}'
+  - field: log.awsAccountKey
+    operator: filter_term
+    value: '{{.log.awsAccountKey}}'
+  - field: log.awsActorKeyType
+    operator: filter_term
+    value: '{{.log.awsActorKeyType}}'
+  - field: log.awsActorKey
+    operator: filter_term
+    value: '{{.log.awsActorKey}}'
+  - field: log.correlationCandidate.s3_bulk_data_exfiltration
+    operator: filter_term
+    value: match
+  within: 15m
+  count: 100
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.bucketName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.bucketName
