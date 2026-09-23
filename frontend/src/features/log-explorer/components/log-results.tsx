@@ -6,6 +6,7 @@ import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
 import { SRC_FIELDS, flattenDoc, pick } from '../domain/flatten'
+import { EdrDetailPanel, isEdrDocument } from '@/features/edr/components/EdrDetailPanel'
 
 /**
  * Shared "Discover-style" log results rendering: the table row + the expandable
@@ -230,6 +231,7 @@ function ExpandedPanel({
   const srcField = SRC_FIELDS.find((f) => flat[f] != null)
   const srcVal = srcField != null ? String(flat[srcField]) : undefined
   const entries = Object.entries(flat).sort(([a], [b]) => a.localeCompare(b))
+  const edr = isEdrDocument(flat)
 
   return (
     <div
@@ -251,29 +253,35 @@ function ExpandedPanel({
               <Crosshair size={12} /> {t('logExplorer.detail.surrounding')}
             </button>
           )}
-          <button
-            onClick={() => {
-              void navigator.clipboard.writeText(JSON.stringify(doc, null, 2))
-              toast.success(t('logExplorer.detail.copied'))
-            }}
-            className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Copy size={12} /> {t('logExplorer.detail.copyJson')}
-          </button>
+          {!edr && (
+            <button
+              onClick={() => {
+                void navigator.clipboard.writeText(JSON.stringify(doc, null, 2))
+                toast.success(t('logExplorer.detail.copied'))
+              }}
+              className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Copy size={12} /> {t('logExplorer.detail.copyJson')}
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="col-span-full flex items-center gap-4 border-b border-border/60 px-5">
-        <DetailTabBtn id="fields" current={tab} onChange={setTab}>
-          {t('logExplorer.detail.parsedFields')}
-        </DetailTabBtn>
-        <DetailTabBtn id="json" current={tab} onChange={setTab}>
-          {t('logExplorer.detail.json')}
-        </DetailTabBtn>
-      </div>
+      {!edr && (
+        <div className="col-span-full flex items-center gap-4 border-b border-border/60 px-5">
+          <DetailTabBtn id="fields" current={tab} onChange={setTab}>
+            {t('logExplorer.detail.parsedFields')}
+          </DetailTabBtn>
+          <DetailTabBtn id="json" current={tab} onChange={setTab}>
+            {t('logExplorer.detail.json')}
+          </DetailTabBtn>
+        </div>
+      )}
 
       <div className="col-span-full p-5">
-        {tab === 'fields' ? (
+        {edr ? (
+          <EdrDetailPanel flat={flat} t={t} />
+        ) : tab === 'fields' ? (
           <div className="overflow-hidden rounded-md border border-border bg-card">
             {entries.map(([k, v], i) => (
               <div

@@ -300,6 +300,7 @@
     "logExplorer": "Log-Explorer",
     "userAuditor": "Benutzer-Auditor",
     "threatIntelligence": "Bedrohungsanalyse",
+    "edr": "EDR",
     "compliance": "Compliance",
     "configure": "Konfigurieren",
     "dataSources": "Datenquellen",
@@ -1209,6 +1210,9 @@
       "comingSoon": "noch nicht verfügbar"
     }
   },
+  "edr": {
+    "eyebrow": "Endpoint-Erkennung und -Reaktion", "title": "EDR-Flotte", "subtitle": "Abdeckung, Schutzstatus, Erkennungen und Endpoint-Zustand auf einen Blick.", "refresh": "Aktualisieren", "retry": "Erneut versuchen", "loading": "Endpoint-Status wird geladen…", "units": { "days": "Tage" }, "coverage": { "title": "Abdeckung", "protected": "geschützte Endpoints", "unprotected": "ungeschützte Endpoints", "total": "{{count}} Endpoints im Bestand" }, "health": { "title": "Zustand", "healthy": "Gesunde Engine", "unhealthy": "Ungesunde Engine", "stale": "Veraltete Signaturen", "degraded": "Netzwerk beeinträchtigt", "off": "Sensoren aus", "drift": "Policy-Abweichung" }, "protection": { "title": "Schutzstatus", "alert": "Alarmmodus", "responding": "Reagierend", "isolated": "Isoliert", "mode": "Endpoints", "now": "jetzt" }, "activity": { "detections": "Erkennungen im Zeitverlauf", "ransomware": "Ransomware-Eindämmungen", "containments": "eingedämmte Ereignisse", "blockedConnections": "Blockierte Verbindungen", "topDetections": "Häufigste Erkennungen", "affectedEndpoints": "Am stärksten betroffene Endpoints", "empty": "Noch keine Aktivität" }, "grid": { "title": "Endpoint-Zustand", "count": "{{count}} angezeigt", "search": "Endpoints suchen…", "empty": "Keine Endpoints entsprechen den Filtern.", "selectAll": "Sichtbare Endpoints auswählen", "selectEndpoint": "Endpoint auswählen" }, "filters": { "allHealth": "Alle Engine-Zustände", "clear": "Filter löschen" }, "columns": { "hostName": "Hostname", "operatingSystem": "Betriebssystem", "moduleVersion": "Modulversion", "serviceState": "Dienststatus", "engineHealth": "Engine-Zustand", "signatureAge": "Signaturalter", "sensors": "Sensoren", "assignedPolicy": "Zugewiesene Policy", "policyDrift": "Policy-Abweichung", "detectionsLastWeek": "Erkennungen (7T)", "quarantinedFiles": "Dateien in Quarantäne", "isolationState": "Isolation", "lastReportTime": "Letzter Bericht" }, "values": { "drifted": "Abweichend", "inSync": "Synchron" }, "actions": { "applyPolicy": "Policy anwenden", "scan": "Scan", "isolate": "Isolieren", "success": { "apply-policy": "Policy angewendet", "scan": "Scan gestartet", "isolate": "Endpoints isoliert" } }, "endpoint": { "title": "Endpoint-Details" }, "errors": { "load": "EDR-Daten konnten nicht geladen werden", "action": "Endpoint-Aktion konnte nicht abgeschlossen werden" }
+  },
   "userAuditor": {
     "title": "Benutzer-Auditor",
     "subtitle": "Active-Directory-Konten, die in deinen Windows-Sicherheitsprotokollen beobachtet wurden — erkannt aus Erstellungs-, Anmelde- und Löschereignissen.",
@@ -1695,6 +1699,39 @@
       "filterOut": "Ausschließen",
       "surrounding": "Umliegende Ereignisse",
       "surroundingHint": "Ereignisse ±15 Min. um dieses herum aus derselben Quelle anzeigen"
+    },
+    "demo": {
+      "show": "EDR-Beispiel anzeigen",
+      "hide": "EDR-Beispiel ausblenden"
+    },
+    "edr": {
+      "subtitle": "Aufbereitete Endpoint-Daten",
+      "sources": {
+        "file": "Dateierkennung",
+        "network": "Netzwerksperre",
+        "ransomware": "Ransomware-Ereignis",
+        "script": "Skriptsperre",
+        "process": "Prozessaktivität",
+        "endpoint": "Endpoint-Erkennung"
+      },
+      "fields": {
+        "host": "Host",
+        "action": "Aktion",
+        "severity": "Schweregrad",
+        "filePath": "Dateipfad",
+        "verdict": "Bewertung",
+        "detectionName": "Erkennungsname",
+        "fileHash": "Datei-Hash",
+        "process": "Prozess",
+        "parentProcess": "Übergeordneter Prozess",
+        "remoteAddress": "Remoteadresse",
+        "domain": "Domäne",
+        "matchedIndicator": "Passender Indikator",
+        "scoreSignal": "Punktesignal",
+        "contained": "Eingedämmt",
+        "script": "Skript",
+        "commandLine": "Befehlszeile"
+      }
     },
     "view": {
       "table": "Tabelle",

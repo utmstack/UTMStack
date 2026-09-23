@@ -301,6 +301,7 @@
     "logExplorer": "Log Explorer",
     "userAuditor": "User Auditor",
     "threatIntelligence": "Threat Intelligence",
+    "edr": "EDR",
     "compliance": "Compliance",
     "configure": "Configure",
     "dataSources": "Data Sources",
@@ -1361,6 +1362,26 @@
       "comingSoon": "not available yet"
     }
   },
+  "edr": {
+    "eyebrow": "Endpoint detection and response",
+    "title": "EDR fleet",
+    "subtitle": "See endpoint coverage, protection posture, detections and workstation health in one place.",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "loading": "Loading endpoint posture…",
+    "units": { "days": "days" },
+    "coverage": { "title": "Coverage", "protected": "protected endpoints", "unprotected": "unprotected endpoints", "total": "{{count}} endpoints in inventory" },
+    "health": { "title": "Health", "healthy": "Healthy engine", "unhealthy": "Unhealthy engine", "stale": "Stale signatures", "degraded": "Degraded network", "off": "Sensors off", "drift": "Policy drift" },
+    "protection": { "title": "Protection state", "alert": "Alert mode", "responding": "Responding", "isolated": "Isolated", "mode": "endpoints", "now": "right now" },
+    "activity": { "detections": "Detections over time", "ransomware": "Ransomware containments", "containments": "contained events", "blockedConnections": "Blocked connections", "topDetections": "Top detection names", "affectedEndpoints": "Most affected endpoints", "empty": "No activity yet" },
+    "grid": { "title": "Endpoint health", "count": "{{count}} shown", "search": "Search endpoints…", "empty": "No endpoints match the current filters.", "selectAll": "Select all visible endpoints", "selectEndpoint": "Select endpoint" },
+    "filters": { "allHealth": "All engine health", "clear": "Clear filters" },
+    "columns": { "hostName": "Host name", "operatingSystem": "Operating system", "moduleVersion": "Module version", "serviceState": "Service state", "engineHealth": "Engine health", "signatureAge": "Signature age", "sensors": "Sensors", "assignedPolicy": "Assigned policy", "policyDrift": "Policy drift", "detectionsLastWeek": "Detections (7d)", "quarantinedFiles": "Quarantined files", "isolationState": "Isolation", "lastReportTime": "Last report" },
+    "values": { "drifted": "Drifted", "inSync": "In sync" },
+    "actions": { "applyPolicy": "Apply policy", "scan": "Scan", "isolate": "Isolate", "success": { "apply-policy": "Policy applied", "scan": "Scan started", "isolate": "Endpoints isolated" } },
+    "endpoint": { "title": "Endpoint details" },
+    "errors": { "load": "Could not load EDR data", "action": "The endpoint action could not be completed" }
+  },
   "userAuditor": {
     "title": "User auditor",
     "subtitle": "Active Directory accounts observed in your Windows security logs — discovered from create, logon and delete events.",
@@ -1847,6 +1868,39 @@
       "filterOut": "Filter out",
       "surrounding": "Surrounding events",
       "surroundingHint": "Show events ±15 min around this one, from the same source"
+    },
+    "demo": {
+      "show": "View EDR example",
+      "hide": "Hide EDR example"
+    },
+    "edr": {
+      "subtitle": "Parsed endpoint evidence",
+      "sources": {
+        "file": "File detection",
+        "network": "Network block",
+        "ransomware": "Ransomware event",
+        "script": "Script block",
+        "process": "Process activity",
+        "endpoint": "Endpoint detection"
+      },
+      "fields": {
+        "host": "Host",
+        "action": "Action",
+        "severity": "Severity",
+        "filePath": "File path",
+        "verdict": "Verdict",
+        "detectionName": "Detection name",
+        "fileHash": "File hash",
+        "process": "Process",
+        "parentProcess": "Parent process",
+        "remoteAddress": "Remote address",
+        "domain": "Domain",
+        "matchedIndicator": "Matched indicator",
+        "scoreSignal": "Score signal",
+        "contained": "Contained",
+        "script": "Script",
+        "commandLine": "Command line"
+      }
     },
     "view": {
       "table": "Table",
