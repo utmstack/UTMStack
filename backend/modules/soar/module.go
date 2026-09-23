@@ -3,6 +3,7 @@ package soar
 import (
 	"context"
 	"path/filepath"
+	"sort"
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"gorm.io/gorm"
@@ -33,6 +34,7 @@ type Module struct {
 	flowsSrc   string
 	flowStore  *usecase.FlowStore
 	dispatcher *usecase.Dispatcher
+	registry   executor.Registry
 }
 
 func NewModule(
@@ -102,6 +104,7 @@ func NewModule(
 		flowsSrc:   flowsSrc,
 		flowStore:  flowStore,
 		dispatcher: dispatcher,
+		registry:   registry,
 	}
 }
 
@@ -125,3 +128,15 @@ func (m *Module) GetRuleUsecase() connectors.RuleUsecase           { return m.ru
 func (m *Module) GetExecutionUsecase() connectors.ExecutionUsecase { return m.executionUsecase }
 func (m *Module) GetVariableUsecase() connectors.VariableUsecase   { return m.variableUsecase }
 func (m *Module) GetAgentUsecase() connectors.AgentUsecase         { return m.agentUsecase }
+
+// GetExecutorTypes returns the sorted set of node executor types registered on
+// this instance (shell/http/conditional always; llm_*, notify, incident, mail
+// only when their clients are configured). Read-only.
+func (m *Module) GetExecutorTypes() []string {
+	names := make([]string, 0, len(m.registry))
+	for name := range m.registry {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
