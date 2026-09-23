@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
+import { cn } from '@/shared/lib/utils'
+import { mailRecipientError } from '../lib/mail-node-validity'
 import type { FlowNode } from '../types/soar.types'
 import { InsertFieldMenu } from './InsertFieldMenu'
 
@@ -26,6 +28,8 @@ export function MailParamsEditor({ nodeId, nodes, params, readOnly, onChange }: 
   const { t } = useTranslation()
   const p = normalize(params)
   const bodyRef = useRef<HTMLTextAreaElement>(null)
+  const toError = mailRecipientError({ to: p.to })
+  const ccError = mailRecipientError({ cc: p.cc })
 
   const insertIntoBody = (token: string) => {
     const el = bodyRef.current
@@ -51,8 +55,14 @@ export function MailParamsEditor({ nodeId, nodes, params, readOnly, onChange }: 
           readOnly={readOnly}
           onChange={(e) => onChange({ ...p, to: e.target.value })}
           placeholder="alice@example.com, bob@example.com"
-          className="h-8 font-mono text-[11px]"
+          aria-invalid={Boolean(toError)}
+          className={cn('h-8 font-mono text-[11px]', toError && 'border-red-500')}
         />
+        {toError && (
+          <p className="mt-1 text-[10px] text-red-500">
+            {t('soar.editor.canvas.mail.addressInvalid', { address: toError.address })}
+          </p>
+        )}
       </Field>
       <Field label={t('soar.editor.canvas.mail.cc')}>
         <Input
@@ -60,8 +70,14 @@ export function MailParamsEditor({ nodeId, nodes, params, readOnly, onChange }: 
           readOnly={readOnly}
           onChange={(e) => onChange({ ...p, cc: e.target.value })}
           placeholder="carol@example.com"
-          className="h-8 font-mono text-[11px]"
+          aria-invalid={Boolean(ccError)}
+          className={cn('h-8 font-mono text-[11px]', ccError && 'border-red-500')}
         />
+        {ccError && (
+          <p className="mt-1 text-[10px] text-red-500">
+            {t('soar.editor.canvas.mail.addressInvalid', { address: ccError.address })}
+          </p>
+        )}
       </Field>
       <Field label={t('soar.editor.canvas.mail.subject')}>
         <Input

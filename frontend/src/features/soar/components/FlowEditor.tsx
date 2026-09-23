@@ -9,6 +9,7 @@ import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platf
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
 import { clearHttpBodyErrors, firstHttpBodyError, isValidHttpUrl } from '../lib/http-node-validity'
+import { mailRecipientError, splitMailRecipients } from '../lib/mail-node-validity'
 import { type Flow } from '../types/soar.types'
 import { FlowCanvas } from './FlowCanvas'
 import { FlowIdentityModal } from './FlowIdentityModal'
@@ -95,10 +96,19 @@ export function FlowEditor({
         }
       }
       if (n.executor === 'mail') {
-        const mp = (n.params as { to?: string; subject?: string } | undefined) ?? {}
-        const to = (mp.to ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+        const mp = (n.params as { to?: string; cc?: string; subject?: string } | undefined) ?? {}
+        const to = splitMailRecipients(mp.to)
         if (to.length === 0) {
           toast.error(t('soar.editor.mailToRequired', { id }))
+          return
+        }
+        const recipientError = mailRecipientError(mp)
+        if (recipientError) {
+          toast.error(t('soar.editor.mailAddressInvalid', {
+            id,
+            field: recipientError.field.toUpperCase(),
+            address: recipientError.address,
+          }))
           return
         }
         if (!(mp.subject ?? '').trim()) {
