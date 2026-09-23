@@ -4754,6 +4754,7 @@
       "httpBodyInvalid": "Le corps du nœud HTTP \"{{id}}\" n'est pas un JSON valide : {{error}}",
       "incidentNameRequired": "Le nœud d'incident \"{{id}}\" nécessite un nom.",
       "mailToRequired": "Le nœud d'e-mail \"{{id}}\" nécessite au moins un destinataire.",
+      "mailAddressInvalid": "Le nœud d'e-mail \"{{id}}\" contient une adresse {{field}} non valide : {{address}}.",
       "mailSubjectRequired": "Le nœud d'e-mail \"{{id}}\" nécessite un objet.",
       "identityModalTitle": "Détails du flux",
       "platformRequired": "La plateforme de l'agent est requise",
@@ -4840,6 +4841,7 @@
         "mail": {
           "to": "À (séparés par une virgule)",
           "cc": "CC (séparés par une virgule, facultatif)",
+          "addressInvalid": "Adresse e-mail non valide : {{address}}",
           "subject": "Objet",
           "subjectPlaceholder": "Ex. Alerte sur $(alert.dataSource)",
           "body": "Corps",

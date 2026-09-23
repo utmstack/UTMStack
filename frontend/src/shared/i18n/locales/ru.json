@@ -4546,6 +4546,7 @@
       "httpBodyInvalid": "Тело узла HTTP \"{{id}}\" не является допустимым JSON: {{error}}",
       "incidentNameRequired": "Узлу инцидента \"{{id}}\" требуется имя.",
       "mailToRequired": "Узлу электронной почты \"{{id}}\" требуется хотя бы один получатель.",
+      "mailAddressInvalid": "Узел электронной почты \"{{id}}\" содержит недопустимый адрес {{field}}: {{address}}.",
       "mailSubjectRequired": "Узлу электронной почты \"{{id}}\" требуется тема.",
       "identityModalTitle": "Свойства потока",
       "platformRequired": "Платформа агента обязательна",
@@ -4632,6 +4633,7 @@
         "mail": {
           "to": "Кому (через запятую)",
           "cc": "Копия (через запятую, опционально)",
+          "addressInvalid": "Недопустимый адрес электронной почты: {{address}}",
           "subject": "Тема",
           "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
           "body": "Текст",

@@ -4754,6 +4754,7 @@
       "httpBodyInvalid": "Il corpo del nodo HTTP \"{{id}}\" non è JSON valido: {{error}}",
       "incidentNameRequired": "Il nodo incidente \"{{id}}\" richiede un nome.",
       "mailToRequired": "Il nodo e-mail \"{{id}}\" richiede almeno un destinatario.",
+      "mailAddressInvalid": "Il nodo e-mail \"{{id}}\" contiene un indirizzo {{field}} non valido: {{address}}.",
       "mailSubjectRequired": "Il nodo e-mail \"{{id}}\" richiede un oggetto.",
       "identityModalTitle": "Dettagli del flusso",
       "platformRequired": "La piattaforma dell'agente è obbligatoria",
@@ -4840,6 +4841,7 @@
         "mail": {
           "to": "A (separati da virgola)",
           "cc": "CC (separati da virgola, opzionale)",
+          "addressInvalid": "Indirizzo e-mail non valido: {{address}}",
           "subject": "Oggetto",
           "subjectPlaceholder": "Es. Allarme su $(alert.dataSource)",
           "body": "Corpo",
