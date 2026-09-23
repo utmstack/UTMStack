@@ -26,8 +26,10 @@ import (
 
 const reloadNote = "saved. The running service applies reloadable settings (allowlists, response mode, blocklist.enforce) within a few seconds; structural changes (enabled, blocklist.enabled, sensors, engine) need disable-edr/enable-edr."
 
-func printUsage() {
-	fmt.Print(`UTMStack EDR — management CLI
+// usageText is the exact help body; printUsage and the --json help verb both
+// use it so the two never drift.
+func usageText() string {
+	return `UTMStack EDR — management CLI
 
 Lifecycle (run via the agent, needs server creds):
   utmstack_agent enable-edr | disable-edr | edr-status
@@ -58,26 +60,44 @@ Network blocklist knobs (config set <key> <value>):
 
 Built-in allowlists (backup/imaging/DR/sync + Windows VSS/Search, and the EDR's
 own working tree) always apply on top of your config and cannot be removed.
-`)
+`
+}
+
+func printUsage() {
+	fmt.Print(usageText())
 }
 
 // ---- config ----
 
 func runConfig(args []string) {
 	if len(args) == 0 {
-		fmt.Println("usage: utmstack_edr config show|get <key>|set <key> <value>")
-		os.Exit(1)
+		failUsage("usage: utmstack_edr config show|get <key>|set <key> <value>")
 	}
 	switch args[0] {
 	case "show":
+		if jsonMode {
+			cfg, err := config.Load()
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", cfg)
+			return
+		}
 		cfg, err := config.Load()
 		exitOn(err)
 		b, _ := json.MarshalIndent(cfg, "", "  ")
 		fmt.Println(string(b))
 	case "get":
 		if len(args) < 2 {
-			fmt.Println("usage: utmstack_edr config get <key>")
-			os.Exit(1)
+			failUsage("usage: utmstack_edr config get <key>")
+		}
+		if jsonMode {
+			data, err := configGetData(args[1])
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+			return
 		}
 		cfg, err := config.Load()
 		exitOn(err)
@@ -89,21 +109,58 @@ func runConfig(args []string) {
 		fmt.Println(v)
 	case "set":
 		if len(args) < 3 {
-			fmt.Println("usage: utmstack_edr config set <key> <value>")
-			os.Exit(1)
+			failUsage("usage: utmstack_edr config set <key> <value>")
+		}
+		val := strings.Join(args[2:], " ")
+		if jsonMode {
+			data, err := configSetData(args[1], val)
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+			return
 		}
 		cfg, err := config.Load()
 		exitOn(err)
-		if err := applySet(&cfg, args[1], strings.Join(args[2:], " ")); err != nil {
+		if err := applySet(&cfg, args[1], val); err != nil {
 			fmt.Println("error:", err)
 			os.Exit(1)
 		}
 		exitOn(config.Save(cfg))
-		fmt.Printf("set %s = %s (%s)\n", args[1], strings.Join(args[2:], " "), reloadNote)
+		fmt.Printf("set %s = %s (%s)\n", args[1], val, reloadNote)
 	default:
-		fmt.Println("usage: utmstack_edr config show|get <key>|set <key> <value>")
-		os.Exit(1)
+		failUsage("usage: utmstack_edr config show|get <key>|set <key> <value>")
 	}
+}
+
+// configGetData is the --json core of `config get <key>`: it returns the
+// dotted-path value without printing.
+func configGetData(key string) (interface{}, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	v, ok := getByPath(cfg, key)
+	if !ok {
+		return nil, fmt.Errorf("unknown key: %s", key)
+	}
+	return map[string]interface{}{"key": key, "value": v}, nil
+}
+
+// configSetData is the --json core of `config set <key> <value>`: it validates,
+// persists, and returns the applied value without printing.
+func configSetData(key, val string) (interface{}, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	if err := applySet(&cfg, key, val); err != nil {
+		return nil, err
+	}
+	if err := config.Save(cfg); err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{"key": key, "value": val, "applied": true}, nil
 }
 
 // getByPath returns the dotted-path value from the config (via its JSON form) as
@@ -178,6 +235,11 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 		cfg.TierOverride = val
 	case "signature_mirror":
 		cfg.SigMirror = val
+	case "signature_fallback":
+		if val != "" && val != "cdn" && val != "none" {
+			return fmt.Errorf("signature_fallback must be empty, \"cdn\", or \"none\"")
+		}
+		cfg.SignatureFallback = val
 	case "sensors.file_watcher":
 		return setSensor(&cfg.Sensors.FileWatcher, val)
 	case "sensors.process_guard":
@@ -244,10 +306,40 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 
 func runAllow(args []string) {
 	if len(args) < 2 {
-		fmt.Println("usage: utmstack_edr allow path|process|command|network add|remove|list [value]")
-		os.Exit(1)
+		failUsage("usage: utmstack_edr allow path|process|command|network add|remove|list [value]")
 	}
 	category, action := args[0], args[1]
+	if jsonMode {
+		switch action {
+		case "add":
+			if len(args) < 3 {
+				failUsage(fmt.Sprintf("usage: utmstack_edr allow %s add <value>", category))
+			}
+			data, err := allowAddData(category, strings.Join(args[2:], " "))
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+		case "remove":
+			if len(args) < 3 {
+				failUsage(fmt.Sprintf("usage: utmstack_edr allow %s remove <value>", category))
+			}
+			data, err := allowRemoveData(category, strings.Join(args[2:], " "))
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+		case "list":
+			data, err := allowListData(category)
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+		default:
+			failJSON("action must be add|remove|list")
+		}
+		return
+	}
 	cfg, err := config.Load()
 	exitOn(err)
 
@@ -324,12 +416,149 @@ func runAllow(args []string) {
 	}
 }
 
+// allowListData is the --json core of `allow <cat> list`: it returns the
+// entries without printing.
+func allowListData(category string) (interface{}, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	list := allowListPtr(&cfg, category)
+	if list == nil {
+		return nil, fmt.Errorf("category must be path|process|command|network")
+	}
+	entries := make([]string, len(*list))
+	copy(entries, *list)
+	return map[string]interface{}{
+		"category": category,
+		"entries":  entries,
+		"count":    len(entries),
+	}, nil
+}
+
+// allowAddData is the --json core of `allow <cat> add <val>`: it validates,
+// persists, and reports the new count (plus already_present on a duplicate)
+// without printing.
+func allowAddData(category, val string) (interface{}, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	list := allowListPtr(&cfg, category)
+	if list == nil {
+		return nil, fmt.Errorf("category must be path|process|command|network")
+	}
+	if category == "network" {
+		if _, errAddr := netip.ParseAddr(val); errAddr != nil {
+			if _, errPfx := netip.ParsePrefix(val); errPfx != nil {
+				return nil, fmt.Errorf("network entry must be an IP or CIDR")
+			}
+		}
+	}
+	present := containsFold(*list, val)
+	if !present {
+		*list = append(*list, val)
+		if err := config.Save(cfg); err != nil {
+			return nil, err
+		}
+	}
+	data := map[string]interface{}{
+		"category": category,
+		"added":    val,
+		"count":    len(*list),
+	}
+	if present {
+		data["already_present"] = true
+	}
+	return data, nil
+}
+
+// allowRemoveData is the --json core of `allow <cat> remove <val>`: it
+// persists and reports the new count, or an error when the entry is missing,
+// without printing.
+func allowRemoveData(category, val string) (interface{}, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	list := allowListPtr(&cfg, category)
+	if list == nil {
+		return nil, fmt.Errorf("category must be path|process|command|network")
+	}
+	out := (*list)[:0]
+	removed := false
+	for _, e := range *list {
+		if strings.EqualFold(strings.TrimSpace(e), strings.TrimSpace(val)) {
+			removed = true
+			continue
+		}
+		out = append(out, e)
+	}
+	if !removed {
+		return nil, fmt.Errorf("not found in %s allowlist: %s", category, val)
+	}
+	*list = out
+	if err := config.Save(cfg); err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{
+		"category": category,
+		"removed":  val,
+		"count":    len(*list),
+	}, nil
+}
+
+// allowListPtr returns the *[]string backing the given allowlist category
+// (nil for an unknown category).
+func allowListPtr(cfg *config.EDRConfig, category string) *[]string {
+	switch category {
+	case "path":
+		return &cfg.Allowlist.Paths
+	case "process":
+		return &cfg.Allowlist.Processes
+	case "command":
+		return &cfg.Allowlist.Commands
+	case "network":
+		return &cfg.Allowlist.Networks
+	default:
+		return nil
+	}
+}
+
 // ---- quarantine ----
 
 func runQuarantine(args []string) {
 	if len(args) == 0 {
-		fmt.Println("usage: utmstack_edr quarantine list|restore <id>|purge <id>|purge --expired")
-		os.Exit(1)
+		failUsage("usage: utmstack_edr quarantine list|restore <id>|purge <id>|purge --expired")
+	}
+	if jsonMode {
+		switch args[0] {
+		case "list":
+			data, err := quarListData()
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+			return
+		case "restore":
+			if len(args) < 2 {
+				failUsage("usage: utmstack_edr quarantine restore <id>")
+			}
+			if err := restoreData(args[1]); err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", map[string]interface{}{"restored": args[1]})
+			return
+		case "purge":
+			data, err := quarPurgeData(args[1:])
+			if err != nil {
+				failJSON(err.Error())
+			}
+			emitJSON(true, "", data)
+			return
+		default:
+			failJSON("unknown quarantine action: " + args[0])
+		}
 	}
 	switch args[0] {
 	case "list":
@@ -448,4 +677,65 @@ func quarState(r cache.QuarantineRecord) string {
 	default:
 		return "held"
 	}
+}
+
+// quarItemData maps one quarantine record to its --json list item.
+func quarItemData(r cache.QuarantineRecord) map[string]interface{} {
+	return map[string]interface{}{
+		"id":        r.QuarantineID,
+		"date":      r.QuarantinedAt.Format("2006-01-02 15:04:05"),
+		"detection": r.Detection,
+		"path":      r.OriginalPath,
+		"state":     quarState(r),
+	}
+}
+
+// quarListData is the --json core of `quarantine list`: the full record set
+// (newest first, like the human table) mapped to list items, without printing.
+func quarListData() (interface{}, error) {
+	c, err := cache.Open(config.DBFile)
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	recs, err := c.ListQuarantine()
+	if err != nil {
+		return nil, err
+	}
+	sort.Slice(recs, func(i, j int) bool { return recs[i].QuarantinedAt.After(recs[j].QuarantinedAt) })
+	items := make([]map[string]interface{}, len(recs))
+	for i, r := range recs {
+		items[i] = quarItemData(r)
+	}
+	return map[string]interface{}{"items": items, "count": len(items)}, nil
+}
+
+// quarPurgeData is the --json core of `quarantine purge <id>` /
+// `quarantine purge --expired`, without printing. rest is the args after
+// "purge".
+func quarPurgeData(rest []string) (interface{}, error) {
+	cfg, _ := config.Load()
+	c, err := cache.Open(config.DBFile)
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	store, err := quarantine.New(cfg.QuarantineDir, c)
+	if err != nil {
+		return nil, err
+	}
+	if len(rest) >= 1 && rest[0] == "--expired" {
+		n, err := store.PurgeExpired(cfg.QuarantineDays, time.Now())
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"purged_count": n}, nil
+	}
+	if len(rest) < 1 {
+		return nil, fmt.Errorf("usage: utmstack_edr quarantine purge <id> | purge --expired")
+	}
+	if err := store.Purge(rest[0]); err != nil {
+		return nil, fmt.Errorf("purge error: %w", err)
+	}
+	return map[string]interface{}{"purged": rest[0]}, nil
 }
