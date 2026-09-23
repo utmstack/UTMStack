@@ -1,0 +1,8 @@
+{
+  "command": "<14>2026-09-23T12:00:00Z,123,-,45,source,67,path,platform,/tmp/fake.bin,\"synthetic --flag\"",
+  "rest-data": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 sampleKey=sampleValue",
+  "action-blocked": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 action=blocked",
+  "unrelated": "not a Deceptive Bytes message",
+  "rule-positive": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=lolbin_trap process_name=cmd.exe deceptive_target=decoy",
+  "rule-negative": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=ordinary process_name=cmd.exe deceptive_target=decoy"
+}

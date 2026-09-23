@@ -27,8 +27,8 @@ description: |
   6. Collect memory dump if possible for forensic analysis
   7. Review network connections made by the process for C2 communication
   8. Check for persistence mechanisms (scheduled tasks, registry modifications, services)
-where: equals("log.event_type", "lolbin_trap") && oneOf("log.process_name", ["powershell.exe", "cmd.exe", "wmic.exe", "mshta.exe", "rundll32.exe", "regsvr32.exe", "certutil.exe", "bitsadmin.exe"]) && exists("log.deceptive_target")
+where: equals("log.eventtype", "lolbin_trap") && oneOf("log.processname", ["powershell.exe", "cmd.exe", "wmic.exe", "mshta.exe", "rundll32.exe", "regsvr32.exe", "certutil.exe", "bitsadmin.exe"]) && exists("log.deceptivetarget")
 groupBy:
-  - lastEvent.log.deceptive_target
+  - lastEvent.log.deceptivetarget
   - adversary.host
   - adversary.user

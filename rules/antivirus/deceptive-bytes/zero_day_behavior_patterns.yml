@@ -28,7 +28,7 @@ description: |
 where: |
   oneOf("log.eventType", ["unknown_threat", "behavioral_anomaly", "zero_day_suspect"]) &&
   equals("log.threatSignature", "unknown") &&
-  equals("log.deceptionEnvironment", true) &&
+  equals("log.deceptionEnvironment", "true") &&
   (
     (greaterOrEqual("log.memoryAnomalyScore", 90)) ||
     (greaterOrEqual("log.processChainAnomalyScore", 85)) ||

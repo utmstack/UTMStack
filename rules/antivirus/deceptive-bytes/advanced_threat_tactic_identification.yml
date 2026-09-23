@@ -32,7 +32,7 @@ where: |
   equals("log.eventType", "advanced_threat_detected") &&
   equals("log.threatLevel", "critical") &&
   (oneOf("log.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
-  equals("log.deceptionTriggered", true) &&
+  equals("log.deceptionTriggered", "true") &&
   greaterOrEqual("log.behaviorScore", 80)
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
