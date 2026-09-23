@@ -24,6 +24,7 @@ import type { FlowCondition, FlowNode, NodeKind } from '../types/soar.types'
 import { NodePalette } from './NodePalette'
 import { NodeInspector } from './NodeInspector'
 import { TriggerInspector } from './TriggerInspector'
+import { clearHttpParamsCache } from './HttpParamsEditor'
 import { DAGNode } from './nodes/DAGNode'
 import { TriggerNode } from './nodes/TriggerNode'
 import { computeLayeredLayout, TRIGGER_LAYOUT_ID } from './layeredLayout'
@@ -342,6 +343,7 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
     }
     const nextRoots = roots.filter((r) => r !== selectedId)
     delete layoutRef.current[selectedId]
+    clearHttpParamsCache(selectedId)
     onChange({ roots: nextRoots, nodes: nextNodes })
     setSelectedId(null)
   }
