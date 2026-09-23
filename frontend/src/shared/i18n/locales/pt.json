@@ -4004,6 +4004,10 @@
       "datasources": {
         "label": "Gerenciar fontes de dados",
         "hint": "Editar grupos e labels das fontes de dados."
+      },
+      "soar": {
+        "label": "Gerenciar fluxos SOAR",
+        "hint": "Criar e editar regras SOAR (fluxos de resposta)."
       }
     },
     "chat": {

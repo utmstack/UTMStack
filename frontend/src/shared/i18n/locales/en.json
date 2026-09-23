@@ -4143,6 +4143,10 @@
       "datasources": {
         "label": "Manage data sources",
         "hint": "Edit data source groups and labels."
+      },
+      "soar": {
+        "label": "Manage SOAR flows",
+        "hint": "Create and edit SOAR rules (response flows)."
       }
     },
     "chat": {

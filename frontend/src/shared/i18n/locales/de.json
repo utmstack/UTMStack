@@ -5257,6 +5257,10 @@
       "datasources": {
         "label": "Datenquellen verwalten",
         "hint": "Datenquellengruppen und Labels bearbeiten."
+      },
+      "soar": {
+        "label": "SOAR-Flows verwalten",
+        "hint": "SOAR-Regeln (Reaktionsflows) erstellen und bearbeiten."
       }
     },
     "chat": {

@@ -5265,6 +5265,10 @@
       "datasources": {
         "label": "Gérer les sources de données",
         "hint": "Modifier les groupes et libellés des sources de données."
+      },
+      "soar": {
+        "label": "Gérer les flux SOAR",
+        "hint": "Créer et modifier les règles SOAR (flux de réponse)."
       }
     },
     "chat": {

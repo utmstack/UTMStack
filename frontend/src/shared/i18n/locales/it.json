@@ -5265,6 +5265,10 @@
       "datasources": {
         "label": "Gestisci sorgenti dati",
         "hint": "Modifica gruppi ed etichette delle sorgenti dati."
+      },
+      "soar": {
+        "label": "Gestire flussi SOAR",
+        "hint": "Creare e modificare le regole SOAR (flussi di risposta)."
       }
     },
     "chat": {
