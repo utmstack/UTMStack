@@ -213,19 +213,37 @@ func edrDisable(binPath string) (bool, string, string) {
 	return true, "", `{"enabled":false,"service":"stopped"}`
 }
 
-// edrPolicySet shallow-merges the policy document into edr.json. Only keys
-// present in the payload overwrite; absent keys are left untouched.
+// edrPolicySet applies a centrally-assigned policy document:
+// {"policy":{...},"version":"..."}. Only keys present in `policy`
+// overwrite; absent keys are left untouched. The version is recorded in the
+// config so the status reporter can ship it upstream for drift detection.
+// A missing or non-object `policy` is a validation error — a version alone
+// does not constitute a policy document.
 func edrPolicySet(payload string) (bool, string, string) {
 	var fields map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(payload), &fields); err != nil || fields == nil {
 		return false, "validation_error", ""
 	}
+	policyRaw, hasPolicy := fields["policy"]
+	if !hasPolicy {
+		return false, "validation_error", ""
+	}
+	var policy map[string]json.RawMessage
+	if err := json.Unmarshal(policyRaw, &policy); err != nil || policy == nil {
+		return false, "validation_error", ""
+	}
+	var version string
+	if v, ok := fields["version"]; ok {
+		if err := json.Unmarshal(v, &version); err != nil {
+			return false, "validation_error", ""
+		}
+	}
 	base, err := edrCfgLoad()
 	if err != nil {
 		return false, err.Error(), ""
 	}
-	// Serialize the effective config, overlay the payload keys, then decode
-	// back into a typed struct and persist. The overlay is shallow: a payload
+	// Serialize the effective config, overlay the policy keys, then decode
+	// back into a typed struct and persist. The overlay is shallow: a policy
 	// key replaces that top-level field wholesale.
 	b, err := json.Marshal(base)
 	if err != nil {
@@ -235,7 +253,7 @@ func edrPolicySet(payload string) (bool, string, string) {
 	if err := json.Unmarshal(b, &doc); err != nil {
 		return false, "validation_error", ""
 	}
-	for k, v := range fields {
+	for k, v := range policy {
 		doc[k] = v
 	}
 	out, err := json.Marshal(doc)
@@ -246,10 +264,15 @@ func edrPolicySet(payload string) (bool, string, string) {
 	if err := json.Unmarshal(out, &c); err != nil {
 		return false, "validation_error", ""
 	}
+	c.PolicyVersion = version
 	if err := edrCfgSave(c); err != nil {
 		return false, err.Error(), ""
 	}
-	return true, "", `{"applied":true}`
+	versionJSON, err := json.Marshal(version)
+	if err != nil {
+		return false, err.Error(), ""
+	}
+	return true, "", fmt.Sprintf(`{"applied":true,"version":%s}`, versionJSON)
 }
 
 // edrCLIAction verifies the module binary exists, runs the CLI verb with

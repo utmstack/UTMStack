@@ -273,8 +273,8 @@ func TestEDRDispatchPolicySet(t *testing.T) {
 	e := &edrEnv{}
 	stubEDREnv(t, e)
 
-	ok, errStr, data := edrDispatch("policy_set", `{"clamd_addr":"1.2.3.4:1234"}`, missingBin(t), &fakeEDRCLI{})
-	if !ok || errStr != "" || data != `{"applied":true}` {
+	ok, errStr, data := edrDispatch("policy_set", `{"policy":{"clamd_addr":"1.2.3.4:1234"},"version":"v2"}`, missingBin(t), &fakeEDRCLI{})
+	if !ok || errStr != "" || data != `{"applied":true,"version":"v2"}` {
 		t.Fatalf("policy_set got ok=%v err=%q data=%q", ok, errStr, data)
 	}
 	if e.saved == nil {
@@ -283,9 +283,39 @@ func TestEDRDispatchPolicySet(t *testing.T) {
 	if e.saved.ClamdAddr != "1.2.3.4:1234" {
 		t.Fatalf("ClamdAddr=%q want the overlaid value", e.saved.ClamdAddr)
 	}
-	// A key absent from the payload must be left untouched (Default FailMode).
+	// The policy document version is persisted so the status reporter can ship
+	// it upstream for drift detection.
+	if e.saved.PolicyVersion != "v2" {
+		t.Fatalf("PolicyVersion=%q want v2", e.saved.PolicyVersion)
+	}
+	// A key absent from the policy must be left untouched (Default FailMode).
 	if e.saved.FailMode != "open" {
 		t.Fatalf("FailMode=%q want untouched default open", e.saved.FailMode)
+	}
+}
+
+// A version without a policy document is not a valid payload.
+func TestEDRDispatchPolicySetVersionOnly(t *testing.T) {
+	e := &edrEnv{}
+	stubEDREnv(t, e)
+
+	ok, errStr, _ := edrDispatch("policy_set", `{"version":"v2"}`, missingBin(t), &fakeEDRCLI{})
+	if ok || errStr != "validation_error" {
+		t.Fatalf("policy_set version-only got ok=%v err=%q want validation_error", ok, errStr)
+	}
+	if e.saved != nil {
+		t.Fatalf("no config should be saved for an invalid payload")
+	}
+}
+
+// A non-object policy block is a validation error.
+func TestEDRDispatchPolicySetPolicyNotObject(t *testing.T) {
+	e := &edrEnv{}
+	stubEDREnv(t, e)
+
+	ok, errStr, _ := edrDispatch("policy_set", `{"policy":"nope"}`, missingBin(t), &fakeEDRCLI{})
+	if ok || errStr != "validation_error" {
+		t.Fatalf("policy_set non-object policy got ok=%v err=%q want validation_error", ok, errStr)
 	}
 }
 

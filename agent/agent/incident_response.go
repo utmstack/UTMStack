@@ -57,6 +57,7 @@ func serveAgentStream(ctx context.Context, stream AgentService_AgentStreamClient
 	defer stopBeating()
 	go sendHeartbeats(beatCtx, sender)
 	go sendConfigStateReports(beatCtx, sender)
+	go sendEdrStatusReports(beatCtx, sender, cnf)
 
 	for {
 		in, err := stream.Recv()

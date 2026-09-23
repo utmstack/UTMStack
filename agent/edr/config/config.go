@@ -155,6 +155,10 @@ type EDRConfig struct {
 	// unreachable: "cdn" (default) falls back to the official public database
 	// for one cycle; "none" stays mirror-only (air-gapped posture).
 	SignatureFallback string `json:"signature_fallback"`
+	// PolicyVersion is the version of the last centrally-assigned policy
+	// document (policy_set). The status reporter ships it upstream so the
+	// server can detect drift between assigned and applied policy.
+	PolicyVersion string `json:"policy_version"`
 
 	// Ransomware is the behavioral ransomware guard block (nested; copied wholesale
 	// by Load when present on disk).
@@ -255,6 +259,7 @@ func Load() (EDRConfig, error) {
 	if onDisk.SignatureFallback != "" {
 		c.SignatureFallback = onDisk.SignatureFallback
 	}
+	c.PolicyVersion = onDisk.PolicyVersion
 	// RansomwareConfig has slice fields, so it is not comparable with != against a
 	// zero literal. Detect an on-disk block via a reliable non-zero scalar and copy
 	// the whole block; an absent block leaves the Default() nested values intact.
