@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - o365
@@ -24,7 +24,7 @@ description: |
   5. Implement additional security awareness training for the affected user
   6. Consider blocking the malicious domains at the network level
 where: |
-  equals("action", "ClickedSafeLink") && equals("actionResult", "blocked") && exists("origin.user")
+  equals("action", "ClickedSafeLink") && oneOf("actionResult", ["denied", "blocked"]) && exists("origin.user")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
