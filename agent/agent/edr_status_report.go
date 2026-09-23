@@ -74,6 +74,14 @@ func sendEdrStatusReports(ctx context.Context, sender resultSender, cnf *config.
 			}
 			// Load the policy version only when we are about to send, to
 			// avoid load churn on quiet ticks.
+			//
+			// Drift note (Y1.5): the per-policy drift trace is reported in the
+			// EdrResult payload of the policy_set command (applied_live /
+			// requires_restart / drift) and persisted at edr.policy-drift.json
+			// for inspection. It is deliberately NOT carried in this report:
+			// the EdrStatusReport proto has fixed fields (status_json,
+			// policy_version) and adding a drift field would require a proto
+			// change, which is out of scope here.
 			version := ""
 			if c, cerr := edrCfgLoad(); cerr == nil {
 				version = c.PolicyVersion

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -46,24 +47,36 @@ func missingBin(t *testing.T) string {
 // edrEnv captures the service-control and config-file calls so tests can
 // assert on them.
 type edrEnv struct {
-	active   bool
-	started  bool
-	stopped  bool
-	saved    *edrconfig.EDRConfig
-	loadErr  error
-	saveErr  error
-	startErr error
-	stopErr  error
+	active     bool
+	started    bool
+	stopped    bool
+	restarted  bool
+	saved      *edrconfig.EDRConfig
+	loadErr    error
+	saveErr    error
+	startErr   error
+	stopErr    error
+	restartErr error
+	fpDir      string
+	fileDir    string
+	driftFile  string
+	fpFile     string
 }
 
-// stubEDREnv redirects the service/config seams to the captured env and
-// restores the originals on cleanup.
+// stubEDREnv redirects the service/config/file seams to the captured env and
+// restores the originals on cleanup. The policy fingerprint and drift files
+// are redirected into a temp dir so tests never touch the real install dir.
 func stubEDREnv(t *testing.T, e *edrEnv) {
 	t.Helper()
+	e.fpDir = t.TempDir()
+	e.fpFile = filepath.Join(e.fpDir, "edr.policy-applied.json")
+	e.driftFile = filepath.Join(e.fpDir, "edr.policy-drift.json")
 	oldS, oldT, oldA, oldL, oldV := edrSvcStart, edrSvcStop, edrSvcActive, edrCfgLoad, edrCfgSave
+	oldR, oldFP, oldDrift := edrSvcRestart, edrPolicyFingerprintFile, edrPolicyDriftFile
 	edrSvcStart = func() error { e.started = true; return e.startErr }
 	edrSvcStop = func() error { e.stopped = true; return e.stopErr }
 	edrSvcActive = func() (bool, error) { return e.active, nil }
+	edrSvcRestart = func() error { e.restarted = true; return e.restartErr }
 	edrCfgLoad = func() (edrconfig.EDRConfig, error) {
 		return edrconfig.Default(), e.loadErr
 	}
@@ -71,8 +84,11 @@ func stubEDREnv(t *testing.T, e *edrEnv) {
 		e.saved = &c
 		return e.saveErr
 	}
+	edrPolicyFingerprintFile = e.fpFile
+	edrPolicyDriftFile = e.driftFile
 	t.Cleanup(func() {
 		edrSvcStart, edrSvcStop, edrSvcActive, edrCfgLoad, edrCfgSave = oldS, oldT, oldA, oldL, oldV
+		edrSvcRestart, edrPolicyFingerprintFile, edrPolicyDriftFile = oldR, oldFP, oldDrift
 	})
 }
 
@@ -274,8 +290,36 @@ func TestEDRDispatchPolicySet(t *testing.T) {
 	stubEDREnv(t, e)
 
 	ok, errStr, data := edrDispatch("policy_set", `{"policy":{"clamd_addr":"1.2.3.4:1234"},"version":"v2"}`, missingBin(t), &fakeEDRCLI{})
-	if !ok || errStr != "" || data != `{"applied":true,"version":"v2"}` {
-		t.Fatalf("policy_set got ok=%v err=%q data=%q", ok, errStr, data)
+	if !ok || errStr != "" {
+		t.Fatalf("policy_set got ok=%v err=%q", ok, errStr)
+	}
+	var resp map[string]any
+	if err := json.Unmarshal([]byte(data), &resp); err != nil {
+		t.Fatalf("response is not JSON: %v (%q)", err, data)
+	}
+	if resp["applied"] != true || resp["version"] != "v2" {
+		t.Fatalf("applied/version wrong: %v", resp)
+	}
+	if got := resp["applied_live"]; !isJSONArray(got) || len(asStrings(t, mustRaw(t, got))) != 0 {
+		t.Fatalf("applied_live=%v want []", resp["applied_live"])
+	}
+	// clamd_addr is a RESTART key and it actually changed (default is
+	// 127.0.0.1:3310); the service is inactive, so no restart was performed.
+	if got := asStrings(t, mustRaw(t, resp["requires_restart"])); len(got) != 1 || got[0] != "clamd_addr" {
+		t.Fatalf("requires_restart=%v want [clamd_addr]", resp["requires_restart"])
+	}
+	if got := resp["drift"]; !isJSONArray(got) || len(asStrings(t, mustRaw(t, got))) != 0 {
+		t.Fatalf("drift=%v want []", resp["drift"])
+	}
+	// Every array must be a real JSON [] in the raw payload, never null.
+	var rawResp map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(data), &rawResp); err != nil {
+		t.Fatalf("response is not JSON: %v (%q)", err, data)
+	}
+	for _, key := range []string{"applied_live", "requires_restart", "drift"} {
+		if string(rawResp[key]) == "null" {
+			t.Fatalf("%s is null in the raw payload: %s", key, data)
+		}
 	}
 	if e.saved == nil {
 		t.Fatalf("config was not saved")
@@ -291,6 +335,10 @@ func TestEDRDispatchPolicySet(t *testing.T) {
 	// A key absent from the policy must be left untouched (Default FailMode).
 	if e.saved.FailMode != "open" {
 		t.Fatalf("FailMode=%q want untouched default open", e.saved.FailMode)
+	}
+	// No restart is attempted while the service is not active.
+	if e.restarted {
+		t.Fatalf("restart should not be called while the service is inactive")
 	}
 }
 
