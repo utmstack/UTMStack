@@ -1,4 +1,4 @@
-# SentinelOne filter, version 3.0.0
+# SentinelOne filter, version 3.0.1
 # Supports CEF Syslog format and [something@number something="xxxx"] format
 # Based on https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm
 # and https://docs.fortinet.com/document/fortisiem/6.1.0/external-systems-configuration-guide/298395/sentinelone
@@ -100,39 +100,6 @@ pipeline:
               pattern: '{{.greedy}}'
           source: raw
 
-      # Parsing raw field for log without syslog information
-      - grok:
-          patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.0trash
-              pattern: '{{.data}}Mgmt\|'
-            - fieldName: log.syslogHost
-              pattern: '{{.ipv4}}\|'
-            - fieldName: log.1trash
-              pattern: '{{.integer}}'
-            - fieldName: log.eventDescription
-              pattern: '\|{{.data}}\|'
-            - fieldName: log.restData
-              pattern: '{{.greedy}}'
-          source: raw
-
-      - grok:
-          patterns:
-            - fieldName: log.syslogPriority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.0trash
-              pattern: '{{.data}}Mgmt\|'
-            - fieldName: log.syslogHost
-              pattern: '{{.word}}\s{{.integer}}\|'
-            - fieldName: log.1trash
-              pattern: '{{.integer}}'
-            - fieldName: log.eventDescription
-              pattern: '\|{{.data}}\|'
-            - fieldName: log.restData
-              pattern: '{{.greedy}}'
-          source: raw
-
       - grok:
           patterns:
             - fieldName: log.2trash
@@ -168,156 +135,189 @@ pipeline:
               pattern: '{{.greedy}}'
           source: raw
 
+      # Parse the CEF header by position, whatever syslog header precedes "CEF:".
+      # Header fields are pipe-delimited; a backslash escapes a pipe inside a field.
+      # log.restData then holds only the extension, so no header text reaches kv.
+      # The header severity stays vendor detail in log.cefSeverity; its scale is
+      # not documented, so the standard severity field is not set here.
+      - grok:
+          patterns:
+            - fieldName: log.0trash
+              pattern: '{{.data}}CEF:{{.integer}}\|'
+            - fieldName: log.cefDeviceVendor
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.cefDeviceProduct
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.cefDeviceVersion
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.cefSignatureId
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.eventDescription
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.cefSeverity
+              pattern: '(?:[^|\\]|\\.)+'
+            - fieldName: log.1trash
+              pattern: '\|'
+            - fieldName: log.restData
+              pattern: '{{.greedy}}'
+          source: raw
+          where: 'contains("raw", "CEF:")'
+
       - kv:
           fieldSplit: " "
           valueSplit: "="
           source: log.restData
+          where: 'exists("log.restData")'
 
-      # Using grok to parse kv issued fields
+      # CEF rt=#arcsightDate(<day>, <d> <Mon> <yyyy>, <hh:mm:ss> UTC) anywhere in the
+      # extension. kv keeps only its first word, so the complete value is taken here.
       - grok:
           patterns:
             - fieldName: log.3trash
-              pattern: '{{.data}}accountName='
-            - fieldName: log.accountNameToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
+              pattern: '{{.data}}(?:^|[\s|])rt=#arcsightDate\('
+            - fieldName: log.rt
+              pattern: '[^)]+'
           source: log.restData
 
+      # The same value becomes deviceTime only when it has exactly the expected
+      # UTC layout; any other rt format is left alone and deviceTime keeps its default.
       - grok:
           patterns:
             - fieldName: log.3trash
-              pattern: '{{.data}}eventDesc='
-            - fieldName: log.eventDescToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
+              pattern: '{{.data}}(?:^|[\s|])rt=#arcsightDate\('
+            - fieldName: log.deviceTimeCandidate
+              pattern: '[^)]+'
           source: log.restData
+      - reformat:
+          fields:
+            - log.deviceTimeCandidate
+          function: time
+          fromFormat: 'Mon, 2 Jan 2006, 15:04:05 MST'
+          toFormat: '2006-01-02T15:04:05Z07:00'
+          where: 'regexMatch("log.deviceTimeCandidate", "^[A-Z][a-z]{2}, [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}, [0-9]{2}:[0-9]{2}:[0-9]{2} UTC$")'
+      - rename:
+          from:
+            - log.deviceTimeCandidate
+          to: deviceTime
+          where: 'regexMatch("log.deviceTimeCandidate", "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")'
 
+      # Values that can contain spaces: take the text after "<key>=" up to the next
+      # " <key>=", or to the end when the key is last, then strip that next key.
+      # kv keeps only the first word of these values.
       - grok:
           patterns:
             - fieldName: log.3trash
-              pattern: '{{.data}}suser='
-            - fieldName: log.suserToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      - grok:
-          patterns:
-            - fieldName: log.3trash
-              pattern: '{{.data}}duser='
-            - fieldName: log.duserToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      - grok:
-          patterns:
-            - fieldName: log.3trash
-              pattern: '{{.data}}endpointDeviceControlDeviceName='
-            - fieldName: log.endpointDeviceControlDeviceNameToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      - grok:
-          patterns:
-            - fieldName: log.3trash
-              pattern: '{{.data}}sourceGroupName='
-            - fieldName: log.sourceGroupNameToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      - grok:
-          patterns:
-            - fieldName: log.3trash
-              pattern: '{{.data}}sourceIpAddresses='
-            - fieldName: log.sourceIpAddressesToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      - grok:
-          patterns:
-            - fieldName: log.3trash
-              pattern: '{{.data}}sourceMacAddresses='
-            - fieldName: log.sourceMacAddressesToParse
-              pattern: '{{.data}}{{.word}}\='
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      # Applying grok to remove unnecessary data
-      - grok:
-          patterns:
+              pattern: '{{.data}}(?:^|[\s|])accountName='
             - fieldName: log.accName
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.accountNameToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])accountName=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])eventDesc='
             - fieldName: log.eventDescription
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.eventDescToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])eventDesc=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])suser='
             - fieldName: log.sourceUser
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.suserToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])suser=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])duser='
             - fieldName: log.destinationUser
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.duserToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])duser=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])endpointDeviceControlDeviceName='
             - fieldName: log.endpointDeviceName
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.endpointDeviceControlDeviceNameToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])endpointDeviceControlDeviceName=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])sourceGroupName='
             - fieldName: log.sourceGpName
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.sourceGroupNameToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])sourceGroupName=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])sourceIpAddresses='
             - fieldName: log.sourceIps
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.sourceIpAddressesToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])sourceIpAddresses=\\S")'
 
       - grok:
           patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])sourceMacAddresses='
             - fieldName: log.sourceMacs
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.sourceMacAddressesToParse
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])sourceMacAddresses=\\S")'
+
+      - grok:
+          patterns:
+            - fieldName: log.3trash
+              pattern: '{{.data}}(?:^|[\s|])siteName='
+            - fieldName: log.siteName
+              pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
+          source: log.restData
+          where: 'regexMatch("log.restData", "(^|[\\s|])siteName=\\S")'
+
+      - trim:
+          function: regex
+          substring: '\s+[A-Za-z0-9_.]+=$'
+          fields:
+            - log.accName
+            - log.eventDescription
+            - log.sourceUser
+            - log.destinationUser
+            - log.endpointDeviceName
+            - log.sourceGpName
+            - log.sourceIps
+            - log.sourceMacs
+            - log.siteName
+
+      # In SentinelOne management (console) events, suser is the console account
+      # that made the change. Copy it to the standard actor field and keep the
+      # vendor value. Its meaning in other event classes is not established.
+      - grok:
+          patterns:
+            - fieldName: origin.user
+              pattern: '(?s:.+)'
+          source: log.sourceUser
+          where: 'equals("log.cat", "SystemEvent") && exists("log.sourceUser") && !oneOf("log.sourceUser", ["", "-", "N/A", "unknown"])'
 
       # Removing unnecessary characters
       - trim:
@@ -343,7 +343,6 @@ pipeline:
           substring: '|'
           fields:
             - log.eventDescription
-            - log.syslogHost
 
       - trim:
           function: prefix
@@ -394,6 +393,7 @@ pipeline:
             - log.restData
             - log.1rt
             - log.rt
+            - log.deviceTimeCandidate
             - log.irrelevant
             - log.accountNameToParse
             - log.accountName

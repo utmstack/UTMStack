@@ -24,12 +24,13 @@ description: |
   5. Review admin account access for compromise
   6. Scan all affected endpoints for unmitigated threats
 where: |
-  (contains("log.eventDescription", "policy") &&
-   ((contains("log.eventDescription", "Detect") && contains("log.eventDescription", "changed")) ||
-    contains("log.eventDescription", "downgrade") ||
-    (contains("log.eventDescription", "Protect") && contains("log.eventDescription", "Detect")))) ||
-  (oneOf("log.activityType", ["policy_updated", "policy_changed"]) &&
-   contains("log.eventDescription", "Detect"))
+  (regexMatch("log.eventDescription", "(?i)\\bpolicy\\b") ||
+   oneOf("log.activityType", ["policy_updated", "policy_changed"])) &&
+  (regexMatch("log.eventDescription", "(?i)\\bdowngrad(e|es|ed|ing)\\b") ||
+   regexMatch("log.eventDescription", "(?i)\\bfrom\\W+(the\\W+)?protect\\b.*\\bto\\W+(the\\W+)?detect\\b") ||
+   regexMatch("log.eventDescription", "(?i)\\bprotect\\W+(mode\\W+)?to\\W+(the\\W+)?detect\\b") ||
+   regexMatch("log.eventDescription", "(?i)\\bprotect\\s*/\\s*(protect|detect)\\b.*\\bto\\W+(the\\W+)?detect\\s*/\\s*(protect|detect)\\b") ||
+   regexMatch("log.eventDescription", "(?i)\\b(protect|detect)\\s*/\\s*protect\\b.*\\bto\\W+(the\\W+)?(protect|detect)\\s*/\\s*detect\\b"))
 groupBy:
   - lastEvent.log.activityType
-  - adversary.host
+  - adversary.user

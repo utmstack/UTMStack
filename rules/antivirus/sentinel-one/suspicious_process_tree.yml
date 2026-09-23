@@ -30,7 +30,7 @@ where: |
     "process spawn", "suspicious process", "abnormal process", "process anomaly"]) ||
    contains("log.threatName", ["process", "injection", "hollow"]) ||
    contains("log.mitigationMode", "process")) &&
-  exists("log.syslogHost")
+  exists("target.host")
 groupBy:
-  - lastEvent.log.syslogHost
+  - target.host
   - lastEvent.log.threatId
