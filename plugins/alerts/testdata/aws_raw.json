@@ -1676,9 +1676,12 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"CheckMfa\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"CheckMfa\":\"Success\"}}",
     "expected": {
-      "actionResult": "success"
+      "action": "CheckMfa",
+      "log.responseElements.CheckMfa": "Success"
     },
-    "absent": [],
+    "absent": [
+      "actionResult"
+    ],
     "matches": []
   },
   {

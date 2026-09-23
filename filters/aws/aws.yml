@@ -1,4 +1,4 @@
-# AWS filter v1.1.0: CloudTrail JSON and identified GuardDuty EventBridge findings.
+# AWS filter v1.1.1: CloudTrail JSON and identified GuardDuty EventBridge findings.
 # Original vendor objects and legacy aliases are retained. API success is request success.
 # Correlation candidates are generated here, never trusted from input.
 pipeline:
@@ -282,13 +282,14 @@ pipeline:
       params:
         key: actionResult
         value: success
+      # CheckMfa only checks whether MFA is required; it does not finish a sign-in.
+      # Preserve its vendor response without promoting the intermediate success.
       where: equals("log.awsRecordType","cloudtrail") && !((exists("log.errorCode") && !equals("log.errorCode","")) || (exists("log.errorMessage")
         && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
         || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
         || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure"))
         && (equals("log.eventType","AwsApiCall") || (equals("log.eventName","ConsoleLogin") && equals("log.responseElements.ConsoleLogin","Success"))
-        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success")) || (equals("log.eventName","CheckMfa")
-        && equals("log.responseElements.CheckMfa","Success")))
+        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success")))
   - grok:
       source: log.recipientAccountId
       patterns:
