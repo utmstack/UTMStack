@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/utmstack/backend/modules/integrations/connectors"
@@ -103,6 +104,16 @@ func registerDocResources(m *Module) {
 		MIMEType:    "text/markdown",
 	}, func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		return textResource(req.Params.URI, "text/markdown", eventTypesDoc)
+	})
+
+	srv.AddResource(&mcp.Resource{
+		URI:         "mcp://utmstack/docs/soar-flow-guide",
+		Name:        "SOAR flow building guide",
+		Description: "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read this before soar.rule.create/update. Ends with the live list of executor types registered on this instance.",
+		MIMEType:    "text/markdown",
+	}, func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+		text := soarFlowGuideDoc + "\n\n## Executor types registered on this instance\n\n" + strings.Join(m.deps.SOAR.GetExecutorTypes(), ", ") + "\n"
+		return textResource(req.Params.URI, "text/markdown", text)
 	})
 
 	srv.AddResource(&mcp.Resource{
