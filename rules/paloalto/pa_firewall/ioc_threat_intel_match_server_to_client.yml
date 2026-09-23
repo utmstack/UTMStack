@@ -2,14 +2,14 @@
 
 dataTypes:
 - firewall-paloalto
-name: PAN-OS Blocked Threat Category Detection (session source)
+name: PAN-OS Blocked Threat Category Detection (session destination)
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Intrusion Detection
 technique: ''
-adversary: origin
+adversary: target
 references:
 - https://docs.paloaltonetworks.com/ngfw/administration/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/threat-log-fields
 description: Detects a blocked PAN-OS threat categorized as malware, command-and-control, phishing or botnet. The
@@ -18,8 +18,8 @@ description: Detects a blocked PAN-OS threat categorized as malware, command-and
   the requested remote resource is the adversary; the request direction does not make the requesting client the
   malicious resource.
 where: equals("log.pa_type", "THREAT") && oneOf("log.thr_category", ["malware", "command-and-control", "phishing",
-  "botnet"]) && equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip") && !equals("log.pa_subtype",
-  "url") && equals("log.paDirection", "client-to-server")
+  "botnet"]) && equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip") && (equals("log.pa_subtype",
+  "url") || equals("log.paDirection", "server-to-client"))
 groupBy:
 - lastEvent.dataSource
 - lastEvent.log.paScope

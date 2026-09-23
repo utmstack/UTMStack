@@ -1,0 +1,2106 @@
+[
+  {
+    "name": "positive-panos_admin_brute_force",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "action": "auth-fail",
+      "actionResult": "failure",
+      "severity": "info",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [
+      "target.ip",
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "successful-auth",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-success,,,,general,informational,authenticated for user 'testuser'.   From: 192.0.2.25.,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "success",
+      "origin.ip": "192.0.2.25"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "vpn-negotiation-not-auth-fail",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,ike-nego-p1-fail-common,,,,general,informational,IKE negotiation failed with 192.0.2.25.,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "ike-nego-p1-fail-common"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip",
+      "origin.user",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "message-mentions-auth-fail-with-other-event",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,general,,,,general,informational,auth-fail failed authentication for user 'testuser'. From: 192.0.2.25.,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "unstructured-auth-source-not-guessed",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,Authentication failed. Server address 192.0.2.25.,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip",
+      "origin.user"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "system-bare",
+    "dataSource": "synthetic-collector",
+    "raw": "1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "actionResult": "failure"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "system-pri",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "actionResult": "failure"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "system-rfc5424",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>1 2026-09-17T12:00:00Z synthetic-fw PAN-OS - - - 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "actionResult": "failure"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "system-rfc5424-structured",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>1 2026-09-17T12:00:00Z synthetic-fw PAN-OS 123 ID47 [meta@123 source=\"test\"] 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "actionResult": "failure"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "csv-description-content-never-selects-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,general,,,,general,informational,\"quoted, TRAFFIC, THREAT, GLOBALPROTECT, AUTHENTICATION, \"\"src=198.51.100.66\"\"\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.pa_type": "SYSTEM",
+      "log.opaque": "quoted, TRAFFIC, THREAT, GLOBALPROTECT, AUTHENTICATION, \"src=198.51.100.66\""
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-fields",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "origin.user": "testuser",
+      "target.user": "server-user",
+      "origin.port": 45678,
+      "target.port": 443,
+      "origin.bytesSent": 200,
+      "origin.bytesReceived": 100,
+      "origin.packagesSent": "8",
+      "origin.packagesReceived": "4",
+      "log.vsys_name": "virtual-system-name",
+      "log.device_name": "synthetic-fw",
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "actionResult": "success",
+      "log.natsrc": "203.0.113.25"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus",
+      "target.bytesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-deny",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,deny,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-drop",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,drop,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-reset-client",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,reset-client,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-reset-server",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,reset-server,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-reset-both",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,reset-both,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-threat",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,threat,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-policy-deny",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,policy-deny,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-decrypt-cert-validation",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,decrypt-cert-validation,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-decrypt-unsupport-param",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,decrypt-unsupport-param,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-decrypt-error",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,decrypt-error,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "traffic-allow-ended-resources-unavailable",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,resources-unavailable,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "allow",
+      "actionResult": "failure"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "positive-panos_spyware_vulnerability",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Example signature(30001),any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "client-to-server"
+    },
+    "matches": [
+      "panos_spyware_vulnerability"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "panos_spyware_vulnerability": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "positive-zero_day_exploit_prevention",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "client-to-server"
+    },
+    "matches": [
+      "zero_day_exploit_prevention",
+      "panos_spyware_vulnerability"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "zero_day_exploit_prevention": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ],
+      "panos_spyware_vulnerability": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "positive-ioc_threat_intel_match",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,virus,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,drop,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,malware,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "client-to-server",
+      "actionResult": "denied"
+    },
+    "matches": [
+      "ioc_threat_intel_match"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "ioc_threat_intel_match": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "positive-wildfire_malware_detection",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),malware,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "client-to-server"
+    },
+    "matches": [
+      "wildfire_malware_detection"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "wildfire_malware_detection": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "positive-panos_spyware_vulnerability_server_to_client",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Example signature(30001),any,high,server-to-client,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "server-to-client"
+    },
+    "matches": [
+      "panos_spyware_vulnerability_server_to_client"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "panos_spyware_vulnerability_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "positive-zero_day_exploit_prevention_server_to_client",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,server-to-client,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "server-to-client"
+    },
+    "matches": [
+      "zero_day_exploit_prevention_server_to_client",
+      "panos_spyware_vulnerability_server_to_client"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "zero_day_exploit_prevention_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ],
+      "panos_spyware_vulnerability_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "positive-ioc_threat_intel_match_server_to_client",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,virus,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,drop,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,server-to-client,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,malware,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "server-to-client",
+      "actionResult": "denied"
+    },
+    "matches": [
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "positive-wildfire_malware_detection_server_to_client",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),malware,high,server-to-client,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "log.paDirection": "server-to-client"
+    },
+    "matches": [
+      "wildfire_malware_detection_server_to_client"
+    ],
+    "absent": [
+      "connectionStatus"
+    ],
+    "alertSides": {
+      "wildfire_malware_detection_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "positive-panos_dns_security_alerts",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,sinkhole,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,dns-c2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [
+      "panos_dns_security_alerts"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_dns_security_alerts": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "dns-legacy-subtype",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,dns,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.pa_subtype": "dns"
+    },
+    "matches": [
+      "panos_dns_security_alerts"
+    ],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {
+      "panos_dns_security_alerts": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "positive-panos_url_filtering_blocks",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,example.test/download.exe,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "actionResult": "denied",
+      "log.misc": "example.test/download.exe"
+    },
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [
+      "target.url"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "risky-url-alert",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,URL Filtering(9999),grayware,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "risky-url-block-continue",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-continue,example.test/download.exe,URL Filtering(9999),grayware,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "risky-url-block-override",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-override,example.test/download.exe,URL Filtering(9999),grayware,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "risky-url-block-page",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-page,example.test/download.exe,URL Filtering(9999),grayware,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "benign-url-block-not-history-candidate",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,example.test/download.exe,Synthetic CVE-2025-12345(30001),business-and-economy,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.url"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "ordinary-system-not-auth-history-candidate",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,general,,,,general,informational,Routine configuration notification,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.authFailure"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "ordinary-spyware-not-dns-history-candidate",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,ordinary spyware,any,low,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,spyware,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.dns"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "low-vulnerability-not-history-candidate",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,low,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.vulnerability"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "wildfire-benign-not-malware",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),benign,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "wildfire-grayware-not-malware",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),grayware,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "wildfire-phishing-not-malware",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),phishing,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "wildfire-any-not-malware",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "threat-allow-does-not-prove-success",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,flood,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,allow,example.test/download.exe,flood,any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "actionResult",
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "threat-alert-does-not-prove-success",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,flood,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,flood,any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "actionResult",
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "threat-syncookie-sent-does-not-prove-success",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,flood,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,syncookie-sent,example.test/download.exe,flood,any,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "actionResult",
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "wildfire-block",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block,example.test/download.exe,Synthetic CVE-2025-12345(30001),malware,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [
+      "wildfire_malware_detection"
+    ],
+    "absent": [],
+    "alertSides": {
+      "wildfire_malware_detection": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "wildfire-deny",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,wildfire,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,deny,example.test/download.exe,Synthetic CVE-2025-12345(30001),malware,high,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [
+      "wildfire_malware_detection"
+    ],
+    "absent": [],
+    "alertSides": {
+      "wildfire_malware_detection": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    }
+  },
+  {
+    "name": "threat-unknown-direction-missing",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.paDirection",
+      "log.correlationCandidate.paloalto.vulnerability"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "threat-unknown-direction-unknown",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,vulnerability,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,Synthetic CVE-2025-12345(30001),any,high,unknown,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.paDirection",
+      "log.correlationCandidate.paloalto.vulnerability"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-not-an-ip",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,not-an-ip,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "not-an-ip"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-0.0.0.0",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,0.0.0.0,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "0.0.0.0"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-::",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,::,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "::"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-0:0:0:0:0:0:0:0",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,0:0:0:0:0:0:0:0,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "0:0:0:0:0:0:0:0"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-::ffff:0.0.0.0",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,::ffff:0.0.0.0,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "::ffff:0.0.0.0"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-source-999.1.1.1",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,999.1.1.1,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.src": "999.1.1.1"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-port--1",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,-1,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.dpt": "-1"
+    },
+    "matches": [],
+    "absent": [
+      "target.port"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-port-65536",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,65536,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.dpt": "65536"
+    },
+    "matches": [],
+    "absent": [
+      "target.port"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-port-abc",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,abc,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.dpt": "abc"
+    },
+    "matches": [],
+    "absent": [
+      "target.port"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-port-1.2",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,1.2,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.dpt": "1.2"
+    },
+    "matches": [],
+    "absent": [
+      "target.port"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-port-4294967296",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,4294967296,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.dpt": "4294967296"
+    },
+    "matches": [],
+    "absent": [
+      "target.port"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-packets--1",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,-1,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.pkts_sent": "-1"
+    },
+    "matches": [],
+    "absent": [
+      "origin.packagesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-packets-1.5",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,1.5,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.pkts_sent": "1.5"
+    },
+    "matches": [],
+    "absent": [
+      "origin.packagesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-packets-NaN",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,NaN,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.pkts_sent": "NaN"
+    },
+    "matches": [],
+    "absent": [
+      "origin.packagesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-packets-18446744073709551616",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,18446744073709551616,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "log.pkts_sent": "18446744073709551616"
+    },
+    "matches": [],
+    "absent": [
+      "origin.packagesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-HIP-MATCH-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,HIP-MATCH,,2817,2026/09/17 12:00:00,testuser,vsys1,workstation.example,Windows,192.0.2.25,,,,,,,,,,,,,,,,,,00:11:22:33:44:55",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.host": "workstation.example",
+      "origin.user": "testuser",
+      "origin.operatingSystem": "Windows",
+      "origin.mac": "00:11:22:33:44:55"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-GLOBALPROTECT-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,gateway-auth,,,,testuser,,vpn-client,192.0.2.25,,10.0.0.25,,,,,Windows,,,,,,failure",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.host": "vpn-client",
+      "origin.user": "testuser",
+      "action": "gateway-auth",
+      "actionResult": "failure"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-IPTAG-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,IPTAG,,2817,2026/09/17 12:00:00,vsys1,192.0.2.25,test-tag,register-tag",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "action": "register-tag",
+      "log.tag_name": "test-tag"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-USERID-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,USERID,,2817,2026/09/17 12:00:00,vsys1,192.0.2.25,testuser,,login,,,,,,,,,,,,,,,,,,,groupflags,directory,test-tag,2026-09-17T12:00:00Z",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "action": "login",
+      "log.tag_name": "test-tag",
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-DECRYPTION-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,DECRYPTION,,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,drop",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-START-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,START,,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,deny,,,,,,,,,,,,,,,,,,200,100",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "actionResult": "denied",
+      "origin.bytesSent": 200,
+      "origin.bytesReceived": 100
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-SCTP-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SCTP,,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,,sctp,deny",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "protocol": "sctp",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-CONFIG-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,CONFIG,,2817,2026/09/17 12:00:00,192.0.2.25,vsys1,commit,admin-test,Web,Submitted,,,,,,,,,,,synthetic-fw,,,,2026-09-17T12:00:00Z",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "admin-test",
+      "target.host": "synthetic-fw",
+      "action": "commit",
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-AUTHENTICATION-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,AUTHENTICATION,,2817,2026/09/17 12:00:00,vsys1,192.0.2.25,testuser,,,,,,,,,,,test-result,,,,,,,,,,,,,,,,,,,,,,,reserved,synthetic-user-agent,5678",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "action": "test-result",
+      "log.user_agent": "synthetic-user-agent",
+      "log.sessionid": "5678"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-CORRELATION-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,CORRELATION,,2817,2026/09/17 12:00:00,192.0.2.25,testuser,vsys1,suspicious,high",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "severity": "error"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-GTP-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GTP,,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,2123,,,reserved-flags,udp,deny,gtp-event",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "protocol": "udp",
+      "action": "deny",
+      "actionResult": "denied",
+      "log.event_type": "gtp-event"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-traffic-last-field",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 act=deny PanOSPacketsSent=12 PanOSPacketsReceived=4",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "actionResult": "denied",
+      "origin.packagesSent": "12",
+      "origin.packagesReceived": "4",
+      "log.paType": "TRAFFIC",
+      "log.paSubtype": "end",
+      "log.embDeviceVendor": "Palo Alto Networks",
+      "log.embDeviceProduct": "PAN-OS",
+      "log.formatType": "CEF",
+      "log.formatVersion": "0"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-escaped-equals-cannot-forge-field",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 msg=untrusted src\\=203.0.113.66 src=192.0.2.25 dst=198.51.100.40 act=deny",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "log.msg": "untrusted src\\=203.0.113.66",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-multiword-values-and-final-action",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cs1Label=Rule cs1=Allow Test Rule act=drop",
+    "expected": {
+      "log.cs1": "Allow Test Rule",
+      "action": "drop",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-source-must-not-match-natsrc",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 sourceTranslatedAddress=203.0.113.66 dst=198.51.100.40 act=deny",
+    "expected": {
+      "log.natsrc": "203.0.113.66",
+      "target.ip": "198.51.100.40"
+    },
+    "matches": [],
+    "absent": [
+      "origin.ip"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-category-PanOSThreatCategory",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Synthetic malware(12345)|THREAT|8|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cat=virus act=drop flexString2Label=Direction flexString2=server-to-client PanOSThreatCategory=malware",
+    "expected": {
+      "log.pa_subtype": "virus",
+      "log.pa_threatid": "Synthetic malware(12345)",
+      "log.thr_category": "malware",
+      "actionResult": "denied"
+    },
+    "matches": [
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "absent": [
+      "severity"
+    ],
+    "alertSides": {
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "cef-category-panOSThreatCategory",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Synthetic malware(12345)|THREAT|8|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cat=virus act=drop flexString2Label=Direction flexString2=server-to-client panOSThreatCategory=malware",
+    "expected": {
+      "log.pa_subtype": "virus",
+      "log.pa_threatid": "Synthetic malware(12345)",
+      "log.thr_category": "malware",
+      "actionResult": "denied"
+    },
+    "matches": [
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "absent": [
+      "severity"
+    ],
+    "alertSides": {
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "cef-system-auth",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw CEF:0|Palo Alto Networks|PAN-OS|10.0|auth|SYSTEM|3|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 cat=auth-fail msg=failed authentication for user 'testuser'.  Reason: invalid. From: 192.0.2.25. dvchost=synthetic-fw",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "actionResult": "failure"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "cef-config-admin-is-origin",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin dvchost=synthetic-fw msg=/config/devices/entry",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testadmin",
+      "target.host": "synthetic-fw",
+      "action": "commit",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "target.path",
+      "origin.path"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-auth-user-is-origin",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|general|AUTHENTICATION|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 duser=testuser msg=custom-result",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "action": "custom-result"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-hip-ipv6",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|object|HIP-MATCH|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=0.0.0.0 c6a2Label=IPv6 Source Address c6a2=2001:db8::25 shost=workstation.example cs2Label=Operating System cs2=Windows PanOSEndpointMac=00:11:22:33:44:55",
+    "expected": {
+      "origin.ip": "2001:db8::25",
+      "origin.host": "workstation.example",
+      "origin.operatingSystem": "Windows",
+      "origin.mac": "00:11:22:33:44:55"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-url-subtype-in-signature",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|url|THREAT|5|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cat=URL Filtering(9999) cs2Label=URL Category cs2=phishing act=block-url request=phishing.example/login",
+    "expected": {
+      "log.pa_subtype": "url",
+      "log.pa_threatid": "URL Filtering(9999)",
+      "log.misc": "phishing.example/login"
+    },
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [
+      "target.url"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "cef-wildfire-cloud-is-not-path",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|wildfire|THREAT|8|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cat=WildFire signature cs2Label=URL Category cs2=malware act=block filePath=public-cloud fileHash=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa flexString2Label=Direction flexString2=server-to-client",
+    "expected": {
+      "origin.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "log.filePath": "public-cloud",
+      "actionResult": "denied",
+      "log.category": "malware"
+    },
+    "matches": [],
+    "absent": [
+      "origin.path",
+      "target.path",
+      "severity"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-threat-allow-is-not-success",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Flood(8501)|THREAT|5|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 cat=flood act=allow",
+    "expected": {
+      "log.pa_subtype": "flood"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult",
+      "connectionStatus"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-traffic-blocked-end-reason",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 act=allow reason=threat",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-unknown-byte-orientation-retained",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 in=123 out=456 act=allow",
+    "expected": {
+      "log.in": "123",
+      "log.out": "456"
+    },
+    "matches": [],
+    "absent": [
+      "origin.bytesSent",
+      "origin.bytesReceived",
+      "target.bytesSent",
+      "target.bytesReceived"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cortex-feed-not-pan-os",
+    "dataSource": "synthetic-collector",
+    "raw": "<41>1 2026-09-17T12:00:00Z cortexxdr - - - - threat,None,None,None,blocked,192.0.2.25",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.pa_type",
+      "origin.ip",
+      "target.ip",
+      "actionResult",
+      "severity"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-inside-unrelated-message-is-not-header",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 random-host User wrote CEF:0|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|src=192.0.2.25 act=allow",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.pa_type",
+      "origin.ip",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "leef-unverified-retains-raw",
+    "dataSource": "synthetic-collector",
+    "raw": "LEEF:1.0|Palo Alto Networks|PAN-OS|10.0|THREAT|src=192.0.2.25\tdst=198.51.100.40",
+    "expected": {},
+    "matches": [],
+    "absent": [
+      "log.pa_type",
+      "origin.ip",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "url-legacy-tail-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,phishing.example/path,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,phishing,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,,synthetic-unknown-tail-a,synthetic-unknown-tail-b",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.paURLLegacyTail1": "synthetic-unknown-tail-a",
+      "log.paURLLegacyTail2": "synthetic-unknown-tail-b"
+    },
+    "matches": [
+      "panos_url_filtering_blocks",
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ],
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    },
+    "absent": [
+      "statusCode",
+      "log.flow_type",
+      "log.cluster_name"
+    ]
+  },
+  {
+    "name": "url-current-tail-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,phishing.example/path,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,phishing,,,,,\"request,header=\"\"test\"\"\",HTTP/1.1 403 Forbidden,403,phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-cluster,synthetic-flow",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "statusCode": 403,
+      "log.response_headers": "HTTP/1.1 403 Forbidden",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow"
+    },
+    "matches": [
+      "panos_url_filtering_blocks",
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ],
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    },
+    "absent": []
+  },
+  {
+    "name": "missing-history-serial",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "action": "auth-fail",
+      "actionResult": "failure",
+      "severity": "info",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00"
+    },
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.authFailure"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "missing-history-collector",
+    "dataSource": "",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "action": "auth-fail",
+      "actionResult": "failure",
+      "severity": "info",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00"
+    },
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.authFailure"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "dns-risk-category-not-c2-dns-ddns",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,dns-ddns,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.thr_category": "dns-ddns"
+    },
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.dns",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "dns-risk-category-not-c2-dns-parked",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,dns-parked,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.thr_category": "dns-parked"
+    },
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.dns",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "dns-risk-category-not-c2-dns-grayware",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,alert,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,dns-grayware,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.thr_category": "dns-grayware"
+    },
+    "matches": [],
+    "absent": [
+      "log.correlationCandidate.paloalto.dns",
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "invalid-mac-remains-vendor",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,not-a-mac,,,,,,,server.example,00:00:00:00:00:zz,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "origin.user": "testuser",
+      "target.user": "server-user",
+      "origin.port": 45678,
+      "target.port": 443,
+      "origin.bytesSent": 200,
+      "origin.bytesReceived": 100,
+      "origin.packagesSent": "8",
+      "origin.packagesReceived": "4",
+      "log.vsys_name": "virtual-system-name",
+      "log.device_name": "synthetic-fw",
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "actionResult": "success",
+      "log.natsrc": "203.0.113.25"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus",
+      "target.bytesSent",
+      "origin.mac",
+      "target.mac"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "legacy-seven-field-leef-labelled-compatibility",
+    "dataSource": "synthetic-collector",
+    "raw": "LEEF:1|Palo Alto Networks|PAN-OS|10.0|end|TRAFFIC|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 act=deny PanOSPacketsSent=12 PanOSPacketsReceived=4",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "actionResult": "denied",
+      "origin.packagesSent": "12",
+      "origin.packagesReceived": "4",
+      "log.paFormat": "LEEF-legacy"
+    },
+    "matches": [],
+    "absent": [],
+    "alertSides": {}
+  },
+  {
+    "name": "config-custom-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,CONFIG,,2817,2026/09/17 12:00:00,192.0.2.25,vsys1,commit,admin-test,Web,Submitted,,,,,,,,,,,synthetic-fw,,,,2026-09-17T12:00:00Z",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "admin-test",
+      "target.host": "synthetic-fw",
+      "action": "commit",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.paConfigLayout": "custom"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "config-default-layout",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,CONFIG,,2817,2026/09/17 12:00:00,192.0.2.25,vsys1,commit,admin-test,Web,Submitted,,,,,,,,,synthetic-fw,,,,2026-09-17T12:00:00Z",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "admin-test",
+      "target.host": "synthetic-fw",
+      "action": "commit",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.paConfigLayout": "default"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "config-unknown-tail-not-firewall-host",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,CONFIG,,2817,2026/09/17 12:00:00,192.0.2.25,vsys1,commit,admin-test,Web,Submitted,,,,,,,,,,,audit-comment-not-host,,,,",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "admin-test",
+      "action": "commit",
+      "log.paConfigTail9": "audit-comment-not-host"
+    },
+    "matches": [],
+    "absent": [
+      "actionResult",
+      "target.host",
+      "deviceTime",
+      "log.device_name",
+      "log.paConfigLayout"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "url-unknown-tail-keeps-unclassified-fields",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,phishing.example/path,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,phishing,,,,,\"request,header=\"\"test\"\"\",HTTP/1.1 403 Forbidden,403,phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.paURLTail1": "403",
+      "log.misc": "phishing.example/path"
+    },
+    "matches": [
+      "panos_url_filtering_blocks",
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ],
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    },
+    "absent": [
+      "origin.host",
+      "target.host",
+      "origin.mac",
+      "target.mac",
+      "deviceTime",
+      "statusCode",
+      "log.paURLLayout",
+      "target.url"
+    ]
+  },
+  {
+    "name": "traffic-new-optional-tail",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,NonProxy,synthetic-cluster,,,,,,,,,,,,synthetic-src-device,synthetic-dst-device",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40",
+      "origin.user": "testuser",
+      "target.user": "server-user",
+      "origin.port": 45678,
+      "target.port": 443,
+      "origin.bytesSent": 200,
+      "origin.bytesReceived": 100,
+      "origin.packagesSent": "8",
+      "origin.packagesReceived": "4",
+      "log.vsys_name": "virtual-system-name",
+      "log.device_name": "synthetic-fw",
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "actionResult": "success",
+      "log.natsrc": "203.0.113.25",
+      "log.flow_type": "NonProxy",
+      "log.cluster_name": "synthetic-cluster",
+      "log.src_adv_devid": "synthetic-src-device",
+      "log.dst_adv_devid": "synthetic-dst-device"
+    },
+    "matches": [],
+    "absent": [
+      "connectionStatus",
+      "target.bytesSent"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "positive-panos_url_filtering_blocks-absolute-url",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,https://example.test/download.exe,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,code-execution,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "actionResult": "denied",
+      "log.misc": "https://example.test/download.exe",
+      "target.url": "https://example.test/download.exe"
+    },
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "cef-url-subtype-in-signature-absolute-url",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|url|THREAT|5|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 src=192.0.2.25 dst=198.51.100.40 cat=URL Filtering(9999) cs2Label=URL Category cs2=phishing act=block-url request=https://phishing.example/login",
+    "expected": {
+      "log.pa_subtype": "url",
+      "log.pa_threatid": "URL Filtering(9999)",
+      "log.misc": "https://phishing.example/login",
+      "target.url": "https://phishing.example/login"
+    },
+    "matches": [
+      "panos_url_filtering_blocks"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    }
+  },
+  {
+    "name": "url-unknown-tail-keeps-unclassified-fields-absolute-url",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,url,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,block-url,https://phishing.example/path,URL Filtering(9999),phishing,medium,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,phishing,,,,,\"request,header=\"\"test\"\"\",HTTP/1.1 403 Forbidden,403,phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "log.paURLTail1": "403",
+      "log.misc": "https://phishing.example/path",
+      "target.url": "https://phishing.example/path"
+    },
+    "matches": [
+      "panos_url_filtering_blocks",
+      "ioc_threat_intel_match_server_to_client"
+    ],
+    "alertSides": {
+      "panos_url_filtering_blocks": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ],
+      "ioc_threat_intel_match_server_to_client": [
+        "198.51.100.40",
+        "192.0.2.25"
+      ]
+    },
+    "absent": [
+      "origin.host",
+      "target.host",
+      "origin.mac",
+      "target.mac",
+      "deviceTime",
+      "statusCode",
+      "log.paURLLayout"
+    ]
+  },
+  {
+    "name": "cef-config-device-placeholder-dash",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin dvchost=- msg=/config/devices/entry",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testadmin",
+      "action": "commit",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "target.path",
+      "origin.path",
+      "target.host"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-config-device-placeholder-na",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin dvchost=N/A msg=/config/devices/entry",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testadmin",
+      "action": "commit",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "target.path",
+      "origin.path",
+      "target.host"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-config-device-placeholder-empty",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin dvchost= msg=/config/devices/entry",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testadmin",
+      "action": "commit",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "target.path",
+      "origin.path",
+      "target.host"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "cef-config-device-absent",
+    "dataSource": "synthetic-collector",
+    "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin msg=/config/devices/entry",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testadmin",
+      "action": "commit",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "absent": [
+      "target.user",
+      "target.path",
+      "origin.path",
+      "target.host"
+    ],
+    "alertSides": {}
+  },
+  {
+    "name": "documented-data-tail-order",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,data,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,alert,synthetic-file.bin,Synthetic content(12345),benign,low,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,benign,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-cluster,synthetic-flow",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow",
+      "log.pa_subtype": "data",
+      "severity": "info"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "statusCode",
+      "actionResult",
+      "target.url"
+    ]
+  },
+  {
+    "name": "documented-dlp-tail-order",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,dlp,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,alert,synthetic-file.bin,Synthetic content(12345),benign,low,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,benign,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-cluster,synthetic-flow",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow",
+      "log.pa_subtype": "dlp",
+      "severity": "info"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "statusCode",
+      "actionResult",
+      "target.url"
+    ]
+  },
+  {
+    "name": "documented-dlp-non-file-tail-order",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,dlp-non-file,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,alert,synthetic-file.bin,Synthetic content(12345),benign,low,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,benign,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-cluster,synthetic-flow",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow",
+      "log.pa_subtype": "dlp-non-file",
+      "severity": "info"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "statusCode",
+      "actionResult",
+      "target.url"
+    ]
+  },
+  {
+    "name": "documented-file-tail-order",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,file,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,alert,synthetic-file.bin,Synthetic content(12345),benign,low,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,benign,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-cluster,synthetic-flow",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow",
+      "log.pa_subtype": "file",
+      "severity": "info"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "statusCode",
+      "actionResult",
+      "target.url"
+    ]
+  },
+  {
+    "name": "documented-spyware-tail-order",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,,,,,,,vsys1,,,,,,,,,45678,443,,,,tcp,alert,synthetic-file.bin,Synthetic content(12345),benign,low,client-to-server,,,,,,,,,,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,benign,,,,,\"request,header=\"\"test\"\"\",phishing,11111111-2222-3333-4444-555555555555,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,,2026-09-17T12:00:00.000-04:00,,,,,,,,,,,,,synthetic-cloud-report,synthetic-flow,synthetic-cluster",
+    "expected": {
+      "origin.host": "client.example",
+      "target.host": "server.example",
+      "deviceTime": "2026-09-17T12:00:00.000-04:00",
+      "log.http_headers": "request,header=\"test\"",
+      "origin.mac": "00:11:22:33:44:55",
+      "target.mac": "aa:bb:cc:dd:ee:ff",
+      "log.cloud_reportid": "synthetic-cloud-report",
+      "log.cluster_name": "synthetic-cluster",
+      "log.flow_type": "synthetic-flow",
+      "log.pa_subtype": "spyware",
+      "severity": "info"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "statusCode",
+      "actionResult",
+      "target.url"
+    ]
+  }
+]

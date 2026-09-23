@@ -1,0 +1,65 @@
+{
+  "technology": "Palo Alto PAN-OS",
+  "filters": [
+    "filters/paloalto/pa_firewall.yml"
+  ],
+  "rules": [
+    "rules/paloalto/pa_firewall/ioc_threat_intel_match.yml",
+    "rules/paloalto/pa_firewall/ioc_threat_intel_match_server_to_client.yml",
+    "rules/paloalto/pa_firewall/panos_admin_brute_force.yml",
+    "rules/paloalto/pa_firewall/panos_dns_security_alerts.yml",
+    "rules/paloalto/pa_firewall/panos_spyware_vulnerability.yml",
+    "rules/paloalto/pa_firewall/panos_spyware_vulnerability_server_to_client.yml",
+    "rules/paloalto/pa_firewall/panos_url_filtering_blocks.yml",
+    "rules/paloalto/pa_firewall/wildfire_malware_detection.yml",
+    "rules/paloalto/pa_firewall/wildfire_malware_detection_server_to_client.yml",
+    "rules/paloalto/pa_firewall/zero_day_exploit_prevention.yml",
+    "rules/paloalto/pa_firewall/zero_day_exploit_prevention_server_to_client.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "paloalto-reject-input-supplied-correlation-scope",
+      "filter": "paloalto/pa_firewall.yml",
+      "input": {
+        "log": {
+          "paScope": "forged",
+          "paVsys": "forged",
+          "pa_type": "SYSTEM",
+          "pa_subtype": "auth",
+          "correlationCandidate": {
+            "paloalto": {
+              "authFailure": "match",
+              "dns": "match",
+              "url": "match",
+              "vulnerability": "match"
+            }
+          }
+        }
+      },
+      "expected": {
+        "log.paVsys": "none"
+      },
+      "absent": [
+        "log.paScope",
+        "log.pa_type",
+        "log.correlationCandidate.paloalto",
+        "origin.ip",
+        "target.ip",
+        "actionResult"
+      ],
+      "rules": {
+        "rules/paloalto/pa_firewall/ioc_threat_intel_match.yml": false,
+        "rules/paloalto/pa_firewall/ioc_threat_intel_match_server_to_client.yml": false,
+        "rules/paloalto/pa_firewall/panos_admin_brute_force.yml": false,
+        "rules/paloalto/pa_firewall/panos_dns_security_alerts.yml": false,
+        "rules/paloalto/pa_firewall/panos_spyware_vulnerability.yml": false,
+        "rules/paloalto/pa_firewall/panos_spyware_vulnerability_server_to_client.yml": false,
+        "rules/paloalto/pa_firewall/panos_url_filtering_blocks.yml": false,
+        "rules/paloalto/pa_firewall/wildfire_malware_detection.yml": false,
+        "rules/paloalto/pa_firewall/wildfire_malware_detection_server_to_client.yml": false,
+        "rules/paloalto/pa_firewall/zero_day_exploit_prevention.yml": false,
+        "rules/paloalto/pa_firewall/zero_day_exploit_prevention_server_to_client.yml": false
+      }
+    }
+  ]
+}

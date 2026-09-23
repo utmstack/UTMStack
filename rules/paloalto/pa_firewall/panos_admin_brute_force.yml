@@ -1,43 +1,48 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
-  - firewall-paloalto
-name: PAN-OS Management Plane Login Brute Force
+- firewall-paloalto
+name: PAN-OS Repeated Authentication Failures
 impact:
   confidentiality: 3
   integrity: 3
   availability: 1
 category: Credential Access
-technique: "T1110 - Brute Force"
+technique: T1110 - Brute Force
 adversary: origin
 references:
-  - https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/system-log-fields
-  - https://attack.mitre.org/techniques/T1110/
-description: |
-  Detects multiple failed login attempts to the PAN-OS management plane (web UI, SSH, or API), indicating potential brute force attacks against firewall administrative credentials.
-
-  Next Steps:
-  1. Investigate the source IP attempting management authentication
-  2. Verify if the targeted admin account exists and is active
-  3. Check for any successful logins from the same source after failures
-  4. Consider restricting management access by IP address
-  5. Enable account lockout policies if not already configured
-  6. Review management interface exposure and restrict to trusted networks
-where: |
-  equals("log.pa_type", "SYSTEM") &&
-  (contains("log.message", ["auth", "login"]) && contains("log.message", ["fail", "invalid", "denied"])) &&
-  exists("origin.ip")
-afterEvents:
-  - indexPattern: v11-log-firewall-paloalto-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-      - field: log.pa_type
-        operator: filter_term
-        value: 'SYSTEM'
-    within: 15m
-    count: 10
+- https://docs.paloaltonetworks.com/ngfw/administration/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/system-log-fields
+- https://attack.mitre.org/techniques/T1110/
+description: Detects ten SYSTEM auth-fail events from the same observed source, collector, firewall and virtual
+  system within fifteen minutes. The event can come from different authentication services; it does not by itself
+  prove a management-plane login. Check the authentication profile, requested user and any subsequent successes
+  before treating the sequence as an attack.
+where: equals("log.pa_type", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
+  && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") && exists("log.paVsys")
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.paScope
+- lastEvent.log.paVsys
+- adversary.ip
+- target.ip
+- adversary.user
+afterEvents:
+- indexPattern: v11-log-firewall-paloalto-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.paScope
+    operator: filter_term
+    value: '{{.log.paScope}}'
+  - field: log.paVsys
+    operator: filter_term
+    value: '{{.log.paVsys}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.paloalto.authFailure
+    operator: filter_term
+    value: match
+  within: 15m
+  count: 10
