@@ -74,6 +74,8 @@ func serveAgentStream(ctx context.Context, stream AgentService_AgentStreamClient
 			}
 		case *BidirectionalStream_ConfigUpdate:
 			applyConfigUpdate(msg.ConfigUpdate)
+		case *BidirectionalStream_EdrCommand:
+			edrCommandProcessor(sender, cnf, msg.EdrCommand)
 		}
 		*streamErrLogged = false
 	}
