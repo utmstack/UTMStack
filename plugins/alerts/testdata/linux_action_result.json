@@ -1,0 +1,838 @@
+[
+  {
+    "name": "journal job \"done\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"done\"}",
+    "result": "success"
+  },
+  {
+    "name": "journal job \"failed\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"failed\"}",
+    "result": "failure"
+  },
+  {
+    "name": "journal job \"timeout\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"timeout\"}",
+    "result": "failure"
+  },
+  {
+    "name": "journal job \"dependency\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"dependency\"}",
+    "result": "failure"
+  },
+  {
+    "name": "journal job \"canceled\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"canceled\"}",
+    "result": ""
+  },
+  {
+    "name": "journal job \"skipped\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"skipped\"}",
+    "result": ""
+  },
+  {
+    "name": "journal job \"pending\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"pending\"}",
+    "result": ""
+  },
+  {
+    "name": "journal job \"unknown\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"unknown\"}",
+    "result": ""
+  },
+  {
+    "name": "journal job \"\"",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":\"\"}",
+    "result": ""
+  },
+  {
+    "name": "journal job null",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":null}",
+    "result": ""
+  },
+  {
+    "name": "journal job {}",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":{}}",
+    "result": ""
+  },
+  {
+    "name": "journal job []",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":[]}",
+    "result": ""
+  },
+  {
+    "name": "journal job 1",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":1}",
+    "result": ""
+  },
+  {
+    "name": "journal job true",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"JOB_RESULT\":true}",
+    "result": ""
+  },
+  {
+    "name": "journal no result",
+    "raw": "{\"_HOSTNAME\":\"host.example.invalid\",\"MESSAGE\":\"Operation succeeded according to unrelated message\"}",
+    "result": ""
+  },
+  {
+    "name": "syscall result \"success\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"success\"}",
+    "result": "success",
+    "preserve": {
+      "log.result": "success"
+    }
+  },
+  {
+    "name": "syscall result \"fail\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\"}",
+    "result": "failure",
+    "preserve": {
+      "log.result": "fail"
+    }
+  },
+  {
+    "name": "syscall result \"failed\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"failed\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "failed"
+    }
+  },
+  {
+    "name": "syscall result \"denied\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"denied\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "denied"
+    }
+  },
+  {
+    "name": "syscall result \"blocked\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"blocked\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "blocked"
+    }
+  },
+  {
+    "name": "syscall result \"unknown\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"unknown\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "unknown"
+    }
+  },
+  {
+    "name": "syscall result \"pending\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"pending\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "pending"
+    }
+  },
+  {
+    "name": "syscall result \"partial\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"partial\"}",
+    "result": "",
+    "preserve": {
+      "log.result": "partial"
+    }
+  },
+  {
+    "name": "syscall result \"\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"\"}",
+    "result": "",
+    "preserve": {
+      "log.result": ""
+    }
+  },
+  {
+    "name": "syscall result null",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":null}",
+    "result": "",
+    "preserve": {
+      "log.result": null
+    }
+  },
+  {
+    "name": "syscall result {}",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":{}}",
+    "result": "",
+    "preserve": {
+      "log.result": {}
+    }
+  },
+  {
+    "name": "syscall result []",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":[]}",
+    "result": "",
+    "preserve": {
+      "log.result": []
+    }
+  },
+  {
+    "name": "syscall result 1",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":1}",
+    "result": "",
+    "preserve": {
+      "log.result": 1
+    }
+  },
+  {
+    "name": "syscall result true",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":true}",
+    "result": "",
+    "preserve": {
+      "log.result": true
+    }
+  },
+  {
+    "name": "final audit login \"success\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"success\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.result": "success"
+    }
+  },
+  {
+    "name": "final audit login \"fail\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"fail\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.result": "fail"
+    }
+  },
+  {
+    "name": "final audit login \"unknown\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"unknown\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": "unknown"
+    }
+  },
+  {
+    "name": "final audit login \"\"",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": ""
+    }
+  },
+  {
+    "name": "final audit login null",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":null}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": null
+    }
+  },
+  {
+    "name": "final audit login {}",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":{}}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": {}
+    }
+  },
+  {
+    "name": "final audit login []",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":[]}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": []
+    }
+  },
+  {
+    "name": "final audit login 1",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":1}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": 1
+    }
+  },
+  {
+    "name": "final audit login true",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":true}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.result": true
+    }
+  },
+  {
+    "name": "authentication alone is not final login",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_AUTH\",\"userauth\":{\"result\":\"success\"}}",
+    "result": ""
+  },
+  {
+    "name": "repeated login records are ambiguous",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":[{\"result\":\"success\"},{\"result\":\"fail\"}]}",
+    "result": ""
+  },
+  {
+    "name": "unrelated journal result is not syscall",
+    "raw": "{\"result\":\"success\"}",
+    "result": ""
+  },
+  {
+    "name": "missing syscall result",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\"}",
+    "result": ""
+  },
+  {
+    "name": "failed syscall negative errno",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\",\"exit\":\"-111\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "-111"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "failed syscall denied errno",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\",\"exit\":\"-13\"}",
+    "result": "denied",
+    "preserve": {
+      "log.exit": "-13"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "success with contradictory denied errno",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"success\", \"exit\": \"-13\"}",
+    "result": "",
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "decoded denied errno",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EACCES\"}",
+    "result": "denied",
+    "preserve": {
+      "log.exit": "EACCES"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "decoded failed errno",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"ECONNREFUSED\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "ECONNREFUSED"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "audit does not inherit successful journal job",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_AUTH\", \"userauth\": {\"result\": \"success\"}, \"JOB_RESULT\": \"done\"}",
+    "result": ""
+  },
+  {
+    "name": "successful syscall preserves exit",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"accept\", \"result\": \"success\", \"exit\": \"4\"}",
+    "result": "success",
+    "expected": {
+      "statusCode": 4
+    },
+    "preserve": {
+      "log.exit": "4"
+    }
+  },
+  {
+    "name": "oversized return value remains vendor detail",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"mmap\", \"result\": \"success\", \"exit\": \"4294967296\"}",
+    "result": "success",
+    "absent": [
+      "statusCode"
+    ],
+    "preserve": {
+      "log.exit": "4294967296"
+    }
+  },
+  {
+    "name": "connect EINPROGRESS",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EINPROGRESS\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "EINPROGRESS"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read EINPROGRESS",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EINPROGRESS\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "EINPROGRESS"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect EALREADY",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EALREADY\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "EALREADY"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read EALREADY",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EALREADY\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "EALREADY"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect EAGAIN",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EAGAIN\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "EAGAIN"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read EAGAIN",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EAGAIN\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "EAGAIN"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect EWOULDBLOCK",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EWOULDBLOCK\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "EWOULDBLOCK"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read EWOULDBLOCK",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EWOULDBLOCK\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "EWOULDBLOCK"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect -115",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-115\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "-115"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read -115",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-115\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "-115"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect -114",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-114\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "-114"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read -114",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-114\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "-114"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "connect -11",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-11\"}",
+    "result": "",
+    "preserve": {
+      "log.exit": "-11"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "read -11",
+    "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-11\"}",
+    "result": "failure",
+    "preserve": {
+      "log.exit": "-11"
+    },
+    "absent": [
+      "statusCode"
+    ]
+  },
+  {
+    "name": "login peer success \"198.51.100.23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "198.51.100.23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "198.51.100.23"
+    }
+  },
+  {
+    "name": "login peer success \"2001:db8::23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "2001:db8::23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "2001:db8::23"
+    }
+  },
+  {
+    "name": "login peer success \"0.0.0.0\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "0.0.0.0"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success \"::\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "::"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success \"?\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "?"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success \"host.example.invalid\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": "host.example.invalid"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success \"\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": ""
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success null",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": null
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer success {}",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "success",
+    "preserve": {
+      "log.userlogin.addr": {}
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail \"198.51.100.23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "198.51.100.23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "198.51.100.23"
+    }
+  },
+  {
+    "name": "login peer fail \"2001:db8::23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "2001:db8::23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "2001:db8::23"
+    }
+  },
+  {
+    "name": "login peer fail \"0.0.0.0\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "0.0.0.0"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail \"::\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "::"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail \"?\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "?"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail \"host.example.invalid\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": "host.example.invalid"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail \"\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": ""
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail null",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": null
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer fail {}",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "failure",
+    "preserve": {
+      "log.userlogin.addr": {}
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown \"198.51.100.23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "198.51.100.23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "198.51.100.23"
+    }
+  },
+  {
+    "name": "login peer unknown \"2001:db8::23\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "2001:db8::23"
+    },
+    "ipEligible": true,
+    "expected": {
+      "origin.ip": "2001:db8::23"
+    }
+  },
+  {
+    "name": "login peer unknown \"0.0.0.0\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "0.0.0.0"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown \"::\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "::"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown \"?\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "?"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown \"host.example.invalid\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": "host.example.invalid"
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown \"\"",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": ""
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown null",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": null
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "login peer unknown {}",
+    "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
+    "result": "",
+    "preserve": {
+      "log.userlogin.addr": {}
+    },
+    "ipEligible": false,
+    "absent": [
+      "origin.ip"
+    ]
+  }
+]

@@ -1,4 +1,4 @@
-# System Linux filter version 5.0.0
+# System Linux filter version 5.1.0
 # Support for:
 #   - systemd/journald JSON format (SCREAMINGSNAKECASE fields)
 #   - Native auditd collector JSON format (type: "auditd")
@@ -273,12 +273,6 @@ pipeline:
 
       - rename:
           from:
-            - log.JOBRESULT
-          to: actionResult
-          where: exists("log.JOBRESULT") && !regexMatch("log.JOBRESULT", "(?i)\b(?:denied|blocked|failed)\b")
-
-      - rename:
-          from:
             - log.JOBTYPE
           to: log.jobType
           where: exists("log.JOBTYPE")
@@ -413,34 +407,96 @@ pipeline:
           to: action
           where: 'equals("log.type", "auditd") && !exists("action") && exists("log.category")'
 
-      # Map result to actionResult (success/failure)
-      - rename:
-          from:
-            - log.result
-          to: actionResult
-          where: 'equals("log.type", "auditd") && exists("log.result") && !regexMatch("log.result", "(?i)\b(?:denied|blocked|failed)\b")'
+      # Derive documented final outcomes, retaining their vendor fields.
+      # Do not promote job cancellation/skipping or unknown values to success.
+      - delete:
+          fields: [actionResult]
 
-      # Adding action result
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            !equals("log.type", "auditd") &&
+            (equals("log.JOBRESULT", "done") || equals("log.JOB_RESULT", "done")) &&
+            (!exists("log.JOBRESULT") || equals("log.JOBRESULT", "done")) &&
+            (!exists("log.JOB_RESULT") || equals("log.JOB_RESULT", "done"))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failure'
+          where: >-
+            !equals("log.type", "auditd") &&
+            (oneOf("log.JOBRESULT", ["failed", "timeout", "dependency"]) ||
+             oneOf("log.JOB_RESULT", ["failed", "timeout", "dependency"]))
+
+      # The native collector flattens SYSCALL results to the root. Its pinned
+      # audit parser emits success/fail, and can decode negative exits to errno names.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.type", "auditd") && equals("log.category", "SYSCALL") &&
+            equals("log.result", "success") &&
+            (!exists("log.exit") || (regexMatch("log.exit", "^[0-9]+$") && greaterOrEqual("log.exit", 0)))
+
+      # A nonblocking connect still in progress has no final connection outcome.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failure'
+          where: >-
+            equals("log.type", "auditd") && equals("log.category", "SYSCALL") &&
+            equals("log.result", "fail") &&
+            !(equals("action", "connect") &&
+              oneOf("log.exit", ["EINPROGRESS", "EALREADY", "EAGAIN", "EWOULDBLOCK", "-115", "-114", "-11"]))
+
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: regexMatch("log.result", "(?i)\bdenied\b")
+          where: >-
+            equals("log.type", "auditd") && equals("log.category", "SYSCALL") &&
+            equals("log.result", "fail") && oneOf("log.exit", ["EACCES", "EPERM", "-13", "-1"])
+
+      # USER_LOGIN is the completed-login record; USER_AUTH/USER_ACCT are earlier
+      # checks. Repeated records become arrays and deliberately remain ambiguous.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_LOGIN") &&
+            equals("log.userlogin.result", "success") && !exists("log.result")
 
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'blocked'
-          where: regexMatch("log.result", "(?i)\bblocked\b")
+            value: 'failure'
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_LOGIN") &&
+            equals("log.userlogin.result", "fail") && !exists("log.result")
 
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'failed'
-          where: regexMatch("log.result", "(?i)\bfailed\b")
+      # USER_LOGIN addr is the user's network address. Preserve the original,
+      # and expose only a valid, non-unspecified peer address to correlation.
+      - grok:
+          source: log.userlogin.addr
+          patterns:
+            - fieldName: origin.ip
+              pattern: (?s:.*)
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_LOGIN") &&
+            (inCIDR("log.userlogin.addr", "0.0.0.0/0") || inCIDR("log.userlogin.addr", "::/0")) &&
+            !inCIDR("log.userlogin.addr", "0.0.0.0/32") && !inCIDR("log.userlogin.addr", "::/128")
 
       # Map exe to origin.process (full path to executable)
       # Only if journald's COMM didn't already set origin.process
@@ -478,12 +534,16 @@ pipeline:
           to: origin.path
           where: 'equals("log.type", "auditd") && exists("log.cwd")'
 
-      # Map exit code to statusCode (for correlation and alerting)
-      - rename:
-          from:
-            - log.exit
-          to: statusCode
-          where: 'equals("log.type", "auditd") && exists("log.exit")'
+      # statusCode is uint32. Preserve signed/decoded errno values under log.exit;
+      # copying only an in-range integer avoids rejecting the entire Event.
+      - grok:
+          source: log.exit
+          patterns:
+            - fieldName: statusCode
+              pattern: (?s:.*)
+          where: >-
+            equals("log.type", "auditd") && regexMatch("log.exit", "^[0-9]+$") &&
+            greaterOrEqual("log.exit", 0) && lessOrEqual("log.exit", 4294967295)
 
       # Cast statusCode to integer (proto schema expects uint32)
       - cast:
