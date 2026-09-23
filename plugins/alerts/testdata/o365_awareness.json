@@ -1,0 +1,2959 @@
+[
+  {
+    "name": "inbox-New-InboxRule",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-Set-InboxRule",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-UpdateInboxRules",
+    "raw": "{\"Operation\":\"UpdateInboxRules\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "UpdateInboxRules",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-Enable-InboxRule",
+    "raw": "{\"Operation\":\"Enable-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Enable-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-Disable-InboxRule",
+    "raw": "{\"Operation\":\"Disable-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Disable-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-Remove-InboxRule",
+    "raw": "{\"Operation\":\"Remove-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-New-InboxRule-ForwardTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-New-InboxRule-ForwardTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-New-InboxRule-ForwardAsAttachmentTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardAsAttachmentTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-New-InboxRule-ForwardAsAttachmentTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardAsAttachmentTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-New-InboxRule-RedirectTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"RedirectTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-New-InboxRule-RedirectTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"RedirectTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:RedirectTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-Set-InboxRule-ForwardTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-Set-InboxRule-ForwardTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-Set-InboxRule-ForwardAsAttachmentTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardAsAttachmentTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-Set-InboxRule-ForwardAsAttachmentTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardAsAttachmentTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-Set-InboxRule-RedirectTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"RedirectTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-clear-Set-InboxRule-RedirectTo",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"RedirectTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:RedirectTo Value:]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-ForwardingAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-clear-ForwardingAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingAddress Value:]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-ForwardingSmtpAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"recipient@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:recipient@example.invalid]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-clear-ForwardingSmtpAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-DeliverToMailboxAndForward",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"True\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:True]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-clear-DeliverToMailboxAndForward",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"False\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:False]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegate-Add-MailboxPermission",
+    "raw": "{\"Operation\":\"Add-MailboxPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Add-MailboxPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegate-Remove-MailboxPermission",
+    "raw": "{\"Operation\":\"Remove-MailboxPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-MailboxPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegate-Add-RecipientPermission",
+    "raw": "{\"Operation\":\"Add-RecipientPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Add-RecipientPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegate-Remove-RecipientPermission",
+    "raw": "{\"Operation\":\"Remove-RecipientPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-RecipientPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegate-GrantSendOnBehalfTo",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:GrantSendOnBehalfTo Value:delegate@example.invalid]]",
+      "log.o365SendOnBehalfChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange"
+    ]
+  },
+  {
+    "name": "delegate-clear-GrantSendOnBehalfTo",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:GrantSendOnBehalfTo Value:]]",
+      "log.o365SendOnBehalfChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange"
+    ]
+  },
+  {
+    "name": "folder-Add-MailboxFolderPermission",
+    "raw": "{\"Operation\":\"Add-MailboxFolderPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "Add-MailboxFolderPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-Set-MailboxFolderPermission",
+    "raw": "{\"Operation\":\"Set-MailboxFolderPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-MailboxFolderPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-Remove-MailboxFolderPermission",
+    "raw": "{\"Operation\":\"Remove-MailboxFolderPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-MailboxFolderPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-AddFolderPermissions",
+    "raw": "{\"Operation\":\"AddFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"}}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "AddFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-ModifyFolderPermissions",
+    "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"}}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "ModifyFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-RemoveFolderPermissions",
+    "raw": "{\"Operation\":\"RemoveFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"}}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "RemoveFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "calendar-UpdateCalendarDelegation",
+    "raw": "{\"Operation\":\"UpdateCalendarDelegation\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\"}",
+    "rule": "office365/awareness_calendar_delegation.yml",
+    "match": true,
+    "expected": {
+      "action": "UpdateCalendarDelegation",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-New-InboundConnector",
+    "raw": "{\"Operation\":\"New-InboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-Set-InboundConnector",
+    "raw": "{\"Operation\":\"Set-InboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-Remove-InboundConnector",
+    "raw": "{\"Operation\":\"Remove-InboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-InboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-New-OutboundConnector",
+    "raw": "{\"Operation\":\"New-OutboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "New-OutboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-Set-OutboundConnector",
+    "raw": "{\"Operation\":\"Set-OutboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-OutboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "connector-Remove-OutboundConnector",
+    "raw": "{\"Operation\":\"Remove-OutboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "Remove-OutboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "client-access-Set-CASMailbox",
+    "raw": "{\"Operation\":\"Set-CASMailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"administrative-fixture\"}]}",
+    "rule": "office365/awareness_mailbox_client_access.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-CASMailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "collection_microsoft_365_new_inbox_rule-failed-operation",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "collection_microsoft_365_new_inbox_rule-wrong-workload",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "collection_microsoft_365_new_inbox_rule-missing-optional-identities",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"Administrative rule\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mail_forwarding_rules-failed-operation",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mail_forwarding_rules-wrong-workload",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mail_forwarding_rules-missing-optional-identities",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_auto_forwarding_set_mailbox-failed-operation",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_auto_forwarding_set_mailbox-wrong-workload",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_auto_forwarding_set_mailbox-missing-optional-identities",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "log.o365MailboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_delegation_abuse-failed-operation",
+    "raw": "{\"Operation\":\"Add-MailboxPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Add-MailboxPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_delegation_abuse-wrong-workload",
+    "raw": "{\"Operation\":\"Add-MailboxPermission\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Add-MailboxPermission",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox_delegation_abuse-missing-optional-identities",
+    "raw": "{\"Operation\":\"Add-MailboxPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": true,
+    "expected": {
+      "action": "Add-MailboxPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_folder_permissions-failed-operation",
+    "raw": "{\"Operation\":\"Add-MailboxFolderPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": false,
+    "expected": {
+      "action": "Add-MailboxFolderPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_folder_permissions-wrong-workload",
+    "raw": "{\"Operation\":\"Add-MailboxFolderPermission\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": false,
+    "expected": {
+      "action": "Add-MailboxFolderPermission",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_folder_permissions-missing-optional-identities",
+    "raw": "{\"Operation\":\"Add-MailboxFolderPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "Add-MailboxFolderPermission",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_calendar_delegation-failed-operation",
+    "raw": "{\"Operation\":\"UpdateCalendarDelegation\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Failed\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\"}",
+    "rule": "office365/awareness_calendar_delegation.yml",
+    "match": false,
+    "expected": {
+      "action": "UpdateCalendarDelegation",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Failed",
+      "actionResult": "failure"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_calendar_delegation-wrong-workload",
+    "raw": "{\"Operation\":\"UpdateCalendarDelegation\",\"Workload\":\"SharePoint\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\"}",
+    "rule": "office365/awareness_calendar_delegation.yml",
+    "match": false,
+    "expected": {
+      "action": "UpdateCalendarDelegation",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 2,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "target.user": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_calendar_delegation-missing-optional-identities",
+    "raw": "{\"Operation\":\"UpdateCalendarDelegation\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\"}",
+    "rule": "office365/awareness_calendar_delegation.yml",
+    "match": true,
+    "expected": {
+      "action": "UpdateCalendarDelegation",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mail_connectors-failed-operation",
+    "raw": "{\"Operation\":\"New-InboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mail_connectors-wrong-workload",
+    "raw": "{\"Operation\":\"New-InboundConnector\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboundConnector",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mail_connectors-missing-optional-identities",
+    "raw": "{\"Operation\":\"New-InboundConnector\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"Administrative connector\"}]}",
+    "rule": "office365/awareness_mail_connectors.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboundConnector",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_client_access-failed-operation",
+    "raw": "{\"Operation\":\"Set-CASMailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"False\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"administrative-fixture\"}]}",
+    "rule": "office365/awareness_mailbox_client_access.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-CASMailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "False",
+      "actionResult": "failure",
+      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_client_access-wrong-workload",
+    "raw": "{\"Operation\":\"Set-CASMailbox\",\"Workload\":\"SharePoint\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"administrative-fixture\"}]}",
+    "rule": "office365/awareness_mailbox_client_access.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-CASMailbox",
+      "log.Workload": "SharePoint",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "awareness_mailbox_client_access-missing-optional-identities",
+    "raw": "{\"Operation\":\"Set-CASMailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"Parameters\":[{\"Name\":\"Identity\",\"Value\":\"administrative-fixture\"}]}",
+    "rule": "office365/awareness_mailbox_client_access.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-CASMailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "origin.user",
+      "log.OrganizationId",
+      "log.ObjectId",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-value-only-New-InboxRule",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"ForwardTo ForwardAsAttachmentTo RedirectTo\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-no-parameters-New-InboxRule",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-prefix-parameter-New-InboxRule",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardToBackup\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-value-only-Set-InboxRule",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"Name\",\"Value\":\"ForwardTo ForwardAsAttachmentTo RedirectTo\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-no-parameters-Set-InboxRule",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-prefix-parameter-Set-InboxRule",
+    "raw": "{\"Operation\":\"Set-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardToBackup\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-value-only-ForwardingAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"ForwardingAddress\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:ForwardingAddress]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-value-only-ForwardingSmtpAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"ForwardingSmtpAddress\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:ForwardingSmtpAddress]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-value-only-DeliverToMailboxAndForward",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"DeliverToMailboxAndForward\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:DeliverToMailboxAndForward]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-value-only",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"GrantSendOnBehalfTo\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:GrantSendOnBehalfTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-no-parameters",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\"}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-prefix-parameter",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddressBackup\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:ForwardingAddressBackup Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-prefix-parameter",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"GrantSendOnBehalfToBackup\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:GrantSendOnBehalfToBackup Value:delegate@example.invalid]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "json-string-parameters-ForwardTo",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":\"[{\\\"Name\\\":\\\"ForwardTo\\\",\\\"Value\\\":\\\"delegate@example.invalid\\\"}]\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "json-string-parameters-ForwardingSmtpAddress",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":\"[{\\\"Name\\\":\\\"ForwardingSmtpAddress\\\",\\\"Value\\\":\\\"delegate@example.invalid\\\"}]\"}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"delegate@example.invalid\"}]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "json-string-parameters-GrantSendOnBehalfTo",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":\"[{\\\"Name\\\":\\\"GrantSendOnBehalfTo\\\",\\\"Value\\\":\\\"delegate@example.invalid\\\"}]\"}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[{\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"delegate@example.invalid\"}]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "unrelated-exchange-operation",
+    "raw": "{\"Operation\":\"Get-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": false,
+    "expected": {
+      "action": "Get-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.Parameters",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "forward-missing-result",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]}",
+    "rule": "office365/mail_forwarding_rules.yml",
+    "match": false,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "log.o365InboxForwardingChange": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "actionResult",
+      "log.ResultStatus",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "spoofed-marker-inbox",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-string-array",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[\"ForwardTo\",\"ForwardingAddress\",\"GrantSendOnBehalfTo\"]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-numeric-array",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[1,2,3]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[1 2 3]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-wrong-name-types",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":[\"ForwardTo\"],\"Value\":\"recipient@example.invalid\"},{\"Name\":{\"nested\":\"ForwardingAddress\"},\"Value\":\"recipient@example.invalid\"},{\"Name\":null,\"Value\":\"GrantSendOnBehalfTo\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-object",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"}}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-empty-array",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-parameters-null",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":null}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": ""
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-value-spoof-go-map",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "inbox-value-spoof-json",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"{\\\"Name\\\":\\\"ForwardTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"ForwardingAddress\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"GrantSendOnBehalfTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"}\"}]}",
+    "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
+    "match": true,
+    "expected": {
+      "action": "New-InboxRule",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "spoofed-marker-mailbox",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-string-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[\"ForwardTo\",\"ForwardingAddress\",\"GrantSendOnBehalfTo\"]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-numeric-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[1,2,3]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[1 2 3]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-wrong-name-types",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":[\"ForwardTo\"],\"Value\":\"recipient@example.invalid\"},{\"Name\":{\"nested\":\"ForwardingAddress\"},\"Value\":\"recipient@example.invalid\"},{\"Name\":null,\"Value\":\"GrantSendOnBehalfTo\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-object",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"}}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-empty-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-parameters-null",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":null}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": ""
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-value-spoof-go-map",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-value-spoof-json",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"{\\\"Name\\\":\\\"ForwardTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"ForwardingAddress\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"GrantSendOnBehalfTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"}\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "spoofed-marker-delegation",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-string-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[\"ForwardTo\",\"ForwardingAddress\",\"GrantSendOnBehalfTo\"]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-numeric-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[1,2,3]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[1 2 3]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-wrong-name-types",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":[\"ForwardTo\"],\"Value\":\"recipient@example.invalid\"},{\"Name\":{\"nested\":\"ForwardingAddress\"},\"Value\":\"recipient@example.invalid\"},{\"Name\":null,\"Value\":\"GrantSendOnBehalfTo\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-object",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"}}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-empty-array",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-parameters-null",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":null}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": ""
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-value-spoof-go-map",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "delegation-value-spoof-json",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"{\\\"Name\\\":\\\"ForwardTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"ForwardingAddress\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"} {\\\"Name\\\":\\\"GrantSendOnBehalfTo\\\",\\\"Value\\\":\\\"recipient@example.invalid\\\"}\"}]}",
+    "rule": "office365/mailbox_delegation_abuse.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  }
+]

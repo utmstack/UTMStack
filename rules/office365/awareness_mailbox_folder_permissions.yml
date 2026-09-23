@@ -2,9 +2,9 @@
 
 dataTypes:
 - o365
-name: Office 365 Mailbox Delegate Permission Changed
+name: Office 365 Mailbox Folder Permission Changed
 description: |
-  An administrator changed mailbox FullAccess, SendAs or SendOnBehalf access through mailbox or recipient permission cmdlets, or supplied GrantSendOnBehalfTo to Set-Mailbox. Microsoft may also emit routine service-account mailbox permission maintenance; verify the actor and mailbox before escalation.
+  An Exchange mailbox folder permission was added, modified or removed. This includes audited mailbox activity operations and Exchange administrator cmdlets, which can grant or revoke access to messages in a folder.
 
   Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
@@ -17,9 +17,9 @@ impact:
 references:
 - https://learn.microsoft.com/en-us/purview/audit-log-activities
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
-- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxpermission?view=exchange-ps
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxfolderpermission?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && (oneOf("action", ["Add-MailboxPermission", "Remove-MailboxPermission", "Add-RecipientPermission", "Remove-RecipientPermission"]) || (equals("action", "Set-Mailbox") && (equals("log.o365SendOnBehalfChange", "true") || exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name"))))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"])
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId
@@ -29,3 +29,4 @@ groupBy:
 - lastEvent.log.ObjectId
 - target.user
 - lastEvent.log.MailboxOwnerUPN
+- lastEvent.log.folderId

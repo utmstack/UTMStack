@@ -2,13 +2,13 @@
 
 dataTypes:
 - o365
-name: Office 365 Inbox Forwarding Setting Changed
+name: Office 365 Mail Connector Changed
 description: |
-  An Exchange inbox rule creation or modification supplied a ForwardTo, ForwardAsAttachmentTo or RedirectTo setting. Clearing a setting is also a change.
+  An inbound or outbound Exchange Online mail connector was created, changed or removed. Review routing and authentication settings in the audited object and confirm the administrator intended the change.
 
   Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
-technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
+technique: Administrative mail flow change
 adversary: origin
 impact:
   confidentiality: 1
@@ -17,9 +17,9 @@ impact:
 references:
 - https://learn.microsoft.com/en-us/purview/audit-log-activities
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
-- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-inboxrule?view=exchange-ps
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-inboundconnector?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name"))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboundConnector", "Set-InboundConnector", "Remove-InboundConnector", "New-OutboundConnector", "Set-OutboundConnector", "Remove-OutboundConnector"])
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId

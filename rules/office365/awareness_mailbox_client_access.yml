@@ -2,13 +2,13 @@
 
 dataTypes:
 - o365
-name: Office 365 Inbox Forwarding Setting Changed
+name: Office 365 Mailbox Client Access Changed
 description: |
-  An Exchange inbox rule creation or modification supplied a ForwardTo, ForwardAsAttachmentTo or RedirectTo setting. Clearing a setting is also a change.
+  An administrator changed client access settings on a mailbox with Set-CASMailbox. Examine the changed protocol or access setting and the affected mailbox before deciding whether follow-up is needed.
 
   Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
-technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
+technique: Administrative mailbox access change
 adversary: origin
 impact:
   confidentiality: 1
@@ -17,9 +17,9 @@ impact:
 references:
 - https://learn.microsoft.com/en-us/purview/audit-log-activities
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
-- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-inboxrule?view=exchange-ps
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-casmailbox?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name"))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "Set-CASMailbox")
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId
