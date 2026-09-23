@@ -116,16 +116,39 @@ type BlocklistConfig struct {
 	DomainBlockTTLMin  int      `json:"domain_block_ttl_min"` // Plan 2; default 30
 }
 
+// ScheduledScanConfig configures the periodic full-disk scan. The walk
+// reuses the real-time pipeline: enqueued files are scanned by the same worker
+// pool, cache, engine, and exclusions. These are structural — a change takes
+// effect on the next service (re)start.
+type ScheduledScanConfig struct {
+	// Enabled turns the scheduled scan on. Default false.
+	Enabled bool `json:"enabled"`
+	// Schedule is the period between runs. Only the form "every:<duration>" is
+	// supported (e.g. "every:24h"); any other form is rejected at trigger time
+	// with a clear error. Default "every:24h".
+	Schedule string `json:"schedule"`
+	// Paths are the roots to walk each run. Empty = all fixed volumes (same
+	// rule as WatchVolumes).
+	Paths []string `json:"paths,omitempty"`
+	// ThrottleMs pauses the walk that long after every BatchSize enqueues so a
+	// full-disk sweep cannot starve the real-time watcher queue. 0 = no throttle.
+	ThrottleMs int `json:"throttle_ms"`
+	// BatchSize is the number of files enqueued before a ThrottleMs pause.
+	// Default 256.
+	BatchSize int `json:"batch_size"`
+}
+
 // EDRConfig is the operational configuration read by the EDR service and
 // writable by the agent / local CLI. It lives entirely in <install>/edr.json —
 // a single source of truth, hand-editable and CLI-editable.
 type EDRConfig struct {
-	Enabled          bool      `json:"enabled"`
-	Server           string    `json:"server"` // written by the agent on enable
-	SkipCertValidate bool      `json:"skip_cert_validate"`
-	WatchVolumes     []string  `json:"watch_volumes"` // Plan 2; empty = all fixed NTFS
-	Allowlist        Allowlist `json:"allowlist"`     // unified FP-tuning lists (see Allowlist)
-	Sensors          Sensors   `json:"sensors"`       // per-detector on/off toggles
+	Enabled          bool                `json:"enabled"`
+	Server           string              `json:"server"` // written by the agent on enable
+	SkipCertValidate bool                `json:"skip_cert_validate"`
+	WatchVolumes     []string            `json:"watch_volumes"` // Plan 2; empty = all fixed NTFS
+	ScheduledScan    ScheduledScanConfig `json:"scheduled_scan"`
+	Allowlist        Allowlist           `json:"allowlist"` // unified FP-tuning lists (see Allowlist)
+	Sensors          Sensors             `json:"sensors"`   // per-detector on/off toggles
 
 	// Exclusions / TrustedProcesses are DEPRECATED top-level lists, superseded by
 	// Allowlist.{Paths,Processes}. Load() migrates them into Allowlist and Save()
@@ -193,6 +216,11 @@ func Default() EDRConfig {
 		ScanConcurrency:   conc,
 		SigUpdateHours:    4,
 		SignatureFallback: "cdn",
+		ScheduledScan: ScheduledScanConfig{
+			// Disabled by default; enabled with a sane 24h period.
+			Schedule:  "every:24h",
+			BatchSize: 256,
+		},
 		// Sensors left zero: all *bool nil ⇒ every sensor ON by default.
 		Ransomware: RansomwareConfig{
 			Enabled:          true, // on by default; response_mode "suspend" is reversible
@@ -286,6 +314,21 @@ func Load() (EDRConfig, error) {
 		}
 		if c.Blocklist.FullResyncHours == 0 {
 			c.Blocklist.FullResyncHours = 24
+		}
+	}
+	// ScheduledScanConfig has a slice field (Paths), so detect an on-disk block
+	// via a reliable non-zero signal and copy it wholesale, then backfill the
+	// batch-size default. An absent block leaves the Default() nested values
+	// intact.
+	if onDisk.ScheduledScan.Enabled || onDisk.ScheduledScan.Schedule != "" ||
+		onDisk.ScheduledScan.ThrottleMs != 0 || onDisk.ScheduledScan.BatchSize != 0 ||
+		len(onDisk.ScheduledScan.Paths) != 0 {
+		c.ScheduledScan = onDisk.ScheduledScan
+		if c.ScheduledScan.Schedule == "" {
+			c.ScheduledScan.Schedule = "every:24h"
+		}
+		if c.ScheduledScan.BatchSize == 0 {
+			c.ScheduledScan.BatchSize = 256
 		}
 	}
 

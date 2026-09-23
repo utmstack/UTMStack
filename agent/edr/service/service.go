@@ -39,6 +39,11 @@ type program struct {
 	netblock *netblock.Manager   // set by startPipeline; read by writeStatus
 	sigFeed  *feed.Feed          // set by startPipeline; read by writeStatus
 
+	// Periodic full-disk scan (set by startPipeline). The runner reuses the
+	// shared worker pool + exclusions; it never owns a second scan path.
+	sched         *orchestrator.ScheduledScanner
+	schedSchedule string // raw schedule string handed to each Trigger
+
 	// Live-reload state (set by startPipeline). The service polls edr.json's
 	// mtime and hot-applies allowlist + response-mode changes without a restart,
 	// by re-Set-ing these swappable matchers and calling rwGuard.SetPolicy.
@@ -60,6 +65,11 @@ func (p *program) Stop(s service.Service) error {
 	_ = amsi.Unregister()
 	if p.eng != nil {
 		_ = p.eng.Stop()
+	}
+	// Stop any in-flight scheduled scan walk (it keeps the shared pool alive for
+	// the real-time watcher; this only ends the walk).
+	if p.sched != nil {
+		p.sched.Cancel()
 	}
 	return nil
 }
@@ -274,7 +284,12 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		logger.Error("UTMStack EDR: quarantine init: %v", err)
 		return
 	}
+	// Counting wrapper: the orchestrator scans through a thin wrapper that
+	// delegates to the real scanner and increments shared ScanStats, so scheduled
+	// runs can report detections. This is the ONLY change to scanner construction.
+	scanStats := &orchestrator.ScanStats{}
 	sc := scanner.New(cfg, c, sp, store)
+	counted := orchestrator.NewCountingScanner(sc, scanStats)
 	// Always exclude the EDR's own working tree from the watcher. The engine
 	// writes archive-extraction artifacts under EngineDir/tmp and we move
 	// detections into QuarantineDir; scanning those back is pure noise (spurious
@@ -291,7 +306,9 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		pathBase = append(pathBase, filepath.Dir(cfg.ClamdPath))
 	}
 	ex := orchestrator.NewExcluder(append(append([]string{}, pathBase...), cfg.Allowlist.Paths...))
-	orch := orchestrator.New(sc, ex, cfg.ScanConcurrency, 4096)
+	// The orchestrator's scanner is the counting wrapper (delegates to the real
+	// scanner + bumps ScanStats). The guard keeps the raw scanner.
+	orch := orchestrator.New(counted, ex, cfg.ScanConcurrency, 4096)
 
 	// Trusted-process allowlist: a conservative BUILT-IN set of FP-prone workloads
 	// (backup/imaging/DR/sync + Windows VSS/Search) — the ships-with-the-system
@@ -437,7 +454,58 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	// configured retention (0 = keep forever). Makes quarantine_retention_days real.
 	goSafe("quarantine-retention", func() { runRetention(ctx, store, cfg.QuarantineDays) })
 
+	// Y1.6 periodic full-disk scan. Reuses the shared orchestrator pool +
+	// exclusions (no second scan path). Paths empty → all fixed volumes (same
+	// rule as the watcher). ScheduledScan is structural: a change takes effect on
+	// the next module restart (consistent with the other structural keys) — it is
+	// NOT hot-reloaded. Failures are contained by goSafe and never take the
+	// service down.
+	if cfg.ScheduledScan.Enabled {
+		ssPaths := cfg.ScheduledScan.Paths
+		if len(ssPaths) == 0 {
+			ssPaths = vols
+		}
+		p.sched = orchestrator.NewScheduledScanner(orchestrator.ScheduledScanParams{
+			Service:  ctx,
+			Orch:     orch,
+			Ex:       ex,
+			Paths:    ssPaths,
+			Batch:    cfg.ScheduledScan.BatchSize,
+			Throttle: time.Duration(cfg.ScheduledScan.ThrottleMs) * time.Millisecond,
+			Stats:    scanStats,
+			Spool:    sp,
+		})
+		p.schedSchedule = cfg.ScheduledScan.Schedule
+		goSafe("scheduled_scan", func() { p.scheduledScanLoop(ctx) })
+	} else {
+		logger.Info("UTMStack EDR: scheduled scan disabled by config")
+	}
+
 	logger.Info("UTMStack EDR: real-time protection started (%d volumes, %d workers)", len(vols), cfg.ScanConcurrency)
+}
+
+// scheduledScanLoop runs the periodic full-disk scan: one run immediately on
+// start (when enabled), then every parsed `every:` duration. It honors the
+// service context on shutdown. A bad schedule string is logged and the loop
+// exits (goSafe contains any panic).
+func (p *program) scheduledScanLoop(ctx context.Context) {
+	period, err := orchestrator.ParseSchedule(p.schedSchedule)
+	if err != nil {
+		logger.Error("UTMStack EDR: scheduled scan: %v", err)
+		return
+	}
+	// Run once on start, then on each period tick.
+	p.sched.Trigger(p.schedSchedule)
+	t := time.NewTicker(period)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			p.sched.Trigger(p.schedSchedule)
+		}
+	}
 }
 
 // runRetention purges quarantined items older than retentionDays every 6h (and

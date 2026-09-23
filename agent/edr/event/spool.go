@@ -52,6 +52,9 @@ func (s *Spool) rotate() error {
 	return nil
 }
 
+// Path returns the spool's on-disk file (used by tests and the relay).
+func (s *Spool) Path() string { return s.path }
+
 func (s *Spool) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

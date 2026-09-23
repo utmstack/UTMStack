@@ -16,10 +16,12 @@ const (
 	SourceEngine         = "edr_engine"
 	SourceBehavioral     = "behavioral"
 	SourceNetwork        = "network_watcher"
+	SourceScheduled      = "scheduled_scan"
 
 	ActionDetected     = "detected"
 	ActionQuarantined  = "quarantined"
 	ActionKilled       = "killed"
+	ActionScanStart    = "scan_start"
 	ActionScanComplete = "scan_complete"
 	ActionHealth       = "health"
 	ActionBlocked      = "blocked"
@@ -69,6 +71,12 @@ type Event struct {
 	Engine     string    `json:"engine"`
 	Severity   string    `json:"severity,omitempty"`
 	Process    *ProcInfo `json:"process,omitempty"`
+
+	// Scheduled-scan summary. Present only on scan_start/scan_complete
+	// events; omitempty keeps existing event shapes unchanged.
+	FilesScanned int   `json:"files_scanned,omitempty"`
+	Detections   int   `json:"detections,omitempty"`
+	ElapsedMs    int64 `json:"elapsed_ms,omitempty"`
 }
 
 func NewDetection(objectPath, sha256, signature, source string) Event {
