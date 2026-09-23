@@ -1,0 +1,141 @@
+[
+  {
+    "name": "task-success-without-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272 BitdefenderGZTaskSuccessful=1 suid=admin-id",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "rule": "antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
+    "match": false
+  },
+  {
+    "name": "task-success-with-zero-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success"
+  },
+  {
+    "name": "task-failed-without-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=0",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure"
+  },
+  {
+    "name": "task-failed-with-zero-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=0 BitdefenderGZErrorCode=0",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure"
+  },
+  {
+    "name": "task-failed-with-positive-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=false BitdefenderGZErrorCode=5",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure"
+  },
+  {
+    "name": "task-success-contradicted-by-error",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=true BitdefenderGZErrorCode=5",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "task-success-with-invalid-error-code",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=true BitdefenderGZErrorCode=unknown",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "task-error-without-success-flag",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZErrorCode=5",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure"
+  },
+  {
+    "name": "task-unknown-flag-without-error",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=unknown BitdefenderGZErrorCode=0",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "task-unknown-flag-with-error",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=unknown BitdefenderGZErrorCode=5",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure"
+  },
+  {
+    "name": "task-blocked-action-overrides-success",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 act=blocked",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied"
+  },
+  {
+    "name": "task-blocked-suffix-overrides-success",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 act=uc_application_blocked",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied"
+  },
+  {
+    "name": "task-blocked-status-overrides-allow",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 act=allowed BitdefenderGZStatus=traffic_blocked",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied"
+  },
+  {
+    "name": "task-denied-detection-overrides-success",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Scan task BitdefenderGZTaskType=272  suid=admin-id BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 BitdefenderGZDetectionAction=deny",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied"
+  },
+  {
+    "name": "firewall-blocked-connection-with-both-ips",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|fw|3|BitdefenderGZModule=fw BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=portscan_blocked BitdefenderGZEventSourceIP=198.51.100.77",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.77",
+      "target.ip": "192.0.2.10"
+    }
+  },
+  {
+    "name": "antimalware-still-present-is-failure",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=still present BitdefenderGZMalwareName=Generic.Test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure",
+    "expected": {
+      "action": "still present"
+    }
+  },
+  {
+    "name": "antimalware-deleted-is-success",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=deleted BitdefenderGZMalwareName=Generic.Test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "action": "deleted"
+    }
+  },
+  {
+    "name": "exclusion-task-success-rule-positive",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZTaskName=exclusion_update BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update exclusion list BitdefenderGZTaskSuccessful=1",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "rule": "antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
+    "match": true
+  },
+  {
+    "name": "exclusion-task-failed-rule-negative",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZTaskName=exclusion_update BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update exclusion list BitdefenderGZTaskSuccessful=0",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure",
+    "rule": "antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
+    "match": false
+  }
+]
