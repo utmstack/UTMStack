@@ -16,6 +16,7 @@ func registerSOAR(m *Module) {
 	registerSOARExecutions(m)
 	registerSOARVariables(m)
 	registerSOARAgents(m)
+	registerSOARPrompts(m)
 }
 
 // ---- soar.rule.* -----------------------------------------------------------
@@ -142,6 +143,36 @@ func registerSOARRules(m *Module) {
 }
 
 // ---- soar.template.* -------------------------------------------------------
+
+// ---- prompts ---------------------------------------------------------------
+
+func registerSOARPrompts(m *Module) {
+	m.server.AddPrompt(&mcp.Prompt{
+		Name: "soc.draft-soar-rule", Title: "Draft SOAR rule",
+		Description: "Guides the model through SOAR flow construction: list existing flows to start from, list variables, propose filter conditions, then create the flow on confirmation.",
+		Arguments: []*mcp.PromptArgument{{
+			Name: "goal", Title: "Goal",
+			Description: "Plain-language goal for the rule (e.g. 'isolate hosts on Mimikatz detections')",
+		}},
+	}, func(_ context.Context, req *mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
+		goal := req.Params.Arguments["goal"]
+		if goal == "" {
+			return nil, fmt.Errorf("argument 'goal' is required")
+		}
+		text := fmt.Sprintf(`Draft a SOAR rule for this goal: %s
+
+Follow these steps, showing results as you go:
+1. Call soar.rule.list to find existing flows that could be a starting point.
+2. Call soar.variable.list to see available incident variables.
+3. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
+4. Draft the rule (name, conditions, roots, nodes) and present it to the user.
+5. Only after explicit user confirmation, call soar.rule.create with active=false so the user can review before enabling.
+
+Never enable a newly created rule without asking first.`, goal)
+		msg := &mcp.PromptMessage{Role: "user", Content: &mcp.TextContent{Text: text}}
+		return &mcp.GetPromptResult{Messages: []*mcp.PromptMessage{msg}}, nil
+	})
+}
 
 // ---- soar.execution.* ------------------------------------------------------
 

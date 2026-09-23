@@ -15,6 +15,7 @@ var capabilityGroups = []CapabilityGroup{
 	{"compliance", "manage compliance frameworks and generate reports", []string{"compliance"}},
 	{"correlation", "manage correlation rules, event-processing filters, regex patterns, and per-tenant rule config", []string{"correlation_rule", "regex_pattern", "tenant_config", "filter"}},
 	{"datasources", "manage data sources", []string{"datasources", "datasource_groups"}},
+	{"soar", "create and manage SOAR rules (response flows)", []string{"soar"}},
 }
 
 var prefixToGroup = func() map[string]string {
