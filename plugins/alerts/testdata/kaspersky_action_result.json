@@ -1,0 +1,218 @@
+[
+  {
+    "name": "cef-outcome-allow",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allow",
+    "dataSource": "synthetic-kaspersky",
+    "result": "success",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Allow"
+    }
+  },
+  {
+    "name": "cef-outcome-allowed",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Allowed",
+    "dataSource": "synthetic-kaspersky",
+    "result": "success",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Allowed"
+    }
+  },
+  {
+    "name": "cef-outcome-blocked",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=BLOCKED",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "BLOCKED"
+    }
+  },
+  {
+    "name": "cef-outcome-block",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Block",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Block"
+    }
+  },
+  {
+    "name": "cef-outcome-delete",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=delete",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "delete"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-outcome-detected",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=detected",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "detected"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-outcome-unknown",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=unknown",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "unknown"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-denied",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Denied",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Denied"
+    }
+  },
+  {
+    "name": "cef-drop",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=drop",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "drop"
+    }
+  },
+  {
+    "name": "cef-rejected",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Rejected",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Rejected"
+    }
+  },
+  {
+    "name": "cef-quarantine",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=quarantine",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "quarantine"
+    }
+  },
+  {
+    "name": "cef-explicit-failed-operation",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Failed",
+    "dataSource": "synthetic-kaspersky",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "action": "Failed"
+    }
+  },
+  {
+    "name": "native-klsrv_host_status_critical",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "log.eventType": "KLSRV_HOST_STATUS_CRITICAL",
+      "log.format": "ksc-syslog"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "native-klsrv_host_out_control",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_OUT_CONTROL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_OUT_CONTROL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "log.eventType": "KLSRV_HOST_OUT_CONTROL",
+      "log.format": "ksc-syslog"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "native-health-clears-stale-success",
+    "raw": "<10>1 2026-09-17T12:34:56Z relay.example.test 1093|1.0.0.0 - KLSRV_HOST_STATUS_CRITICAL [event@23668 p1=\"Device not connected\" et=\"KLSRV_HOST_STATUS_CRITICAL\" etdn=\"Device status is Critical.\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Device has not connected recently.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "initial": {
+      "actionResult": "success"
+    },
+    "expected": {
+      "target.ip": "192.0.2.8",
+      "log.format": "ksc-syslog"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "cef-last-message-keeps-full-text",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test msg=injection into lsass",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.msg": "injection into lsass"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-escaped-equals-cannot-spoof-source",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|msg=text src\\=198.51.100.99 dst=192.0.2.8",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "log.msg": "text src\\=198.51.100.99",
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ]
+  }
+]
