@@ -1,4 +1,4 @@
-# Azure Event Hub filter v2.1.0
+# Azure Event Hub filter v2.2.0
 # Vendor aliases and originals are retained; derived history markers are cleared before recomputation.
 # JSON extraction into temporary log namespaces models the documented step contract.
 pipeline:
@@ -731,243 +731,502 @@ pipeline:
       - log.azureActor
       - log.azureActorType
       - log.correlationCandidate
-  - rename:
-      from:
-      - log.properties
-      to: log.azureProperties
-      where: equalsIgnoreCase("log.category","AppServiceHTTPLogs") && exists("log.properties.CIp")
+  # Parse embedded JSON into temporary scalar leaves, then restore the original
+  # envelope before using the values. Embedded keys cannot spoof status/category.
   - add:
       function: string
       params:
-        key: azureDecodePending
+        key: azureHTTPDecodePending
         value: 'yes'
-      where: (equalsIgnoreCase("log.category","AppServiceHTTPLogs")) && regexMatch("log.properties","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+      where: >-
+        equalsIgnoreCase("log.category","AppServiceHTTPLogs") && (exists("log.properties.ScStatus") || exists("log.properties.CIp") || regexMatch("log.properties","^\\s*\\{"))
   - json:
-      source: azureEnvelope.properties
-      where: equals("azureDecodePending","yes")
+      source: log.properties
+      where: equals("azureHTTPDecodePending","yes")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.CIp
+      to: azureNestedHTTPCIp
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CIp")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.CsUsername
+      to: azureNestedHTTPCsUsername
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsUsername")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureProperties
-      where: equals("azureDecodePending","yes")
+      - log.ComputerName
+      to: azureNestedHTTPComputerName
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ComputerName")
+  - rename:
+      from:
+      - log.CsHost
+      to: azureNestedHTTPCsHost
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsHost")
+  - rename:
+      from:
+      - log.CsMethod
+      to: azureNestedHTTPCsMethod
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsMethod")
+  - rename:
+      from:
+      - log.SPort
+      to: azureNestedHTTPSPort
+      where: equals("azureHTTPDecodePending","yes") && exists("log.SPort")
+  - rename:
+      from:
+      - log.ScStatus
+      to: azureNestedHTTPScStatus
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ScStatus")
+  - rename:
+      from:
+      - log.CsBytes
+      to: azureNestedHTTPCsBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsBytes")
+  - rename:
+      from:
+      - log.ScBytes
+      to: azureNestedHTTPScBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ScBytes")
+  - rename:
+      from:
+      - log.Protocol
+      to: azureNestedHTTPProtocol
+      where: equals("azureHTTPDecodePending","yes") && exists("log.Protocol")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureHTTPDecodePending","yes")
+  - json:
+      source: raw
+      where: equals("azureHTTPDecodePending","yes")
+  - rename:
+      from:
+      - azureNestedHTTPCIp
+      to: log.azureProperties.CIp
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCIp")
+  - rename:
+      from:
+      - azureNestedHTTPCsUsername
+      to: log.azureProperties.CsUsername
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsUsername")
+  - rename:
+      from:
+      - azureNestedHTTPComputerName
+      to: log.azureProperties.ComputerName
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPComputerName")
+  - rename:
+      from:
+      - azureNestedHTTPCsHost
+      to: log.azureProperties.CsHost
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsHost")
+  - rename:
+      from:
+      - azureNestedHTTPCsMethod
+      to: log.azureProperties.CsMethod
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsMethod")
+  - rename:
+      from:
+      - azureNestedHTTPSPort
+      to: log.azureProperties.SPort
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPSPort")
+  - rename:
+      from:
+      - azureNestedHTTPScStatus
+      to: log.azureProperties.ScStatus
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPScStatus")
+  - rename:
+      from:
+      - azureNestedHTTPCsBytes
+      to: log.azureProperties.CsBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsBytes")
+  - rename:
+      from:
+      - azureNestedHTTPScBytes
+      to: log.azureProperties.ScBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPScBytes")
+  - rename:
+      from:
+      - azureNestedHTTPProtocol
+      to: log.azureProperties.Protocol
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPProtocol")
+  - delete:
+      fields:
+      - azureHTTPDecodePending
   - add:
       function: string
       params:
-        key: azureDecodePending
+        key: azureKubeDecodePending
         value: 'yes'
-      where: (oneOf("log.category",["kube-audit","kube-audit-admin"])) && regexMatch("log.properties.log","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+      where: >-
+        oneOf("log.category",["kube-audit","kube-audit-admin"]) && regexMatch("log.properties.log","^\\s*\\{")
   - json:
-      source: azureEnvelope.properties.log
-      where: equals("azureDecodePending","yes")
+      source: log.properties.log
+      where: equals("azureKubeDecodePending","yes")
+  - json:
+      source: log.responseStatus
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.responseStatus.code") && regexMatch("log.responseStatus","^\\s*\\{")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.code
+      to: azureNestedKuberesponseStatuscode
+      where: equals("azureKubeDecodePending","yes") && exists("log.code")
+  - json:
+      source: log.objectRef
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.objectRef.resource") && regexMatch("log.objectRef","^\\s*\\{")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.resource
+      to: azureNestedKubeobjectRefresource
+      where: equals("azureKubeDecodePending","yes") && exists("log.resource")
+  - json:
+      source: log.user
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.user.username") && regexMatch("log.user","^\\s*\\{")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureKubernetes
-      where: equals("azureDecodePending","yes")
+      - log.username
+      to: azureNestedKubeuserusername
+      where: equals("azureKubeDecodePending","yes") && exists("log.username")
+  - rename:
+      from:
+      - log.apiVersion
+      to: azureNestedKubeapiVersion
+      where: equals("azureKubeDecodePending","yes") && exists("log.apiVersion")
+  - rename:
+      from:
+      - log.kind
+      to: azureNestedKubekind
+      where: equals("azureKubeDecodePending","yes") && exists("log.kind")
+  - rename:
+      from:
+      - log.stage
+      to: azureNestedKubestage
+      where: equals("azureKubeDecodePending","yes") && exists("log.stage")
+  - rename:
+      from:
+      - log.verb
+      to: azureNestedKubeverb
+      where: equals("azureKubeDecodePending","yes") && exists("log.verb")
+  - rename:
+      from:
+      - log.user.username
+      to: azureNestedKubeuserusername
+      where: equals("azureKubeDecodePending","yes") && exists("log.user.username")
+  - rename:
+      from:
+      - log.responseStatus.code
+      to: azureNestedKuberesponseStatuscode
+      where: equals("azureKubeDecodePending","yes") && exists("log.responseStatus.code")
+  - rename:
+      from:
+      - log.objectRef.resource
+      to: azureNestedKubeobjectRefresource
+      where: equals("azureKubeDecodePending","yes") && exists("log.objectRef.resource")
+  - rename:
+      from:
+      - log.requestURI
+      to: azureNestedKuberequestURI
+      where: equals("azureKubeDecodePending","yes") && exists("log.requestURI")
+  - grok:
+      source: log.sourceIPs.0
+      patterns:
+      - fieldName: azureNestedKubeSourceIp
+        pattern: (?s)^.+$
+      where: equals("azureKubeDecodePending","yes") && regexMatch("log.sourceIPs.0","(?s)^.+$")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureKubeDecodePending","yes")
+  - json:
+      source: raw
+      where: equals("azureKubeDecodePending","yes")
   - rename:
       from:
-      - log.properties.requestbody
-      to: log.azureRequestBody
-      where: (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && exists("log.properties.requestbody.properties") && !exists("log.azureRequestBody")
+      - azureNestedKubeapiVersion
+      to: log.azureKubernetes.apiVersion
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeapiVersion")
+  - rename:
+      from:
+      - azureNestedKubekind
+      to: log.azureKubernetes.kind
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubekind")
+  - rename:
+      from:
+      - azureNestedKubestage
+      to: log.azureKubernetes.stage
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubestage")
+  - rename:
+      from:
+      - azureNestedKubeverb
+      to: log.azureKubernetes.verb
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeverb")
+  - rename:
+      from:
+      - azureNestedKubeuserusername
+      to: log.azureKubernetes.user.username
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeuserusername")
+  - rename:
+      from:
+      - azureNestedKuberesponseStatuscode
+      to: log.azureKubernetes.responseStatus.code
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKuberesponseStatuscode")
+  - rename:
+      from:
+      - azureNestedKubeobjectRefresource
+      to: log.azureKubernetes.objectRef.resource
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeobjectRefresource")
+  - rename:
+      from:
+      - azureNestedKuberequestURI
+      to: log.azureKubernetes.requestURI
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKuberequestURI")
+  - rename:
+      from:
+      - azureNestedKubeSourceIp
+      to: log.azureKubernetes.sourceIp
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeSourceIp")
+  - delete:
+      fields:
+      - azureKubeDecodePending
+  # Decode only the request-body leaves consumed by standard mappings/rules.
+  # Restore raw first so embedded keys cannot replace the authoritative envelope.
   - add:
       function: string
       params:
-        key: azureDecodePending
-        value: 'yes'
-      where: ((regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && !exists("log.azureRequestBody")) && regexMatch("log.properties.requestbody","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+        key: azureRequestDecoded
+        value: 'variant0'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.requestbody.properties") || regexMatch("log.properties.requestbody","^\\s*\\{"))
   - json:
-      source: azureEnvelope.properties.requestbody
-      where: equals("azureDecodePending","yes")
+      source: log.properties.requestbody
+      where: equals("azureRequestDecoded","variant0")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.principalId")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.roleDefinitionId")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureRequestBody
-      where: equals("azureDecodePending","yes")
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.publicAccess")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureRequestDecoded","variant0")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant0")
   - rename:
       from:
-      - log.properties.requestBody
-      to: log.azureRequestBody
-      where: (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && exists("log.properties.requestBody.properties") && !exists("log.azureRequestBody")
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestpublicAccess")
   - add:
       function: string
       params:
-        key: azureDecodePending
-        value: 'yes'
-      where: ((regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && !exists("log.azureRequestBody")) && regexMatch("log.properties.requestBody","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+        key: azureRequestDecoded
+        value: 'variant1'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.requestBody.properties") || regexMatch("log.properties.requestBody","^\\s*\\{"))
   - json:
-      source: azureEnvelope.properties.requestBody
-      where: equals("azureDecodePending","yes")
+      source: log.properties.requestBody
+      where: equals("azureRequestDecoded","variant1")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.principalId")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.roleDefinitionId")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureRequestBody
-      where: equals("azureDecodePending","yes")
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.publicAccess")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureRequestDecoded","variant1")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant1")
   - rename:
       from:
-      - log.properties.eventProperties.requestbody
-      to: log.azureRequestBody
-      where: (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && exists("log.properties.eventProperties.requestbody.properties") && !exists("log.azureRequestBody")
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestpublicAccess")
   - add:
       function: string
       params:
-        key: azureDecodePending
-        value: 'yes'
-      where: ((regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && !exists("log.azureRequestBody")) && regexMatch("log.properties.eventProperties.requestbody","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+        key: azureRequestDecoded
+        value: 'variant2'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.eventProperties.requestbody.properties") || regexMatch("log.properties.eventProperties.requestbody","^\\s*\\{"))
   - json:
-      source: azureEnvelope.properties.eventProperties.requestbody
-      where: equals("azureDecodePending","yes")
+      source: log.properties.eventProperties.requestbody
+      where: equals("azureRequestDecoded","variant2")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.principalId")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.roleDefinitionId")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureRequestBody
-      where: equals("azureDecodePending","yes")
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.publicAccess")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureRequestDecoded","variant2")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant2")
   - rename:
       from:
-      - log.properties.eventProperties.requestBody
-      to: log.azureRequestBody
-      where: (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && exists("log.properties.eventProperties.requestBody.properties") && !exists("log.azureRequestBody")
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestpublicAccess")
   - add:
       function: string
       params:
-        key: azureDecodePending
-        value: 'yes'
-      where: ((regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/"))
-        && !exists("log.azureRequestBody")) && regexMatch("log.properties.eventProperties.requestBody","^\\s*\\{")
-  - rename:
-      from:
-      - log
-      to: azureEnvelope
-      where: equals("azureDecodePending","yes")
+        key: azureRequestDecoded
+        value: 'variant3'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.eventProperties.requestBody.properties") || regexMatch("log.properties.eventProperties.requestBody","^\\s*\\{"))
   - json:
-      source: azureEnvelope.properties.eventProperties.requestBody
-      where: equals("azureDecodePending","yes")
+      source: log.properties.eventProperties.requestBody
+      where: equals("azureRequestDecoded","variant3")
   - rename:
       from:
-      - log
-      to: azureDecoded
-      where: equals("azureDecodePending","yes")
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.principalId")
   - rename:
       from:
-      - azureEnvelope
-      to: log
-      where: equals("azureDecodePending","yes")
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.roleDefinitionId")
   - rename:
       from:
-      - azureDecoded
-      to: log.azureRequestBody
-      where: equals("azureDecodePending","yes")
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.publicAccess")
   - delete:
       fields:
-      - azureDecodePending
-      - azureDecoded
-      - azureEnvelope
+      - log
+      where: equals("azureRequestDecoded","variant3")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant3")
+  - rename:
+      from:
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestpublicAccess")
+  - delete:
+      fields:
+      - azureRequestDecoded
   - add:
       function: string
       params:
@@ -1155,13 +1414,13 @@ pipeline:
         && (inCIDR("log.properties.clientIP","0.0.0.0/0") || inCIDR("log.properties.clientIP","::/0")) && !inCIDR("log.properties.clientIP","0.0.0.0/32")
         && !inCIDR("log.properties.clientIP","::/128")) && !exists("origin.ip")
   - grok:
-      source: log.azureKubernetes.sourceIPs.0
+      source: log.azureKubernetes.sourceIp
       patterns:
       - fieldName: origin.ip
         pattern: (?s)^.+$
-      where: regexMatch("log.azureKubernetes.sourceIPs.0","(?s)^.+$") && !oneOf("log.azureKubernetes.sourceIPs.0",["-","unknown"])
-        && ((equalsIgnoreCase("log.azureKind","kubernetes")) && (inCIDR("log.azureKubernetes.sourceIPs.0","0.0.0.0/0") || inCIDR("log.azureKubernetes.sourceIPs.0","::/0"))
-        && !inCIDR("log.azureKubernetes.sourceIPs.0","0.0.0.0/32") && !inCIDR("log.azureKubernetes.sourceIPs.0","::/128")) && !exists("origin.ip")
+      where: regexMatch("log.azureKubernetes.sourceIp","(?s)^.+$") && !oneOf("log.azureKubernetes.sourceIp",["-","unknown"])
+        && ((equalsIgnoreCase("log.azureKind","kubernetes")) && (inCIDR("log.azureKubernetes.sourceIp","0.0.0.0/0") || inCIDR("log.azureKubernetes.sourceIp","::/0"))
+        && !inCIDR("log.azureKubernetes.sourceIp","0.0.0.0/32") && !inCIDR("log.azureKubernetes.sourceIp","::/128")) && !exists("origin.ip")
   - grok:
       source: log.callerIpAddress
       patterns:
@@ -1864,40 +2123,506 @@ pipeline:
         pattern: (?s)^.+$
       where: regexMatch("log.azureProperties.Protocol","(?s)^.+$") && !oneOf("log.azureProperties.Protocol",["-","unknown"]) &&
         (equalsIgnoreCase("log.azureKind","http")) && !exists("protocol")
-  - rename:
-      from:
-      - log.azureProperties
-      to: azureSavedazureProperties
-      where: exists("log.azureProperties")
-  - rename:
-      from:
-      - log.azureKubernetes
-      to: azureSavedazureKubernetes
-      where: exists("log.azureKubernetes")
-  - rename:
-      from:
-      - log.azureRequestBody
-      to: azureSavedazureRequestBody
-      where: exists("log.azureRequestBody")
   - json:
       source: raw
   - delete:
       fields: *id001
+  # Parse embedded JSON into temporary scalar leaves, then restore the original
+  # envelope before using the values. Embedded keys cannot spoof status/category.
+  - add:
+      function: string
+      params:
+        key: azureHTTPDecodePending
+        value: 'yes'
+      where: >-
+        equalsIgnoreCase("log.category","AppServiceHTTPLogs") && (exists("log.properties.ScStatus") || exists("log.properties.CIp") || regexMatch("log.properties","^\\s*\\{"))
+  - json:
+      source: log.properties
+      where: equals("azureHTTPDecodePending","yes")
   - rename:
       from:
-      - azureSavedazureProperties
-      to: log.azureProperties
-      where: exists("azureSavedazureProperties")
+      - log.CIp
+      to: azureNestedHTTPCIp
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CIp")
   - rename:
       from:
-      - azureSavedazureKubernetes
-      to: log.azureKubernetes
-      where: exists("azureSavedazureKubernetes")
+      - log.CsUsername
+      to: azureNestedHTTPCsUsername
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsUsername")
   - rename:
       from:
-      - azureSavedazureRequestBody
-      to: log.azureRequestBody
-      where: exists("azureSavedazureRequestBody")
+      - log.ComputerName
+      to: azureNestedHTTPComputerName
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ComputerName")
+  - rename:
+      from:
+      - log.CsHost
+      to: azureNestedHTTPCsHost
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsHost")
+  - rename:
+      from:
+      - log.CsMethod
+      to: azureNestedHTTPCsMethod
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsMethod")
+  - rename:
+      from:
+      - log.SPort
+      to: azureNestedHTTPSPort
+      where: equals("azureHTTPDecodePending","yes") && exists("log.SPort")
+  - rename:
+      from:
+      - log.ScStatus
+      to: azureNestedHTTPScStatus
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ScStatus")
+  - rename:
+      from:
+      - log.CsBytes
+      to: azureNestedHTTPCsBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("log.CsBytes")
+  - rename:
+      from:
+      - log.ScBytes
+      to: azureNestedHTTPScBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("log.ScBytes")
+  - rename:
+      from:
+      - log.Protocol
+      to: azureNestedHTTPProtocol
+      where: equals("azureHTTPDecodePending","yes") && exists("log.Protocol")
+  - delete:
+      fields:
+      - log
+      where: equals("azureHTTPDecodePending","yes")
+  - json:
+      source: raw
+      where: equals("azureHTTPDecodePending","yes")
+  - rename:
+      from:
+      - azureNestedHTTPCIp
+      to: log.azureProperties.CIp
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCIp")
+  - rename:
+      from:
+      - azureNestedHTTPCsUsername
+      to: log.azureProperties.CsUsername
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsUsername")
+  - rename:
+      from:
+      - azureNestedHTTPComputerName
+      to: log.azureProperties.ComputerName
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPComputerName")
+  - rename:
+      from:
+      - azureNestedHTTPCsHost
+      to: log.azureProperties.CsHost
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsHost")
+  - rename:
+      from:
+      - azureNestedHTTPCsMethod
+      to: log.azureProperties.CsMethod
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsMethod")
+  - rename:
+      from:
+      - azureNestedHTTPSPort
+      to: log.azureProperties.SPort
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPSPort")
+  - rename:
+      from:
+      - azureNestedHTTPScStatus
+      to: log.azureProperties.ScStatus
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPScStatus")
+  - rename:
+      from:
+      - azureNestedHTTPCsBytes
+      to: log.azureProperties.CsBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPCsBytes")
+  - rename:
+      from:
+      - azureNestedHTTPScBytes
+      to: log.azureProperties.ScBytes
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPScBytes")
+  - rename:
+      from:
+      - azureNestedHTTPProtocol
+      to: log.azureProperties.Protocol
+      where: equals("azureHTTPDecodePending","yes") && exists("azureNestedHTTPProtocol")
+  - delete:
+      fields:
+      - azureHTTPDecodePending
+  - add:
+      function: string
+      params:
+        key: azureKubeDecodePending
+        value: 'yes'
+      where: >-
+        oneOf("log.category",["kube-audit","kube-audit-admin"]) && regexMatch("log.properties.log","^\\s*\\{")
+  - json:
+      source: log.properties.log
+      where: equals("azureKubeDecodePending","yes")
+  - json:
+      source: log.responseStatus
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.responseStatus.code") && regexMatch("log.responseStatus","^\\s*\\{")
+  - rename:
+      from:
+      - log.code
+      to: azureNestedKuberesponseStatuscode
+      where: equals("azureKubeDecodePending","yes") && exists("log.code")
+  - json:
+      source: log.objectRef
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.objectRef.resource") && regexMatch("log.objectRef","^\\s*\\{")
+  - rename:
+      from:
+      - log.resource
+      to: azureNestedKubeobjectRefresource
+      where: equals("azureKubeDecodePending","yes") && exists("log.resource")
+  - json:
+      source: log.user
+      where: >-
+        equals("azureKubeDecodePending","yes") &&
+        !exists("log.user.username") && regexMatch("log.user","^\\s*\\{")
+  - rename:
+      from:
+      - log.username
+      to: azureNestedKubeuserusername
+      where: equals("azureKubeDecodePending","yes") && exists("log.username")
+  - rename:
+      from:
+      - log.apiVersion
+      to: azureNestedKubeapiVersion
+      where: equals("azureKubeDecodePending","yes") && exists("log.apiVersion")
+  - rename:
+      from:
+      - log.kind
+      to: azureNestedKubekind
+      where: equals("azureKubeDecodePending","yes") && exists("log.kind")
+  - rename:
+      from:
+      - log.stage
+      to: azureNestedKubestage
+      where: equals("azureKubeDecodePending","yes") && exists("log.stage")
+  - rename:
+      from:
+      - log.verb
+      to: azureNestedKubeverb
+      where: equals("azureKubeDecodePending","yes") && exists("log.verb")
+  - rename:
+      from:
+      - log.user.username
+      to: azureNestedKubeuserusername
+      where: equals("azureKubeDecodePending","yes") && exists("log.user.username")
+  - rename:
+      from:
+      - log.responseStatus.code
+      to: azureNestedKuberesponseStatuscode
+      where: equals("azureKubeDecodePending","yes") && exists("log.responseStatus.code")
+  - rename:
+      from:
+      - log.objectRef.resource
+      to: azureNestedKubeobjectRefresource
+      where: equals("azureKubeDecodePending","yes") && exists("log.objectRef.resource")
+  - rename:
+      from:
+      - log.requestURI
+      to: azureNestedKuberequestURI
+      where: equals("azureKubeDecodePending","yes") && exists("log.requestURI")
+  - grok:
+      source: log.sourceIPs.0
+      patterns:
+      - fieldName: azureNestedKubeSourceIp
+        pattern: (?s)^.+$
+      where: equals("azureKubeDecodePending","yes") && regexMatch("log.sourceIPs.0","(?s)^.+$")
+  - delete:
+      fields:
+      - log
+      where: equals("azureKubeDecodePending","yes")
+  - json:
+      source: raw
+      where: equals("azureKubeDecodePending","yes")
+  - rename:
+      from:
+      - azureNestedKubeapiVersion
+      to: log.azureKubernetes.apiVersion
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeapiVersion")
+  - rename:
+      from:
+      - azureNestedKubekind
+      to: log.azureKubernetes.kind
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubekind")
+  - rename:
+      from:
+      - azureNestedKubestage
+      to: log.azureKubernetes.stage
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubestage")
+  - rename:
+      from:
+      - azureNestedKubeverb
+      to: log.azureKubernetes.verb
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeverb")
+  - rename:
+      from:
+      - azureNestedKubeuserusername
+      to: log.azureKubernetes.user.username
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeuserusername")
+  - rename:
+      from:
+      - azureNestedKuberesponseStatuscode
+      to: log.azureKubernetes.responseStatus.code
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKuberesponseStatuscode")
+  - rename:
+      from:
+      - azureNestedKubeobjectRefresource
+      to: log.azureKubernetes.objectRef.resource
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeobjectRefresource")
+  - rename:
+      from:
+      - azureNestedKuberequestURI
+      to: log.azureKubernetes.requestURI
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKuberequestURI")
+  - rename:
+      from:
+      - azureNestedKubeSourceIp
+      to: log.azureKubernetes.sourceIp
+      where: equals("azureKubeDecodePending","yes") && exists("azureNestedKubeSourceIp")
+  - delete:
+      fields:
+      - azureKubeDecodePending
+  # Decode only the request-body leaves consumed by standard mappings/rules.
+  # Restore raw first so embedded keys cannot replace the authoritative envelope.
+  - add:
+      function: string
+      params:
+        key: azureRequestDecoded
+        value: 'variant0'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.requestbody.properties") || regexMatch("log.properties.requestbody","^\\s*\\{"))
+  - json:
+      source: log.properties.requestbody
+      where: equals("azureRequestDecoded","variant0")
+  - rename:
+      from:
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.principalId")
+  - rename:
+      from:
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.roleDefinitionId")
+  - rename:
+      from:
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("log.properties.publicAccess")
+  - delete:
+      fields:
+      - log
+      where: equals("azureRequestDecoded","variant0")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant0")
+  - rename:
+      from:
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant0") && exists("azureRequestpublicAccess")
+  - add:
+      function: string
+      params:
+        key: azureRequestDecoded
+        value: 'variant1'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.requestBody.properties") || regexMatch("log.properties.requestBody","^\\s*\\{"))
+  - json:
+      source: log.properties.requestBody
+      where: equals("azureRequestDecoded","variant1")
+  - rename:
+      from:
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.principalId")
+  - rename:
+      from:
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.roleDefinitionId")
+  - rename:
+      from:
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("log.properties.publicAccess")
+  - delete:
+      fields:
+      - log
+      where: equals("azureRequestDecoded","variant1")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant1")
+  - rename:
+      from:
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant1") && exists("azureRequestpublicAccess")
+  - add:
+      function: string
+      params:
+        key: azureRequestDecoded
+        value: 'variant2'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.eventProperties.requestbody.properties") || regexMatch("log.properties.eventProperties.requestbody","^\\s*\\{"))
+  - json:
+      source: log.properties.eventProperties.requestbody
+      where: equals("azureRequestDecoded","variant2")
+  - rename:
+      from:
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.principalId")
+  - rename:
+      from:
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.roleDefinitionId")
+  - rename:
+      from:
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("log.properties.publicAccess")
+  - delete:
+      fields:
+      - log
+      where: equals("azureRequestDecoded","variant2")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant2")
+  - rename:
+      from:
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant2") && exists("azureRequestpublicAccess")
+  - add:
+      function: string
+      params:
+        key: azureRequestDecoded
+        value: 'variant3'
+      where: >-
+        (regexMatch("log.operationName","(?i)^Microsoft\\.(Storage|Authorization)/") || regexMatch("log.operationName.value","(?i)^Microsoft\\.(Storage|Authorization)/")) && !exists("azureRequestDecoded") && (exists("log.properties.eventProperties.requestBody.properties") || regexMatch("log.properties.eventProperties.requestBody","^\\s*\\{"))
+  - json:
+      source: log.properties.eventProperties.requestBody
+      where: equals("azureRequestDecoded","variant3")
+  - rename:
+      from:
+      - log.properties.principalId
+      to: azureRequestprincipalId
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.principalId")
+  - rename:
+      from:
+      - log.properties.roleDefinitionId
+      to: azureRequestroleDefinitionId
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.roleDefinitionId")
+  - rename:
+      from:
+      - log.properties.allowBlobPublicAccess
+      to: azureRequestallowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.allowBlobPublicAccess")
+  - rename:
+      from:
+      - log.properties.publicAccess
+      to: azureRequestpublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("log.properties.publicAccess")
+  - delete:
+      fields:
+      - log
+      where: equals("azureRequestDecoded","variant3")
+  - json:
+      source: raw
+      where: equals("azureRequestDecoded","variant3")
+  - rename:
+      from:
+      - azureRequestprincipalId
+      to: log.azureRequestBody.properties.principalId
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestprincipalId")
+  - rename:
+      from:
+      - azureRequestroleDefinitionId
+      to: log.azureRequestBody.properties.roleDefinitionId
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestroleDefinitionId")
+  - rename:
+      from:
+      - azureRequestallowBlobPublicAccess
+      to: log.azureRequestBody.properties.allowBlobPublicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestallowBlobPublicAccess")
+  - rename:
+      from:
+      - azureRequestpublicAccess
+      to: log.azureRequestBody.properties.publicAccess
+      where: equals("azureRequestDecoded","variant3") && exists("azureRequestpublicAccess")
+  - delete:
+      fields:
+      - azureRequestDecoded
   - add:
       function: string
       params:
@@ -2009,153 +2734,135 @@ pipeline:
       - fieldName: log.azureOperation
         pattern: (?s)^.+$
       where: regexMatch("log.operationName","(?s)^.+$") && !oneOf("log.operationName",["-","unknown"]) && (true) && !exists("log.azureOperation")
+  # Final outcome only. Positive evidence must be final and all present aliases must agree.
+  # Denial overrides failure; failure overrides a success signal.
+  - delete:
+      fields:
+      - actionResult
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: (oneOf("log.azureKind",["activity","eventgrid","keyvault","http","gateway","audit"])) && regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")
+      where: >-
+        (equalsIgnoreCase("log.azureKind","signin") && ((oneOf("log.resultType",[0]) ||
+        oneOf("log.properties.status.errorCode",[0])) && (!exists("log.resultType") ||
+        oneOf("log.resultType",[0])) && (!exists("log.properties.status.errorCode") ||
+        oneOf("log.properties.status.errorCode",[0])) && (!exists("log.properties.conditionalAccessStatus") ||
+        regexMatch("log.properties.conditionalAccessStatus","(?i)^(success|notApplied)$")))) ||
+        (equalsIgnoreCase("log.azureKind","audit") && ((regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$") ||
+        regexMatch("log.properties.result","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.properties.result") ||
+        regexMatch("log.properties.result","(?i)^(success|succeeded|successful|ok)$")))) ||
+        (equalsIgnoreCase("log.azureKind","activity") && ((regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$") ||
+        regexMatch("log.status.value","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.status") ||
+        regexMatch("log.status.value","(?i)^(success|succeeded|successful|ok)$")))) ||
+        (equalsIgnoreCase("log.azureKind","eventgrid") && ((regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$") ||
+        regexMatch("log.data.status","(?i)^(success|succeeded|successful|ok)$") ||
+        regexMatch("log.eventType","^Microsoft\\.Resources\\.Resource(Write|Delete|Action)Success$") ||
+        regexMatch("log.type","^Microsoft\\.Resources\\.Resource(Write|Delete|Action)Success$")) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.data.status") ||
+        regexMatch("log.data.status","(?i)^(success|succeeded|successful|ok)$")) && (!exists("log.eventType") ||
+        regexMatch("log.eventType","^Microsoft\\.Resources\\.Resource(Write|Delete|Action)Success$")) && (!exists("log.type") ||
+        regexMatch("log.type","^Microsoft\\.Resources\\.Resource(Write|Delete|Action)Success$")))) ||
+        (equalsIgnoreCase("log.azureKind","http") && (oneOf("statusCode",[200,201,203,204,205,206,208,226]) && (!exists("log.StatusCode") ||
+        oneOf("log.StatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.ResponseCode") ||
+        oneOf("log.ResponseCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatusCode") ||
+        oneOf("log.properties.httpStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatus") ||
+        oneOf("log.properties.httpStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.responseStatusCode") ||
+        oneOf("log.properties.responseStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.azureProperties.ScStatus") ||
+        oneOf("log.azureProperties.ScStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.azureKubernetes.responseStatus.code") ||
+        oneOf("log.azureKubernetes.responseStatus.code",[200,201,203,204,205,206,208,226])) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")))) ||
+        (equalsIgnoreCase("log.azureKind","gateway") && (oneOf("statusCode",[200,201,203,204,205,206,208,226]) && (!exists("log.StatusCode") ||
+        oneOf("log.StatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.ResponseCode") ||
+        oneOf("log.ResponseCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatusCode") ||
+        oneOf("log.properties.httpStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatus") ||
+        oneOf("log.properties.httpStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.responseStatusCode") ||
+        oneOf("log.properties.responseStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.azureProperties.ScStatus") ||
+        oneOf("log.azureProperties.ScStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.azureKubernetes.responseStatus.code") ||
+        oneOf("log.azureKubernetes.responseStatus.code",[200,201,203,204,205,206,208,226])) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")))) ||
+        (equalsIgnoreCase("log.azureKind","keyvault") && ((regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$") ||
+        oneOf("statusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")) && (!exists("statusCode") ||
+        oneOf("statusCode",[200,201,203,204,205,206,208,226]) && (!exists("log.StatusCode") ||
+        oneOf("log.StatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.ResponseCode") ||
+        oneOf("log.ResponseCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatusCode") ||
+        oneOf("log.properties.httpStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatus") ||
+        oneOf("log.properties.httpStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.responseStatusCode") ||
+        oneOf("log.properties.responseStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.azureProperties.ScStatus") ||
+        oneOf("log.azureProperties.ScStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.azureKubernetes.responseStatus.code") ||
+        oneOf("log.azureKubernetes.responseStatus.code",[200,201,203,204,205,206,208,226]))))) ||
+        (equalsIgnoreCase("log.azureKind","kubernetes") && (equals("log.azureKubernetes.stage","ResponseComplete") && oneOf("statusCode",[200,201,203,204,205,206,208,226]) && (!exists("log.StatusCode") ||
+        oneOf("log.StatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.ResponseCode") ||
+        oneOf("log.ResponseCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatusCode") ||
+        oneOf("log.properties.httpStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.httpStatus") ||
+        oneOf("log.properties.httpStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.properties.responseStatusCode") ||
+        oneOf("log.properties.responseStatusCode",[200,201,203,204,205,206,208,226])) && (!exists("log.azureProperties.ScStatus") ||
+        oneOf("log.azureProperties.ScStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.azureKubernetes.responseStatus.code") ||
+        oneOf("log.azureKubernetes.responseStatus.code",[200,201,203,204,205,206,208,226])) && (!exists("log.resultType") ||
+        regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")))) ||
+        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Allowed","Detected"]))
   - add:
       function: string
       params:
         key: actionResult
         value: failure
-      where: (oneOf("log.azureKind",["activity","eventgrid","keyvault","http","gateway","audit"])) && regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")
+      where: >-
+        (equalsIgnoreCase("log.azureKind","audit") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","activity") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","eventgrid") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","http") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","gateway") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","keyvault") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
+        (equalsIgnoreCase("log.azureKind","audit") && regexMatch("log.properties.result","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")) ||
+        (equalsIgnoreCase("log.azureKind","activity") && regexMatch("log.status.value","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")) ||
+        (equalsIgnoreCase("log.azureKind","eventgrid") && (regexMatch("log.data.status","(?i)^(failure|failed|error|timeout|canceled|cancelled)$") ||
+        endsWith("log.eventType","Failure") ||
+        endsWith("log.eventType","Cancel") ||
+        endsWith("log.type","Failure") ||
+        endsWith("log.type","Cancel"))) ||
+        (equalsIgnoreCase("log.azureKind","signin") && ((greaterThan("log.resultType",0) && !equals("log.resultType",50140)) ||
+        (greaterThan("log.properties.status.errorCode",0) && !equals("log.properties.status.errorCode",50140)) ||
+        equalsIgnoreCase("log.properties.conditionalAccessStatus","failure"))) ||
+        ((oneOf("log.azureKind",["http","gateway","keyvault"]) ||
+        (equalsIgnoreCase("log.azureKind","kubernetes") && equals("log.azureKubernetes.stage","ResponseComplete"))) && (greaterOrEqual("statusCode",400) && lessThan("statusCode",600) ||
+        (greaterOrEqual("log.StatusCode",400) && lessThan("log.StatusCode",600)) ||
+        (greaterOrEqual("log.ResponseCode",400) && lessThan("log.ResponseCode",600)) ||
+        (greaterOrEqual("log.properties.httpStatusCode",400) && lessThan("log.properties.httpStatusCode",600)) ||
+        (greaterOrEqual("log.properties.httpStatus",400) && lessThan("log.properties.httpStatus",600)) ||
+        (greaterOrEqual("log.properties.responseStatusCode",400) && lessThan("log.properties.responseStatusCode",600)) ||
+        (greaterOrEqual("log.azureProperties.ScStatus",400) && lessThan("log.azureProperties.ScStatus",600)) ||
+        (greaterOrEqual("log.azureKubernetes.responseStatus.code",400) && lessThan("log.azureKubernetes.responseStatus.code",600))))
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: (oneOf("log.azureKind",["activity","eventgrid","keyvault","http","gateway","audit"])) && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: (equalsIgnoreCase("log.azureKind","audit")) && regexMatch("log.properties.result","(?i)^(success|succeeded|successful|ok)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: (equalsIgnoreCase("log.azureKind","audit")) && regexMatch("log.properties.result","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: (equalsIgnoreCase("log.azureKind","audit")) && regexMatch("log.properties.result","(?i)^(denied|blocked|forbidden|unauthorized)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: (equalsIgnoreCase("log.azureKind","eventgrid")) && regexMatch("log.data.status","(?i)^(success|succeeded|successful|ok)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: (equalsIgnoreCase("log.azureKind","eventgrid")) && regexMatch("log.data.status","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: (equalsIgnoreCase("log.azureKind","eventgrid")) && regexMatch("log.data.status","(?i)^(denied|blocked|forbidden|unauthorized)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: (equalsIgnoreCase("log.azureKind","activity")) && regexMatch("log.status.value","(?i)^(success|succeeded|successful|ok)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: (equalsIgnoreCase("log.azureKind","activity")) && regexMatch("log.status.value","(?i)^(failure|failed|error|timeout|canceled|cancelled)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: (equalsIgnoreCase("log.azureKind","activity")) && regexMatch("log.status.value","(?i)^(denied|blocked|forbidden|unauthorized)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: equalsIgnoreCase("log.azureKind","signin") && (equals("log.resultType",0) || equals("log.properties.status.errorCode",0))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: equalsIgnoreCase("log.azureKind","signin") && ((greaterThan("log.resultType",0)) || greaterThan("log.properties.status.errorCode",0))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: equalsIgnoreCase("log.azureKind","signin") && (equals("log.resultType",53003) || equals("log.properties.status.errorCode",53003))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: equalsIgnoreCase("log.azureKind","eventgrid") && endsWith("log.eventType","Success") && !oneOf("actionResult",["denied","failure"])
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: equalsIgnoreCase("log.azureKind","eventgrid") && (endsWith("log.eventType","Failure") || endsWith("log.eventType","Cancel"))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: equalsIgnoreCase("log.azureKind","eventgrid") && endsWith("log.type","Success") && !oneOf("actionResult",["denied","failure"])
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: equalsIgnoreCase("log.azureKind","eventgrid") && (endsWith("log.type","Failure") || endsWith("log.type","Cancel"))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: success
-      where: (oneOf("log.azureKind",["http","gateway","keyvault"]) || (equals("log.azureKind","kubernetes") && equals("log.azureKubernetes.stage","ResponseComplete")))
-        && greaterOrEqual("statusCode",200) && lessThan("statusCode",400) && !oneOf("actionResult",["denied","failure"])
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failure
-      where: (oneOf("log.azureKind",["http","gateway","keyvault"]) || (equals("log.azureKind","kubernetes") && equals("log.azureKubernetes.stage","ResponseComplete")))
-        && greaterOrEqual("statusCode",400) && lessThan("statusCode",600)
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: (oneOf("log.azureKind",["http","gateway","keyvault"]) || (equals("log.azureKind","kubernetes") && equals("log.azureKubernetes.stage","ResponseComplete")))
-        && (equals("statusCode",401) || equals("statusCode",403))
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: equalsIgnoreCase("log.azureKind","keyvault") && regexMatch("log.resultSignature","(?i)^(Unauthorized|Forbidden|AccessDenied)$")
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: denied
-      where: equalsIgnoreCase("log.azureKind","waf") && equalsIgnoreCase("log.properties.action","Blocked")
+      where: >-
+        (equalsIgnoreCase("log.azureKind","audit") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","activity") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","eventgrid") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","http") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","gateway") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","keyvault") && regexMatch("log.resultType","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","audit") && regexMatch("log.properties.result","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","activity") && regexMatch("log.status.value","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","eventgrid") && regexMatch("log.data.status","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
+        (equalsIgnoreCase("log.azureKind","signin") && (oneOf("log.resultType",[53003,530032,530034,530035]) ||
+        oneOf("log.properties.status.errorCode",[53003,530032,530034,530035]))) ||
+        (oneOf("log.azureKind",["http","gateway","keyvault","kubernetes"]) && (oneOf("statusCode",[401,403]) ||
+        oneOf("log.StatusCode",[401,403]) ||
+        oneOf("log.ResponseCode",[401,403]) ||
+        oneOf("log.properties.httpStatusCode",[401,403]) ||
+        oneOf("log.properties.httpStatus",[401,403]) ||
+        oneOf("log.properties.responseStatusCode",[401,403]) ||
+        oneOf("log.azureProperties.ScStatus",[401,403]) ||
+        oneOf("log.azureKubernetes.responseStatus.code",[401,403]))) ||
+        (equalsIgnoreCase("log.azureKind","keyvault") && regexMatch("log.resultSignature","(?i)^(Unauthorized|Forbidden|AccessDenied)$")) ||
+        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Blocked","JSChallengeBlock"]))
   - add:
       function: string
       params:
@@ -2492,4 +3199,29 @@ pipeline:
       - azureDecodePending
       - azureSavedazureProperties
       - azureSavedazureKubernetes
-      - azureSavedazureRequestBody
+      - azureHTTPDecodePending
+      - azureKubeDecodePending
+      - azureNestedHTTPCIp
+      - azureNestedHTTPCsUsername
+      - azureNestedHTTPComputerName
+      - azureNestedHTTPCsHost
+      - azureNestedHTTPCsMethod
+      - azureNestedHTTPSPort
+      - azureNestedHTTPScStatus
+      - azureNestedHTTPCsBytes
+      - azureNestedHTTPScBytes
+      - azureNestedHTTPProtocol
+      - azureNestedKubeapiVersion
+      - azureNestedKubekind
+      - azureNestedKubestage
+      - azureNestedKubeverb
+      - azureNestedKubeuserusername
+      - azureNestedKuberesponseStatuscode
+      - azureNestedKubeobjectRefresource
+      - azureNestedKuberequestURI
+      - azureNestedKubeSourceIp
+      - azureRequestDecoded
+      - azureRequestprincipalId
+      - azureRequestroleDefinitionId
+      - azureRequestallowBlobPublicAccess
+      - azureRequestpublicAccess

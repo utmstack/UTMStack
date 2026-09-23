@@ -1,8 +1,8 @@
 package main
 
-// Offline Azure extraction model, not the closed EventProcessor.
+// Offline Azure extraction model, separate from actual EventProcessor playground runs.
 // Explicit YAML JSON/key sanitization, grok, rename, add and delete steps are modeled.
-// CEL and Event serialization use SDK v1.1.31. History requests are tested separately
+// CEL and Event serialization use the reviewed module's SDK v1.1.33. History requests are tested separately
 // with that SDK. External geolocation is mocked only when a fixture declares it.
 import (
 	"bytes"
@@ -122,7 +122,8 @@ func azureParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 	return azureParseMode(t, cfg, raw, dataSource, cache, false, enrichment...)
 }
 
-// Both modes model the unresolved nested-key behavior of the closed JSON step.
+// Both modes cover nested-key compatibility. The separately pinned public JSON
+// plugin preserves nested keys; deployed extractor versions can differ.
 func azureParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, preserveNested bool, enrichment ...map[string]any) string {
 	t.Helper()
 	draft := map[string]any{"raw": raw, "dataType": "azure", "dataSource": dataSource, "log": map[string]any{}}
@@ -228,12 +229,17 @@ func azureParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource st
 					if !ok {
 						continue
 					}
-					str, ok := source.(string)
-					if !ok {
-						t.Fatalf("JSON source is not a string")
+					var encoded []byte
+					if str, ok := source.(string); ok {
+						encoded = []byte(str)
+					} else {
+						encoded, e = json.Marshal(source)
+						if e != nil {
+							t.Fatal(e)
+						}
 					}
 					var parsed map[string]any
-					if e := json.Unmarshal([]byte(str), &parsed); e != nil {
+					if e := json.Unmarshal(encoded, &parsed); e != nil {
 						t.Fatal(e)
 					}
 					normalized := azureSanitizeJSON(parsed)

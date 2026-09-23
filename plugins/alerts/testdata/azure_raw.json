@@ -1294,10 +1294,10 @@
     "name": "waf-Allowed",
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"ApplicationGatewayFirewallLog\",\"operationName\":\"ApplicationGatewayFirewallLog\",\"resultType\":\"Success\",\"properties\":{\"clientIp\":\"198.51.100.4\",\"ruleId\":\"942100\",\"action\":\"Allowed\"}}",
-    "expected": {},
-    "absent": [
-      "actionResult"
-    ],
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
     "matches": []
   },
   {
@@ -1314,10 +1314,10 @@
     "name": "waf-Detected",
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"ApplicationGatewayFirewallLog\",\"operationName\":\"ApplicationGatewayFirewallLog\",\"resultType\":\"Success\",\"properties\":{\"clientIp\":\"198.51.100.4\",\"ruleId\":\"942100\",\"action\":\"Detected\"}}",
-    "expected": {},
-    "absent": [
-      "actionResult"
-    ],
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
     "matches": []
   },
   {
