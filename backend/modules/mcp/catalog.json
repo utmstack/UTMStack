@@ -586,7 +586,7 @@
       "name": "soc.draft-soar-rule",
       "title": "Draft SOAR rule",
       "description": "Guides the model through SOAR flow construction: list existing flows to start from, list variables, propose filter conditions, then create the flow on confirmation.",
-      "status": "planned",
+      "status": "implemented",
       "arguments": [
         {"name": "goal", "description": "Plain-language goal for the rule (e.g. 'isolate hosts on Mimikatz detections')", "required": true}
       ],
