@@ -1,0 +1,290 @@
+[
+  {
+    "name": "audit-no-status",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\"}}",
+    "result": "success"
+  },
+  {
+    "name": "audit-ok",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":0}}}",
+    "result": "success"
+  },
+  {
+    "name": "audit-permission-denied",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":7}}}",
+    "result": "denied"
+  },
+  {
+    "name": "audit-unauthenticated",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":16}}}",
+    "result": "denied"
+  },
+  {
+    "name": "audit-cancelled",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":1}}}",
+    "result": "failure"
+  },
+  {
+    "name": "audit-internal",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":13}}}",
+    "result": "failure"
+  },
+  {
+    "name": "audit-first-is-pending",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\"},\"operation\":{\"id\":\"synthetic-operation\",\"first\":true}}",
+    "result": ""
+  },
+  {
+    "name": "audit-first-failure-is-pending",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":7}},\"operation\":{\"id\":\"synthetic-operation\",\"first\":true}}",
+    "result": ""
+  },
+  {
+    "name": "audit-first-and-last",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\"},\"operation\":{\"id\":\"synthetic-operation\",\"first\":true,\"last\":true}}",
+    "result": "success"
+  },
+  {
+    "name": "audit-code-zero-with-message",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":0,\"message\":\"pending\"}}}",
+    "result": ""
+  },
+  {
+    "name": "non-audit-protopayload-method",
+    "raw": "{\"logName\":\"projects/example/logs/workspace\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\"}}",
+    "result": ""
+  },
+  {
+    "name": "untrusted-raw-action-result",
+    "raw": "{\"actionResult\":\"success\",\"logName\":\"projects/example/logs/requests\"}",
+    "result": ""
+  },
+  {
+    "name": "dns-zero",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":0,\"queryName\":\"example.invalid.\"}}",
+    "result": "success"
+  },
+  {
+    "name": "dns-NOERROR",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":\"NOERROR\",\"queryName\":\"example.invalid.\"}}",
+    "result": "success"
+  },
+  {
+    "name": "dns-refused-code",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":5,\"queryName\":\"example.invalid.\"}}",
+    "result": "denied"
+  },
+  {
+    "name": "dns-REFUSED",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":\"REFUSED\",\"queryName\":\"example.invalid.\"}}",
+    "result": "denied"
+  },
+  {
+    "name": "dns-server-error",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":2,\"queryName\":\"example.invalid.\"}}",
+    "result": "failure"
+  },
+  {
+    "name": "dns-SERVFAIL",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":\"SERVFAIL\",\"queryName\":\"example.invalid.\"}}",
+    "result": "failure"
+  },
+  {
+    "name": "dns-name-error",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":3,\"queryName\":\"example.invalid.\"}}",
+    "result": "failure"
+  },
+  {
+    "name": "dns-UNKNOWN",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":\"UNKNOWN\",\"queryName\":\"example.invalid.\"}}",
+    "result": ""
+  },
+  {
+    "name": "non-dns-response-code",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":0}}",
+    "result": ""
+  },
+  {
+    "name": "http-200",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":200}}",
+    "result": "success"
+  },
+  {
+    "name": "http-201",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":201}}",
+    "result": "success"
+  },
+  {
+    "name": "http-202",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":202}}",
+    "result": ""
+  },
+  {
+    "name": "http-207",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":207}}",
+    "result": ""
+  },
+  {
+    "name": "http-302",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":302}}",
+    "result": ""
+  },
+  {
+    "name": "http-401",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":401}}",
+    "result": "denied"
+  },
+  {
+    "name": "http-403",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":403}}",
+    "result": "denied"
+  },
+  {
+    "name": "http-429",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":429}}",
+    "result": "failure"
+  },
+  {
+    "name": "http-500",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":500}}",
+    "result": "failure"
+  },
+  {
+    "name": "http-700",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":700}}",
+    "result": ""
+  },
+  {
+    "name": "policy-edge-accept",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"}}}",
+    "result": "success"
+  },
+  {
+    "name": "policy-edge-deny",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"DENY\"}}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-backend-accept",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedSecurityPolicy\":{\"outcome\":\"ACCEPT\"}}}",
+    "result": "success"
+  },
+  {
+    "name": "policy-backend-deny",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedSecurityPolicy\":{\"outcome\":\"DENY\"}}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-edge-accept-backend-deny",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"},\"enforcedSecurityPolicy\":{\"outcome\":\"DENY\"}}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-edge-accept-backend-redirect",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"},\"enforcedSecurityPolicy\":{\"outcome\":\"REDIRECT\"}}}",
+    "result": ""
+  },
+  {
+    "name": "policy-policy-status-denied",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"statusDetails\":\"denied_by_security_policy\"}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-accept-http-denied",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"}},\"httpRequest\":{\"status\":403}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-accept-http-pending",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"}},\"httpRequest\":{\"status\":202}}",
+    "result": ""
+  },
+  {
+    "name": "policy-deny-http-success",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"DENY\"}},\"httpRequest\":{\"status\":200}}",
+    "result": "denied"
+  },
+  {
+    "name": "policy-redirect-http-success",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"REDIRECT\"}},\"httpRequest\":{\"status\":200}}",
+    "result": ""
+  },
+  {
+    "name": "policy-status-denied-http-success",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"statusDetails\":\"denied_by_security_policy\"},\"httpRequest\":{\"status\":200}}",
+    "result": "denied"
+  },
+  {
+    "name": "severity-INFO",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":200},\"severity\":\"INFO\"}",
+    "result": "success",
+    "expected": {
+      "severity": "info",
+      "log.severity": "INFO"
+    }
+  },
+  {
+    "name": "severity-WARNING",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":403},\"severity\":\"WARNING\"}",
+    "result": "denied",
+    "expected": {
+      "severity": "warning",
+      "log.severity": "WARNING"
+    }
+  },
+  {
+    "name": "severity-CRITICAL",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":500},\"severity\":\"CRITICAL\"}",
+    "result": "failure",
+    "expected": {
+      "severity": "critical",
+      "log.severity": "CRITICAL"
+    }
+  },
+  {
+    "name": "severity-DEBUG",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":200},\"severity\":\"DEBUG\"}",
+    "result": "success",
+    "expected": {
+      "severity": "debug",
+      "log.severity": "DEBUG"
+    }
+  },
+  {
+    "name": "severity-default-unknown",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":202},\"severity\":\"DEFAULT\"}",
+    "result": "",
+    "absent": [
+      "severity"
+    ]
+  },
+  {
+    "name": "storage-delete-rule-positive",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"storage.buckets.delete\",\"serviceName\":\"storage.googleapis.com\",\"authenticationInfo\":{\"principalEmail\":\"fixture@example.invalid\"}}}",
+    "result": "success",
+    "rule": "cloud/google/gcp_gcs_bucket_deleted.yml",
+    "match": true
+  },
+  {
+    "name": "storage-get-rule-negative",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"storage.buckets.get\",\"serviceName\":\"storage.googleapis.com\",\"authenticationInfo\":{\"principalEmail\":\"fixture@example.invalid\"}}}",
+    "result": "success",
+    "rule": "cloud/google/gcp_gcs_bucket_deleted.yml",
+    "match": false
+  },
+  {
+    "name": "conflicting-audit-ok-http-denied",
+    "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":0}},\"httpRequest\":{\"status\":403}}",
+    "result": ""
+  },
+  {
+    "name": "conflicting-dns-ok-http-denied",
+    "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":0,\"queryName\":\"example.invalid.\"},\"httpRequest\":{\"status\":403}}",
+    "result": "denied"
+  },
+  {
+    "name": "non-audit-method-policy-accept",
+    "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"}},\"protoPayload\":{\"methodName\":\"workspace.login\"}}",
+    "result": ""
+  }
+]
