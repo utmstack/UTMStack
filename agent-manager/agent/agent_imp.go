@@ -318,6 +318,54 @@ func (s *AgentService) evictIfOwner(agentID uint, stream AgentService_AgentStrea
 	s.AgentStreamMutex.Unlock()
 }
 
+// storeEdrStatus keeps the latest EDR status report per agent in the DB.
+// Never deletes: an offline agent's last report stays readable.
+func (s *AgentService) storeEdrStatus(agentID uint, report *EdrStatusReport) {
+	reportedAt := time.Now().UTC()
+	if ts := report.GetReportedAt(); ts != nil {
+		reportedAt = ts.AsTime()
+	}
+	existing := &models.AgentEdrStatus{}
+	err := s.DBConnection.GetFirst(existing, "agent_id = ?", agentID)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			catcher.Error("failed to fetch EDR status report", err, map[string]any{"agent_id": agentID, "process": "agent-manager"})
+			return
+		}
+		// First report for this agent: insert.
+		rec := &models.AgentEdrStatus{
+			AgentID:       agentID,
+			StatusJSON:    report.GetStatusJson(),
+			PolicyVersion: report.GetPolicyVersion(),
+			ReportedAt:    reportedAt,
+		}
+		if err := s.DBConnection.Create(rec); err != nil {
+			catcher.Error("failed to store EDR status report", err, map[string]any{"agent_id": agentID, "process": "agent-manager"})
+		}
+		return
+	}
+	if _, err := s.DBConnection.UpdateOnly(existing, "id = ?", map[string]interface{}{
+		"status_json":    report.GetStatusJson(),
+		"policy_version": report.GetPolicyVersion(),
+		"reported_at":    reportedAt,
+	}, existing.ID); err != nil {
+		catcher.Error("failed to update EDR status report", err, map[string]any{"agent_id": agentID, "process": "agent-manager"})
+	}
+}
+
+// GetEdrStatus returns the latest stored EDR status report for an agent.
+// (nil, nil) when the agent never sent one, (nil, err) on a real DB error.
+func (s *AgentService) GetEdrStatus(agentID uint) (*models.AgentEdrStatus, error) {
+	rec := &models.AgentEdrStatus{}
+	if err := s.DBConnection.GetFirst(rec, "agent_id = ?", agentID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rec, nil
+}
+
 func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {
 	id, _, _, err := utils.GetItemsFromContext(stream.Context())
 	if err != nil {
@@ -387,6 +435,10 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 					return status.Error(codes.Internal, fmt.Sprintf("failed to send config update: %v", err))
 				}
 			}
+		case *BidirectionalStream_EdrStatusReport:
+			// The authenticated context id is trustworthy; the agent_id
+			// field inside the message is not.
+			s.storeEdrStatus(idUint, msg.EdrStatusReport)
 		}
 	}
 }
