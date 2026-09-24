@@ -153,12 +153,20 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  get saveDisabled(): boolean {
+    return !this.checkConfigValid() || this.saving || this.configToSave.length === 0
+      || (this.section.shortName === this.sectionType[this.sectionType.EMAIL] && !this.isCheckedEmailConfig)
+      || (this.section.shortName === this.sectionType[this.sectionType.TFA] && !this.isCheckedTFAConfig);
+  }
+
   detectRequiredRestart(): boolean {
     return this.configToSave.findIndex(value => value.confParamRestartRequired === true) > -1;
   }
 
   saveSectionConfig(value: any, conf: SectionConfigParamType) {
     conf.confParamValue = value;
+    this.isCheckedEmailConfig = false;
+    this.isCheckedTFAConfig = false;
     const indexConfig = this.configToSave.findIndex(val => val.id === conf.id);
     if (indexConfig !== -1) {
       this.configToSave[indexConfig] = conf;
