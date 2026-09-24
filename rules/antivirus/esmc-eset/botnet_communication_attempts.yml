@@ -28,7 +28,7 @@ description: |
   9. Review ESET logs for the time period around this detection to identify related malicious activity
 where: |
   (equals("log.eventType", "FirewallAggregated_Event") &&
-  (regexMatch("log.threatname", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
+  (regexMatch("log.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
   equals("log.inbound", false) && exists("target.ip")) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
@@ -38,4 +38,4 @@ groupBy:
   - lastEvent.log.endpointKeyType
   - lastEvent.log.endpointKey
   - adversary.ip
-  - lastEvent.log.threatname
+  - lastEvent.log.threat_name
