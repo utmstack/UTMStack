@@ -1,6 +1,6 @@
 # ESET filter version 3.2.0
 # JSON export contract: https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
-# Original vendor keys are sanitized by JSON extraction (event_type -> log.eventtype).
+# Original vendor keys are sanitized by JSON extraction (event_type -> log.event_type).
 # Header host identifies the management server, never the managed endpoint.
 # Only explicit decisions set actionResult; remediation and event classes do not.
 pipeline:
@@ -76,6 +76,13 @@ pipeline:
       - json:
           source: log.jsonMessage
           where: exists("log.jsonMessage")
+
+      - rename:
+          from: [log.process_name]
+          to: log.processname
+      - rename:
+          from: [log.rule_name]
+          to: log.rulename
       - delete:
           fields:
             - log.jsonMessage
@@ -85,19 +92,19 @@ pipeline:
             - log.correlationCandidate
             - log.esetOccurredTime
       - grok:
-          source: log.eventtype
+          source: log.event_type
           patterns:
             - fieldName: log.eventType
               pattern: (?s)^.+$
-          where: regexMatch("log.eventtype", "(?s)^.+$")
+          where: regexMatch("log.event_type", "(?s)^.+$")
       - grok:
-          source: log.sourceuuid
+          source: log.source_uuid
           patterns:
             - fieldName: log.endpointKey
               pattern: (?s)^.+$
           where: (oneOf("log.eventType", ["Threat_Event", "FirewallAggregated_Event", "HipsAggregated_Event", "HIPSAggregated_Event",
             "Audit_Event", "FilteredWebsites_Event", "EnterpriseInspectorAlert_Event", "BlockedFiles_Event"]) && !exists("log.endpointKey")
-            && (regexMatch("log.sourceuuid", "^[^\\s].*$") && !oneOf("log.sourceuuid", ["-","unknown"]))) && regexMatch("log.sourceuuid",
+            && (regexMatch("log.source_uuid", "^[^\\s].*$") && !oneOf("log.source_uuid", ["-","unknown"]))) && regexMatch("log.source_uuid",
             "(?s)^.+$")
       - add:
           function: string
@@ -152,18 +159,18 @@ pipeline:
           where: exists("log.endpointKey") && !exists("log.endpointKeyType")
       - rename:
           from:
-            - log.sourceaddress
+            - log.source_address
           to: origin.ip
           where: (equals("log.eventType","FirewallAggregated_Event") || equals("log.eventType","FilteredWebsites_Event"))
-            && (inCIDR("log.sourceaddress","0.0.0.0/0") || inCIDR("log.sourceaddress","::/0")) && !inCIDR("log.sourceaddress","0.0.0.0/32")
-            && !inCIDR("log.sourceaddress","::/128")
+            && (inCIDR("log.source_address","0.0.0.0/0") || inCIDR("log.source_address","::/0")) && !inCIDR("log.source_address","0.0.0.0/32")
+            && !inCIDR("log.source_address","::/128")
       - rename:
           from:
-            - log.targetaddress
+            - log.target_address
           to: target.ip
           where: (equals("log.eventType","FirewallAggregated_Event") || equals("log.eventType","FilteredWebsites_Event"))
-            && (inCIDR("log.targetaddress","0.0.0.0/0") || inCIDR("log.targetaddress","::/0")) && !inCIDR("log.targetaddress","0.0.0.0/32")
-            && !inCIDR("log.targetaddress","::/128")
+            && (inCIDR("log.target_address","0.0.0.0/0") || inCIDR("log.target_address","::/0")) && !inCIDR("log.target_address","0.0.0.0/32")
+            && !inCIDR("log.target_address","::/128")
       - rename:
           from:
             - log.ipv4
@@ -186,12 +193,12 @@ pipeline:
           where: (equals("log.eventType","FilteredWebsites_Event") || (equals("log.eventType","FirewallAggregated_Event")
             && safe("log.inbound", true) == false)) && regexMatch("log.hostname", "(?s)^.+$")
       - grok:
-          source: log.osname
+          source: log.os_name
           patterns:
             - fieldName: origin.operatingSystem
               pattern: (?s)^.+$
           where: (equals("log.eventType","FilteredWebsites_Event") || (equals("log.eventType","FirewallAggregated_Event")
-            && safe("log.inbound", true) == false)) && regexMatch("log.osname", "(?s)^.+$")
+            && safe("log.inbound", true) == false)) && regexMatch("log.os_name", "(?s)^.+$")
       - rename:
           from:
             - log.ipv4
@@ -215,12 +222,12 @@ pipeline:
             || (equals("log.eventType","FirewallAggregated_Event") && safe("log.inbound", false) == true)) && regexMatch("log.hostname",
             "(?s)^.+$")
       - grok:
-          source: log.osname
+          source: log.os_name
           patterns:
             - fieldName: target.operatingSystem
               pattern: (?s)^.+$
           where: (oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","Audit_Event","EnterpriseInspectorAlert_Event","BlockedFiles_Event"])
-            || (equals("log.eventType","FirewallAggregated_Event") && safe("log.inbound", false) == true)) && regexMatch("log.osname",
+            || (equals("log.eventType","FirewallAggregated_Event") && safe("log.inbound", false) == true)) && regexMatch("log.os_name",
             "(?s)^.+$")
       - grok:
           source: log.action
@@ -231,12 +238,12 @@ pipeline:
             "Audit_Event", "FilteredWebsites_Event", "EnterpriseInspectorAlert_Event", "BlockedFiles_Event"])) && regexMatch("log.action",
             "(?s)^.+$")
       - grok:
-          source: log.actiontaken
+          source: log.action_taken
           patterns:
             - fieldName: action
               pattern: (?s)^.+$
           where: (oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","BlockedFiles_Event","FilteredWebsites_Event"]))
-            && regexMatch("log.actiontaken", "(?s)^.+$")
+            && regexMatch("log.action_taken", "(?s)^.+$")
       - grok:
           source: log.username
           patterns:
@@ -369,12 +376,12 @@ pipeline:
           where: (oneOf("log.eventType", ["HipsAggregated_Event","HIPSAggregated_Event"])) && regexMatch("log.application",
             "(?s)^.+$")
       - grok:
-          source: log.objecturi
+          source: log.object_uri
           patterns:
             - fieldName: target.url
               pattern: (?s)^.+$
           where: ((oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","BlockedFiles_Event","FilteredWebsites_Event"]))
-            && regexMatch("log.objecturi", "(?i)^https?://[^\\s]+$")) && regexMatch("log.objecturi", "(?s)^.+$")
+            && regexMatch("log.object_uri", "(?i)^https?://[^\\s]+$")) && regexMatch("log.object_uri", "(?s)^.+$")
       - grok:
           source: log.hash
           patterns:
@@ -431,50 +438,50 @@ pipeline:
           where: (oneOf("log.eventType", ["HipsAggregated_Event","HIPSAggregated_Event"])) && regexMatch("log.target",
             "(?s)^.+$") && !contains("log.target", "%")
       - grok:
-          source: log.objecturi
+          source: log.object_uri
           patterns:
             - pattern: ^file:///
             - fieldName: target.path
               pattern: '[A-Za-z]:/(?:[^/\r\n]+/)*'
             - fieldName: target.filename
               pattern: '[^\\/\r\n]+$'
-          where: (oneOf("log.eventType", ["Threat_Event","BlockedFiles_Event"])) && regexMatch("log.objecturi", "(?s)^.+$")
-            && !contains("log.objecturi", "%") && !contains("log.objecturi", ["?","#"])
+          where: (oneOf("log.eventType", ["Threat_Event","BlockedFiles_Event"])) && regexMatch("log.object_uri", "(?s)^.+$")
+            && !contains("log.object_uri", "%") && !contains("log.object_uri", ["?","#"])
       - grok:
-          source: log.objecturi
+          source: log.object_uri
           patterns:
             - pattern: ^file://
             - fieldName: target.path
               pattern: /(?:[^/:\r\n]+/)*
             - fieldName: target.filename
               pattern: '[^\\/\r\n]+$'
-          where: (oneOf("log.eventType", ["Threat_Event","BlockedFiles_Event"])) && regexMatch("log.objecturi", "(?s)^.+$")
-            && !contains("log.objecturi", "%") && !contains("log.objecturi", ["?","#"])
+          where: (oneOf("log.eventType", ["Threat_Event","BlockedFiles_Event"])) && regexMatch("log.object_uri", "(?s)^.+$")
+            && !contains("log.object_uri", "%") && !contains("log.object_uri", ["?","#"])
       - grok:
-          source: log.threatname
+          source: log.threat_name
           patterns:
             - fieldName: target.malware
               pattern: (?s)^.+$
-          where: (equals("log.eventType","Threat_Event")) && regexMatch("log.threatname", "(?s)^.+$")
+          where: (equals("log.eventType","Threat_Event")) && regexMatch("log.threat_name", "(?s)^.+$")
       - grok:
-          source: log.threattype
+          source: log.threat_type
           patterns:
             - fieldName: target.malwareType
               pattern: (?s)^.+$
-          where: (equals("log.eventType","Threat_Event")) && regexMatch("log.threattype", "(?s)^.+$")
+          where: (equals("log.eventType","Threat_Event")) && regexMatch("log.threat_type", "(?s)^.+$")
       - grok:
-          source: log.threatname
+          source: log.threat_name
           patterns:
             - fieldName: target.cve
               pattern: ^CVE-[0-9]{4}-[0-9]{4,}
-          where: equals("log.eventType","FirewallAggregated_Event") && regexMatch("log.threatname", "^CVE-[0-9]{4}-[0-9]{4,}(?:[.].*)?$")
+          where: equals("log.eventType","FirewallAggregated_Event") && regexMatch("log.threat_name", "^CVE-[0-9]{4}-[0-9]{4,}(?:[.].*)?$")
       - rename:
           from:
-            - log.sourceport
+            - log.source_port
           to: origin.port
-          where: equals("log.eventType","FirewallAggregated_Event") && (safe("log.sourceport", "") == "" || regexMatch("log.sourceport",
-            "^[0-9]+$")) && safe("log.sourceport", -1.0) >= 0.0 && safe("log.sourceport", -1.0) <= 65535.0 && safe("log.sourceport",
-            -1.0) == double(int(safe("log.sourceport", -1.0)))
+          where: equals("log.eventType","FirewallAggregated_Event") && (safe("log.source_port", "") == "" || regexMatch("log.source_port",
+            "^[0-9]+$")) && safe("log.source_port", -1.0) >= 0.0 && safe("log.source_port", -1.0) <= 65535.0 && safe("log.source_port",
+            -1.0) == double(int(safe("log.source_port", -1.0)))
       - cast:
           fields:
             - origin.port
@@ -482,11 +489,11 @@ pipeline:
           where: exists("origin.port")
       - rename:
           from:
-            - log.targetport
+            - log.target_port
           to: target.port
-          where: equals("log.eventType","FirewallAggregated_Event") && (safe("log.targetport", "") == "" || regexMatch("log.targetport",
-            "^[0-9]+$")) && safe("log.targetport", -1.0) >= 0.0 && safe("log.targetport", -1.0) <= 65535.0 && safe("log.targetport",
-            -1.0) == double(int(safe("log.targetport", -1.0)))
+          where: equals("log.eventType","FirewallAggregated_Event") && (safe("log.target_port", "") == "" || regexMatch("log.target_port",
+            "^[0-9]+$")) && safe("log.target_port", -1.0) >= 0.0 && safe("log.target_port", -1.0) <= 65535.0 && safe("log.target_port",
+            -1.0) == double(int(safe("log.target_port", -1.0)))
       - cast:
           fields:
             - target.port
@@ -614,7 +621,7 @@ pipeline:
             key: actionResult
             value: failure
           where: oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","BlockedFiles_Event","FilteredWebsites_Event"])
-            && regexMatch("log.actionerror", "(?s)^.+$")
+            && regexMatch("log.action_error", "(?s)^.+$")
       - add:
           function: string
           params:
@@ -622,15 +629,15 @@ pipeline:
             value: match
           where: '(equals("log.eventType", "Threat_Event") &&
 
-            (regexMatch("log.threatname", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threattype",
-            "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scannerid", "(?i)(heuristic|newheur|suspicious
+            (regexMatch("log.threat_name", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threat_type",
+            "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scanner_id", "(?i)(heuristic|newheur|suspicious
             behavior)")) &&
 
             regexMatch("action", "(?i)^(cleaned|deleted|quarantined|blocked|denied|prevented)$") &&
 
-            (!exists("log.actionerror") || equals("log.actionerror", "")) &&
+            (!exists("log.action_error") || equals("log.action_error", "")) &&
 
-            !equals("log.threathandled", false)) &&
+            !equals("log.threat_handled", false)) &&
 
             exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
 
@@ -666,9 +673,9 @@ pipeline:
             value: match
           where: '(equals("log.eventType", "Threat_Event") && equals("actionResult", "failure") &&
 
-            regexMatch("log.actionerror", "(?s).+") &&
+            regexMatch("log.action_error", "(?s).+") &&
 
-            (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.actionerror", "(?i)(quarantin|clean)")))
+            (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.action_error", "(?i)(quarantin|clean)")))
             &&
 
             exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&

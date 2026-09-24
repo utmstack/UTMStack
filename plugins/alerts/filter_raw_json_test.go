@@ -75,9 +75,9 @@ func TestRawJSONFixtureNormalization(t *testing.T) {
     steps:
       - json: {source: raw}
       - rename:
-          from: [log.SourceIP]
+          from: [log.Source_IP]
           to: origin.ip
-          where: inCIDR("log.SourceIP", "0.0.0.0/0") || inCIDR("log.SourceIP", "::/0")
+          where: inCIDR("log.Source_IP", "0.0.0.0/0") || inCIDR("log.Source_IP", "::/0")
       - rename: {from: [log.EventID], to: action}
       - cast: {fields: [action], to: string}
 `
@@ -92,13 +92,13 @@ func TestRawJSONFixtureNormalization(t *testing.T) {
 		if err != nil || len(issues) != 0 {
 			t.Fatalf("normalize: %v / %v", err, issues)
 		}
-		if gjson.Get(out, "action").String() != "4769" || gjson.Get(out, "log.NestedItems.0.ChildName").String() != "preserved" {
+		if gjson.Get(out, "action").String() != "4769" || gjson.Get(out, "log.Nested_Items.0.ChildName").String() != "preserved" {
 			t.Fatalf("JSON sanitization/normalization failed: %s", out)
 		}
 		if gjson.Get(out, "origin.ip").Exists() != (ip != "-") {
 			t.Fatalf("IP promotion guard failed: %s", out)
 		}
-		if ip == "-" && gjson.Get(out, "log.SourceIP").String() != "-" {
+		if ip == "-" && gjson.Get(out, "log.Source_IP").String() != "-" {
 			t.Fatalf("invalid vendor IP should remain at its source: %s", out)
 		}
 		fixture.Input = map[string]any{"log": map[string]any{}}
@@ -118,7 +118,7 @@ func TestRawJSONFixtureNormalization(t *testing.T) {
 }
 
 func TestRawJSONFixtureRejectsAmbiguousInput(t *testing.T) {
-	for _, raw := range []string{`null`, `[]`, `{`, `{"key-name":1,"key_name":2}`, `{"source.ip":"192.0.2.1"}`, `{"!!!":1}`} {
+	for _, raw := range []string{`null`, `[]`, `{`, `{"a-b":1,"ab":2}`, `{"source.ip":"192.0.2.1"}`, `{"!!!":1}`} {
 		if _, err := fixtureJSON(raw); err == nil {
 			t.Errorf("expected model boundary error for %s", raw)
 		}
