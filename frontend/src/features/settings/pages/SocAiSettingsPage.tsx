@@ -159,6 +159,7 @@ const CAPABILITY_GROUPS: { id: string; danger?: boolean }[] = [
   { id: 'compliance' },
   { id: 'correlation' },
   { id: 'datasources' },
+  { id: 'soar', danger: true },
 ]
 
 interface HeaderRow {
@@ -180,9 +181,9 @@ interface Form {
   capabilities: string[] // enabled permission group ids
 }
 
-// All groups on by default, matching the backend's own fresh-install
-// default (usecase/config.go). Admin can uncheck before saving.
-const DEFAULT_CAPABILITIES = CAPABILITY_GROUPS.map((g) => g.id)
+// All groups on by default EXCEPT soar (can dispatch commands to agents —
+// opt-in), matching the backend's fresh-install default (usecase/config.go).
+const DEFAULT_CAPABILITIES = CAPABILITY_GROUPS.filter((g) => g.id !== 'soar').map((g) => g.id)
 
 function emptyForm(provider = 'threatwinds'): Form {
   const def = PROVIDERS[provider]

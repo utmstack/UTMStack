@@ -4143,6 +4143,10 @@
       "datasources": {
         "label": "Manage data sources",
         "hint": "Edit data source groups and labels."
+      },
+      "soar": {
+        "label": "Manage SOAR flows",
+        "hint": "Create and edit SOAR rules (response flows)."
       }
     },
     "chat": {
@@ -5174,6 +5178,7 @@
       "httpBodyInvalid": "HTTP node \"{{id}}\" body is not valid JSON: {{error}}",
       "incidentNameRequired": "Incident node \"{{id}}\" needs a name.",
       "mailToRequired": "Email node \"{{id}}\" needs at least one recipient.",
+      "mailAddressInvalid": "Email node \"{{id}}\" has an invalid {{field}} address: {{address}}.",
       "mailSubjectRequired": "Email node \"{{id}}\" needs a subject.",
       "identityModalTitle": "Flow details",
       "platformRequired": "Agent platform is required",
@@ -5260,6 +5265,7 @@
         "mail": {
           "to": "To (comma-separated)",
           "cc": "CC (comma-separated, optional)",
+          "addressInvalid": "Invalid email address: {{address}}",
           "subject": "Subject",
           "subjectPlaceholder": "e.g. Alert on $(alert.dataSource)",
           "body": "Body",

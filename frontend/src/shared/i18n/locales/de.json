@@ -4779,6 +4779,7 @@
       "httpBodyInvalid": "Body des HTTP-Knotens \"{{id}}\" ist kein gültiges JSON: {{error}}",
       "incidentNameRequired": "Der Incident-Knoten \"{{id}}\" benötigt einen Namen.",
       "mailToRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt mindestens einen Empfänger.",
+      "mailAddressInvalid": "Der E-Mail-Knoten \"{{id}}\" enthält eine ungültige {{field}}-Adresse: {{address}}.",
       "mailSubjectRequired": "Der E-Mail-Knoten \"{{id}}\" benötigt einen Betreff.",
       "identityModalTitle": "Flow-Details",
       "platformRequired": "Agent-Plattform ist erforderlich",
@@ -4865,6 +4866,7 @@
         "mail": {
           "to": "An (kommagetrennt)",
           "cc": "CC (kommagetrennt, optional)",
+          "addressInvalid": "Ungültige E-Mail-Adresse: {{address}}",
           "subject": "Betreff",
           "subjectPlaceholder": "z. B. Alarm auf $(alert.dataSource)",
           "body": "Nachricht",
@@ -5280,6 +5282,10 @@
       "datasources": {
         "label": "Datenquellen verwalten",
         "hint": "Datenquellengruppen und Labels bearbeiten."
+      },
+      "soar": {
+        "label": "SOAR-Flows verwalten",
+        "hint": "SOAR-Regeln (Reaktionsflows) erstellen und bearbeiten."
       }
     },
     "chat": {

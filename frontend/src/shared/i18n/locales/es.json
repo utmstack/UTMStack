@@ -4004,6 +4004,10 @@
       "datasources": {
         "label": "Gestionar fuentes de datos",
         "hint": "Editar grupos y labels de las fuentes de datos."
+      },
+      "soar": {
+        "label": "Gestionar flujos SOAR",
+        "hint": "Crear y editar reglas SOAR (flujos de respuesta)."
       }
     },
     "chat": {
@@ -4910,6 +4914,7 @@
       "httpBodyInvalid": "El cuerpo del nodo HTTP \"{{id}}\" no es JSON válido: {{error}}",
       "incidentNameRequired": "El nodo de incidente \"{{id}}\" requiere un nombre.",
       "mailToRequired": "El nodo de correo \"{{id}}\" requiere al menos un destinatario.",
+      "mailAddressInvalid": "El nodo de correo \"{{id}}\" tiene una dirección {{field}} no válida: {{address}}.",
       "mailSubjectRequired": "El nodo de correo \"{{id}}\" requiere un asunto.",
       "identityModalTitle": "Detalles del flujo",
       "platformRequired": "La plataforma del agente es obligatoria",
@@ -4996,6 +5001,7 @@
         "mail": {
           "to": "Para (separados por coma)",
           "cc": "CC (separados por coma, opcional)",
+          "addressInvalid": "Dirección de correo no válida: {{address}}",
           "subject": "Asunto",
           "subjectPlaceholder": "Ej. Alerta en $(alert.dataSource)",
           "body": "Cuerpo",

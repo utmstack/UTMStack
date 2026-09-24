@@ -1,6 +1,6 @@
 ---
 name: bugs
-model: gemini-3-flash-lite
+model: silas-1.7-pro
 ---
 
 You are a senior code reviewer. Review the Pull Request diff looking for

@@ -5,6 +5,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import type { FlowNode } from '../types/soar.types'
 import { COMMAND_TEMPLATES, shellKindFor } from '../lib/command-templates'
+import { mailRecipientError } from '../lib/mail-node-validity'
 import { AgentPicker } from './AgentPicker'
 import { ConditionalParamsEditor } from './ConditionalParamsEditor'
 import { HttpParamsEditor } from './HttpParamsEditor'
@@ -39,6 +40,9 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onSave, onDelete,
   const paramsRef = useRef<HTMLTextAreaElement>(null)
   const [templatesOpen, setTemplatesOpen] = useState(false)
   const [width, setWidth] = useState(384)
+  const mailInvalid =
+    draftNode.executor === 'mail' &&
+    Boolean(mailRecipientError((draftNode.params as { to?: string; cc?: string } | undefined) ?? {}))
 
   const startResize = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -78,6 +82,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onSave, onDelete,
   const updateDraft = (patch: Partial<FlowNode>) => setDraftNode((current) => ({ ...current, ...patch }))
 
   const save = () => {
+    if (mailInvalid) return
     const trimmedId = localId.trim()
     if (!trimmedId) {
       setLocalId(nodeId)
@@ -167,7 +172,13 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onSave, onDelete,
         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('soar.editor.canvas.node')}</div>
         {!readOnly && (
           <div className="flex items-center gap-1">
-            <button onClick={save} className="rounded p-1 text-muted-foreground hover:text-foreground" title={t('soar.editor.save')}>
+            <button
+              type="button"
+              onClick={save}
+              disabled={mailInvalid}
+              className="rounded p-1 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              title={t('soar.editor.save')}
+            >
               <Save size={13} />
             </button>
             <button onClick={onDelete} className="rounded p-1 text-muted-foreground hover:text-red-500" title={t('soar.editor.canvas.deleteNode')}>
@@ -315,7 +326,7 @@ export function NodeInspector({ nodeId, node, nodes, readOnly, onSave, onDelete,
             {t('soar.editor.cancel')}
           </Button>
           {!readOnly && (
-            <Button size="sm" className="flex-1" onClick={save}>
+            <Button size="sm" className="flex-1" onClick={save} disabled={mailInvalid}>
               {t('soar.editor.save')}
             </Button>
           )}

@@ -319,8 +319,8 @@
     {"name": "incident_history.count", "status": "implemented", "module": "incidents", "title": "Count incident history rows", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"incident_id": {"type": "integer"}}}, "output": "{ count: int64 }", "maps_to": "incidents.IncidentHistoryUsecase.Count", "rest_equivalent": "GET /api/v1/incident-histories/count"},
     {"name": "incident_history.get", "status": "implemented", "module": "incidents", "title": "Get incident history row", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}, "output": "HistoryResponse", "maps_to": "incidents.IncidentHistoryUsecase.GetByID", "rest_equivalent": "GET /api/v1/incident-histories/:id"},
     {"name": "incidents.assignees", "status": "implemented", "module": "incidents", "title": "List the assignees incidents are currently handed to", "permission": "incidents.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {}}, "output": "string[]", "maps_to": "incidents.IncidentUsecase.GetAssignees", "rest_equivalent": "GET /api/v1/incidents/assignees"},
-    {"name": "soar.rule.create", "status": "implemented", "module": "soar", "title": "Create SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "filters": {"type": "array"}, "template_path": {"type": "string"}, "variables": {"type": "object"}, "enabled": {"type": "boolean"}}, "required": ["name", "template_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Create", "rest_equivalent": "POST /api/v1/soar/rules"},
-    {"name": "soar.rule.update", "status": "implemented", "module": "soar", "title": "Update SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "name": {"type": "string"}, "filters": {"type": "array"}, "variables": {"type": "object"}}, "required": ["rel_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/rules/:relPath"},
+    {"name": "soar.rule.create", "status": "implemented", "module": "soar", "title": "Create SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}, "conditions": {"type": "array", "items": {"$ref": "#/definitions/FilterVM"}, "description": "Alert trigger: ALL must match (AND)"}, "roots": {"type": "array", "items": {"type": "string"}, "description": "Node ids starting at depth 0"}, "nodes": {"type": "object", "additionalProperties": {"$ref": "#/definitions/FlowNodeVM"}, "description": "DAG nodes keyed by id — see mcp://utmstack/docs/soar-flow-guide"}, "max_depth": {"type": "integer"}, "active": {"type": "boolean"}}, "required": ["name", "conditions", "roots", "nodes", "active"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Create", "rest_equivalent": "POST /api/v1/soar/rules"},
+    {"name": "soar.rule.update", "status": "implemented", "module": "soar", "title": "Update SOAR rule", "permission": "soar.write", "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "name": {"type": "string"}, "conditions": {"type": "array", "items": {"$ref": "#/definitions/FilterVM"}}, "roots": {"type": "array", "items": {"type": "string"}}, "nodes": {"type": "object", "additionalProperties": {"$ref": "#/definitions/FlowNodeVM"}}, "max_depth": {"type": "integer"}, "active": {"type": "boolean"}}, "required": ["rel_path", "name", "conditions", "roots", "nodes", "active"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Update", "rest_equivalent": "PUT /api/v1/soar/rules/:relPath"},
     {"name": "soar.rule.get", "status": "implemented", "module": "soar", "title": "Get SOAR rule", "permission": "soar.read", "annotations": {"readOnlyHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.Get", "rest_equivalent": "GET /api/v1/soar/rules/:relPath"},
     {"name": "soar.rule.delete", "status": "implemented", "module": "soar", "title": "Delete SOAR rule", "permission": "soar.write", "annotations": {"destructiveHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}}, "required": ["rel_path"]}, "output": "{ rel_path: string, deleted: true }", "maps_to": "soar.RuleUsecase.Delete", "rest_equivalent": "DELETE /api/v1/soar/rules/:relPath"},
     {"name": "soar.rule.set_enabled", "status": "implemented", "module": "soar", "title": "Enable or disable SOAR rule", "permission": "soar.write", "annotations": {"idempotentHint": true}, "input": {"type": "object", "properties": {"rel_path": {"type": "string"}, "enabled": {"type": "boolean"}}, "required": ["rel_path", "enabled"]}, "output": "RuleResponse", "maps_to": "soar.RuleUsecase.SetEnabled", "rest_equivalent": "PUT /api/v1/soar/rules/:relPath/enabled"},
@@ -510,6 +510,14 @@
       "backed_by": "alerts.AlertTagUsecase.List"
     },
     {
+      "uri": "mcp://utmstack/docs/soar-flow-guide",
+      "name": "SOAR flow building guide",
+      "description": "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read before soar.rule.create/update. Ends with the live list of executor types registered on this instance.",
+      "mime_type": "text/markdown",
+      "status": "implemented",
+      "backed_by": "modules/mcp/docs_soar.go + soar.Module.GetExecutorTypes"
+    },
+    {
       "uri": "mcp://utmstack/docs/filter-operators",
       "name": "FilterType operator reference",
       "description": "Documentation of the structured FilterType DSL (IS, IS_NOT, CONTAIN, IS_BETWEEN, EXIST, …) used by store.search, alerts.search_adversary, alert_tag_rules, loganalyzer.* and dashboards.",
@@ -578,7 +586,7 @@
       "name": "soc.draft-soar-rule",
       "title": "Draft SOAR rule",
       "description": "Guides the model through SOAR flow construction: list existing flows to start from, list variables, propose filter conditions, then create the flow on confirmation.",
-      "status": "planned",
+      "status": "implemented",
       "arguments": [
         {"name": "goal", "description": "Plain-language goal for the rule (e.g. 'isolate hosts on Mimikatz detections')", "required": true}
       ],
@@ -605,6 +613,33 @@
         "value": {"description": "Operator-dependent — string, number, [from,to] tuple, or string[]"}
       },
       "required": ["field", "operator"]
+    },
+    "FilterVM": {
+      "type": "object",
+      "description": "SOAR flow trigger condition (modules/soar/domain/filter.go). ALL conditions must match (AND).",
+      "properties": {
+        "field": {"type": "string", "description": "Alert property, e.g. name, adversary.ip"},
+        "operator": {"type": "string", "enum": ["IS", "IS_NOT", "CONTAINS", "NOT_CONTAINS", "EXISTS", "NOT_EXISTS", "START_WITH", "NOT_START_WITH", "ENDS_WITH", "NOT_ENDS_WITH", "IS_ONE_OF", "IS_NOT_ONE_OF"]},
+        "value": {"description": "string; string[] for IS_ONE_OF / IS_NOT_ONE_OF"}
+      },
+      "required": ["operator", "field"]
+    },
+    "FlowNodeVM": {
+      "type": "object",
+      "description": "One node in a SOAR flow DAG — see mcp://utmstack/docs/soar-flow-guide",
+      "properties": {
+        "kind": {"type": "string", "enum": ["executor", "enrichment"]},
+        "executor": {"type": "string", "description": "Registered executor type (live list at end of the flow guide)"},
+        "command": {"type": "string", "description": "shell executor: command to run on the agent; supports $(...) and $[variables...] interpolation"},
+        "shell": {"type": "string", "enum": ["powershell", "cmd", "bash"]},
+        "platform": {"type": "string", "enum": ["windows", "linux", "macos"]},
+        "agent": {"type": "string", "description": "Target hostname; empty = auto-resolve from alert source"},
+        "excludedAgents": {"type": "array", "items": {"type": "string"}},
+        "params": {"type": "object", "description": "Executor-specific JSON params (shape per executor type)"},
+        "onSuccess": {"type": "array", "items": {"type": "string"}, "description": "Child node ids run when this node succeeds"},
+        "onError": {"type": "array", "items": {"type": "string"}, "description": "Child node ids run when this node fails"}
+      },
+      "required": ["kind", "executor"]
     },
     "AlertLinkItem": {
       "type": "object",

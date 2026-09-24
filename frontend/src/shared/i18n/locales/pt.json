@@ -4004,6 +4004,10 @@
       "datasources": {
         "label": "Gerenciar fontes de dados",
         "hint": "Editar grupos e labels das fontes de dados."
+      },
+      "soar": {
+        "label": "Gerenciar fluxos SOAR",
+        "hint": "Criar e editar regras SOAR (fluxos de resposta)."
       }
     },
     "chat": {
@@ -4910,6 +4914,7 @@
       "httpBodyInvalid": "O corpo do nó HTTP \"{{id}}\" não é JSON válido: {{error}}",
       "incidentNameRequired": "O nó de incidente \"{{id}}\" precisa de um nome.",
       "mailToRequired": "O nó de e-mail \"{{id}}\" precisa de ao menos um destinatário.",
+      "mailAddressInvalid": "O nó de e-mail \"{{id}}\" contém um endereço {{field}} inválido: {{address}}.",
       "mailSubjectRequired": "O nó de e-mail \"{{id}}\" precisa de um assunto.",
       "identityModalTitle": "Detalhes do fluxo",
       "platformRequired": "A plataforma do agente é obrigatória",
@@ -4996,6 +5001,7 @@
         "mail": {
           "to": "Para (separados por vírgula)",
           "cc": "CC (separados por vírgula, opcional)",
+          "addressInvalid": "Endereço de e-mail inválido: {{address}}",
           "subject": "Assunto",
           "subjectPlaceholder": "Ex. Alerta em $(alert.dataSource)",
           "body": "Corpo",

@@ -47,7 +47,7 @@ func (m *Module) buildServer() *mcp.Server {
 	registerAlertScoring(m)
 	registerIncidents(m)
 	registerStore(m)
-	// registerSOAR(m) // temporarily disabled — SOAR response actions not exposed to the agent for now
+	registerSOAR(m)
 	registerCompliance(m)
 	registerLogAnalyzer(m)
 	registerDashboards(m)

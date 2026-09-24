@@ -30,6 +30,7 @@ const DEST_ROUTE: Record<string, string> = {
   datasources: "/datasources",
   dashboards: "/dashboards/list",
   dashboard: "/dashboards/list",
+  "soar-flows": "/soar/flows",
 };
 
 export function MessageRow({ message }: { message: SocAiMessage }) {
@@ -107,7 +108,9 @@ function Actions({ actions }: { actions: NavAction[] }) {
     const state =
       a.destination === "dashboard" && a.id
         ? { selectDashboardId: a.id, resumeEditing: false }
-        : { socaiFilters: a.filters ?? [], socaiTime: a.time };
+        : a.destination === "soar-flows" && a.id
+          ? { selectFlowId: a.id }
+          : { socaiFilters: a.filters ?? [], socaiTime: a.time };
     navigate(route, { state });
   };
 

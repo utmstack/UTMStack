@@ -22,6 +22,11 @@ type Row = [string, string]
 type RowCache = { rows: Row[]; selected: boolean[] }
 const HTTP_ROWS_CACHE = new Map<string, RowCache>()
 
+export function clearHttpParamsCache(nodeId: string) {
+  HTTP_ROWS_CACHE.delete(`${nodeId}:headers`)
+  HTTP_ROWS_CACHE.delete(`${nodeId}:params`)
+}
+
 const SELECT =
   'h-8 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 

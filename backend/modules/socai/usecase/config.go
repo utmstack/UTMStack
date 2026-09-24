@@ -27,9 +27,10 @@ var ErrInstanceNotRegistered = errors.New("instance not registered yet — canno
 
 const ensureDefaultRetryInterval = 30 * time.Second
 
-// defaultCapabilities: all six groups on by default (admin can narrow later
-// in Settings -> SOC-AI). Must stay in sync with the group IDs in
-// plugins/soc-ai/internal/agent/groups.go and SocAiSettingsPage.tsx.
+// defaultCapabilities: all read/write groups on by default EXCEPT soar —
+// SOAR rules can dispatch commands to agents, so it stays off until an admin
+// explicitly enables it in Settings -> SOC-AI. Must stay in sync with the
+// group IDs in plugins/soc-ai/internal/agent/groups.go and SocAiSettingsPage.tsx.
 var defaultCapabilities = []string{"alerts", "incidents", "dashboards", "compliance", "correlation", "datasources"}
 
 // StartEnsureDefaultLoop provisions the default ThreatWinds config in the
