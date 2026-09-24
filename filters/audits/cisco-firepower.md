@@ -103,6 +103,11 @@ threshold over the device's records, not an executed search.
 **Engine and versions.** EventProcessor `8a3ade72bd9d12db21f6b273200588fb49540f14`: every
 parser, writer and CEL plugin links go-sdk v1.1.36; the geolocation plugin was built from this
 repository (go-sdk v1.1.34). Rule predicates were also replayed with go-sdk v1.1.36.
+This is the same source revision as the newest published engine image at the time of testing:
+`ghcr.io/utmstack/utmstack/eventprocessor:v11.2.14` (built 2026-09-24 19:13 UTC) sits on
+`ghcr.io/utmstack/eventprocessor/base:1.1.7`, whose `playground` and `eventprocessor` binaries
+embed `vcs.revision=8a3ade72bd9d12db21f6b273200588fb49540f14` and go-sdk v1.1.36 (go1.26.8,
+linux/amd64). The local binaries were compiled natively from that revision (darwin/arm64, go1.25.7).
 
 **Genuine records (private, not committed).** The unchanged and the corrected filter ran on the
 same 148 lines: the 83 genuine records above and 65 fabricated lines.
