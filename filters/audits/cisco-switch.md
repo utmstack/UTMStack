@@ -149,6 +149,7 @@ checksum. File input, one fresh private working directory per run.
 | Original filter, 398 inputs (327 real records from three instances, 71 fabricated) | 398 events, identical to an earlier run of the same inputs. 25 events carry the line-206 error (17 without a `log` object, 8 without a severity); on the 327 real records the playground reproduced every stored document, error texts included. |
 | Corrected filter, same 398 inputs | 398 events, no errors, severity identical on 398. Every difference from the original run is an intended new field: `origin.mac` 59, `log.vlan`/`log.firstPort`/`log.secondPort` 37 each, `target.ip` 21, `target.port` 13 (all numbers), `origin.ip` 9; 30 of 30 real flap records and 42 of 42 real SISF, SSH, DHCPD and logging-host records carry their fields; 18 of 18 fabricated near-misses carry none; no event has `origin.port`. |
 | Corrected filter and the three rules, 20 fabricated lines: 8 flaps of one address within two minutes, 2 `SW_DAI`, 1 each of SISF, SSH, DHCPD and logging host, 6 `SW_VLAN`/`DTP` | 20 events without errors. Six VLAN hopping alerts, exactly on the six `SW_VLAN`/`DTP` lines; no MAC, ARP or `Circuit Breaker` alert; no compile, rule or history search error. The rules' OpenSearch address was a closed local port and no history search was attempted. |
+| Corrected filter and the three rules, 2 contrived lines: a SISF line whose text also says `duplicate mac`, and an SSH session line that ends in `gratuitous arp` | Positive control for the MAC and ARP rules: both conditions were true on the addresses the new steps wrote (`origin.mac`, `origin.ip`), and each rule reached its history search with the value resolved; both searches failed because nothing listened. No alert. These lines are not real message shapes and are not committed. |
 | Corrected filter and the ORIGINAL rules, same 20 lines | The original MAC rule reached its history search on all 8 flaps (their `origin.mac` now resolves); each search failed because nothing listened. Both `SW_DAI` lines failed the MAC and the ARP rule with `expression value cannot be nil after placeholder resolution`. One `Circuit Breaker: MAC Address Spoofing Detection` alert; the same six VLAN alerts. |
 | Committed `replay.py`, 44 lines | 44 events without errors, every stored field as recorded in `expected.json`; six alerts, all from the VLAN hopping rule; no `Circuit Breaker` and no history search attempted. |
 
@@ -214,11 +215,13 @@ together).
   alerts module pins v1.1.33. `plugins/cel.go` and `plugins/rules.go` are identical in the three
   versions, and `plugins/cel_overloads.go` is identical in v1.1.26 and v1.1.33; the predicates
   were also checked with v1.1.33. Neither build is asserted to match a customer deployment.
-- No history search ran: there was no OpenSearch. History, indexing, grouping, the MAC rule's
-  new deduplication, notifications and production alerts were not tested. The volume table above
-  is a model of the SDK search over stored timestamps.
-- The only positive cases for the MAC and ARP rules are synthetic normalized events, because this
-  filter cannot give their remaining messages an address yet (D-3).
+- No history search completed: there was no OpenSearch, so the searches that the original rules
+  and the two contrived lines started failed to connect. History, indexing, grouping, the MAC
+  rule's new deduplication, notifications and production alerts were not tested. The volume table
+  above is a model of the SDK search over stored timestamps.
+- The MAC and ARP rules have no positive case in a real message shape, because this filter cannot
+  give their remaining messages an address yet (D-3). Their positive cases are the synthetic
+  normalized events and the two contrived playground lines above.
 - The Go extraction test is a model of the engine's step plugins. It agreed with the playground on
   every field of the 44 lines, but `replay.py` is the check that runs the engine.
 - `equals("log.severity", "4")` compares numbers, like the neighbouring `oneOf` severity clauses,
