@@ -856,5 +856,41 @@
     },
     "absent": [],
     "matches": []
+  },
+  {
+    "name": "engine-empty-values-stay-unset",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=\"010101600001\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Allowed\" status=\"Allow\" priority=Information src_ip=198.51.100.14 dst_ip=203.0.113.24 src_mac= dst_mac=00:11:22:33:44:55 tran_src_ip= tran_dst_ip= ether_type=Unknown (0x0000) src_port=40000 dst_port=443",
+    "expected": {
+      "actionResult": "success",
+      "origin.ip": "198.51.100.14",
+      "target.ip": "203.0.113.24",
+      "target.mac": "00:11:22:33:44:55",
+      "log.etherType": "Unknown (0x0000)",
+      "origin.port": 40000,
+      "target.port": 443
+    },
+    "absent": [
+      "origin.mac",
+      "log.srcmac",
+      "log.transrcip",
+      "log.trandstip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "engine-quoted-value-followed-by-text",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=\"010101600001\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" priority=Information message=\"broken\"quote src_ip=198.51.100.15 dst_ip=203.0.113.25",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "198.51.100.15",
+      "target.ip": "203.0.113.25"
+    },
+    "absent": [
+      "log.logMessage",
+      "log.message"
+    ],
+    "matches": []
   }
 ]
