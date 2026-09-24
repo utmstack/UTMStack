@@ -665,9 +665,14 @@ pipeline:
           to: log.senderUserViewType
 
       # Adding action result
+      # The json step removes underscores from top-level keys, so the
+      # workflow_run object arrives as log.workflowrun. A completed run's
+      # conclusion is its final result: action_required waits for approval,
+      # and cancelled, neutral, skipped and stale are neither success nor
+      # failure, so they set no outcome.
       - rename:
           from:
-            - log.workflow_run.conclusion
+            - log.workflowrun.conclusion
           to: log.conclusion
       - add:
           function: string
@@ -679,8 +684,8 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'oneOf("log.conclusion", ["failure", "timed_out", "startup_failure", "action_required"])'
+            value: "failure"
+          where: 'oneOf("log.conclusion", ["failure", "timed_out", "startup_failure"])'
 
       # Removing unused fields
       - delete:
