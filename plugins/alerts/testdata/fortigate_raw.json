@@ -170,11 +170,10 @@
     "dataSource": "firewall-lab",
     "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" action=\"close\"",
     "expected": {
-      "connectionStatus": "closed"
+      "connectionStatus": "closed",
+      "actionResult": "success"
     },
-    "absent": [
-      "actionResult"
-    ],
+    "absent": [],
     "matches": []
   },
   {
@@ -827,6 +826,46 @@
     "absent": [
       "origin.ip",
       "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "empty unquoted value stays unset",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcip=192.0.2.10 user= dstip=198.51.100.20 action=\"deny\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.20",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.user",
+      "log.user"
+    ],
+    "matches": []
+  },
+  {
+    "name": "blocked content in a closed session is denied",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" srcip=192.0.2.10 dstip=198.51.100.20 action=\"close\" utmaction=\"block\"",
+    "expected": {
+      "connectionStatus": "closed",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "quoted value followed by text stays unset",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" msg=\"broken\"quote srcip=192.0.2.10 dstip=198.51.100.20 action=\"deny\"",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.20",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "log.msg"
     ],
     "matches": []
   }
