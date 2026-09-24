@@ -1,4 +1,4 @@
-# Rule version v2.1.0
+# Rule version v2.2.0
 
 dataTypes:
   - firewall-sonicwall
@@ -17,6 +17,8 @@ description: |
   Detects failed authentication attempts against the SonicWall management
   interface (GUI/CLI/API). Repeated failures from a single source IP suggest
   a brute-force or credential-stuffing attack targeting admin credentials.
+  It counts logins denied due to bad credentials (events 32, 33 and 200),
+  not SSO probe failures, policy denials or allowed logins.
 
   Next Steps:
   1. Investigate the source IP — geolocation, reputation, previous activity.
@@ -26,20 +28,19 @@ description: |
   4. Restrict management access to specific IP ranges and enforce MFA.
 where: |
   (
-    oneOf("log.eventCode", ["29", "32", "33", "1246"]) ||
-    (
-      contains("log.message", ["admin", "administrator", "login", "management"]) &&
-      contains("log.message", ["failed", "fail", "denied", "invalid", "incorrect"])
-    )
-  ) && exists("origin.ip")
+    oneOf("log.eventCode", ["32", "33", "200"]) ||
+    contains("log.message", "denied due to bad credentials")
+  ) && equals("actionResult", "failure") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
+      - field: actionResult
+        operator: filter_term
+        value: failure
     within: 15m
     count: 5
 groupBy:
   - adversary.ip
-  - adversary.user
