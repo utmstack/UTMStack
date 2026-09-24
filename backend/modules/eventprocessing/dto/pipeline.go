@@ -23,6 +23,7 @@ type PipelineResponse struct {
 	Active    bool     `json:"active"`
 	DataTypes []string `json:"dataTypes"`
 	Order     int32    `json:"order"`
+	Position  int32    `json:"position"`
 }
 
 type PipelineFilters struct {

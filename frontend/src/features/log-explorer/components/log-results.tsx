@@ -1,8 +1,7 @@
-import { memo, useCallback, useMemo, useState, type MouseEvent, type ReactNode } from 'react'
+import { memo, useCallback, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ChevronRight, Copy, Crosshair, Minus, Plus, X } from 'lucide-react'
-import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
+import { ChevronRight, Copy, Crosshair, Minus, Plus } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
 import { SRC_FIELDS, flattenDoc, pick } from '../domain/flatten'
@@ -16,9 +15,9 @@ import { SRC_FIELDS, flattenDoc, pick } from '../domain/flatten'
 
 const TS = '@timestamp'
 
-const LEVEL_FIELDS = ['log.level', 'severity', 'level', 'event.severity', 'logx.severity']
+export const LEVEL_FIELDS = ['log.level', 'severity', 'level', 'event.severity', 'logx.severity']
 
-const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
+export const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
   critical: { dot: 'bg-red-500', tone: 'text-red-500' },
   high: { dot: 'bg-red-500', tone: 'text-red-500' },
   error: { dot: 'bg-orange-500', tone: 'text-orange-500' },
@@ -30,7 +29,7 @@ const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
   debug: { dot: 'bg-muted-foreground', tone: 'text-muted-foreground' },
 }
 
-function shortTime(iso: string) {
+export function shortTime(iso: string) {
   const d = new Date(iso)
   return Number.isNaN(d.getTime())
     ? iso
@@ -46,16 +45,16 @@ function absTimestamp(iso: string) {
 
 // Grid columns. Manual mode (user picked columns): time + each picked column.
 // Default mode: time + source + auto-detected important columns.
-const FIELD_COL = 160
-const LAST_FIELD_COL = 230
+export const FIELD_COL = 160
+export const LAST_FIELD_COL = 230
 const ORIGIN_IP_COL = 320
 
-function fieldColumnSize(field: string, isLast: boolean): number {
+export function fieldColumnSize(field: string, isLast: boolean): number {
   if (field === 'origin.ip') return ORIGIN_IP_COL
   return isLast ? LAST_FIELD_COL : FIELD_COL
 }
 
-export function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
+function logGridColumnSizes(columns: string[], autoColumns: string[] = []): Array<string | number> {
   if (columns.length > 0) {
     return [20, 30, 168, ...columns.map((field, index) => fieldColumnSize(field, index === columns.length - 1))]
   }
@@ -66,82 +65,27 @@ function gridTemplate(columns: string[], autoColumns: string[] = []): string {
   return logGridColumnSizes(columns, autoColumns).map((w) => (typeof w === 'number' ? `${w}px` : w)).join(' ')
 }
 
-function colValue(flat: Record<string, unknown>, c: string): string {
+// Flattening a document walks every field of it, and a row asks for it once per
+// cell, so each document is flattened once.
+const flatCache = new WeakMap<object, Record<string, unknown>>()
+export function flatOf(doc: LogDocument): Record<string, unknown> {
+  let flat = flatCache.get(doc)
+  if (!flat) {
+    flat = flattenDoc(doc)
+    flatCache.set(doc, flat)
+  }
+  return flat
+}
+
+export function colValue(flat: Record<string, unknown>, c: string): string {
   const v = flat[c]
   if (v == null || v === '') return '—'
   if (c === TS) return shortTime(String(v))
   return String(v)
 }
 
-function ResultsHeaderImpl({
-  columns,
-  autoColumns = [],
-  tableCols,
-  startDrag,
-  onRemoveColumn,
-}: {
-  columns: string[]
-  autoColumns?: string[]
-  tableCols?: string
-  startDrag?: (index: number) => (e: MouseEvent<HTMLElement>) => void
-  onRemoveColumn?: (c: string) => void
-}) {
-  const { t } = useTranslation()
-  const template = tableCols ?? gridTemplate(columns, autoColumns)
-  const renderedColumnCount = 3 + (columns.length > 0 ? columns.length : 1 + autoColumns.length)
-  const resizeHandle = (index: number, columnIndex: number) =>
-    columnIndex < renderedColumnCount - 1 && startDrag && <ColumnResizeHandle onMouseDown={startDrag(index)} />
-  return (
-    <div
-      className="sticky top-0 z-10 grid w-max min-w-full items-center gap-3 border-b border-border/70 bg-card px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: template }}
-    >
-      <div data-resizable-col className="relative min-w-0 pr-2" />
-      <div data-resizable-col className="relative min-w-0 pr-2" />
-      <div data-resizable-col className="relative min-w-0 pr-2">
-        {t('logExplorer.results.time')}
-        {resizeHandle(2, 2)}
-      </div>
-      {columns.length === 0 ? (
-        <>
-          <div data-resizable-col className="relative min-w-0 pr-2">
-            {t('logExplorer.results.source')}
-            {resizeHandle(3, 3)}
-          </div>
-          {autoColumns.map((c,i) => (
-            <div key={i} data-resizable-col className="relative min-w-0 truncate pr-2" title={c}>
-              {fieldLabel(c)}
-              {resizeHandle(i + 4, i + 4)}
-            </div>
-          ))}
-        </>
-      ) : (
-        columns.map((c,i) => (
-          <div key={i} data-resizable-col className="group relative flex min-w-0 items-center gap-1 pr-2 last:pr-0">
-            <span className="truncate" title={c}>
-              {fieldLabel(c)}
-            </span>
-            {onRemoveColumn && (
-              <button
-                onClick={() => onRemoveColumn(c)}
-                title={t('logExplorer.results.removeColumn', { field: c })}
-                className="shrink-0 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
-              >
-                <X size={11} />
-              </button>
-            )}
-            {resizeHandle(i + 3, i + 3)}
-          </div>
-        ))
-      )}
-    </div>
-  )
-}
-
-export const ResultsHeader = memo(ResultsHeaderImpl)
-
 // Short, readable column header from a field path: "origin.ip" → "origin ip".
-function fieldLabel(field: string): string {
+export function fieldLabel(field: string): string {
   return field.replace(/\./g, ' ')
 }
 
@@ -150,7 +94,6 @@ function ResultRowImpl({
   doc,
   columns,
   autoColumns = [],
-  tableCols,
   expanded,
   onToggle,
   onAdd,
@@ -160,18 +103,17 @@ function ResultRowImpl({
   doc: LogDocument
   columns: string[]
   autoColumns?: string[]
-  tableCols?: string
   expanded: boolean
   onToggle: (index: number) => void
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
-  const flat = useMemo(() => flattenDoc(doc), [doc])
+  const flat = flatOf(doc)
   const ts = (flat[TS] as string) ?? ''
   const source = pick(flat, SRC_FIELDS) ?? '—'
   const level = (pick(flat, LEVEL_FIELDS) ?? '').toLowerCase()
   const tone = LEVEL_TONE[level] ?? { dot: 'bg-muted-foreground/50', tone: 'text-muted-foreground' }
-  const resolvedTableCols = tableCols ?? gridTemplate(columns, autoColumns)
+  const resolvedTableCols = gridTemplate(columns, autoColumns)
 
   return (
     <>
@@ -207,13 +149,12 @@ function ResultRowImpl({
         )}
       </div>
       {expanded && (
-        <ExpandedPanel
-          flat={flat}
-          doc={doc}
-          tableCols={resolvedTableCols}
-          onAdd={onAdd}
-          onSurrounding={onSurrounding}
-        />
+        <div
+          className="grid w-max min-w-full gap-x-3 border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 px-4 last:border-b-0"
+          style={{ gridTemplateColumns: resolvedTableCols }}
+        >
+          <LogDetail doc={doc} onAdd={onAdd} onSurrounding={onSurrounding} />
+        </div>
       )}
     </>
   )
@@ -221,31 +162,30 @@ function ResultRowImpl({
 
 type DetailTab = 'fields' | 'json'
 
-function ExpandedPanel({
-  flat,
+/**
+ * The document behind a result row: its parsed fields (with filter buttons when
+ * `onAdd` is given) or the raw JSON. Lays itself out across a whole grid row or
+ * table row, so it needs no columns of its own.
+ */
+export function LogDetail({
   doc,
-  tableCols,
   onAdd,
   onSurrounding,
 }: {
-  flat: Record<string, unknown>
   doc: LogDocument
-  tableCols: string
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<DetailTab>('fields')
+  const flat = flatOf(doc)
   const ts = (flat[TS] as string) ?? ''
   const srcField = SRC_FIELDS.find((f) => flat[f] != null)
   const srcVal = srcField != null ? String(flat[srcField]) : undefined
   const entries = Object.entries(flat).sort(([a], [b]) => a.localeCompare(b))
 
   return (
-    <div
-      className="grid w-max min-w-full gap-x-3 border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 px-4 last:border-b-0"
-      style={{ gridTemplateColumns: tableCols }}
-    >
+    <div className="col-span-full">
       <div className="col-span-full flex items-center justify-between gap-4 border-b border-border/40 px-5 py-2.5">
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
           {ts && <span className="font-mono">{absTimestamp(ts)}</span>}

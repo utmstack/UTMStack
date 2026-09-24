@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
+import type { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
   ChevronDown,
@@ -27,8 +28,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type {
   CustomFilter,
@@ -40,7 +40,8 @@ import type { ADUser, ADUserSource, ADUserStats, ADUserStatus } from '../types/a
 
 const SIZE = 50
 const STALE_MS = 30 * 86_400_000
-const LIST_COLS = [32, '1fr', '1.3fr', 110, 110, 110, 90, 36]
+const TH = 'whitespace-nowrap px-3 py-2 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
 type ViewId = 'all' | ADUserSource
 const VIEW_IDS: ViewId[] = ['all', 'windows', 'linux']
@@ -108,19 +109,6 @@ export function UserAuditorPage() {
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
   const [openUser, setOpenUser] = useState<ADUser | null>(null)
-  const listLabelMins = colMins([
-    t('userAuditor.list.account'),
-    t('userAuditor.list.identity'),
-    t('userAuditor.list.status'),
-    t('userAuditor.list.lastLogon'),
-    t('userAuditor.list.lastSeen'),
-    t('userAuditor.list.tenant'),
-  ], { floor: 72 })
-  const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
-    min: [40, ...listLabelMins.slice(0, 5), 160, 48],
-    storageKey: 'user-auditor-table-columns',
-  })
-
   const filterFields: FilterFieldDef[] = [
     { field: 'status', label: t('userAuditor.filterFields.status') },
   ]
@@ -254,17 +242,20 @@ export function UserAuditorPage() {
         </div>
       ) : layout === 'list' ? (
         <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
-          <ListHeader t={t} tableCols={listCols} startDrag={startDrag} />
-          {loading && users.length === 0 ? (
-            <LoadingRows />
-          ) : (
-            users.map((u) => <UserListRow key={u.id} user={u} tableCols={listCols} onOpen={() => setOpenUser(u)} t={t} />)
-          )}
-          {!loading && users.length === 0 && (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-              {t('userAuditor.empty')}
-            </div>
-          )}
+          <ResizableDataTable
+            columns={buildUserColumns(t)}
+            data={users}
+            flexColumnId="account"
+            storageKey="user-auditor-table-sizing"
+            getRowId={(u) => u.id}
+            onRowClick={setOpenUser}
+            rowClassName={() => 'text-xs last:border-b-0'}
+            loading={loading && users.length === 0}
+            loadingContent={<LoadingRows />}
+            emptyContent={
+              <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('userAuditor.empty')}</div>
+            }
+          />
         </div>
       ) : (
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -498,35 +489,6 @@ function Toolbar({
 
 /* ─── List ─────────────────────────────────────────────────────────────── */
 
-function ListHeader({ t, tableCols, startDrag }: { t: TFunction; tableCols: string; startDrag: ReturnType<typeof useResizableColumns>['startDrag'] }) {
-  const headers = [
-    '',
-    t('userAuditor.list.account'),
-    t('userAuditor.list.identity'),
-    t('userAuditor.list.status'),
-    t('userAuditor.list.lastLogon'),
-    t('userAuditor.list.lastSeen'),
-    t('userAuditor.list.tenant'),
-    '',
-  ]
-  return (
-    <div
-      className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: tableCols }}
-    >
-      {headers.map((header, index) => {
-        const isResizable = index > 0 && index < headers.length - 2
-        return (
-          <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
-            {header}
-            {isResizable && index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 function LoadingRows() {
   return (
     <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
@@ -535,52 +497,119 @@ function LoadingRows() {
   )
 }
 
-function UserListRow({ user, tableCols, onOpen, t }: { user: ADUser; tableCols: string; onOpen: () => void; t: TFunction }) {
-  const status = statusOf(user)
-  const identity = accountIdentity(user)
-  return (
-    <div
-      onClick={onOpen}
-      className="group grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-xs hover:bg-muted/40 last:border-b-0"
-      style={{ gridTemplateColumns: tableCols }}
-    >
-      <AccountAvatar user={user} />
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{accountName(user)}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase text-muted-foreground ring-1 ring-border">
-            {user.source}
+function buildUserColumns(t: TFunction): ColumnDef<ADUser>[] {
+  const muted = `${TD} font-mono text-[11px] text-muted-foreground`
+  return [
+    {
+      id: 'avatar',
+      header: () => null,
+      size: 52,
+      minSize: 52,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <AccountAvatar user={row.original} />,
+    },
+    {
+      id: 'account',
+      header: t('userAuditor.list.account'),
+      size: 320,
+      minSize: 120,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const user = row.original
+        return (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="truncate text-sm font-medium">{accountName(user)}</span>
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase text-muted-foreground ring-1 ring-border">
+                {user.source}
+              </span>
+              {isService(user) && (
+                <span className="rounded bg-violet-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-violet-600 ring-1 ring-violet-500/30 dark:text-violet-300">
+                  {t('userAuditor.badge.service')}
+                </span>
+              )}
+              {isStale(user) && (
+                <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-amber-600 ring-1 ring-amber-500/30 dark:text-amber-300">
+                  {t('userAuditor.badge.stale')}
+                </span>
+              )}
+            </div>
+            <div className="truncate font-mono text-[11px] text-muted-foreground">{accountScope(user)}</div>
+          </>
+        )
+      },
+    },
+    {
+      id: 'identity',
+      header: t('userAuditor.list.identity'),
+      size: 260,
+      minSize: 80,
+      meta: {
+        headerClassName: TH,
+        cellClassName: muted,
+        cellProps: (u) => ({ title: accountIdentity(u) }),
+      },
+      cell: ({ row }) => <span className="block truncate">{accountIdentity(row.original)}</span>,
+    },
+    {
+      id: 'status',
+      header: t('userAuditor.list.status'),
+      size: 120,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const status = statusOf(row.original)
+        return (
+          <span className={cn('inline-flex items-center gap-1.5 text-[11px]', STATUS_TEXT[status])}>
+            <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[status])} />
+            {t(`userAuditor.status.${status}`)}
           </span>
-          {isService(user) && (
-            <span className="rounded bg-violet-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-violet-600 ring-1 ring-violet-500/30 dark:text-violet-300">
-              {t('userAuditor.badge.service')}
-            </span>
-          )}
-          {isStale(user) && (
-            <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase text-amber-600 ring-1 ring-amber-500/30 dark:text-amber-300">
-              {t('userAuditor.badge.stale')}
-            </span>
-          )}
+        )
+      },
+    },
+    {
+      id: 'lastLogon',
+      header: t('userAuditor.list.lastLogon'),
+      size: 120,
+      minSize: 80,
+      meta: { headerClassName: TH, cellClassName: muted },
+      cell: ({ row }) => relativeTime(row.original.lastLogon, t),
+    },
+    {
+      id: 'lastSeen',
+      header: t('userAuditor.list.lastSeen'),
+      size: 120,
+      minSize: 80,
+      meta: { headerClassName: TH, cellClassName: muted },
+      cell: ({ row }) => relativeTime(row.original.lastSeen, t),
+    },
+    {
+      id: 'tenant',
+      header: t('userAuditor.list.tenant'),
+      size: 160,
+      minSize: 80,
+      meta: {
+        headerClassName: TH,
+        cellClassName: `${TD} text-[11px] text-muted-foreground`,
+        cellProps: (u) => ({ title: u.tenantId }),
+      },
+      cell: ({ row }) => <span className="block truncate">{row.original.tenantId}</span>,
+    },
+    {
+      id: 'open',
+      header: () => null,
+      size: 44,
+      minSize: 44,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: () => (
+        <div className="flex justify-end opacity-0 group-hover:opacity-100">
+          <ExternalLink size={13} className="text-muted-foreground" />
         </div>
-        <div className="truncate font-mono text-[11px] text-muted-foreground">{accountScope(user)}</div>
-      </div>
-      <div className="min-w-0 truncate font-mono text-[11px] text-muted-foreground" title={identity}>
-        {identity}
-      </div>
-      <div>
-        <span className={cn('inline-flex items-center gap-1.5 text-[11px]', STATUS_TEXT[status])}>
-          <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[status])} />
-          {t(`userAuditor.status.${status}`)}
-        </span>
-      </div>
-      <div className="font-mono text-[11px] text-muted-foreground">{relativeTime(user.lastLogon, t)}</div>
-      <div className="font-mono text-[11px] text-muted-foreground">{relativeTime(user.lastSeen, t)}</div>
-      <div className="truncate text-[11px] text-muted-foreground">{user.tenantId}</div>
-      <div className="flex justify-end opacity-0 group-hover:opacity-100">
-        <ExternalLink size={13} className="text-muted-foreground" />
-      </div>
-    </div>
-  )
+      ),
+    },
+  ]
 }
 
 /* ─── Card ─────────────────────────────────────────────────────────────── */

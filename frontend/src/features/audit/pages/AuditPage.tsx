@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import type { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -17,14 +19,14 @@ import { useDateFormat } from '@/shared/lib/datetime'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { auditHttpService } from '../services/audit-http.service'
 import { humanizeAction } from '../lib'
 import type { AuditListQuery, AuditLog } from '../types/audit.types'
 
 const DEFAULT_PAGE_SIZE = 50
-const AUDIT_TABLE_COLS = [180, 140, '1fr', 180, 90, 140, 60]
+const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 
@@ -425,6 +427,87 @@ function Field({
 
 /* ─── Table card ───────────────────────────────────────────────────────── */
 
+function buildAuditColumns(t: TFunction, df: ReturnType<typeof useDateFormat>): ColumnDef<AuditLog>[] {
+  return [
+    {
+      id: 'timestamp',
+      header: t('audit.table.timestamp'),
+      size: 190,
+      minSize: 110,
+      meta: { headerClassName: TH, cellClassName: `${TD} font-mono text-[11px] text-muted-foreground` },
+      cell: ({ row }) => df.formatDateTime(row.original.timestamp),
+    },
+    {
+      id: 'actor',
+      header: t('audit.table.actor'),
+      size: 220,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: TD, cellProps: (log) => ({ title: log.user_email }) },
+      cell: ({ row }) =>
+        row.original.user_email ? (
+          <span className="block truncate font-medium">{row.original.user_email}</span>
+        ) : (
+          <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
+        ),
+    },
+    {
+      id: 'action',
+      header: t('audit.table.action'),
+      size: 320,
+      minSize: 100,
+      meta: { headerClassName: TH, cellClassName: `${TD} text-[11px]`, cellProps: (log) => ({ title: log.action }) },
+      cell: ({ row }) => <span className="block truncate">{humanizeAction(row.original.action)}</span>,
+    },
+    {
+      id: 'resource',
+      header: t('audit.table.resource'),
+      size: 200,
+      minSize: 90,
+      meta: {
+        headerClassName: TH,
+        cellClassName: `${TD} text-[11px]`,
+        cellProps: (log) => ({ title: [log.resource_type, log.resource_id && `#${log.resource_id}`].filter(Boolean).join(' ') }),
+      },
+      cell: ({ row }) => {
+        const log = row.original
+        return log.resource_type ? (
+          <span className="block truncate">
+            <span className="text-muted-foreground">{log.resource_type}</span>
+            {log.resource_id && <span className="font-mono"> #{log.resource_id}</span>}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )
+      },
+    },
+    {
+      id: 'status',
+      header: t('audit.table.status'),
+      size: 110,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <StatusPill status={row.original.status} />,
+    },
+    {
+      id: 'ip',
+      header: t('audit.table.ip'),
+      size: 150,
+      minSize: 80,
+      meta: { headerClassName: TH, cellClassName: `${TD} font-mono text-[11px] text-muted-foreground` },
+      cell: ({ row }) => row.original.ip || '—',
+    },
+    {
+      id: 'view',
+      header: () => null,
+      size: 72,
+      minSize: 72,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: `${TD} text-right text-[11px] text-primary` },
+      cell: () => t('audit.table.view'),
+    },
+  ]
+}
+
 function TableCard({
   data,
   loading,
@@ -435,84 +518,29 @@ function TableCard({
   onSelect: (log: AuditLog) => void
 }) {
   const { t } = useTranslation()
-  const { formatDateTime } = useDateFormat()
-  const headers = [
-    t('audit.table.timestamp'),
-    t('audit.table.actor'),
-    t('audit.table.action'),
-    t('audit.table.resource'),
-    t('audit.table.status'),
-    t('audit.table.ip'),
-    '',
-  ]
-  const { template, startDrag } = useResizableColumns(AUDIT_TABLE_COLS, {
-    min: colMins(headers),
-    storageKey: 'audit-log-table-columns',
-  })
+  const df = useDateFormat()
   return (
     <section className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
-      <div
-        className="grid w-max min-w-full items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground"
-        style={{ gridTemplateColumns: template }}
-      >
-        {headers.map((header, index) => (
-          <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0">
-            {header}
-            {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+      <ResizableDataTable
+        columns={buildAuditColumns(t, df)}
+        data={data}
+        flexColumnId="action"
+        storageKey="audit-log-table-sizing"
+        getRowId={(log) => String(log.id)}
+        onRowClick={onSelect}
+        rowClassName={() => 'text-xs last:border-b-0'}
+        loading={loading && data.length === 0}
+        loadingContent={
+          <div className="px-4 py-16 text-center text-sm text-muted-foreground">{t('audit.table.loading')}</div>
+        }
+        emptyContent={
+          <div className="px-4 py-16 text-center">
+            <ShieldCheck size={28} strokeWidth={1.5} className="mx-auto mb-3 text-muted-foreground/60" />
+            <div className="text-sm font-medium">{t('audit.table.emptyTitle')}</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">{t('audit.table.emptyHint')}</div>
           </div>
-        ))}
-      </div>
-      {loading && data.length === 0 ? (
-        <div className="px-4 py-16 text-center text-sm text-muted-foreground">
-          {t('audit.table.loading')}
-        </div>
-      ) : data.length === 0 ? (
-        <div className="px-4 py-16 text-center">
-          <ShieldCheck size={28} strokeWidth={1.5} className="mx-auto mb-3 text-muted-foreground/60" />
-          <div className="text-sm font-medium">{t('audit.table.emptyTitle')}</div>
-          <div className="mt-0.5 text-xs text-muted-foreground">{t('audit.table.emptyHint')}</div>
-        </div>
-      ) : (
-        data.map((log) => (
-          <button
-            key={log.id}
-            onClick={() => onSelect(log)}
-            className="grid w-max min-w-full gap-3 border-b border-border px-4 py-2.5 text-left text-xs last:border-b-0 transition-colors hover:bg-muted/40"
-            style={{ gridTemplateColumns: template }}
-          >
-            <div className="font-mono text-[11px] text-muted-foreground">
-              {formatDateTime(log.timestamp)}
-            </div>
-            <div className="truncate">
-              {log.user_email ? (
-                <span className="font-medium">{log.user_email}</span>
-              ) : (
-                <span className="italic text-muted-foreground">{t('audit.table.system')}</span>
-              )}
-            </div>
-            <div className="truncate text-[11px]" title={log.action}>
-              {humanizeAction(log.action)}
-            </div>
-            <div className="truncate text-[11px]">
-              {log.resource_type ? (
-                <>
-                  <span className="text-muted-foreground">{log.resource_type}</span>
-                  {log.resource_id && <span className="font-mono"> #{log.resource_id}</span>}
-                </>
-              ) : (
-                <span className="text-muted-foreground">—</span>
-              )}
-            </div>
-            <div>
-              <StatusPill status={log.status} />
-            </div>
-            <div className="truncate font-mono text-[11px] text-muted-foreground">
-              {log.ip || '—'}
-            </div>
-            <div className="text-right text-[11px] text-primary">{t('audit.table.view')}</div>
-          </button>
-        ))
-      )}
+        }
+      />
     </section>
   )
 }

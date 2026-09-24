@@ -175,11 +175,6 @@ func (c *AgentManagerClient) RotateConnectionKey(ctx context.Context) (string, e
 	return resp.GetConnectionKey(), nil
 }
 
-// ProcessCommandStream opens a bidi gRPC stream to ProcessCommand, sends one
-// UtmCommand (without calling CloseSend so the server keeps streaming), and
-// returns a channel that emits each CommandResult chunk. The caller must
-// drain both channels. The resultCh is closed after all chunks are received or
-// an error occurs. errCh receives at most one error and is then closed.
 // Cancelling ctx cancels the gRPC stream and causes the goroutine to exit.
 func (c *AgentManagerClient) ProcessCommandStream(
 	ctx context.Context,
@@ -188,7 +183,9 @@ func (c *AgentManagerClient) ProcessCommandStream(
 	resultCh := make(chan *agent.CommandResult, 32)
 	errCh := make(chan error, 1)
 
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
+		defer cancel()
 		defer close(resultCh)
 		defer close(errCh)
 
@@ -202,21 +199,15 @@ func (c *AgentManagerClient) ProcessCommandStream(
 			return
 		}
 		// Do NOT call CloseSend — parity with Java (onCompleted commented out).
-		for {
-			result, recvErr := stream.Recv()
-			if recvErr == io.EOF {
-				return
-			}
-			if recvErr != nil {
-				errCh <- fmt.Errorf("agentmanager: ProcessCommandStream recv: %w", recvErr)
-				return
-			}
-			select {
-			case resultCh <- result:
-			case <-ctx.Done():
-				return
-			}
+		result, recvErr := stream.Recv()
+		if recvErr == io.EOF {
+			return
 		}
+		if recvErr != nil {
+			errCh <- fmt.Errorf("agentmanager: ProcessCommandStream recv: %w", recvErr)
+			return
+		}
+		resultCh <- result
 	}()
 
 	return resultCh, errCh

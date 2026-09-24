@@ -1,19 +1,27 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import type { ColumnDef } from '@tanstack/react-table'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import type { Row } from '@/features/dashboard/types'
+
+const TH = 'whitespace-nowrap px-3 py-2 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-2 align-middle text-xs text-foreground/90'
 
 export function TableRenderer({ rows }: { rows: Row[] }) {
   const { t } = useTranslation()
-  const columns = useMemo(() => {
-    if (rows.length === 0) return []
-    return Object.keys(rows[0])
-  }, [rows])
-  const { widths, startDrag } = useResizableColumns(columns.map(() => 'minmax(120px, 1fr)'), {
-    min: colMins(columns),
-    storageKey: `dashboard-table-columns:${columns.join('|')}`,
-  })
+  const fields = useMemo(() => (rows.length === 0 ? [] : Object.keys(rows[0])), [rows])
+  const columns = useMemo<ColumnDef<Row>[]>(
+    () =>
+      fields.map((field) => ({
+        id: field,
+        header: field,
+        size: 160,
+        minSize: 60,
+        meta: { headerClassName: TH, cellClassName: TD, cellProps: (row) => ({ title: formatCell(row[field]) }) },
+        cell: ({ row }) => <span className="block truncate">{formatCell(row.original[field])}</span>,
+      })),
+    [fields],
+  )
 
   if (rows.length === 0) {
     return (
@@ -25,26 +33,17 @@ export function TableRenderer({ rows }: { rows: Row[] }) {
 
   return (
     <div className="h-full w-full overflow-auto">
-      <table className="w-full text-sm">
-        <ResizableTableHeader
-          cells={columns.map((c) => ({ content: c, className: 'px-3 py-2 font-medium' }))}
-          widths={widths}
-          startDrag={startDrag}
-          className="sticky top-0 bg-card"
-          rowClassName="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground"
-        />
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-              {columns.map((c) => (
-                <td key={c} className="px-3 py-2 text-xs text-foreground/90">
-                  {formatCell(row[c])}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Keyed by the field set: widths are remembered per set of columns, and a
+          query edited in the editor preview changes which columns there are. */}
+      <ResizableDataTable
+        key={fields.join('|')}
+        columns={columns}
+        data={rows}
+        flexColumnId={fields[fields.length - 1]}
+        storageKey={`dashboard-table-sizing:${fields.join('|')}`}
+        headerClassName="bg-card"
+        rowClassName={() => 'last:border-b-0'}
+      />
     </div>
   )
 }

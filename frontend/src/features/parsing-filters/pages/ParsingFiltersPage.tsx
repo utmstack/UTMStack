@@ -16,6 +16,7 @@ import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygr
 import { PlatformBroadcastButton, broadcast, BULK_PATHS, type BulkSelector } from '@/features/platform-broadcast'
 import { FilterFormDrawer } from '../components/FilterFormDrawer'
 import { displayName } from '../lib/filter-model'
+import { pipelineIdentity, swapInSequence } from '../lib/pipeline-order'
 
 type Tab = 'all' | 'active' | 'inactive' | 'system' | 'user'
 const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
@@ -23,12 +24,6 @@ const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 const stopRowClick = (e: React.MouseEvent) => e.stopPropagation()
-
-// The name the engine matches on: the file's base name without its extension.
-function pipelineIdentity(relPath: string): string {
-  const base = relPath.split('/').pop() ?? relPath
-  return base.replace(/\.disabled$/, '').replace(/\.[^.]+$/, '')
-}
 
 export function ParsingFiltersPage() {
   const { t } = useTranslation()
@@ -148,15 +143,24 @@ export function ParsingFiltersPage() {
     if (reordering || otherIndex < 0 || otherIndex >= items.length) return
 
     const previous = items
+    const [a, b] = [items[index], items[otherIndex]]
     const next = [...items]
-    ;[next[index], next[otherIndex]] = [next[otherIndex], next[index]]
+    next[index] = { ...b, position: a.position }
+    next[otherIndex] = { ...a, position: b.position }
 
     setReordering(true)
     setItems(next)
     try {
-      // The order is saved as the whole sequence for this tenant, so the list
-      // is sent as it now reads on screen.
-      await pipelinesHttpService.setOrder(next.map((p) => pipelineIdentity(p.relPath)))
+      // What is on screen may be a filtered or partial view, but the order is
+      // saved as the tenant's whole sequence: swap the two in the full one.
+      const all = await pipelinesHttpService.list({ page: 1, size: 1000 })
+      const sequence = swapInSequence(
+        (all.data ?? []).map((p) => pipelineIdentity(p.relPath)),
+        pipelineIdentity(a.relPath),
+        pipelineIdentity(b.relPath),
+      )
+      if (!sequence) throw new Error('pipeline is no longer in the sequence')
+      await pipelinesHttpService.setOrder(sequence)
     } catch {
       setItems(previous)
       toast.error(t('parsingFilters.toast.orderError'))
@@ -354,7 +358,7 @@ function buildColumns(
               className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
               title={t('parsingFilters.cols.order')}
             >
-              {f.order}
+              {f.position ?? f.order}
             </span>
             <FileCode size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate text-[13px]">{displayName(f.relPath)}</span>

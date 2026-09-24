@@ -23,6 +23,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
@@ -31,8 +32,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { TimeRangePicker, presetRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import {
   datasourcesHttpService as svc,
@@ -137,17 +137,6 @@ export function DataSourcesPage() {
   const [range, setRange] = useState<TimeRange>(() => presetRange('24h'))
   const [counts, setCounts] = useState<Record<TabId, number> | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
-  const datasourcesLabelMins = colMins([
-    t('datasources.cols.source'),
-    t('datasources.cols.type'),
-    t('datasources.cols.status'),
-    t('datasources.cols.events24h'),
-    t('datasources.cols.lastSeen'),
-  ])
-  const { template: listCols, startDrag } = useResizableColumns(LIST_COLS, {
-    min: [36, ...datasourcesLabelMins],
-    storageKey: 'datasources-table-columns',
-  })
 
   useEffect(() => {
     const h = setTimeout(() => {
@@ -301,10 +290,15 @@ export function DataSourcesPage() {
           <CenterCard>{t('datasources.none')}</CenterCard>
         ) : layout === 'list' ? (
           <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
-            <ListHeader tableCols={listCols} startDrag={startDrag} />
-            {sources.map((s) => (
-              <SourceListRow key={s.id} source={s} tableCols={listCols} events24h={events24h(s.name)} onOpen={() => setOpenId(s.id)} onLabelClick={filterByLabel} />
-            ))}
+            <ResizableDataTable
+              columns={buildSourceColumns(t, events24h, filterByLabel)}
+              data={sources}
+              flexColumnId="source"
+              storageKey="datasources-table-sizing"
+              getRowId={(s) => s.id}
+              onRowClick={(s) => setOpenId(s.id)}
+              rowClassName={() => 'text-[13px] last:border-b-0'}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -549,85 +543,102 @@ function Toolbar({
 
 /* ─── List ─────────────────────────────────────────────────────────────── */
 
-const LIST_COLS = [36, '1fr', 150, 110, 120, 120]
+const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-3 align-middle'
 
-function ListHeader({ tableCols, startDrag }: { tableCols: string; startDrag: ReturnType<typeof useResizableColumns>['startDrag'] }) {
-  const { t } = useTranslation()
-  const headers = [
-    '',
-    t('datasources.cols.source'),
-    t('datasources.cols.type'),
-    t('datasources.cols.status'),
-    t('datasources.cols.events24h'),
-    t('datasources.cols.lastSeen'),
-  ]
-  return (
-    <div
-      className="grid items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-      style={{ gridTemplateColumns: tableCols }}
-    >
-      {headers.map((header, index) => (
-        <div key={index} data-resizable-col className="relative min-w-0 pr-2 text-center first:text-left last:pr-0">
-          {header}
-          {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function SourceListRow({
-  source: s,
-  tableCols,
-  events24h,
-  onOpen,
-  onLabelClick,
-}: {
-  source: Datasource
-  tableCols: string
-  events24h: number
-  onOpen: () => void
-  onLabelClick: (label: string) => void
-}) {
-  const { t } = useTranslation()
-  const status = deriveStatus(s.lastPingAt)
-  const st = STATUS_META[status]
-  const typeLabel = dataTypeMeta(s.dataType).label || kindLabel(t, s.sourceKind)
-  return (
-    <div
-      onClick={onOpen}
-      className="grid w-max min-w-full cursor-pointer items-center gap-3 border-b border-border/50 px-4 py-3 text-[13px] hover:bg-muted/20 last:border-b-0"
-      style={{ gridTemplateColumns: tableCols }}
-    >
-      <SourceIcon source={s} />
-      <div className="min-w-0">
-        <div className="truncate font-medium">{s.name}</div>
-        <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
-          <span className="truncate">
-            {s.ip && <span className="font-mono">{s.ip}</span>}
-            {s.ip && s.dataType && ' · '}
-            {s.dataType && <span className="font-mono">{s.dataType}</span>}
-          </span>
-          {labelList(s.labels).slice(0, 3).map((l) => (
-            <LabelChip key={l} label={l} onClick={onLabelClick} />
-          ))}
-        </div>
-      </div>
-      <div className="truncate text-[12px] text-muted-foreground" title={s.dataType || typeLabel}>
-        {typeLabel}
-      </div>
-      <div>
-        <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
-          <span className={cn('h-1.5 w-1.5 rounded-full', st.dot)} />
-          {statusLabel(t, status)}
+function buildSourceColumns(
+  t: TFunction,
+  events24h: (name: string) => number,
+  onLabelClick: (label: string) => void,
+): ColumnDef<Datasource>[] {
+  const muted = `${TD} text-[12px] text-muted-foreground`
+  return [
+    {
+      id: 'icon',
+      header: () => null,
+      size: 52,
+      minSize: 52,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <SourceIcon source={row.original} />,
+    },
+    {
+      id: 'source',
+      header: t('datasources.cols.source'),
+      size: 380,
+      minSize: 140,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const s = row.original
+        return (
+          <>
+            <div className="truncate font-medium">{s.name}</div>
+            <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className="truncate">
+                {s.ip && <span className="font-mono">{s.ip}</span>}
+                {s.ip && s.dataType && ' · '}
+                {s.dataType && <span className="font-mono">{s.dataType}</span>}
+              </span>
+              {labelList(s.labels).slice(0, 3).map((l) => (
+                <LabelChip key={l} label={l} onClick={onLabelClick} />
+              ))}
+            </div>
+          </>
+        )
+      },
+    },
+    {
+      id: 'type',
+      header: t('datasources.cols.type'),
+      size: 150,
+      minSize: 80,
+      meta: {
+        headerClassName: TH,
+        cellClassName: muted,
+        cellProps: (s) => ({ title: s.dataType || dataTypeMeta(s.dataType).label || kindLabel(t, s.sourceKind) }),
+      },
+      cell: ({ row }) => (
+        <span className="block truncate">
+          {dataTypeMeta(row.original.dataType).label || kindLabel(t, row.original.sourceKind)}
         </span>
-      </div>
-      <div className="text-center font-mono tabular-nums text-muted-foreground">
-        {events24h > 0 ? events24h.toLocaleString() : '—'}
-      </div>
-      <div className="text-center font-mono text-[12px] text-muted-foreground">{relativeTime(t, s.lastPingAt)}</div>
-    </div>
-  )
+      ),
+    },
+    {
+      id: 'status',
+      header: t('datasources.cols.status'),
+      size: 120,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: muted },
+      cell: ({ row }) => {
+        const status = deriveStatus(row.original.lastPingAt)
+        return (
+          <span className="inline-flex items-center gap-1.5">
+            <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_META[status].dot)} />
+            {statusLabel(t, status)}
+          </span>
+        )
+      },
+    },
+    {
+      id: 'events24h',
+      header: t('datasources.cols.events24h'),
+      size: 120,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: `${muted} font-mono tabular-nums` },
+      cell: ({ row }) => {
+        const n = events24h(row.original.name)
+        return n > 0 ? n.toLocaleString() : '—'
+      },
+    },
+    {
+      id: 'lastSeen',
+      header: t('datasources.cols.lastSeen'),
+      size: 130,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: `${muted} font-mono` },
+      cell: ({ row }) => relativeTime(t, row.original.lastPingAt),
+    },
+  ]
 }
 
 function SourceIcon({ source }: { source: Datasource }) {

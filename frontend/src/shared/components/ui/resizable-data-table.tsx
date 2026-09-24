@@ -35,8 +35,8 @@ export interface ResizableDataTableProps<T> {
   columns: ColumnDef<T, any>[]
   data: T[]
   getRowId?: (row: T, index: number) => string
-  onRowClick?: (row: T) => void
-  rowClassName?: (row: T) => string
+  onRowClick?: (row: T, index: number) => void
+  rowClassName?: (row: T, index: number) => string
   headerClassName?: string
   loading?: boolean
   loadingContent?: ReactNode
@@ -44,7 +44,7 @@ export interface ResizableDataTableProps<T> {
   errorContent?: ReactNode
   emptyContent?: ReactNode
   /** Content for a full-width row rendered right below `row`; return null for none. */
-  renderExpandedRow?: (row: T) => ReactNode
+  renderExpandedRow?: (row: T, index: number) => ReactNode
   /** localStorage key under which the user's column widths are kept. */
   storageKey?: string
   /**
@@ -188,16 +188,16 @@ export function ResizableDataTable<T>({
           </tr>
         ) : (
           rows.map((row) => {
-            const expanded = renderExpandedRow?.(row.original)
+            const expanded = renderExpandedRow?.(row.original, row.index)
             return (
               <Fragment key={row.id}>
                 <tr
                   className={cn(
                     'group border-b border-border text-sm transition-colors last:border-0',
                     onRowClick && 'cursor-pointer hover:bg-muted/40',
-                    rowClassName?.(row.original),
+                    rowClassName?.(row.original, row.index),
                   )}
-                  onClick={() => onRowClick?.(row.original)}
+                  onClick={() => onRowClick?.(row.original, row.index)}
                 >
                   {row.getVisibleCells().map((cell) => {
                     const meta = cell.column.columnDef.meta

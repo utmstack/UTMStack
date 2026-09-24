@@ -257,38 +257,35 @@ func (u *pipelineUsecase) GetByRelPath(ctx context.Context, relPath string) (*dt
 }
 
 func (u *pipelineUsecase) List(ctx context.Context, f dto.PipelineFilters) (*connectors.ListResult[dto.PipelineResponse], error) {
-	all := u.store.List(authz.TenantIDFromContext(ctx))
 	tenant := authz.TenantIDFromContext(ctx)
+	all := u.store.List(tenant)
 
-	// Apply in-memory filters.
-	out := make([]dto.PipelineResponse, 0, len(all))
+	// The position is taken over everything the tenant runs, before any filter,
+	// so a pipeline reads the same number whatever the view is narrowed to.
+	visible := make([]dto.PipelineResponse, 0, len(all))
 	for i := range all {
-		e := &all[i]
-		if !visiblePipeline(e, tenant) {
+		if visiblePipeline(&all[i], tenant) {
+			visible = append(visible, *toFilterResponse(&all[i]))
+		}
+	}
+	sequencePipelines(visible, u.config.PipelineOrder(tenant))
+
+	out := make([]dto.PipelineResponse, 0, len(visible))
+	for _, resp := range visible {
+		if f.IsActiveEq != nil && resp.Active != *f.IsActiveEq {
 			continue
 		}
-		if f.IsActiveEq != nil && e.Active != *f.IsActiveEq {
+		if f.SystemEq != nil && resp.System != *f.SystemEq {
 			continue
 		}
-		if f.SystemEq != nil && e.System != *f.SystemEq {
+		if f.RelPathContains != nil && !strings.Contains(resp.RelPath, *f.RelPathContains) {
 			continue
 		}
-		if f.RelPathContains != nil && !strings.Contains(e.RelPath, *f.RelPathContains) {
-			continue
-		}
-		resp := toFilterResponse(e)
 		if f.DataTypeEq != nil && *f.DataTypeEq != "" && !hasDataType(resp.DataTypes, *f.DataTypeEq) {
 			continue
 		}
-		out = append(out, *resp)
+		out = append(out, resp)
 	}
-
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].Order != out[j].Order {
-			return out[i].Order < out[j].Order
-		}
-		return out[i].RelPath < out[j].RelPath
-	})
 
 	total := int64(len(out))
 
@@ -352,6 +349,36 @@ func (u *pipelineUsecase) SetOrder(ctx context.Context, order []string) error {
 		}
 	}
 	return u.config.SetPipelineOrder(authz.TenantIDFromContext(ctx), order)
+}
+
+// sequencePipelines puts pipelines in the order the engine runs them for a
+// tenant and numbers them by it (Position). The names the tenant listed come
+// first, in its order; the rest follow in the order their own files declare.
+// This is the engine's rule, and the listing has to agree with it or a saved
+// order shows up as unchanged the next time the page loads.
+func sequencePipelines(items []dto.PipelineResponse, saved []string) {
+	rank := make(map[string]int, len(saved))
+	for i, name := range saved {
+		if _, seen := rank[name]; !seen {
+			rank[name] = i
+		}
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		ri, listedI := rank[pipelineIdentity(items[i].RelPath)]
+		rj, listedJ := rank[pipelineIdentity(items[j].RelPath)]
+		switch {
+		case listedI && listedJ:
+			return ri < rj
+		case listedI != listedJ:
+			return listedI
+		case items[i].Order != items[j].Order:
+			return items[i].Order < items[j].Order
+		}
+		return items[i].RelPath < items[j].RelPath
+	})
+	for i := range items {
+		items[i].Position = int32(i)
+	}
 }
 
 // pipelineIdentity is the name the engine matches on: the file's base name

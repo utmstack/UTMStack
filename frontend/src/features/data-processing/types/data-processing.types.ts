@@ -8,8 +8,10 @@ export interface Pipeline {
   active: boolean
   /** The dataTypes this pipeline applies to. */
   dataTypes: string[]
-  /** Which pipeline runs first when several match the same data type. */
+  /** The position the pipeline's own file declares. */
   order: number
+  /** Where it runs for this tenant: its saved sequence first, then the file order. Only the listing sets it. */
+  position?: number
 }
 
 export interface PipelineListQuery {

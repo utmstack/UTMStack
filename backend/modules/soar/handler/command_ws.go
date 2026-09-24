@@ -243,16 +243,16 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 
 		case grpcErr, ok := <-errCh:
 			if !ok {
-				finish(domain.ExecutionStatusExecuted)
-				return
+				// Closed without an error: the outcome is whatever resultCh says.
+				// It is closed right after errCh, and may still hold the output.
+				errCh = nil
+				continue
 			}
-			if grpcErr != nil {
-				finish(domain.ExecutionStatusFailed)
-				_ = catcher.Error("CommandStream: grpc error", grpcErr, nil)
-				errMsg, _ := json.Marshal(wsMessage{Type: "error", Message: grpcErr.Error()})
-				_ = conn.Write(ctx, websocket.MessageText, errMsg)
-				_ = conn.Close(websocket.StatusInternalError, "grpc error")
-			}
+			finish(domain.ExecutionStatusFailed)
+			_ = catcher.Error("CommandStream: grpc error", grpcErr, nil)
+			errMsg, _ := json.Marshal(wsMessage{Type: "error", Message: grpcErr.Error()})
+			_ = conn.Write(ctx, websocket.MessageText, errMsg)
+			_ = conn.Close(websocket.StatusInternalError, "grpc error")
 			return
 
 		case <-ctx.Done():

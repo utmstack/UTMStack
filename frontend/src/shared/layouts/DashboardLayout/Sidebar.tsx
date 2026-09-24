@@ -534,14 +534,14 @@ function SettingsSidebar({
           </Link>
         )}
       </div>
-      <div className="flex p-2 pb-0">
+      <div className={cn('flex items-center p-2 pb-0', collapsed && 'justify-center')}>
+        {!collapsed && (
+          <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            {t('settings.title')}
+          </div>
+        )}
         <CollapseToggle collapsed={collapsed} onToggle={onToggleCollapsed} />
       </div>
-      {!collapsed && (
-        <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-          {t('settings.title')}
-        </div>
-      )}
       <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-2 pt-1">
         {items.map((item) => (
           <SidebarLeaf

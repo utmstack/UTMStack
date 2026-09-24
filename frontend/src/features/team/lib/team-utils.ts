@@ -4,7 +4,6 @@ import { TeamHttpError } from "../services/team-http.service";
 import type { UserBase } from "../types/team.types";
 
 export const PAGE_SIZE = 20;
-export const MEMBER_COLS = ["1.7fr", "1fr", 90, 130, 40];
 
 /* Roles & permissions arrive from the backend as English DB strings. Translate the
  * stable identifiers (role name, permission resource/action) with a fallback to the

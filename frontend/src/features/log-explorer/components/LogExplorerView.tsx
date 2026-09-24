@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
 import { looksLikeSql } from '../domain/sql-sync'
-import { logGridColumnSizes, ResultsHeader, ResultRow } from './log-results'
+import { LogTable } from './log-table'
 import { MSG_FIELDS, SRC_FIELDS, flattenDoc, pick, previewText } from '../domain/flatten'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
@@ -363,22 +362,6 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       },
     ]
   }, [columns, autoColumns])
-  const columnStorageKey = useMemo(
-    () => `log-explorer-table-columns:${columns.length > 0 ? columns.join('|') : `auto:${autoColumns.join('|')}`}`,
-    [columns, autoColumns],
-  )
-  // Grid mins: three fixed leading tracks (row-actions, indicator, time),
-  // then either the user-picked field names (manual mode) or source + auto
-  // fields (default mode). Label-based floors keep
-  // header names from cropping when a column is dragged narrow.
-  const logGridMins = columns.length > 0
-    ? [20, 30, 168, ...columns.map((field) => field === 'origin.ip' ? 320 : colMins([field])[0])]
-    : [20, 30, 168, 96, ...autoColumns.map((field) => field === 'origin.ip' ? 320 : colMins([field])[0])]
-  const { template: tableCols, startDrag } = useResizableColumns(logGridColumnSizes(columns, autoColumns), {
-    min: logGridMins,
-    storageKey: columnStorageKey,
-  })
-
   /* Fetch one page. page 1 replaces the list (fresh query); later pages append
      (infinite scroll). The histogram fetches separately. */
   const fetchPage = useCallback(
@@ -485,7 +468,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   }
 
   // Stable identities: memoized children (FieldSidebar/FieldItem/HistogramStrip/
-  // ResultRow) skip re-render on SQL keystrokes only if their callback props are
+  // LogTable) skip re-render on SQL keystrokes only if their callback props are
   // reference-stable. Functional setState updaters let these be dep-free.
   const addFilter = useCallback((f: FilterType) => {
     setFilters((cur) =>
@@ -677,7 +660,16 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               />
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
               <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
-                <ResultsHeader columns={columns} autoColumns={autoColumns} tableCols={tableCols} startDrag={startDrag} onRemoveColumn={toggleColumn} />
+                <LogTable
+                  docs={rows}
+                  columns={columns}
+                  autoColumns={autoColumns}
+                  expanded={expanded}
+                  onToggle={toggleExpanded}
+                  onAdd={addFilter}
+                  onSurrounding={viewSurrounding}
+                  onRemoveColumn={toggleColumn}
+                />
                 {loading && rows.length === 0 ? (
                   <RowMessage>
                     <Loader2 className="h-4 w-4 animate-spin" /> {t('logExplorer.results.searching')}
@@ -715,20 +707,6 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                   </div>
                 ) : (
                   <>
-                    {rows.map((doc, i) => (
-                      <ResultRow
-                        key={i}
-                        index={i}
-                        doc={doc}
-                        columns={columns}
-                        autoColumns={autoColumns}
-                        tableCols={tableCols}
-                        expanded={expanded === i}
-                        onToggle={toggleExpanded}
-                        onAdd={addFilter}
-                        onSurrounding={viewSurrounding}
-                      />
-                    ))}
                     {loadingMore && (
                       <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('logExplorer.results.loadingMore')}

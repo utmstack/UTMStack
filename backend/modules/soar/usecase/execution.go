@@ -198,7 +198,7 @@ func (u *executionUsecase) StartManual(ctx context.Context, agent, command, trig
 		Executor:    "shell",
 		Kind:        domain.NodeKindExecutor,
 		NodeID:      "manual",
-		Status:      domain.ExecutionStatusPending,
+		Status:      domain.ExecutionStatusExecuting,
 		StartedAt:   time.Now().UTC(),
 	})
 	if err != nil {

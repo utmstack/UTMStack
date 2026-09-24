@@ -2,21 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import { filterAggregatableFields, groupableFields } from '@/features/dashboard/utils/aggregatable-fields'
+import { isDateType } from '@/features/dashboard/utils/field-types'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
 import type { ChartView, FilterType, IndexField } from '../types/log-explorer.types'
 import { SELECT_CLS, TS } from './log-explorer.constants'
 import { TermsChart } from './TermsChart'
 import { TimeChart } from './TimeChart'
 
-// Bucket sizes the date histogram accepts.
+// The bucket sizes the histogram endpoint accepts; anything else is refused.
 const CALENDAR_INTERVALS = [
   { id: 'minute', label: 'Minute' },
   { id: 'hour', label: 'Hour' },
   { id: 'day', label: 'Day' },
   { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
-  { id: 'quarter', label: 'Quarter' },
-  { id: 'year', label: 'Year' },
 ]
 
 export function ChartPanel({
@@ -32,8 +31,10 @@ export function ChartPanel({
   filters: FilterType[]
 }) {
   const { t } = useTranslation()
+  // What a chart can break down by: a value per record — not a sub-document
+  // (`origin`, `log`), not a list, not the raw text.
   const selectable = useMemo(
-    () => fields.filter((f) => !f.name.endsWith('.keyword')).sort((a, b) => a.name.localeCompare(b.name)),
+    () => groupableFields(filterAggregatableFields(fields)).sort((a, b) => a.name.localeCompare(b.name)),
     [fields]
   )
   const [fieldName, setFieldName] = useState('')
@@ -42,38 +43,47 @@ export function ChartPanel({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
 
-  // Default to @timestamp (time histogram) when present, else the first field.
+  // Default to @timestamp (time histogram) when present, else the first field —
+  // and again when the dataset changes to one that lacks the chosen field.
   useEffect(() => {
-    if (fieldName || selectable.length === 0) return
+    if (selectable.length === 0 || selectable.some((f) => f.name === fieldName)) return
     setFieldName(selectable.find((f) => f.name === TS)?.name ?? selectable[0].name)
   }, [selectable, fieldName])
 
   const field = selectable.find((f) => f.name === fieldName) ?? null
-  const isDate = field?.type === 'date'
-  const aggField = field ? (field.type === 'text' ? `${field.name}.keyword` : field.name) : ''
+  const isDate = isDateType(field?.type)
+  const aggField = field?.name ?? ''
 
+  // A data type narrows the chart; without one it charts the whole dataset.
   useEffect(() => {
-    if (!pattern || !field) return
+    if (!field) return
+    // Answers can arrive out of order when the field or filters change quickly;
+    // only the latest question's answer may reach the screen.
+    let stale = false
     setLoading(true)
     setError(false)
     svc
       .chartView({
         dataset,
-      dataType: pattern,
+        dataType: pattern,
         field: aggField,
         fieldDataType: field.type,
         filters,
         interval: isDate ? interval : '',
         top: 20,
       })
-      .then(setData)
+      .then((view) => !stale && setData(view))
       .catch(() => {
+        if (stale) return
         setData(null)
         setError(true)
       })
-      .finally(() => setLoading(false))
+      .finally(() => !stale && setLoading(false))
+    return () => {
+      stale = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pattern, fieldName, interval, filters])
+  }, [dataset, pattern, fieldName, interval, filters])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

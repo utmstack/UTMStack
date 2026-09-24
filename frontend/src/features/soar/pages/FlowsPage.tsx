@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertTriangle,
   Loader2,
@@ -15,11 +17,7 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
-import { ResizableTableHeader } from "@/shared/components/ui/resizable-table-header";
-import {
-  colMins,
-  useResizableColumns,
-} from "@/shared/hooks/useResizableColumns";
+import { ResizableDataTable } from "@/shared/components/ui/resizable-data-table";
 import {
   PlatformBroadcastButton,
   broadcast,
@@ -36,7 +34,7 @@ type ListTab = "all" | "active" | "inactive" | "system" | "user";
 const LIST_TABS: ListTab[] = ["all", "active", "inactive", "system", "user"];
 const TH = "whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium";
 const TD = "whitespace-nowrap px-3 py-2.5 align-middle";
-const FLOWS_TABLE_COLS = [360, 130, 90, 90, 140, 90, 70];
+const stopRowClick = (e: React.MouseEvent) => e.stopPropagation();
 
 function flowName(relPath: string): string {
   return (relPath.split("/").pop() ?? relPath).replace(/\.ya?ml$/i, "");
@@ -98,24 +96,6 @@ export function FlowsPage() {
   // flows exist.
   const [stateVersion, setStateVersion] = useState(0);
   const [stats, setStats] = useState<Record<string, FlowStat>>({});
-  const flowsHeaders = [
-    t("soar.cols.flow"),
-    t("soar.cols.platform"),
-    t("soar.cols.conditions"),
-    t("soar.cols.commands"),
-    t("soar.cols.lastRun"),
-    t("soar.cols.active"),
-    "",
-  ];
-  const { widths, startDrag } = useResizableColumns(FLOWS_TABLE_COLS, {
-    min: [...colMins(flowsHeaders.slice(0, -1)), 60],
-    storageKey: "soar-flows-table-columns",
-  });
-  const flowsTableWidth = widths.reduce<number>(
-    (total, width) => total + (typeof width === "number" ? width : 0),
-    0,
-  );
-
   const openStartFrom = () => {
     setStarting(true);
     soarFlowsService
@@ -275,97 +255,41 @@ export function FlowsPage() {
 
           <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
             <div className="min-h-0 flex-1 overflow-auto">
-              <table
-                className="border-collapse table-fixed"
-                style={{
-                  width: "max-content",
-                  minWidth: `${Math.max(flowsTableWidth, 100)}px`,
-                }}
-              >
-                <colgroup>
-                  {widths.map((width, index) => (
-                    <col
-                      key={index}
-                      style={{
-                        width: typeof width === "number" ? `${width}px` : width,
-                      }}
-                    />
-                  ))}
-                </colgroup>
-                <ResizableTableHeader
-                  cells={[
-                    { content: flowsHeaders[0], className: TH },
-                    { content: flowsHeaders[1], className: TH },
-                    {
-                      content: flowsHeaders[2],
-                      className: `${TH} text-center`,
-                    },
-                    {
-                      content: flowsHeaders[3],
-                      className: `${TH} text-center`,
-                    },
-                    { content: flowsHeaders[4], className: TH },
-                    {
-                      content: flowsHeaders[5],
-                      className: `${TH} text-center`,
-                    },
-                    { content: null, className: TH },
-                  ]}
-                  widths={widths}
-                  startDrag={startDrag}
-                  className="sticky top-0 z-10 bg-muted text-[10px] uppercase tracking-wider text-muted-foreground"
-                  rowClassName="border-b border-border"
-                />
-                <tbody>
-                  {loading && items.length === 0 ? (
-                    <tr>
-                      <td colSpan={7}>
-                        <Center>
-                          <Loader2 className="h-4 w-4 animate-spin" />{" "}
-                          {t("soar.loading")}
-                        </Center>
-                      </td>
-                    </tr>
-                  ) : error ? (
-                    <tr>
-                      <td colSpan={7}>
-                        <Center>
-                          <AlertTriangle size={16} className="text-amber-500" />{" "}
-                          {t("soar.loadError")}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="ml-2"
-                            onClick={load}
-                          >
-                            {t("soar.retry")}
-                          </Button>
-                        </Center>
-                      </td>
-                    </tr>
-                  ) : items.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-6 py-16 text-center text-sm text-muted-foreground"
-                      >
-                        {t("soar.empty")}
-                      </td>
-                    </tr>
-                  ) : (
-                    items.map((f) => (
-                      <FlowRow
-                        key={f.relPath}
-                        f={f}
-                        stat={stats[f.relPath]}
-                        onOpen={() => setEditing({ flow: f, creating: false })}
-                        onToggle={() => toggleActive(f)}
-                        t={t}
-                      />
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <ResizableDataTable
+                columns={buildFlowColumns(t, stats, toggleActive)}
+                data={items}
+                flexColumnId="flow"
+                storageKey="soar-flows-table-sizing"
+                getRowId={(f) => f.relPath}
+                onRowClick={(f) => setEditing({ flow: f, creating: false })}
+                loading={loading && items.length === 0}
+                loadingContent={
+                  <Center>
+                    <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                    {t("soar.loading")}
+                  </Center>
+                }
+                error={error}
+                errorContent={
+                  <Center>
+                    <AlertTriangle size={16} className="text-amber-500" />{" "}
+                    {t("soar.loadError")}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="ml-2"
+                      onClick={load}
+                    >
+                      {t("soar.retry")}
+                    </Button>
+                  </Center>
+                }
+                emptyContent={
+                  <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+                    {t("soar.empty")}
+                  </div>
+                }
+              />
               {items.length > 0 && (
                 <InfiniteScrollSentinel
                   onReach={() => setPage((p) => p + 1)}
@@ -485,82 +409,118 @@ function FlowKpis({ refreshKey }: { refreshKey: number }) {
   );
 }
 
-function FlowRow({
-  f,
-  stat,
-  onOpen,
-  onToggle,
-  t,
-}: {
-  f: Flow;
-  stat?: FlowStat;
-  onOpen: () => void;
-  onToggle: () => void;
-  t: ReturnType<typeof useTranslation>["t"];
-}) {
-  return (
-    <tr
-      className="cursor-pointer border-b border-border text-sm transition-colors last:border-0 hover:bg-muted/40"
-      onClick={onOpen}
-    >
-      <td className={`${TD} max-w-[360px]`} title={f.relPath}>
-        <div className="flex min-w-0 items-center gap-2">
-          <Terminal size={14} className="shrink-0 text-muted-foreground" />
-          <div className="min-w-0">
-            <div className="truncate text-[13px]">
-              {f.name || flowName(f.relPath)}
-            </div>
-            {f.description && (
-              <div className="truncate text-[11px] text-muted-foreground">
-                {f.description}
+// The distinct platforms across the flow's shell nodes — a DAG can span
+// several platforms now, so this is the set rather than a flow-level field
+// that no longer exists.
+function platformsOf(f: Flow): string[] {
+  return Array.from(
+    new Set(
+      Object.values(f.nodes ?? {})
+        .map((n) => n.platform?.trim())
+        .filter((p): p is string => !!p),
+    ),
+  );
+}
+
+function buildFlowColumns(
+  t: TFunction,
+  stats: Record<string, FlowStat>,
+  onToggle: (f: Flow) => void,
+): ColumnDef<Flow>[] {
+  const count = `${TD} font-mono text-[11px] text-muted-foreground`;
+  return [
+    {
+      id: "flow",
+      header: t("soar.cols.flow"),
+      size: 360,
+      minSize: 120,
+      meta: {
+        headerClassName: TH,
+        cellClassName: TD,
+        cellProps: (f) => ({ title: f.relPath }),
+      },
+      cell: ({ row }) => {
+        const f = row.original;
+        return (
+          <div className="flex min-w-0 items-center gap-2">
+            <Terminal size={14} className="shrink-0 text-muted-foreground" />
+            <div className="min-w-0">
+              <div className="truncate text-[13px]">
+                {f.name || flowName(f.relPath)}
               </div>
-            )}
-          </div>
-        </div>
-      </td>
-      <td className={TD}>
-        {(() => {
-          // Aggregate platforms across the flow's shell nodes — a DAG can span
-          // several platforms now, so we render the distinct set instead of a
-          // flow-level field that no longer exists.
-          const platforms = Array.from(
-            new Set(
-              Object.values(f.nodes ?? {})
-                .map((n) => n.platform?.trim())
-                .filter((p): p is string => !!p),
-            ),
-          );
-          if (platforms.length === 0)
-            return <span className="text-[11px] text-muted-foreground">—</span>;
-          return (
-            <div className="flex flex-wrap gap-1">
-              {platforms.map((p) => (
-                <span
-                  key={p}
-                  className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
-                >
-                  {p}
-                </span>
-              ))}
+              {f.description && (
+                <div className="truncate text-[11px] text-muted-foreground">
+                  {f.description}
+                </div>
+              )}
             </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "platform",
+      header: t("soar.cols.platform"),
+      size: 130,
+      minSize: 70,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const platforms = platformsOf(row.original);
+        if (platforms.length === 0)
+          return <span className="text-[11px] text-muted-foreground">—</span>;
+        return (
+          <div className="flex flex-wrap gap-1">
+            {platforms.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      id: "conditions",
+      header: t("soar.cols.conditions"),
+      size: 100,
+      minSize: 70,
+      meta: { headerClassName: TH, cellClassName: count },
+      cell: ({ row }) => row.original.conditions?.length ?? 0,
+    },
+    {
+      id: "commands",
+      header: t("soar.cols.commands"),
+      size: 100,
+      minSize: 70,
+      meta: { headerClassName: TH, cellClassName: count },
+      cell: ({ row }) =>
+        row.original.nodes ? Object.keys(row.original.nodes).length : 0,
+    },
+    {
+      id: "lastRun",
+      header: t("soar.cols.lastRun"),
+      size: 140,
+      minSize: 90,
+      meta: {
+        headerClassName: TH,
+        cellClassName: `${TD} text-[11px]`,
+        cellProps: (f) => {
+          const last = stats[f.relPath]?.last;
+          return { title: last ? new Date(last).toLocaleString() : undefined };
+        },
+      },
+      cell: ({ row }) => {
+        const stat = stats[row.original.relPath];
+        if (!stat?.last)
+          return (
+            <span className="text-muted-foreground/50">
+              {t("soar.neverRun")}
+            </span>
           );
-        })()}
-      </td>
-      <td
-        className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}
-      >
-        {f.conditions?.length ?? 0}
-      </td>
-      <td
-        className={`${TD} text-center font-mono text-[11px] text-muted-foreground`}
-      >
-        {f.nodes ? Object.keys(f.nodes).length : 0}
-      </td>
-      <td
-        className={`${TD} text-[11px]`}
-        title={stat?.last ? new Date(stat.last).toLocaleString() : undefined}
-      >
-        {stat?.last ? (
+        return (
           <div className="flex items-center gap-1.5">
             <span className="font-mono text-muted-foreground">
               {relativeTime(stat.last)}
@@ -574,27 +534,49 @@ function FlowRow({
               </span>
             )}
           </div>
-        ) : (
-          <span className="text-muted-foreground/50">{t("soar.neverRun")}</span>
-        )}
-      </td>
-      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
+        );
+      },
+    },
+    {
+      id: "active",
+      header: t("soar.cols.active"),
+      size: 100,
+      minSize: 90,
+      enableResizing: false,
+      meta: {
+        headerClassName: `${TH} text-center`,
+        cellClassName: `${TD} text-center`,
+        cellProps: () => ({ onClick: stopRowClick }),
+      },
+      cell: ({ row }) => (
         <div className="flex items-center justify-center">
-          <Toggle checked={f.active} onChange={onToggle} flow={f} />
+          <Toggle
+            checked={row.original.active}
+            onChange={() => onToggle(row.original)}
+            flow={row.original}
+          />
         </div>
-      </td>
-      <td className={`${TD} text-right`}>
+      ),
+    },
+    {
+      id: "view",
+      header: () => null,
+      size: 70,
+      minSize: 70,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: `${TD} text-right` },
+      cell: ({ row }) => (
         <div className="flex items-center justify-end gap-1.5">
-          {f.systemOwner && (
+          {row.original.systemOwner && (
             <Lock size={11} className="text-muted-foreground/60" />
           )}
           <span className="text-[11px] text-muted-foreground">
             {t("soar.view")}
           </span>
         </div>
-      </td>
-    </tr>
-  );
+      ),
+    },
+  ];
 }
 
 function Toggle({

@@ -12,13 +12,12 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { useBilling } from '@/features/billing'
 import { EnterpriseGate } from '@/shared/components/EnterpriseGate'
 import { apiKeysHttpService } from '../services/api-keys-http.service'
 import type { ApiKey, ApiKeyPageInfo } from '../types/api-key.types'
-import { API_KEY_TABLE_COLS, KeyRow } from '../components/KeyRow'
+import { buildKeyColumns } from '../components/key-columns'
 import { UpsertDialog } from '../components/UpsertDialog'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { RevealModal } from '../components/RevealModal'
@@ -41,19 +40,6 @@ export function ApiKeysPage() {
   const [dialog, setDialog] = useState<DialogState>(null)
   const [confirm, setConfirm] = useState<ConfirmState>(null)
   const [revealed, setRevealed] = useState<{ name: string; token: string } | null>(null)
-  const apiKeyHeaders = [
-    t('apiKeys.col.name'),
-    t('apiKeys.col.allowedIps'),
-    t('apiKeys.col.created'),
-    t('apiKeys.col.lastRotated'),
-    t('apiKeys.col.expires'),
-    t('apiKeys.col.status'),
-    t('apiKeys.col.actions'),
-  ]
-  const { template: tableCols, startDrag } = useResizableColumns(API_KEY_TABLE_COLS, {
-    min: colMins(apiKeyHeaders),
-    storageKey: 'api-keys-table-columns',
-  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -145,54 +131,42 @@ export function ApiKeysPage() {
           </div>
 
           <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
-            <div
-              className="grid items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-              style={{ gridTemplateColumns: tableCols }}
-            >
-              {apiKeyHeaders.map((header, index, headers) => (
-                <div key={index} data-resizable-col className="relative min-w-0 pr-2 last:pr-0 last:text-right">
-                  {header}
-                  {index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
+            <ResizableDataTable
+              columns={buildKeyColumns(t, {
+                onEdit: (key) => setDialog({ mode: 'edit', key }),
+                onRotate: (key) => setConfirm({ kind: 'rotate', key }),
+                onDelete: (key) => setConfirm({ kind: 'delete', key }),
+              })}
+              data={filtered}
+              flexColumnId="name"
+              storageKey="api-keys-table-sizing"
+              getRowId={(k) => String(k.id)}
+              rowClassName={() => 'text-xs last:border-b-0'}
+              loading={loading && (!keys || keys.length === 0)}
+              loadingContent={
+                <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t('apiKeys.loading')}
                 </div>
-              ))}
-            </div>
-
-            {loading && (!keys || keys.length === 0) && (
-              <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t('apiKeys.loading')}
-              </div>
-            )}
-
-            {!loading && error && (
-              <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
-                <span className="inline-flex items-center gap-2 text-muted-foreground">
-                  <AlertTriangle size={16} className="text-amber-500" />
-                  {t('apiKeys.loadFailed')}
-                </span>
-                <Button variant="outline" size="sm" onClick={() => void load()}>
-                  {t('apiKeys.retry')}
-                </Button>
-              </div>
-            )}
-
-            {!loading && !error && filtered.length === 0 && (
-              <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-                {search ? t('apiKeys.noSearchMatch') : t('apiKeys.empty')}
-              </div>
-            )}
-
-            {filtered.length > 0 &&
-              filtered.map((k) => (
-                <KeyRow
-                  key={k.id}
-                  apiKey={k}
-                  tableCols={tableCols}
-                  onEdit={() => setDialog({ mode: 'edit', key: k })}
-                  onRotate={() => setConfirm({ kind: 'rotate', key: k })}
-                  onDelete={() => setConfirm({ kind: 'delete', key: k })}
-                />
-              ))}
+              }
+              error={!loading && error}
+              errorContent={
+                <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
+                  <span className="inline-flex items-center gap-2 text-muted-foreground">
+                    <AlertTriangle size={16} className="text-amber-500" />
+                    {t('apiKeys.loadFailed')}
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => void load()}>
+                    {t('apiKeys.retry')}
+                  </Button>
+                </div>
+              }
+              emptyContent={
+                <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+                  {search ? t('apiKeys.noSearchMatch') : t('apiKeys.empty')}
+                </div>
+              }
+            />
           </div>
 
           {!error && keys && keys.length > 0 && (

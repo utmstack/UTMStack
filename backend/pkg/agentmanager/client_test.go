@@ -3,6 +3,7 @@ package agentmanager
 import (
 	"context"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -89,6 +90,72 @@ func TestListingsCarryTheActingTenant(t *testing.T) {
 	}
 	if collectors.saw.GetTenantId() != customerTenant {
 		t.Errorf("ListCollectors tenant = %q, want %q", collectors.saw.GetTenantId(), customerTenant)
+	}
+}
+
+// The agent-manager answers a command with one result and then keeps the stream
+// open for the next command, so it never ends it. If the client waits for that,
+// the console's run never completes: no "done", and the record stays open until
+// a restart tears the connection down and it is closed as a failure.
+type answersOnceService struct {
+	agent.PanelServiceClient
+	streamCtx context.Context
+}
+
+func (s *answersOnceService) ProcessCommand(ctx context.Context, _ ...grpc.CallOption) (agent.PanelService_ProcessCommandClient, error) {
+	s.streamCtx = ctx
+	return &answersOnceStream{ctx: ctx}, nil
+}
+
+type answersOnceStream struct {
+	grpc.ClientStream
+	ctx      context.Context
+	answered bool
+}
+
+func (s *answersOnceStream) Send(*agent.UtmCommand) error { return nil }
+
+func (s *answersOnceStream) Recv() (*agent.CommandResult, error) {
+	if !s.answered {
+		s.answered = true
+		return &agent.CommandResult{Result: "root\n"}, nil
+	}
+	<-s.ctx.Done()
+	return nil, s.ctx.Err()
+}
+
+func TestCommandStreamEndsWithItsResult(t *testing.T) {
+	panel := &answersOnceService{}
+	c := &AgentManagerClient{panelService: panel}
+
+	results, errs := c.ProcessCommandStream(context.Background(), &agent.UtmCommand{})
+
+	select {
+	case r := <-results:
+		if r.GetResult() != "root\n" {
+			t.Errorf("result = %q, want the agent's output", r.GetResult())
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("no result arrived")
+	}
+
+	select {
+	case _, open := <-results:
+		if open {
+			t.Error("a second result arrived; a command has exactly one")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("results stayed open after the command's result: the run never completes")
+	}
+
+	if err, open := <-errs; open {
+		t.Errorf("error after a successful command: %v", err)
+	}
+
+	select {
+	case <-panel.streamCtx.Done():
+	case <-time.After(2 * time.Second):
+		t.Error("the gRPC stream was left open after the result")
 	}
 }
 

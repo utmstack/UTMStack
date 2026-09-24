@@ -13,12 +13,8 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
-import { ColumnResizeHandle } from "@/shared/components/ui/column-resize-handle";
-import {
-  colMins,
-  useResizableColumns,
-} from "@/shared/hooks/useResizableColumns";
-import { MEMBER_COLS, PAGE_SIZE } from "../lib/team-utils";
+import { ResizableDataTable } from "@/shared/components/ui/resizable-data-table";
+import { PAGE_SIZE } from "../lib/team-utils";
 import {
   rolesHttpService,
   usersHttpService,
@@ -26,7 +22,7 @@ import {
 import type { PageInfo, Role, UserListItem } from "../types/team.types";
 import { MemberDrawer } from "../components/member-drawer";
 import { InviteDialog } from "../components/invite-dialog";
-import { MemberRow } from "../components/member-row";
+import { buildMemberColumns } from "../components/member-columns";
 import { RolesView } from "../components/roles-view";
 
 type View = "members" | "roles";
@@ -127,18 +123,6 @@ function MembersView({ roles }: { roles: Role[] }) {
 
   const [openId, setOpenId] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const memberHeaders = [
-    t("team.members.colUser"),
-    t("team.members.colRoles"),
-    t("team.members.col2fa"),
-    t("team.members.colStatus"),
-    "",
-  ];
-  const memberMins = [...colMins(memberHeaders.slice(0, -1)), 40];
-  const { template: memberCols, startDrag } = useResizableColumns(MEMBER_COLS, {
-    min: memberMins,
-    storageKey: "team-members-table-columns",
-  });
 
   // Debounce the search box, and reset to page 1 when the query changes.
   useEffect(() => {
@@ -196,61 +180,43 @@ function MembersView({ roles }: { roles: Role[] }) {
       </div>
 
       <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
-        <div
-          className="grid w-max min-w-full items-center gap-3 border-b border-border bg-muted/40 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground"
-          style={{ gridTemplateColumns: memberCols }}
-        >
-          {memberHeaders.map((header, index, headers) => (
-            <div
-              key={index}
-              data-resizable-col
-              className="relative min-w-0 pr-2 last:pr-0"
-            >
-              {header}
-              {index < headers.length - 1 && (
-                <ColumnResizeHandle onMouseDown={startDrag(index)} />
-              )}
+        <ResizableDataTable
+          columns={buildMemberColumns(t)}
+          data={users ?? []}
+          flexColumnId="user"
+          storageKey="team-members-table-sizing"
+          getRowId={(u) => u.id}
+          onRowClick={(u) => setOpenId(u.id)}
+          rowClassName={(u) =>
+            cn("text-xs last:border-b-0", u.status !== "active" && "opacity-70")
+          }
+          loading={loading && (!users || users.length === 0)}
+          loadingContent={
+            <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t("team.members.loading")}
             </div>
-          ))}
-        </div>
-
-        {loading && (!users || users.length === 0) && (
-          <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {t("team.members.loading")}
-          </div>
-        )}
-
-        {!loading && error && (
-          <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
-            <span className="inline-flex items-center gap-2 text-muted-foreground">
-              <AlertTriangle size={16} className="text-amber-500" />
-              {t("team.members.loadFailed")}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => void load()}>
-              {t("team.members.retry")}
-            </Button>
-          </div>
-        )}
-
-        {!loading && !error && users && users.length === 0 && (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-            {debounced
-              ? t("team.members.noSearchMatch")
-              : t("team.members.none")}
-          </div>
-        )}
-
-        {users &&
-          users.length > 0 &&
-          users.map((u) => (
-            <MemberRow
-              key={u.id}
-              user={u}
-              tableCols={memberCols}
-              onOpen={() => setOpenId(u.id)}
-            />
-          ))}
+          }
+          error={!loading && error}
+          errorContent={
+            <div className="flex flex-col items-center gap-3 px-6 py-12 text-sm">
+              <span className="inline-flex items-center gap-2 text-muted-foreground">
+                <AlertTriangle size={16} className="text-amber-500" />
+                {t("team.members.loadFailed")}
+              </span>
+              <Button variant="outline" size="sm" onClick={() => void load()}>
+                {t("team.members.retry")}
+              </Button>
+            </div>
+          }
+          emptyContent={
+            <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+              {debounced
+                ? t("team.members.noSearchMatch")
+                : t("team.members.none")}
+            </div>
+          }
+        />
       </div>
 
       {users && users.length > 0 && (

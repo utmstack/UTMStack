@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -13,8 +15,7 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
-import { ResizableGridHeader } from "@/shared/components/ui/resizable-grid-header";
-import { colMins, useResizableColumns } from "@/shared/hooks/useResizableColumns";
+import { ResizableDataTable } from "@/shared/components/ui/resizable-data-table";
 import {
   presetRange,
   resolveRange,
@@ -49,8 +50,8 @@ const STATUSES: (ExecutionStatus | "all")[] = [
   "DEAD",
 ];
 const ORIGINS: (ExecutionOrigin | "all")[] = ["all", "FLOW", "MANUAL"];
-const COLS =
-  [90, 100, "minmax(160px,1.2fr)", "minmax(180px,1.6fr)", 120, 150, 60];
+const TH = "whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium";
+const TD = "whitespace-nowrap px-3 py-2.5 align-middle";
 
 const STATUS_META: Record<
   ExecutionStatus,
@@ -80,19 +81,6 @@ export function ExecutionsView() {
   // each node's position in the flow's DAG (its ancestor chain) in the Node
   // column — the flow itself carries no per-run state, only its shape.
   const [runFlows, setRunFlows] = useState<Record<string, Flow>>({});
-  const executionsHeaders = [
-    t("soar.executions.cols.status"),
-    t("soar.executions.cols.node"),
-    t("soar.executions.cols.flow"),
-    t("soar.executions.cols.command"),
-    t("soar.executions.cols.agent"),
-    t("soar.executions.cols.date"),
-    t("soar.executions.cols.retries"),
-  ];
-  const { template: tableCols, startDrag } = useResizableColumns(COLS, {
-    min: colMins(executionsHeaders),
-    storageKey: "soar-executions-table-columns",
-  });
   const [page, setPage] = useState(0);
   const [pageSize] = useState(50);
   const [loading, setLoading] = useState(true);
@@ -279,55 +267,48 @@ export function ExecutionsView() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
-          <ResizableGridHeader
-            headers={executionsHeaders}
-            tableCols={tableCols}
-            startDrag={startDrag}
-            className="sticky top-0 z-10 bg-muted/30 py-2.5 font-medium"
-            cellClassName="last:text-center"
+        <div className="min-h-0 flex-1 overflow-auto">
+          <ResizableDataTable
+            columns={buildExecutionColumns(t, df, runFlows)}
+            data={items}
+            flexColumnId="command"
+            storageKey="soar-executions-table-sizing"
+            getRowId={(e) => e.id}
+            loading={loading && items.length === 0}
+            loadingContent={
+              <Center>
+                <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                {t("soar.executions.loading")}
+              </Center>
+            }
+            error={error}
+            errorContent={
+              <Center>
+                <AlertTriangle size={16} className="text-amber-500" />{" "}
+                {t("soar.executions.loadError")}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={load}
+                >
+                  {t("soar.executions.retry")}
+                </Button>
+              </Center>
+            }
+            emptyContent={
+              <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+                {t("soar.executions.empty")}
+              </div>
+            }
           />
-          {loading && items.length === 0 ? (
-            <Center>
-              <Loader2 className="h-4 w-4 animate-spin" />{" "}
-              {t("soar.executions.loading")}
-            </Center>
-          ) : error ? (
-            <Center>
-              <AlertTriangle size={16} className="text-amber-500" />{" "}
-              {t("soar.executions.loadError")}
-              <Button
-                variant="outline"
-                size="sm"
-                className="ml-2"
-                onClick={load}
-              >
-                {t("soar.executions.retry")}
-              </Button>
-            </Center>
-          ) : items.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-              {t("soar.executions.empty")}
-            </div>
-          ) : (
-            <>
-              {items.map((e) => (
-                <ExecutionRow
-                  key={e.id}
-                  e={e}
-                  flow={e.rulePath ? runFlows[e.rulePath] : undefined}
-                  tableCols={tableCols}
-                  df={df}
-                  t={t}
-                />
-              ))}
-              <InfiniteScrollSentinel
-                onReach={() => setPage((p) => p + 1)}
-                hasMore={items.length < total}
-                loading={loading}
-                endLabel={t("common.allLoaded", { count: total })}
-              />
-            </>
+          {items.length > 0 && (
+            <InfiniteScrollSentinel
+              onReach={() => setPage((p) => p + 1)}
+              hasMore={items.length < total}
+              loading={loading}
+              endLabel={t("common.allLoaded", { count: total })}
+            />
           )}
         </div>
       </div>
@@ -335,96 +316,146 @@ export function ExecutionsView() {
   );
 }
 
-function ExecutionRow({
-  e,
-  flow,
-  tableCols,
-  df,
-  t,
-}: {
-  e: Execution;
-  flow?: Flow;
-  tableCols: string;
-  df: ReturnType<typeof useDateFormat>;
-  t: ReturnType<typeof useTranslation>["t"];
-}) {
-  const meta = STATUS_META[e.status];
-  const Icon = meta?.icon ?? Clock;
-  // A manual run has no flow: what identifies it is who typed it.
-  const source =
-    e.origin === "MANUAL"
-      ? e.triggeredBy || t("soar.executions.manual")
-      : ((e.rulePath ?? "").split("/").pop() ?? "").replace(/\.ya?ml$/i, "") ||
+// What a run shows as its source: a manual run has no flow, so what identifies
+// it is who typed it.
+function sourceOf(e: Execution, t: TFunction): string {
+  return e.origin === "MANUAL"
+    ? e.triggeredBy || t("soar.executions.manual")
+    : ((e.rulePath ?? "").split("/").pop() ?? "").replace(/\.ya?ml$/i, "") ||
         "—";
+}
 
-  // Node column: the flow carries no per-run state, only its DAG shape — so the
-  // node's place in the run is its ancestor chain, read off the live flow.
-  const nodeLabel =
-    e.origin === "FLOW" && e.nodeId
-      ? [ancestorPath(e.nodeId, flow?.nodes ?? {}), e.nodeId]
-          .filter(Boolean)
-          .join(" ← ")
-      : e.origin === "MANUAL"
-        ? t("soar.executions.manual")
-        : "—";
+// Node column: the flow carries no per-run state, only its DAG shape — so the
+// node's place in the run is its ancestor chain, read off the live flow.
+function nodeLabelOf(e: Execution, flow: Flow | undefined, t: TFunction) {
+  if (e.origin === "FLOW" && e.nodeId)
+    return [ancestorPath(e.nodeId, flow?.nodes ?? {}), e.nodeId]
+      .filter(Boolean)
+      .join(" ← ");
+  return e.origin === "MANUAL" ? t("soar.executions.manual") : "—";
+}
 
-  return (
-    <div
-      className="grid w-max min-w-full items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
-      style={{ gridTemplateColumns: tableCols }}
-    >
-      <div
-        className={cn(
-          "inline-flex items-center gap-1.5 text-[11px] font-medium",
-          meta?.cls,
-        )}
-      >
-        <Icon size={13} /> {t(`soar.executionStatus.${e.status}`)}
-      </div>
-      <div
-        className="min-w-0 truncate text-[11px] text-muted-foreground"
-        title={nodeLabel}
-      >
-        {nodeLabel}
-      </div>
-      <div className="min-w-0">
-        <div
-          className="truncate text-[13px]"
-          title={e.rulePath ?? e.triggeredBy}
-        >
-          {source}
-        </div>
-        {e.alertId && (
-          <div
-            className="truncate font-mono text-[10px] text-muted-foreground"
-            title={e.alertId}
-          >
-            {e.alertId}
+function buildExecutionColumns(
+  t: TFunction,
+  df: ReturnType<typeof useDateFormat>,
+  runFlows: Record<string, Flow>,
+): ColumnDef<Execution>[] {
+  const flowOf = (e: Execution) => (e.rulePath ? runFlows[e.rulePath] : undefined);
+  const muted = `${TD} text-[11px] text-muted-foreground`;
+  return [
+    {
+      id: "status",
+      header: t("soar.executions.cols.status"),
+      size: 120,
+      minSize: 100,
+      meta: { headerClassName: TH, cellClassName: `${TD} text-[11px] font-medium` },
+      cell: ({ row }) => {
+        const e = row.original;
+        const meta = STATUS_META[e.status];
+        const Icon = meta?.icon ?? Clock;
+        return (
+          <div className={cn("inline-flex items-center gap-1.5", meta?.cls)}>
+            <Icon size={13} /> {t(`soar.executionStatus.${e.status}`)}
           </div>
-        )}
-      </div>
-      <div className="min-w-0">
-        <CommandCell text={e.command} />
-        {e.nonExecutionCause && (
-          <div className="text-[10px] text-red-500">
-            {t(`soar.nonExecutionCause.${e.nonExecutionCause}`)}
-          </div>
-        )}
-      </div>
-      <div
-        className="truncate font-mono text-[11px] text-muted-foreground"
-        title={e.agent}
-      >
-        {e.agent || "—"}
-      </div>
-      <div className="text-[11px] text-muted-foreground">
-        {df.formatDateTime(e.startedAt)}
-      </div>
-      <div className="text-center text-[11px] text-muted-foreground">
-        {e.retries || 0}
-      </div>
-    </div>
-  );
+        );
+      },
+    },
+    {
+      id: "node",
+      header: t("soar.executions.cols.node"),
+      size: 140,
+      minSize: 70,
+      meta: {
+        headerClassName: TH,
+        cellClassName: muted,
+        cellProps: (e) => ({ title: nodeLabelOf(e, flowOf(e), t) }),
+      },
+      cell: ({ row }) => (
+        <span className="block truncate">
+          {nodeLabelOf(row.original, flowOf(row.original), t)}
+        </span>
+      ),
+    },
+    {
+      id: "flow",
+      header: t("soar.executions.cols.flow"),
+      size: 220,
+      minSize: 80,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const e = row.original;
+        return (
+          <>
+            <div
+              className="truncate text-[13px]"
+              title={e.rulePath ?? e.triggeredBy}
+            >
+              {sourceOf(e, t)}
+            </div>
+            {e.alertId && (
+              <div
+                className="truncate font-mono text-[10px] text-muted-foreground"
+                title={e.alertId}
+              >
+                {e.alertId}
+              </div>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      id: "command",
+      header: t("soar.executions.cols.command"),
+      size: 360,
+      minSize: 100,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => (
+        <>
+          <CommandCell text={row.original.command} />
+          {row.original.nonExecutionCause && (
+            <div className="text-[10px] text-red-500">
+              {t(`soar.nonExecutionCause.${row.original.nonExecutionCause}`)}
+            </div>
+          )}
+        </>
+      ),
+    },
+    {
+      id: "agent",
+      header: t("soar.executions.cols.agent"),
+      size: 130,
+      minSize: 70,
+      meta: {
+        headerClassName: TH,
+        cellClassName: `${muted} font-mono`,
+        cellProps: (e) => ({ title: e.agent }),
+      },
+      cell: ({ row }) => (
+        <span className="block truncate">{row.original.agent || "—"}</span>
+      ),
+    },
+    {
+      id: "date",
+      header: t("soar.executions.cols.date"),
+      size: 160,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: muted },
+      cell: ({ row }) => (
+        <span className="block truncate">
+          {df.formatDateTime(row.original.startedAt)}
+        </span>
+      ),
+    },
+    {
+      id: "retries",
+      header: t("soar.executions.cols.retries"),
+      size: 80,
+      minSize: 70,
+      meta: { headerClassName: TH, cellClassName: muted },
+      cell: ({ row }) => row.original.retries || 0,
+    },
+  ];
 }
 
 // The command column is always filled for every node: flow executors that
