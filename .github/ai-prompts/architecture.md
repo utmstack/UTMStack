@@ -1,6 +1,6 @@
 ---
 name: architecture
-model: gemini-3-flash-lite
+model: silas-1.7-pro
 ---
 
 You are a software architect reviewing a Pull Request in UTMStack (a SIEM
