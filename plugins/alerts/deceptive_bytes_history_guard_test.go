@@ -19,7 +19,7 @@ func TestDeceptiveBytesHistoryPlaceholdersGuarded(t *testing.T) {
 		rule  string
 		event string
 	}{
-		{"data_theft_attempt_indicators", `{"eventtype":"decoy_accessed","action":"file_copy","decoysensitivity":"high","decoyfile":"f"}`},
+		{"data_theft_attempt_indicators", `{"event_type":"decoy_accessed","action":"file_copy","decoy_sensitivity":"high","decoy_file":"f"}`},
 		{"advanced_threat_tactic_identification", `{"eventType":"advanced_threat_detected","threatLevel":"critical","tacticName":"execution","deceptionTriggered":"true","behaviorScore":95}`},
 		{"zero_day_behavior_patterns", `{"eventType":"zero_day_suspect","threatSignature":"unknown","deceptionEnvironment":"true","memoryAnomalyScore":95,"knownMalwareFamily":"","exploitTechnique":"t","processName":"p.exe"}`},
 	}

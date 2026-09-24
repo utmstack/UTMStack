@@ -152,6 +152,11 @@ func TestDeceptiveBytesKVBooleanRuleCompatibility(t *testing.T) {
 		t.Fatal(err)
 	}
 	cache := plugins.NewCELCache("deceptive-bytes-kv-boolean")
+	// Build the vendor keys the way KV stores them, with the linked SDK sanitizer.
+	keys := []string{"event_type", "threat_level", "attack_sophistication", "apt_indicators"}
+	for i := range keys {
+		utils.SanitizeField(&keys[i])
+	}
 	for _, tc := range []struct {
 		name, value string
 		want        bool
@@ -163,7 +168,7 @@ func TestDeceptiveBytesKVBooleanRuleCompatibility(t *testing.T) {
 		{"numeric one", `1`, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			input := `{"dataType":"deceptive-bytes","log":{"eventtype":"decoy_interaction","threatlevel":"critical","attacksophistication":"advanced","aptindicators":` + tc.value + `}}`
+			input := `{"dataType":"deceptive-bytes","log":{"` + keys[0] + `":"decoy_interaction","` + keys[1] + `":"critical","` + keys[2] + `":"advanced","` + keys[3] + `":` + tc.value + `}}`
 			event := new(plugins.Event)
 			if err := utils.StringToProtoMessage(&input, event); err != nil {
 				t.Fatal(err)

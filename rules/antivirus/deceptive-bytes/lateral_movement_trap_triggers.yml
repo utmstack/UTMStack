@@ -24,7 +24,7 @@ description: |
   5. Review network logs for any successful connections from this source to other systems
   6. Initiate incident response procedures for potential active threat
   7. Consider deploying additional deception tokens around critical assets
-where: equals("log.eventtype", "trap_triggered") && equals("log.traptype", "lateral_movement") && exists("origin.ip")
+where: equals("log.event_type", "trap_triggered") && equals("log.trap_type", "lateral_movement") && exists("origin.ip")
 groupBy:
-  - lastEvent.log.traptype
+  - lastEvent.log.trap_type
   - adversary.ip

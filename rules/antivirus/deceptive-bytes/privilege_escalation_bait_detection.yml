@@ -28,9 +28,9 @@ description: |
   - Consider resetting credentials for any accounts that may have been exposed
   - Update firewall rules to block the attacker's source IP if confirmed malicious
 where: |
-  equals("log.eventtype", "bait_accessed") &&
-  equals("log.baittype", "privileged_account") &&
-  oneOf("log.targetprivilege", ["admin", "system", "administrator"])
+  equals("log.event_type", "bait_accessed") &&
+  equals("log.bait_type", "privileged_account") &&
+  oneOf("log.target_privilege", ["admin", "system", "administrator"])
 groupBy:
   - adversary.ip
   - adversary.user

@@ -26,9 +26,9 @@ description: |
   - Consider resetting credentials for the affected user account
   - Document all decoy files accessed for forensic analysis
 where: |
-  equals("log.eventtype", "decoy_accessed") &&
+  equals("log.event_type", "decoy_accessed") &&
   oneOf("log.action", ["file_read", "file_copy", "file_download"]) &&
-  equals("log.decoysensitivity", "high") &&
+  equals("log.decoy_sensitivity", "high") &&
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
@@ -36,12 +36,12 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventtype
+      - field: log.event_type
         operator: filter_term
         value: 'decoy_accessed'
     within: 2h
     count: 3
 groupBy:
-  - lastEvent.log.decoyfile
+  - lastEvent.log.decoy_file
   - adversary.ip
   - adversary.user

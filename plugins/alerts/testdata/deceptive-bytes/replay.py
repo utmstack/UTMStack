@@ -15,6 +15,29 @@ import tempfile
 
 import yaml
 
+# Rules without history searches, staged together; each must alert on exactly one case.
+RULES = {
+    "living_off_the_land_detection": "rule-positive",
+    "nation_state_tactic_detection": "nation-state-positive",
+    "privilege_escalation_bait_detection": "privilege-positive",
+}
+# Vendor keys that KV stores under log. Since go-sdk v1.1.35 the field-name sanitizer
+# keeps underscores, so each key keeps its underscore; the six rules read these names.
+KV_FIELDS = {
+    "rule-positive": {"event_type": "lolbin_trap", "process_name": "cmd.exe", "deceptive_target": "decoy"},
+    "rule-negative": {"event_type": "ordinary", "process_name": "cmd.exe", "deceptive_target": "decoy"},
+    "theft-names": {"event_type": "decoy_accessed", "action": "file_copy", "decoy_sensitivity": "high",
+                    "decoy_file": "finance-decoy.xlsx"},
+    "lateral-names": {"event_type": "trap_triggered", "trap_type": "lateral_movement"},
+    "nation-state-positive": {"event_type": "decoy_interaction", "threat_level": "critical",
+                              "attack_sophistication": "advanced", "threat_score": "90", "apt_indicators": "true",
+                              "custom_malware": "false", "advanced_ttps": "false", "targeted_decoys": "1",
+                              "persistence_attempt": "false"},
+    "privilege-positive": {"event_type": "bait_accessed", "bait_type": "privileged_account", "target_privilege": "admin"},
+    "ransomware-names": {"event_type": "ransomware_behavior", "behavior_pattern": "mass_encryption",
+                         "process": "example.exe", "source_ip": "192.0.2.10"},
+}
+
 
 def records(path):
     # The playground writers can append adjacent JSON objects before newlines.
@@ -72,11 +95,15 @@ def main():
     shutil.copy2(fixture_dir / "patterns.yaml", work / "pipeline/patterns.yaml")
     filter_path = root / "filters/antivirus/deceptive-bytes.yml"
     shutil.copy2(filter_path, work / "pipeline/filters/deceptive-bytes.yaml")
-    rule_path = root / "rules/antivirus/deceptive-bytes/living_off_the_land_detection.yml"
-    rule = yaml.safe_load(rule_path.read_text())
-    require(not rule.get("afterEvents") and not rule.get("correlation"), "This fixture requires a rule without history")
-    rule["id"] = 9001
-    (work / "rules/living-off-the-land.yaml").write_text(yaml.safe_dump([rule]))
+    rule_paths, names = [], {}
+    for offset, stem in enumerate(RULES):
+        rule_path = root / f"rules/antivirus/deceptive-bytes/{stem}.yml"
+        rule = yaml.safe_load(rule_path.read_text())
+        require(not rule.get("afterEvents") and not rule.get("correlation"), f"{stem} needs history")
+        rule["id"] = 9001 + offset  # the playground loader needs unique non-zero ids
+        (work / f"rules/{stem}.yaml").write_text(yaml.safe_dump([rule]))
+        rule_paths.append(rule_path)
+        names[rule["name"]] = stem
     cases = json.loads((fixture_dir / "raw.json").read_text())
     for name, raw in cases.items():
         event = {
@@ -88,7 +115,7 @@ def main():
     manifest = {
         "provenance": "fabricated raw inputs; no customer data",
         "sourceHashes": {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
-                         for p in (filter_path, rule_path, fixture_dir / "patterns.yaml", fixture_dir / "raw.json")},
+                         for p in (filter_path, *rule_paths, fixture_dir / "patterns.yaml", fixture_dir / "raw.json")},
         "binaries": {name: {
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "buildInfo": subprocess.check_output(["go", "version", "-m", str(path)], text=True),
@@ -113,18 +140,23 @@ def main():
     blocked = events["deceptive-bytes-action-blocked"]
     require(blocked.get("actionResult") == "denied", "Blocked outcome not normalized")
     require(blocked.get("log", {}).get("action") == "blocked", "Vendor action lost")
-    for name, event_type in (("rule-positive", "lolbin_trap"), ("rule-negative", "ordinary")):
+    for name, fields in KV_FIELDS.items():
         vendor = events[f"deceptive-bytes-{name}"].get("log", {})
-        require(vendor.get("eventtype") == event_type, "KV event_type name mismatch")
-        require(vendor.get("processname") == "cmd.exe", "KV process_name mismatch")
-        require(vendor.get("deceptivetarget") == "decoy", "KV deceptive_target mismatch")
+        for key, value in fields.items():
+            require(vendor.get(key) == value, f"{name}: log.{key}={vendor.get(key)!r}, want {value!r}")
+            require(key.replace("_", "") == key or key.replace("_", "") not in vendor,
+                    f"{name}: log.{key} was stored without its underscore")
     alerts = records(work / "output/resulting_alert.json")
-    require(len(alerts) == 1, f"Expected one local alert, got {len(alerts)}")
-    alert = alerts[0]
-    require(alert.get("name") == rule["name"] and not alert.get("errors"), "Unexpected alert or evaluation error")
-    require([e.get("id") for e in alert.get("events", [])] == ["deceptive-bytes-rule-positive"], "Wrong alert event IDs")
+    require(len(alerts) == len(RULES), f"Expected {len(RULES)} local alerts, got {len(alerts)}")
+    fired = {}
+    for alert in alerts:
+        require(alert.get("name") in names and not alert.get("errors"), "Unexpected alert or evaluation error")
+        fired[names[alert["name"]]] = [e.get("id") for e in alert.get("events", [])]
+    for stem, case in RULES.items():
+        require(fired.get(stem) == [f"deceptive-bytes-{case}"], f"{stem}: alert events {fired.get(stem)}")
     (work / "assertions.json").write_text(json.dumps({"passed": True, "events": len(parsed), "alerts": len(alerts)}))
-    print("PASS: six raw events, zero parser errors, exactly one intended local alert")
+    print(f"PASS: {len(parsed)} raw events, zero parser errors, every vendor key stored with its underscore, "
+          f"{len(alerts)} local alerts, each from its intended rule")
 
 
 if __name__ == "__main__":

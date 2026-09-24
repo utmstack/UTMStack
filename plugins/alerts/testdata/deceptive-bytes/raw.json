@@ -4,5 +4,10 @@
   "action-blocked": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 action=blocked",
   "unrelated": "not a Deceptive Bytes message",
   "rule-positive": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=lolbin_trap process_name=cmd.exe deceptive_target=decoy",
-  "rule-negative": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=ordinary process_name=cmd.exe deceptive_target=decoy"
+  "rule-negative": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=ordinary process_name=cmd.exe deceptive_target=decoy",
+  "theft-names": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=decoy_accessed action=file_copy decoy_sensitivity=high decoy_file=finance-decoy.xlsx",
+  "lateral-names": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=trap_triggered trap_type=lateral_movement",
+  "nation-state-positive": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=decoy_interaction threat_level=critical attack_sophistication=advanced threat_score=90 apt_indicators=true custom_malware=false advanced_ttps=false targeted_decoys=1 persistence_attempt=false",
+  "privilege-positive": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=bait_accessed bait_type=privileged_account target_privilege=admin",
+  "ransomware-names": "<14>1 2026-09-23T12:00:00Z host 2 foo:1 event_type=ransomware_behavior behavior_pattern=mass_encryption process=example.exe source_ip=192.0.2.10"
 }
