@@ -36,7 +36,9 @@
                                 *ngIf="section.shortName === sectionType[sectionType.TFA]"></app-utm-tfa-conf-check>
 
       <button (click)="saveConfig()"
-              [disabled]="!checkConfigValid() || saving || configToSave.length === 0 || (section.shortName === sectionType[sectionType.EMAIL] && !isCheckedEmailConfig) || (section.shortName === sectionType[sectionType.TFA] && !isCheckedTFAConfig)"
+              [disabled]="saveDisabled"
+              [ngbTooltip]="'you must check before saving'"
+              [ngbTooltipEnabled]="saveDisabled"
               class="btn utm-button utm-button-primary font-size-base span-small-icon">
         <i [ngClass]="saving ? 'icon-spinner2 spinner' : 'icon-cog3'"></i>
         Save changes
