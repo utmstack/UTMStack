@@ -170,9 +170,13 @@ pipeline:
           from: [log.data.Application]
           to: log.eventDataApplication
 
-      # 5156 names the initiating and receiving addresses directly. For the
-      # blocked inbound WFP records, Microsoft's event fields put the local
-      # listener in SourceAddress and the remote peer in DestAddress.
+      # In 5152, 5156 and 5157 the Source fields hold the side that sent or
+      # started the traffic and the Destination fields the side that received
+      # it, in both directions. Production records confirm this for inbound
+      # traffic: remote senders appear in SourceAddress with ephemeral ports,
+      # and local service ports (22, 443, 445, 7680, 10050) in DestPort, even
+      # though Microsoft's 5152/5157 field text calls SourceAddress local.
+      # Blocked records need a known direction before their endpoints are used.
       - grok:
           source: log.eventDataSourceAddress
           patterns:
@@ -180,7 +184,7 @@ pipeline:
             pattern: (?s)^.+$
           where: >-
             (equals("log.eventCode",5156) ||
-             (oneOf("log.eventCode",[5152,5157]) && equals("log.eventDataDirection","%%14593"))) &&
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
             (inCIDR("log.eventDataSourceAddress","0.0.0.0/0") || inCIDR("log.eventDataSourceAddress","::/0")) &&
             !inCIDR("log.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("log.eventDataSourceAddress","::/128") &&
             !exists("origin.ip")
@@ -191,29 +195,9 @@ pipeline:
             pattern: (?s)^.+$
           where: >-
             (equals("log.eventCode",5156) ||
-             (oneOf("log.eventCode",[5152,5157]) && equals("log.eventDataDirection","%%14593"))) &&
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
             (inCIDR("log.eventDataDestAddress","0.0.0.0/0") || inCIDR("log.eventDataDestAddress","::/0")) &&
             !inCIDR("log.eventDataDestAddress","0.0.0.0/32") && !inCIDR("log.eventDataDestAddress","::/128") &&
-            !exists("target.ip")
-      - grok:
-          source: log.eventDataDestAddress
-          patterns:
-          - fieldName: origin.ip
-            pattern: (?s)^.+$
-          where: >-
-            oneOf("log.eventCode",[5152,5157]) && equals("log.eventDataDirection","%%14592") &&
-            (inCIDR("log.eventDataDestAddress","0.0.0.0/0") || inCIDR("log.eventDataDestAddress","::/0")) &&
-            !inCIDR("log.eventDataDestAddress","0.0.0.0/32") && !inCIDR("log.eventDataDestAddress","::/128") &&
-            !exists("origin.ip")
-      - grok:
-          source: log.eventDataSourceAddress
-          patterns:
-          - fieldName: target.ip
-            pattern: (?s)^.+$
-          where: >-
-            oneOf("log.eventCode",[5152,5157]) && equals("log.eventDataDirection","%%14592") &&
-            (inCIDR("log.eventDataSourceAddress","0.0.0.0/0") || inCIDR("log.eventDataSourceAddress","::/0")) &&
-            !inCIDR("log.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("log.eventDataSourceAddress","::/128") &&
             !exists("target.ip")
 
       - rename:

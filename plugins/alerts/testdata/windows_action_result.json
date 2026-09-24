@@ -23,7 +23,7 @@
   },
   {
     "name": "wfp-blocked-inbound",
-    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"DestAddress\":\"203.0.113.20\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"203.0.113.20\",\"DestAddress\":\"192.0.2.10\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
     "result": "denied",
     "dataSource": "synthetic-windows",
     "expected": {
@@ -43,7 +43,7 @@
   },
   {
     "name": "wfp-blocked-packet-ipv6",
-    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5152,\"data\":{\"SourceAddress\":\"2001:db8::1\",\"DestAddress\":\"2001:db8::2\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5152,\"data\":{\"SourceAddress\":\"2001:db8::2\",\"DestAddress\":\"2001:db8::1\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
     "result": "denied",
     "dataSource": "synthetic-windows",
     "expected": {
