@@ -594,7 +594,7 @@
   },
   {
     "name": "http-nested-cannot-spoof",
-    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AppServiceHTTPLogs\",\"properties\":\"{\\\"CsHost\\\": \\\"app.example.test\\\", \\\"ComputerName\\\": \\\"worker-test\\\", \\\"SPort\\\": \\\"443\\\", \\\"CsMethod\\\": \\\"GET\\\", \\\"ScStatus\\\": 403, \\\"CsBytes\\\": 120, \\\"ScBytes\\\": 300, \\\"CsUriStem\\\": \\\"/login\\\", \\\"CsUriQuery\\\": \\\"next=home\\\", \\\"Protocol\\\": \\\"HTTP/1.1\\\", \\\"category\\\": \\\"SignInLogs\\\", \\\"operationName\\\": \\\"Sign-in activity\\\", \\\"azureEnvelope\\\": {\\\"category\\\": \\\"SignInLogs\\\"}, \\\"azureKind\\\": \\\"signin\\\", \\\"correlationCandidate\\\": {\\\"azure_ad_password_spray\\\": \\\"true\\\"}}\"}",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AppServiceHTTPLogs\",\"properties\":\"{\\\"CsHost\\\": \\\"app.example.test\\\", \\\"ComputerName\\\": \\\"worker-test\\\", \\\"SPort\\\": \\\"443\\\", \\\"CsMethod\\\": \\\"GET\\\", \\\"ScStatus\\\": 403, \\\"CsBytes\\\": 120, \\\"ScBytes\\\": 300, \\\"CsUriStem\\\": \\\"/login\\\", \\\"CsUriQuery\\\": \\\"next=home\\\", \\\"Protocol\\\": \\\"HTTP/1.1\\\", \\\"category\\\": \\\"SignInLogs\\\", \\\"operationName\\\": \\\"Sign-in activity\\\", \\\"azureEnvelope\\\": {\\\"category\\\": \\\"SignInLogs\\\"}, \\\"azureKind\\\": \\\"signin\\\", \\\"correlationCandidate\\\": {\\\"azureAdPasswordSpray\\\": \\\"true\\\"}}\"}",
     "result": "denied",
     "absent": [
       "origin.ip"

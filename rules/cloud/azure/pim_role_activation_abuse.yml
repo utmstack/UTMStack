@@ -52,7 +52,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.pim_role_activation_abuse
+  - field: log.correlationCandidate.pimRoleActivationAbuse
     operator: filter_term
     value: 'true'
   within: 4h

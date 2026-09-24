@@ -3072,7 +3072,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.aks_security_threats
+        key: log.correlationCandidate.aksSecurityThreats
         value: 'true'
       where: '((equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
         && regexMatch("log.azureOperation","(?i)^Microsoft\\.(ContainerService|Kubernetes)/.+/(write|create|exec)$")) && exists("dataSource")
@@ -3084,7 +3084,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.app_registration_abuse
+        key: log.correlationCandidate.appRegistrationAbuse
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
         application") || equalsIgnoreCase("log.azureOperation","Add service principal") || equalsIgnoreCase("log.azureOperation","Consent
@@ -3096,7 +3096,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.application_gateway_waf_alerts
+        key: log.correlationCandidate.applicationGatewayWafAlerts
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","waf") && equalsIgnoreCase("actionResult","denied") && exists("log.properties.ruleId"))
         && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
@@ -3106,7 +3106,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.azure_ad_password_spray
+        key: log.correlationCandidate.azureAdPasswordSpray
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","failure") && equals("log.properties.status.errorCode",50126))
         && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
@@ -3116,7 +3116,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.azure_bulk_role_changes
+        key: log.correlationCandidate.azureBulkRoleChanges
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
         member to role") || equalsIgnoreCase("log.azureOperation","Add eligible member to role") || equalsIgnoreCase("log.azureOperation","Add
@@ -3132,7 +3132,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.azure_kubernetes_secret_access
+        key: log.correlationCandidate.azureKubernetesSecretAccess
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","kubernetes") && equalsIgnoreCase("log.azureKubernetes.stage","ResponseComplete")
         && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.azureKubernetes.objectRef.resource","secrets") &&
@@ -3145,7 +3145,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.azure_laps_credential_dump
+        key: log.correlationCandidate.azureLapsCredentialDump
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Recover
         device local administrator password") || equalsIgnoreCase("log.azureOperation","Read device local administrator password")))
@@ -3157,7 +3157,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.azure_ropc_authentication
+        key: log.correlationCandidate.azureRopcAuthentication
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.authenticationProtocol","ropc"))
         && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
@@ -3168,7 +3168,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.key_vault_access_spikes
+        key: log.correlationCandidate.keyVaultAccessSpikes
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","keyvault") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","SecretGet")
         || equalsIgnoreCase("log.azureOperation","SecretList") || equalsIgnoreCase("log.azureOperation","KeyGet"))) && exists("dataSource")
@@ -3180,7 +3180,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.pim_role_activation_abuse
+        key: log.correlationCandidate.pimRoleActivationAbuse
         value: 'true'
       where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
         member to role completed (PIM activation)") || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM
