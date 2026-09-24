@@ -99,21 +99,71 @@ What changed in the SDK, and what it means here:
   filter reads a text field written by `grok` or `csv`, so no result changes.
   `plugins.proto`, `plugins/cel.go` and `plugins/rules.go` are identical in v1.1.33 and
   v1.1.36.
-- The only file changed for the new SDK is a test comment that still said the sanitizer
-  removes underscores.
+- For the new SDK itself only a test comment had to change; it still said the sanitizer
+  removes underscores. Running the real engine then showed the defects below.
 
-| Check on the latest versions | Result |
+## Real-engine correction (filter 3.1.1)
+
+The first re-validation ran the committed lines through the real EventProcessor `8a3ade7`
+parser plugins, not only through the Go model. Most of them did not parse, although the Go
+suite passed. The same happens on the older engine `497bf53`, so the SDK update did not cause
+it. Four defects were in the filter:
+
+- **CSV layouts.** Each layout lists every column of the current PAN-OS documentation (for
+  example 130 for TRAFFIC). The `csv` plugin fails the whole step when a line has fewer
+  columns than the step has headers, and then writes nothing. Older firmware sends shorter
+  lines, and so did 75 of the 122 committed lines, so those events kept only the envelope.
+- **CEF and LEEF extensions.** Each of the 613 extension steps read the value with a lazy
+  pattern and checked the boundary (` next=` or the end) with a separate pattern. The `grok`
+  plugin matches each pattern on its own, so the value pattern matched empty text, which the
+  plugin treats as no match. No extension value was stored; 20 CEF lines lacked fields.
+- **SYSTEM authentication.** The address pattern also took the sentence's final period, so
+  the closing `\.$` pattern had no text left and the step wrote nothing. User and address
+  were never set. On the 34 real records, the 9 real failed logins did not match the
+  authentication rule (0 of 9) and the 3 successes lacked user and address.
+- **Lines without `<PRI>`.** The step for lines without a syslog header starts with an
+  optional `<PRI>` pattern. On a line without `<PRI>` it matched empty text, so such lines
+  were never parsed.
+
+The Go model hid all four: it joined each `grok` step's patterns into one expression, which
+can backtrack across patterns, and let `csv` skip missing columns.
+
+What changed:
+
+- The filter (3.1.1) applies each CSV layout in tiers. The first tier covers the shortest line
+  this filter accepts for the type; each longer tier, up to the full documented layout, runs
+  only when the line has at least that many columns, counted as the `csv` plugin counts them
+  (quoted commas included). Tiers: TRAFFIC 103/130, THREAT and Data Filtering 106/123, URL
+  106/123/125, HIP-MATCH 30/32, GLOBALPROTECT 29/50, IPTAG 11/27, USERID 34/37, DECRYPTION
+  31/107, TUNNEL/START/END 50/84, SCTP 32/65, CONFIG 26/28, AUTHENTICATION 46/47, SYSTEM 26,
+  CORRELATION 12/22, GTP 32/94. The real SYSTEM records have the documented 26 columns.
+- Each CEF/LEEF extension step reads the value together with its boundary, and one `trim`
+  step then removes the trailing ` next=`.
+- The authentication address pattern ends at the last address character.
+- Lines without `<PRI>` get their own one-pattern step.
+- The Go model now follows the plugins of `8a3ade7`: `grok` matches each pattern on its own at
+  the start of the remaining text and writes nothing unless all match; `csv` fails on a short
+  line; a failed step or condition is recorded on the event, as the engine does. Against the
+  previous filter it fails 104 of the 122 committed lines and 12 of the 34 real records. For
+  all 122 lines, and for both the previous and the corrected filter, its events equal the real
+  engine's field for field (numbers aside, which the test writes as protojson text).
+  `TestPaloAltoModelFollowsPlugins` and `TestPaloAltoCSVTierCondition` pin this down.
+
+No fixture or expectation changed.
+
+| Check on the latest versions, corrected filter | Result |
 |---|---|
-| Full `plugins/alerts` suite, go-sdk v1.1.36 | 46 tests pass, 12 skip, none fail. The skipped tests need private evidence (the 11 of other technologies and this draft's private records). |
-| The 34 private records, same suite | 34 of 34 pass once their expected field names are written as the camelCase names this draft now uses; the private expectation file predates that rename. With them the suite gives 47 passes, 11 skips and no failures (2,418 passing results with subtests). |
-| The 122 committed fabricated lines through the EventProcessor `8a3ade7` playground, with the filter and the eleven rules as committed | 122 events, but 75 carry the `csv` plugin error `number of headers should match the number of resulting columns`: all 28 TRAFFIC and 36 THREAT lines and 11 lines of other CSV types. The real plugin stops the pipeline when a line has fewer columns than the layout's headers (the TRAFFIC layout lists 130; the TRAFFIC line has 102), so those events keep only the envelope fields. The offline model skips missing columns instead. Of the 47 lines without errors, 16 carry every expected field and 31 do not (20 CEF, 8 SYSTEM and 3 others); for example, SYSTEM authentication lines lack `origin.ip` and `origin.user`, because the real `grok` plugin matches each pattern from the start of the remaining text, while the model searches the whole text with one expression. The same 120 lines present in an earlier run on EventProcessor `497bf53` gave identical events, so the SDK change did not cause this. |
-| go-sdk v1.1.36 rule replay over those playground events | 2 of the 38 expected rule matches. On every event that carries its expected fields, each rule gives exactly its expected result and history placeholders resolve; the misses all come from the missing fields. |
+| Full `plugins/alerts` suite, go-sdk v1.1.36 | 48 tests pass, 12 skip, none fail (2,385 passing results with subtests). With the 34 private records: 49 pass, 11 skip, none fail (2,420). The skipped tests need private evidence. |
+| The 122 committed lines through the EventProcessor `8a3ade7` playground, filter and eleven rules as committed | 122 events, no parser error, every expected field and every required absence on all 122. Before the correction: 75 events with the `csv` error and only 16 complete. |
+| go-sdk v1.1.36 rule replay over those events | Exactly the 38 expected rule matches, no other match, every history placeholder resolved. Before: 2 of 38. |
+| The 34 private real records through the same playground | 34 events, no parser error, every expected field on all 34. The authentication rule matches exactly the 9 real failed logins; the 3 successes, 10 other SYSTEM records and 12 Cortex records stay negative. Before: 22 of 34 complete, 0 of 9 matched. |
 
-So the committed Go suite passes, but the real parser plugins do not yet produce what it
-expects for most native CSV lines, most CEF lines and part of the SYSTEM lines. This is
-not a v1.1.36 change and is left to a separate correction of the CSV layouts, the SYSTEM
-authentication extraction and the offline model; the rules cannot be relied on for native
-CSV traffic until then.
+The playground has no OpenSearch, so history searches cannot complete there. The two history
+rules that match five or more lines (repeated authentication failures, repeated risky URL
+categories) therefore raise a `Circuit Breaker` alert in these runs, because each failed search
+counts as a rule error; this says nothing about the rules. Their history queries are covered by
+the SDK history tests against loopback mocks. The rules without a history search raised 16 local
+alerts, each on a line that expects it.
 
 ## Validation and rollout limits
 
@@ -134,23 +184,23 @@ the deployed filter contains the corresponding two empty steps. The sampled reco
 indexed, but lack the expected normalized event fields. This establishes actual runtime
 errors and missing mappings, not wholesale configuration rejection or event loss.
 
-Private raw replay verifies independently derived SYSTEM columns, explicit authentication
-user/address extraction, severity and time. Nine authentication failures match the revised
-authentication predicate; successes and other sampled classes remain negative. Documented
+Private raw replay, in the Go model and in the real `8a3ade7` playground, verifies
+independently derived SYSTEM columns, explicit authentication user/address extraction, severity
+and time. Nine authentication failures match the revised authentication predicate; successes
+and other sampled classes remain negative. Documented
 traffic/threat/CONFIG CSV and CEF layouts are checked against the cited contracts and fabricated
 regressions, not those SYSTEM samples. The legacy LEEF-labelled dialect has compatibility tests
 only; neither it nor standard LEEF has vendor-semantic validation here. Ambiguous CEF
 counters/severity remain unpromoted.
 
-Raw extraction in the Go suite uses an explicitly declared offline YAML/Go CSV model. It is not
-execution of the EventProcessor, geolocation service or live alert creation; the playground run
-above shows where it and the real parser plugins differ. Native replay and deployment
+Raw extraction in the Go suite uses an offline model of the EventProcessor `8a3ade7` parser
+plugins; it gives the same events as the real playground for all 122 committed lines. It does
+not run the geolocation service or create alerts. Native replay and deployment
 identity evidence are maintained separately; no customer records or identifying metadata are
 committed. No production alert-volume result is asserted.
 
-Before rollout, correct the parser differences described above, exercise the parser with the
-actual appliance export profiles, measure throughput, and verify the resulting indexed fields
-and alerts. In particular:
+Before rollout, exercise the parser with the actual appliance export profiles, measure
+throughput, and verify the resulting indexed fields and alerts. In particular:
 
 - Palo Alto publishes no supported CEF guidance after PAN-OS 10.0. Its guide gives a numeric
   0–10 importance scale but no exact mapping to PAN-OS textual severity bins. Numeric-only CEF
