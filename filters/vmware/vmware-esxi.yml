@@ -1,4 +1,4 @@
-# VMWare-ESXi, version 3.0.2
+# VMWare-ESXi, version 3.1.0
 # 
 # Based on docs and real logs provided
 # Support VMWare-ESXi log
@@ -131,18 +131,49 @@ pipeline:
           fields:
             - log.moduleIdentifier
                     
+      # ESXi records a completed vSphere session as
+      # "Event <n> : User <user>@<address> logged in as <client>". The address is
+      # the client that signed in, so it is the origin. A user name can contain @,
+      # so the user ends at the last @ before the address.
+      - grok:
+          patterns:
+            - fieldName: log.loginEvent
+              pattern: 'Event [0-9]+ : User'
+            - fieldName: log.loginUser
+              pattern: '\S+@'
+            - fieldName: log.loginAddress
+              pattern: '[0-9A-Fa-f:.]+'
+            - fieldName: log.loginClient
+              pattern: 'logged in as .+'
+          source: log.message
+          where: 'contains("log.message", " logged in as ")'
+      - trim:
+          function: suffix
+          substring: '@'
+          fields:
+            - log.loginUser
+      - rename:
+          from:
+            - log.loginUser
+          to: origin.user
+      - rename:
+          from:
+            - log.loginAddress
+          to: origin.ip
+          where: '(inCIDR("log.loginAddress", "0.0.0.0/0") || inCIDR("log.loginAddress", "::/0")) && !inCIDR("log.loginAddress", "0.0.0.0/32") && !inCIDR("log.loginAddress", "::/128")'
+
       # Adding action result
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
+            value: "failure"
           where: 'exists("log.message") && contains("log.message", "authentication failed")'
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
+            value: "failure"
           where: 'exists("log.message") && contains("log.message", "authentication of user") && contains("log.message", "failed") && !exists("actionResult")'
       - add:
           function: string
@@ -151,8 +182,21 @@ pipeline:
             value: "denied"
           where: 'exists("log.message") && contains("log.message", "permission denied") && !exists("actionResult")'
 
+      # A completed session is a successful sign-in unless an explicit failure
+      # or denial was already recorded. Logouts and password checks set no result.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'exists("log.loginClient") && !exists("actionResult")'
+
       # Removing unused fields
       - delete:
           fields:
             - log.processName
             - log.irrelevant
+            - log.loginEvent
+            - log.loginUser
+            - log.loginAddress
+            - log.loginClient
