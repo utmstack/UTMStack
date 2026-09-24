@@ -806,5 +806,55 @@
     "expected": {},
     "absent": [],
     "matches": []
+  },
+  {
+    "name": "engine-status-last-on-line",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=\"010101600001\" log_type=\"Firewall\" log_component=\"Firewall Rule\" priority=Information src_ip=198.51.100.10 dst_ip=203.0.113.20 src_port=51515 dst_port=443 protocol=\"TCP\" log_subtype=\"Denied\" status=\"Deny\"",
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "target.ip": "203.0.113.20",
+      "deviceTime": "2026-08-02T10:11:12-03:00",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "engine-no-priority-tag",
+    "dataSource": "collector-A",
+    "raw": "device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=\"010101600001\" log_type=\"Firewall\" log_component=\"Firewall Rule\" priority=Information src_ip=198.51.100.10 dst_ip=203.0.113.20 src_port=51515 dst_port=443 protocol=\"TCP\" log_subtype=\"Denied\" status=\"Deny\"",
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "target.ip": "203.0.113.20",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "engine-date-first-in-body",
+    "dataSource": "collector-A",
+    "raw": "<30>date=2026-08-02 time=10:11:12 timezone=\"-03\" device=\"SFW\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Allowed\" status=\"Allow\" src_ip=198.51.100.12 dst_ip=203.0.113.22",
+    "expected": {
+      "origin.ip": "198.51.100.12",
+      "target.ip": "203.0.113.22",
+      "deviceTime": "2026-08-02T10:11:12-03:00",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "engine-unquoted-value-last",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" log_type=\"Firewall\" log_subtype=\"Allowed\" status=\"Allow\" src_ip=198.51.100.13 dst_ip=203.0.113.23",
+    "expected": {
+      "origin.ip": "198.51.100.13",
+      "target.ip": "203.0.113.23",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
   }
 ]

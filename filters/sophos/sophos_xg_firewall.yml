@@ -11,10 +11,44 @@ pipeline:
       patterns:
       - {fieldName: '', pattern: '^(?:<[0-9]{1,3}>)?(?:(?:[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+)|(?:[0-9]+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+(?:-|\[[^]]*\])\s+))?'}
       - {fieldName: log.sophosBody, pattern: '[A-Za-z_][A-Za-z0-9_]*=(?s:.*)'}
+  # The header grok's optional prefix matches empty text when the line starts
+  # with the first key, and an empty match stops a grok step.
+  - grok:
+      source: raw
+      patterns:
+      - {fieldName: log.sophosBody, pattern: '[A-Za-z_][A-Za-z0-9_]*=(?s:.*)'}
+      where: '!exists("log.sophosBody") && regexMatch("raw", "^[A-Za-z_][A-Za-z0-9_]*=")'
   - kv:
       source: log.sophosBody
       fieldSplit: ' '
       valueSplit: '='
+  # The current parser keeps underscores in KV keys, so the original key
+  # names are removed too; the explicit grok steps below rebuild each field.
+  - delete:
+      fields: [log.FTP_direction, log.FTP_url, log.IP_HOST_NAME, log._ga_SD7Q3K201R, log.app_is_cloud,
+        log.app_resolved_by, log.appfilter_policy_id, log.application_category, log.application_filter_policy,
+        log.application_name, log.application_risk, log.application_technology, log.auth_client,
+        log.auth_mechanism, log.av_policy_name, log.bridge_display_name, log.bridge_name, log.bytes_received,
+        log.bytes_recv, log.bytes_sent, log.category_type, log.client_host_name, log.client_physical_address,
+        log.con_id, log.con_name, log.content_type, log.device_id, log.device_model, log.device_name,
+        log.device_serial_id, log.dir_disp, log.download_file_name, log.download_file_type, log.dst_country_code,
+        log.dst_domainname, log.dst_ip, log.dst_mac, log.dst_port, log.email_subject, log.ep_event_time,
+        log.ep_health, log.ep_ip, log.ep_name, log.ep_uuid, log.ether_type, log.event_timestamp,
+        log.execution_path, log.file_path, log.file_size, log.from_email_address, log.fw_rule_id, log.fw_rule_name,
+        log.fw_rule_section, log.gw_id_reply, log.gw_id_request, log.gw_name_reply, log.gw_name_request,
+        log.hb_health, log.idp_policy_id, log.in_display_interface, log.in_interface, log.ips_policy_id,
+        log.local_ip, log.log_component, log.log_id, log.log_occurrence, log.log_subtype, log.log_type,
+        log.log_version, log.login_user, log.nat_rule_id, log.nat_rule_name, log.out_display_interface,
+        log.out_interface, log.override_authorizer, log.override_name, log.override_token, log.packets_received,
+        log.packets_sent, log.policy_type, log.process_user, log.quarantine_reason, log.recv_bytes, log.recv_pkts,
+        log.remote_ip, log.response_code, log.response_time, log.rule_priority, log.sdwan_profile_id_reply,
+        log.sdwan_profile_id_request, log.sdwan_profile_name_reply, log.sdwan_profile_name_request,
+        log.sdwan_route_id_reply, log.sdwan_route_id_request, log.sdwan_route_name_reply,
+        log.sdwan_route_name_request, log.sent_bytes, log.sent_pkts, log.signature_id, log.signature_msg,
+        log.src_country_code, log.src_domainname, log.src_ip, log.src_mac, log.src_port, log.start_time,
+        log.status_code, log.to_email_address, log.tran_dst_ip, log.tran_dst_port, log.tran_src_ip,
+        log.tran_src_port, log.upload_file_name, log.upload_file_type, log.used_quota, log.user_agent, log.user_gp,
+        log.user_group, log.user_name, log.vlan_id, log.ws_protocol]
   - delete:
       fields: [log.FTPdirection, log.FTPurl, log.IPHOSTNAME, log.Mode, log.Reason, log.action, log.activityname,
         log.appfilterpolicyid, log.appiscloud, log.application, log.applicationcategory, log.applicationfilterpolicy,
@@ -50,1457 +84,1249 @@ pipeline:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTP_direction='}
-      - {fieldName: log.FTPdirection, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.FTPdirection, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "FTP_direction=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)FTP_url='}
-      - {fieldName: log.FTPurl, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.FTPurl, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "FTP_url=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)IP_HOST_NAME='}
-      - {fieldName: log.IPHOSTNAME, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.IPHOSTNAME, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "IP_HOST_NAME=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)Mode='}
-      - {fieldName: log.Mode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.Mode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "Mode=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)Reason='}
-      - {fieldName: log.Reason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.Reason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "Reason=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)_ga_SD7Q3K201R='}
-      - {fieldName: log.gaSD7Q3K201R, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.gaSD7Q3K201R, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "_ga_SD7Q3K201R=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)action='}
-      - {fieldName: log.action, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.action, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "action=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)activityname='}
-      - {fieldName: log.activityname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.activityname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "activityname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)app_is_cloud='}
-      - {fieldName: log.appiscloud, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.appiscloud, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "app_is_cloud=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)app_resolved_by='}
-      - {fieldName: log.appresolvedby, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.appresolvedby, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "app_resolved_by=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)appfilter_policy_id='}
-      - {fieldName: log.appfilterpolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.appfilterpolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "appfilter_policy_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application='}
-      - {fieldName: log.application, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.application, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application_category='}
-      - {fieldName: log.applicationcategory, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.applicationcategory, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application_category=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application_filter_policy='}
-      - {fieldName: log.applicationfilterpolicy, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.applicationfilterpolicy, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application_filter_policy=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application_name='}
-      - {fieldName: log.applicationname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.applicationname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application_risk='}
-      - {fieldName: log.applicationrisk, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.applicationrisk, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application_risk=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)application_technology='}
-      - {fieldName: log.applicationtechnology, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.applicationtechnology, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "application_technology=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)appresolvedby='}
-      - {fieldName: log.appresolvedby, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.appresolvedby, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "appresolvedby=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)auth_client='}
-      - {fieldName: log.authclient, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.authclient, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "auth_client=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)auth_mechanism='}
-      - {fieldName: log.authmechanism, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.authmechanism, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "auth_mechanism=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)av_policy_name='}
-      - {fieldName: log.avpolicyname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.avpolicyname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "av_policy_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bridge_display_name='}
-      - {fieldName: log.bridgedisplayname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bridgedisplayname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bridge_display_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bridge_name='}
-      - {fieldName: log.bridgename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bridgename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bridge_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bytes_received='}
-      - {fieldName: log.bytesreceived, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bytesreceived, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bytes_received=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bytes_recv='}
-      - {fieldName: log.bytesrecv, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bytesrecv, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bytes_recv=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bytes_sent='}
-      - {fieldName: log.bytessent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bytessent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bytes_sent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bytesrcv='}
-      - {fieldName: log.bytesrcv, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bytesrcv, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bytesrcv=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)bytessent='}
-      - {fieldName: log.bytessent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.bytessent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "bytessent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)category='}
-      - {fieldName: log.category, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.category, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "category=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)category_type='}
-      - {fieldName: log.categorytype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.categorytype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "category_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)classification='}
-      - {fieldName: log.classification, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.classification, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "classification=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)client_host_name='}
-      - {fieldName: log.clienthostname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.clienthostname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "client_host_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)client_physical_address='}
-      - {fieldName: log.clientphysicaladdress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.clientphysicaladdress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "client_physical_address=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)con_id='}
-      - {fieldName: log.conid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.conid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "con_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)con_name='}
-      - {fieldName: log.conname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.conname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "con_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)connectiontype='}
-      - {fieldName: log.connectiontype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.connectiontype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "connectiontype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)connevent='}
-      - {fieldName: log.connevent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.connevent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "connevent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)connid='}
-      - {fieldName: log.connid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.connid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "connid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)content_type='}
-      - {fieldName: log.contenttype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.contenttype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "content_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)contenttype='}
-      - {fieldName: log.contenttype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.contenttype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "contenttype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)cookie='}
-      - {fieldName: log.cookie, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.cookie, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "cookie=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)date='}
-      - {fieldName: log.date, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.date, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "date=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)destination='}
-      - {fieldName: log.destination, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.destination, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "destination=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)destinationip='}
-      - {fieldName: log.destinationip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.destinationip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "destinationip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)device='}
-      - {fieldName: log.device, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.device, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "device=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)device_id='}
-      - {fieldName: log.deviceid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.deviceid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "device_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)device_model='}
-      - {fieldName: log.devicemodel, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.devicemodel, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "device_model=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)device_name='}
-      - {fieldName: log.devicename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.devicename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "device_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)device_serial_id='}
-      - {fieldName: log.deviceserialid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.deviceserialid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "device_serial_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dir_disp='}
-      - {fieldName: log.dirdisp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dirdisp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dir_disp=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)domain='}
-      - {fieldName: log.domain, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.domain, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "domain=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)domainname='}
-      - {fieldName: log.domainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.domainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "domainname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)download_file_name='}
-      - {fieldName: log.downloadfilename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.downloadfilename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "download_file_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)download_file_type='}
-      - {fieldName: log.downloadfiletype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.downloadfiletype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "download_file_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst_country_code='}
-      - {fieldName: log.dstcountrycode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstcountrycode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dst_country_code=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst_domainname='}
-      - {fieldName: log.dstdomainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstdomainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dst_domainname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst_ip='}
-      - {fieldName: log.dstip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dst_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst_mac='}
-      - {fieldName: log.dstmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dst_mac=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dst_port='}
-      - {fieldName: log.dstport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dst_port=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstdomain='}
-      - {fieldName: log.dstdomain, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstdomain, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dstdomain=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstzone='}
-      - {fieldName: log.dstzone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstzone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dstzone=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)dstzonetype='}
-      - {fieldName: log.dstzonetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.dstzonetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "dstzonetype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)duration='}
-      - {fieldName: log.duration, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.duration, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "duration=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)email_subject='}
-      - {fieldName: log.emailsubject, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.emailsubject, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "email_subject=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ep_event_time='}
-      - {fieldName: log.epeventtime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.epeventtime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ep_event_time=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ep_health='}
-      - {fieldName: log.ephealth, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ephealth, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ep_health=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ep_ip='}
-      - {fieldName: log.epip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.epip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ep_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ep_name='}
-      - {fieldName: log.epname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.epname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ep_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ep_uuid='}
-      - {fieldName: log.epuuid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.epuuid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ep_uuid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ether_type='}
-      - {fieldName: log.ethertype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ethertype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ether_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)event_timestamp='}
-      - {fieldName: log.eventtimestamp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.eventtimestamp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "event_timestamp=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)exceptions='}
-      - {fieldName: log.exceptions, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.exceptions, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "exceptions=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)execution_path='}
-      - {fieldName: log.executionpath, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.executionpath, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "execution_path=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)extra='}
-      - {fieldName: log.extra, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.extra, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "extra=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)file_path='}
-      - {fieldName: log.filepath, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.filepath, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "file_path=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)file_size='}
-      - {fieldName: log.filesize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.filesize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "file_size=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)filename='}
-      - {fieldName: log.filename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.filename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "filename=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)filesize='}
-      - {fieldName: log.filesize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.filesize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "filesize=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)filetype='}
-      - {fieldName: log.filetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.filetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "filetype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)flags='}
-      - {fieldName: log.flags, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.flags, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "flags=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)from_email_address='}
-      - {fieldName: log.fromemailaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.fromemailaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "from_email_address=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ftpcommand='}
-      - {fieldName: log.ftpcommand, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ftpcommand, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ftpcommand=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)fw_rule_id='}
-      - {fieldName: log.fwruleid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.fwruleid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "fw_rule_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)fw_rule_name='}
-      - {fieldName: log.fwrulename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.fwrulename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "fw_rule_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)fw_rule_section='}
-      - {fieldName: log.fwrulesection, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.fwrulesection, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "fw_rule_section=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)gw_id_reply='}
-      - {fieldName: log.gwidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.gwidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "gw_id_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)gw_id_request='}
-      - {fieldName: log.gwidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.gwidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "gw_id_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)gw_name_reply='}
-      - {fieldName: log.gwnamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.gwnamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "gw_name_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)gw_name_request='}
-      - {fieldName: log.gwnamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.gwnamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "gw_name_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)hb_health='}
-      - {fieldName: log.hbhealth, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.hbhealth, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "hb_health=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)host='}
-      - {fieldName: log.host, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.host, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "host=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)httpresponsecode='}
-      - {fieldName: log.httpresponsecode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.httpresponsecode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "httpresponsecode=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)httpstatus='}
-      - {fieldName: log.httpstatus, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.httpstatus, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "httpstatus=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)iap='}
-      - {fieldName: log.iap, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.iap, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "iap=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)idp_policy_id='}
-      - {fieldName: log.idppolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.idppolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "idp_policy_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)in_display_interface='}
-      - {fieldName: log.indisplayinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.indisplayinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "in_display_interface=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)in_interface='}
-      - {fieldName: log.ininterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ininterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "in_interface=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ipaddress='}
-      - {fieldName: log.ipaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ipaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ipaddress=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ips_policy_id='}
-      - {fieldName: log.ipspolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.ipspolicyid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ips_policy_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)local_ip='}
-      - {fieldName: log.localip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.localip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "local_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)localgateway='}
-      - {fieldName: log.localgateway, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.localgateway, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "localgateway=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)localinterfaceip='}
-      - {fieldName: log.localinterfaceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.localinterfaceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "localinterfaceip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)localip='}
-      - {fieldName: log.localip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.localip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "localip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)localnetwork='}
-      - {fieldName: log.localnetwork, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.localnetwork, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "localnetwork=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_component='}
-      - {fieldName: log.logcomponent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logcomponent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_component=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_id='}
-      - {fieldName: log.logid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_occurrence='}
-      - {fieldName: log.logoccurrence, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logoccurrence, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_occurrence=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_subtype='}
-      - {fieldName: log.logsubtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logsubtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_subtype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_type='}
-      - {fieldName: log.logtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logtype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)log_version='}
-      - {fieldName: log.logversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.logversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "log_version=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)login_user='}
-      - {fieldName: log.loginuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.loginuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "login_user=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)mailid='}
-      - {fieldName: log.mailid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.mailid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "mailid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)mailsize='}
-      - {fieldName: log.mailsize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.mailsize, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "mailsize=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)malware='}
-      - {fieldName: log.malware, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.malware, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "malware=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)message='}
-      - {fieldName: log.message, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.message, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "message=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)messageid='}
-      - {fieldName: log.messageid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.messageid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "messageid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)method='}
-      - {fieldName: log.method, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.method, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "method=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)name='}
-      - {fieldName: log.name, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.name, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)nat_rule_id='}
-      - {fieldName: log.natruleid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.natruleid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "nat_rule_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)nat_rule_name='}
-      - {fieldName: log.natrulename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.natrulename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "nat_rule_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)newversion='}
-      - {fieldName: log.newversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.newversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "newversion=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)oldversion='}
-      - {fieldName: log.oldversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.oldversion, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "oldversion=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)out_display_interface='}
-      - {fieldName: log.outdisplayinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.outdisplayinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "out_display_interface=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)out_interface='}
-      - {fieldName: log.outinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.outinterface, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "out_interface=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)override_authorizer='}
-      - {fieldName: log.overrideauthorizer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.overrideauthorizer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "override_authorizer=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)override_name='}
-      - {fieldName: log.overridename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.overridename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "override_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)override_token='}
-      - {fieldName: log.overridetoken, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.overridetoken, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "override_token=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)packets_received='}
-      - {fieldName: log.packetsreceived, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.packetsreceived, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "packets_received=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)packets_sent='}
-      - {fieldName: log.packetssent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.packetssent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "packets_sent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)platform='}
-      - {fieldName: log.platform, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.platform, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "platform=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)policy_type='}
-      - {fieldName: log.policytype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.policytype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "policy_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)priority='}
-      - {fieldName: log.priority, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.priority, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "priority=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)process_user='}
-      - {fieldName: log.processuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.processuser, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "process_user=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)protocol='}
-      - {fieldName: log.protocol, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.protocol, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "protocol=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)quarantine_reason='}
-      - {fieldName: log.quarantinereason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.quarantinereason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "quarantine_reason=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)querystring='}
-      - {fieldName: log.querystring, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.querystring, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "querystring=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)reason='}
-      - {fieldName: log.reason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.reason, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "reason=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)recv_bytes='}
-      - {fieldName: log.recvbytes, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.recvbytes, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "recv_bytes=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)recv_pkts='}
-      - {fieldName: log.recvpkts, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.recvpkts, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "recv_pkts=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)referer='}
-      - {fieldName: log.referer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.referer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "referer=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)remote_ip='}
-      - {fieldName: log.remoteip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.remoteip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "remote_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)remoteinterfaceip='}
-      - {fieldName: log.remoteinterfaceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.remoteinterfaceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "remoteinterfaceip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)remotenetwork='}
-      - {fieldName: log.remotenetwork, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.remotenetwork, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "remotenetwork=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)remotepeer='}
-      - {fieldName: log.remotepeer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.remotepeer, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "remotepeer=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)resource='}
-      - {fieldName: log.resource, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.resource, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "resource=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)response_code='}
-      - {fieldName: log.responsecode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.responsecode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "response_code=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)response_time='}
-      - {fieldName: log.responsetime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.responsetime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "response_time=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)responsetime='}
-      - {fieldName: log.responsetime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.responsetime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "responsetime=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)rule_priority='}
-      - {fieldName: log.rulepriority, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.rulepriority, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "rule_priority=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_profile_id_reply='}
-      - {fieldName: log.sdwanprofileidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanprofileidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_profile_id_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_profile_id_request='}
-      - {fieldName: log.sdwanprofileidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanprofileidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_profile_id_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_profile_name_reply='}
-      - {fieldName: log.sdwanprofilenamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanprofilenamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_profile_name_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_profile_name_request='}
-      - {fieldName: log.sdwanprofilenamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanprofilenamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_profile_name_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_route_id_reply='}
-      - {fieldName: log.sdwanrouteidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanrouteidreply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_route_id_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_route_id_request='}
-      - {fieldName: log.sdwanrouteidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanrouteidrequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_route_id_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_route_name_reply='}
-      - {fieldName: log.sdwanroutenamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanroutenamereply, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_route_name_reply=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sdwan_route_name_request='}
-      - {fieldName: log.sdwanroutenamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sdwanroutenamerequest, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sdwan_route_name_request=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sent_bytes='}
-      - {fieldName: log.sentbytes, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sentbytes, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sent_bytes=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sent_pkts='}
-      - {fieldName: log.sentpkts, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sentpkts, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sent_pkts=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)server='}
-      - {fieldName: log.server, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.server, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "server=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sessionid='}
-      - {fieldName: log.sessionid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sessionid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sessionid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)severity='}
-      - {fieldName: log.severity, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.severity, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "severity=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sha1sum='}
-      - {fieldName: log.sha1sum, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sha1sum, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sha1sum=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)signature_id='}
-      - {fieldName: log.signatureid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.signatureid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "signature_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)signature_msg='}
-      - {fieldName: log.signaturemsg, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.signaturemsg, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "signature_msg=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)source='}
-      - {fieldName: log.source, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.source, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "source=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)sourceip='}
-      - {fieldName: log.sourceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.sourceip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "sourceip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)spamaction='}
-      - {fieldName: log.spamaction, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.spamaction, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "spamaction=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_country_code='}
-      - {fieldName: log.srccountrycode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srccountrycode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "src_country_code=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_domainname='}
-      - {fieldName: log.srcdomainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srcdomainname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "src_domainname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_ip='}
-      - {fieldName: log.srcip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srcip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "src_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_mac='}
-      - {fieldName: log.srcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srcmac, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "src_mac=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)src_port='}
-      - {fieldName: log.srcport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srcport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "src_port=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srczone='}
-      - {fieldName: log.srczone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srczone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "srczone=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)srczonetype='}
-      - {fieldName: log.srczonetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.srczonetype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "srczonetype=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)start_time='}
-      - {fieldName: log.starttime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.starttime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "start_time=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)starttime='}
-      - {fieldName: log.starttime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.starttime, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "starttime=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)status='}
-      - {fieldName: log.status, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.status, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "status=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)status_code='}
-      - {fieldName: log.statuscode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.statuscode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "status_code=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)statuscode='}
-      - {fieldName: log.statuscode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.statuscode, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "statuscode=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)subject='}
-      - {fieldName: log.subject, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.subject, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "subject=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)target='}
-      - {fieldName: log.target, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.target, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "target=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)threatfeed='}
-      - {fieldName: log.threatfeed, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.threatfeed, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "threatfeed=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)threatname='}
-      - {fieldName: log.threatname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.threatname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "threatname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)time='}
-      - {fieldName: log.time, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.time, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "time=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)timestamp='}
-      - {fieldName: log.timestamp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.timestamp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "timestamp=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)timezone='}
-      - {fieldName: log.timezone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.timezone, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "timezone=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)to_email_address='}
-      - {fieldName: log.toemailaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.toemailaddress, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "to_email_address=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)tran_dst_ip='}
-      - {fieldName: log.trandstip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.trandstip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "tran_dst_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)tran_dst_port='}
-      - {fieldName: log.trandstport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.trandstport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "tran_dst_port=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)tran_src_ip='}
-      - {fieldName: log.transrcip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.transrcip, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "tran_src_ip=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)tran_src_port='}
-      - {fieldName: log.transrcport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.transrcport, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "tran_src_port=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)transactionid='}
-      - {fieldName: log.transactionid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.transactionid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "transactionid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)type='}
-      - {fieldName: log.type, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.type, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)upload_file_name='}
-      - {fieldName: log.uploadfilename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.uploadfilename, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "upload_file_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)upload_file_type='}
-      - {fieldName: log.uploadfiletype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.uploadfiletype, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "upload_file_type=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)url='}
-      - {fieldName: log.url, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.url, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "url=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)used_quota='}
-      - {fieldName: log.usedquota, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.usedquota, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "used_quota=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user='}
-      - {fieldName: log.user, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.user, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "user=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user_agent='}
-      - {fieldName: log.useragent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.useragent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "user_agent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user_gp='}
-      - {fieldName: log.usergp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.usergp, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "user_gp=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user_group='}
-      - {fieldName: log.usergroup, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.usergroup, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "user_group=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)user_name='}
-      - {fieldName: log.username, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.username, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "user_name=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)useragent='}
-      - {fieldName: log.useragent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.useragent, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "useragent=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)usergroupname='}
-      - {fieldName: log.usergroupname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.usergroupname, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "usergroupname=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)vconnid='}
-      - {fieldName: log.vconnid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.vconnid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "vconnid=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)vlan_id='}
-      - {fieldName: log.vlanid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.vlanid, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "vlan_id=")
   - grok:
       source: log.sophosBody
       patterns:
       - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)ws_protocol='}
-      - {fieldName: log.wsprotocol, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s][^"]*?|)'}
-      - {fieldName: '', pattern: '(?:\s+[A-Za-z_][A-Za-z0-9_]*=|$)'}
+      - {fieldName: log.wsprotocol, pattern: '(?:"(?:\\.|[^"\\])*"|[^"\s]+)'}
       where: contains("log.sophosBody", "ws_protocol=")
   - trim:
       function: prefix
@@ -2227,40 +2053,39 @@ pipeline:
   - grok:
       source: log.sophosBody
       patterns:
-      - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)'}
-      - {fieldName: log.sophosClock, pattern: 'date=[0-9]{4}-[0-9]{2}-[0-9]{2}\s+time=[0-9]{2}:[0-9]{2}:[0-9]{2}\s+timezone="(?:[+-][0-9]{2}(?::?[0-9]{2})?|GMT|UTC)"'}
-      - {fieldName: '', pattern: '(?:\s|$)'}
+      - {fieldName: '', pattern: '^(?:"(?:\\.|[^"\\])*"|[^"])*?(?:^|\s)date='}
+      - {fieldName: log.sophosClock, pattern: '[0-9]{4}-[0-9]{2}-[0-9]{2}\s+time=[0-9]{2}:[0-9]{2}:[0-9]{2}\s+timezone="(?:[+-][0-9]{2}(?::?[0-9]{2})?|GMT|UTC)"'}
       where: '!exists("deviceTime")'
   - reformat:
       fields: [log.sophosClock]
       function: time
-      fromFormat: date=2006-01-02 time=15:04:05 timezone="-07"
+      fromFormat: 2006-01-02 time=15:04:05 timezone="-07"
       toFormat: 2006-01-02T15:04:05Z07:00
-      where: exists("log.sophosClock") && startsWith("log.sophosClock","date=") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{2}\"$")
+      where: exists("log.sophosClock") && regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2} ") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{2}\"$")
   - reformat:
       fields: [log.sophosClock]
       function: time
-      fromFormat: date=2006-01-02 time=15:04:05 timezone="-0700"
+      fromFormat: 2006-01-02 time=15:04:05 timezone="-0700"
       toFormat: 2006-01-02T15:04:05Z07:00
-      where: exists("log.sophosClock") && startsWith("log.sophosClock","date=") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{4}\"$")
+      where: exists("log.sophosClock") && regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2} ") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{4}\"$")
   - reformat:
       fields: [log.sophosClock]
       function: time
-      fromFormat: date=2006-01-02 time=15:04:05 timezone="-07:00"
+      fromFormat: 2006-01-02 time=15:04:05 timezone="-07:00"
       toFormat: 2006-01-02T15:04:05Z07:00
-      where: exists("log.sophosClock") && startsWith("log.sophosClock","date=") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{2}:[0-9]{2}\"$")
+      where: exists("log.sophosClock") && regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2} ") && regexMatch("log.sophosClock","timezone=\"[+-][0-9]{2}:[0-9]{2}\"$")
   - reformat:
       fields: [log.sophosClock]
       function: time
-      fromFormat: date=2006-01-02 time=15:04:05 timezone="GMT"
+      fromFormat: 2006-01-02 time=15:04:05 timezone="GMT"
       toFormat: 2006-01-02T15:04:05Z07:00
-      where: exists("log.sophosClock") && startsWith("log.sophosClock","date=") && regexMatch("log.sophosClock","timezone=\"GMT\"$")
+      where: exists("log.sophosClock") && regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2} ") && regexMatch("log.sophosClock","timezone=\"GMT\"$")
   - reformat:
       fields: [log.sophosClock]
       function: time
-      fromFormat: date=2006-01-02 time=15:04:05 timezone="UTC"
+      fromFormat: 2006-01-02 time=15:04:05 timezone="UTC"
       toFormat: 2006-01-02T15:04:05Z07:00
-      where: exists("log.sophosClock") && startsWith("log.sophosClock","date=") && regexMatch("log.sophosClock","timezone=\"UTC\"$")
+      where: exists("log.sophosClock") && regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2} ") && regexMatch("log.sophosClock","timezone=\"UTC\"$")
   - rename:
       from: [log.sophosClock]
       to: deviceTime
