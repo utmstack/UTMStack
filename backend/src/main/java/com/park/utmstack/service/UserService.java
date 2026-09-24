@@ -129,6 +129,14 @@ public class UserService {
     }
 
     public User createUser(UserDTO userDTO) {
+        return createUser(userDTO, null);
+    }
+
+    /**
+     * Create a user. When a local password is provided the user is activated
+     * immediately, no email/activation step is needed.
+     */
+    public User createUser(UserDTO userDTO, String localPassword) {
         String ctx = CLASS_NAME + ".createUser";
         try {
             User user = new User();
@@ -142,11 +150,16 @@ public class UserService {
             } else {
                 user.setLangKey(userDTO.getLangKey());
             }
-            String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-            user.setPassword(encryptedPassword);
-            user.setResetKey(RandomUtil.generateResetKey());
-            user.setResetDate(Instant.now());
-            user.setActivated(false);
+            if (StringUtils.hasText(localPassword)) {
+                user.setPassword(passwordEncoder.encode(localPassword));
+                user.setActivated(true);
+            } else {
+                String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+                user.setPassword(encryptedPassword);
+                user.setResetKey(RandomUtil.generateResetKey());
+                user.setResetDate(Instant.now());
+                user.setActivated(false);
+            }
             if (userDTO.getAuthorities() != null) {
                 Set<Authority> authorities = userDTO.getAuthorities().stream().map(authorityRepository::findById).filter(
                     Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
@@ -167,6 +180,8 @@ public class UserService {
 
             if (!Objects.isNull(user.getId())) {
                 user.setPassword(passwordEncoder.encode(password));
+                if (user.getAuthorities().stream().noneMatch(a -> a.getName().equals(AuthoritiesConstants.ADMIN)))
+                    user.getAuthorities().add(authorityRepository.findById(AuthoritiesConstants.ADMIN).orElseThrow());
             } else {
                 user.setLogin(Constants.FS_USER);
                 user.setFirstName("Federation");
@@ -175,7 +190,7 @@ public class UserService {
                 user.setLangKey(Constants.DEFAULT_LANGUAGE);
                 user.setPassword(passwordEncoder.encode(password));
                 user.setActivated(true);
-                Set<Authority> authorities = Stream.of(AuthoritiesConstants.USER).map(authorityRepository::findById).filter(
+                Set<Authority> authorities = Stream.of(AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN).map(authorityRepository::findById).filter(
                     Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
                 user.setAuthorities(authorities);
                 user.setFsManager(true);

@@ -28,9 +28,9 @@ description: |
   - Check for any data exfiltration or lateral movement attempts from the affected host
 where: |
   (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threatname", "(?i)machine[ -]learning") ||
-   regexMatch("log.threattype", "(?i)machine[ -]learning") ||
-   regexMatch("log.scannerid", "(?i)machine[ -]learning"))) &&
+  (regexMatch("log.threat_name", "(?i)machine[ -]learning") ||
+   regexMatch("log.threat_type", "(?i)machine[ -]learning") ||
+   regexMatch("log.scanner_id", "(?i)machine[ -]learning"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
@@ -38,4 +38,4 @@ groupBy:
   - lastEvent.dataSource
   - lastEvent.log.endpointKeyType
   - lastEvent.log.endpointKey
-  - lastEvent.log.threatname
+  - lastEvent.log.threat_name

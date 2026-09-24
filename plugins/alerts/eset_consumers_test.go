@@ -47,7 +47,7 @@ func esetGroupIdentity(t *testing.T, rule *plugins.Rule, out string) string {
 		if !value.Exists() || value.String() == "" {
 			// These vendor-specific detector details are documented optional.
 			// The managed endpoint namespace/key and collector remain required.
-			if field == "lastEvent.log.rulename" || field == "lastEvent.log.ruleid" || field == "lastEvent.log.threatname" || field == "lastEvent.log.target" {
+			if field == "lastEvent.log.rulename" || field == "lastEvent.log.ruleid" || field == "lastEvent.log.threatname" || field == "lastEvent.log.threat_name" || field == "lastEvent.log.target" {
 				continue
 			}
 			t.Errorf("positive raw event cannot resolve alert identity field %s", field)
