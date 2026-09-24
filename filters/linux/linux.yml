@@ -418,7 +418,10 @@ pipeline:
             key: actionResult
             value: 'success'
           where: >-
-            !equals("log.type", "auditd") && equals("log.JOBRESULT", "done")
+            !equals("log.type", "auditd") &&
+            (equals("log.JOBRESULT", "done") || equals("log.JOB_RESULT", "done")) &&
+            (!exists("log.JOBRESULT") || equals("log.JOBRESULT", "done")) &&
+            (!exists("log.JOB_RESULT") || equals("log.JOB_RESULT", "done"))
 
       - add:
           function: 'string'
@@ -427,7 +430,8 @@ pipeline:
             value: 'failure'
           where: >-
             !equals("log.type", "auditd") &&
-            oneOf("log.JOBRESULT", ["failed", "timeout", "dependency"])
+            (oneOf("log.JOBRESULT", ["failed", "timeout", "dependency"]) ||
+             oneOf("log.JOB_RESULT", ["failed", "timeout", "dependency"]))
 
       # The native collector flattens SYSCALL results to the root. Its pinned
       # audit parser emits success/fail, and can decode negative exits to errno names.
