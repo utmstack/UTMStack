@@ -1265,8 +1265,8 @@
     "expected": {
       "dataSource": "mac-lab.example",
       "origin.host": "mac-lab.example",
-      "log.datasourceoverride": "unknown",
-      "log.message": "ordinary message"
+      "log.message": "ordinary message",
+      "log.datasourceoverride": "unknown"
     },
     "absent": [
       "origin.path",
@@ -1281,8 +1281,8 @@
     "expected": {
       "dataSource": "mac-lab.example",
       "origin.host": "mac-lab.example",
-      "log.datasourceoverride": "",
-      "log.message": "ordinary message"
+      "log.message": "ordinary message",
+      "log.datasourceoverride": ""
     },
     "absent": [
       "origin.path",
@@ -1297,8 +1297,8 @@
     "expected": {
       "dataSource": "mac-lab.example",
       "origin.host": "mac-lab.example",
-      "log.datasourceoverride": "bad source",
-      "log.message": "ordinary message"
+      "log.message": "ordinary message",
+      "log.datasourceoverride": "bad source"
     },
     "absent": [
       "origin.path",
@@ -1316,7 +1316,7 @@
     },
     "absent": [
       "log.message",
-      "log.datasourceoverride"
+      "log.datasource_override"
     ],
     "matches": []
   },
@@ -1330,7 +1330,7 @@
       "log.message": "first line\nsecond line"
     },
     "absent": [
-      "log.datasourceoverride"
+      "log.datasource_override"
     ],
     "matches": []
   },

@@ -181,8 +181,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -195,7 +193,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4769
+          "eventCode": 4769,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -226,8 +226,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -239,7 +237,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4768
+          "eventCode": 4768,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -270,8 +270,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -284,7 +282,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4769
+          "eventCode": 4769,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -315,8 +315,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -327,7 +325,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4672
+          "eventCode": 4672,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -358,8 +358,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -370,7 +368,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4625
+          "eventCode": 4625,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -401,8 +401,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "Microsoft-Windows-Security-Auditing",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -413,7 +411,9 @@
             "IpAddress": "-",
             "IpPort": "49152"
           },
-          "eventCode": 4624
+          "eventCode": 4624,
+          "provider_name": "Microsoft-Windows-Security-Auditing",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {
@@ -444,8 +444,6 @@
         "dataSource": "dc01",
         "log": {
           "timestamp": "2026-09-17T12:00:00Z",
-          "providername": "AD FS",
-          "providerguid": "{54849625-5478-4994-a5ba-3e3b0328c30d}",
           "recordId": 1234,
           "channel": "Security",
           "computer": "dc01.example.test",
@@ -456,7 +454,9 @@
             "SubjectDomainName": "EXAMPLE"
           },
           "eventCode": 342,
-          "message": "token validation failed"
+          "message": "token validation failed",
+          "provider_name": "AD FS",
+          "provider_guid": "{54849625-5478-4994-a5ba-3e3b0328c30d}"
         }
       },
       "expected": {

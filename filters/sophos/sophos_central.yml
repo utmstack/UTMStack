@@ -10,27 +10,27 @@ pipeline:
       source: raw
   - rename:
       from:
-      - log.coreremedyitems
+      - log.core_remedy_items
       to: log.coreremedyItems
   - rename:
       from:
-      - log.createdat
+      - log.created_at
       to: log.createdAt
   - rename:
       from:
-      - log.customerid
+      - log.customer_id
       to: log.customerId
   - rename:
       from:
-      - log.endpointid
+      - log.endpoint_id
       to: log.endpointId
   - rename:
       from:
-      - log.endpointtype
+      - log.endpoint_type
       to: log.endpointType
   - rename:
       from:
-      - log.sourceinfo.ip
+      - log.source_info.ip
       to: log.ip
   - rename:
       from:
@@ -38,7 +38,7 @@ pipeline:
       to: log.userId
   - rename:
       from:
-      - log.sourceinfo
+      - log.source_info
       to: log.sourceInfo
   - delete:
       fields:
