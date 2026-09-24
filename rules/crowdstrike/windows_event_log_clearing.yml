@@ -12,7 +12,6 @@ impact:
   integrity: 3
   availability: 2
 where: >
-  equals("log.event_simpleName", "ProcessRollup2") && 
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(wevtutil\\s+cl.*|Clear-EventLog.*|Remove-EventLog.*).*")
 groupBy: 
