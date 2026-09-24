@@ -9,6 +9,7 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // Fabricated LogEntry payloads exercise the ordered filter model and the
@@ -35,10 +36,11 @@ func TestGoogleActionResultRaw(t *testing.T) {
 		t.Fatal("outcome classes are missing")
 	}
 	cache := plugins.NewCELCache("google-action-result-raw")
+	root := googleModelRoot(t)
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
 			fixture := Fixture{Filter: "google/gcp.yml", Raw: &tc.Raw, DataType: "google", DataSource: "fabricated-collector"}
-			out, issues, err := normalize("../..", fixture, cache)
+			out, issues, err := normalize(root, fixture, cache)
 			if err != nil || len(issues) != 0 {
 				t.Fatalf("normalize: %v / %v", err, issues)
 			}
@@ -73,4 +75,41 @@ func TestGoogleActionResultRaw(t *testing.T) {
 			}
 		})
 	}
+}
+
+// googleModelRoot returns a root holding the Google filter without its dynamic
+// steps. Geolocation enrichment is external and the raw model does not run it,
+// so records with a caller address would otherwise stop at that step.
+func googleModelRoot(t *testing.T) string {
+	t.Helper()
+	b, err := utils.ReadPbYaml(filepath.Join("../..", "filters", "google", "gcp.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := new(plugins.Config)
+	if err := protojson.Unmarshal(b, cfg); err != nil {
+		t.Fatal(err)
+	}
+	for _, stage := range cfg.Pipeline {
+		steps := stage.Steps[:0]
+		for _, step := range stage.Steps {
+			if step.Dynamic == nil {
+				steps = append(steps, step)
+			}
+		}
+		stage.Steps = steps
+	}
+	out, err := protojson.Marshal(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	dir := filepath.Join(root, "filters", "google")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "gcp.yml"), out, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return root
 }

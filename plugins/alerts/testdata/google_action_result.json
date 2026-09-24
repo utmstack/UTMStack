@@ -286,5 +286,149 @@
     "name": "non-audit-method-policy-accept",
     "raw": "{\"logName\":\"projects/example/logs/requests\",\"jsonPayload\":{\"enforcedEdgeSecurityPolicy\":{\"outcome\":\"ACCEPT\"}},\"protoPayload\":{\"methodName\":\"workspace.login\"}}",
     "result": ""
+  },
+  {
+    "name": "workspace-login-success",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginSuccess\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_success\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginSuccess\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success",
+    "expected": {
+      "origin.ip": "2001:db8::10",
+      "origin.user": "test-user@example.net"
+    }
+  },
+  {
+    "name": "workspace-login-failure",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginFailure\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginFailure\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "2001:db8::10",
+      "origin.user": "test-user@example.net"
+    }
+  },
+  {
+    "name": "workspace-saml-login-failed",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.apps.login.v1.SamlLoginFailed\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.apps.login.v1.SamlLoginFailed\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "2001:db8::10"
+    }
+  },
+  {
+    "name": "workspace-suspicious-login-blocked",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.suspiciousLogin\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"suspicious_login\",\"eventType\":\"account_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.suspiciousLogin\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-suspicious-less-secure-app-blocked",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.suspiciousLoginLessSecureApp\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"suspicious_login_less_secure_app\",\"eventType\":\"account_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.suspiciousLoginLessSecureApp\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-suspicious-programmatic-login-blocked",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.suspiciousProgrammaticLogin\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"suspicious_programmatic_login\",\"eventType\":\"account_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.suspiciousProgrammaticLogin\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-sensitive-action-blocked",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.riskySensitiveActionBlocked\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"risky_sensitive_action_blocked\",\"eventType\":\"risky_sensitive_action\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.riskySensitiveActionBlocked\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-sensitive-action-only-allowed-to-attempt",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.riskySensitiveActionAllowed\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"risky_sensitive_action_allowed\",\"eventType\":\"risky_sensitive_action\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.riskySensitiveActionAllowed\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-login-challenge-intermediate",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginChallenge\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_challenge\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginChallenge\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-login-verification-intermediate",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginVerification\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_verification\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginVerification\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-logout-no-outcome",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.logout\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"logout\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.logout\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-account-disabled-warning",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.accountDisabledHijacked\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"account_disabled_hijacked\",\"eventType\":\"account_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.accountDisabledHijacked\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-government-attack-warning",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.govAttackWarning\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"gov_attack_warning\",\"eventType\":\"attack_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.govAttackWarning\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-undocumented-login-method",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.syntheticUndocumentedEvent\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"synthetic_undocumented_event\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.syntheticUndocumentedEvent\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-2sv-disabled-completed",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.2svDisable\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"2sv_disable\",\"eventType\":\"2sv_change\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.2svDisable\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success"
+  },
+  {
+    "name": "workspace-password-changed-completed",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.passwordEdit\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"password_edit\",\"eventType\":\"password_change\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.passwordEdit\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success"
+  },
+  {
+    "name": "workspace-login-success-with-error-status",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginSuccess\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_success\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"},\"status\":{\"code\":7}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginSuccess\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-oauth-access-denied",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"oauth2.googleapis.com\",\"methodName\":\"google.identity.oauth2.Deny\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"deny\",\"eventType\":\"auth\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.identity.oauth2.Deny\",\"service\":\"oauth2.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Factivity\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied"
+  },
+  {
+    "name": "workspace-oauth-access-requested",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"oauth2.googleapis.com\",\"methodName\":\"google.identity.oauth2.Request\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"request\",\"eventType\":\"auth\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.identity.oauth2.Request\",\"service\":\"oauth2.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Factivity\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": ""
+  },
+  {
+    "name": "workspace-oauth-token-issued",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"oauth2.googleapis.com\",\"methodName\":\"google.identity.oauth2.GetToken\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"activity\",\"eventType\":\"auth\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.identity.oauth2.GetToken\",\"service\":\"oauth2.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Factivity\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success"
+  },
+  {
+    "name": "workspace-admin-setting-changed",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"admin.googleapis.com\",\"methodName\":\"google.admin.AdminService.changeApplicationSetting\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"CHANGE_APPLICATION_SETTING\",\"eventType\":\"APPLICATION_SETTINGS\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.admin.AdminService.changeApplicationSetting\",\"service\":\"admin.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Factivity\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success"
+  },
+  {
+    "name": "workspace-suspicious-login-rule-positive",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.suspiciousLogin\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"suspicious_login\",\"eventType\":\"account_warning\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.suspiciousLogin\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "denied",
+    "rule": "cloud/google/gcp_suspicious_login_blocked.yml",
+    "match": true
+  },
+  {
+    "name": "workspace-login-failure-suspicious-rule-negative",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginFailure\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginFailure\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "failure",
+    "rule": "cloud/google/gcp_suspicious_login_blocked.yml",
+    "match": false
+  },
+  {
+    "name": "workspace-2sv-disabled-rule-positive",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.2svDisable\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"2sv_disable\",\"eventType\":\"2sv_change\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.2svDisable\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success",
+    "rule": "cloud/google/gcp_two_step_verification_disabled.yml",
+    "match": true
+  },
+  {
+    "name": "workspace-2sv-enrolled-rule-negative",
+    "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.2svEnroll\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"2sv_enroll\",\"eventType\":\"2sv_change\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.2svEnroll\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
+    "result": "success",
+    "rule": "cloud/google/gcp_two_step_verification_disabled.yml",
+    "match": false
   }
 ]

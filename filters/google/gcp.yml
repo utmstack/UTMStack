@@ -469,7 +469,9 @@ pipeline:
             - actionResult
 
       # The first record of a long-running AuditLog operation is not its final
-      # result unless the same record is also marked last.
+      # result unless the same record is also marked last. Workspace sign-in
+      # records and OAuth access denials or requests have no status either,
+      # so their outcome is set from the documented method further below.
       - add:
           function: "string"
           params:
@@ -478,6 +480,8 @@ pipeline:
           where: >-
             exists("log.protoPayloadMethodName") &&
             contains("log.logName","cloudaudit.googleapis.com") &&
+            !equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            !oneOf("log.protoPayloadMethodName",["google.identity.oauth2.Deny","google.identity.oauth2.Request"]) &&
             (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
             (!exists("log.protoPayloadStatusCode") || equals("log.protoPayloadStatusCode",0)) &&
             !exists("log.protoPayloadStatusMessage") &&
@@ -505,6 +509,57 @@ pipeline:
             (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
             greaterThan("log.protoPayloadStatusCode",0) &&
             !oneOf("log.protoPayloadStatusCode",[7,16])
+
+      # Google Workspace Login and SAML audit records (login.googleapis.com)
+      # carry their result in the method: a failed or blocked sign-in has no
+      # status. Only documented final results set an outcome. Sign-in
+      # challenges, verifications, logouts, account warnings, sensitive actions
+      # that were only allowed to be attempted, and undocumented methods keep
+      # none. An explicit error status set above is not replaced by success.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            !exists("actionResult") &&
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginSuccess",
+            "google.login.LoginService.2svDisable","google.login.LoginService.2svEnroll",
+            "google.login.LoginService.passwordEdit","google.login.LoginService.recoveryEmailEdit",
+            "google.login.LoginService.recoveryPhoneEdit","google.login.LoginService.recoverySecretQaEdit",
+            "google.login.LoginService.passkeyEnrolled","google.login.LoginService.passkeyRemoved",
+            "google.login.LoginService.titaniumEnroll","google.login.LoginService.titaniumUnenroll",
+            "google.login.LoginService.emailForwardingOutOfDomain"])
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failure"
+          where: >-
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginFailure",
+            "google.apps.login.v1.SamlLoginFailed"])
+
+      # Google blocked these sign-ins and sensitive actions. An OAuth Deny
+      # record means an application's access request was denied.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            ((equals("log.protoPayloadServiceName","login.googleapis.com") &&
+              oneOf("log.protoPayloadMethodName",["google.login.LoginService.suspiciousLogin",
+              "google.login.LoginService.suspiciousLoginLessSecureApp",
+              "google.login.LoginService.suspiciousProgrammaticLogin",
+              "google.login.LoginService.riskySensitiveActionBlocked"])) ||
+             (equals("log.protoPayloadServiceName","oauth2.googleapis.com") &&
+              equals("log.protoPayloadMethodName","google.identity.oauth2.Deny")))
 
       # Cloud DNS documents numeric DNS RCODEs; preserve named values for
       # compatible producers. A response code alone is not a DNS discriminator.
