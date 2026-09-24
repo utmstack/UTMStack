@@ -1,4 +1,4 @@
-# CISCO Firepower filter, version 3.0.3
+# CISCO Firepower filter, version 3.1.0
 # Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/firepower/Syslogs/b_fptd_syslog_guide.html
 # Filter Input requirements -> Syslog
 #
@@ -44,13 +44,31 @@ pipeline:
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
+      # Real Firepower Threat Defense shape: '<PRI>%FTD-<level>-<id>: <text>', with no
+      # timestamp and no device name. Runs only when the two groks above set nothing.
+      - grok:
+          patterns:
+            - fieldName: log.syslogPri
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.firePowerHeader
+              pattern: '%FTD-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+            - fieldName: log.messageId
+              pattern: '-{{.integer}}'
+            - fieldName: log.ciscoSeparator
+              pattern: '\:{{.space}}'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+          where: '!exists("log.messageId")'
       #......................................................................#
       # Adding log.localIp geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.localIp
-            destination: log.localIp.geolocation
+            destination: log.localIpGeolocation
           where: exists("log.localIp")
       # Removing unwanted prefixes
       - trim:
@@ -63,6 +81,128 @@ pipeline:
           fields:
             - log.messageId
           to: int
+      #......................................................................#
+      # FTD-1-4300xx security events seen in real records (430001 intrusion, 430002 and
+      # 430003 connection start and end, 430007): the text is 'Key: Value, Key: Value, ...'.
+      # Other 4300xx IDs (for example 430004/430005 file and malware events) are not parsed
+      # until a real record or Cisco's field list confirms their layout.
+      # Every key goes to log.<Key> (go-sdk v1.1.36 keeps letters, digits, dots and
+      # underscores, so 'Prefilter Policy' becomes log.PrefilterPolicy and 'DNS_TTL'
+      # stays log.DNS_TTL).
+      # A record whose text holds a second '%FTD-' header (two syslog messages joined
+      # by the collector) is not parsed, so no value can come from the second message.
+      - kv:
+          fieldSplit: ', '
+          valueSplit: ': '
+          source: log.msg
+          where: 'exists("log.msg") && oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      # A UserAgent value can hold ', Key: value' text, and the kv split keeps the last
+      # copy of a key. Split the text before UserAgent again, so every key that comes
+      # before UserAgent keeps the device's own value.
+      - grok:
+          patterns:
+            - fieldName: log.ftdHead
+              pattern: '{{.data}}, UserAgent: '
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-") && contains("log.msg", ", UserAgent: ")'
+      - kv:
+          fieldSplit: ', '
+          valueSplit: ': '
+          source: log.ftdHead
+          where: 'exists("log.ftdHead")'
+      - delete:
+          fields:
+            - log.ftdHead
+          where: 'exists("log.ftdHead")'
+      # UserAgent values can contain ', ' (for example 'KHTML, like Gecko'); read the
+      # whole value up to the key that follows it (Client, or AuthenticationSource)
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, UserAgent: '
+            - fieldName: log.UserAgent
+              pattern: '{{.data}}, (Client|AuthenticationSource): '
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-") && contains("log.msg", ", UserAgent: ")'
+      - trim:
+          function: regex
+          substring: ',\s(Client|AuthenticationSource):\s*$'
+          fields:
+            - log.UserAgent
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-") && contains("log.msg", ", UserAgent: ")'
+      # Standard fields, each from the first occurrence of its key: a later copy of the
+      # key inside a free-text value (for example a crafted UserAgent) cannot replace them
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, SrcIP: '
+            - fieldName: origin.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: ','
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, DstIP: '
+            - fieldName: target.ip
+              pattern: '({{.ipv4}}|{{.ipv6}})'
+            - fieldName: log.irrelevant
+              pattern: ','
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, SrcPort: '
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, DstPort: '
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '{{.data}}, Protocol: '
+            - fieldName: protocol
+              pattern: '{{.word}}'
+            - fieldName: log.irrelevant
+              pattern: ','
+          source: log.msg
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && !contains("log.msg", "%FTD-")'
+      # Remove the kv copies of the five keys that now have a standard field
+      - delete:
+          fields:
+            - log.SrcIP
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && exists("origin.ip")'
+      - delete:
+          fields:
+            - log.DstIP
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && exists("target.ip")'
+      - delete:
+          fields:
+            - log.SrcPort
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && exists("origin.port")'
+      - delete:
+          fields:
+            - log.DstPort
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && exists("target.port")'
+      - delete:
+          fields:
+            - log.Protocol
+          where: 'oneOf("log.messageId", [430001, 430002, 430003, 430007]) && exists("protocol")'
       # Begining specific message parsing
       #......................................................................#
       # FTD-2-106001
@@ -311,15 +451,15 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
+            value: 'denied'
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
-          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
+            value: 'accepted'
+          where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
       #......................................................................#
       # FTD-6-109101
       - grok:
@@ -456,21 +596,21 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: greaterOrEqual("log.messageId", 109201) && log.messageId<=109213
+          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213)
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.session
             - origin.user
-          where: lgreaterOrEqual("log.messageId", 109201) && log.messageId<=109213
+          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: greaterOrEqual("log.messageId", 109201) && log.messageId<=109213
+          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213)
       #......................................................................#
       # FTD-6-113004
       - grok:
@@ -621,7 +761,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 113009)
+          where: equals("log.messageId", 113009) && !exists("origin.user")
       - trim:
           function: suffix
           substring: 'for'
@@ -692,7 +832,7 @@ pipeline:
             - fieldName: origin.user
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 113011)
+          where: equals("log.messageId", 113011) && !exists("origin.user")
       - trim:
           function: suffix
           substring: 'for'
@@ -934,19 +1074,19 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       # Specific fields
       - grok:
           patterns:
@@ -957,7 +1097,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       - grok:
           patterns:
             - fieldName: action
@@ -965,20 +1105,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.rest
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       - trim:
           function: suffix
           substring: 'is'
           fields:
             - log.filter
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 113031) || log.messageId==113032 || log.messageId==113033
+          where: equals("log.messageId", 113031) || equals("log.messageId", 113032) || equals("log.messageId", 113033)
       #......................................................................#
       # FTD-113034,113035,113036,113038,113039
       - grok:
@@ -994,20 +1134,20 @@ pipeline:
             - fieldName: log.rest
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || equals("log.messageId", 113035) || equals("log.messageId", 113036) || equals("log.messageId", 113038) || equals("log.messageId", 113039)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || equals("log.messageId", 113035) || equals("log.messageId", 113036) || equals("log.messageId", 113038) || equals("log.messageId", 113039)
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || equals("log.messageId", 113035) || equals("log.messageId", 113036) || equals("log.messageId", 113038) || equals("log.messageId", 113039)
       - trim:
           function: prefix
           substring: '<'
@@ -1015,7 +1155,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || equals("log.messageId", 113035) || equals("log.messageId", 113036) || equals("log.messageId", 113038) || equals("log.messageId", 113039)
       - trim:
           function: suffix
           substring: '>'
@@ -1023,7 +1163,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: equals("log.messageId", 113034) || log.messageId==113035 || log.messageId==113036 || log.messageId==113038 || log.messageId==113039
+          where: equals("log.messageId", 113034) || equals("log.messageId", 113035) || equals("log.messageId", 113036) || equals("log.messageId", 113038) || equals("log.messageId", 113039)
       # Adding action result
       - add:
           function: 'string'
@@ -1037,7 +1177,7 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 113035) || log.messageId==113038
+          where: equals("log.messageId", 113035) || equals("log.messageId", 113038)
       #......................................................................#
       # FTD-4-113042
       - grok:
@@ -1292,7 +1432,7 @@ pipeline:
             - fieldName: log.tmpFromip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
           source: log.msg
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       # Second variant
       - grok:
           patterns:
@@ -1309,7 +1449,7 @@ pipeline:
             - fieldName: log.tmpFromip
               pattern: '({{.ipv4}}|{{.ipv6}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
           source: log.msg
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       # Parsing from/to ip and port
       - grok:
           patterns:
@@ -1318,13 +1458,13 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.greedy}}'      
           source: log.tmpToip
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       - grok:
           patterns:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpToip
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       - grok:
           patterns:
             - fieldName: origin.ip
@@ -1332,33 +1472,33 @@ pipeline:
             - fieldName: origin.port
               pattern: '{{.greedy}}'         
           source: log.tmpFromip
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       - grok:
           patterns:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'        
           source: log.tmpFromip
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       - trim:
           function: prefix
           substring: '/'
           fields:
             - origin.port
             - target.port
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       # Removing temp fields
       - delete:
           fields:
             - log.tmpFromip
             - log.tmpToip
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 302003) || log.messageId==302004
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       #......................................................................#
       # FTD-6-302012
       - grok:
@@ -1439,8 +1579,6 @@ pipeline:
               pattern: 'Built'
             - fieldName: log.direction
               pattern: '{{.word}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
           source: log.tmpDirection
           where: equals("log.messageId", 302013)
       # Parsing firewall user from
@@ -1981,8 +2119,6 @@ pipeline:
               pattern: '\('
             - fieldName: log.firewallUserTo
               pattern: '{{.data}}\)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
           where: equals("log.messageId", 302017)
       - trim:
@@ -1999,6 +2135,12 @@ pipeline:
           substring: '('
           fields:
             - log.realCid
+            - target.user
+          where: equals("log.messageId", 302017)
+      - trim:
+          function: prefix
+          substring: '('
+          fields:
             - target.user
           where: equals("log.messageId", 302017)
       # Removing tmp fields
@@ -2226,7 +2368,7 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
           source: log.tmpFaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - grok:
           patterns:
             - fieldName: origin.ip
@@ -2234,7 +2376,7 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: '{{.greedy}}'
           source: log.tmpFaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # icmpSeqNum variants
       - grok:
           patterns:
@@ -2245,7 +2387,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'gaddr'
           source: log.tmpFaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - grok:
           patterns:
             - fieldName: log.icmpSeqNum
@@ -2253,14 +2395,14 @@ pipeline:
             - fieldName: log.tmpFwUserFrom
               pattern: 'gaddr'
           source: log.tmpFaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Cleaning icmpSeqNum
       - trim:
           function: suffix
           substring: 'gaddr'
           fields:
             - log.icmpSeqNum
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Continue with firewall user from
       - grok:
           patterns:
@@ -2271,7 +2413,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserFrom
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # For parsing gaddr and global fwuser (Begin with ip/port), or icmpType
       - grok:
           patterns:
@@ -2282,7 +2424,7 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: '{{.greedy}}'
           source: log.tmpGaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - grok:
           patterns:
             - fieldName: log.globalIp
@@ -2290,7 +2432,7 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: '{{.greedy}}'
           source: log.tmpGaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # icmpType variants
       - grok:
           patterns:
@@ -2301,7 +2443,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'laddr'
           source: log.tmpGaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - grok:
           patterns:
             - fieldName: log.icmpType
@@ -2309,20 +2451,20 @@ pipeline:
             - fieldName: log.tmpFwUserGlobal
               pattern: 'laddr'
           source: log.tmpGaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Cleaning icmpType
       - trim:
           function: suffix
           substring: 'laddr'
           fields:
             - log.icmpType
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - trim:
           function: suffix
           substring: 'code'
           fields:
             - log.icmpType
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Continue with global firewall
       - grok:
           patterns:
@@ -2333,7 +2475,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserGlobal
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # For parsing laddr and fwuser to (Begin with ip/port)
       - grok:
           patterns:
@@ -2344,7 +2486,7 @@ pipeline:
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
           source: log.tmpLaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - grok:
           patterns:
             - fieldName: target.ip
@@ -2352,7 +2494,7 @@ pipeline:
             - fieldName: log.tmpFwUserTo
               pattern: '{{.greedy}}'
           source: log.tmpLaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Continue with firewall user to
       - grok:
           patterns:
@@ -2363,7 +2505,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpFwUserTo
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2371,7 +2513,7 @@ pipeline:
           fields:
             - target.ip
             - origin.ip
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       - trim:
           function: suffix
           substring: ')'
@@ -2379,7 +2521,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
             - log.globalFirewallUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Removing tmp fields
       - delete:
           fields:
@@ -2389,14 +2531,14 @@ pipeline:
             - log.tmpFaddrAndFwUser
             - log.tmpGaddrAndFwUser
             - log.tmpLaddrAndFwUser
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 302020) || log.messageId==302021
+          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
       #......................................................................#
       # FTD-6-302022, 302024, 302026
       - grok:
@@ -2428,7 +2570,7 @@ pipeline:
             - fieldName: log.tmpMappedIpPortTo
               pattern: '\({{.data}}\)'
           source: log.msg
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Parsing mapped ip,port from tmp fields
       # With port
       - grok:
@@ -2442,7 +2584,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortFrom
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Without port
       - grok:
           patterns:
@@ -2453,7 +2595,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortFrom
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Parsing mapped ip,port to, from tmp fields
       # With port
       - grok:
@@ -2467,7 +2609,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortTo
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Without port
       - grok:
           patterns:
@@ -2478,21 +2620,21 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortTo
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'stub'
           fields:
             - log.role
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       - trim:
           function: suffix
           substring: ':'
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       - trim:
           function: suffix
           substring: '/'
@@ -2501,20 +2643,20 @@ pipeline:
             - target.ip
             - log.mappedIpFrom
             - log.mappedIpTo
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Removing tmp fields
       - delete:
           fields:
             - log.tmpMappedIpPortFrom
             - log.tmpMappedIpPortTo
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 302022) || log.messageId==302024 || log.messageId==302026
+          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
       #......................................................................#
       # FTD-6-302023, 302025, 302027
       - grok:
@@ -2550,7 +2692,7 @@ pipeline:
             - fieldName: log.reason
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2558,21 +2700,21 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 302023) || log.messageId==302025 || log.messageId==302027
+          where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
       #......................................................................#
       # FTD-302033,302034
       - grok:
@@ -2592,7 +2734,7 @@ pipeline:
             - fieldName: log.tmpIpPortTo
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       # Parsing optional ports from y to
       - grok:
           patterns:
@@ -2601,7 +2743,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.tmpPortFrom
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       - grok:
           patterns:
             - fieldName: target.ip
@@ -2609,13 +2751,13 @@ pipeline:
             - fieldName: target.port
               pattern: '{{.greedy}}'
           source: log.tmpIpPortTo
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       - grok:
           patterns:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})(\s)?'
           source: log.tmpIpPortTo
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       # Cleaning fields
       - trim:
           function: suffix
@@ -2623,20 +2765,20 @@ pipeline:
           fields:
             - log.srcInterface
             - log.dstInterface
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       - trim:
           function: suffix
           substring: '/'
           fields:
             - origin.ip
             - target.ip
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       # Remove tmp fields
       - delete:
           fields:
             - log.tmpPortFrom
             - log.tmpIpPortTo
-          where: equals("log.messageId", 302033) || log.messageId==302034
+          where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
       # Adding action result
       - add:
           function: 'string'
@@ -2769,7 +2911,7 @@ pipeline:
       - grok:
           patterns:
             - fieldName: log.irrelevant
-              pattern: 'Built'
+              pattern: 'Teardown'
             - fieldName: protocol
               pattern: '{{.word}}'
             - fieldName: log.irrelevant
@@ -2971,7 +3113,7 @@ pipeline:
       # Parsing protocol
       - grok:
           patterns:
-            - fieldName: action
+            - fieldName: log.irrelevant
               pattern: 'Built\s(dynamic|static)'
             - fieldName: protocol
               pattern: '{{.word}}'
@@ -3049,7 +3191,7 @@ pipeline:
       # Parsing protocol
       - grok:
           patterns:
-            - fieldName: action
+            - fieldName: log.irrelevant
               pattern: 'Teardown\s(dynamic|static)'
             - fieldName: protocol
               pattern: '{{.word}}'
@@ -3631,7 +3773,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       # Protocol
       - grok:
           patterns:
@@ -3642,7 +3784,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: action
-          where: equals("log.messageId", 402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       # Cleaning fields
       - trim:
           function: suffix
@@ -3650,20 +3792,20 @@ pipeline:
           fields:
             - log.seqNum
             - origin.user
-          where: equals("log.messageId", 402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       - trim:
           function: suffix
           substring: ','
           fields:
             - log.spi
-          where: equals("log.messageId", 402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 402119) || log.messageId==402120
+          where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       #......................................................................#
       # FTD-5-402128
       - grok:
@@ -4210,7 +4352,7 @@ pipeline:
             - fieldName: target.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
-          where: equals("log.messageId", 611310) || log.messageId==611311
+          where: equals("log.messageId", 611310) || equals("log.messageId", 611311)
       # Adding action result
       - add:
           function: 'string'
@@ -4425,20 +4567,20 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       - trim:
           function: suffix
           substring: 'IP'
           fields:
             - origin.user
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       - trim:
           function: prefix
           substring: '<'
@@ -4446,7 +4588,7 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       - trim:
           function: suffix
           substring: '>'
@@ -4454,26 +4596,26 @@ pipeline:
             - origin.group
             - origin.user
             - origin.ip
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 716001) || log.messageId==716002 || log.messageId==716003
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 716001) || log.messageId==716002
+          where: equals("log.messageId", 716001) || equals("log.messageId", 716002)
       #......................................................................#
       # FTD-6-716004,716005,716006,716007,716009
       - grok:
@@ -4487,47 +4629,47 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       # Cleaning fields
       - trim:
           function: suffix
           substring: 'User'
           fields:
             - origin.group
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       - trim:
           function: prefix
           substring: '<'
           fields:
             - origin.group
             - origin.user
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       - trim:
           function: suffix
           substring: '>'
           fields:
             - origin.group
             - origin.user
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       - trim:
           function: prefix
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 716004) || log.messageId==716005 || log.messageId==716006 || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716005) || equals("log.messageId", 716006) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 716004) || log.messageId==716007 || log.messageId==716009
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
       - add:
           function: 'string'
           params:
@@ -4656,7 +4798,7 @@ pipeline:
             - fieldName: action
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (greaterOrEqual("log.messageId", 719019) && lessOrEqual("log.messageId", 719023))
       # Adding log.ciscoResult and modifying some actions
       # Adding action result
       - add:
@@ -4664,13 +4806,13 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 719019) || log.messageId==719023
+          where: equals("log.messageId", 719019) || equals("log.messageId", 719023)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'accepted'
-          where: equals("log.messageId", 719020) || log.messageId==719022
+          where: equals("log.messageId", 719020) || equals("log.messageId", 719022)
       - add:
           function: 'string'
           params:
@@ -4695,13 +4837,13 @@ pipeline:
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (greaterOrEqual("log.messageId", 719019) && lessOrEqual("log.messageId", 719023))
       - trim:
           function: suffix
           substring: ''''
           fields:
             - origin.user
-          where: equals("log.messageId", 719017) || (log.messageId>=719019 && log.messageId<=719023)
+          where: equals("log.messageId", 719017) || (greaterOrEqual("log.messageId", 719019) && lessOrEqual("log.messageId", 719023))
       #......................................................................#
       # FTD-6-719018
       - grok:
@@ -4971,20 +5113,20 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.msg
-          where: equals("log.messageId", 733102) || log.messageId==733103
+          where: equals("log.messageId", 733102) || equals("log.messageId", 733103)
       # Adding action
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection add host to shun list'
-          where: (equals("log.messageId", 733102) || log.messageId==733103) && contains("log.msg", "add")
+          where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "add")
       - add:
           function: 'string'
           params:
             key: action
             value: 'Threat-detection removes host to shun list'
-          where: (equals("log.messageId", 733102) || log.messageId==733103) && contains("log.msg", "removes")
+          where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "removes")
       #......................................................................#
       # Decoding severity
       - add:
@@ -4992,19 +5134,19 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: log.severity=="1" || log.severity=="2" || log.severity=="3"
+          where: equals("log.severity", "1") || equals("log.severity", "2") || equals("log.severity", "3")
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: log.severity=="4"
+          where: equals("log.severity", "4")
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: log.severity=="5" || log.severity=="6" || log.severity=="7"
+          where: equals("log.severity", "5") || equals("log.severity", "6") || equals("log.severity", "7")
       #......................................................................#
       # Adding common geolocation
       - dynamic:
@@ -5024,105 +5166,105 @@ pipeline:
           plugin: com.utmstack.geolocation
           params:
             source: log.mappedIpFrom
-            destination: log.mappedIpFrom.geolocation
+            destination: log.mappedIpFromGeolocation
           where: exists("log.mappedIpFrom")
       # Adding log.mappedIpTo geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.mappedIpTo
-            destination: log.mappedIpTo.geolocation
+            destination: log.mappedIpToGeolocation
           where: exists("log.mappedIpTo")
       # Adding log.translatedIpFrom geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.translatedIpFrom
-            destination: log.translatedIpFrom.geolocation
+            destination: log.translatedIpFromGeolocation
           where: exists("log.translatedIpFrom")
       # Adding log.translatedIpTo geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.translatedIpTo
-            destination: log.translatedIpTo.geolocation
+            destination: log.translatedIpToGeolocation
           where: exists("log.translatedIpTo")
       # Adding log.globalIp geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.globalIp
-            destination: log.globalIp.geolocation
+            destination: log.globalIpGeolocation
           where: exists("log.globalIp")
       # Adding log.remoteIp geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.remoteIp
-            destination: log.remoteIp.geolocation
+            destination: log.remoteIpGeolocation
           where: exists("log.remoteIp")
       # Adding log.mappedIp geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.mappedIp
-            destination: log.mappedIp.geolocation
+            destination: log.mappedIpGeolocation
           where: exists("log.mappedIp")
       # Adding log.decapsulatedPktDestAddr geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.decapsulatedPktDestAddr
-            destination: log.decapsulatedPktDestAddr.geolocation
+            destination: log.decapsulatedPktDestAddrGeolocation
           where: exists("log.decapsulatedPktDestAddr")
       # Adding log.decapsulatedPktSrcAddr geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.decapsulatedPktSrcAddr
-            destination: log.decapsulatedPktSrcAddr.geolocation
+            destination: log.decapsulatedPktSrcAddrGeolocation
           where: exists("log.decapsulatedPktSrcAddr")
       # Adding log.localProxyIpAddr geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.localProxyIpAddr
-            destination: log.localProxyIpAddr.geolocation
+            destination: log.localProxyIpAddrGeolocation
           where: exists("log.localProxyIpAddr")
       # Adding log.remoteProxyIpAddr geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.remoteProxyIpAddr
-            destination: log.remoteProxyIpAddr.geolocation
+            destination: log.remoteProxyIpAddrGeolocation
           where: exists("log.remoteProxyIpAddr")
       # Adding log.primaryDns geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.primaryDns
-            destination: log.primaryDns.geolocation
+            destination: log.primaryDnsGeolocation
           where: exists("log.primaryDns")
       # Adding log.secondaryDns geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.secondaryDns
-            destination: log.secondaryDns.geolocation
+            destination: log.secondaryDnsGeolocation
           where: exists("log.secondaryDns")
       # Adding log.primaryWins geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.primaryWins
-            destination: log.primaryWins.geolocation
+            destination: log.primaryWinsGeolocation
           where: exists("log.primaryWins")
       # Adding log.secondaryWins geolocation
       - dynamic:
           plugin: com.utmstack.geolocation
           params:
             source: log.secondaryWins
-            destination: log.secondaryWins.geolocation
+            destination: log.secondaryWinsGeolocation
           where: exists("log.secondaryWins")
       #......................................................................#
       # Common field conversions
