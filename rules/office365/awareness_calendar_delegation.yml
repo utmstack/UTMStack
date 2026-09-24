@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 
 dataTypes:
 - o365
@@ -26,6 +26,3 @@ groupBy:
 - dataSource
 - adversary.user
 - lastEvent.action
-- lastEvent.log.ObjectId
-- target.user
-- lastEvent.log.MailboxOwnerUPN

@@ -890,6 +890,37 @@
     ]
   },
   {
+    "name": "folder-AddFolderPermissions-own-mailbox",
+    "raw": "{\"Operation\":\"AddFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"owner@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"owner@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"}}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": false,
+    "expected": {
+      "action": "AddFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar",
+      "origin.user": "owner@example.invalid",
+      "target.user": "owner@example.invalid"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
     "name": "folder-ModifyFolderPermissions",
     "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"}}",
     "rule": "office365/awareness_mailbox_folder_permissions.yml",

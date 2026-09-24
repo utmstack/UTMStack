@@ -47,12 +47,10 @@ func TestO365AwarenessRawPredicatesAndGrouping(t *testing.T) {
 	if len(paths) != 8 {
 		t.Fatalf("want eight shipped awareness rules, got %d", len(paths))
 	}
-	group := []string{"lastEvent.tenantId", "lastEvent.log.OrganizationId", "dataSource", "adversary.user", "lastEvent.action", "lastEvent.log.ObjectId", "target.user", "lastEvent.log.MailboxOwnerUPN"}
+	// One top-level alert per acting account and action; later changes become children, which the
+	// rule flood guard does not count. Grouping per object passed 50 top-level alerts a day.
+	want := []string{"lastEvent.tenantId", "lastEvent.log.OrganizationId", "dataSource", "adversary.user", "lastEvent.action"}
 	for path, rule := range paths {
-		want := append([]string(nil), group...)
-		if strings.Contains(path, "folder_permissions") {
-			want = append(want, "lastEvent.log.folderId")
-		}
 		if !reflect.DeepEqual(rule.GroupBy, want) {
 			t.Fatalf("%s: grouping paths %v, want %v", path, rule.GroupBy, want)
 		}

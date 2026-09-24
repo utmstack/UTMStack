@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 
 dataTypes:
 - o365
@@ -19,14 +19,11 @@ references:
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 - https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxfolderpermission?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"])
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"]) &&
+  (!exists("target.user") || safe("origin.user", "") != safe("target.user", ""))
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId
 - dataSource
 - adversary.user
 - lastEvent.action
-- lastEvent.log.ObjectId
-- target.user
-- lastEvent.log.MailboxOwnerUPN
-- lastEvent.log.folderId
