@@ -18,7 +18,8 @@ description: |
   interface (GUI/CLI/API). Repeated failures from a single source IP suggest
   a brute-force or credential-stuffing attack targeting admin credentials.
   It counts logins denied due to bad credentials (events 32, 33 and 200),
-  not SSO probe failures, policy denials or allowed logins.
+  not SSO probe failures, policy denials or allowed logins, and raises one
+  alert per source address for seven days.
 
   Next Steps:
   1. Investigate the source IP — geolocation, reputation, previous activity.
@@ -42,5 +43,5 @@ afterEvents:
         value: failure
     within: 15m
     count: 5
-groupBy:
+deduplicateBy:
   - adversary.ip
