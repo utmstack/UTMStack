@@ -1,4 +1,4 @@
-# ESET filter version 3.1.0
+# ESET filter version 3.2.0
 # JSON export contract: https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
 # Original vendor keys are sanitized by JSON extraction (event_type -> log.eventtype).
 # Header host identifies the management server, never the managed endpoint.
@@ -7,59 +7,72 @@ pipeline:
   - dataTypes:
       - antivirus-esmc-eset
     steps:
+      # The EventProcessor grok plugin trims whitespace before each pattern, needs
+      # each pattern to match non-empty text at the start of what remains and writes
+      # nothing unless every pattern matches. Separators are therefore not patterns,
+      # an optional priority needs its own grok, and each envelope's full shape is
+      # checked in where, so trailing text after the JSON object is still refused.
       - grok:
           source: raw
           patterns:
-            - pattern: ^\s*
             - fieldName: log.jsonMessage
               pattern: \{(?s:.*)\}
-            - pattern: \s*$
+          where: 'regexMatch("raw", "^\\s*\\{(?s:.*)\\}\\s*$")'
       - grok:
           source: raw
           patterns:
-            - pattern: ^(?:<[0-9]{1,3}>)?
+            - pattern: <[0-9]{1,3}>
             - fieldName: log.deviceTime
               pattern: '[A-Z][a-z]{2}\s+[0-9]{1,2}\s+[0-9]{1,2}:[0-9]{2}:[0-9]{2}'
-            - pattern: \s+
             - fieldName: log.headHostname
               pattern: '[^\s]+'
-            - pattern: \s+
             - fieldName: log.serviceName
               pattern: ERAServer
             - pattern: \[
             - fieldName: log.pid
               pattern: '[0-9]+'
-            - pattern: \]:\s*
+            - pattern: '\]:'
             - fieldName: log.jsonMessage
               pattern: \{(?s:.*)\}
-            - pattern: \s*$
-          where: '!exists("log.jsonMessage")'
+          where: '!exists("log.jsonMessage") && regexMatch("raw", "^\\s*<[0-9]{1,3}>[A-Z][a-z]{2}\\s+[0-9]{1,2}\\s+[0-9]{1,2}:[0-9]{2}:[0-9]{2}\\s+\\S+\\s+ERAServer\\[[0-9]+\\]:\\s*\\{(?s:.*)\\}\\s*$")'
       - grok:
           source: raw
           patterns:
-            - pattern: ^<
+            - fieldName: log.deviceTime
+              pattern: '[A-Z][a-z]{2}\s+[0-9]{1,2}\s+[0-9]{1,2}:[0-9]{2}:[0-9]{2}'
+            - fieldName: log.headHostname
+              pattern: '[^\s]+'
+            - fieldName: log.serviceName
+              pattern: ERAServer
+            - pattern: \[
+            - fieldName: log.pid
+              pattern: '[0-9]+'
+            - pattern: '\]:'
+            - fieldName: log.jsonMessage
+              pattern: \{(?s:.*)\}
+          where: '!exists("log.jsonMessage") && regexMatch("raw", "^\\s*[A-Z][a-z]{2}\\s+[0-9]{1,2}\\s+[0-9]{1,2}:[0-9]{2}:[0-9]{2}\\s+\\S+\\s+ERAServer\\[[0-9]+\\]:\\s*\\{(?s:.*)\\}\\s*$")'
+      - grok:
+          source: raw
+          patterns:
+            - pattern: <
             - fieldName: log.priority
               pattern: '[0-9]{1,3}'
             - pattern: '>'
             - fieldName: log.syslogVersion
               pattern: '[1-9][0-9]*'
-            - pattern: \s+
             - fieldName: log.deviceTime
               pattern: \S+
-            - pattern: \s+
             - fieldName: log.headHostname
               pattern: \S+
-            - pattern: \s+
             - fieldName: log.serviceName
               pattern: ERAServer
-            - pattern: \s+
             - fieldName: log.pid
               pattern: (?:[0-9]+|-)
-            - pattern: \s+\S+\s+(?:-|\[[^\r\n]*\])\s+
+            - pattern: \S+
+            - pattern: '(?:-|(?:\[(?:[^\]\\\r\n]|\\.)*\])+)'
             - fieldName: log.jsonMessage
               pattern: \{(?s:.*)\}
-            - pattern: \s*$
-          where: '!exists("log.jsonMessage")'
+          where: '!exists("log.jsonMessage") && regexMatch("raw", "^\\s*<[0-9]{1,3}>[1-9][0-9]*\\s+\\S+\\s+\\S+\\s+ERAServer\\s+(?:[0-9]+|-)\\s+\\S+\\s+(?:-|(?:\\[(?:[^\\]\\\\\\r\\n]|\\\\.)*\\])+)\\s+\\{(?s:.*)\\}\\s*$")'
       - json:
           source: log.jsonMessage
           where: exists("log.jsonMessage")
@@ -261,7 +274,7 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^(?:.*[\\/])?
+            - pattern: '.*[\\/]'
             - fieldName: origin.process
               pattern: '[^\\/]+$'
           where: (oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","Audit_Event","EnterpriseInspectorAlert_Event","BlockedFiles_Event"])
@@ -270,7 +283,14 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^
+            - fieldName: origin.process
+              pattern: (?s)^.+$
+          where: (oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","Audit_Event","EnterpriseInspectorAlert_Event","BlockedFiles_Event"])
+            || equals("log.eventType","FilteredWebsites_Event") || (equals("log.eventType","FirewallAggregated_Event")
+            && safe("log.inbound", true) == false)) && regexMatch("log.processname", "(?s)^.+$") && regexMatch("log.processname", "^[^\\\\/]+$")
+      - grok:
+          source: log.processname
+          patterns:
             - fieldName: origin.path
               pattern: '[A-Za-z]:[\\/](?:[^\\/\r\n]+[\\/])*'
             - pattern: '[^\\/\r\n]+$'
@@ -280,7 +300,6 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^
             - fieldName: origin.path
               pattern: /(?:[^/\r\n]+/)*
             - pattern: '[^\\/\r\n]+$'
@@ -290,7 +309,7 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^(?:.*[\\/])?
+            - pattern: '.*[\\/]'
             - fieldName: target.process
               pattern: '[^\\/]+$'
           where: (equals("log.eventType","FirewallAggregated_Event") && safe("log.inbound", false) == true) && regexMatch("log.processname",
@@ -298,7 +317,13 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^
+            - fieldName: target.process
+              pattern: (?s)^.+$
+          where: (equals("log.eventType","FirewallAggregated_Event") && safe("log.inbound", false) == true) && regexMatch("log.processname",
+            "(?s)^.+$") && regexMatch("log.processname", "^[^\\\\/]+$")
+      - grok:
+          source: log.processname
+          patterns:
             - fieldName: target.path
               pattern: '[A-Za-z]:[\\/](?:[^\\/\r\n]+[\\/])*'
             - pattern: '[^\\/\r\n]+$'
@@ -307,7 +332,6 @@ pipeline:
       - grok:
           source: log.processname
           patterns:
-            - pattern: ^
             - fieldName: target.path
               pattern: /(?:[^/\r\n]+/)*
             - pattern: '[^\\/\r\n]+$'
@@ -316,7 +340,7 @@ pipeline:
       - grok:
           source: log.application
           patterns:
-            - pattern: ^(?:.*[\\/])?
+            - pattern: '.*[\\/]'
             - fieldName: origin.process
               pattern: '[^\\/]+$'
           where: (oneOf("log.eventType", ["HipsAggregated_Event","HIPSAggregated_Event"])) && regexMatch("log.application",
@@ -324,7 +348,13 @@ pipeline:
       - grok:
           source: log.application
           patterns:
-            - pattern: ^
+            - fieldName: origin.process
+              pattern: (?s)^.+$
+          where: (oneOf("log.eventType", ["HipsAggregated_Event","HIPSAggregated_Event"])) && regexMatch("log.application",
+            "(?s)^.+$") && regexMatch("log.application", "^[^\\\\/]+$")
+      - grok:
+          source: log.application
+          patterns:
             - fieldName: origin.path
               pattern: '[A-Za-z]:[\\/](?:[^\\/\r\n]+[\\/])*'
             - pattern: '[^\\/\r\n]+$'
@@ -333,7 +363,6 @@ pipeline:
       - grok:
           source: log.application
           patterns:
-            - pattern: ^
             - fieldName: origin.path
               pattern: /(?:[^/\r\n]+/)*
             - pattern: '[^\\/\r\n]+$'
@@ -386,7 +415,6 @@ pipeline:
       - grok:
           source: log.target
           patterns:
-            - pattern: ^
             - fieldName: target.path
               pattern: '[A-Za-z]:[\\/](?:[^\\/\r\n]+[\\/])*'
             - fieldName: target.filename
@@ -396,7 +424,6 @@ pipeline:
       - grok:
           source: log.target
           patterns:
-            - pattern: ^
             - fieldName: target.path
               pattern: /(?:[^/\r\n]+/)*
             - fieldName: target.filename
@@ -440,8 +467,7 @@ pipeline:
           patterns:
             - fieldName: target.cve
               pattern: ^CVE-[0-9]{4}-[0-9]{4,}
-            - pattern: (?:[.].*)?$
-          where: equals("log.eventType","FirewallAggregated_Event")
+          where: equals("log.eventType","FirewallAggregated_Event") && regexMatch("log.threatname", "^CVE-[0-9]{4}-[0-9]{4,}(?:[.].*)?$")
       - rename:
           from:
             - log.sourceport
