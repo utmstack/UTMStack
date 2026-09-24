@@ -1,0 +1,35 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Windows Firewall Turned Off"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 0
+category: Administrative Awareness
+technique: Host firewall disabled
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fasp/5a6e0d39-802d-456b-b483-c7360566fcdd
+  - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fasp/7704e238-174d-4a5e-b809-5f3787dd8acc
+description: |
+  Windows Defender Firewall was switched off for one or more network profiles (event 2003, or event 2082 on newer Windows versions). Microsoft's firewall protocol specification defines setting type 1 as the firewall on/off switch, with value 0 meaning off; while it is off, the computer blocks no network traffic for that profile. The Profiles field names the profile: 1 domain, 2 private, 4 public.
+
+  The rule reads the numeric setting instead of the translated text, so it works in every Windows language. Changes by the same program and account on the same computer are grouped under one alert, so a management tool that switches the firewall repeatedly produces one alert per computer.
+
+  Requires collection of the "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" channel.
+
+  Next Steps:
+  1. Check which program (log.data.ModifyingApplication) and account (log.data.ModifyingUser) switched the firewall off, and whether that was approved.
+  2. If it was not approved, switch the firewall back on and review the computer for other security changes.
+where: |
+  oneOf("log.eventCode", [2003, 2082]) &&
+  equals("log.channel", "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall") &&
+  equals("log.providerName", "Microsoft-Windows-Windows Firewall With Advanced Security") &&
+  equals("log.data.SettingType", 1) &&
+  equals("log.data.SettingValue", "00000000")
+groupBy:
+  - dataSource
+  - lastEvent.log.data.ModifyingUser
+  - lastEvent.log.data.ModifyingApplication

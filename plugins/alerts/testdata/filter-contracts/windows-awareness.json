@@ -1,0 +1,536 @@
+{
+  "technology": "Windows administrator awareness",
+  "filters": [
+    "filters/windows/windows-events.yml"
+  ],
+  "rules": [
+    "rules/windows/awareness_account_or_kerberos_policy_changed.yml",
+    "rules/windows/awareness_audit_policy_changed_by_user.yml",
+    "rules/windows/awareness_builtin_admin_or_guest_enabled.yml",
+    "rules/windows/awareness_defender_protection_disabled.yml",
+    "rules/windows/awareness_domain_trust_changed.yml",
+    "rules/windows/awareness_dsrm_password_set.yml",
+    "rules/windows/awareness_group_policy_object_changed.yml",
+    "rules/windows/awareness_privileged_group_member_added.yml",
+    "rules/windows/awareness_user_account_created.yml",
+    "rules/windows/awareness_windows_firewall_disabled.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Windows awareness: Privileged group: local Administrators by SYSTEM (LAPS rotation shape)",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"-\",\"MemberSid\":\"S-1-5-21-4444444444-5555555555-6666666666-1003\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-544\",\"TargetUserName\":\"Administradores\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\"},\"eventCode\":4732}",
+      "expected": {
+        "log.eventDataTargetSid": "S-1-5-32-544",
+        "log.eventDataSubjectUserSid": "S-1-5-18",
+        "target.user": "Administradores",
+        "log.data.MemberSid": "S-1-5-21-4444444444-5555555555-6666666666-1003"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group: Domain Admins by administrator",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-512\",\"TargetUserName\":\"Domain Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4728}",
+      "expected": {
+        "log.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-512",
+        "origin.user": "alice.admin"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group: Enterprise Admins",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-519\",\"TargetUserName\":\"Enterprise Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4756}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group: Schema Admins",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-518\",\"TargetUserName\":\"Schema Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4756}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group: Backup Operators",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-551\",\"TargetUserName\":\"Backup Operators\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4732}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group: Key Admins",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-526\",\"TargetUserName\":\"Key Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4728}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_privileged_group_member_added.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: Domain Users",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-513\",\"TargetUserName\":\"Domain Users\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4728}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: RID 5120 is not Domain Admins",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-5120\",\"TargetUserName\":\"Helpdesk\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4728}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: Remote Desktop Users",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-555\",\"TargetUserName\":\"Remote Desktop Users\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4732}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: Administrators SID on another channel",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Application\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-544\",\"TargetUserName\":\"Administrators\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4732}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: Administrators SID from another provider",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Contoso-Agent\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-544\",\"TargetUserName\":\"Administrators\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4732}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: member removed from Domain Admins",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-512\",\"TargetUserName\":\"Domain Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4729}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Privileged group negative: member removed from Administrators",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"-\",\"MemberSid\":\"S-1-5-21-4444444444-5555555555-6666666666-1002\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-544\",\"TargetUserName\":\"Administrators\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\"},\"eventCode\":4733}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: User created: domain account by administrator",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1201\",\"TargetUserName\":\"carol\",\"SamAccountName\":\"carol\",\"PrimaryGroupId\":\"513\",\"UserAccountControl\":\"%%2080\"},\"eventCode\":4720}",
+      "expected": {
+        "target.user": "carol",
+        "log.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-1201"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_user_account_created.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: User created: local account by SYSTEM",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\",\"TargetDomainName\":\"WS01\",\"TargetSid\":\"S-1-5-21-4444444444-5555555555-6666666666-1003\",\"TargetUserName\":\"WLapsPending1003\"},\"eventCode\":4720}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_user_account_created.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Built-in account: Guest enabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\",\"TargetDomainName\":\"WS01\",\"TargetSid\":\"S-1-5-21-4444444444-5555555555-6666666666-501\",\"TargetUserName\":\"Invitado\"},\"eventCode\":4722}",
+      "expected": {
+        "log.eventDataTargetSid": "S-1-5-21-4444444444-5555555555-6666666666-501"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_builtin_admin_or_guest_enabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Built-in account: domain Administrator enabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-500\",\"TargetUserName\":\"Administrator\"},\"eventCode\":4722}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_builtin_admin_or_guest_enabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Built-in account negative: ordinary account enabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1500\",\"TargetUserName\":\"svc1500\"},\"eventCode\":4722}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Trust: created",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"DomainName\":\"PARTNER\",\"DomainSid\":\"S-1-5-21-7777777777-8888888888-9999999999\",\"TdoType\":\"2\",\"TdoDirection\":\"3\",\"TdoAttributes\":\"8\",\"SidFilteringEnabled\":\"%%1796\"},\"eventCode\":4706}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_domain_trust_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Trust: removed",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"DomainName\":\"PARTNER\",\"DomainSid\":\"S-1-5-21-7777777777-8888888888-9999999999\"},\"eventCode\":4707}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_domain_trust_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Trust: changed by administrator",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"DomainName\":\"-\",\"DomainSid\":\"S-1-5-21-7777777777-8888888888-9999999999\",\"TdoType\":\"2\",\"TdoDirection\":\"3\",\"TdoAttributes\":\"8\",\"SidFilteringEnabled\":\"-\"},\"eventCode\":4716}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_domain_trust_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Trust negative: automatic trust password reset",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"NT AUTHORITY\",\"SubjectLogonId\":998,\"SubjectUserName\":\"ANONYMOUS LOGON\",\"SubjectUserSid\":\"S-1-5-7\",\"DomainName\":\"-\",\"DomainSid\":\"S-1-5-21-7777777777-8888888888-9999999999\",\"TdoType\":\"2\",\"TdoDirection\":\"3\",\"TdoAttributes\":\"8\",\"SidFilteringEnabled\":\"-\"},\"eventCode\":4716}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Policy: lockout policy applied by SYSTEM",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"DC01$\",\"SubjectUserSid\":\"S-1-5-18\",\"DomainName\":\"EXAMPLE\",\"DomainSid\":\"S-1-5-21-1111111111-2222222222-3333333333\",\"DomainPolicyChanged\":\"Lockout Policy\",\"LockoutThreshold\":\"10\",\"LockoutDuration\":\"0:00:10:00\"},\"eventCode\":4739}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_account_or_kerberos_policy_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Policy: Kerberos policy",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"DC01$\",\"SubjectUserSid\":\"S-1-5-18\",\"KerberosPolicyChange\":\"KerMaxT: 0x645dc5a3000\"},\"eventCode\":4713}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_account_or_kerberos_policy_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Audit policy: changed by administrator",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"CategoryId\":\"%%8272\",\"SubcategoryId\":\"%%12290\",\"SubcategoryGuid\":\"{0cce9212-69ae-11d9-bed3-505054503030}\",\"AuditPolicyChanges\":\"%%8448, %%8450\"},\"eventCode\":4719}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_audit_policy_changed_by_user.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Audit policy negative: Group Policy applied by SYSTEM",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\",\"CategoryId\":\"%%8272\",\"SubcategoryId\":\"%%12290\",\"SubcategoryGuid\":\"{0cce9212-69ae-11d9-bed3-505054503030}\",\"AuditPolicyChanges\":\"%%8449\"},\"eventCode\":4719}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Audit policy negative: LOCAL SERVICE",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"NT AUTHORITY\",\"SubjectLogonId\":997,\"SubjectUserName\":\"LOCAL SERVICE\",\"SubjectUserSid\":\"S-1-5-19\",\"CategoryId\":\"%%8272\",\"SubcategoryId\":\"%%12290\",\"AuditPolicyChanges\":\"%%8448\"},\"eventCode\":4719}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Audit policy negative: computer account name",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-3001\",\"CategoryId\":\"%%8272\",\"SubcategoryId\":\"%%12290\",\"AuditPolicyChanges\":\"%%8448\"},\"eventCode\":4719}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: DSRM password: set by administrator",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"Workstation\":\"DC01\",\"Status\":0},\"eventCode\":4794}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_dsrm_password_set.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Defender: real-time protection disabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"Product Name\":\"%%827\",\"Product Version\":\"4.18.25070.5\"},\"eventCode\":5001}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_defender_protection_disabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Defender: malware scanning disabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"Product Name\":\"%%827\"},\"eventCode\":5010}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_defender_protection_disabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Defender: virus scanning disabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"Product Name\":\"%%827\"},\"eventCode\":5012}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_defender_protection_disabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Defender negative: real-time protection enabled",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"Product Name\":\"%%827\"},\"eventCode\":5000}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Defender negative: another provider reusing 5001",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "srv01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Server Administrator\",\"channel\":\"System\",\"computer\":\"srv01.example.test\",\"recordId\":1000,\"data\":{\"param1\":\"status\"},\"eventCode\":5001}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Firewall: turned off in the Windows Firewall console",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Firewall With Advanced Security\",\"channel\":\"Microsoft-Windows-Windows Firewall With Advanced Security/Firewall\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"ModifyingApplication\":\"C:\\\\Windows\\\\System32\\\\dllhost.exe\",\"ModifyingUser\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"Origin\":\"1\",\"Profiles\":\"2\",\"SettingType\":\"1\",\"SettingValue\":\"00000000\",\"SettingValueSize\":\"4\",\"SettingValueString\":\"No\"},\"eventCode\":2003}",
+      "expected": {
+        "log.data.SettingType": "1",
+        "log.data.SettingValue": "00000000"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_windows_firewall_disabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Firewall: turned off by netsh as SYSTEM on newer Windows",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Firewall With Advanced Security\",\"channel\":\"Microsoft-Windows-Windows Firewall With Advanced Security/Firewall\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"ModifyingApplication\":\"C:\\\\Windows\\\\SysWOW64\\\\netsh.exe\",\"ModifyingUser\":\"S-1-5-18\",\"Origin\":\"1\",\"Profiles\":\"4\",\"SettingType\":\"1\",\"SettingValue\":\"00000000\",\"SettingValueSize\":\"4\",\"SettingValueString\":\"No\"},\"eventCode\":2082}",
+      "expected": {},
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_windows_firewall_disabled.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Firewall negative: turned on",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Firewall With Advanced Security\",\"channel\":\"Microsoft-Windows-Windows Firewall With Advanced Security/Firewall\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"ModifyingApplication\":\"C:\\\\Windows\\\\System32\\\\svchost.exe\",\"ModifyingUser\":\"S-1-5-18\",\"Origin\":\"1\",\"Profiles\":\"4\",\"SettingType\":\"1\",\"SettingValue\":\"01000000\",\"SettingValueSize\":\"4\",\"SettingValueString\":\"Yes\"},\"eventCode\":2082}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Firewall negative: shielded mode off",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Firewall With Advanced Security\",\"channel\":\"Microsoft-Windows-Windows Firewall With Advanced Security/Firewall\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"ModifyingApplication\":\"C:\\\\Windows\\\\System32\\\\dllhost.exe\",\"ModifyingUser\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"Origin\":\"1\",\"Profiles\":\"4\",\"SettingType\":\"3\",\"SettingValue\":\"00000000\",\"SettingValueSize\":\"4\",\"SettingValueString\":\"No\"},\"eventCode\":2082}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Firewall negative: another provider reusing 2003",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"ESENT\",\"channel\":\"Application\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"param1\":\"svchost\"},\"eventCode\":2003}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Firewall negative: translated Security log setting text",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"ProfileChanged\":\"Public\",\"SettingType\":\"Enable Windows Defender Firewall\",\"SettingValue\":\"No\"},\"eventCode\":4950}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Group Policy: value added",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"AppCorrelationID\":\"-\",\"AttributeLDAPDisplayName\":\"versionNumber\",\"AttributeSyntaxOID\":\"2.5.5.9\",\"AttributeValue\":\"65538\",\"DSName\":\"example.test\",\"DSType\":\"%%14676\",\"ObjectClass\":\"groupPolicyContainer\",\"ObjectDN\":\"CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=EXAMPLE,DC=TEST\",\"ObjectGUID\":\"{11111111-2222-3333-4444-555555555555}\",\"OpCorrelationID\":\"{66666666-7777-8888-9999-000000000000}\",\"OperationType\":\"%%14674\"},\"eventCode\":5136}",
+      "expected": {
+        "log.data.ObjectClass": "groupPolicyContainer",
+        "log.eventDataOperationType": "%%14674",
+        "log.data.ObjectDN": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=EXAMPLE,DC=TEST"
+      },
+      "absent": [],
+      "rules": {
+        "rules/windows/awareness_group_policy_object_changed.yml": true
+      }
+    },
+    {
+      "name": "Windows awareness: Group Policy negative: value deleted half of the same change",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"AppCorrelationID\":\"-\",\"AttributeLDAPDisplayName\":\"versionNumber\",\"AttributeSyntaxOID\":\"2.5.5.9\",\"AttributeValue\":\"65538\",\"DSName\":\"example.test\",\"DSType\":\"%%14676\",\"ObjectClass\":\"groupPolicyContainer\",\"ObjectDN\":\"CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=EXAMPLE,DC=TEST\",\"ObjectGUID\":\"{11111111-2222-3333-4444-555555555555}\",\"OpCorrelationID\":\"{66666666-7777-8888-9999-000000000000}\",\"OperationType\":\"%%14675\"},\"eventCode\":5136}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Group Policy negative: user object changed",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"AppCorrelationID\":\"-\",\"AttributeLDAPDisplayName\":\"description\",\"AttributeSyntaxOID\":\"2.5.5.9\",\"AttributeValue\":\"65538\",\"DSName\":\"example.test\",\"DSType\":\"%%14676\",\"ObjectClass\":\"user\",\"ObjectDN\":\"CN=bob,CN=Users,DC=EXAMPLE,DC=TEST\",\"ObjectGUID\":\"{11111111-2222-3333-4444-555555555555}\",\"OpCorrelationID\":\"{66666666-7777-8888-9999-000000000000}\",\"OperationType\":\"%%14674\"},\"eventCode\":5136}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Not covered: user right assigned by Group Policy",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "ws01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\",\"TargetSid\":\"S-1-5-32-551\",\"PrivilegeList\":\"SeBackupPrivilege\"},\"eventCode\":4704}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    },
+    {
+      "name": "Windows awareness: Not covered: password reset attempt",
+      "filter": "windows/windows-events.yml",
+      "dataType": "wineventlog",
+      "dataSource": "dc01",
+      "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1201\",\"TargetUserName\":\"carol\"},\"eventCode\":4724}",
+      "expected": {},
+      "absent": [],
+      "rules": {}
+    }
+  ]
+}
