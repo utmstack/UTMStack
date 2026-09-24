@@ -111,11 +111,6 @@ pipeline:
           
       - rename:
           from:
-            - log.event.Attributes.trace_id
-          to: log.eventAttributesTraceID
-          
-      - rename:
-          from:
             - log.event.Attributes.user_agent
           to: log.eventAttributesUserAgent
           
@@ -216,11 +211,6 @@ pipeline:
           
       - rename:
           from:
-            - log.event.ServiceName
-          to: log.eventServiceName
-          
-      - rename:
-          from:
             - log.event.SourceIp
           to: origin.ip
           
@@ -263,11 +253,6 @@ pipeline:
           from:
             - log.metadata.version
           to: log.metadataVersion
-          
-      - rename:
-          from:
-            - log.event.Message
-          to: log.eventMessage
           
       - rename:
           from:
