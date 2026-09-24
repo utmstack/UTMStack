@@ -30,10 +30,10 @@ description: |
   - Update ESET signatures and run a full system scan
 where: |
   (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threatname", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threattype", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scannerid", "(?i)(heuristic|newheur|suspicious behavior)")) &&
+  (regexMatch("log.threat_name", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threat_type", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scanner_id", "(?i)(heuristic|newheur|suspicious behavior)")) &&
   regexMatch("action", "(?i)^(cleaned|deleted|quarantined|blocked|denied|prevented)$") &&
-  (!exists("log.actionerror") || equals("log.actionerror", "")) &&
-  !equals("log.threathandled", false)) &&
+  (!exists("log.action_error") || equals("log.action_error", "")) &&
+  !equals("log.threat_handled", false)) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
