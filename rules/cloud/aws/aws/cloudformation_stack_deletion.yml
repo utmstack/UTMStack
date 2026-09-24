@@ -56,7 +56,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.cloudformation_stack_deletion
+  - field: log.correlationCandidate.cloudformationStackDeletion
     operator: filter_term
     value: match
   within: 30m

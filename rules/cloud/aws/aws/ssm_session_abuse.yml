@@ -57,7 +57,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.ssm_session_abuse
+  - field: log.correlationCandidate.ssmSessionAbuse
     operator: filter_term
     value: match
   within: 30m

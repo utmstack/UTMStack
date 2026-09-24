@@ -57,7 +57,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.s3_bulk_data_exfiltration
+  - field: log.correlationCandidate.s3BulkDataExfiltration
     operator: filter_term
     value: match
   within: 15m

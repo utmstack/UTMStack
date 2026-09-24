@@ -40,7 +40,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.vpc_flow_log_anomalies
+  - field: log.correlationCandidate.vpcFlowLogAnomalies
     operator: filter_term
     value: match
   within: 24h

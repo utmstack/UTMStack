@@ -41,7 +41,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.aws_sso_suspicious_activities
+  - field: log.correlationCandidate.awsSsoSuspiciousActivities
     operator: filter_term
     value: match
   within: 30m

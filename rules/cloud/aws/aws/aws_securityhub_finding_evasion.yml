@@ -57,7 +57,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.aws_securityhub_finding_evasion
+  - field: log.correlationCandidate.awsSecurityhubFindingEvasion
     operator: filter_term
     value: match
   within: 30m

@@ -47,7 +47,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.lambda_privilege_escalation
+  - field: log.correlationCandidate.lambdaPrivilegeEscalation
     operator: filter_term
     value: match
   within: 1h

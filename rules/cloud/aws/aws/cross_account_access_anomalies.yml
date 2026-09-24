@@ -53,7 +53,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.cross_account_access_anomalies
+  - field: log.correlationCandidate.crossAccountAccessAnomalies
     operator: filter_term
     value: match
   within: 15m

@@ -2167,13 +2167,13 @@
   {
     "name": "input-markers-discarded",
     "dataSource": "collector-test",
-    "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"awsRecordType\":\"guardduty\",\"correlationCandidate\":{\"mass_resource_deletion\":\"match\"},\"awsActorKey\":\"fake\"}",
+    "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"awsRecordType\":\"guardduty\",\"correlationCandidate\":{\"massResourceDeletion\":\"match\"},\"awsActorKey\":\"fake\"}",
     "expected": {
       "log.awsRecordType": "cloudtrail",
       "log.awsActorKey": "arn:aws:iam::123456789012:user/reviewer"
     },
     "absent": [
-      "log.correlationCandidate.mass_resource_deletion"
+      "log.correlationCandidate.massResourceDeletion"
     ],
     "matches": []
   },
@@ -2336,7 +2336,7 @@
   {
     "name": "unknown-json",
     "dataSource": "collector-test",
-    "raw": "{\"message\":\"not a CloudTrail record\",\"eventName\":\"DeleteTrail\",\"awsRecordType\":\"cloudtrail\",\"correlationCandidate\":{\"mass_resource_deletion\":\"match\"}}",
+    "raw": "{\"message\":\"not a CloudTrail record\",\"eventName\":\"DeleteTrail\",\"awsRecordType\":\"cloudtrail\",\"correlationCandidate\":{\"massResourceDeletion\":\"match\"}}",
     "expected": {},
     "absent": [
       "action",

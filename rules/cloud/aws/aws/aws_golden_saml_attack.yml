@@ -37,7 +37,7 @@ afterEvents:
   - field: log.awsAccountKey
     operator: filter_term
     value: '{{.log.awsAccountKey}}'
-  - field: log.correlationCandidate.saml_provider_change
+  - field: log.correlationCandidate.samlProviderChange
     operator: filter_term
     value: match
   within: 24h

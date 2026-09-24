@@ -56,7 +56,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.unusual_api_call_patterns
+  - field: log.correlationCandidate.unusualApiCallPatterns
     operator: filter_term
     value: match
   within: 10m
