@@ -84,6 +84,14 @@ plugins all link go-sdk v1.1.36. `v11` was merged into this branch. No file over
 draft, so nothing conflicted. The geolocation plugin was built from `v11` `d2479c1a`, which
 this branch now carries unchanged; its own `go.mod` pins go-sdk v1.1.34.
 
+The newest published engine image, `ghcr.io/utmstack/utmstack/eventprocessor:v11.2.14`
+(built 2026-09-24 19:13 UTC on base image `eventprocessor/base:1.1.7`), embeds Go build
+information showing that its playground and plugin binaries come from the same
+EventProcessor revision `8a3ade7` with go-sdk v1.1.36, built with go1.26.8 for linux/amd64.
+The local build used here is that source revision compiled natively for darwin/arm64 with
+go1.25.7; only the Go toolchain and platform differ. The image's geolocation plugin also
+comes from `v11` `d2479c1a` with go-sdk v1.1.34, like the one used here.
+
 What changed in the SDK, and what it means here:
 
 - Since v1.1.35, `utils.SanitizeField` keeps `_` in the field names that the `json`
