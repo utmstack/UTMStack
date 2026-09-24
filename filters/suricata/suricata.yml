@@ -37,19 +37,24 @@ pipeline:
           where: regexMatch("log.suricataJson", "^\\{.*\\}$")
 
       # Rename fields to conversion v11 schema
+      # Parsers on go-sdk v1.1.35 or later keep "_" in EVE keys (src_ip) and older ones remove it
+      # (srcip), so these renames read both spellings.
       - rename:
           from:
             - log.destip
+            - log.dest_ip
           to: target.ip
 
       - rename:
           from:
             - log.destport
+            - log.dest_port
           to: target.port
 
       - rename:
           from:
             - log.flowid
+            - log.flow_id
           to: log.flowId
 
       - rename:
@@ -60,31 +65,37 @@ pipeline:
       - rename:
           from:
             - log.iniface
+            - log.in_iface
           to: log.inFace
 
       - rename:
           from:
             - log.srcip
+            - log.src_ip
           to: origin.ip
 
       - rename:
           from:
             - log.srcport
+            - log.src_port
           to: origin.port
 
       - rename:
           from:
             - log.txid
+            - log.tx_id
           to: log.txId
 
       - rename:
           from:
             - log.eventtype
+            - log.event_type
           to: log.eventType
 
       - rename:
           from:
             - log.appproto
+            - log.app_proto
           to: log.appProto
 
       - rename:
