@@ -201,7 +201,7 @@ pipeline:
       - rename:
           from:
             - log.repository.events_url
-          to: log.repository.events_url
+          to: log.repositoryEventsUrl
 
       - rename:
           from:

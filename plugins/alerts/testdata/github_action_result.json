@@ -3,7 +3,7 @@
     "name": "workflow-run-completed-success",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"success\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "success",
-    "expected": {
+    "fields": {
       "log.conclusion": "success"
     }
   },
@@ -11,7 +11,7 @@
     "name": "workflow-run-completed-failure",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"failure\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "failure",
-    "expected": {
+    "fields": {
       "log.conclusion": "failure"
     }
   },
@@ -19,7 +19,7 @@
     "name": "workflow-run-completed-timed-out",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"timed_out\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "failure",
-    "expected": {
+    "fields": {
       "log.conclusion": "timed_out"
     }
   },
@@ -27,7 +27,7 @@
     "name": "workflow-run-completed-startup-failure",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"startup_failure\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "failure",
-    "expected": {
+    "fields": {
       "log.conclusion": "startup_failure"
     }
   },
@@ -35,7 +35,7 @@
     "name": "workflow-run-completed-action-required",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"action_required\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.conclusion": "action_required"
     }
   },
@@ -43,7 +43,7 @@
     "name": "workflow-run-completed-cancelled",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"cancelled\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.conclusion": "cancelled"
     }
   },
@@ -51,7 +51,7 @@
     "name": "workflow-run-completed-neutral",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"neutral\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.conclusion": "neutral"
     }
   },
@@ -59,7 +59,7 @@
     "name": "workflow-run-completed-skipped",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"skipped\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.conclusion": "skipped"
     }
   },
@@ -67,7 +67,7 @@
     "name": "workflow-run-completed-stale",
     "raw": "{\"action\":\"completed\",\"workflow_run\":{\"id\":30433642,\"name\":\"CI\",\"head_branch\":\"main\",\"head_sha\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"path\":\".github/workflows/ci.yml\",\"run_number\":562,\"event\":\"push\",\"display_title\":\"Update README\",\"status\":\"completed\",\"conclusion\":\"stale\",\"workflow_id\":159038,\"url\":\"https://api.github.com/repos/octo-org/example/actions/runs/30433642\",\"html_url\":\"https://github.com/octo-org/example/actions/runs/30433642\",\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:05:00Z\",\"run_attempt\":1,\"run_started_at\":\"2026-09-24T12:00:00Z\",\"actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"},\"triggering_actor\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\"}},\"workflow\":{\"id\":159038,\"name\":\"CI\",\"path\":\".github/workflows/ci.yml\",\"state\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.conclusion": "stale"
     }
   },
@@ -85,7 +85,7 @@
     "name": "push-control-no-outcome",
     "raw": "{\"ref\":\"refs/heads/main\",\"before\":\"6113728f27ae82c7b1a177c8d03f9e96e0adf246\",\"after\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"base_ref\":null,\"created\":false,\"deleted\":false,\"forced\":false,\"compare\":\"https://github.com/octo-org/example/compare/6113728f27ae...acb5820ced94\",\"commits\":[],\"head_commit\":{\"id\":\"acb5820ced9479c074f688cc328bf03f341a511d\",\"tree_id\":\"a0b5de1a19f4e8e5e0e5d2a4d6b1b0c1e2f3a4b5\",\"distinct\":true,\"message\":\"Update README\",\"timestamp\":\"2026-09-24T12:00:00Z\",\"url\":\"https://github.com/octo-org/example/commit/acb5820ced9479c074f688cc328bf03f341a511d\",\"author\":{\"name\":\"Octo Cat\",\"email\":\"octocat@example.com\",\"username\":\"octocat\"},\"committer\":{\"name\":\"Octo Cat\",\"email\":\"octocat@example.com\",\"username\":\"octocat\"},\"added\":[],\"removed\":[],\"modified\":[\"README.md\"]},\"pusher\":{\"name\":\"octocat\",\"email\":\"octocat@example.com\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": "",
-    "expected": {
+    "fields": {
       "log.headCommitId": "acb5820ced9479c074f688cc328bf03f341a511d",
       "log.headCommitMessage": "Update README",
       "log.headCommitModified": "README.md"
@@ -95,5 +95,43 @@
     "name": "workflow-job-completed-failure-not-mapped",
     "raw": "{\"action\":\"completed\",\"workflow_job\":{\"id\":29679449,\"run_id\":30433642,\"name\":\"build\",\"status\":\"completed\",\"conclusion\":\"failure\",\"started_at\":\"2026-09-24T12:00:10Z\",\"completed_at\":\"2026-09-24T12:04:50Z\",\"runner_name\":\"example-runner\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"default_branch\":\"main\"},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
     "result": ""
+  },
+  {
+    "name": "secret-scanning-alert-created-open",
+    "raw": "{\"action\":\"created\",\"alert\":{\"number\":42,\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:00:00Z\",\"url\":\"https://api.github.com/repos/octo-org/example/secret-scanning/alerts/42\",\"html_url\":\"https://github.com/octo-org/example/security/secret-scanning/42\",\"locations_url\":\"https://api.github.com/repos/octo-org/example/secret-scanning/alerts/42/locations\",\"state\":\"open\",\"resolution\":null,\"secret_type\":\"adafruit_io_key\",\"secret_type_display_name\":\"Adafruit IO Key\",\"validity\":\"active\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"events_url\":\"https://api.github.com/repos/octo-org/example/events\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
+    "result": "",
+    "fields": {
+      "log.alert.number": "42",
+      "log.alert.state": "open",
+      "log.repositoryName": "example"
+    },
+    "secretScanning": true
+  },
+  {
+    "name": "secret-scanning-alert-resolved-control",
+    "raw": "{\"action\":\"resolved\",\"alert\":{\"number\":42,\"created_at\":\"2026-09-24T12:00:00Z\",\"updated_at\":\"2026-09-24T12:00:00Z\",\"url\":\"https://api.github.com/repos/octo-org/example/secret-scanning/alerts/42\",\"html_url\":\"https://github.com/octo-org/example/security/secret-scanning/42\",\"locations_url\":\"https://api.github.com/repos/octo-org/example/secret-scanning/alerts/42/locations\",\"state\":\"resolved\",\"resolution\":\"revoked\",\"secret_type\":\"adafruit_io_key\",\"secret_type_display_name\":\"Adafruit IO Key\",\"validity\":\"active\",\"resolved_at\":\"2026-09-24T13:00:00Z\"},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"events_url\":\"https://api.github.com/repos/octo-org/example/events\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
+    "result": "",
+    "fields": {
+      "log.alert.state": "resolved"
+    },
+    "secretScanning": false
+  },
+  {
+    "name": "code-scanning-alert-open-control",
+    "raw": "{\"action\":\"created\",\"alert\":{\"number\":3,\"created_at\":\"2026-09-24T12:00:00Z\",\"url\":\"https://api.github.com/repos/octo-org/example/code-scanning/alerts/3\",\"html_url\":\"https://github.com/octo-org/example/security/code-scanning/3\",\"state\":\"open\",\"rule\":{\"id\":\"js/zipslip\",\"severity\":\"error\"},\"tool\":{\"name\":\"CodeQL\"}},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"events_url\":\"https://api.github.com/repos/octo-org/example/events\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
+    "result": "",
+    "fields": {
+      "log.alert.state": "open"
+    },
+    "secretScanning": false
+  },
+  {
+    "name": "dependabot-alert-open-control",
+    "raw": "{\"action\":\"created\",\"alert\":{\"number\":1,\"state\":\"open\",\"url\":\"https://api.github.com/repos/octo-org/example/dependabot/alerts/1\",\"html_url\":\"https://github.com/octo-org/example/security/dependabot/1\",\"dependency\":{\"package\":{\"ecosystem\":\"pip\",\"name\":\"django\"},\"scope\":\"runtime\"}},\"repository\":{\"id\":1296269,\"name\":\"example\",\"full_name\":\"octo-org/example\",\"private\":false,\"owner\":{\"login\":\"octo-org\",\"id\":2,\"type\":\"Organization\"},\"html_url\":\"https://github.com/octo-org/example\",\"events_url\":\"https://api.github.com/repos/octo-org/example/events\",\"default_branch\":\"main\"},\"organization\":{\"login\":\"octo-org\",\"id\":2},\"sender\":{\"login\":\"octocat\",\"id\":1,\"type\":\"User\",\"site_admin\":false}}",
+    "result": "",
+    "fields": {
+      "log.alert.state": "open"
+    },
+    "secretScanning": false
   }
 ]
