@@ -619,18 +619,6 @@ pipeline:
       # .......................................................................#
       - trim:
           function: prefix
-          substring: '"'
-          fields:
-            - log.eventCommandLine
-
-      - trim:
-          function: suffix
-          substring: '"'
-          fields:
-            - log.eventCommandLine
-
-      - trim:
-          function: prefix
           substring: '[{'
           fields:
             - log.eventCommandLine
