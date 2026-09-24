@@ -1,4 +1,4 @@
-# Netflow firewall module filter, version 3.1.1
+# Netflow firewall module filter, version 3.1.2
 # Based in docs and Netflow Generator (Solarwinds) for send log
 # 
 # Documentations
@@ -150,14 +150,6 @@ pipeline:
           from:
             - log.dstIp
           to: target.ip
-      - rename:
-          from:
-            - log.src_ip
-          to: origin.ip
-      - rename:
-          from:
-            - log.dest_ip
-          to: target.ip
               
       # Remove unused caracters and estandarize fields
       - trim:
@@ -202,9 +194,7 @@ pipeline:
             - log.outEthernet
             - log.protocol
             - log.srcPortg
-            - log.src_port
             - log.dstPortg
-            - log.dest_port
             - log.destMask
             - log.sourceMask
             - log.tcpFlgs
@@ -216,27 +206,21 @@ pipeline:
           substring: '0'
           fields:
             - log.srcPortg
-            - log.src_port
             - log.dstPortg
-            - log.dest_port
 
       - trim: 
           function: substring
           substring: " "
           fields:
             - log.srcPortg
-            - log.src_port
             - log.dstPortg
-            - log.dest_port
 
       # Fields conversions
       - cast:
           to: 'int'
           fields:
             - log.srcPortg
-            - log.src_port
             - log.dstPortg
-            - log.dest_port
 
       # Rename fields to fields base
       - rename:
@@ -245,15 +229,7 @@ pipeline:
           to: origin.port
       - rename:
           from:
-            - log.src_port
-          to: origin.port
-      - rename:
-          from:
             - log.dstPortg
-          to: target.port
-      - rename:
-          from:
-            - log.dest_port
           to: target.port
 
       # Adding geolocation to origin.ip
