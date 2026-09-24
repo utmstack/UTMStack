@@ -7,8 +7,10 @@ field was set. Twelve of the 19 rules require the event name, so none of them co
 real record. This revision parses the CEF header by position, keeps whole
 values, converts the CEF time, maps the console actor to `origin.user` for console events,
 and changes 14 rules so they consume what the filter now produces without firing on
-ordinary console administration. The schema is ThreatWinds go-sdk **v1.1.33**, as pinned
-by `plugins/alerts/go.mod`.
+ordinary console administration. The schema is ThreatWinds go-sdk **v1.1.36**, as pinned
+by `plugins/alerts/go.mod` since official `v11` (`d2479c1a`) was merged into this branch.
+The review itself used v1.1.33, whose `plugins.proto` is identical. The draft was checked
+again on the latest versions; see [Re-validation on the latest versions](#re-validation-on-the-latest-versions).
 
 ## Evidence basis
 
@@ -39,8 +41,10 @@ by `plugins/alerts/go.mod`.
   splits on every space, keeps the first word of a value and fails when its source is
   missing; the
   [reformat plugin](https://github.com/utmstack/EventProcessor/blob/497bf53dbd1ae096f7b2dbc7bce77a6bf9f22ce1/plugins/reformat/main.go)
-  records an error when a time does not parse.
-- **Schema and semantics.** [Event and Side fields](https://github.com/threatwinds/go-sdk/blob/v1.1.33/plugins/plugins.proto)
+  records an error when a time does not parse. The latest EventProcessor, `main` at
+  `8a3ade72bd9d12db21f6b273200588fb49540f14`, changes only these plugins' go-sdk version
+  (to v1.1.36), so this behaviour is the same there.
+- **Schema and semantics.** [Event and Side fields](https://github.com/threatwinds/go-sdk/blob/v1.1.36/plugins/plugins.proto)
   (`origin.user`, `target.host`, `deviceTime`, `severity` are strings) and the
   [standard field meanings](https://github.com/threatwinds/go-sdk/wiki/Standard-Event-Schema)
   (`deviceTime` is the source's original time; origin is the actor).
@@ -88,7 +92,42 @@ No SentinelOne rule has a history query, so no history search is affected. Filte
 rules must ship together: with the new filter and the old rules, benign console text fires
 seven old rules (measured below).
 
+## Re-validation on the latest versions
+
+On 2026-09-24 official `v11` moved to `d2479c1a3705eec6a00016689c2bf5fbcc1814f2`, whose
+`plugins/alerts` pins go-sdk v1.1.36, and EventProcessor `main` moved to
+`8a3ade72bd9d12db21f6b273200588fb49540f14`, whose playground and parser, writer and CEL
+plugins all link go-sdk v1.1.36. `v11` was merged into this branch. No file overlaps this
+draft, so nothing conflicted.
+
+What changed in the SDK, and what it means here:
+
+- Since v1.1.35, `utils.SanitizeField` keeps `_` in the field names that the `json`
+  (top-level keys), `kv`, `grok`, `csv`, `xml`, `add` and `rename` plugins write. Other
+  characters are still removed. This filter only writes names made of letters and digits,
+  and no `kv` key in the 52 fabricated lines or the five genuine records contains `_`. So
+  every stored name stays the same.
+- v1.1.36 makes `regexMatch` match string values only again. Since v1.1.34, `contains`,
+  `containsAll`, `startsWith` and `endsWith` also search the JSON text of objects and lists.
+  Every such call in this filter and its rules reads a text field, so no result changes.
+  `plugins.proto`, `plugins/cel.go` and `plugins/rules.go` are identical in v1.1.33 and v1.1.36.
+- No filter, rule or fixture needed a change.
+
+| Check on the latest versions | Result |
+|---|---|
+| Full `plugins/alerts` suite, go-sdk v1.1.36 | 48 tests pass, 11 skip, none fail (2,342 passing results with subtests). The five SentinelOne tests pass. The skipped tests need other technologies' private evidence and skip on the base commit too. |
+| `replay.py` on EventProcessor 8a3ade7 | 52 events, zero parser errors, every key set and value as in `expected.json`, 10 alerts, each from its intended rule. With `--endpoint-harness`: 59 events and 17 alerts. |
+| go-sdk v1.1.36 rule replay | All 19 rules over those 52 and 59 events: no compile or evaluation error. The matches are exactly the 10 and 17 playground alerts, and exactly the alerts in `expected.json`. |
+| The four private playground runs described below, same 64 and 71 inputs | Same results as before. Original filter and rules: 4 alerts. Corrected filter with the original rules: 22. Corrected filter and rules: 12, none on a genuine record. With the test-only step: 19. All 4,304 assertions pass. |
+
+At 8a3ade7 the CEL plugin reads its OpenSearch address from separate `host`, `port`, `user`
+and `password` settings. `replay.py` still gives one URL, so the client gets an empty
+address. No SentinelOne rule has a history search, so no result depends on it.
+
 ## Validation
+
+These are the original review's results, on EventProcessor `497bf53` and go-sdk v1.1.33.
+The section above repeats them on the latest versions.
 
 **Fabricated regression, committed.** `plugins/alerts/testdata/sentinel-one/` holds 52
 invented raw lines (`raw.json`), their expected fields and alerts (`expected.json`), the
@@ -162,10 +201,11 @@ These need SentinelOne's syslog/CEF reference or real threat records, and are un
 - No threat record was available, so threat-event parsing, keys and rule wording are
   verified only with invented lines. The syslog wording of a policy-mode change is not
   documented either; the direction test covers the wordings listed above.
-- The playground parser plugins link go-sdk v1.1.26 and its CEL plugin v1.1.34; the alerts
-  module pins v1.1.33. Predicates were also checked with v1.1.33. Neither build is asserted
-  to match a customer deployment. `reformat` is already used by the ESET and Sophos XG
-  filters.
+- The latest check used EventProcessor `8a3ade7`, whose playground and plugins link go-sdk
+  v1.1.36, the version the alerts module now pins; predicates were also checked with
+  v1.1.36. The original review used `497bf53` (parser and writer plugins v1.1.26, CEL plugin
+  v1.1.34) and v1.1.33 predicates. Neither build is asserted to match a customer deployment.
+  `reformat` is already used by the ESET and Sophos XG filters.
 - The playground `saw` writer only records alerts. Grouping, deduplication, indexing,
   notifications and production alerts were not tested.
 - A header missing one of the seven CEF fields, or with an empty extension, falls back to
@@ -176,8 +216,8 @@ These need SentinelOne's syslog/CEF reference or real threat records, and are un
 
 ## Reproduce
 
-Build the EventProcessor commit above without changing its dependencies. With `EP` set to
-that checkout's absolute path:
+Build EventProcessor `8a3ade72bd9d12db21f6b273200588fb49540f14` (the latest check) without
+changing its dependencies. With `EP` set to that checkout's absolute path:
 
 ```sh
 mkdir -p "$EP/test-bin" "$EP/test-plugins"
