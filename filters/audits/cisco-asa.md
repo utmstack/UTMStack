@@ -8,7 +8,10 @@ steps for 302013, 302304, 305011/305012, 302017 and 113009/113011 never matched 
 their own output. On the rule side, the
 intrusion prevention rule disabled itself after five 108003 events, and the VPN rule read a
 field nothing writes. This revision fixes those points and nothing else. The schema is
-ThreatWinds go-sdk **v1.1.33**, as pinned by `plugins/alerts/go.mod`.
+ThreatWinds go-sdk **v1.1.36**, as pinned by `plugins/alerts/go.mod` since official `v11`
+(`d2479c1a`) was merged into this branch. The review itself used v1.1.33, whose
+`plugins.proto`, `plugins/cel.go` and `plugins/rules.go` are identical. The draft was checked
+again on the latest versions; see [Re-validation on the latest versions](#re-validation-on-the-latest-versions).
 
 ## Evidence basis
 
@@ -32,10 +35,13 @@ ThreatWinds go-sdk **v1.1.33**, as pinned by `plugins/alerts/go.mod`.
     writes nothing unless every pattern matched, and stops when the text runs out; its
     [CEL plugin](https://github.com/utmstack/EventProcessor/blob/497bf53dbd1ae096f7b2dbc7bce77a6bf9f22ce1/plugins/cel/main.go)
     counts rule errors and, at the fifth, disables the rule and raises a
-    `Circuit Breaker: <rule name>` alert. This repository's `plugins/geolocation/main.go`
+    `Circuit Breaker: <rule name>` alert. The latest EventProcessor, `main` at
+    `8a3ade72bd9d12db21f6b273200588fb49540f14`, changes only these plugins' go-sdk version
+    (to v1.1.36) and how the CEL plugin reads its OpenSearch address, so this behaviour is the
+    same there. This repository's `plugins/geolocation/main.go`
     writes its result at the destination path with `sjson.Set`, which turns a string at that
     path, or above it, into an object;
-  - *the SDK*: go-sdk v1.1.33
+  - *the SDK*: go-sdk v1.1.33 (both files below are identical in v1.1.36)
     [`plugins/cel.go`](https://github.com/threatwinds/go-sdk/blob/v1.1.33/plugins/cel.go)
     declares a CEL variable only for the top-level keys an event has, so `log.messageId==N`
     fails to compile when there is no `log` object, while `equals`, `greaterOrEqual` and
@@ -69,7 +75,47 @@ Names, thresholds, windows, impact, adversary side, grouping and MITRE labels ar
 | `ips_signature_matches` (v1.0.1) | Wrap the condition in `exists("origin.ip") && (...)`; remove the `log.action` branch. The `log.message` text branches stay as they are. | The only branch that can match today is message 108003, which this filter does not parse, so the event has no `origin.ip`. The history placeholder `{{.origin.ip}}` then failed on every such event, and after five the rule was disabled with a Circuit Breaker alert. No step writes `log.action`. | SDK, engine and filter |
 | `multiple_failed_vpn_attempts` (v1.0.1) | Read `log.msg` instead of `log.message`. | The header patterns write the message body to `log.msg`; nothing writes `log.message`. This has no effect until 113015 puts its source address in `origin.ip` (Deferred D01). | Filter |
 
+## Re-validation on the latest versions
+
+On 2026-09-24 official `v11` moved to `d2479c1a3705eec6a00016689c2bf5fbcc1814f2`, whose
+`plugins/alerts` pins go-sdk v1.1.36, and EventProcessor `main` moved to
+`8a3ade72bd9d12db21f6b273200588fb49540f14`, whose playground and parser, writer and CEL
+plugins all link go-sdk v1.1.36. `v11` was merged into this branch. No file overlaps this
+draft, so nothing conflicted. The geolocation plugin was built from `v11` `d2479c1a`, which
+this branch now carries unchanged; its own `go.mod` pins go-sdk v1.1.34.
+
+What changed in the SDK, and what it means here:
+
+- Since v1.1.35, `utils.SanitizeField` keeps `_` in the field names that the `json`
+  (top-level keys), `kv`, `grok`, `csv`, `xml`, `add` and `rename` plugins write. Other
+  characters are still removed. This filter has no `json`, `kv` or `csv` step, and none of
+  the 129 names it writes contains `_` or another removed character. So every stored name
+  stays the same; the per-line comparison below confirms it.
+- v1.1.36 makes `regexMatch` match string values only again. Since v1.1.34, `contains`,
+  `containsAll`, `startsWith` and `endsWith` also search the JSON text of objects and lists.
+  Every such call in this filter and its rules reads a text field (`log.message`, `log.msg`,
+  `log.reason`, `action`), so no result changes. `plugins.proto`, `plugins/cel.go` and
+  `plugins/rules.go` are identical in v1.1.33 and v1.1.36.
+- No filter, rule or fixture needed a change.
+
+| Check on the latest versions | Result |
+|---|---|
+| Full `plugins/alerts` suite, go-sdk v1.1.36 | 50 tests pass, 11 skip, none fail (2,266 passing results with subtests). The seven Cisco ASA tests pass; the Go model of the step plugins uses the SDK's own `SanitizeField`, so it follows v1.1.36. The skipped tests need other technologies' private evidence and skip on the base commit too. |
+| `replay.py` on EventProcessor 8a3ade7 | 41 events without errors, every stored field as in `expected.json`. Two alerts, both from the botnet rule, on 338001 and 338002; no Circuit Breaker alert and no history search attempted. |
+| The 80 private fabricated lines, original and corrected filter | Original: 80 events, 6,228 errors (519 on each of 12 lines), 42 address fields replaced by an object. Corrected: 80 events, no errors, none replaced. 84 of 84 planned field assertions pass for both. Every line's stored fields, types and error counts equal the original review's results, for both filters. |
+| Corrected filter and all three rules, the same 12 lines | 12 events without errors; two botnet alerts, on 338001 and 338002; no intrusion prevention, VPN or Circuit Breaker alert; no compile, rule or history search error. 24 of 24 checks pass. |
+| Original filter and rules, the same 12 lines | Six failed history searches (`expression value cannot be nil after placeholder resolution`) and one `Circuit Breaker` alert for the intrusion prevention rule, as in the original review. |
+| go-sdk v1.1.36 rule replay | The same predicate checks as the original review, now with the latest playground output: 90 of 90 and 65 of 65 pass. |
+
+At 8a3ade7 the CEL plugin reads its OpenSearch address from separate `host`, `port`, `user`
+and `password` settings. `replay.py` still gives one URL, so the client gets an empty host
+and connects to port 443 on the test computer, where nothing listened. Any history search
+therefore still fails and is reported; none was attempted with the corrected rules.
+
 ## Validation
+
+These are the original review's results, on EventProcessor `497bf53` and go-sdk v1.1.33.
+The section above repeats them on the latest versions.
 
 **Fabricated regression, committed.** `plugins/alerts/testdata/cisco-asa/` holds 41 invented
 raw lines (`raw.json`), their expected fields and alerts (`expected.json`), the 13 shared
@@ -154,10 +200,10 @@ so no label changes.
 - Every input is fabricated. No real Cisco ASA record and no Cisco documentation were
   available, so the fixtures prove the filter's behaviour on lines shaped by its own
   patterns, not what Cisco devices send.
-- The playground's parser and writer plugins link go-sdk v1.1.26 and its CEL plugin v1.1.34;
-  the alerts module pins v1.1.33. The CEL helper source (`plugins/cel.go`,
-  `plugins/cel_overloads.go`) is identical in v1.1.26 and v1.1.33, and the predicates were
-  also checked with v1.1.33. Neither build is asserted to match a customer deployment.
+- The latest check used EventProcessor `8a3ade7`, whose playground and plugins link go-sdk
+  v1.1.36, the version the alerts module now pins; the predicates were also checked with
+  v1.1.36. The original review used `497bf53` (parser and writer plugins v1.1.26, CEL plugin
+  v1.1.34) and v1.1.33 predicates. Neither build is asserted to match a customer deployment.
 - The playground's alert writer only records alerts. Indexing, grouping, deduplication,
   notifications and production alerts were not tested.
 - The index rejection behind the geolocation change was measured on a local OpenSearch 2.13.0
@@ -183,8 +229,8 @@ so no label changes.
 
 ## Reproduce
 
-Build the EventProcessor commit above without changing its dependencies. With `EP` set to
-that checkout's absolute path:
+Build EventProcessor `8a3ade72bd9d12db21f6b273200588fb49540f14` (the latest check) without
+changing its dependencies. With `EP` set to that checkout's absolute path:
 
 ```sh
 mkdir -p "$EP/test-bin" "$EP/test-plugins"
