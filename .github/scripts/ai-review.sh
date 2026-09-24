@@ -30,7 +30,7 @@ set -euo pipefail
 : "${THREATWINDS_API_KEY:?THREATWINDS_API_KEY is required}"
 : "${THREATWINDS_API_SECRET:?THREATWINDS_API_SECRET is required}"
 
-DEFAULT_MODEL="${AI_REVIEW_MODEL:-gemini-3-flash-lite}"
+DEFAULT_MODEL="${AI_REVIEW_MODEL:-silas-1.7-pro}"
 BASE_URL="${THREATWINDS_BASE_URL:-https://apis.threatwinds.com/api/ai/v1}"
 MAX_DIFF_BYTES="${MAX_DIFF_BYTES:-200000}"
 

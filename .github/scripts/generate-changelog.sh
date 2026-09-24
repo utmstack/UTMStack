@@ -29,7 +29,7 @@ set -euo pipefail
 # ─── Config ───────────────────────────────────────────────────────────────────
 PRODUCT_NAME="${PRODUCT_NAME:-UTMStack}"
 PRODUCT_DESCRIPTION="${PRODUCT_DESCRIPTION:-Unified Threat Management and SIEM Platform}"
-MODEL="${MODEL:-gemini-3-flash-lite}"
+MODEL="${MODEL:-silas-1.7-pro}"
 TEMPERATURE="${TEMPERATURE:-0.3}"
 MAX_TOKENS="${MAX_TOKENS:-2000}"
 OUTPUT_FILE="${OUTPUT_FILE:-/tmp/changelog.md}"
