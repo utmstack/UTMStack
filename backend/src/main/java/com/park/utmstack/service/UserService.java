@@ -129,6 +129,14 @@ public class UserService {
     }
 
     public User createUser(UserDTO userDTO) {
+        return createUser(userDTO, null);
+    }
+
+    /**
+     * Create a user. When a local password is provided the user is activated
+     * immediately, no email/activation step is needed.
+     */
+    public User createUser(UserDTO userDTO, String localPassword) {
         String ctx = CLASS_NAME + ".createUser";
         try {
             User user = new User();
@@ -142,11 +150,16 @@ public class UserService {
             } else {
                 user.setLangKey(userDTO.getLangKey());
             }
-            String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-            user.setPassword(encryptedPassword);
-            user.setResetKey(RandomUtil.generateResetKey());
-            user.setResetDate(Instant.now());
-            user.setActivated(false);
+            if (StringUtils.hasText(localPassword)) {
+                user.setPassword(passwordEncoder.encode(localPassword));
+                user.setActivated(true);
+            } else {
+                String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+                user.setPassword(encryptedPassword);
+                user.setResetKey(RandomUtil.generateResetKey());
+                user.setResetDate(Instant.now());
+                user.setActivated(false);
+            }
             if (userDTO.getAuthorities() != null) {
                 Set<Authority> authorities = userDTO.getAuthorities().stream().map(authorityRepository::findById).filter(
                     Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
