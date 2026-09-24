@@ -12,7 +12,7 @@ pipeline:
       # Native agent and Winlogbeat aliases. The event-producing computer is the
       # target host; it must not overwrite the remote WorkstationName origin.
       - rename:
-          from: [log.computer, log.computername, log.computer_name]
+          from: [log.computer, log.computername]
           to: target.host
       - rename:
           from: [log.timestamp, log.timeCreated]
@@ -357,7 +357,7 @@ pipeline:
 
       - rename:
           from:
-            - log.record_id
+            - log.recordid
           to: log.recordId
 
       - rename:
@@ -3139,7 +3139,6 @@ pipeline:
           fields:
             - log.agent
             - log.host
-            - log.computer_name
             - log.process
             - log.metadata
             - log.event
