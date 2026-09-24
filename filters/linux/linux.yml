@@ -24,6 +24,9 @@ pipeline:
       # ========================================
 
       # Convert SCREAMINGSNAKECASE to camelCase
+      # Parsers on go-sdk v1.1.35 or later keep "_" in key names and older ones remove it,
+      # so a journald key such as _HOSTNAME arrives as log._HOSTNAME or log.HOSTNAME.
+      # Renames of those keys read both spellings.
       - rename:
           from:
             - log.MESSAGE
@@ -39,45 +42,52 @@ pipeline:
       - rename:
           from:
             - log.SYSLOGIDENTIFIER
+            - log.SYSLOG_IDENTIFIER
           to: log.syslogIdentifier
-          where: exists("log.SYSLOGIDENTIFIER")
+          where: exists("log.SYSLOGIDENTIFIER") || exists("log.SYSLOG_IDENTIFIER")
 
       - rename:
           from:
             - log.SYSLOGTIMESTAMP
+            - log.SYSLOG_TIMESTAMP
           to: log.syslogTimestamp
-          where: exists("log.SYSLOGTIMESTAMP")
+          where: exists("log.SYSLOGTIMESTAMP") || exists("log.SYSLOG_TIMESTAMP")
 
       - rename:
           from:
             - log.SYSLOGFACILITY
+            - log.SYSLOG_FACILITY
           to: log.syslogFacility
-          where: exists("log.SYSLOGFACILITY")
+          where: exists("log.SYSLOGFACILITY") || exists("log.SYSLOG_FACILITY")
 
       - rename:
           from:
             - log.SYSLOGPID
+            - log.SYSLOG_PID
           to: log.syslogPid
-          where: exists("log.SYSLOGPID")
+          where: exists("log.SYSLOGPID") || exists("log.SYSLOG_PID")
 
       # Convert snakecase to camelCase (only for fields staying in log.*)
       - rename:
           from:
             - log.PID
+            - log._PID
           to: log.pid
-          where: exists("log.PID")
+          where: exists("log.PID") || exists("log._PID")
 
       - rename:
           from:
             - log.UID
+            - log._UID
           to: log.uid
-          where: exists("log.UID")
+          where: exists("log.UID") || exists("log._UID")
 
       - rename:
           from:
             - log.GID
+            - log._GID
           to: log.gid
-          where: exists("log.GID")
+          where: exists("log.GID") || exists("log._GID")
 
       - rename:
           from:
@@ -88,8 +98,9 @@ pipeline:
       - rename:
           from:
             - log.EXE
+            - log._EXE
           to: log.exe
-          where: exists("log.EXE")
+          where: exists("log.EXE") || exists("log._EXE")
 
       - rename:
           from:
@@ -100,32 +111,37 @@ pipeline:
       - rename:
           from:
             - log.SYSTEMDUNIT
+            - log._SYSTEMD_UNIT
           to: log.systemdUnit
-          where: exists("log.SYSTEMDUNIT")
+          where: exists("log.SYSTEMDUNIT") || exists("log._SYSTEMD_UNIT")
 
       - rename:
           from:
             - log.SYSTEMDSLICE
+            - log._SYSTEMD_SLICE
           to: log.systemdSlice
-          where: exists("log.SYSTEMDSLICE")
+          where: exists("log.SYSTEMDSLICE") || exists("log._SYSTEMD_SLICE")
 
       - rename:
           from:
             - log.SYSTEMDUSERSLICE
+            - log._SYSTEMD_USER_SLICE
           to: log.systemdUserSlice
-          where: exists("log.SYSTEMDUSERSLICE")
+          where: exists("log.SYSTEMDUSERSLICE") || exists("log._SYSTEMD_USER_SLICE")
 
       - rename:
           from:
             - log.SYSTEMDSESSION
+            - log._SYSTEMD_SESSION
           to: log.systemdSession
-          where: exists("log.SYSTEMDSESSION")
+          where: exists("log.SYSTEMDSESSION") || exists("log._SYSTEMD_SESSION")
 
       - rename:
           from:
             - log.SESSIONID
+            - log.SESSION_ID
           to: log.sessionId
-          where: exists("log.SESSIONID")
+          where: exists("log.SESSIONID") || exists("log.SESSION_ID")
 
       - rename:
           from:
@@ -136,170 +152,198 @@ pipeline:
       - rename:
           from:
             - log.SYSTEMDOWNERUID
+            - log._SYSTEMD_OWNER_UID
           to: log.systemdOwnerUid
-          where: exists("log.SYSTEMDOWNERUID")
+          where: exists("log.SYSTEMDOWNERUID") || exists("log._SYSTEMD_OWNER_UID")
 
       - rename:
           from:
             - log.SYSTEMDCGROUP
+            - log._SYSTEMD_CGROUP
           to: log.systemdCgroup
-          where: exists("log.SYSTEMDCGROUP")
+          where: exists("log.SYSTEMDCGROUP") || exists("log._SYSTEMD_CGROUP")
 
       - rename:
           from:
             - log.BOOTID
+            - log._BOOT_ID
           to: log.bootId
-          where: exists("log.BOOTID")
+          where: exists("log.BOOTID") || exists("log._BOOT_ID")
 
       - rename:
           from:
             - log.MACHINEID
+            - log._MACHINE_ID
           to: log.machineId
-          where: exists("log.MACHINEID")
+          where: exists("log.MACHINEID") || exists("log._MACHINE_ID")
 
       - rename:
           from:
             - log.TRANSPORT
+            - log._TRANSPORT
           to: log.transport
-          where: exists("log.TRANSPORT")
+          where: exists("log.TRANSPORT") || exists("log._TRANSPORT")
 
       - rename:
           from:
             - log.SELINUXCONTEXT
+            - log._SELINUX_CONTEXT
           to: log.selinuxContext
-          where: exists("log.SELINUXCONTEXT")
+          where: exists("log.SELINUXCONTEXT") || exists("log._SELINUX_CONTEXT")
 
       - rename:
           from:
             - log.AUDITSESSION
+            - log._AUDIT_SESSION
           to: log.auditSession
-          where: exists("log.AUDITSESSION")
+          where: exists("log.AUDITSESSION") || exists("log._AUDIT_SESSION")
 
       - rename:
           from:
             - log.AUDITLOGINUID
+            - log._AUDIT_LOGINUID
           to: log.auditLoginUid
-          where: exists("log.AUDITLOGINUID")
+          where: exists("log.AUDITLOGINUID") || exists("log._AUDIT_LOGINUID")
 
       - rename:
           from:
             - log.CAPEFFECTIVE
+            - log._CAP_EFFECTIVE
           to: log.capEffective
-          where: exists("log.CAPEFFECTIVE")
+          where: exists("log.CAPEFFECTIVE") || exists("log._CAP_EFFECTIVE")
 
       - rename:
           from:
             - log.REALTIMETIMESTAMP
+            - log.__REALTIME_TIMESTAMP
           to: log.realtimeTimestamp
-          where: exists("log.REALTIMETIMESTAMP")
+          where: exists("log.REALTIMETIMESTAMP") || exists("log.__REALTIME_TIMESTAMP")
 
       - rename:
           from:
             - log.SOURCEREALTIMETIMESTAMP
+            - log._SOURCE_REALTIME_TIMESTAMP
           to: log.sourceRealtimeTimestamp
-          where: exists("log.SOURCEREALTIMETIMESTAMP")
+          where: exists("log.SOURCEREALTIMETIMESTAMP") || exists("log._SOURCE_REALTIME_TIMESTAMP")
 
       - rename:
           from:
             - log.MONOTONICTIMESTAMP
+            - log.__MONOTONIC_TIMESTAMP
           to: log.monotonicTimestamp
-          where: exists("log.MONOTONICTIMESTAMP")
+          where: exists("log.MONOTONICTIMESTAMP") || exists("log.__MONOTONIC_TIMESTAMP")
 
       - rename:
           from:
             - log.CURSOR
+            - log.__CURSOR
           to: log.cursor
-          where: exists("log.CURSOR")
+          where: exists("log.CURSOR") || exists("log.__CURSOR")
 
       - rename:
           from:
             - log.SEQNUM
+            - log.__SEQNUM
           to: log.seqnum
-          where: exists("log.SEQNUM")
+          where: exists("log.SEQNUM") || exists("log.__SEQNUM")
 
       - rename:
           from:
             - log.SEQNUMID
+            - log.__SEQNUM_ID
           to: log.seqnumId
-          where: exists("log.SEQNUMID")
+          where: exists("log.SEQNUMID") || exists("log.__SEQNUM_ID")
 
       - rename:
           from:
             - log.RUNTIMESCOPE
+            - log._RUNTIME_SCOPE
           to: log.runtimeScope
-          where: exists("log.RUNTIMESCOPE")
+          where: exists("log.RUNTIMESCOPE") || exists("log._RUNTIME_SCOPE")
 
       - rename:
           from:
             - log.STREAMID
+            - log._STREAM_ID
           to: log.streamId
-          where: exists("log.STREAMID")
+          where: exists("log.STREAMID") || exists("log._STREAM_ID")
 
       - rename:
           from:
             - log.SYSTEMDINVOCATIONID
+            - log._SYSTEMD_INVOCATION_ID
           to: log.systemdInvocationId
-          where: exists("log.SYSTEMDINVOCATIONID")
+          where: exists("log.SYSTEMDINVOCATIONID") || exists("log._SYSTEMD_INVOCATION_ID")
 
       - rename:
           from:
             - log.CODEFILE
+            - log.CODE_FILE
           to: log.codeFile
-          where: exists("log.CODEFILE")
+          where: exists("log.CODEFILE") || exists("log.CODE_FILE")
 
       - rename:
           from:
             - log.CODELINE
+            - log.CODE_LINE
           to: log.codeLine
-          where: exists("log.CODELINE")
+          where: exists("log.CODELINE") || exists("log.CODE_LINE")
 
       - rename:
           from:
             - log.CODEFUNC
+            - log.CODE_FUNC
           to: log.codeFunc
-          where: exists("log.CODEFUNC")
+          where: exists("log.CODEFUNC") || exists("log.CODE_FUNC")
 
       - rename:
           from:
             - log.INVOCATIONID
+            - log.INVOCATION_ID
           to: log.invocationId
-          where: exists("log.INVOCATIONID")
+          where: exists("log.INVOCATIONID") || exists("log.INVOCATION_ID")
 
       - rename:
           from:
             - log.JOBID
+            - log.JOB_ID
           to: log.jobId
-          where: exists("log.JOBID")
+          where: exists("log.JOBID") || exists("log.JOB_ID")
 
       - rename:
           from:
             - log.JOBTYPE
+            - log.JOB_TYPE
           to: log.jobType
-          where: exists("log.JOBTYPE")
+          where: exists("log.JOBTYPE") || exists("log.JOB_TYPE")
 
       - rename:
           from:
             - log.MESSAGEID
+            - log.MESSAGE_ID
           to: log.messageId
-          where: exists("log.MESSAGEID")
+          where: exists("log.MESSAGEID") || exists("log.MESSAGE_ID")
 
       - rename:
           from:
             - log.CPUUSAGENSEC
+            - log.CPU_USAGE_NSEC
           to: log.cpuUsageNsec
-          where: exists("log.CPUUSAGENSEC")
+          where: exists("log.CPUUSAGENSEC") || exists("log.CPU_USAGE_NSEC")
 
       - rename:
           from:
             - log.MEMORYPEAK
+            - log.MEMORY_PEAK
           to: log.memoryPeak
-          where: exists("log.MEMORYPEAK")
+          where: exists("log.MEMORYPEAK") || exists("log.MEMORY_PEAK")
 
       - rename:
           from:
             - log.MEMORYSWAPPEAK
+            - log.MEMORY_SWAP_PEAK
           to: log.memorySwapPeak
-          where: exists("log.MEMORYSWAPPEAK")
+          where: exists("log.MEMORYSWAPPEAK") || exists("log.MEMORY_SWAP_PEAK")
 
       # ========================================
       # PHASE 3: STANDARD SCHEMA MAPPING
@@ -309,26 +353,30 @@ pipeline:
       - rename:
           from:
             - log.HOSTNAME
+            - log._HOSTNAME
           to: origin.host
-          where: exists("log.HOSTNAME")
+          where: exists("log.HOSTNAME") || exists("log._HOSTNAME")
 
       - rename:
           from:
             - log.USERID
+            - log.USER_ID
           to: origin.user
-          where: exists("log.USERID")
+          where: exists("log.USERID") || exists("log.USER_ID")
 
       - rename:
           from:
             - log.COMM
+            - log._COMM
           to: origin.process
-          where: exists("log.COMM")
+          where: exists("log.COMM") || exists("log._COMM")
 
       - rename:
           from:
             - log.CMDLINE
+            - log._CMDLINE
           to: origin.command
-          where: exists("log.CMDLINE")
+          where: exists("log.CMDLINE") || exists("log._CMDLINE")
 
       # Map syslog priority (0-7) to severity labels
       - add:
