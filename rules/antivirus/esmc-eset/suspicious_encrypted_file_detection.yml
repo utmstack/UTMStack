@@ -26,7 +26,7 @@ description: |
   7. Do not power off the system if encryption is in progress
 where: |
   (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threatname", "(?i)(ransomware|filecoder)") || regexMatch("log.threattype", "(?i)(ransomware|filecoder)"))) &&
+  (regexMatch("log.threat_name", "(?i)(ransomware|filecoder)") || regexMatch("log.threat_type", "(?i)(ransomware|filecoder)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
@@ -34,4 +34,4 @@ groupBy:
   - lastEvent.dataSource
   - lastEvent.log.endpointKeyType
   - lastEvent.log.endpointKey
-  - lastEvent.log.threatname
+  - lastEvent.log.threat_name
