@@ -72,14 +72,7 @@ public class DefinitionSyncService implements CommandLineRunner {
             return foundFilters;
         }
 
-        // Regex to extract the first dataType from the pipeline structure:
-        // pipeline:
-        //   - dataTypes:
-        //       - value
-        java.util.regex.Pattern dataTypePattern = java.util.regex.Pattern.compile(
-            "pipeline:\\s*\\n\\s*-\\s*dataTypes:\\s*\\n\\s*-\\s*([^\\s\\n]+)",
-            java.util.regex.Pattern.MULTILINE
-        );
+        Yaml yaml = new Yaml();
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
@@ -89,13 +82,13 @@ public class DefinitionSyncService implements CommandLineRunner {
                         log.warn("Skipping blank filter file: {}", path);
                         return;
                     }
-                    java.util.regex.Matcher matcher = dataTypePattern.matcher(content);
-                    if (!matcher.find()) {
+
+                    String dataTypeStr = extractFirstDataType(yaml.load(content));
+                    if (dataTypeStr == null) {
                         log.warn("Skipping filter file without dataType: {}", path);
                         return;
                     }
 
-                    String dataTypeStr = matcher.group(1).trim().replace("\"", "").replace("'", "");
                     log.info("found dataType: {}", dataTypeStr);
 
                     Optional<UtmDataTypes> dataTypeEntity = dataTypesRepository.findOneByDataType(dataTypeStr.toLowerCase());
@@ -270,6 +263,42 @@ public class DefinitionSyncService implements CommandLineRunner {
         Yaml yaml = new Yaml();
         String dump = yaml.dump(map);
         return yaml.loadAs(dump, RuleYaml.class);
+    }
+
+    /**
+     * Extract the first dataType from a parsed filter file's pipeline structure.
+     * Handles both list syntaxes:
+     *   pipeline:
+     *   - dataTypes:
+     *     - value
+     *   and flow syntax:
+     *   pipeline:
+     *   - dataTypes: [value]
+     */
+    @SuppressWarnings("unchecked")
+    private String extractFirstDataType(Object yamlObj) {
+        if (!(yamlObj instanceof Map)) {
+            return null;
+        }
+        Object pipeline = ((Map<String, Object>) yamlObj).get("pipeline");
+        if (!(pipeline instanceof List)) {
+            return null;
+        }
+        for (Object entry : (List<?>) pipeline) {
+            if (!(entry instanceof Map)) {
+                continue;
+            }
+            Object dataTypes = ((Map<String, Object>) entry).get("dataTypes");
+            if (dataTypes instanceof List) {
+                List<?> list = (List<?>) dataTypes;
+                if (!list.isEmpty() && list.get(0) != null) {
+                    return list.get(0).toString();
+                }
+            } else if (dataTypes != null) {
+                return dataTypes.toString();
+            }
+        }
+        return null;
     }
 
     private void cleanupOrphanedFilters(Set<Long> currentFilterIds) {
