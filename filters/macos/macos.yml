@@ -40,19 +40,19 @@ pipeline:
           where: equals("log.level", "notice") && contains("log.subsystem", "com.apple.cloudkit") || contains("log.subsystem", "com.apple.CoreDuet") || oneOf("log.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])
 
       - rename:
-          from: [log.activityidentifier]
+          from: [log.activity_identifier]
           to: log.activityIdentifier
       - rename:
-          from: [log.processidentifier]
+          from: [log.process_identifier]
           to: log.processIdentifier
       - rename:
-          from: [log.storecategory]
+          from: [log.store_category]
           to: log.storeCategory
       - rename:
-          from: [log.threadidentifier]
+          from: [log.thread_identifier]
           to: log.threadIdentifier
       - grok:
-          source: log.classname
+          source: log.class_name
           patterns:
             - fieldName: log.className
               pattern: '(?s:.*)'
@@ -64,7 +64,14 @@ pipeline:
               pattern: '(?s:.*)'
           where: '!exists("log.message")'
 
-      # SDK JSON key sanitization removes the underscore in datasource_override.
+      # Native JSON preserves the vendor key (datasource_override); the
+      # forwarding-wrapper grok carrier is datasourceoverride. The native rename
+      # runs first, the wrapper rename second, so the wrapper wins when a wrapped
+      # payload carries both.
+      - rename:
+          from: [log.datasource_override]
+          to: dataSource
+          where: regexMatch("log.datasource_override", "^[^\\s]+$") && !equals("log.datasource_override", "unknown")
       - rename:
           from: [log.datasourceoverride]
           to: dataSource
