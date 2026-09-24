@@ -137,5 +137,221 @@
     "result": "failure",
     "rule": "antivirus/bitdefender_gz/suspicious_exclusions_added.yml",
     "match": false
+  },
+  {
+    "name": "incident-attack-types-list-kept-whole",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|New Incident|9|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZComputerFQDN=workstation.example.test BitdefenderGZAttackTypes=[\"Malware\",\"Ransomware\",\"Potentially unwanted application\"] BitdefenderGZDetectionName=Gen:Example.Test.1 BitdefenderGZMainAction=blocked BitdefenderGZIncidentId=incident-test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "log.BitdefenderGZAttackTypes": "[\"Malware\",\"Ransomware\",\"Potentially unwanted application\"]",
+      "log.BitdefenderGZDetectionName": "Gen:Example.Test.1",
+      "target.malware": "Gen:Example.Test.1",
+      "target.host": "workstation-test",
+      "target.domain": "workstation.example.test",
+      "log.BitdefenderGZIncidentId": "incident-test",
+      "action": "blocked"
+    },
+    "rule": "antivirus/bitdefender_gz/ransomware_behavior_detection.yml",
+    "match": true
+  },
+  {
+    "name": "network-detection-name-technique-and-marker",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|190000|Network Attack Defense|10|BitdefenderGZModule=network-monitor BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZDetectionName=Attack.Example.CredentialTheft BitdefenderGZDetectionAttackTechnique=credentialAccess BitdefenderGZDetectionAttackerIp=198.51.100.9 BitdefenderGZDetectionVictimIp=192.0.2.10 BitdefenderGZDetectionLocalPort=445 BitdefenderGZMainAction=block label=Example label with spaces",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "log.BitdefenderGZDetectionName": "Attack.Example.CredentialTheft",
+      "log.BitdefenderGZDetectionAttackTechnique": "credentialAccess",
+      "log.label": "Example label with spaces",
+      "target.host": "workstation-test",
+      "target.ip": "192.0.2.10",
+      "target.port": "445",
+      "origin.ip": "198.51.100.9",
+      "log.correlationCandidate.networkThreatDetection": "match"
+    },
+    "absent": [
+      "log.correlationCandidate.networkthreatdetection",
+      "log.correlationCandidate.network_threat_detection"
+    ],
+    "rule": "antivirus/bitdefender_gz/apt_detection.yml",
+    "match": true
+  },
+  {
+    "name": "antimalware-heuristic-name-and-markers",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|10|AntiMalware|9|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Heur.Example.Test.1 BitdefenderGZMalwareType=file act=still present filePath=C:\\\\Users\\\\example\\\\Downloads\\\\sample file.exe suser=example-user",
+    "dataSource": "synthetic-bitdefender",
+    "result": "failure",
+    "expected": {
+      "target.malware": "Heur.Example.Test.1",
+      "action": "still present",
+      "log.filePath": "C:\\\\Users\\\\example\\\\Downloads\\\\sample file.exe",
+      "target.filename": "sample file.exe",
+      "target.user": "example-user",
+      "target.host": "workstation-test",
+      "log.correlationCandidate.multipleMalwareFromSingleSource": "match",
+      "log.correlationCandidate.malwareOutbreakMultipleHosts": "match"
+    },
+    "absent": [
+      "log.correlationCandidate.multiplemalwarefromsinglesource",
+      "log.correlationCandidate.malwareoutbreakmultiplehosts"
+    ],
+    "rule": "antivirus/bitdefender_gz/zero_day_malware_detection.yml",
+    "match": true
+  },
+  {
+    "name": "antimalware-multiword-malware-name",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|10|AntiMalware|9|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=deleted BitdefenderGZMalwareName=Example-Test-File (not a threat) BitdefenderGZMalwareHash=abababababababababababababababababababababababababababababababab",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "target.malware": "Example-Test-File (not a threat)",
+      "target.sha256": "abababababababababababababababababababababababababababababababab",
+      "action": "deleted"
+    },
+    "rule": "antivirus/bitdefender_gz/malware_outbreak_multiple_hosts.yml",
+    "match": true
+  },
+  {
+    "name": "task-name-keeps-all-words",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|Task Status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZTaskName=Run custom script now BitdefenderGZTaskType=280 BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 suid=admin-id",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "log.BitdefenderGZTaskName": "Run custom script now",
+      "log.taskName": "Run custom script now",
+      "origin.user": "admin-id",
+      "log.correlationCandidate.avConsoleLateralMovement": "match"
+    },
+    "absent": [
+      "log.correlationCandidate.avconsolelateralmovement"
+    ],
+    "rule": "antivirus/bitdefender_gz/av_console_lateral_movement.yml",
+    "match": true
+  },
+  {
+    "name": "task-message-keeps-all-words",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|Task Status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Uninstall Client 2026-01-01(sub-task) BitdefenderGZStatus=processed BitdefenderGZTaskType=276 BitdefenderGZTaskSuccessful=1 BitdefenderGZErrorCode=0 suid=admin-id dhost=workstation-test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "log.msg": "Uninstall Client 2026-01-01(sub-task)",
+      "log.taskName": "Uninstall Client 2026-01-01(sub-task)",
+      "log.dhost": "workstation-test",
+      "log.correlationCandidate.avConsoleLateralMovement": "match"
+    },
+    "rule": "antivirus/bitdefender_gz/av_console_lateral_movement.yml",
+    "match": true
+  },
+  {
+    "name": "empty-task-name-does-not-take-next-key",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|Task Status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZTaskName= msg=Uninstall Client BitdefenderGZTaskType=276 BitdefenderGZTaskSuccessful=1 suid=admin-id",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "log.taskName": "Uninstall Client"
+    },
+    "absent": [
+      "log.BitdefenderGZTaskName"
+    ]
+  },
+  {
+    "name": "empty-action-does-not-take-next-key",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|10|AntiMalware|9|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act= BitdefenderGZMalwareName=Generic.Test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "expected": {
+      "target.malware": "Generic.Test"
+    },
+    "absent": [
+      "log.act",
+      "action",
+      "actionResult"
+    ]
+  },
+  {
+    "name": "status-keys-read-by-cleaned-name",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|Product Modules Status|3|BitdefenderGZModule=modules BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test malware_status=1 avc_status=0 pu_status=1",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "expected": {
+      "log.malwarestatus": "1",
+      "log.avcstatus": "0",
+      "log.pustatus": "1"
+    },
+    "absent": [
+      "log.avc_status"
+    ],
+    "rule": "antivirus/bitdefender_gz/av_policy_override.yml",
+    "match": true
+  },
+  {
+    "name": "firewall-block-marker",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|50|Firewall|9|BitdefenderGZModule=fw BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=portscan_blocked BitdefenderGZEventSourceIP=198.51.100.77 BitdefenderGZFwProtocolId=6",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "198.51.100.77",
+      "protocol": "tcp",
+      "target.host": "workstation-test",
+      "log.correlationCandidate.networkThreatDetection": "match"
+    },
+    "rule": "antivirus/bitdefender_gz/network_threat_detection.yml",
+    "match": true
+  },
+  {
+    "name": "removable-media-marker",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|10|AntiMalware|9|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test filePath=E:\\\\autorun.inf BitdefenderGZMalwareName=Worm.Example.Autorun act=deleted",
+    "dataSource": "synthetic-bitdefender",
+    "result": "success",
+    "expected": {
+      "log.correlationCandidate.usbMalwarePropagation": "match",
+      "target.filename": "autorun.inf"
+    },
+    "absent": [
+      "log.correlationCandidate.usbmalwarepropagation"
+    ],
+    "rule": "antivirus/bitdefender_gz/usb_malware_propagation.yml",
+    "match": true
+  },
+  {
+    "name": "schemeless-request-without-path-keeps-domain",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|40|Antiphishing|4|BitdefenderGZModule=aph BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=aph_blocked request=phishing.example.test suser=example-user",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "origin.domain": "phishing.example.test",
+      "log.request": "phishing.example.test"
+    },
+    "absent": [
+      "origin.url"
+    ],
+    "rule": "antivirus/bitdefender_gz/phishing_access_blocked.yaml",
+    "match": false
+  },
+  {
+    "name": "schemed-request-without-path-keeps-domain",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|1000|Web Control|4|BitdefenderGZModule=uc BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=uc_site_blocked request=https://coinhive.example.test",
+    "dataSource": "synthetic-bitdefender",
+    "result": "denied",
+    "expected": {
+      "origin.domain": "coinhive.example.test",
+      "origin.url": "https://coinhive.example.test"
+    },
+    "rule": "antivirus/bitdefender_gz/crypto_mining_detection.yml",
+    "match": true
+  },
+  {
+    "name": "process-name-without-folder",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|New Incident|9|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test sproc=example.exe BitdefenderGZMainAction=no action",
+    "dataSource": "synthetic-bitdefender",
+    "result": "",
+    "expected": {
+      "target.process": "example.exe",
+      "action": "no action"
+    },
+    "absent": [
+      "actionResult"
+    ]
   }
 ]

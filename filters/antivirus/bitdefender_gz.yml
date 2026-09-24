@@ -1,8 +1,14 @@
 # Bitdefender GravityZone CEF filter, version 3.3.0
 # CEF-encoded originals remain under log; no unsupported decoder is assumed.
 # Re-read the protected raw header after generic KV so extension text cannot overwrite it.
-# Outcome-critical CEF keys use nonempty token captures: grok consumes each
-# pattern separately and rejects an empty match from the old lazy captures.
+# The grok plugin matches each pattern in turn against what is left of the text,
+# stops at the first pattern that matches nothing and writes nothing unless every
+# pattern matched. Each CEF key therefore uses two patterns: everything up to
+# "key=", then the whole value. The value is one or more words, each followed by
+# spaces or the end of the text, so it stops before the next "key=" and keeps
+# values with spaces; an empty value matches nothing and is left unset.
+# Field names written here and read by rules use letters, digits and dots only,
+# because the parser plugins remove every other character from the names they write.
 pipeline:
 - dataTypes:
   - antivirus-bitdefender-gz
@@ -85,12 +91,12 @@ pipeline:
       - log.BitdefenderGZUserName
       - log.BitdefenderGZVendorId
       - log.act
-      - log.app_control_status
-      - log.avc_status
+      - log.appcontrolstatus
+      - log.avcstatus
       - log.cnt
       - log.deviceExternalId
       - log.dhost
-      - log.dlp_status
+      - log.dlpstatus
       - log.driverName
       - log.dvc
       - log.dvchost
@@ -98,12 +104,12 @@ pipeline:
       - log.fileHash
       - log.filePath
       - log.fname
-      - log.is_fileless_attack
+      - log.isfilelessattack
       - log.label
-      - log.malware_status
+      - log.malwarestatus
       - log.msg
       - log.proto
-      - log.pu_status
+      - log.pustatus
       - log.request
       - log.sproc
       - log.spt
@@ -248,14 +254,11 @@ pipeline:
       - log.BitdefenderGZUserName
       - log.BitdefenderGZVendorId
       - log.act
-      - log.app_control_status
       - log.appcontrolstatus
-      - log.avc_status
       - log.avcstatus
       - log.cnt
       - log.deviceExternalId
       - log.dhost
-      - log.dlp_status
       - log.dlpstatus
       - log.driverName
       - log.dvc
@@ -264,14 +267,11 @@ pipeline:
       - log.fileHash
       - log.filePath
       - log.fname
-      - log.is_fileless_attack
       - log.isfilelessattack
       - log.label
-      - log.malware_status
       - log.malwarestatus
       - log.msg
       - log.proto
-      - log.pu_status
       - log.pustatus
       - log.request
       - log.sproc
@@ -288,839 +288,681 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZAction=
+        pattern: '^(?s:.*\s)?BitdefenderGZAction='
       - fieldName: log.BitdefenderGZAction
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAppControlStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZAppControlStatus='
       - fieldName: log.BitdefenderGZAppControlStatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZApplicationControlBlockType=
+        pattern: '^(?s:.*\s)?BitdefenderGZApplicationControlBlockType='
       - fieldName: log.BitdefenderGZApplicationControlBlockType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZApplicationControlType=
+        pattern: '^(?s:.*\s)?BitdefenderGZApplicationControlType='
       - fieldName: log.BitdefenderGZApplicationControlType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAttCkId=
+        pattern: '^(?s:.*\s)?BitdefenderGZAttCkId='
       - fieldName: log.BitdefenderGZAttCkId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAttackEntry=
+        pattern: '^(?s:.*\s)?BitdefenderGZAttackEntry='
       - fieldName: log.BitdefenderGZAttackEntry
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAttackType=
+        pattern: '^(?s:.*\s)?BitdefenderGZAttackType='
       - fieldName: log.BitdefenderGZAttackType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAttackTypes=
+        pattern: '^(?s:.*\s)?BitdefenderGZAttackTypes='
       - fieldName: log.BitdefenderGZAttackTypes
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZAvcStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZAvcStatus='
       - fieldName: log.BitdefenderGZAvcStatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZBlockedMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZBlockedMalwareCnt='
       - fieldName: log.BitdefenderGZBlockedMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZBlockingRuleName=
+        pattern: '^(?s:.*\s)?BitdefenderGZBlockingRuleName='
       - fieldName: log.BitdefenderGZBlockingRuleName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZCleanedMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZCleanedMalwareCnt='
       - fieldName: log.BitdefenderGZCleanedMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZCompanyId=
+        pattern: '^(?s:.*\s)?BitdefenderGZCompanyId='
       - fieldName: log.BitdefenderGZCompanyId
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZComputerFQDN=
+        pattern: '^(?s:.*\s)?BitdefenderGZComputerFQDN='
       - fieldName: log.BitdefenderGZComputerFQDN
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDeletedMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZDeletedMalwareCnt='
       - fieldName: log.BitdefenderGZDeletedMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZDetectionAction=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionAction='
       - fieldName: log.BitdefenderGZDetectionAction
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionAttackTechnique=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionAttackTechnique='
       - fieldName: log.BitdefenderGZDetectionAttackTechnique
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZDetectionAttackerIp=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionAttackerIp='
       - fieldName: log.BitdefenderGZDetectionAttackerIp
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionCve=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionCve='
       - fieldName: log.BitdefenderGZDetectionCve
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionLocalPort=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionLocalPort='
       - fieldName: log.BitdefenderGZDetectionLocalPort
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionName=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionName='
       - fieldName: log.BitdefenderGZDetectionName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionPath=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionPath='
       - fieldName: log.BitdefenderGZDetectionPath
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDetectionTime=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionTime='
       - fieldName: log.BitdefenderGZDetectionTime
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZDetectionVictimIp=
+        pattern: '^(?s:.*\s)?BitdefenderGZDetectionVictimIp='
       - fieldName: log.BitdefenderGZDetectionVictimIp
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDeviceId=
+        pattern: '^(?s:.*\s)?BitdefenderGZDeviceId='
       - fieldName: log.BitdefenderGZDeviceId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDeviceName=
+        pattern: '^(?s:.*\s)?BitdefenderGZDeviceName='
       - fieldName: log.BitdefenderGZDeviceName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDlpStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZDlpStatus='
       - fieldName: log.BitdefenderGZDlpStatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZDriverName=
+        pattern: '^(?s:.*\s)?BitdefenderGZDriverName='
       - fieldName: log.BitdefenderGZDriverName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZEndpointId=
+        pattern: '^(?s:.*\s)?BitdefenderGZEndpointId='
       - fieldName: log.BitdefenderGZEndpointId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZErrorCode=
+        pattern: '^(?s:.*\s)?BitdefenderGZErrorCode='
       - fieldName: log.BitdefenderGZErrorCode
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZErrorMessage=
+        pattern: '^(?s:.*\s)?BitdefenderGZErrorMessage='
       - fieldName: log.BitdefenderGZErrorMessage
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZEventSourceIP=
+        pattern: '^(?s:.*\s)?BitdefenderGZEventSourceIP='
       - fieldName: log.BitdefenderGZEventSourceIP
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZEventType=
+        pattern: '^(?s:.*\s)?BitdefenderGZEventType='
       - fieldName: log.BitdefenderGZEventType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZExploitType=
+        pattern: '^(?s:.*\s)?BitdefenderGZExploitType='
       - fieldName: log.BitdefenderGZExploitType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZFileHashSha256=
+        pattern: '^(?s:.*\s)?BitdefenderGZFileHashSha256='
       - fieldName: log.BitdefenderGZFileHashSha256
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZFwProtocolId=
+        pattern: '^(?s:.*\s)?BitdefenderGZFwProtocolId='
       - fieldName: log.BitdefenderGZFwProtocolId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZIgnoredMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZIgnoredMalwareCnt='
       - fieldName: log.BitdefenderGZIgnoredMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZIncidentId=
+        pattern: '^(?s:.*\s)?BitdefenderGZIncidentId='
       - fieldName: log.BitdefenderGZIncidentId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZIncidentNumber=
+        pattern: '^(?s:.*\s)?BitdefenderGZIncidentNumber='
       - fieldName: log.BitdefenderGZIncidentNumber
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZIsFilelessAttack=
+        pattern: '^(?s:.*\s)?BitdefenderGZIsFilelessAttack='
       - fieldName: log.BitdefenderGZIsFilelessAttack
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZMainAction=
+        pattern: '^(?s:.*\s)?BitdefenderGZMainAction='
       - fieldName: log.BitdefenderGZMainAction
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZMalwareHash=
+        pattern: '^(?s:.*\s)?BitdefenderGZMalwareHash='
       - fieldName: log.BitdefenderGZMalwareHash
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZMalwareName=
+        pattern: '^(?s:.*\s)?BitdefenderGZMalwareName='
       - fieldName: log.BitdefenderGZMalwareName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZMalwareStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZMalwareStatus='
       - fieldName: log.BitdefenderGZMalwareStatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZMalwareType=
+        pattern: '^(?s:.*\s)?BitdefenderGZMalwareType='
       - fieldName: log.BitdefenderGZMalwareType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZModule=
+        pattern: '^(?s:.*\s)?BitdefenderGZModule='
       - fieldName: log.BitdefenderGZModule
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZNewHwid=
+        pattern: '^(?s:.*\s)?BitdefenderGZNewHwid='
       - fieldName: log.BitdefenderGZNewHwid
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZOldHwid=
+        pattern: '^(?s:.*\s)?BitdefenderGZOldHwid='
       - fieldName: log.BitdefenderGZOldHwid
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZParentPath=
+        pattern: '^(?s:.*\s)?BitdefenderGZParentPath='
       - fieldName: log.BitdefenderGZParentPath
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZParentPid=
+        pattern: '^(?s:.*\s)?BitdefenderGZParentPid='
       - fieldName: log.BitdefenderGZParentPid
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZParentProcessPath=
+        pattern: '^(?s:.*\s)?BitdefenderGZParentProcessPath='
       - fieldName: log.BitdefenderGZParentProcessPath
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZPresentMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZPresentMalwareCnt='
       - fieldName: log.BitdefenderGZPresentMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZProcessCommandLine=
+        pattern: '^(?s:.*\s)?BitdefenderGZProcessCommandLine='
       - fieldName: log.BitdefenderGZProcessCommandLine
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZProcessInfoPath=
+        pattern: '^(?s:.*\s)?BitdefenderGZProcessInfoPath='
       - fieldName: log.BitdefenderGZProcessInfoPath
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZProcessPid=
+        pattern: '^(?s:.*\s)?BitdefenderGZProcessPid='
       - fieldName: log.BitdefenderGZProcessPid
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZPuStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZPuStatus='
       - fieldName: log.BitdefenderGZPuStatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZQuarantinedMalwareCnt=
+        pattern: '^(?s:.*\s)?BitdefenderGZQuarantinedMalwareCnt='
       - fieldName: log.BitdefenderGZQuarantinedMalwareCnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZScanEngineType=
+        pattern: '^(?s:.*\s)?BitdefenderGZScanEngineType='
       - fieldName: log.BitdefenderGZScanEngineType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZSeverityScore=
+        pattern: '^(?s:.*\s)?BitdefenderGZSeverityScore='
       - fieldName: log.BitdefenderGZSeverityScore
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZSignaturesNumber=
+        pattern: '^(?s:.*\s)?BitdefenderGZSignaturesNumber='
       - fieldName: log.BitdefenderGZSignaturesNumber
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZStatus=
+        pattern: '^(?s:.*\s)?BitdefenderGZStatus='
       - fieldName: log.BitdefenderGZStatus
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZTargetType=
+        pattern: '^(?s:.*\s)?BitdefenderGZTargetType='
       - fieldName: log.BitdefenderGZTargetType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZTaskId=
+        pattern: '^(?s:.*\s)?BitdefenderGZTaskId='
       - fieldName: log.BitdefenderGZTaskId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZTaskName=
+        pattern: '^(?s:.*\s)?BitdefenderGZTaskName='
       - fieldName: log.BitdefenderGZTaskName
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZTaskScanType=
+        pattern: '^(?s:.*\s)?BitdefenderGZTaskScanType='
       - fieldName: log.BitdefenderGZTaskScanType
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZTaskSuccessful=
+        pattern: '^(?s:.*\s)?BitdefenderGZTaskSuccessful='
       - fieldName: log.BitdefenderGZTaskSuccessful
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?BitdefenderGZTaskType=
+        pattern: '^(?s:.*\s)?BitdefenderGZTaskType='
       - fieldName: log.BitdefenderGZTaskType
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZUserName=
+        pattern: '^(?s:.*\s)?BitdefenderGZUserName='
       - fieldName: log.BitdefenderGZUserName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*BitdefenderGZVendorId=
+        pattern: '^(?s:.*\s)?BitdefenderGZVendorId='
       - fieldName: log.BitdefenderGZVendorId
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?act=
+        pattern: '^(?s:.*\s)?act='
       - fieldName: log.act
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*app_control_status=
+        pattern: '^(?s:.*\s)?app_control_status='
       - fieldName: log.appcontrolstatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*avc_status=
+        pattern: '^(?s:.*\s)?avc_status='
       - fieldName: log.avcstatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*cnt=
+        pattern: '^(?s:.*\s)?cnt='
       - fieldName: log.cnt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?deviceExternalId=
+        pattern: '^(?s:.*\s)?deviceExternalId='
       - fieldName: log.deviceExternalId
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*dhost=
+        pattern: '^(?s:.*\s)?dhost='
       - fieldName: log.dhost
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*dlp_status=
+        pattern: '^(?s:.*\s)?dlp_status='
       - fieldName: log.dlpstatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*driverName=
+        pattern: '^(?s:.*\s)?driverName='
       - fieldName: log.driverName
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?dvc=
+        pattern: '^(?s:.*\s)?dvc='
       - fieldName: log.dvc
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*dvchost=
+        pattern: '^(?s:.*\s)?dvchost='
       - fieldName: log.dvchost
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*end=
+        pattern: '^(?s:.*\s)?end='
       - fieldName: log.end
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*fileHash=
+        pattern: '^(?s:.*\s)?fileHash='
       - fieldName: log.fileHash
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*filePath=
+        pattern: '^(?s:.*\s)?filePath='
       - fieldName: log.filePath
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*fname=
+        pattern: '^(?s:.*\s)?fname='
       - fieldName: log.fname
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*is_fileless_attack=
+        pattern: '^(?s:.*\s)?is_fileless_attack='
       - fieldName: log.isfilelessattack
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*label=
+        pattern: '^(?s:.*\s)?label='
       - fieldName: log.label
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*malware_status=
+        pattern: '^(?s:.*\s)?malware_status='
       - fieldName: log.malwarestatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*msg=
+        pattern: '^(?s:.*\s)?msg='
       - fieldName: log.msg
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*proto=
+        pattern: '^(?s:.*\s)?proto='
       - fieldName: log.proto
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*pu_status=
+        pattern: '^(?s:.*\s)?pu_status='
       - fieldName: log.pustatus
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*request=
+        pattern: '^(?s:.*\s)?request='
       - fieldName: log.request
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*sproc=
+        pattern: '^(?s:.*\s)?sproc='
       - fieldName: log.sproc
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*spt=
+        pattern: '^(?s:.*\s)?spt='
       - fieldName: log.spt
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?src=
+        pattern: '^(?s:.*\s)?src='
       - fieldName: log.src
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*start=
+        pattern: '^(?s:.*\s)?start='
       - fieldName: log.start
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*suid=
+        pattern: '^(?s:.*\s)?suid='
       - fieldName: log.suid
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=])*?[ \t]+)*suser=
+        pattern: '^(?s:.*\s)?suser='
       - fieldName: log.suser
-        pattern: (?:\\.|[^\\=])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[ \t])?taskName=
+        pattern: '^(?s:.*\s)?taskName='
       - fieldName: log.taskName
-        pattern: '[^ \t=]+'
+        pattern: '^(?:(?:\\=|[^\s=])+(?:\s+|$))+'
   - grok:
       source: log.BitdefenderGZTaskName
       patterns:
@@ -1265,15 +1107,22 @@ pipeline:
       source: log.sproc
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[/\\])?
+        pattern: ^.*[/\\]
       - fieldName: target.process
         pattern: '[^/\\\r\n]+$'
-      where: (true) && (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
+      where: (!equals("log.BitdefenderGZModule","network-monitor") || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))
+  - grok:
+      source: log.sproc
+      patterns:
+      - fieldName: target.process
+        pattern: (?s)^.+$
+      where: '!exists("target.process") && regexMatch("log.sproc","^[^/\\\\\\r\\n]+$") && (!equals("log.BitdefenderGZModule","network-monitor")
+        || (exists("target.ip") && safe("log.dvc","") == safe("target.ip","")))'
   - grok:
       source: log.filePath
       patterns:
       - fieldName: ''
-        pattern: ^(?:.*[/\\])?
+        pattern: ^.*[/\\]
       - fieldName: target.process
         pattern: '[^/\\\r\n]+$'
       where: (equals("log.BitdefenderGZModule","avc") && !exists("target.process")) && (!equals("log.BitdefenderGZModule","network-monitor")
@@ -1335,12 +1184,16 @@ pipeline:
       source: log.request
       patterns:
       - fieldName: ''
-        pattern: ^(?i:https?://)?
+        pattern: ^(?i:https?://)
       - fieldName: origin.domain
-        pattern: (?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?
-      - fieldName: ''
-        pattern: (?::[0-9]{1,5})?(?:[/\?#].*|$)
-      where: oneOf("log.BitdefenderGZModule",["aph","uc","dp","new-incident"])
+        pattern: ^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?
+      where: 'oneOf("log.BitdefenderGZModule",["aph","uc","dp","new-incident"]) && regexMatch("log.request","(?i)^https?://(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?(?::[0-9]{1,5})?(?:[/?#].*)?$")'
+  - grok:
+      source: log.request
+      patterns:
+      - fieldName: origin.domain
+        pattern: ^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?
+      where: 'oneOf("log.BitdefenderGZModule",["aph","uc","dp","new-incident"]) && regexMatch("log.request","(?i)^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?(?::[0-9]{1,5})?(?:[/?#].*)?$")'
   - grok:
       source: log.request
       patterns:
@@ -1402,18 +1255,6 @@ pipeline:
       - fieldName: action
         pattern: (?s)^.+$
       where: '!exists("action") && exists("log.BitdefenderGZAction") && !oneOf("log.BitdefenderGZAction",["","-","unknown"])'
-  - add:
-      function: string
-      params:
-        key: action
-        value: still present
-      where: regexMatch("raw","(?i)(?:^|[| \\t])(?:act|BitdefenderGZMainAction|BitdefenderGZAction)=still[ \\t]+present(?:[ \\t]|$)")
-  - add:
-      function: string
-      params:
-        key: action
-        value: no action
-      where: regexMatch("raw","(?i)(?:^|[| \\t])(?:act|BitdefenderGZMainAction|BitdefenderGZAction)=no[ \\t]+action(?:[ \\t]|$)")
   # Derive the final result here; earlier stages and vendor extension keys
   # must not leave a conflicting top-level outcome.
   - delete:
@@ -1546,7 +1387,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.multiple_malware_from_single_source
+        key: log.correlationCandidate.multipleMalwareFromSingleSource
         value: match
       where: '(oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
 
@@ -1555,7 +1396,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.network_threat_detection
+        key: log.correlationCandidate.networkThreatDetection
         value: match
       where: "(oneOf(\"log.BitdefenderGZModule\", [\"network-monitor\", \"fw\"]) &&\ngreaterOrEqual(\"log.cefSeverity\", 8)\n && equals(\"\
         actionResult\",\"denied\") && exists(\"origin.ip\")) && exists(\"dataSource\") && !equals(\"dataSource\",\"\") && exists(\"\
@@ -1564,7 +1405,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.av_console_lateral_movement
+        key: log.correlationCandidate.avConsoleLateralMovement
         value: match
       where: (equals("log.BitdefenderGZModule","task-status") && equals("actionResult","success") && regexMatch("log.taskName","(?i)(uninstall|restore.*quarantine|(?:run|execute).*script|(?:run|execute).*command)")
         && exists("log.suid") && !equals("log.suid","") && exists("log.BitdefenderGZTaskType")) && exists("dataSource") && !equals("dataSource","")
@@ -1572,7 +1413,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.usb_malware_propagation
+        key: log.correlationCandidate.usbMalwarePropagation
         value: match
       where: (oneOf("log.BitdefenderGZModule",["av","avc","hd"]) && (regexMatch("log.filePath","(?i)(autorun\\.inf|\\\\\\$recycle\\.bin\\\\.*\\.(exe|scr|vbs|bat|cmd))")
         || regexMatch("log.BitdefenderGZDetectionName","(?i)(autorun|worm\\.autoruner|inf/autorun|usb\\.worm)") || regexMatch("target.malware","(?i)(autorun|usb\\.worm)")))
@@ -1581,7 +1422,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.malware_outbreak_multiple_hosts
+        key: log.correlationCandidate.malwareOutbreakMultipleHosts
         value: match
       where: '(oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
 

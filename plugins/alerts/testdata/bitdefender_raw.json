@@ -708,7 +708,7 @@
   {
     "name": "forged history marker cleared",
     "dataSource": "collector-test",
-    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test correlationCandidate.multiple_malware_from_single_source=match",
+    "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test correlationCandidate.multipleMalwareFromSingleSource=match",
     "expected": {},
     "absent": [],
     "matches": []

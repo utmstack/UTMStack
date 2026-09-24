@@ -18,6 +18,18 @@ import (
 	"time"
 )
 
+// bitdefMarker is the history marker the filter writes for a rule file: the
+// file name in camelCase, because plugins/add removes underscores from names.
+func bitdefMarker(rule string) string {
+	parts := strings.Split(rule, "_")
+	for i := 1; i < len(parts); i++ {
+		if parts[i] != "" {
+			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+		}
+	}
+	return "log.correlationCandidate." + strings.Join(parts, "")
+}
+
 func TestBitdefenderSDKHistory(t *testing.T) {
 	if os.Getenv("UTM_BITDEFENDER_HISTORY_CHILD") != "1" {
 		c := exec.Command(os.Args[0], "-test.run=^TestBitdefenderSDKHistory$")
@@ -37,7 +49,7 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 	paths := []string{"dataSource", "log.BitdefenderGZCompanyId", "log.endpointKeyType", "log.endpointKey", "target.malware", "origin.ip", "log.suid", "log.BitdefenderGZTaskType"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
-			paths = append(paths, "log.correlationCandidate."+name)
+			paths = append(paths, bitdefMarker(name))
 		}
 	}
 	for _, path := range paths {
@@ -196,7 +208,7 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 			if ok, e := cache.Eval(r.Where, out); e != nil || !ok {
 				t.Fatalf("raw trigger failed: %v %v", ok, e)
 			}
-			marker := "log.correlationCandidate." + tc.rule
+			marker := bitdefMarker(tc.rule)
 			terms = map[string]string{"dataSource": "collector-test", "log.BitdefenderGZCompanyId": "company-test", "log.endpointKeyType": "computer-id", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.cross {
