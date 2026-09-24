@@ -142,6 +142,13 @@ On 2026-09-24 official `v11` moved to `d2479c1a3705eec6a00016689c2bf5fbcc1814f2`
 plugins all link go-sdk v1.1.36. `v11` was merged into this branch. No file overlaps this
 draft, so nothing conflicted.
 
+The newest published engine image, `ghcr.io/utmstack/utmstack/eventprocessor:v11.2.14`
+(built 2026-09-24 19:13 UTC on base image `eventprocessor/base:1.1.7`), embeds Go build
+information showing that its playground and plugin binaries come from the same
+EventProcessor revision `8a3ade7` with go-sdk v1.1.36, built with go1.26.8 for linux/amd64.
+The local build used here is that source revision compiled natively for darwin/arm64 with
+go1.25.7; only the Go toolchain and platform differ.
+
 What changed in the SDK, and what it means here:
 
 - Since v1.1.35, `utils.SanitizeField` keeps `_` in the field names that the `json`
