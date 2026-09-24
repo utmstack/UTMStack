@@ -26,10 +26,10 @@ description: |
 where: |
   (equals("log.eventType", "FirewallAggregated_Event") && equals("actionResult", "denied") &&
   exists("origin.ip") &&
-  !regexMatch("log.threatname", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
+  !regexMatch("log.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
   !regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
   (regexMatch("log.event", "(?i)(attack|exploit|intrusion)") ||
-   (exists("log.threatname") && !oneOf("log.threatname", ["", "unknown", "-"])))) &&
+   (exists("log.threat_name") && !oneOf("log.threat_name", ["", "unknown", "-"])))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
@@ -38,4 +38,4 @@ groupBy:
   - lastEvent.log.endpointKeyType
   - lastEvent.log.endpointKey
   - adversary.ip
-  - lastEvent.log.threatname
+  - lastEvent.log.threat_name
