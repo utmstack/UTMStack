@@ -96,6 +96,14 @@ func kaspRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp
 	}
 	return r
 }
+
+// kaspStoredName is the name the parser plugins store for a grok, rename or add target:
+// utils.SanitizeField keeps only letters, digits and dots.
+func kaspStoredName(name string) string {
+	utils.SanitizeField(&name)
+	return name
+}
+
 func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, initial ...map[string]any) string {
 	t.Helper()
 	draft := map[string]any{"raw": raw, "dataType": "antivirus-kaspersky", "dataSource": dataSource, "log": map[string]any{}}
@@ -176,13 +184,13 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 					}
 					if matched == len(g.Patterns) {
 						for field, value := range fields {
-							kaspPut(draft, field, value, false)
+							kaspPut(draft, kaspStoredName(field), value, false)
 						}
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
 						if v, ok := kaspGet(draft, p); ok {
-							kaspPut(draft, s.Rename.To, v, false)
+							kaspPut(draft, kaspStoredName(s.Rename.To), v, false)
 							kaspPut(draft, p, nil, true)
 							break
 						}
@@ -209,7 +217,7 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 					if s.Add.Function != "string" {
 						t.Fatalf("unsupported add function %s", s.Add.Function)
 					}
-					kaspPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
+					kaspPut(draft, kaspStoredName(s.Add.Params["key"].GetStringValue()), s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						kaspPut(draft, p, nil, true)

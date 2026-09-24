@@ -1037,7 +1037,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.data_exfiltration_attempts
+        key: log.correlationCandidate.dataExfiltrationAttempts
         value: match
       where: |-
         equals("log.format","cef") && ((equals("log.cat", "NetworkThreat") ||
@@ -1049,7 +1049,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.kaspersky_ransomware_behavior
+        key: log.correlationCandidate.kasperskyRansomwareBehavior
         value: match
       where: |-
         equals("log.format","cef") && (exists("log.signatureID") &&
@@ -1060,7 +1060,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.lateral_movement_indicators
+        key: log.correlationCandidate.lateralMovementIndicators
         value: match
       where: |-
         equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
@@ -1073,7 +1073,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.suspicious_network_activity
+        key: log.correlationCandidate.suspiciousNetworkActivity
         value: match
       where: |-
         equals("log.format","cef") && (exists("log.signatureID") &&
