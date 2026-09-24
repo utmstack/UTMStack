@@ -1,4 +1,4 @@
-# CISCO Meraki filter, version 3.1.0
+# CISCO Meraki filter, version 3.2.0
 # Based on https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
 # https://documentation.cysiv.com/articles/#!data-source-onboarding-device-configuration-reference/cisco-meraki-reference-information-and-cim-mapping
 #
@@ -8,31 +8,44 @@
 patterns:
   merakiKVPrefix: ^(?:[A-Za-z][A-Za-z0-9_-]*\s*=\s*(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\s"']*)\s+)*?
   merakiKVValue: (?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\s"']+)
+  # The grok step matches each pattern alone and rejects an empty match, so a
+  # value checks its own end; an empty value is left unset instead of taking
+  # the next pair, and a quoted value followed directly by text is rejected.
+  merakiKVField: (?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\s"'A-Za-z][^\s"']*|[A-Za-z][A-Za-z0-9_-]*(?:[^\s"'A-Za-z0-9_=-][^\s"']*)?)(?:\s|$)
 pipeline:
   - dataTypes:
       - firewall-meraki
     steps:
       # Header fields
       # Documented native envelopes; never infer Meraki from arbitrary message text.
+      # The grok step rejects an empty match, so a line with a priority and a
+      # line without one each have their own step.
       - grok:
           source: raw
           patterns:
           - fieldName: ''
-            pattern: ^(?:<[0-9]{1,3}>)?
+            pattern: ^<[0-9]{1,3}>(?:1\s+)?
           - fieldName: log.msgEventTime
-            pattern: '[0-9]+\.[0-9]+'
-          - fieldName: ''
-            pattern: \s+
+            pattern: '^[0-9]+\.[0-9]+'
           - fieldName: log.merakiType
             pattern: \S+
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.merakiGroup
             pattern: (?:events|flows|firewall|cellular_firewall|vpn_firewall|l7_firewall|urls|ids-alerts|security_event|airmarshal_events)
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.genericEvent
             pattern: (?s:.*)
+          where: regexMatch("raw", "^<[0-9]{1,3}>(1\\s+)?[0-9]+\\.[0-9]+\\s")
+      - grok:
+          source: raw
+          patterns:
+          - fieldName: log.msgEventTime
+            pattern: '^[0-9]+\.[0-9]+'
+          - fieldName: log.merakiType
+            pattern: \S+
+          - fieldName: log.merakiGroup
+            pattern: (?:events|flows|firewall|cellular_firewall|vpn_firewall|l7_firewall|urls|ids-alerts|security_event|airmarshal_events)
+          - fieldName: log.genericEvent
+            pattern: (?s:.*)
+          where: regexMatch("raw", "^[0-9]+\\.[0-9]+\\s")
       - grok:
           source: raw
           patterns:
@@ -40,29 +53,30 @@ pipeline:
             pattern: ^(?:<[0-9]{1,3}>)?[A-Z][a-z]{2}\s+[0-9]{1,2}\s+(?:[0-9]{4}\s+)?[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?\s+\S+\s+(?:[0-9]+\s+)?
           - fieldName: log.msgEventTime
             pattern: '[0-9]+\.[0-9]+'
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.merakiType
             pattern: \S+
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.merakiGroup
             pattern: (?:events|flows|firewall|cellular_firewall|vpn_firewall|l7_firewall|urls|ids-alerts|security_event|airmarshal_events)
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.genericEvent
             pattern: (?s:.*)
       - grok:
           source: raw
           patterns:
           - fieldName: ''
-            pattern: ^(?:<[0-9]{1,3}>)?
+            pattern: ^<[0-9]{1,3}>
           - fieldName: log.merakiGroup
             pattern: airmarshal_events
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.genericEvent
             pattern: (?s:.*)
+          where: regexMatch("raw", "^<[0-9]{1,3}>airmarshal_events\\s")
+      - grok:
+          source: raw
+          patterns:
+          - fieldName: log.merakiGroup
+            pattern: ^airmarshal_events
+          - fieldName: log.genericEvent
+            pattern: (?s:.*)
+          where: regexMatch("raw", "^airmarshal_events\\s")
       - add:
           function: string
           params:
@@ -96,7 +110,9 @@ pipeline:
             - fieldName: log.ciscoTime
               pattern: '{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: log.serverIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: ''
+              pattern: '\:'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
@@ -106,7 +122,9 @@ pipeline:
             - fieldName: log.ciscoTime
               pattern: '^{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
             - fieldName: log.serverIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}(\s)?\:'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: ''
+              pattern: '\:'
             - fieldName: log.msg
               pattern: '{{.greedy}}'
           source: raw
@@ -134,7 +152,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.data}}{{.time}}'
             - fieldName: log.localIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.local.port
               pattern: '{{.integer}}'
             - fieldName: log.msgEventTime
@@ -283,7 +301,7 @@ pipeline:
             - fieldName: action
               pattern: '{{.data}}of\sip'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'from server mac'
             - fieldName: log.serverMac
@@ -295,15 +313,15 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'from router'
             - fieldName: log.routerIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'on subnet'
             - fieldName: log.subnet
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'with dns'
             - fieldName: log.dns
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: ','
             - fieldName: log.dns1
@@ -360,11 +378,11 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'mac(\s)?='
             - fieldName: origin.mac
@@ -393,11 +411,11 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'src(\s)?='
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: 'protocol(\s)?='
             - fieldName: protocol
@@ -478,13 +496,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)(deleted|established)'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: origin.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
               pattern: '-'
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: target.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
@@ -499,7 +517,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)request(\s)for'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.irrelevant
               pattern: '{{.greedy}}'
           source: log.genericEvent
@@ -512,13 +530,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '{{.data}}ESP'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: origin.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
               pattern: '-\>'
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: target.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
           source: log.genericEvent
@@ -529,13 +547,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)negotiation(\s)?\:'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: origin.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
               pattern: '\<=\>'
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: target.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
           source: log.genericEvent
@@ -546,13 +564,13 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: 'Site-to-site VPN(\s)?\:(\s)?{{.greedy}}(\s)established\:(\s)?ESP/Tunnel'
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: origin.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
               pattern: '-\>'
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: target.port
               pattern: '\[(\s)?{{.integer}}(\s)?\]'
             - fieldName: log.irrelevant
@@ -1495,13 +1513,17 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '='
             - fieldName: log.sourceIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: ''
+              pattern: '\:'
             - fieldName: origin.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
               pattern: 'dst(\s)?='
             - fieldName: log.destinationIp
-              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}\:'
+              pattern: '(?:{{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+            - fieldName: ''
+              pattern: '\:'
             - fieldName: target.port
               pattern: '{{.integer}}'
             - fieldName: log.irrelevant
@@ -1571,8 +1593,6 @@ pipeline:
           patterns:
           - fieldName: log.alertType
             pattern: ^(?:ids_alerted|security_filtering_file_scanned|security_filtering_disposition_change)
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.fields
             pattern: (?s:.*)
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "security_event")
@@ -1587,8 +1607,6 @@ pipeline:
           patterns:
           - fieldName: log.eventType
             pattern: ^airmarshal_events
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.fields
             pattern: (?s:.*)
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events")
@@ -1597,8 +1615,6 @@ pipeline:
           patterns:
           - fieldName: log.merakiResult
             pattern: ^(?:allow|deny)
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.fields
             pattern: (?s:.*)
           where: equals("log.nativeFormat", "true") && oneOf("log.merakiGroup", ["flows", "firewall", "cellular_firewall", "vpn_firewall"])
@@ -1608,9 +1624,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}type\s*=\s*'
           - fieldName: log.type
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1618,9 +1632,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}src\s*=\s*'
           - fieldName: log.src
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1628,9 +1640,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dst\s*=\s*'
           - fieldName: log.dst
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1638,9 +1648,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}mac\s*=\s*'
           - fieldName: log.mac
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1648,9 +1656,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}protocol\s*=\s*'
           - fieldName: log.protocol
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1658,9 +1664,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}sport\s*=\s*'
           - fieldName: log.sport
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1668,9 +1672,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dport\s*=\s*'
           - fieldName: log.dport
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1678,9 +1680,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}signature\s*=\s*'
           - fieldName: log.signature
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1688,9 +1688,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}priority\s*=\s*'
           - fieldName: log.priority
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1698,9 +1696,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}direction\s*=\s*'
           - fieldName: log.direction
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1708,9 +1704,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dhost\s*=\s*'
           - fieldName: log.dhost
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1718,9 +1712,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}decision\s*=\s*'
           - fieldName: log.decision
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1728,9 +1720,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}action\s*=\s*'
           - fieldName: log.action
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1738,9 +1728,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}url\s*=\s*'
           - fieldName: log.url
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1748,9 +1736,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}name\s*=\s*'
           - fieldName: log.name
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1758,9 +1744,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}sha256\s*=\s*'
           - fieldName: log.sha256
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1768,9 +1752,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}disposition\s*=\s*'
           - fieldName: log.disposition
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1778,9 +1760,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}ssid\s*=\s*'
           - fieldName: log.ssid
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1788,9 +1768,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}bssid\s*=\s*'
           - fieldName: log.bssid
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1798,9 +1776,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}rssi\s*=\s*'
           - fieldName: log.rssi
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1808,9 +1784,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}packet\s*=\s*'
           - fieldName: log.packet
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1818,9 +1792,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}device\s*=\s*'
           - fieldName: log.device
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1828,9 +1800,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}state\s*=\s*'
           - fieldName: log.state
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1838,9 +1808,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}alarm_id\s*=\s*'
           - fieldName: log.alarmId
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1848,9 +1816,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dos_count\s*=\s*'
           - fieldName: log.dosCount
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1858,9 +1824,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}msg\s*=\s*'
           - fieldName: log.msg
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1868,9 +1832,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}identity\s*=\s*'
           - fieldName: log.identity
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1878,9 +1840,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}port\s*=\s*'
           - fieldName: log.port
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1888,9 +1848,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}ip_src\s*=\s*'
           - fieldName: log.ip_src
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1898,9 +1856,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}ip_resp\s*=\s*'
           - fieldName: log.ipResp
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1908,9 +1864,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}vpn_type\s*=\s*'
           - fieldName: log.vpnType
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1918,9 +1872,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}peer_contact\s*=\s*'
           - fieldName: log.peerContact
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1928,9 +1880,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}peer_ident\s*=\s*'
           - fieldName: log.peerIdent
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1938,9 +1888,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}connectivity\s*=\s*'
           - fieldName: log.connectivity
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1948,9 +1896,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}radio\s*=\s*'
           - fieldName: log.radio
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1958,9 +1904,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}vap\s*=\s*'
           - fieldName: log.vap
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1968,9 +1912,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}channel\s*=\s*'
           - fieldName: log.channel
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1978,9 +1920,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}reason\s*=\s*'
           - fieldName: log.reason
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1988,9 +1928,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}instigator\s*=\s*'
           - fieldName: log.instigator
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -1998,9 +1936,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}duration\s*=\s*'
           - fieldName: log.duration
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2008,9 +1944,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}auth_neg_dur\s*=\s*'
           - fieldName: log.authNegDur
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2018,9 +1952,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}last_auth_ago\s*=\s*'
           - fieldName: log.lastAuthAgo
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2028,9 +1960,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}is_wpa\s*=\s*'
           - fieldName: log.isWpa
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2038,9 +1968,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}full_conn\s*=\s*'
           - fieldName: log.fullConn
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2048,9 +1976,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}arp_resp\s*=\s*'
           - fieldName: log.arpResp
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2058,9 +1984,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}arp_src\s*=\s*'
           - fieldName: log.arpSrc
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2068,9 +1992,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dns_server\s*=\s*'
           - fieldName: log.dnsServer
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2078,9 +2000,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dns_req_rtt\s*=\s*'
           - fieldName: log.dnsReqRtt
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2088,9 +2008,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}dns_resp\s*=\s*'
           - fieldName: log.dnsResp
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - grok:
           source: log.fields
@@ -2098,9 +2016,7 @@ pipeline:
           - fieldName: ''
             pattern: '{{.merakiKVPrefix}}aid\s*=\s*'
           - fieldName: log.aid
-            pattern: '{{.merakiKVValue}}'
-          - fieldName: ''
-            pattern: (?:\s|$)
+            pattern: '{{.merakiKVField}}'
           where: equals("log.nativeFormat", "true")
       - trim:
           function: prefix
@@ -2340,13 +2256,11 @@ pipeline:
           source: log.src
           patterns:
           - fieldName: log.sourceIp
-            pattern: (?:\[[^\]]+\]|[^\s]+)
+            pattern: (?:\[[^\]]+\]|[0-9.]+|[^\s:\[\]]+)
           - fieldName: ''
             pattern: ':'
           - fieldName: origin.port
             pattern: '[0-9]+'
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && (oneOf("log.merakiGroup", ["urls", "ids-alerts"]) || (equals("log.merakiGroup", "security_event")
             && oneOf("log.alertType", ["ids_alerted", "security_filtering_file_scanned"]))) && exists("log.src")
       - trim:
@@ -2372,13 +2286,11 @@ pipeline:
           source: log.dst
           patterns:
           - fieldName: log.destinationIp
-            pattern: (?:\[[^\]]+\]|[^\s]+)
+            pattern: (?:\[[^\]]+\]|[0-9.]+|[^\s:\[\]]+)
           - fieldName: ''
             pattern: ':'
           - fieldName: target.port
             pattern: '[0-9]+'
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && (oneOf("log.merakiGroup", ["urls", "ids-alerts"]) || (equals("log.merakiGroup", "security_event")
             && oneOf("log.alertType", ["ids_alerted", "security_filtering_file_scanned"]))) && exists("log.dst")
       - trim:
@@ -2462,11 +2374,24 @@ pipeline:
           - fieldName: ''
             pattern: ^Peer IP=
           - fieldName: log.sourceIp
-            pattern: '[^\s]+?'
+            pattern: '.+?Peer port'
           - fieldName: ''
-            pattern: \s*Peer port(?:=|\[)
+            pattern: '(?:=|\[)'
           - fieldName: origin.port
             pattern: '[0-9]+'
+          where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events") && oneOf("log.type", ["anyconnect_vpn_auth_failure", "anyconnect_vpn_auth_success"])
+      # The peer address is written against the next label; drop that label.
+      - trim:
+          function: suffix
+          substring: Peer port
+          fields:
+            - log.sourceIp
+          where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events") && oneOf("log.type", ["anyconnect_vpn_auth_failure", "anyconnect_vpn_auth_success"])
+      - trim:
+          function: suffix
+          substring: ' '
+          fields:
+            - log.sourceIp
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events") && oneOf("log.type", ["anyconnect_vpn_auth_failure", "anyconnect_vpn_auth_success"])
       - add:
           function: string
@@ -2524,24 +2449,18 @@ pipeline:
             pattern: '{{.merakiKVPrefix}}request:\s*'
           - fieldName: log.method
             pattern: \S+
-          - fieldName: ''
-            pattern: \s+
           - fieldName: target.url
             pattern: https?://[^\s]+
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "urls")
       - grok:
           source: log.peerContact
           patterns:
           - fieldName: log.sourceIp
-            pattern: (?:\[[^\]]+\]|[^\s]+)
+            pattern: (?:\[[^\]]+\]|[0-9.]+|[^\s:\[\]]+)
           - fieldName: ''
             pattern: ':'
           - fieldName: origin.port
             pattern: '[0-9]+'
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events") && equals("log.type", "vpn_connectivity_change")
       - trim:
           function: prefix
@@ -2567,12 +2486,8 @@ pipeline:
           patterns:
           - fieldName: action
             pattern: ^Cellular connection
-          - fieldName: ''
-            pattern: \s+
           - fieldName: log.connectionState
             pattern: (?:up|down)
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events")
       - add:
           function: string
@@ -2586,15 +2501,13 @@ pipeline:
           - fieldName: action
             pattern: ^dhcp no offers
           - fieldName: ''
-            pattern: \s+for mac\s+
+            pattern: 'for mac\s+'
           - fieldName: origin.mac
             pattern: \S+
           - fieldName: ''
-            pattern: \s+host\s*=\s*
+            pattern: 'host\s*=\s*'
           - fieldName: log.sourceIp
             pattern: \S+
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events")
       - grok:
           source: log.genericEvent
@@ -2602,35 +2515,33 @@ pipeline:
           - fieldName: action
             pattern: ^dhcp lease
           - fieldName: ''
-            pattern: \s+of ip\s+
+            pattern: 'of ip\s+'
           - fieldName: log.sourceIp
             pattern: \S+
           - fieldName: ''
-            pattern: \s+from server mac\s+
+            pattern: 'from server mac\s+'
           - fieldName: log.serverMac
             pattern: \S+
           - fieldName: ''
-            pattern: \s+for client mac\s+
+            pattern: 'for client mac\s+'
           - fieldName: origin.mac
             pattern: \S+
           - fieldName: ''
-            pattern: \s+from router\s+
+            pattern: 'from router\s+'
           - fieldName: log.routerIp
             pattern: \S+
           - fieldName: ''
-            pattern: \s+on subnet\s+
+            pattern: 'on subnet\s+'
           - fieldName: log.subnet
             pattern: \S+
           - fieldName: ''
-            pattern: \s+with dns\s+
+            pattern: 'with dns\s+'
           - fieldName: log.dns
             pattern: '[^,]+'
           - fieldName: ''
             pattern: ',\s*'
           - fieldName: log.dns1
             pattern: \S+
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events")
       - add:
           function: string
@@ -2646,19 +2557,17 @@ pipeline:
           - fieldName: log.switchPort
             pattern: '[0-9]+'
           - fieldName: ''
-            pattern: \s+received an\s+
+            pattern: 'received an\s+'
           - fieldName: protocol
             pattern: \S+
           - fieldName: ''
-            pattern: \s+BPDU from\s+
+            pattern: 'BPDU from\s+'
           - fieldName: origin.mac
             pattern: \S+
           - fieldName: ''
-            pattern: \s+so the port was\s+
+            pattern: 'so the port was\s+'
           - fieldName: log.merakiResult
             pattern: blocked
-          - fieldName: ''
-            pattern: $
           where: equals("log.nativeFormat", "true") && equals("log.merakiGroup", "events")
       - grok:
           source: log.ip_src
