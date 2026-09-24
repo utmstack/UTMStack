@@ -1,4 +1,4 @@
-# Rule version v1.1.1
+# Rule version v1.1.2
 
 dataTypes:
 - o365
@@ -17,7 +17,6 @@ impact:
 references:
 - https://learn.microsoft.com/en-us/purview/audit-log-activities
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
-- https://learn.microsoft.com/en-us/purview/audit-log-activities
 where: |
   equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "UpdateCalendarDelegation")
 groupBy:

@@ -50,6 +50,12 @@ func TestO365AwarenessRawPredicatesAndGrouping(t *testing.T) {
 	// One top-level alert per acting account and action; later changes become children, which the
 	// rule flood guard does not count. Grouping per object passed 50 top-level alerts a day.
 	want := []string{"lastEvent.tenantId", "lastEvent.log.OrganizationId", "dataSource", "adversary.user", "lastEvent.action"}
+	// Forwarding mail out of a mailbox is a common step after it is taken over, so the two
+	// forwarding rules alert at medium severity (highest impact value 2); the others stay low.
+	medium := map[string]bool{
+		"office365/mail_forwarding_rules.yml":               true,
+		"office365/mailbox_auto_forwarding_set_mailbox.yml": true,
+	}
 	for path, rule := range paths {
 		if !reflect.DeepEqual(rule.GroupBy, want) {
 			t.Fatalf("%s: grouping paths %v, want %v", path, rule.GroupBy, want)
@@ -57,8 +63,12 @@ func TestO365AwarenessRawPredicatesAndGrouping(t *testing.T) {
 		if len(rule.DeduplicateBy) != 0 || len(rule.Correlation) != 0 || len(rule.AfterEvents) != 0 {
 			t.Fatalf("%s: awareness alerts should retain every change without history thresholds or suppression", path)
 		}
-		if rule.Impact.GetConfidentiality() != 1 || rule.Impact.GetIntegrity() != 1 || rule.Impact.GetAvailability() != 0 || rule.Adversary != "origin" {
-			t.Fatalf("%s: invalid awareness impact or attribution", path)
+		confidentiality := uint32(1)
+		if medium[path] {
+			confidentiality = 2
+		}
+		if rule.Impact.GetConfidentiality() != confidentiality || rule.Impact.GetIntegrity() != 1 || rule.Impact.GetAvailability() != 0 || rule.Adversary != "origin" {
+			t.Fatalf("%s: invalid impact or attribution", path)
 		}
 	}
 	cache := plugins.NewCELCache("o365-awareness")

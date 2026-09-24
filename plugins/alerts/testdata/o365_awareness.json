@@ -21,7 +21,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -47,15 +47,15 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
   {
-    "name": "inbox-UpdateInboxRules",
+    "name": "inbox-UpdateInboxRules-outlook-save",
     "raw": "{\"Operation\":\"UpdateInboxRules\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"mailbox@example.invalid\"}",
     "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "UpdateInboxRules",
       "log.Workload": "Exchange",
@@ -74,7 +74,7 @@
       "log.MailboxOwnerUPN",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -100,7 +100,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -126,7 +126,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -152,7 +152,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -178,7 +178,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -204,7 +204,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -230,7 +230,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -256,7 +256,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -282,7 +282,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -308,7 +308,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -334,7 +334,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -360,7 +360,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -386,7 +386,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -412,7 +412,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -438,7 +438,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -464,7 +464,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -483,7 +483,7 @@
       "log.ResultStatus": "True",
       "actionResult": "success",
       "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.o365MailboxForwardingSet": "true"
     },
     "absent": [
       "log.Operation",
@@ -498,7 +498,7 @@
     "name": "mailbox-forward-clear-ForwardingAddress",
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingAddress\",\"Value\":\"\"}]}",
     "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "Set-Mailbox",
       "log.Workload": "Exchange",
@@ -508,8 +508,7 @@
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.Parameters": "[map[Name:ForwardingAddress Value:]]"
     },
     "absent": [
       "log.Operation",
@@ -517,7 +516,8 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
@@ -535,7 +535,7 @@
       "log.ResultStatus": "True",
       "actionResult": "success",
       "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.o365MailboxForwardingSet": "true"
     },
     "absent": [
       "log.Operation",
@@ -550,7 +550,7 @@
     "name": "mailbox-forward-clear-ForwardingSmtpAddress",
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"\"}]}",
     "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "Set-Mailbox",
       "log.Workload": "Exchange",
@@ -560,8 +560,7 @@
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:]]"
     },
     "absent": [
       "log.Operation",
@@ -569,14 +568,15 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
     "name": "mailbox-forward-DeliverToMailboxAndForward",
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"True\"}]}",
     "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "Set-Mailbox",
       "log.Workload": "Exchange",
@@ -586,8 +586,7 @@
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:True]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:True]]"
     },
     "absent": [
       "log.Operation",
@@ -595,12 +594,39 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
     "name": "mailbox-forward-clear-DeliverToMailboxAndForward",
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"False\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:False]]"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
+    ]
+  },
+  {
+    "name": "mailbox-forward-ForwardingAddress-with-cleared-smtp",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"\"},{\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"},{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"False\"}]}",
     "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
     "match": true,
     "expected": {
@@ -612,8 +638,7 @@
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:False]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.o365MailboxForwardingSet": "true"
     },
     "absent": [
       "log.Operation",
@@ -622,6 +647,81 @@
       "target.user",
       "log.o365InboxForwardingChange",
       "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-ForwardingSmtpAddress-without-copy",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"smtp:recipient@example.invalid\"},{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"False\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": true,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success",
+      "log.o365MailboxForwardingSet": "true"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "mailbox-forward-clear-all",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"\"},{\"Name\":\"ForwardingAddress\",\"Value\":\"\"},{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"False\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
+    ]
+  },
+  {
+    "name": "mailbox-forward-clear-smtp-keep-copy",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"\"},{\"Name\":\"DeliverToMailboxAndForward\",\"Value\":\"True\"}]}",
+    "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
+    "match": false,
+    "expected": {
+      "action": "Set-Mailbox",
+      "log.Workload": "Exchange",
+      "log.RecordType": 1,
+      "origin.user": "administrator@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "mailbox@example.invalid",
+      "log.ResultStatus": "True",
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "target.user",
+      "log.o365InboxForwardingChange",
+      "log.o365SendOnBehalfChange",
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
@@ -646,7 +746,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -654,7 +754,7 @@
     "name": "delegate-Remove-MailboxPermission",
     "raw": "{\"Operation\":\"Remove-MailboxPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
     "rule": "office365/mailbox_delegation_abuse.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "Remove-MailboxPermission",
       "log.Workload": "Exchange",
@@ -672,7 +772,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -698,7 +798,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -706,7 +806,7 @@
     "name": "delegate-Remove-RecipientPermission",
     "raw": "{\"Operation\":\"Remove-RecipientPermission\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"User\",\"Value\":\"delegate@example.invalid\"}]}",
     "rule": "office365/mailbox_delegation_abuse.yml",
-    "match": true,
+    "match": false,
     "expected": {
       "action": "Remove-RecipientPermission",
       "log.Workload": "Exchange",
@@ -724,7 +824,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -751,7 +851,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange"
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
@@ -777,7 +877,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange"
+      "log.o365MailboxForwardingSet"
     ]
   },
   {
@@ -802,7 +902,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -828,7 +928,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -854,7 +954,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -885,7 +985,7 @@
       "log.Folder.Id",
       "log.Folder.Path",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -916,7 +1016,7 @@
       "log.Folder.Id",
       "log.Folder.Path",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -947,7 +1047,7 @@
       "log.Folder.Id",
       "log.Folder.Path",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -978,7 +1078,136 @@
       "log.Folder.Id",
       "log.Folder.Path",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-ModifyFolderPermissions-microsoft-service",
+    "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"S-1-5-21-1111111111-2222222222-3333333333-4444444\",\"ObjectId\":\"group@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"group@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"},\"ExternalAccess\":true,\"LogonType\":1,\"ClientInfoString\":\"Client=WebServices;Action=ConfigureGroupMailbox\"}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": false,
+    "expected": {
+      "action": "ModifyFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "S-1-5-21-1111111111-2222222222-3333333333-4444444",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "group@example.invalid",
+      "target.user": "group@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar",
+      "log.ExternalAccess": true
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingSet",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-ModifyFolderPermissions-external-named-actor",
+    "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"partner-admin@example.invalid\",\"ObjectId\":\"group@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"group@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"},\"ExternalAccess\":true,\"LogonType\":1,\"ClientInfoString\":\"Client=WebServices;Action=ConfigureGroupMailbox\"}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "ModifyFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "partner-admin@example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "group@example.invalid",
+      "target.user": "group@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar",
+      "log.ExternalAccess": true
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingSet",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-ModifyFolderPermissions-internal-sid-actor",
+    "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"S-1-5-21-1111111111-2222222222-3333333333-4444444\",\"ObjectId\":\"group@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"group@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"},\"ExternalAccess\":false,\"LogonType\":1,\"ClientInfoString\":\"Client=WebServices;Action=ConfigureGroupMailbox\"}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": true,
+    "expected": {
+      "action": "ModifyFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "S-1-5-21-1111111111-2222222222-3333333333-4444444",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "group@example.invalid",
+      "target.user": "group@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar",
+      "log.ExternalAccess": false
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingSet",
+      "log.o365SendOnBehalfChange"
+    ]
+  },
+  {
+    "name": "folder-ModifyFolderPermissions-owner-logon",
+    "raw": "{\"Operation\":\"ModifyFolderPermissions\",\"Workload\":\"Exchange\",\"RecordType\":2,\"ResultStatus\":\"Succeeded\",\"UserId\":\"Owner@Example.invalid\",\"ObjectId\":\"owner@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"MailboxOwnerUPN\":\"owner@example.invalid\",\"Folder\":{\"Id\":\"folder-fixture-001\",\"Path\":\"/Calendar\"},\"LogonType\":0,\"ExternalAccess\":false}",
+    "rule": "office365/awareness_mailbox_folder_permissions.yml",
+    "match": false,
+    "expected": {
+      "action": "ModifyFolderPermissions",
+      "log.Workload": "Exchange",
+      "log.RecordType": 2,
+      "origin.user": "Owner@Example.invalid",
+      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "log.ObjectId": "owner@example.invalid",
+      "target.user": "owner@example.invalid",
+      "log.ResultStatus": "Succeeded",
+      "actionResult": "success",
+      "log.folderId": "folder-fixture-001",
+      "log.folderPath": "/Calendar",
+      "log.LogonType": 0,
+      "log.ExternalAccess": false
+    },
+    "absent": [
+      "log.Operation",
+      "log.UserId",
+      "origin.ip",
+      "log.MailboxOwnerUPN",
+      "log.Parameters",
+      "log.Folder.Id",
+      "log.Folder.Path",
+      "log.o365InboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1005,7 +1234,7 @@
       "log.MailboxOwnerUPN",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1031,7 +1260,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1057,7 +1286,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1083,7 +1312,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1109,7 +1338,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1135,7 +1364,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1161,7 +1390,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1187,7 +1416,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1213,7 +1442,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1239,7 +1468,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1265,7 +1494,7 @@
       "log.ObjectId",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1291,7 +1520,7 @@
       "log.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1317,7 +1546,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1343,7 +1572,7 @@
       "log.OrganizationId",
       "log.ObjectId",
       "target.user",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1362,7 +1591,7 @@
       "log.ResultStatus": "False",
       "actionResult": "failure",
       "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.o365MailboxForwardingSet": "true"
     },
     "absent": [
       "log.Operation",
@@ -1395,7 +1624,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1411,7 +1640,7 @@
       "log.ResultStatus": "True",
       "actionResult": "success",
       "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingChange": "true"
+      "log.o365MailboxForwardingSet": "true"
     },
     "absent": [
       "log.Operation",
@@ -1447,7 +1676,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1473,7 +1702,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1499,7 +1728,7 @@
       "log.ObjectId",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1525,7 +1754,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1551,7 +1780,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1577,7 +1806,7 @@
       "log.ObjectId",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1604,7 +1833,7 @@
       "log.MailboxOwnerUPN",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1631,7 +1860,7 @@
       "log.MailboxOwnerUPN",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1657,7 +1886,7 @@
       "target.user",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1683,7 +1912,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1709,7 +1938,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1735,7 +1964,7 @@
       "log.ObjectId",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1761,7 +1990,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1787,7 +2016,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1813,7 +2042,7 @@
       "log.ObjectId",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1839,7 +2068,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1865,7 +2094,7 @@
       "target.user",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1891,7 +2120,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1917,7 +2146,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1943,7 +2172,7 @@
       "target.user",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1969,7 +2198,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -1995,7 +2224,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2021,7 +2250,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2047,7 +2276,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2073,7 +2302,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2099,7 +2328,7 @@
       "target.user",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2125,7 +2354,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2151,7 +2380,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2177,7 +2406,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2203,7 +2432,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2229,7 +2458,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2255,7 +2484,7 @@
       "target.user",
       "log.Parameters",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2281,13 +2510,13 @@
       "target.user",
       "actionResult",
       "log.ResultStatus",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
   {
     "name": "spoofed-marker-inbox",
-    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "raw": "{\"Operation\":\"New-InboxRule\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingSet\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
     "rule": "office365/collection_microsoft_365_new_inbox_rule.yml",
     "match": true,
     "expected": {
@@ -2307,7 +2536,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2333,7 +2562,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2359,7 +2588,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2385,7 +2614,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2411,7 +2640,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2437,7 +2666,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2463,7 +2692,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2489,7 +2718,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2515,13 +2744,13 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
   {
     "name": "spoofed-marker-mailbox",
-    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingSet\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
     "rule": "office365/mailbox_auto_forwarding_set_mailbox.yml",
     "match": false,
     "expected": {
@@ -2541,7 +2770,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2567,7 +2796,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2593,7 +2822,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2619,7 +2848,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2645,7 +2874,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2671,7 +2900,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2697,7 +2926,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2723,7 +2952,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2749,13 +2978,13 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
   {
     "name": "spoofed-marker-delegation",
-    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingChange\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
+    "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ResultStatus\":\"True\",\"UserId\":\"administrator@example.invalid\",\"ObjectId\":\"mailbox@example.invalid\",\"OrganizationId\":\"11111111-1111-4111-8111-111111111111\",\"Parameters\":[{\"Name\":\"DisplayName\",\"Value\":\"Unrelated setting\"}],\"o365InboxForwardingChange\":\"true\",\"o365MailboxForwardingSet\":\"true\",\"o365SendOnBehalfChange\":\"true\"}",
     "rule": "office365/mailbox_delegation_abuse.yml",
     "match": false,
     "expected": {
@@ -2775,7 +3004,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2801,7 +3030,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2827,7 +3056,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2853,7 +3082,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2879,7 +3108,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2905,7 +3134,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2931,7 +3160,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2957,7 +3186,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   },
@@ -2983,7 +3212,7 @@
       "origin.ip",
       "target.user",
       "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingChange",
+      "log.o365MailboxForwardingSet",
       "log.o365SendOnBehalfChange"
     ]
   }

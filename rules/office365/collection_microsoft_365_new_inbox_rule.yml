@@ -1,14 +1,16 @@
-# Rule version v1.1.1
+# Rule version v1.1.2
 
 dataTypes:
 - o365
 name: Office 365 Inbox Rule Changed
 description: |
-  A user or administrator created, changed, enabled, disabled or removed an Exchange inbox rule. New and modified rules with explicit forwarding settings are handled by the dedicated forwarding alert. Outlook client UpdateInboxRules is an audited change whose specific sub-action may require review of OperationProperties.
+  A user or administrator created, changed, enabled, disabled or removed an inbox rule with an Exchange command, for example from Outlook on the web or PowerShell. Rules that move or delete mail can hide messages from the mailbox owner. New and modified rules with forwarding settings raise the separate forwarding alert instead.
+
+  Outlook desktop records its rule saves as UpdateInboxRules and writes them repeatedly for the same rules, usually without any rule change, so those records do not raise this alert.
 
   Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
-technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
+technique: 'T1564.008 - Hide Artifacts: Email Hiding Rules'
 adversary: origin
 impact:
   confidentiality: 1
@@ -19,7 +21,7 @@ references:
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 - https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-inboxrule?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule", "UpdateInboxRules", "Enable-InboxRule", "Disable-InboxRule", "Remove-InboxRule"]) && !(oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name")))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule", "Enable-InboxRule", "Disable-InboxRule", "Remove-InboxRule"]) && !(oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name")))
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId

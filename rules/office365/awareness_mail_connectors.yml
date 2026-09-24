@@ -1,4 +1,4 @@
-# Rule version v1.1.1
+# Rule version v1.1.2
 
 dataTypes:
 - o365
@@ -8,7 +8,7 @@ description: |
 
   Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
-technique: Administrative mail flow change
+technique: T1537 - Transfer Data to Cloud Account
 adversary: origin
 impact:
   confidentiality: 1

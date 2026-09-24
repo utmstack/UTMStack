@@ -1,17 +1,17 @@
-# Rule version v1.1.1
+# Rule version v1.1.2
 
 dataTypes:
 - o365
-name: Office 365 Mailbox Forwarding Setting Changed
+name: O365 Mailbox Auto-Forwarding (Set-Mailbox)
 description: |
-  An administrator changed a mailbox forwarding parameter using Set-Mailbox: ForwardingAddress, ForwardingSmtpAddress or DeliverToMailboxAndForward. Inspect the recorded value to learn whether this enabled, redirected, changed or cleared forwarding.
+  Set-Mailbox set a forwarding address on a mailbox (ForwardingSmtpAddress or ForwardingAddress). Mail delivered to the mailbox is then forwarded to that address without any inbox rule, a common step after a mailbox is taken over.
 
-  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
-category: Administrative Awareness
+  Check whether the address is outside the organization, who made the change and recent sign-ins for that account. Clearing forwarding, or changing only DeliverToMailboxAndForward, does not raise this alert. The alert does not by itself establish compromise or an external recipient.
+category: Collection
 technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
 adversary: origin
 impact:
-  confidentiality: 1
+  confidentiality: 2
   integrity: 1
   availability: 0
 references:
@@ -19,7 +19,7 @@ references:
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 - https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-mailbox?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "Set-Mailbox") && (equals("log.o365MailboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardingAddress).Name") || exists("log.Parameters.#(Name==ForwardingSmtpAddress).Name") || exists("log.Parameters.#(Name==DeliverToMailboxAndForward).Name"))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "Set-Mailbox") && (equals("log.o365MailboxForwardingSet", "true") || regexMatch("log.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") || regexMatch("log.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId

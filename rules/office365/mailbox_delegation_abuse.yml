@@ -1,12 +1,12 @@
-# Rule version v1.1.1
+# Rule version v1.1.2
 
 dataTypes:
 - o365
 name: Office 365 Mailbox Delegate Permission Changed
 description: |
-  An administrator changed mailbox FullAccess, SendAs or SendOnBehalf access through mailbox or recipient permission cmdlets, or supplied GrantSendOnBehalfTo to Set-Mailbox. Microsoft may also emit routine service-account mailbox permission maintenance; verify the actor and mailbox before escalation.
+  An administrator granted a mailbox permission such as FullAccess with Add-MailboxPermission, granted SendAs with Add-RecipientPermission, or supplied GrantSendOnBehalfTo to Set-Mailbox. These permissions let another account read the mailbox or send mail as, or on behalf of, its owner. Removing a permission does not raise this alert.
 
-  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
+  Some changes are recorded under an Exchange service account instead of the administrator who made them. Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
 category: Administrative Awareness
 technique: 'T1098.002 - Account Manipulation: Additional Email Delegate Permissions'
 adversary: origin
@@ -19,7 +19,7 @@ references:
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 - https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxpermission?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && (oneOf("action", ["Add-MailboxPermission", "Remove-MailboxPermission", "Add-RecipientPermission", "Remove-RecipientPermission"]) || (equals("action", "Set-Mailbox") && (equals("log.o365SendOnBehalfChange", "true") || exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name"))))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && (oneOf("action", ["Add-MailboxPermission", "Add-RecipientPermission"]) || (equals("action", "Set-Mailbox") && (equals("log.o365SendOnBehalfChange", "true") || exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name"))))
 groupBy:
 - lastEvent.tenantId
 - lastEvent.log.OrganizationId
