@@ -74,10 +74,11 @@ func paloaltoGet(m map[string]any, p string) (any, bool) {
 
 // paloaltoWriteName returns the name the EventProcessor parser plugins actually
 // write: grok, add, rename, csv, kv and json pass it through go-sdk
-// utils.SanitizeField, which keeps only letters, digits and dots, and reject a
-// reserved name. Conditions and rules look names up as written, so a filter that
-// writes "log.pa_type" and tests "log.pa_type" never matches in production and
-// must not match here either.
+// utils.SanitizeField and reject a reserved name. Since go-sdk v1.1.35 the
+// sanitizer keeps letters, digits, dots and underscores and removes every other
+// character (earlier versions also removed underscores). Conditions and rules look
+// names up as written, so a filter that writes "log.pa-type" and tests
+// "log.pa-type" never matches in production and must not match here either.
 func paloaltoWriteName(t *testing.T, name string, allowEmpty bool) string {
 	t.Helper()
 	utils.SanitizeField(&name)
