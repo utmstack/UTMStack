@@ -11,11 +11,11 @@ category: Defense Evasion, Persistence
 technique: "T1112 - Modify Registry"
 adversary: origin
 references:
-  - https://help.eset.com/esmc_admin/70/en-US/events-exported-to-json-format.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1112/
 description: |
-  Identifies attempts to modify critical Windows registry keys that were blocked by ESET, indicating potential persistence or system tampering attempts. Registry modifications are a common technique used by malware to establish persistence, disable security features, or alter system behavior.
-  
+  Detects warning-or-higher HIPS blocks involving a registry operation or Windows registry target. Review the operation and target to distinguish malicious persistence or tampering from legitimate software blocked by policy.
+
   Next Steps:
   1. Review the blocked action details to understand what registry key was targeted
   2. Investigate the source process and user account involved in the attempt
@@ -24,10 +24,13 @@ description: |
   5. If suspicious, isolate the affected system and perform a full malware scan
   6. Review system logs for any successful registry modifications before the block occurred
 where: |
-  exists("log.jsonMessage") &&
-  contains("log.jsonMessage", "registry") &&
-  oneOf("log.action", ["blocked", "denied", "prevented"]) &&
-  oneOf("log.severity", ["high", "medium"])
+  (oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
+  (regexMatch("log.operation", "(?i)registry") || regexMatch("log.target", "(?i)^(HKEY_|HKLM|HKCU|HKCR|HKU|HKCC)"))) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.action
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.target

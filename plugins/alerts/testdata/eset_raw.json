@@ -1,0 +1,1852 @@
+[
+  {
+    "name": "documented threat deletion retains remediation distinction",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "Sep 17 12:30:05 manager.example.invalid ERAServer[5648]: {\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"action_taken\":\"Deleted\",\"threat_handled\":true,\"threat_name\":\"Synthetic.TestThreat\",\"processname\":\"C:\\\\Program Files\\\\Example\\\\scanner.exe\",\"username\":\"LAB\\\\analyst\",\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}",
+    "expected": {
+      "log.eventType": "Threat_Event",
+      "log.eventtype": "Threat_Event",
+      "target.ip": "192.0.2.30",
+      "target.host": "endpoint.example.invalid",
+      "target.operatingSystem": "Microsoft Windows 11 Pro",
+      "origin.process": "scanner.exe",
+      "origin.user": "LAB\\analyst",
+      "target.sha1": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "action": "Deleted",
+      "severity": "warning",
+      "log.severity": "Warning",
+      "deviceTime": "2026-09-17T12:30:00Z",
+      "log.threathandled": true,
+      "log.endpointKey": "synthetic-endpoint-1",
+      "log.endpointKeyType": "uuid",
+      "origin.path": "C:\\Program Files\\Example\\"
+    },
+    "absent": [
+      "actionResult",
+      "log.msgType",
+      "log.jsonMessage"
+    ],
+    "matches": []
+  },
+  {
+    "name": "accepted bare JSON envelope",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"action_taken\":\"blocked\"}",
+    "expected": {
+      "actionResult": "denied",
+      "target.host": "endpoint.example.invalid",
+      "log.eventType": "Threat_Event"
+    },
+    "absent": [
+      "log.msgType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "accepted rfc5424 JSON envelope",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "<134>1 2026-09-17T12:30:05Z manager.example.invalid ERAServer 5648 - - {\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"action_taken\":\"blocked\"}",
+    "expected": {
+      "actionResult": "denied",
+      "target.host": "endpoint.example.invalid",
+      "log.eventType": "Threat_Event"
+    },
+    "absent": [
+      "log.msgType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "accepted pri3164 JSON envelope",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "<134>Sep 17 12:30:05 manager.example.invalid ERAServer[5648]: {\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"action_taken\":\"blocked\"}",
+    "expected": {
+      "actionResult": "denied",
+      "target.host": "endpoint.example.invalid",
+      "log.eventType": "Threat_Event"
+    },
+    "absent": [
+      "log.msgType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "embedded RFC3164",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "application message=\"Sep 17 12:30:05 manager.example.invalid ERAServer[5648]: {\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}\"",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "target.host",
+      "actionResult",
+      "log.eventType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "embedded RFC5424",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "application message=\"<134>1 2026-09-17T12:30:05Z manager.example.invalid ERAServer 5648 - - {\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}\"",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "target.host",
+      "actionResult",
+      "log.eventType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "wrong RFC3164 program",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "Sep 17 12:30:05 manager.example.invalid unrelated[5648]: {\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "target.ip",
+      "target.host",
+      "actionResult",
+      "log.eventType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "JSON string cannot supply class or identity",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"message\":\"{\\\"event_type\\\":\\\"Threat_Event\\\",\\\"ipv4\\\":\\\"198.51.100.42\\\",\\\"action_taken\\\":\\\"blocked\\\"}\"}",
+    "expected": {},
+    "absent": [
+      "log.eventType",
+      "origin.ip",
+      "target.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "forged derived fields recomputed",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"eventType\":\"Audit_Event\",\"endpointKey\":\"forged\",\"endpointKeyType\":\"uuid\",\"correlationCandidate\":{\"heuristicRemediation\":\"match\"}}",
+    "expected": {
+      "log.eventType": "Threat_Event",
+      "log.endpointKey": "synthetic-endpoint-1"
+    },
+    "absent": [
+      "log.correlationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 bad-address",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"bad-address\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "bad-address"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"0.0.0.0\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 ::",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"::\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "::"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 ::0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"::0\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "::0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 0:0:0:0:0:0:0:0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"0:0:0:0:0:0:0:0\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 ::ffff:0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"::ffff:0.0.0.0\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":123,\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": 123
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":false,\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": false
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid ipv4 {'ip': '192.0.2.10'}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":{\"ip\":\"192.0.2.10\"},\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.ipv4": {
+        "ip": "192.0.2.10"
+      }
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address bad-address",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"bad-address\"}",
+    "expected": {
+      "log.sourceaddress": "bad-address"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address 0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"0.0.0.0\"}",
+    "expected": {
+      "log.sourceaddress": "0.0.0.0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address ::",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"::\"}",
+    "expected": {
+      "log.sourceaddress": "::"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address ::0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"::0\"}",
+    "expected": {
+      "log.sourceaddress": "::0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address 0:0:0:0:0:0:0:0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"0:0:0:0:0:0:0:0\"}",
+    "expected": {
+      "log.sourceaddress": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address ::ffff:0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"::ffff:0.0.0.0\"}",
+    "expected": {
+      "log.sourceaddress": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":123}",
+    "expected": {
+      "log.sourceaddress": 123
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":false}",
+    "expected": {
+      "log.sourceaddress": false
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid source_address {'ip': '192.0.2.10'}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":{\"ip\":\"192.0.2.10\"}}",
+    "expected": {
+      "log.sourceaddress": {
+        "ip": "192.0.2.10"
+      }
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address bad-address",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"bad-address\"}",
+    "expected": {
+      "log.targetaddress": "bad-address"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address 0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"0.0.0.0\"}",
+    "expected": {
+      "log.targetaddress": "0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address ::",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"::\"}",
+    "expected": {
+      "log.targetaddress": "::"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address ::0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"::0\"}",
+    "expected": {
+      "log.targetaddress": "::0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address 0:0:0:0:0:0:0:0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"0:0:0:0:0:0:0:0\"}",
+    "expected": {
+      "log.targetaddress": "0:0:0:0:0:0:0:0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address ::ffff:0.0.0.0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"::ffff:0.0.0.0\"}",
+    "expected": {
+      "log.targetaddress": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":123}",
+    "expected": {
+      "log.targetaddress": 123
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":false}",
+    "expected": {
+      "log.targetaddress": false
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid target_address {'ip': '192.0.2.10'}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":{\"ip\":\"192.0.2.10\"}}",
+    "expected": {
+      "log.targetaddress": {
+        "ip": "192.0.2.10"
+      }
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "IPv6 reporting endpoint fallback",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"0.0.0.0\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"ipv6\":\"2001:db8::30\"}",
+    "expected": {
+      "target.ip": "2001:db8::30",
+      "log.ipv4": "0.0.0.0"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "valid IPv6 endpoint ending double colon",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"ipv6\":\"2001:db8::\"}",
+    "expected": {
+      "target.ip": "2001:db8::"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "inbound firewall physical endpoints",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"198.51.100.10\",\"target_address\":\"192.0.2.30\",\"source_port\":49152,\"target_port\":443,\"protocol\":\"TCP\",\"inbound\":true,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "origin.ip": "198.51.100.10",
+      "target.ip": "192.0.2.30",
+      "target.host": "endpoint.example.invalid",
+      "target.user": "LAB\\svc",
+      "target.process": "service.exe",
+      "origin.port": 49152,
+      "target.port": 443,
+      "actionResult": "denied",
+      "target.path": "C:\\Windows\\"
+    },
+    "absent": [
+      "origin.host",
+      "origin.user",
+      "origin.process"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outbound firewall physical endpoints",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":\"TCP\",\"inbound\":false,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "origin.ip": "192.0.2.30",
+      "target.ip": "198.51.100.10",
+      "origin.host": "endpoint.example.invalid",
+      "origin.user": "LAB\\svc",
+      "origin.process": "service.exe",
+      "origin.path": "C:\\Windows\\"
+    },
+    "absent": [
+      "target.host",
+      "target.user",
+      "target.process"
+    ],
+    "matches": []
+  },
+  {
+    "name": "firewall unknown direction retains reporting identity",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.hostname": "endpoint.example.invalid",
+      "log.ipv4": "192.0.2.30",
+      "origin.ip": "192.0.2.30",
+      "target.ip": "198.51.100.10"
+    },
+    "absent": [
+      "target.host",
+      "origin.host",
+      "target.user",
+      "origin.user"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type 443",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":443,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "origin.port": 443
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "port type '443'",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":\"443\",\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "origin.port": 443
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "port type 0",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":0,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {},
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type 65535",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":65535,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "origin.port": 65535
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "port type 1.25",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":1.25,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": 1.25
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type -1",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":-1,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": -1
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type 65536",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":65536,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": 65536
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type '1e2'",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":\"1e2\",\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": "1e2"
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type '443.0'",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":\"443.0\",\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": "443.0"
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type 'bad'",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":\"bad\",\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": "bad"
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":false,\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": false
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type {}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":{},\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": {}
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "port type [443]",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":[443],\"target_port\":443,\"protocol\":\"TCP\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "log.sourceport": [
+        443
+      ]
+    },
+    "absent": [
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 1",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":1,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "ICMP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 6",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":\"6\",\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "TCP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 17",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":17,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "UDP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 47",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":47,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "GRE"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 50",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":50,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "ESP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 51",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":51,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "AH"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 58",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":58,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "ICMPV6"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "numeric protocol 132",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FirewallAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"source_address\":\"192.0.2.30\",\"target_address\":\"198.51.100.10\",\"source_port\":49152,\"target_port\":443,\"protocol\":132,\"action\":\"blocked\",\"account\":\"LAB\\\\svc\",\"process_name\":\"C:\\\\Windows\\\\service.exe\"}",
+    "expected": {
+      "protocol": "SCTP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "filtered website client and remote sides",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FilteredWebsites_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"target_address\":\"198.51.100.20\",\"object_uri\":\"https://malware.example.invalid/download\",\"hash\":\"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\",\"action_taken\":\"blocked\",\"username\":\"LAB\\\\user\",\"processname\":\"C:\\\\Browser\\\\browser.exe\"}",
+    "expected": {
+      "origin.ip": "192.0.2.30",
+      "origin.host": "endpoint.example.invalid",
+      "origin.user": "LAB\\user",
+      "origin.process": "browser.exe",
+      "target.ip": "198.51.100.20",
+      "target.url": "https://malware.example.invalid/download",
+      "target.sha1": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+      "actionResult": "denied",
+      "origin.path": "C:\\Browser\\"
+    },
+    "absent": [
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "HIPS actor and observed host",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"HipsAggregated_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"application\":\"C:\\\\Program Files\\\\Example\\\\actor.exe\",\"target\":\"C:\\\\Example\\\\object.exe\",\"action\":\"blocked\",\"handled\":true}",
+    "expected": {
+      "target.host": "endpoint.example.invalid",
+      "origin.process": "actor.exe",
+      "actionResult": "denied",
+      "origin.path": "C:\\Program Files\\Example\\"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Inspect hash describes alarm not file",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"EnterpriseInspectorAlert_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"hash\":\"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\",\"processname\":\"suspicious.exe\"}",
+    "expected": {
+      "log.hash": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "origin.process": "suspicious.exe"
+    },
+    "absent": [
+      "target.sha1",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Audit success explicit result",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Audit_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"domain\":\"Native user\",\"action\":\"Login attempt\",\"target\":\"Administrator\",\"user\":\"\",\"result\":\"Success\"}",
+    "expected": {
+      "target.user": "Administrator",
+      "actionResult": "success"
+    },
+    "absent": [
+      "origin.user"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Audit failed explicit result",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Audit_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"domain\":\"Native user\",\"action\":\"Login attempt\",\"target\":\"Administrator\",\"user\":\"operator\",\"result\":\"Failure\"}",
+    "expected": {
+      "target.user": "Administrator",
+      "origin.user": "operator",
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": [
+      "eset_console_abuse"
+    ]
+  },
+  {
+    "name": "Audit nonlogin target is not user",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Audit_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"domain\":\"Policy\",\"action\":\"Modified\",\"target\":\"Policy A\",\"result\":\"Success\"}",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [
+      "target.user"
+    ],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Information",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Information\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Information",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Notice",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Notice\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Notice",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Warning",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Warning",
+      "severity": "warning"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Error",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Error\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Error",
+      "severity": "error"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Critical",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Critical\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Critical",
+      "severity": "critical"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vendor severity Fatal",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Fatal\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "Fatal",
+      "severity": "critical"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "unknown severity retained",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"FutureValue\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.severity": "FutureValue"
+    },
+    "absent": [
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid standard strings True",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":true,\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":true,\"occurred\":\"17-Sep-2026 12:30:00\",\"username\":true,\"processname\":true,\"action_taken\":true}",
+    "expected": {
+      "log.hostname": true
+    },
+    "absent": [
+      "target.host",
+      "origin.user",
+      "origin.process",
+      "action",
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid standard strings 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":123,\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":123,\"occurred\":\"17-Sep-2026 12:30:00\",\"username\":123,\"processname\":123,\"action_taken\":123}",
+    "expected": {
+      "log.hostname": 123
+    },
+    "absent": [
+      "target.host",
+      "origin.user",
+      "origin.process",
+      "action",
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid standard strings []",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":[],\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":[],\"occurred\":\"17-Sep-2026 12:30:00\",\"username\":[],\"processname\":[],\"action_taken\":[]}",
+    "expected": {
+      "log.hostname": []
+    },
+    "absent": [
+      "target.host",
+      "origin.user",
+      "origin.process",
+      "action",
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid standard strings {}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":{},\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":{},\"occurred\":\"17-Sep-2026 12:30:00\",\"username\":{},\"processname\":{},\"action_taken\":{}}",
+    "expected": {
+      "log.hostname": {}
+    },
+    "absent": [
+      "target.host",
+      "origin.user",
+      "origin.process",
+      "action",
+      "severity"
+    ],
+    "matches": []
+  },
+  {
+    "name": "UTC timestamp occurred",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"29-Feb-2024 23:59:59\"}",
+    "expected": {
+      "deviceTime": "2024-02-29T23:59:59Z"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "UTC timestamp occured",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occured\":\"29-Feb-2024 23:59:59\"}",
+    "expected": {
+      "deviceTime": "2024-02-29T23:59:59Z"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time 31-Apr-2026 12:00:00",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"31-Apr-2026 12:00:00\"}",
+    "expected": {
+      "log.occurred": "31-Apr-2026 12:00:00"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time 29-Feb-2025 12:00:00",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"29-Feb-2025 12:00:00\"}",
+    "expected": {
+      "log.occurred": "29-Feb-2025 12:00:00"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time 29-Feb-1900 12:00:00",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"29-Feb-1900 12:00:00\"}",
+    "expected": {
+      "log.occurred": "29-Feb-1900 12:00:00"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time 17-Sep-2026 25:00:00",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 25:00:00\"}",
+    "expected": {
+      "log.occurred": "17-Sep-2026 25:00:00"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time bad",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"bad\"}",
+    "expected": {
+      "log.occurred": "bad"
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid calendar time 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":123}",
+    "expected": {
+      "log.occurred": 123
+    },
+    "absent": [
+      "deviceTime"
+    ],
+    "matches": []
+  },
+  {
+    "name": "endpoint identity fallback endpoint.example.invalid",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "endpoint.example.invalid"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint identity fallback 192.0.2.30",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "ip",
+      "log.endpointKey": "192.0.2.30"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint identity fallback 2001:db8::30",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"ipv6\":\"2001:db8::30\"}",
+    "expected": {
+      "log.endpointKeyType": "ip",
+      "log.endpointKey": "2001:db8::30"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "missing endpoint identity not relay fallback",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "Sep 17 12:30:05 manager.example.invalid ERAServer[5648]: {\"event_type\":\"Threat_Event\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "log.endpointKey",
+      "log.endpointKeyType",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "class alone never success Threat_Event",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"handled\":true,\"threat_handled\":true,\"result\":\"Success\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "class alone never success BlockedFiles_Event",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"BlockedFiles_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"handled\":true,\"threat_handled\":true,\"result\":\"Success\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "class alone never success FilteredWebsites_Event",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"FilteredWebsites_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"handled\":true,\"threat_handled\":true,\"result\":\"Success\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "class alone never success EnterpriseInspectorAlert_Event",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"EnterpriseInspectorAlert_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"handled\":true,\"threat_handled\":true,\"result\":\"Success\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "malformed JSON has explicit model error",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\":\"Threat_Event\",\"ipv4\":}",
+    "expected": {},
+    "absent": [],
+    "parseError": true,
+    "matches": []
+  },
+  {
+    "name": "preexisting standard deviceTime is preserved",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "absent": [
+      "log.esetOccurredTime"
+    ],
+    "ingress": {
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "matches": []
+  },
+  {
+    "name": "preexisting standard time with no vendor time",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\"}",
+    "expected": {
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "absent": [
+      "log.esetOccurredTime"
+    ],
+    "ingress": {
+      "deviceTime": "2026-09-17T12:00:00Z"
+    },
+    "matches": []
+  },
+  {
+    "name": "Threat standard malware fields",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"threat_name\": \"Synthetic.Filecoder.Test\", \"threat_type\": \"Trojan\"}",
+    "expected": {
+      "target.malware": "Synthetic.Filecoder.Test",
+      "target.malwareType": "Trojan"
+    },
+    "absent": [
+      "target.malwareFamily"
+    ],
+    "matches": [
+      "suspicious_encrypted_file_detection"
+    ]
+  },
+  {
+    "name": "Firewall bounded vulnerability identifier",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"threat_name\": \"CVE-2017-5638.Struts2\"}",
+    "expected": {
+      "target.cve": "CVE-2017-5638"
+    },
+    "absent": [
+      "target.malware"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Firewall unrelated threat name not vulnerability",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"threat_name\": \"Network attempt\"}",
+    "expected": {},
+    "absent": [
+      "target.cve",
+      "target.malware"
+    ],
+    "matches": []
+  },
+  {
+    "name": "HIPS absolute filesystem C:\\Example\\object.exe",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"target\": \"C:\\\\Example\\\\object.exe\"}",
+    "expected": {
+      "target.path": "C:\\Example\\",
+      "target.filename": "object.exe"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "HIPS absolute filesystem /opt/example/object",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"target\": \"/opt/example/object\"}",
+    "expected": {
+      "target.path": "/opt/example/",
+      "target.filename": "object"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Threat absolute file URI file:///C:/Example/object.exe",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"object_uri\": \"file:///C:/Example/object.exe\", \"object_type\": \"file\"}",
+    "expected": {
+      "target.path": "C:/Example/",
+      "target.filename": "object.exe"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Threat absolute file URI file:///opt/example/object",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"object_uri\": \"file:///opt/example/object\", \"object_type\": \"file\"}",
+    "expected": {
+      "target.path": "/opt/example/",
+      "target.filename": "object"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "nonfilesystem or encoded object remains vendor HKLM\\Software\\Example",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"target\": \"HKLM\\\\Software\\\\Example\"}",
+    "expected": {},
+    "absent": [
+      "target.path",
+      "target.filename"
+    ],
+    "matches": []
+  },
+  {
+    "name": "nonfilesystem or encoded object remains vendor file:///C:/Example/encoded%20name.exe",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"object_uri\": \"file:///C:/Example/encoded%20name.exe\"}",
+    "expected": {},
+    "absent": [
+      "target.path",
+      "target.filename"
+    ],
+    "matches": []
+  },
+  {
+    "name": "nonfilesystem or encoded object remains vendor relative/path.exe",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"object_uri\": \"relative/path.exe\"}",
+    "expected": {},
+    "absent": [
+      "target.path",
+      "target.filename"
+    ],
+    "matches": []
+  },
+  {
+    "name": "heuristic remediation positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.NewHeur\", \"action_taken\": \"Deleted\", \"threat_handled\": true}",
+    "expected": {
+      "log.correlationCandidate.heuristicRemediation": "match"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "advanced_heuristic_detection_triggers"
+    ]
+  },
+  {
+    "name": "heuristic remediation action error negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.NewHeur\", \"action_taken\": \"Deleted\", \"action_error\": \"Permission denied\"}",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate.heuristicRemediation"
+    ],
+    "matches": []
+  },
+  {
+    "name": "heuristic unhandled negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.NewHeur\", \"action_taken\": \"Deleted\", \"threat_handled\": false}",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate.heuristicRemediation"
+    ],
+    "matches": []
+  },
+  {
+    "name": "heuristic name in object filename negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"object_uri\": \"file:///C:/NewHeur.doc\", \"action_taken\": \"Deleted\"}",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate.heuristicRemediation"
+    ],
+    "matches": []
+  },
+  {
+    "name": "botnet outbound positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"inbound\": false, \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\"}",
+    "expected": {
+      "origin.ip": "192.0.2.30",
+      "target.ip": "198.51.100.40"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "botnet_communication_attempts"
+    ]
+  },
+  {
+    "name": "botnet inbound positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"inbound\": true, \"source_address\": \"198.51.100.40\", \"target_address\": \"192.0.2.30\"}",
+    "expected": {
+      "origin.ip": "198.51.100.40",
+      "target.ip": "192.0.2.30"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "botnet_inbound_communication_attempts"
+    ]
+  },
+  {
+    "name": "botnet unknown direction false",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\", \"inbound\": \"false\"}",
+    "expected": {},
+    "absent": [
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "botnet unknown direction true",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\", \"inbound\": \"true\"}",
+    "expected": {},
+    "absent": [
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "botnet unknown direction 1",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\", \"inbound\": 1}",
+    "expected": {},
+    "absent": [
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "botnet unknown direction {}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\", \"inbound\": {}}",
+    "expected": {},
+    "absent": [
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "botnet unknown direction None",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Botnet.CnC.Generic\", \"source_address\": \"192.0.2.30\", \"target_address\": \"198.51.100.40\"}",
+    "expected": {},
+    "absent": [
+      "origin.host",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "agent tamper Inspect positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"EnterpriseInspectorAlert_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"rulename\": \"ESET agent tamper protection\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "eset_agent_tampering"
+    ]
+  },
+  {
+    "name": "agent stopped message alone negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Audit_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"detail\": \"ESET agent stopped for maintenance\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quarantine failure positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"action_taken\": \"Quarantine\", \"action_error\": \"Unable to quarantine file\"}",
+    "expected": {
+      "actionResult": "failure",
+      "log.correlationCandidate.quarantineFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "eset_quarantine_failures"
+    ]
+  },
+  {
+    "name": "quarantine benign metadata negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"object_uri\": \"file:///C:/quarantine/failed.doc\", \"action_taken\": \"Deleted\"}",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate.quarantineFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "exploit explicit blocked positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Critical\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.Exploit.Test\", \"action_taken\": \"Blocked\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "exploit_detection_events"
+    ]
+  },
+  {
+    "name": "exploit detection only negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.Exploit.Test\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "machine learning positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"scanner_id\": \"Machine learning\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "machine_learning_detection_anomalies"
+    ]
+  },
+  {
+    "name": "machine learning filename negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"object_uri\": \"file:///C:/machine learning threat.doc\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "network attack blocked positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"event\": \"Security vulnerability exploitation attempt\", \"threat_name\": \"CVE-2017-5638.Struts2\", \"inbound\": true, \"source_address\": \"198.51.100.40\", \"target_address\": \"192.0.2.30\", \"action\": \"blocked\"}",
+    "expected": {
+      "target.cve": "CVE-2017-5638"
+    },
+    "absent": [],
+    "matches": [
+      "network_attack_detection",
+      "exploit_detection_events"
+    ]
+  },
+  {
+    "name": "network attack observed only negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"FirewallAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"event\": \"Security vulnerability exploitation attempt\", \"inbound\": true, \"source_address\": \"198.51.100.40\", \"target_address\": \"192.0.2.30\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "registry HIPS blocked positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"operation\": \"Registry modification\", \"target\": \"HKLM\\\\Software\\\\Synthetic\", \"action\": \"blocked\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "registry_modification_attempts_blocked"
+    ]
+  },
+  {
+    "name": "registry benign audit negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Audit_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Critical\", \"occurred\": \"17-Sep-2026 12:30:00\", \"action\": \"blocked\", \"detail\": \"registry change report\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "HIPS information severity negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Information\", \"occurred\": \"17-Sep-2026 12:30:00\", \"operation\": \"File operation\", \"action\": \"blocked\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ransomware detection positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.Filecoder.Test\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_encrypted_file_detection"
+    ]
+  },
+  {
+    "name": "encrypted filename alone negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"object_uri\": \"file:///C:/archive.encrypted\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "PowerShell blocked positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"processname\": \"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\", \"action_taken\": \"blocked\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_powershell_activity_blocked"
+    ]
+  },
+  {
+    "name": "PowerShell only message negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"circumstances\": \"powershell blocked example\", \"action_taken\": \"blocked\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "suspicious process Inspect positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"EnterpriseInspectorAlert_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"rulename\": \"Process injection detected\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "suspicious_process_behavior"
+    ]
+  },
+  {
+    "name": "suspicious process benign path negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"EnterpriseInspectorAlert_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"processname\": \"C:\\\\Process injection\\\\example.exe\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "routine successful console policy edit negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Audit_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"domain\": \"Policy\", \"action\": \"Modified\", \"detail\": \"Policy modified by administrator\", \"result\": \"Success\"}",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate.consoleAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID falls back to hostname 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": 123, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "endpoint.example.invalid",
+      "log.sourceuuid": 123
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID and hostname cannot create identity 123",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": 123, \"source_uuid\": 123, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "log.endpointKey",
+      "log.endpointKeyType",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID falls back to hostname {}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": {}, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "endpoint.example.invalid",
+      "log.sourceuuid": {}
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID and hostname cannot create identity {}",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": {}, \"source_uuid\": {}, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "log.endpointKey",
+      "log.endpointKeyType",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID falls back to hostname []",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": [], \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "endpoint.example.invalid",
+      "log.sourceuuid": []
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID and hostname cannot create identity []",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": [], \"source_uuid\": [], \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "log.endpointKey",
+      "log.endpointKeyType",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID falls back to hostname False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": false, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {
+      "log.endpointKeyType": "host",
+      "log.endpointKey": "endpoint.example.invalid",
+      "log.sourceuuid": false
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "invalid UUID and hostname cannot create identity False",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": false, \"source_uuid\": false, \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\"}",
+    "expected": {},
+    "absent": [
+      "log.endpointKey",
+      "log.endpointKeyType",
+      "target.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "HIPS suspicious object blocked positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"severity\": \"Critical\", \"action\": \"blocked\", \"operation\": \"Attempt to run a suspicious object\"}",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "host_intrusion_prevention_triggers",
+      "suspicious_process_behavior"
+    ]
+  },
+  {
+    "name": "HIPS ordinary policy block negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"HipsAggregated_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"severity\": \"Critical\", \"action\": \"blocked\", \"operation\": \"File operation\", \"rule_name\": \"Ordinary file policy\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "unrelated backup agent disabled Inspect negative",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"EnterpriseInspectorAlert_Event\", \"hostname\": \"endpoint.example.invalid\", \"ipv4\": \"192.0.2.30\", \"source_uuid\": \"synthetic-endpoint-1\", \"severity\": \"Critical\", \"action\": \"blocked\", \"rulename\": \"backup agent disabled\"}",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "file URI suffix stays vendor file:///tmp/sample.exe?query=1",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"object_uri\": \"file:///tmp/sample.exe?query=1\"}",
+    "expected": {
+      "log.objecturi": "file:///tmp/sample.exe?query=1"
+    },
+    "absent": [
+      "target.path",
+      "target.filename"
+    ],
+    "matches": []
+  },
+  {
+    "name": "file URI suffix stays vendor file:///tmp/sample.exe#fragment",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"object_uri\": \"file:///tmp/sample.exe#fragment\"}",
+    "expected": {
+      "log.objecturi": "file:///tmp/sample.exe#fragment"
+    },
+    "absent": [
+      "target.path",
+      "target.filename"
+    ],
+    "matches": []
+  },
+  {
+    "name": "absolute Unix process directory",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Threat_Event\", \"hostname\": \"endpoint.example.invalid\", \"processname\": \"/usr/local/bin/worker\"}",
+    "expected": {
+      "origin.process": "worker",
+      "origin.path": "/usr/local/bin/"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "Audit Denied authentication positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Audit_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"domain\": \"Native user\", \"action\": \"Login attempt\", \"target\": \"Administrator\", \"user\": \"operator\", \"result\": \"Denied\"}",
+    "expected": {
+      "target.user": "Administrator",
+      "origin.user": "operator",
+      "actionResult": "denied",
+      "log.correlationCandidate.consoleAuthenticationFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "eset_console_abuse"
+    ]
+  },
+  {
+    "name": "Audit Rejected authentication positive",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"event_type\": \"Audit_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"domain\": \"Native user\", \"action\": \"Login attempt\", \"target\": \"Administrator\", \"user\": \"operator\", \"result\": \"Rejected\"}",
+    "expected": {
+      "target.user": "Administrator",
+      "origin.user": "operator",
+      "actionResult": "denied",
+      "log.correlationCandidate.consoleAuthenticationFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "eset_console_abuse"
+    ]
+  }
+]

@@ -1,22 +1,21 @@
-# Rule version v1.0.0
-
+# Rule version v1.1.0
 dataTypes:
-  - antivirus-kaspersky
+- antivirus-kaspersky
 name: Kaspersky Suspicious Network Activity Detection
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
 category: Command and Control
-technique: "T1071 - Application Layer Protocol"
+technique: T1071 - Application Layer Protocol
 adversary: origin
 references:
-  - https://support.kaspersky.com/kwts/6.1/267200
-  - https://attack.mitre.org/techniques/T1071/
-  - https://attack.mitre.org/techniques/T1043/
+- https://support.kaspersky.com/kwts/6.1/267200
+- https://attack.mitre.org/techniques/T1071/
+- https://attack.mitre.org/techniques/T1043/
 description: |
   Detects suspicious network activities including unusual connections, potential C2 communications, or network-based attacks identified by Kaspersky security monitoring. This rule triggers when Kaspersky blocks network connections that match suspicious patterns and multiple similar events occur from the same host.
-  
+
   Next Steps:
   1. Review the source and destination IP addresses for known malicious indicators using threat intelligence feeds
   2. Check if the blocked connection was attempting to reach known C2 servers or suspicious domains
@@ -28,25 +27,36 @@ description: |
   8. Run a full system scan on the affected host and check for persistence mechanisms
   9. Review network traffic logs for data exfiltration attempts to the same destination
   10. Document the incident and update block lists with confirmed malicious IPs/domains
+
+  History counts only matching CEF candidates from the same collector and source identity.
 where: |
-  exists("log.signatureID") &&
+  equals("log.format","cef") && (exists("log.signatureID") &&
   (contains("log.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
    contains("log.msg", "network") ||
    contains("log.cs1", "NETWORK") ||
    contains("log.cs2", "Net-Worm") ||
    contains("log.cs4", "Net-Worm") ||
-   (exists("log.target.ip") && exists("log.dpt"))) &&
-  equals("action", "Blocked")
-afterEvents:
-  - indexPattern: v11-log-antivirus-kaspersky-*
-    with:
-      - field: log.src
-        operator: filter_term
-        value: '{{.log.src}}'
-      - field: log.dstIP
-        operator: filter_term
-        value: '{{.log.dstIP}}'
-    within: 30m
-    count: 5
+   (exists("target.ip") && exists("log.dpt"))) &&
+  equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
 groupBy:
-  - target.ip
+- target.ip
+correlation:
+- indexPattern: v11-log-antivirus-kaspersky-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.endpointKeyType
+    operator: filter_term
+    value: '{{.log.endpointKeyType}}'
+  - field: log.endpointKey
+    operator: filter_term
+    value: '{{.log.endpointKey}}'
+  - field: log.correlationCandidate.suspicious_network_activity
+    operator: filter_term
+    value: match
+  - field: target.ip
+    operator: filter_term
+    value: '{{.target.ip}}'
+  within: 30m
+  count: 5

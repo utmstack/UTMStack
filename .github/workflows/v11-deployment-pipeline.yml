@@ -405,7 +405,7 @@ jobs:
           provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
-            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
+            BASE_IMAGE=ghcr.io/utmstack/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
 
   build_backend:
     name: Build Backend Microservice
@@ -526,7 +526,8 @@ jobs:
           ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
           TAG: ${{ needs.setup_deployment.outputs.tag }}
           CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
-          SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
+          SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
+          SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
         run: |
           # Use AI changelog for production releases, generic for dev.
           if [ "$ENVIRONMENT" != "dev" ] && [ -n "$CHANGELOG_CONTENT" ]; then
@@ -547,10 +548,16 @@ jobs:
           id=$(echo "$cmAuth" | jq -r '.id')
           key=$(echo "$cmAuth" | jq -r '.key')
 
-          # CM-dev already has the products schema (same as v12). CM-prod
-          # doesn't yet, so production keeps registering one version with no
-          # product_id, exactly as before -- only dev goes through the
-          # per-product loop.
+          # Both CM-dev and CM-prod use the products schema. The register loop
+          # (dev) needs the per-product instance var to know which product
+          # UUIDs to register against; prod registers once without product_id
+          # and CM auto-assigns the owning product.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_DEV"
+          else
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_PROD"
+          fi
+
           if [ "$ENVIRONMENT" = "dev" ]; then
             if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
               echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
@@ -601,7 +608,8 @@ jobs:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
       TAG: ${{ needs.setup_deployment.outputs.tag }}
       CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
-      SCHEDULE_INSTANCES: ${{ vars.SCHEDULE_INSTANCES }}
+      SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
+      SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
       CM_AUTH_DEV: ${{ secrets.CM_SERVICE_ACCOUNT_DEV }}
       CM_AUTH_PROD: ${{ secrets.CM_SERVICE_ACCOUNT_PROD }}
     steps:
@@ -621,52 +629,30 @@ jobs:
 
           scheduled=0
 
-          # CM-dev has the products schema (same as v12). CM-prod doesn't
-          # yet, so production keeps scheduling against the flat instance
-          # list with no product_id, exactly as before -- only dev goes
-          # through the per-product loop.
+          # Both CM-dev and CM-prod use the products schema, so both
+          # environments schedule per product. SCHEDULE_INSTANCES is a JSON
+          # object mapping product UUID -> list of instance UUIDs; select the
+          # env-specific variable.
           if [ "$ENVIRONMENT" = "dev" ]; then
-            if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
-              echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
-              exit 1
-            fi
-
-            for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
-              for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
-                echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
-
-                response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
-                  -H "Content-Type: application/json" \
-                  -H "id: $auth_id" \
-                  -H "key: $auth_key" \
-                  -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\", \"product_id\": \"$product_id\"}")
-
-                http_code=$(echo "$response" | tail -n1)
-                body=$(echo "$response" | sed '$d')
-
-                if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-                  echo "✅ Successfully scheduled for instance: $instance_id"
-                  scheduled=$((scheduled + 1))
-                else
-                  echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
-                  echo "Response: $body"
-                  exit 1
-                fi
-              done
-            done
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_DEV"
           else
-            IFS=',' read -ra ID_ARRAY <<< "$SCHEDULE_INSTANCES"
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_PROD"
+          fi
 
-            for instance_id in "${ID_ARRAY[@]}"; do
-              instance_id=$(echo "$instance_id" | xargs)
+          if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+            echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+            exit 1
+          fi
 
-              echo "📅 Scheduling release for instance: $instance_id"
+          for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+            for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
+              echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
 
               response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
                 -H "Content-Type: application/json" \
                 -H "id: $auth_id" \
                 -H "key: $auth_key" \
-                -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
+                -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\", \"product_id\": \"$product_id\"}")
 
               http_code=$(echo "$response" | tail -n1)
               body=$(echo "$response" | sed '$d')
@@ -680,7 +666,7 @@ jobs:
                 exit 1
               fi
             done
-          fi
+          done
 
           if [ "$scheduled" -eq 0 ]; then
             echo "❌ No instances were scheduled — check SCHEDULE_INSTANCES for this environment"

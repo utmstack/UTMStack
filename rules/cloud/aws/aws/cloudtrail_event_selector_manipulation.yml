@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS CloudTrail Event Selector Manipulation
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Defense Evasion
-technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+technique: 'T1562.008 - Impair Defenses: Disable Cloud Logs'
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html
-  - https://attack.mitre.org/techniques/T1562/008/
+- https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html
+- https://attack.mitre.org/techniques/T1562/008/
 description: |
   Detects manipulation of CloudTrail event selectors which can be used to selectively exclude data events from logging. Attackers may use PutEventSelectors to disable logging of S3, Lambda, or DynamoDB data events to hide their data exfiltration or manipulation activities.
 
@@ -26,9 +25,13 @@ description: |
   7. Implement SCPs to prevent modification of CloudTrail event selectors
   8. Enable AWS Config rules to monitor CloudTrail configuration compliance
 where: |
-  equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
   oneOf("log.eventName", ["PutEventSelectors", "PutInsightSelectors"]) &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.trailName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.trailName

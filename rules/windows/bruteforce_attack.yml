@@ -13,25 +13,41 @@ description: "This rule is triggered when a pattern of repeated and rapid login 
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
-where: equals("log.eventCode", 4625)
+where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+  (
+  equals("log.eventCode", 4625)
+  )
 afterEvents:
-    - indexPattern: v11-log-wineventlog-*
-      with:
-        - field: log.eventCode
-          operator: filter_term
-          value: "{{.log.eventCode}}"
-        - field: target.user.keyword
-          operator: filter_term
-          value: "{{.target.user}}"
-        - field: origin.host.keyword
-          operator: filter_term
-          value: "{{.origin.host}}"
-        - field: origin.ip.keyword
-          operator: filter_term
-          value: "{{.origin.ip}}"
-      within: 5m
-      count: 10
+  - indexPattern: v11-log-wineventlog-*
+    with:
+      - field: dataSource.keyword
+        operator: filter_term
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationSourceType.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceType}}'
+      - field: log.authenticationSourceDomain.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceDomain}}'
+      - field: log.authenticationCandidate.bruteforceAttack.keyword
+        operator: filter_term
+        value: match
+      - field: log.eventCode
+        operator: filter_term
+        value: '{{.log.eventCode}}'
+      - field: target.user.keyword
+        operator: filter_term
+        value: '{{.target.user}}'
+    within: 5m
+    count: 10
 deduplicateBy:
-  - origin.host
+  - dataSource
+  - lastEvent.log.authenticationSourceType
+  - lastEvent.log.authenticationSource
+  - lastEvent.log.authenticationSourceDomain
   - target.user
-  - origin.ip

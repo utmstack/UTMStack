@@ -11,11 +11,11 @@ category: Execution
 technique: "T1204.002 - User Execution: Malicious File"
 adversary: origin
 references:
-  - https://help.eset.com/protect_admin/11.0/en-US/events-exported-to-json-format.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1204/002/
 description: |
-  Identifies threats detected by ESET's machine learning engine that analyzes file behavior patterns and characteristics to identify previously unknown malware variants. Machine learning detection indicates advanced malware that may evade signature-based detection methods.
-  
+  Detects antivirus detections that explicitly identify machine learning in the structured detection type, detection name, or scanner identity. ESET does not publish an exhaustive value vocabulary for these fields; the retained label heuristic does not claim coverage of every engine/version.
+
   Next Steps:
   - Immediately investigate the affected host for signs of compromise
   - Review the threat details in the log message to understand the malware type and behavior
@@ -27,10 +27,15 @@ description: |
   - Update security policies to prevent similar threats
   - Check for any data exfiltration or lateral movement attempts from the affected host
 where: |
-  contains("log.message", "machine learning") &&
-  contains("log.message", ["threat", "detected", "found"]) &&
-  exists("log.msgType") &&
-  exists("log.headHostname")
+  (equals("log.eventType", "Threat_Event") &&
+  (regexMatch("log.threatname", "(?i)machine[ -]learning") ||
+   regexMatch("log.threattype", "(?i)machine[ -]learning") ||
+   regexMatch("log.scannerid", "(?i)machine[ -]learning"))) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.headHostname
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.threatname

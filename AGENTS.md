@@ -160,6 +160,24 @@ Images published to `ghcr.io/utmstack/utmstack/<image>:<tag>`.
 - Plugin/filerule/rule documentation: [UTMStack Wiki](https://github.com/utmstack/UTMStack/wiki)
 - Custom plugin development guide: `UTMStack.wiki/Custom-Plugin-Development.md`
 
+## Event Processor Plugin Categories & Config (things that bite often)
+
+The event processor loads plugin binaries from `/workdir/plugins/utmstack/`. There are two registration regimes — mixing them up is a classic trap:
+
+| Category | Examples | How it runs |
+|---|---|---|
+| **Input plugins** (vendor collectors) | `com.utmstack.aws`, `com.utmstack.azure`, `com.utmstack.o365`, `com.utmstack.crowdstrike`, `com.utmstack.gcp`, `com.utmstack.sophos`, `com.utmstack.bitdefender` | **Execute because they exist.** No execution order, no registration anywhere. Adding/removing them from any `order` list does nothing. |
+| **Analysis / correlation / notification plugins** | `com.utmstack.events`, `cel`, `com.utmstack.feeds`, `com.utmstack.alerts`, … | Must be listed in `plugins.<category>.order` in `/workdir/pipeline/system_plugins_analysis.yaml`, `system_plugins_correlation.yaml`, `system_plugins_notification.yaml` respectively. **Missing from the list = never runs, silently.** |
+
+Do not "enable" an input plugin by editing an order list, and do not debug a dead analysis plugin by looking for a config file it never had.
+
+**Vendor input plugin config** — each vendor plugin reads its own file `/workdir/pipeline/system_plugins_<vendor>.yaml` (e.g. `com.utmstack.aws` reads `system_plugins_aws.yaml`; structure `plugins: <vendor>: tenants: [{id, groups: [{name, config: {...}}]}]` — see each plugin's `config.go` `pluginFile` const). The file is generated from Postgres `utm_module` / `utm_module_group` / `utm_module_group_configuration` tables (modules-config path; `utmstack_plugins.yaml` points at the service via `modulesConfig`). Gotchas:
+
+- **`com.utmstack.aws` is a UTMStack vendor plugin, NOT a system plugin.** `utmstack_plugins.yaml` only holds the shared `com.utmstack` base config (opensearch, postgresql, internalKey, certsFolder, …) — vendor collectors are not in it.
+- **Missing `system_plugins_<vendor>.yaml` = plugin idles** (`ModuleActive=false`) even when the module group is configured and active in the UI. Check the file on the worker container before debugging credentials.
+- **Module-group secrets are encrypted at rest.** Values in a plugin's `sensitiveKeys` (e.g. `aws_secret_access_key`) are encrypted in Postgres and decrypted with the `com.utmstack` base config `encryptionKey`. Without that key the plugin fails to decrypt and cannot authenticate. Symptom: the raw stored value tested outside the plugin gives `SignatureDoesNotMatch` — it's a ciphertext, not the real secret.
+- **`plugins/modules-config/` in this repo contains only the built `.plugin` binary** — there is no Go source to read; the generator logic only exists in the binary.
+
 ## Gotchas
 
 - **ldflags are mandatory** for `agent`, `utmstack-collector`, and `as400` — `REPLACE_KEY` is injected at build time. Without it, services cannot authenticate.

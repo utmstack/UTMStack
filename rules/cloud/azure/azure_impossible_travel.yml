@@ -1,32 +1,51 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
+- azure
 name: Azure AD Impossible Travel Sign-In
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Initial Access
-technique: "T1078 - Valid Accounts"
+technique: T1078 - Valid Accounts
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
-  - https://attack.mitre.org/techniques/T1078/
-description: |
-  Detects Azure Identity Protection impossible travel alerts where a user signs in from geographically distant locations in a timeframe that makes physical travel impossible. This strongly indicates credential theft or session hijacking.
+- https://learn.microsoft.com/en-us/graph/api/resources/riskdetection?view=graph-rest-1.0
+- https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
+- https://attack.mitre.org/techniques/T1078/
+description: 'Detects Azure Identity Protection impossible travel alerts where a user signs in from geographically distant locations
+  in a timeframe that makes physical travel impossible. This strongly indicates credential theft or session hijacking.
+
 
   Next Steps:
+
   1. Contact the user to verify both sign-in locations
+
   2. Check if a VPN or proxy could explain the geolocation discrepancy
+
   3. Review the sign-in details (device, browser, app) for both locations
+
   4. If unauthorized, force password reset and revoke all sessions
+
   5. Review data access and actions from the suspicious location
+
   6. Enable location-based conditional access policies
+
   7. Check for other users with similar patterns from the same locations
-where: |
-  contains("log.operationName", "Impossible Travel") ||
-  (contains("log.properties", "riskEventType") && contains("log.properties", "impossibleTravel"))
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","risk") && oneOf("log.properties.riskEventType",["impossibleTravel", "unlikelyTravel"])
+  && !oneOf("log.properties.riskState",["dismissed", "remediated", "confirmedSafe"])) || (equalsIgnoreCase("log.azureKind","signin")
+  && (exists("log.properties.riskEventTypes_v2.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypes_v2.#(==\"unlikelyTravel\")")
+  || exists("log.properties.riskEventTypesv2.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypesv2.#(==\"unlikelyTravel\")")
+  || exists("log.properties.riskEventTypes.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypes.#(==\"unlikelyTravel\")"))
+  && !oneOf("log.properties.riskState",["dismissed", "remediated", "confirmedSafe"]))
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

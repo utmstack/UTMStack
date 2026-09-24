@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
 	"crypto/tls"
 	"fmt"
 	"strings"
@@ -207,7 +208,13 @@ func (auth *LogAuthService) refreshOnMiss(typ string) bool {
 }
 
 func (auth *LogAuthService) IsConnectionKeyValid(connectionKey string) bool {
-	return auth.ConnectionKeyCache == connectionKey
+	auth.Mutex.Lock()
+	cached := auth.ConnectionKeyCache
+	auth.Mutex.Unlock()
+
+	// Constant-time compare: a short-circuiting == leaks key prefix length
+	// to a caller that can measure responses (CWE-208).
+	return subtle.ConstantTimeCompare([]byte(cached), []byte(connectionKey)) == 1
 }
 
 func (auth *LogAuthService) GetConnectionKey() string {

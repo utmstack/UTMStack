@@ -11,17 +11,17 @@ category: Defense Evasion, Privilege Escalation
 technique: "T1055 - Process Injection"
 adversary: origin
 references:
-  - https://help.eset.com/ees/12/en-US/idh_dialog_epfw_ids_alert.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1055/
 description: |
-  Detects suspicious process behaviors including injection attempts, privilege escalation, and abnormal process creation patterns identified by ESET's behavioral monitoring. This alert indicates potential malware activity or exploitation attempts on the affected system.
-  
+  Detects HIPS operations or ESET Inspect rules that explicitly identify process injection, suspicious objects/behavior, or anomalous processes. Generic blocked, terminated, or prevented action text alone does not establish one of these behaviors.
+
   Next Steps:
   1. Immediately review the alert details to identify:
-     - Affected hostname (check log.headHostname)
-     - Specific threat or behavior detected (check log.jsonMessage)
+     - Affected hostname (check target.host)
+     - Specific threat or behavior detected (check the structured operation and rule name)
      - Process name and path if available
-     - Time of detection (check log.deviceTime)
+     - Time of detection (check deviceTime)
   2. Investigate the process that triggered the alert:
      - Verify if it's a legitimate application or unknown/suspicious
      - Check process creation chain and parent-child relationships
@@ -43,10 +43,13 @@ description: |
      - Ensure ESET real-time protection is enabled
      - Consider implementing application whitelisting
 where: |
-  oneOf("log.msgType", ["EnterpriseInspectorAlert_Event", "HIPS_Event"]) &&
-  exists("log.jsonMessage") &&
-  contains("log.jsonMessage", ["Process injection", "Suspicious behavior",
-    "Anomalous process", "blocked", "terminated", "prevented"])
+  ((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && (regexMatch("log.operation", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)") || regexMatch("log.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) ||
+  (equals("log.eventType", "EnterpriseInspectorAlert_Event") && regexMatch("log.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.headHostname
-  - lastEvent.log.msgType
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.eventType

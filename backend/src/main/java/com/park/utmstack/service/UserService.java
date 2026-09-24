@@ -180,6 +180,8 @@ public class UserService {
 
             if (!Objects.isNull(user.getId())) {
                 user.setPassword(passwordEncoder.encode(password));
+                if (user.getAuthorities().stream().noneMatch(a -> a.getName().equals(AuthoritiesConstants.ADMIN)))
+                    user.getAuthorities().add(authorityRepository.findById(AuthoritiesConstants.ADMIN).orElseThrow());
             } else {
                 user.setLogin(Constants.FS_USER);
                 user.setFirstName("Federation");
@@ -188,7 +190,7 @@ public class UserService {
                 user.setLangKey(Constants.DEFAULT_LANGUAGE);
                 user.setPassword(passwordEncoder.encode(password));
                 user.setActivated(true);
-                Set<Authority> authorities = Stream.of(AuthoritiesConstants.USER).map(authorityRepository::findById).filter(
+                Set<Authority> authorities = Stream.of(AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN).map(authorityRepository::findById).filter(
                     Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
                 user.setAuthorities(authorities);
                 user.setFsManager(true);

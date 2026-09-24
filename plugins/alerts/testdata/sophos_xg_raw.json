@@ -1,0 +1,810 @@
+[
+  {
+    "name": "denied-firewall",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "198.51.100.10",
+      "target.ip": "192.0.2.10",
+      "origin.port": 12345,
+      "target.port": 443,
+      "deviceTime": "2026-08-02T10:11:12-03:00",
+      "severity": "info"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "deny-subtype-Drop",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Drop\" status=\"\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\" status_code=\"200\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 200
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "deny-subtype-Dropped",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Dropped\" status=\"\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\" status_code=\"200\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 200
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "deny-subtype-Blocked",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Blocked\" status=\"\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\" status_code=\"200\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 200
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "deny-subtype-Denied",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\" status_code=\"200\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 200
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-200",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"200\"",
+    "expected": {
+      "actionResult": "success",
+      "statusCode": 200
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-302",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"302\"",
+    "expected": {
+      "actionResult": "success",
+      "statusCode": 302
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-401",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"401\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 401
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-403",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"403\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 403
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-404",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"404\"",
+    "expected": {
+      "actionResult": "failure",
+      "statusCode": 404
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "http-500",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"500\"",
+    "expected": {
+      "actionResult": "failure",
+      "statusCode": 500
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "waf-no-subtype",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.20\" localip=\"192.0.2.20\" server=\"web.example.test\" url=\"/login\" httpstatus=\"200\" reason=\"-\" bytessent=\"900\" bytesrcv=\"100\" ws_protocol=\"HTTP/1.1\" method=\"POST\"",
+    "expected": {
+      "log.type": "WAF",
+      "log.component": "Web Application Firewall",
+      "origin.ip": "198.51.100.20",
+      "target.ip": "192.0.2.20",
+      "target.host": "web.example.test",
+      "statusCode": 200,
+      "actionResult": "success",
+      "origin.bytesReceived": 900,
+      "origin.bytesSent": 100,
+      "protocol": "HTTP/1.1",
+      "action": "POST"
+    },
+    "absent": [
+      "target.url"
+    ],
+    "matches": []
+  },
+  {
+    "name": "waf-denied-block-page",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.20\" localip=\"-\" httpstatus=\"200\" reason=\"waf\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "smtp-rejection-wins",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Anti-Spam\" log_component=\"SMTP\" log_subtype=\"Allowed\" spamaction=\"REJECTED\" from_email_address=\"sender@example.test\" to_email_address=\"recipient@example.test\" email_subject=\"Quarterly report\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.email": "sender@example.test",
+      "target.email": "recipient@example.test",
+      "target.emailSubject": "Quarterly report"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "allowed-is-not-established",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Allowed\" status=\"Allow\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [
+      "connectionStatus"
+    ],
+    "matches": []
+  },
+  {
+    "name": "vpn-established",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"SSL VPN\" log_subtype=\"System\" ipaddress=\"192.0.2.1\" remote_ip=\"192.0.2.2\" status=\"Established\"",
+    "expected": {
+      "origin.ip": "192.0.2.1",
+      "target.ip": "192.0.2.2",
+      "actionResult": "success",
+      "connectionStatus": "established"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "vpn-terminated",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"SSL VPN\" log_subtype=\"System\" status=\"Terminated\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip-hostname.example",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"hostname.example\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip--",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"-\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip-0.0.0.0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"0.0.0.0\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip-::",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"::\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip-0:0:0:0:0:0:0:0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"0:0:0:0:0:0:0:0\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-src_ip-::ffff:0.0.0.0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"::ffff:0.0.0.0\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip-hostname.example",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"hostname.example\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip--",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"-\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip-0.0.0.0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"0.0.0.0\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip-::",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"::\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip-0:0:0:0:0:0:0:0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"0:0:0:0:0:0:0:0\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-dst_ip-::ffff:0.0.0.0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"::ffff:0.0.0.0\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-port--1",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"-1\" dst_port=\"-1\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-port-1.5",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"1.5\" dst_port=\"1.5\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-port-65536",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"65536\" dst_port=\"65536\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-port-invalid",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"invalid\" dst_port=\"invalid\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-port-",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"\" dst_port=\"\" priority=\"Information\"",
+    "expected": {},
+    "absent": [
+      "origin.port",
+      "target.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-http--1",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status_code=\"-1\"",
+    "expected": {},
+    "absent": [
+      "statusCode",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-http-1.5",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status_code=\"1.5\"",
+    "expected": {},
+    "absent": [
+      "statusCode",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-http-4294967296",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status_code=\"4294967296\"",
+    "expected": {},
+    "absent": [
+      "statusCode",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-http-NaN",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status_code=\"NaN\"",
+    "expected": {},
+    "absent": [
+      "statusCode",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "bad-http-0",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status_code=\"0\"",
+    "expected": {},
+    "absent": [
+      "statusCode",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted-text-is-not-fields",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" message=\"x src_ip=198.51.100.99 status=Allow log_type=ATP log_component=Firewall log_subtype=Drop threatname=evil\"",
+    "expected": {
+      "log.type": "Event",
+      "log.logMessage": "x src_ip=198.51.100.99 status=Allow log_type=ATP log_component=Firewall log_subtype=Drop threatname=evil"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult",
+      "log.component",
+      "log.subType",
+      "log.threatname"
+    ],
+    "matches": []
+  },
+  {
+    "name": "fields-reordered-with-final-key",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status=\"Deny\" log_component=\"Invalid Traffic\" src_ip=\"2001:db8::1\" log_subtype=\"Denied\" log_type=\"Firewall\" dst_ip=\"2001:db8::2\"",
+    "expected": {
+      "log.type": "Firewall",
+      "origin.ip": "2001:db8::1",
+      "target.ip": "2001:db8::2",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "envelope-0",
+    "dataSource": "collector-A",
+    "raw": "device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "198.51.100.10"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "envelope-33",
+    "dataSource": "collector-A",
+    "raw": "Oct 18 04:46:59 firewall.example device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "198.51.100.10"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "envelope-54",
+    "dataSource": "collector-A",
+    "raw": "<30>1 2026-08-02T10:11:12Z firewall.example app 7 - - device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "198.51.100.10"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "new-iso-timestamp",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" timestamp=\"2026-08-02T10:11:12-0400\" log_type=\"Firewall\" log_subtype=\"Drop\"",
+    "expected": {
+      "deviceTime": "2026-08-02T10:11:12-04:00",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "packet-counters-and-protocol",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"Firewall Rule\" log_subtype=\"Denied\" status=\"Deny\" src_ip=\"198.51.100.10\" dst_ip=\"192.0.2.10\" src_port=\"12345\" dst_port=\"443\" priority=\"Information\" sent_pkts=\"42\" recv_pkts=\"7\" sent_bytes=\"120\" recv_bytes=\"60\" protocol=\"6\"",
+    "expected": {
+      "origin.packagesSent": "42",
+      "origin.packagesReceived": "7",
+      "origin.bytesSent": 120,
+      "origin.bytesReceived": 60,
+      "protocol": "TCP"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "positive-advanced_threat_protection_alerts",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"ATP\" log_component=\"Firewall\" log_subtype=\"Alert\" threatname=\"C2/Test\" sourceip=\"198.51.100.4\" destinationip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "advanced_threat_protection_alerts"
+    ]
+  },
+  {
+    "name": "positive-sophos_denial_of_service",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"DoS attacks\" log_subtype=\"DoS\" src_ip=\"198.51.100.4\" dst_ip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_denial_of_service"
+    ]
+  },
+  {
+    "name": "positive-sophos_firewall_probable_malware_detected",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Anti-Virus\" log_component=\"HTTPS\" log_subtype=\"Virus\" virus=\"Test-Malware\" src_ip=\"198.51.100.4\" dst_ip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_firewall_probable_malware_detected"
+    ]
+  },
+  {
+    "name": "positive-sophos_high_severity_alerts",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"Appliance\" priority=\"Critical\" message=\"Critical device event\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_high_severity_alerts"
+    ]
+  },
+  {
+    "name": "positive-sophos_initial_access_by_guest_account",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"Guest User\" log_id=\"060011517925\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_initial_access_by_guest_account"
+    ]
+  },
+  {
+    "name": "positive-sophos_ip_spoofing_attack",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Firewall\" log_component=\"IP Spoof\" log_subtype=\"Denied\" src_ip=\"198.51.100.4\" dst_ip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_ip_spoofing_attack"
+    ]
+  },
+  {
+    "name": "positive-sophos_password_guessing_on_administrator_account",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" log_id=\"062009517507\" status=\"Failed\" src_ip=\"198.51.100.4\" user_name=\"admin\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_password_guessing_on_administrator_account"
+    ]
+  },
+  {
+    "name": "positive-sophos_xg_ips_signatures",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"IDP\" log_component=\"Signatures\" log_subtype=\"Drop\" rule_priority=\"1\" src_ip=\"198.51.100.4\" dst_ip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_xg_ips_signatures"
+    ]
+  },
+  {
+    "name": "positive-sophos_xg_vpn_auth_failures",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"SSL VPN Authentication\" log_subtype=\"Authentication\" status=\"Failed\" src_ip=\"198.51.100.4\" user_name=\"alice\"",
+    "expected": {},
+    "absent": [],
+    "matches": [
+      "sophos_xg_vpn_auth_failures"
+    ]
+  },
+  {
+    "name": "successful-vpn-is-not-failure",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"SSL VPN Authentication\" log_subtype=\"Authentication\" status=\"Successful\" src_ip=\"198.51.100.4\" user_name=\"alice\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "generic-IKE-error-is-not-login",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"IPSec\" log_subtype=\"System\" status=\"Failed\" src_ip=\"198.51.100.4\" message=\"Could not parse IKE header\"",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "routine-admin-change-is-not-password-guess",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" log_id=\"062009517502\" status=\"Failed\" src_ip=\"198.51.100.4\" user_name=\"admin\"",
+    "expected": {
+      "actionResult": "failure"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "successful-admin-login",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" log_id=\"062009517507\" status=\"Successful\" src_ip=\"198.51.100.4\" user_name=\"admin\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ATP-system-update-is-not-threat",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"ATP\" log_subtype=\"System\" status=\"Successful\" src_ip=\"198.51.100.4\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "low-priority-IPS-does-not-trigger-high-threshold",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"IDP\" log_component=\"Signatures\" log_subtype=\"Drop\" rule_priority=\"5\" src_ip=\"198.51.100.4\" dst_ip=\"192.0.2.4\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "forged-history-marker",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" correlationCandidate.sophosXG.vpnFailure=\"match\"",
+    "expected": {},
+    "absent": [
+      "log.correlationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "severity-modern-priority",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"Appliance\" priority=\"Information\" message=\"Critical device event\" severity=\"Critical\"",
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": [],
+    "matches": [
+      "sophos_high_severity_alerts"
+    ]
+  },
+  {
+    "name": "no-actor-advanced_threat_protection_alerts",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"ATP\" log_component=\"Firewall\" log_subtype=\"Alert\" threatname=\"C2/Test\" destinationip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no-actor-sophos_xg_vpn_auth_failures",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"SSL VPN Authentication\" log_subtype=\"Authentication\" status=\"Failed\" user_name=\"alice\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "no-actor-sophos_password_guessing_on_administrator_account",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" log_id=\"062009517507\" status=\"Failed\" user_name=\"admin\"",
+    "expected": {},
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "atp-empty-threat-is-not-detection",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"ATP\" log_component=\"Firewall\" log_subtype=\"Alert\" threatname=\"\" sourceip=\"198.51.100.4\" destinationip=\"192.0.2.4\"",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "invalid-file-size-and-hash",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" filename=\"sample.exe\" filesize=\"-1\" sha1sum=\"not-a-hash\"",
+    "expected": {},
+    "absent": [
+      "target.sizeInBytes",
+      "target.sha1"
+    ],
+    "matches": []
+  },
+  {
+    "name": "additional-vendor-values",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"Firewall Authentication\" status=\"Successful\" user_name=\"alice\" usergroupname=\"VPN Users\" src_ip=\"2001:db8::1\" fw_rule_name=\"Outbound business traffic\" hb_health=\"No Heartbeat\"",
+    "expected": {
+      "origin.user": "alice",
+      "origin.group": "VPN Users",
+      "origin.ip": "2001:db8::1",
+      "log.fwrulename": "Outbound business traffic",
+      "log.hbhealth": "No Heartbeat"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "malformed-quoted-message",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" message=\"unterminated src_ip=198.51.100.90 status=Allow",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "escaped-quote-text-is-not-an-address",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" message=\"A \\\"quoted\\\" value src_ip=198.51.100.90 status=Allow\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "messageid-format-admin",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" messageid=\"17507\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" status=\"Failed\" user=\"admin\" src_ip=\"198.51.100.4\"",
+    "expected": {
+      "log.messageId": "17507",
+      "origin.user": "admin"
+    },
+    "absent": [],
+    "matches": [
+      "sophos_password_guessing_on_administrator_account"
+    ]
+  },
+  {
+    "name": "legacy-code-alone-is-not-authentication-proof",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=\"060011517913\" log_type=\"Event\" log_component=\"Appliance\" src_ip=\"198.51.100.4\"",
+    "expected": {},
+    "absent": [],
+    "matches": []
+  }
+]

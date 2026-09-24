@@ -1,21 +1,20 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS IAM Backdoor Creation Attempts
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Privilege Escalation
-technique: "T1136.003 - Create Account: Cloud Account"
+technique: 'T1136.003 - Create Account: Cloud Account'
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html
-  - https://attack.mitre.org/techniques/T1136/003/
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html
+- https://attack.mitre.org/techniques/T1136/003/
 description: |
   Detects potential IAM backdoor creation attempts through suspicious IAM user creation, access key generation, or policy attachment activities that could provide persistent access.
-  
+
   Next Steps:
   1. Review the source IP address and user identity performing these actions
   2. Verify if the IAM user creation and policy attachments are authorized
@@ -23,18 +22,42 @@ description: |
   4. Review the policies attached to determine if they grant excessive permissions
   5. If unauthorized, immediately disable the created user and revoke access keys
   6. Investigate other activities from the same source IP or user identity
-where: equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("log.errorCode", "")
+where: |
+  (equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "iam.amazonaws.com") &&
+  oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) &&
+  equals("actionResult","success"))) &&
+  exists("dataSource") &&
+  !equals("dataSource","") &&
+  exists("log.awsAccountKeyType") &&
+  !equals("log.awsAccountKeyType","") &&
+  exists("log.awsAccountKey") &&
+  !equals("log.awsAccountKey","") &&
+  exists("origin.ip") &&
+  !equals("origin.ip","")
 afterEvents:
-  - indexPattern: v11-log-aws-*
-    with:
-      - field: log.sourceIPAddress
-        operator: filter_term
-        value: '{{.log.sourceIPAddress}}'
-      - field: log.eventSource
-        operator: filter_term
-        value: 'iam.amazonaws.com'
-    within: 30m
-    count: 3
+- indexPattern: v11-log-aws-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.awsAccountKeyType
+    operator: filter_term
+    value: '{{.log.awsAccountKeyType}}'
+  - field: log.awsAccountKey
+    operator: filter_term
+    value: '{{.log.awsAccountKey}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.iam_backdoor_creation_attempts
+    operator: filter_term
+    value: match
+  within: 30m
+  count: 3
 groupBy:
-  - lastEvent.log.sourceIPAddress
-  - lastEvent.log.userIdentity.arn
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- lastEvent.log.sourceIPAddress
+- lastEvent.log.userIdentity.arn
