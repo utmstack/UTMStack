@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss'
+import { SocAiAskAbout, useSocAiFocus } from '@/features/soc-ai'
 import { useDateFormat } from '@/shared/lib/datetime'
-import { SEV_TONE, ST_META, STATUSES, sevKey , statusKey} from '../lib/incident-meta'
+import { incidentFocus } from '../lib/incident-focus'
+import { ST_META, STATUSES, statusKey } from '../lib/incident-meta'
 import { useIncidentStatus } from '../hooks/use-incident-status'
 import type { Incident, IncidentStatus } from '../types/incident.types'
 import { IncidentAssignee, IncidentAssigneePicker } from './incident-assignee'
+import { IncidentSeverityBadge } from './incident-severity-badge'
 import { IncidentStatusPill } from './incident-status-pill'
 import { IncidentOverviewTab } from './incident-overview-tab'
 import { IncidentAlertsTab } from './incident-alerts-tab'
@@ -26,24 +30,21 @@ export function IncidentDrawer({
 }) {
   const { t } = useTranslation()
   const df = useDateFormat()
+  const backdrop = useBackdropDismiss(onClose)
+  useSocAiFocus(useMemo(() => incidentFocus(incident), [incident]))
   const [tab, setTab] = useState<Tab>('overview')
   const [solution, setSolution] = useState(incident.incidentSolution ?? '')
   const { busy, changeStatus } = useIncidentStatus(incident, onChanged)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="flex w-full max-w-[46em] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" {...backdrop}>
+      <div className="flex w-full max-w-[46em] flex-col overflow-hidden border-l border-border bg-card shadow-xl">
         <header className="border-b border-border px-6 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <IncidentStatusPill status={incident.incidentStatus} />
-                <span className={cn('font-medium', SEV_TONE[sevKey(incident.incidentSeverity)])}>
-                  {t(`incidents.sev.${sevKey(incident.incidentSeverity)}`)}
-                </span>
+                <IncidentSeverityBadge severity={incident.incidentSeverity} />
                 <span>· #{incident.id}</span>
               </div>
               <h2 className="mt-1 text-xl font-semibold">{incident.incidentName}</h2>
@@ -53,12 +54,15 @@ export function IncidentDrawer({
                 <span>· {t('incidents.drawer.alertsCount', { count: incident.alertCount })}</span>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              <SocAiAskAbout />
+              <button
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Status actions + assignment */}

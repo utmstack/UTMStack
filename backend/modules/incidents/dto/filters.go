@@ -10,6 +10,7 @@ type IncidentListQuery struct {
 	IncidentName       *string
 	IncidentStatus     *string
 	IncidentAssignedTo *string
+	IncidentSeverity   *string
 	CreatedDateStart   *time.Time
 	CreatedDateEnd     *time.Time
 	Page               int

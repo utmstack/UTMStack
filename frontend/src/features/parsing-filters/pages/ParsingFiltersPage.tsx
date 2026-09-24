@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { type ColumnDef } from '@tanstack/react-table'
 import { AlertTriangle, ChevronDown, ChevronUp, FileCode, FlaskConical, Loader2, Lock, Plus, RefreshCw, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
-import { ResizableTableHeader } from '@/shared/components/ui/resizable-table-header'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
 import { TestPlaygroundModal } from '@/features/playground/components/TestPlaygroundModal'
@@ -21,7 +22,7 @@ const TABS: Tab[] = ['all', 'active', 'inactive', 'system', 'user']
 
 const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
-const PARSING_FILTERS_TABLE_COLS = [320, 220, 120, 90, 48, 48]
+const stopRowClick = (e: React.MouseEvent) => e.stopPropagation()
 
 // The name the engine matches on: the file's base name without its extension.
 function pipelineIdentity(relPath: string): string {
@@ -47,18 +48,6 @@ export function ParsingFiltersPage() {
   const [editing, setEditing] = useState<{ filter: Pipeline; creating: boolean } | null>(null)
   const [preparingNew, setPreparingNew] = useState(false)
   const [showTestModal, setShowTestModal] = useState(false)
-  const parsingFiltersHeaders = [
-    t('parsingFilters.cols.filter'),
-    t('parsingFilters.cols.dataTypes'),
-    t('parsingFilters.cols.type'),
-    t('parsingFilters.cols.active'),
-    48,
-    48,
-  ]
-  const { widths, startDrag } = useResizableColumns(PARSING_FILTERS_TABLE_COLS, {
-    min: colMins(parsingFiltersHeaders),
-    storageKey: 'parsing-filters-table-columns',
-  })
 
   // Deep-link: ?dataType=<value> pre-filters the list to that data type
   // (e.g. opened from an integration's "Filters" button).
@@ -184,6 +173,12 @@ export function ParsingFiltersPage() {
     return broadcast(BULK_PATHS.pipelines.activate, selector, { relPath: f.relPath, active })
   }
 
+  const columns = useMemo(
+    () => buildColumns(t, { items, reordering, moveOrder, toggleActive, onBroadcastDelete, onBroadcastActivate }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, items, reordering],
+  )
+
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -252,54 +247,32 @@ export function ParsingFiltersPage() {
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="min-h-0 flex-1 overflow-auto">
-          <table className="min-w-full border-collapse table-fixed">
-            <ResizableTableHeader
-              cells={[
-                { content: parsingFiltersHeaders[0], className: TH },
-                { content: parsingFiltersHeaders[1], className: TH },
-                { content: parsingFiltersHeaders[2], className: TH },
-                { content: parsingFiltersHeaders[3], className: `${TH} text-center`, resizable: false },
-                { content: null, className: TH, resizable: false },
-                { content: null, className: TH },
-              ]}
-              widths={widths}
-              startDrag={startDrag}
-              className="sticky top-0 z-10 bg-muted/90 text-[10px] uppercase tracking-wider text-muted-foreground"
-              rowClassName="border-b border-border"
-            />
-            <tbody>
-              {loading && items.length === 0 ? (
-                <tr><td colSpan={6}><Center>
-                  <Loader2 className="h-4 w-4 animate-spin" /> {t('parsingFilters.loading')}
-                </Center></td></tr>
-              ) : error ? (
-                <tr><td colSpan={6}><Center>
-                  <AlertTriangle size={16} className="text-amber-500" /> {t('parsingFilters.loadError')}
-                  <Button variant="outline" size="sm" className="ml-2" onClick={load}>
-                    {t('parsingFilters.retry')}
-                  </Button>
-                </Center></td></tr>
-              ) : items.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</td></tr>
-              ) : (
-                items.map((f, i) => (
-                  <Row
-                    key={f.relPath}
-                    f={f}
-                    onOpen={() => setEditing({ filter: f, creating: false })}
-                    onToggle={() => toggleActive(f)}
-                    onMoveUp={() => moveOrder(i, -1)}
-                    onMoveDown={() => moveOrder(i, 1)}
-                    canMoveUp={i > 0}
-                    canMoveDown={i < items.length - 1}
-                    reordering={reordering}
-                    onBroadcastDelete={(selector) => onBroadcastDelete(f, selector)}
-                    onBroadcastActivate={(active, selector) => onBroadcastActivate(f, active, selector)}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
+          <ResizableDataTable
+            columns={columns}
+            data={items}
+            flexColumnId="filter"
+            storageKey="parsing-filters-table-sizing"
+            getRowId={(f) => f.relPath}
+            onRowClick={(f) => setEditing({ filter: f, creating: false })}
+            loading={loading && items.length === 0}
+            loadingContent={
+              <Center>
+                <Loader2 className="h-4 w-4 animate-spin" /> {t('parsingFilters.loading')}
+              </Center>
+            }
+            error={error}
+            errorContent={
+              <Center>
+                <AlertTriangle size={16} className="text-amber-500" /> {t('parsingFilters.loadError')}
+                <Button variant="outline" size="sm" className="ml-2" onClick={load}>
+                  {t('parsingFilters.retry')}
+                </Button>
+              </Center>
+            }
+            emptyContent={
+              <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('parsingFilters.empty')}</div>
+            }
+          />
           {items.length > 0 && (
             <InfiniteScrollSentinel
               onReach={() => setPage((p) => p + 1)}
@@ -347,113 +320,163 @@ function DataTypeCells({ dataTypes }: { dataTypes?: string[] }) {
   )
 }
 
-function Row({
-  f,
-  onOpen,
-  onToggle,
-  onMoveUp,
-  onMoveDown,
-  canMoveUp,
-  canMoveDown,
-  reordering,
-  onBroadcastDelete,
-  onBroadcastActivate,
-}: {
-  f: Pipeline
-  onOpen: () => void
-  onToggle: () => void
-  onMoveUp: () => void
-  onMoveDown: () => void
-  canMoveUp: boolean
-  canMoveDown: boolean
+interface PipelineColumnDeps {
+  items: Pipeline[]
   reordering: boolean
-  onBroadcastDelete: (selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
-  onBroadcastActivate: (active: boolean, selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
-}) {
-  const { t } = useTranslation()
-  return (
-    <tr
-      className="cursor-pointer border-b border-border text-sm transition-colors last:border-0 hover:bg-muted/40"
-      onClick={onOpen}
-    >
-      <td className={`${TD} max-w-[360px]`} title={f.relPath}>
-        <div className="flex min-w-0 items-center gap-2">
+  moveOrder: (index: number, direction: -1 | 1) => void
+  toggleActive: (f: Pipeline) => void
+  onBroadcastDelete: (f: Pipeline, selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
+  onBroadcastActivate: (f: Pipeline, active: boolean, selector: BulkSelector) => Promise<Awaited<ReturnType<typeof broadcast>>>
+}
+
+// Column widths/mins/resize-ability live here (as TanStack's size/minSize/
+// enableResizing), replacing the old PARSING_FILTERS_TABLE_COLS/_MINS arrays
+// — one definition per column instead of three parallel index-aligned arrays.
+function buildColumns(
+  t: TFunction,
+  { items, reordering, moveOrder, toggleActive, onBroadcastDelete, onBroadcastActivate }: PipelineColumnDeps,
+): ColumnDef<Pipeline>[] {
+  return [
+    {
+      id: 'filter',
+      header: t('parsingFilters.cols.filter'),
+      // The flex column (see ResizableDataTable's flexColumnId): `size` is the
+      // width it keeps while the rest of the row still has room, `minSize` a
+      // floor low enough to truncate a long pipeline name.
+      size: 320,
+      minSize: 48,
+      meta: { headerClassName: TH, cellClassName: TD, cellProps: (f) => ({ title: f.relPath }) },
+      cell: ({ row }) => {
+        const f = row.original
+        return (
+          <div className="flex min-w-0 items-center gap-2">
+            <span
+              className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
+              title={t('parsingFilters.cols.order')}
+            >
+              {f.order}
+            </span>
+            <FileCode size={14} className="shrink-0 text-muted-foreground" />
+            <span className="truncate text-[13px]">{displayName(f.relPath)}</span>
+          </div>
+        )
+      },
+    },
+    {
+      id: 'dataTypes',
+      header: t('parsingFilters.cols.dataTypes'),
+      size: 220,
+      minSize: 32,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <DataTypeCells dataTypes={row.original.dataTypes} />,
+    },
+    {
+      id: 'type',
+      header: t('parsingFilters.cols.type'),
+      size: 120,
+      minSize: 32,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const f = row.original
+        return (
           <span
-            className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground"
-            title={t('parsingFilters.cols.order')}
+            className={cn(
+              'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium',
+              f.system ? 'bg-violet-500/15 text-violet-500' : 'bg-sky-500/15 text-sky-500',
+            )}
           >
-            {f.order}
+            {f.system && <Lock size={9} />}
+            {t(f.system ? 'parsingFilters.system' : 'parsingFilters.user')}
           </span>
-          <FileCode size={14} className="shrink-0 text-muted-foreground" />
-          <span className="truncate text-[13px]">{displayName(f.relPath)}</span>
-        </div>
-      </td>
-      <td className={TD}>
-        <DataTypeCells dataTypes={f.dataTypes} />
-      </td>
-      <td className={TD}>
-        <span
-          className={cn(
-            'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium',
-            f.system ? 'bg-violet-500/15 text-violet-500' : 'bg-sky-500/15 text-sky-500',
-          )}
-        >
-          {f.system && <Lock size={9} />}
-          {t(f.system ? 'parsingFilters.system' : 'parsingFilters.user')}
-        </span>
-      </td>
-      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-center gap-2">
-          <Toggle checked={f.active} onChange={onToggle} />
-          <PlatformBroadcastButton
-            label={t('platformBroadcast.button')}
-            title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.pipeline') })}
-            disabled={false}
-            onBroadcast={(selector) => onBroadcastActivate(f.active, selector)}
-            variant="ghost"
-            size="sm"
-          />
-        </div>
-      </td>
-      <td className={TD} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</span>
-          {!f.system && (
+        )
+      },
+    },
+    {
+      id: 'active',
+      header: t('parsingFilters.cols.active'),
+      size: 90,
+      minSize: 42,
+      enableResizing: false,
+      meta: { headerClassName: `${TH} text-center`, cellClassName: TD, cellProps: () => ({ onClick: stopRowClick }) },
+      cell: ({ row }) => {
+        const f = row.original
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <Toggle checked={f.active} onChange={() => toggleActive(f)} />
             <PlatformBroadcastButton
               label={t('platformBroadcast.button')}
-              title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+              title={t('platformBroadcast.action.activate', { resource: t('platformBroadcast.resource.pipeline') })}
               disabled={false}
-              onBroadcast={onBroadcastDelete}
+              onBroadcast={(selector) => onBroadcastActivate(f, f.active, selector)}
               variant="ghost"
               size="sm"
             />
-          )}
-        </div>
-      </td>
-      <td className={`${TD} text-center`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-center gap-0.5">
-          <button
-            type="button"
-            onClick={onMoveUp}
-            disabled={!canMoveUp || reordering}
-            title={t('parsingFilters.cols.moveUp')}
-            className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-          >
-            <ChevronUp size={13} />
-          </button>
-          <button
-            type="button"
-            onClick={onMoveDown}
-            disabled={!canMoveDown || reordering}
-            title={t('parsingFilters.cols.moveDown')}
-            className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-          >
-            <ChevronDown size={13} />
-          </button>
-        </div>
-      </td>
-    </tr>
-  )
+          </div>
+        )
+      },
+    },
+    {
+      id: 'actions',
+      header: t('parsingFilters.cols.actions'),
+      size: 100,
+      minSize: 70,
+      enableResizing: false,
+      meta: { headerClassName: `${TH} text-right`, cellClassName: TD, cellProps: () => ({ onClick: stopRowClick }) },
+      cell: ({ row }) => {
+        const f = row.original
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-right text-[11px] text-muted-foreground">{t('parsingFilters.view')}</span>
+            {!f.system && (
+              <PlatformBroadcastButton
+                label={t('platformBroadcast.button')}
+                title={t('platformBroadcast.action.delete', { resource: t('platformBroadcast.resource.pipeline') })}
+                disabled={false}
+                onBroadcast={(selector) => onBroadcastDelete(f, selector)}
+                variant="ghost"
+                size="sm"
+              />
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      id: 'order',
+      header: t('parsingFilters.cols.order'),
+      size: 80,
+      minSize: 72,
+      enableResizing: false,
+      meta: { headerClassName: `${TH} text-center`, cellClassName: `${TD} text-center`, cellProps: () => ({ onClick: stopRowClick }) },
+      cell: ({ row }) => {
+        const i = row.index
+        return (
+          <div className="inline-flex items-center gap-0.5 rounded-md border border-border p-0.5">
+            <button
+              type="button"
+              onClick={() => moveOrder(i, -1)}
+              disabled={i <= 0 || reordering}
+              title={t('parsingFilters.cols.moveUp')}
+              aria-label={t('parsingFilters.cols.moveUp')}
+              className="flex h-5 w-5 items-center justify-center rounded text-foreground/70 transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            >
+              <ChevronUp size={14} strokeWidth={2.25} />
+            </button>
+            <button
+              type="button"
+              onClick={() => moveOrder(i, 1)}
+              disabled={i >= items.length - 1 || reordering}
+              title={t('parsingFilters.cols.moveDown')}
+              aria-label={t('parsingFilters.cols.moveDown')}
+              className="flex h-5 w-5 items-center justify-center rounded text-foreground/70 transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            >
+              <ChevronDown size={14} strokeWidth={2.25} />
+            </button>
+          </div>
+        )
+      },
+    },
+  ]
 }
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {

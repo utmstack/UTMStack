@@ -4156,7 +4156,13 @@
     "ai": {
       "title": "Évaluation IA du SOC",
       "risk": "risque {{risk}}",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "Générer le résumé IA",
+      "hint": "SOC-AI analyse cette alerte et ajoute une évaluation.",
+      "generating": "Analyse de l'alerte en cours… cela peut prendre une minute.",
+      "ready": "Résumé IA prêt",
+      "failed": "Impossible de générer le résumé IA",
+      "slow": "Le résumé IA prend plus de temps que prévu. Il apparaîtra sur l'alerte dès qu'il sera prêt."
     },
     "incident": {
       "titleAdd_one": "Ajouter {{count}} alerte à un incident",
@@ -4203,6 +4209,9 @@
     "title": "Incidents",
     "subtitle": "Regroupez, triez et résolvez les alertes liées en incidents.",
     "refresh": "Actualiser",
+    "count_one": "{{count}} incident",
+    "count_other": "{{count}} incidents",
+    "openNow": "ouverts actuellement",
     "empty": "Aucun incident correspondant.",
     "loadError": "Impossible de charger les incidents.",
     "retry": "Réessayer",
@@ -4222,12 +4231,26 @@
     },
     "toolbar": {
       "search": "Rechercher des incidents…",
-      "allStatuses": "Tous les statuts",
-      "allAssignees": "Tous les assignés",
-      "from": "De",
-      "to": "À",
-      "clear": "Effacer",
-      "create": "Créer un incident"
+      "create": "Créer un incident",
+      "allSeverities": "Toutes les sévérités",
+      "export": "Exporter en CSV"
+    },
+    "statusTabs": {
+      "all": "Tous"
+    },
+    "filters": {
+      "add": "Ajouter un filtre",
+      "clearAll": "Tout effacer",
+      "filterValues": "Filtrer les valeurs…",
+      "loadingValues": "Chargement des valeurs…",
+      "noValues": "Aucune valeur trouvée.",
+      "pickValue": "Choisissez une valeur pour ajouter le filtre.",
+      "empty": "(vide)",
+      "cancel": "Annuler",
+      "addBtn": "Ajouter"
+    },
+    "ops": {
+      "IS": "est"
     },
     "layout": {
       "table": "Tableau",
@@ -4288,7 +4311,8 @@
     },
     "toast": {
       "statusChanged": "Statut de l’incident mis à jour",
-      "statusError": "Impossible de changer le statut"
+      "statusError": "Impossible de changer le statut",
+      "exportFailed": "Échec de l'export CSV"
     },
     "assign": {
       "assign": "Assigner",
@@ -4564,7 +4588,8 @@
       "dataTypes": "Types de données",
       "order": "Ordre",
       "moveUp": "Monter",
-      "moveDown": "Descendre"
+      "moveDown": "Descendre",
+      "actions": "Actions"
     },
     "editor": {
       "titleNew": "Nouveau pipeline",
@@ -5285,6 +5310,11 @@
       "compacting": "Compactage du contexte…",
       "dashboardEditTitle": "Éditeur de tableau de bord",
       "editingDashboard": "Modification : {{name}}"
+    },
+    "focus": {
+      "alert": "Alerte",
+      "incident": "Incident",
+      "remove": "Ne plus partager avec l'assistant"
     },
     "inheritance": {
       "inherited": "Suit la valeur par défaut de l'instance. Enregistrer donne à ce locataire sa propre configuration.",

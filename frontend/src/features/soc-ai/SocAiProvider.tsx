@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
@@ -36,6 +36,23 @@ export interface DashboardEditTarget {
   name: string
 }
 
+/**
+ * The item the person has open beside the chat (an alert or incident drawer).
+ * `context` is what the agent is told about it; `label` is what the chip in the
+ * composer shows, so it is visible what is being shared.
+ */
+export interface SocAiFocus {
+  kind: 'alert' | 'incident'
+  id: string
+  label: string
+  context: string
+}
+
+/** The page the agent is told the person is on, plus the item they have open. */
+export function composePage(page: string, focus: SocAiFocus | null): string {
+  return focus ? `${page}\n\n${focus.context}` : page
+}
+
 interface SocAiContextValue {
   open: boolean
   expanded: boolean
@@ -49,6 +66,11 @@ interface SocAiContextValue {
   // Called right before opening the panel with scope 'dashboard-edit' so every
   // message sent in that thread carries which dashboard is being worked on.
   setDashboardEditTarget: (target: DashboardEditTarget | null) => void
+  // The open item being shared with the agent, or null when nothing is open or
+  // the person removed it from the conversation.
+  focus: SocAiFocus | null
+  setFocus: (focus: SocAiFocus | null) => void
+  detachFocus: () => void
   // A scope argument switches the panel to that thread before opening it.
   openPanel: (scope?: SocAiScope) => void
   closePanel: () => void
@@ -93,6 +115,10 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const [dashboardCreateMessages, setDashboardCreateMessages] = useState<SocAiMessage[]>([])
   const [dashboardEditMessages, setDashboardEditMessages] = useState<SocAiMessage[]>([])
   const [dashboardEditTarget, setDashboardEditTarget] = useState<DashboardEditTarget | null>(null)
+  const [openItem, setOpenItem] = useState<SocAiFocus | null>(null)
+  // The item the person chose to stop sharing. Reset when nothing is open, so
+  // the next time that item opens it is shared again.
+  const [detachedKey, setDetachedKey] = useState<string | null>(null)
   const idRef = useRef(0)
   const nextId = () => ++idRef.current
   const abortRef = useRef<AbortController | null>(null)
@@ -112,6 +138,16 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
     'dashboard-create': dashboardCreateMessages,
     'dashboard-edit': dashboardEditMessages,
   }
+
+  const openKey = openItem ? `${openItem.kind}:${openItem.id}` : null
+  const focus = openItem && openKey !== detachedKey ? openItem : null
+  const focusRef = useRef(focus)
+  focusRef.current = focus
+  const setFocus = useCallback((next: SocAiFocus | null) => {
+    setOpenItem(next)
+    if (!next) setDetachedKey(null)
+  }, [])
+  const detachFocus = useCallback(() => setDetachedKey(openKey), [openKey])
 
   const openPanel = useCallback((scope?: SocAiScope) => {
     if (scope) setActiveScope(scope)
@@ -163,7 +199,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       const page =
         scope === 'dashboard-edit' && dashboardEditTarget
           ? `Dashboard editor — the user is editing dashboard "${dashboardEditTarget.name}" (dashboard id: ${dashboardEditTarget.id}). Use the dashboards/visualizations tools with this id to add, update, or remove its widgets; check what's already there first (dashboards.get / visualizations.list) before changing it.`
-          : pageContext(location.pathname)
+          : scope === 'panel'
+            ? composePage(pageContext(location.pathname), focusRef.current)
+            : pageContext(location.pathname)
       const lang = (i18n.language || 'en').split('-')[0]
 
       const history: ChatHistoryTurn[] = current
@@ -237,6 +275,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       dashboardEditMessages,
       dashboardEditTarget,
       setDashboardEditTarget,
+      focus,
+      setFocus,
+      detachFocus,
       openPanel,
       closePanel,
       togglePanel,
@@ -253,6 +294,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       dashboardCreateMessages,
       dashboardEditMessages,
       dashboardEditTarget,
+      focus,
+      setFocus,
+      detachFocus,
       openPanel,
       closePanel,
       togglePanel,
@@ -279,4 +323,21 @@ export function useSocAi(): SocAiContextValue {
   const ctx = useContext(SocAiContext)
   if (!ctx) throw new Error('useSocAi must be used within SocAiProvider')
   return ctx
+}
+
+/**
+ * Shares the item a drawer shows with the assistant while the drawer is open,
+ * so "is this a false positive?" needs no id. A no-op outside the dashboard
+ * shell, where there is no assistant.
+ */
+export function useSocAiFocus(focus: SocAiFocus | null) {
+  const setFocus = useContext(SocAiContext)?.setFocus
+  const key = focus ? `${focus.kind}|${focus.id}|${focus.label}|${focus.context}` : ''
+  useEffect(() => {
+    if (!setFocus || !focus) return
+    setFocus(focus)
+    return () => setFocus(null)
+    // `key` covers every field of `focus`; the object itself is rebuilt each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setFocus, key])
 }

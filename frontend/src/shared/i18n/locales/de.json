@@ -4156,7 +4156,13 @@
     "ai": {
       "title": "SOC-KI-Bewertung",
       "risk": "{{risk}} Risiko",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "KI-Zusammenfassung erstellen",
+      "hint": "SOC-AI untersucht diese Warnung und fügt eine Bewertung hinzu.",
+      "generating": "Warnung wird analysiert… das kann eine Minute dauern.",
+      "ready": "KI-Zusammenfassung fertig",
+      "failed": "KI-Zusammenfassung konnte nicht erstellt werden",
+      "slow": "Die KI-Zusammenfassung dauert länger als erwartet. Sie erscheint an der Warnung, sobald sie fertig ist."
     },
     "incident": {
       "titleAdd_one": "{{count}} Warnung zu einem Vorfall hinzufügen",
@@ -4203,6 +4209,9 @@
     "title": "Vorfälle",
     "subtitle": "Verwandte Alarme als Vorfälle gruppieren, triagieren und lösen.",
     "refresh": "Aktualisieren",
+    "count_one": "{{count}} Vorfall",
+    "count_other": "{{count}} Vorfälle",
+    "openNow": "derzeit offen",
     "empty": "Keine passenden Vorfälle.",
     "loadError": "Vorfälle konnten nicht geladen werden.",
     "retry": "Erneut",
@@ -4222,12 +4231,26 @@
     },
     "toolbar": {
       "search": "Vorfälle suchen…",
-      "allStatuses": "Alle Status",
-      "allAssignees": "Alle Zugewiesenen",
-      "from": "Von",
-      "to": "Bis",
-      "clear": "Zurücksetzen",
-      "create": "Vorfall erstellen"
+      "create": "Vorfall erstellen",
+      "allSeverities": "Alle Schweregrade",
+      "export": "CSV exportieren"
+    },
+    "statusTabs": {
+      "all": "Alle"
+    },
+    "filters": {
+      "add": "Filter hinzufügen",
+      "clearAll": "Alle löschen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+      "empty": "(leer)",
+      "cancel": "Abbrechen",
+      "addBtn": "Hinzufügen"
+    },
+    "ops": {
+      "IS": "ist"
     },
     "layout": {
       "table": "Tabelle",
@@ -4288,7 +4311,8 @@
     },
     "toast": {
       "statusChanged": "Vorfallstatus aktualisiert",
-      "statusError": "Status konnte nicht geändert werden"
+      "statusError": "Status konnte nicht geändert werden",
+      "exportFailed": "CSV-Export fehlgeschlagen"
     },
     "assign": {
       "assign": "Zuweisen",
@@ -4564,7 +4588,8 @@
       "dataTypes": "Datentypen",
       "order": "Reihenfolge",
       "moveUp": "Nach oben",
-      "moveDown": "Nach unten"
+      "moveDown": "Nach unten",
+      "actions": "Aktionen"
     },
     "editor": {
       "titleNew": "Neue Pipeline",
@@ -5277,6 +5302,11 @@
       "compacting": "Kontext wird komprimiert…",
       "dashboardEditTitle": "Dashboard-Editor",
       "editingDashboard": "Bearbeite: {{name}}"
+    },
+    "focus": {
+      "alert": "Warnung",
+      "incident": "Vorfall",
+      "remove": "Nicht mehr mit dem Assistenten teilen"
     },
     "inheritance": {
       "inherited": "Folgt der Instanzvorgabe. Speichern gibt diesem Mandanten eine eigene Konfiguration.",

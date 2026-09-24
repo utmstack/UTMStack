@@ -14,6 +14,8 @@ import (
 type AlertRepository interface {
 	UpdateStatus(ctx context.Context, alertIDs []string, status domain.AlertStatus, observation string, addFalsePositiveTag bool, history []HistoryEntry) error
 	UpdateNotes(ctx context.Context, alertID, notes string, history []HistoryEntry) error
+	// MergeAssessment writes an AI assessment beside the analyst's own notes.
+	MergeAssessment(ctx context.Context, alertID, assessment string, history []HistoryEntry) error
 	UpdateAssignee(ctx context.Context, alertID, assignee string, history []HistoryEntry) error
 	UpdateTags(ctx context.Context, alertIDs []string, tags []string, history []HistoryEntry) error
 	ConvertToIncident(ctx context.Context, alertIDs []string, name, id string, createdAt time.Time, createdBy, source string, history []HistoryEntry) error

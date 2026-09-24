@@ -15,7 +15,11 @@ export function ColumnResizeHandle({ onMouseDown, className }: Props) {
       onMouseDown={onMouseDown}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        'group absolute right-0 top-0 z-20 flex h-full w-3 cursor-col-resize select-none items-center justify-center touch-none',
+        // Sits on the LEFT edge of the column it's rendered in — i.e. inside
+        // the column to the right of the boundary it resizes — so it's flush
+        // against that column's label instead of floating in the previous
+        // column's padding with a gap before the next label starts.
+        'group absolute left-0 top-0 z-20 flex h-full w-3 cursor-col-resize select-none items-center justify-center touch-none',
         'bg-transparent hover:bg-primary/20 active:bg-primary/30',
         'transition-colors',
         className,

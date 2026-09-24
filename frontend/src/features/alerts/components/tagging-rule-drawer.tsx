@@ -3,6 +3,7 @@ import { Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss'
 import { operatorById } from '../lib/tagging-rule-meta'
 import {
   deserializeConditions,
@@ -45,6 +46,7 @@ export function TaggingRuleDrawer({
   onCreateTag: (tagName: string, tagColor: string) => Promise<AlertTag | null>
 }) {
   const { t } = useTranslation()
+  const backdrop = useBackdropDismiss(onClose)
   const [editing, setEditing] = useState(!!create || !!startInEdit)
   const [form, setForm] = useState<FormState>(() => ({
     ...ruleToForm(rule, initialTags, initialConditions),
@@ -91,11 +93,8 @@ export function TaggingRuleDrawer({
   const showForm = editing || !!create
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="flex w-full max-w-[720px] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" {...backdrop}>
+      <div className="flex w-full max-w-[720px] flex-col overflow-hidden border-l border-border bg-card shadow-xl">
         <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] text-muted-foreground">{t('taggingRules.title')}</div>

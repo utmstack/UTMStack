@@ -63,6 +63,8 @@ export function WidgetRenderer({
       <ErrorPanel
         message={t('dashboards.widget.queryError')}
         detail={query.error instanceof Error ? query.error.message : undefined}
+        onRetry={() => void query.refetch()}
+        retryLabel={t('common.actions.retry')}
       />
     )
   }
@@ -100,12 +102,27 @@ export function WidgetRenderer({
   return <EChartsRenderer option={option} />
 }
 
-function ErrorPanel({ message, detail }: { message: string; detail?: string }) {
+function ErrorPanel({
+  message,
+  detail,
+  onRetry,
+  retryLabel,
+}: {
+  message: string
+  detail?: string
+  onRetry?: () => void
+  retryLabel?: string
+}) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-xs text-muted-foreground">
       <AlertTriangle size={18} className="text-amber-500" />
       <span>{message}</span>
       {detail && <span className="text-[10px] text-muted-foreground/70">{detail}</span>}
+      {onRetry && (
+        <button onClick={onRetry} className="text-primary hover:underline">
+          {retryLabel}
+        </button>
+      )}
     </div>
   )
 }

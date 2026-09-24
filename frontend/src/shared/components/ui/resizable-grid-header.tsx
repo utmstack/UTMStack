@@ -28,11 +28,20 @@ export function ResizableGridHeader({
     >
       {headers.map((header, index) => {
         const item = typeof header === 'object' && header !== null && 'content' in header ? header : { content: header, resizable: true }
-        const isResizable = item.resizable ?? true
+        // See resizable-table-header.tsx: rendered at the start of this
+        // column, so the flag that matters is the PREVIOUS column's — it's
+        // declining the handle for the boundary right before this one.
+        const prevItem =
+          index > 0
+            ? (typeof headers[index - 1] === 'object' && headers[index - 1] !== null && 'content' in (headers[index - 1] as object)
+                ? (headers[index - 1] as { resizable?: boolean })
+                : { resizable: true })
+            : null
+        const prevResizable = prevItem != null && (prevItem.resizable ?? true)
         return (
-          <div key={index} data-resizable-col className={cn('relative min-w-0 pr-2 last:pr-0', cellClassName)}>
+          <div key={index} data-resizable-col className={cn('relative min-w-0 pl-3 first:pl-0', cellClassName)}>
+            {prevResizable && <ColumnResizeHandle onMouseDown={startDrag(index - 1)} />}
             {item.content}
-            {isResizable && index < headers.length - 1 && <ColumnResizeHandle onMouseDown={startDrag(index)} />}
           </div>
         )
       })}

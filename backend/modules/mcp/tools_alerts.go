@@ -82,16 +82,22 @@ func registerAlertActions(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name:        "alerts.update_notes",
-		Title:       "Replace alert notes",
-		Description: "Replace the analyst notes attached to an alert. Requires alerts.write.",
+		Name:  "alerts.update_notes",
+		Title: "Replace alert notes",
+		Description: "Replace the analyst notes attached to an alert. Requires alerts.write. " +
+			"Notes that open with the \"[AI SOC Agent]\" marker are an AI assessment: they are written " +
+			"beside the analyst's own text, which is kept, replacing only an earlier assessment.",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "alerts.write"},
 		func(ctx context.Context, actor *authz.Actor, in alertsUpdateNotesInput) (any, error) {
 			if in.AlertID == "" {
 				return nil, fmt.Errorf("alert_id is required")
 			}
-			if err := uc.UpdateNotes(ctx, actor.Email, in.AlertID, in.Notes); err != nil {
+			write := uc.UpdateNotes
+			if alerts_domain.IsAIAssessment(in.Notes) {
+				write = uc.RecordAssessment
+			}
+			if err := write(ctx, actor.Email, in.AlertID, in.Notes); err != nil {
 				return nil, err
 			}
 			return map[string]any{"alert_id": in.AlertID}, nil

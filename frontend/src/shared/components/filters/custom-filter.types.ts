@@ -18,7 +18,8 @@ export interface FilterOpDef {
 
 export interface FilterValue {
   value: string
-  count: number
+  /** Shown beside the value when the source can tell how many rows carry it. */
+  count?: number
 }
 
 export interface FilterBarLabels {

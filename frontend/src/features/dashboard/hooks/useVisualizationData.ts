@@ -74,5 +74,14 @@ export function useVisualizationData(
     enabled: visualization != null && spec != null,
     staleTime: 30_000,
     refetchInterval: refetchIntervalMs ?? false,
+    // A widget asks the backend when it appears, when the range or filters
+    // change, when the refresh interval fires, or when the person presses
+    // retry — never on its own. Retrying a 500 a few seconds later, or again on
+    // every remount, tab focus and reconnect, only multiplies the load on a
+    // backend that just refused, and keeps requests flowing with refresh off.
+    retry: false,
+    retryOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   })
 }

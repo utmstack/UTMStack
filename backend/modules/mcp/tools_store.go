@@ -10,6 +10,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/threatwinds/go-sdk/store"
 
+	loganalyzer_usecase "github.com/utmstack/utmstack/backend/modules/loganalyzer/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/common_models"
 	"github.com/utmstack/utmstack/backend/pkg/eventstore"
@@ -221,10 +222,13 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			}
 			size = clampPageSize(size)
 
-			scoped := storeScopedSQL(in.Query,
+			scoped, err := storeScopedSQL(in.Query,
 				events.TableName(eventstore.DatasetLogs),
 				events.TableName(eventstore.DatasetAlerts),
 				page, size)
+			if err != nil {
+				return nil, err
+			}
 
 			qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{
 				"readonly":             1,
@@ -366,8 +370,16 @@ func rowsToMaps(rows []json.RawMessage) []map[string]any {
 
 // storeScopedSQL wraps a caller-supplied SELECT with logs/alerts CTEs already
 // scoped to the current tenant — the same trick loganalyzer uses to keep the
-// SQL surface safe without a parser.
-func storeScopedSQL(query, logsTable, alertsTable string, page, size int) string {
+// SQL surface safe.
+//
+// The CTEs only shadow the bare names `logs` and `alerts`. A query that names
+// the physical table (utmstack.logs), a system table or a table function would
+// walk around them, so the query first goes through the same guard the
+// log explorer applies before it runs anything.
+func storeScopedSQL(query, logsTable, alertsTable string, page, size int) (string, error) {
+	if err := loganalyzer_usecase.ValidateSQL(query); err != nil {
+		return "", err
+	}
 	if page < 1 {
 		page = 1
 	}
@@ -376,7 +388,7 @@ func storeScopedSQL(query, logsTable, alertsTable string, page, size int) string
 		"WITH logs AS (SELECT * FROM %s WHERE tenantId = ?), alerts AS (SELECT * FROM %s WHERE tenantId = ?) "+
 			"SELECT * FROM (%s) LIMIT %d OFFSET %d",
 		logsTable, alertsTable, q, size, (page-1)*size,
-	)
+	), nil
 }
 
 func trimTrailingSemicolons(q string) string {

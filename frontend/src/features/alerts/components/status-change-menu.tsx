@@ -2,11 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { ST_META } from '../lib/alert-meta'
-import { STATUS_VALUE, type StatusKey } from '../types/alert.types'
+import { PILL_BASE as PILL, ST_META } from '../lib/alert-meta'
+import { STATUS_VALUE, type AlertTag, type StatusKey } from '../types/alert.types'
 import { StatusObservationModal } from './status-observation-modal'
+import { TagChip } from './tag-chip'
 
 type Variant = 'pill' | 'action'
+
+// Name of the system tag the backend applies when an alert is closed as a false positive.
+const FALSE_POSITIVE_TAG = 'False positive'
 
 type Pending = { status: string; fp: boolean; title: string }
 
@@ -14,12 +18,12 @@ export function StatusChangeMenu({
   status,
   onStatus,
   variant,
-  onCreateRule,
+  tagCatalog = [],
 }: {
   status: StatusKey
   onStatus: (status: string, observation: string, fp: boolean) => void
   variant: Variant
-  onCreateRule?: () => void
+  tagCatalog?: AlertTag[]
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -58,10 +62,7 @@ export function StatusChangeMenu({
         }}
         className={
           variant === 'pill'
-            ? cn(
-                'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset',
-                ST_META[status].pill,
-              )
+            ? cn(PILL, ST_META[status].pill)
             : 'inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 hover:bg-muted'
         }
       >
@@ -85,28 +86,21 @@ export function StatusChangeMenu({
             <button
               key={k}
               onClick={() => pickStatus(k)}
-              className="block w-full px-3 py-1.5 text-left text-sm hover:bg-muted"
+              className="flex w-full items-center px-3 py-1.5 text-left hover:bg-muted"
             >
-              {t(`alerts.status.${k}`)}
+              <span className={cn(PILL, ST_META[k].pill)}>{t(`alerts.status.${k}`)}</span>
             </button>
           ))}
           <button
             onClick={pickFalsePositive}
-            className="block w-full border-t border-border px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted"
+            title={t('alerts.drawer.completeFalsePositive')}
+            aria-label={t('alerts.drawer.completeFalsePositive')}
+            className="flex w-full items-center gap-1.5 border-t border-border px-3 py-1.5 text-left hover:bg-muted"
           >
-            {t('alerts.drawer.completeFalsePositive')}
+            <span className={cn(PILL, ST_META.completed.pill)}>{t('alerts.status.completed')}</span>
+            <span className="text-xs text-muted-foreground">+</span>
+            <TagChip name={FALSE_POSITIVE_TAG} catalog={tagCatalog} size="xs" />
           </button>
-          {onCreateRule && (
-            <button
-              onClick={() => {
-                setOpen(false)
-                onCreateRule()
-              }}
-              className="block w-full border-t border-border px-3 py-1.5 text-left text-sm hover:bg-muted"
-            >
-              {t('alerts.row.createRuleFromAlert')}
-            </button>
-          )}
         </div>
       )}
       {pending && (

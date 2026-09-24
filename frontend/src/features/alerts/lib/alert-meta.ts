@@ -20,6 +20,9 @@ export const SEV_BADGE: Record<SeverityKey, string> = {
   low: 'bg-emerald-500/15 text-emerald-600 ring-emerald-500/30 dark:text-emerald-300',
 }
 
+/** Base classes of the status pill; pair with an ST_META pill colour. */
+export const PILL_BASE = 'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset'
+
 export const ST_META: Record<StatusKey, { label: string; pill: string }> = {
   open: { label: 'Open', pill: 'bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300' },
   in_review: { label: 'In review', pill: 'bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300' },

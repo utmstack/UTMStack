@@ -82,6 +82,17 @@ func (u *alertUsecase) UpdateNotes(ctx context.Context, userEmail string, alertI
 		[]connectors.HistoryEntry{buildNotesEntry(alertID, user, notes)})
 }
 
+func (u *alertUsecase) RecordAssessment(ctx context.Context, userEmail string, alertID string, assessment string) error {
+	if alertID == "" {
+		return domain.ErrMissingAlertID
+	}
+
+	user := resolveUser(userEmail)
+
+	return u.repo.MergeAssessment(ctx, alertID, assessment,
+		[]connectors.HistoryEntry{buildNotesEntry(alertID, user, assessment)})
+}
+
 func (u *alertUsecase) UpdateAssignee(ctx context.Context, userEmail string, alertID string, assignee string) error {
 	if alertID == "" {
 		return domain.ErrMissingAlertID

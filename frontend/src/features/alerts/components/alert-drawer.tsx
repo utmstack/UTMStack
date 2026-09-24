@@ -1,17 +1,21 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Flame, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss'
+import { SocAiAskAbout, useSocAiFocus } from '@/features/soc-ai'
 import { SEV_BADGE, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../lib/alert-meta'
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
 import { type Alert, type AlertTag } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
+import { alertFocus } from '../lib/alert-focus'
 import { Section } from './section'
 import { Row } from './row'
 import { TagChip } from './tag-chip'
 import { AlertTagEditor } from './alert-tag-editor'
 import { AlertAiAssessment } from './alert-ai-assessment'
+import { AlertAiGenerate } from './alert-ai-generate'
 import { AlertRelatedEvents } from './alert-related-events'
 import { StatusChangeMenu } from './status-change-menu'
 import { TechniqueValue } from './technique-value'
@@ -34,6 +38,8 @@ export function AlertDrawer({
   onIncident,
   onNotes,
   onAssign,
+  onGenerateAi,
+  aiGenerating = false,
 }: {
   alert: Alert
   tagCatalog: AlertTag[]
@@ -47,8 +53,13 @@ export function AlertDrawer({
   onIncident: () => void
   onNotes: (notes: string) => void
   onAssign: (assignee: string) => void
+  /** Absent when SOC-AI is not configured, which hides the generate button. */
+  onGenerateAi?: () => void
+  aiGenerating?: boolean
 }) {
   const { t } = useTranslation()
+  const backdrop = useBackdropDismiss(onClose)
+  useSocAiFocus(useMemo(() => alertFocus(a), [a]))
   const [tab, setTab] = useState<Tab>('summary')
   const { loading: loadingRelated, viewRelatedLogs } = useRelatedLogs()
   // `notes` stores only the analyst's own free text; any AI assessment block is
@@ -65,12 +76,9 @@ export function AlertDrawer({
   return (
     <div
       className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
+      {...backdrop}
     >
-      <div
-        className="flex w-full max-w-[760px] flex-col overflow-hidden border-l border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex w-full max-w-[760px] flex-col overflow-hidden border-l border-border bg-card shadow-xl">
         <header className="border-b border-border px-6 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
@@ -95,17 +103,20 @@ export function AlertDrawer({
                 <span>· {absTime(a[TS])}</span>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              <SocAiAskAbout />
+              <button
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Actions */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <StatusChangeMenu status={statusKey(a)} variant="action" onStatus={onStatus} />
+            <StatusChangeMenu status={statusKey(a)} variant="action" tagCatalog={tagCatalog} onStatus={onStatus} />
             <AlertTagEditor
               tags={tags}
               catalog={tagCatalog}
@@ -239,7 +250,11 @@ export function AlertDrawer({
               {/* The AI SOC assessment is rendered read-only above; the analyst's
                   own notes are always editable below it and saved alongside the
                   AI block (which is preserved on save). */}
-              {aiNote && <AlertAiAssessment note={aiNote} />}
+              {aiNote ? (
+                <AlertAiAssessment note={aiNote} />
+              ) : (
+                onGenerateAi && <AlertAiGenerate generating={aiGenerating} onGenerate={onGenerateAi} />
+              )}
               <Section title={aiNote ? t('alerts.drawer.section.yourNotes') : t('alerts.drawer.section.notes')}>
                 <textarea
                   value={notes}

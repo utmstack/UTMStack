@@ -4027,6 +4027,11 @@
       "dashboardEditTitle": "Editor de paneles",
       "editingDashboard": "Editando: {{name}}"
     },
+    "focus": {
+      "alert": "Alerta",
+      "incident": "Incidente",
+      "remove": "Dejar de compartir con el asistente"
+    },
     "inheritance": {
       "inherited": "Siguiendo la configuración por defecto de la instancia. Si guardas aquí, este tenant pasa a tener la suya.",
       "own": "Este tenant tiene su propia configuración.",
@@ -4282,7 +4287,13 @@
     "ai": {
       "title": "Evaluación de IA del SOC",
       "risk": "riesgo {{risk}}",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "Generar resumen con IA",
+      "hint": "SOC-AI investiga esta alerta y añade una evaluación.",
+      "generating": "Analizando la alerta… puede tardar un minuto.",
+      "ready": "Resumen de IA listo",
+      "failed": "No se pudo generar el resumen de IA",
+      "slow": "El resumen de IA está tardando más de lo esperado. Aparecerá en la alerta cuando esté listo."
     },
     "incident": {
       "titleAdd_one": "Añadir {{count}} alerta a un incidente",
@@ -4329,6 +4340,9 @@
     "title": "Incidentes",
     "subtitle": "Agrupa, tría y resuelve alertas relacionadas como incidentes.",
     "refresh": "Actualizar",
+    "count_one": "{{count}} incidente",
+    "count_other": "{{count}} incidentes",
+    "openNow": "abiertos ahora",
     "empty": "No hay incidentes que coincidan.",
     "loadError": "No se pudieron cargar los incidentes.",
     "retry": "Reintentar",
@@ -4348,12 +4362,26 @@
     },
     "toolbar": {
       "search": "Buscar incidentes…",
-      "allStatuses": "Todos los estados",
-      "allAssignees": "Todos los asignados",
-      "from": "Desde",
-      "to": "Hasta",
-      "clear": "Limpiar",
-      "create": "Crear incidente"
+      "create": "Crear incidente",
+      "allSeverities": "Todas las severidades",
+      "export": "Exportar CSV"
+    },
+    "statusTabs": {
+      "all": "Todos"
+    },
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
+    "ops": {
+      "IS": "es"
     },
     "layout": {
       "table": "Tabla",
@@ -4414,7 +4442,8 @@
     },
     "toast": {
       "statusChanged": "Estado del incidente actualizado",
-      "statusError": "No se pudo cambiar el estado"
+      "statusError": "No se pudo cambiar el estado",
+      "exportFailed": "No se pudo exportar el CSV"
     },
     "assign": {
       "assign": "Asignar",
@@ -4478,7 +4507,8 @@
       "dataTypes": "Tipos de dato",
       "order": "Orden",
       "moveUp": "Subir",
-      "moveDown": "Bajar"
+      "moveDown": "Bajar",
+      "actions": "Acciones"
     },
     "editor": {
       "titleNew": "Nuevo pipeline",

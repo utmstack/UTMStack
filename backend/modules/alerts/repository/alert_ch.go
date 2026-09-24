@@ -205,6 +205,14 @@ func (r *chAlertRepo) UpdateNotes(ctx context.Context, alertID, notes string, hi
 	}))
 }
 
+func (r *chAlertRepo) MergeAssessment(ctx context.Context, alertID, assessment string, history []connectors.HistoryEntry) error {
+	return r.patch(ctx, []store.Filter{idIn([]string{alertID})}, withHistory(history, func(doc map[string]any) bool {
+		existing, _ := doc["notes"].(string)
+		doc["notes"] = domain.MergeAssessment(existing, assessment)
+		return true
+	}))
+}
+
 func (r *chAlertRepo) UpdateAssignee(ctx context.Context, alertID, assignee string, history []connectors.HistoryEntry) error {
 	return r.patch(ctx, []store.Filter{idIn([]string{alertID})}, withHistory(history, func(doc map[string]any) bool {
 		doc["assignee"] = assignee

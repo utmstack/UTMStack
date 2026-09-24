@@ -4156,7 +4156,13 @@
     "ai": {
       "title": "Valutazione IA del SOC",
       "risk": "rischio {{risk}}",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "Genera riepilogo IA",
+      "hint": "SOC-AI analizza questo avviso e aggiunge una valutazione.",
+      "generating": "Analisi dell'avviso in corso… può richiedere un minuto.",
+      "ready": "Riepilogo IA pronto",
+      "failed": "Impossibile generare il riepilogo IA",
+      "slow": "Il riepilogo IA sta impiegando più tempo del previsto. Comparirà sull'avviso quando sarà pronto."
     },
     "incident": {
       "titleAdd_one": "Aggiungi {{count}} avviso a un incidente",
@@ -4203,6 +4209,9 @@
     "title": "Incidenti",
     "subtitle": "Raggruppa, valuta e risolvi gli alert correlati come incidenti.",
     "refresh": "Aggiorna",
+    "count_one": "{{count}} incidente",
+    "count_other": "{{count}} incidenti",
+    "openNow": "aperti ora",
     "empty": "Nessun incidente corrispondente.",
     "loadError": "Impossibile caricare gli incidenti.",
     "retry": "Riprova",
@@ -4222,12 +4231,26 @@
     },
     "toolbar": {
       "search": "Cerca incidenti…",
-      "allStatuses": "Tutti gli stati",
-      "allAssignees": "Tutti gli assegnatari",
-      "from": "Da",
-      "to": "A",
-      "clear": "Cancella",
-      "create": "Crea incidente"
+      "create": "Crea incidente",
+      "allSeverities": "Tutte le gravità",
+      "export": "Esporta CSV"
+    },
+    "statusTabs": {
+      "all": "Tutti"
+    },
+    "filters": {
+      "add": "Aggiungi filtro",
+      "clearAll": "Cancella tutto",
+      "filterValues": "Filtra valori…",
+      "loadingValues": "Caricamento valori…",
+      "noValues": "Nessun valore trovato.",
+      "pickValue": "Scegli un valore per aggiungere il filtro.",
+      "empty": "(vuoto)",
+      "cancel": "Annulla",
+      "addBtn": "Aggiungi"
+    },
+    "ops": {
+      "IS": "è"
     },
     "layout": {
       "table": "Tabella",
@@ -4288,7 +4311,8 @@
     },
     "toast": {
       "statusChanged": "Stato incidente aggiornato",
-      "statusError": "Impossibile cambiare lo stato"
+      "statusError": "Impossibile cambiare lo stato",
+      "exportFailed": "Impossibile esportare il CSV"
     },
     "assign": {
       "assign": "Assegna",
@@ -4564,7 +4588,8 @@
       "dataTypes": "Tipi di dati",
       "order": "Ordine",
       "moveUp": "Sposta su",
-      "moveDown": "Sposta giù"
+      "moveDown": "Sposta giù",
+      "actions": "Azioni"
     },
     "editor": {
       "titleNew": "Nuova pipeline",
@@ -5285,6 +5310,11 @@
       "compacting": "Compattazione del contesto…",
       "dashboardEditTitle": "Editor dashboard",
       "editingDashboard": "Modifica di: {{name}}"
+    },
+    "focus": {
+      "alert": "Avviso",
+      "incident": "Incidente",
+      "remove": "Smetti di condividere con l'assistente"
     },
     "inheritance": {
       "inherited": "Segue l'impostazione predefinita dell'istanza. Salvando, questo tenant avrà la propria.",

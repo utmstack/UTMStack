@@ -1,4 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
+import { downloadCsv } from '@/shared/lib/csv'
+import { aiAnalysisPayload } from '../lib/ai-analysis'
 import type { Alert, AlertTag, FilterType, RelatedLogsResponse } from '../types/alert.types'
 
 const api = createApiClient()
@@ -160,24 +162,16 @@ export const alertsHttpService = {
       if (batch.length < SEARCH_PAGE_MAX) break
     }
 
-    const cell = (v: unknown) => {
-      const t = Array.isArray(v) ? v.join(', ') : v == null ? '' : String(v)
-      return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t
-    }
-    const csv = [
-      columns.map((c) => c.label).join(','),
-      ...rows.map((a) => columns.map((c) => cell(a[c.field as keyof Alert])).join(',')),
-    ].join('\n')
-
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `alerts-${new Date().toISOString().slice(0, 19)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+    downloadCsv(
+      'alerts',
+      columns.map((c) => c.label),
+      rows.map((a) => columns.map((c) => a[c.field as keyof Alert])),
+    )
   },
+
+  // Asks SOC-AI to investigate an alert. It answers "queued" at once; the
+  // assessment lands on the alert's notes when the agent finishes.
+  analyzeWithAi: (alert: Alert) => api.post<{ status: string; message?: string }>('/soc-ai/analyze', aiAnalysisPayload(alert)),
 
   // Actions (operate on one or many alert ids).
   updateStatus: (alertIds: string[], status: string, statusObservation = '', addFalsePositiveTag = false) =>

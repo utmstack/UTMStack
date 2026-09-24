@@ -130,6 +130,9 @@ func (r *pgIncidentRepository) FindAll(ctx context.Context, q dto.IncidentListQu
 	if q.IncidentAssignedTo != nil && *q.IncidentAssignedTo != "" {
 		db = db.Where("incident_assigned_to ILIKE ?", "%"+*q.IncidentAssignedTo+"%")
 	}
+	if q.IncidentSeverity != nil && *q.IncidentSeverity != "" {
+		db = db.Where("incident_severity = ?", *q.IncidentSeverity)
+	}
 	if q.CreatedDateStart != nil {
 		db = db.Where("incident_created_date >= ?", *q.CreatedDateStart)
 	}

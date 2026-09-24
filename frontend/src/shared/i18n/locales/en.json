@@ -4166,6 +4166,11 @@
       "dashboardEditTitle": "Dashboard editor",
       "editingDashboard": "Editing: {{name}}"
     },
+    "focus": {
+      "alert": "Alert",
+      "incident": "Incident",
+      "remove": "Stop sharing with the assistant"
+    },
     "inheritance": {
       "inherited": "Following the instance default. Saving here gives this tenant its own configuration.",
       "own": "This tenant has its own configuration.",
@@ -4421,7 +4426,13 @@
     "ai": {
       "title": "SOC AI assessment",
       "risk": "{{risk}} risk",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "Generate AI summary",
+      "hint": "SOC-AI investigates this alert and adds an assessment.",
+      "generating": "Analyzing the alert… this can take a minute.",
+      "ready": "AI summary ready",
+      "failed": "Could not generate the AI summary",
+      "slow": "The AI summary is taking longer than expected. It will show up on the alert when it is ready."
     },
     "incident": {
       "titleAdd_one": "Add {{count}} alert to an incident",
@@ -4537,6 +4548,9 @@
     "title": "Incidents",
     "subtitle": "Group, triage and resolve related alerts as incidents.",
     "refresh": "Refresh",
+    "count_one": "{{count}} incident",
+    "count_other": "{{count}} incidents",
+    "openNow": "open now",
     "empty": "No incidents match.",
     "loadError": "Could not load incidents.",
     "retry": "Retry",
@@ -4556,12 +4570,26 @@
     },
     "toolbar": {
       "search": "Search incidents…",
-      "allStatuses": "All statuses",
-      "allAssignees": "All assignees",
-      "from": "From",
-      "to": "To",
-      "clear": "Clear",
-      "create": "Create incident"
+      "create": "Create incident",
+      "allSeverities": "All severities",
+      "export": "Export CSV"
+    },
+    "statusTabs": {
+      "all": "All"
+    },
+    "filters": {
+      "add": "Add filter",
+      "clearAll": "Clear all",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
+      "empty": "(empty)",
+      "cancel": "Cancel",
+      "addBtn": "Add"
+    },
+    "ops": {
+      "IS": "is"
     },
     "create": {
       "title": "Create incident",
@@ -4636,7 +4664,8 @@
     },
     "toast": {
       "statusChanged": "Incident status updated",
-      "statusError": "Could not change the status"
+      "statusError": "Could not change the status",
+      "exportFailed": "Failed to export CSV"
     },
     "assign": {
       "assign": "Assign",
@@ -4686,7 +4715,8 @@
       "dataTypes": "Data types",
       "order": "Order",
       "moveUp": "Move up",
-      "moveDown": "Move down"
+      "moveDown": "Move down",
+      "actions": "Actions"
     },
     "editor": {
       "titleNew": "New pipeline",

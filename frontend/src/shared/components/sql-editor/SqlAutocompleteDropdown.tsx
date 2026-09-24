@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/shared/lib/utils'
 import type { Suggestion } from './autocomplete-trie.service'
 
@@ -29,7 +30,9 @@ export function SqlAutocompleteDropdown({
 
   if (items.length === 0) return null
 
-  return (
+  // Portaled: `position` is viewport coordinates, and inside the app shell a
+  // fixed element is placed against the content area, not the viewport.
+  return createPortal(
     <ul
       ref={listRef}
       role="listbox"
@@ -68,6 +71,7 @@ export function SqlAutocompleteDropdown({
           </span>
         </li>
       ))}
-    </ul>
+    </ul>,
+    document.body,
   )
 }

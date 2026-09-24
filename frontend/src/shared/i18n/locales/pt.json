@@ -4027,6 +4027,11 @@
       "dashboardEditTitle": "Editor de painéis",
       "editingDashboard": "Editando: {{name}}"
     },
+    "focus": {
+      "alert": "Alerta",
+      "incident": "Incidente",
+      "remove": "Parar de compartilhar com o assistente"
+    },
     "inheritance": {
       "inherited": "Seguindo o padrão da instância. Salvar aqui dá a este tenant a própria configuração.",
       "own": "Este tenant tem a própria configuração.",
@@ -4282,7 +4287,13 @@
     "ai": {
       "title": "Avaliação de IA do SOC",
       "risk": "risco {{risk}}",
-      "score": "{{score}}/100"
+      "score": "{{score}}/100",
+      "generate": "Gerar resumo de IA",
+      "hint": "O SOC-AI investiga este alerta e adiciona uma avaliação.",
+      "generating": "Analisando o alerta… pode levar um minuto.",
+      "ready": "Resumo de IA pronto",
+      "failed": "Não foi possível gerar o resumo de IA",
+      "slow": "O resumo de IA está demorando mais que o esperado. Ele aparecerá no alerta quando estiver pronto."
     },
     "incident": {
       "titleAdd_one": "Adicionar {{count}} alerta a um incidente",
@@ -4329,6 +4340,9 @@
     "title": "Incidentes",
     "subtitle": "Agrupe, triagem e resolva alertas relacionados como incidentes.",
     "refresh": "Atualizar",
+    "count_one": "{{count}} incidente",
+    "count_other": "{{count}} incidentes",
+    "openNow": "abertos agora",
     "empty": "Nenhum incidente corresponde.",
     "loadError": "Não foi possível carregar os incidentes.",
     "retry": "Tentar novamente",
@@ -4348,12 +4362,26 @@
     },
     "toolbar": {
       "search": "Buscar incidentes…",
-      "allStatuses": "Todos os status",
-      "allAssignees": "Todos os responsáveis",
-      "from": "De",
-      "to": "Até",
-      "clear": "Limpar",
-      "create": "Criar incidente"
+      "create": "Criar incidente",
+      "allSeverities": "Todas as severidades",
+      "export": "Exportar CSV"
+    },
+    "statusTabs": {
+      "all": "Todos"
+    },
+    "filters": {
+      "add": "Adicionar filtro",
+      "clearAll": "Limpar tudo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Carregando valores…",
+      "noValues": "Nenhum valor encontrado.",
+      "pickValue": "Escolha um valor para adicionar o filtro.",
+      "empty": "(vazio)",
+      "cancel": "Cancelar",
+      "addBtn": "Adicionar"
+    },
+    "ops": {
+      "IS": "é"
     },
     "layout": {
       "table": "Tabela",
@@ -4414,7 +4442,8 @@
     },
     "toast": {
       "statusChanged": "Status do incidente atualizado",
-      "statusError": "Não foi possível alterar o status"
+      "statusError": "Não foi possível alterar o status",
+      "exportFailed": "Falha ao exportar o CSV"
     },
     "assign": {
       "assign": "Atribuir",
@@ -4478,7 +4507,8 @@
       "dataTypes": "Tipos de dado",
       "order": "Ordem",
       "moveUp": "Mover para cima",
-      "moveDown": "Mover para baixo"
+      "moveDown": "Mover para baixo",
+      "actions": "Ações"
     },
     "editor": {
       "titleNew": "Novo pipeline",

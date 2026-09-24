@@ -1,7 +1,8 @@
 import { Link2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
-import { SEV_TONE, ST_META, STATUSES, sevKey , statusKey} from '../lib/incident-meta'
+import { ST_META, STATUSES, statusKey } from '../lib/incident-meta'
+import { IncidentSeverityBadge } from './incident-severity-badge'
 import type { Incident } from '../types/incident.types'
 
 export function IncidentsBoard({ incidents, onOpen }: { incidents: Incident[]; onOpen: (i: Incident) => void }) {
@@ -33,9 +34,7 @@ export function IncidentsBoard({ incidents, onOpen }: { incidents: Incident[]; o
                 >
                   <div className="line-clamp-2 text-sm font-medium">{i.incidentName}</div>
                   <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span className={cn('font-medium', SEV_TONE[sevKey(i.incidentSeverity)])}>
-                      {t(`incidents.sev.${sevKey(i.incidentSeverity)}`)}
-                    </span>
+                    <IncidentSeverityBadge severity={i.incidentSeverity} />
                     <span className="flex items-center gap-1">
                       <Link2 size={11} /> {i.alertCount}
                     </span>

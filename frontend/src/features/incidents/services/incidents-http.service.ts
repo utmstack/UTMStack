@@ -1,4 +1,5 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
+import { downloadCsv } from '@/shared/lib/csv'
 import type {
   AlertLinkItem,
   ChangeStatusInput,
@@ -19,6 +20,7 @@ function listQuery(q: IncidentListQuery): string {
   if (q.incidentName) p.set('incidentName', q.incidentName)
   if (q.incidentStatus) p.set('incidentStatus', q.incidentStatus)
   if (q.incidentAssignedTo) p.set('incidentAssignedTo', q.incidentAssignedTo)
+  if (q.incidentSeverity) p.set('incidentSeverity', q.incidentSeverity)
   if (q.createdDateStart) p.set('createdDateStart', q.createdDateStart)
   if (q.createdDateEnd) p.set('createdDateEnd', q.createdDateEnd)
   p.set('page', String(q.page ?? 1))
@@ -27,9 +29,37 @@ function listQuery(q: IncidentListQuery): string {
   return p.toString()
 }
 
+const list = (q: IncidentListQuery = {}) => api.getPaged<Incident[]>(`/incidents?${listQuery({ size: 500, ...q })}`)
+
+// The endpoint caps a page at 200, so the export walks pages rather than asking
+// for everything at once.
+const EXPORT_PAGE = 200
+const EXPORT_MAX = 10_000
+
 export const incidentsHttpService = {
   // ── Incidents ──
-  list: (q: IncidentListQuery = {}) => api.getPaged<Incident[]>(`/incidents?${listQuery({ size: 500, ...q })}`),
+  list,
+  exportCsv: async (q: IncidentListQuery) => {
+    const rows: Incident[] = []
+    for (let page = 1; rows.length < EXPORT_MAX; page++) {
+      const { data } = await list({ ...q, page, size: EXPORT_PAGE })
+      rows.push(...(data ?? []))
+      if ((data ?? []).length < EXPORT_PAGE) break
+    }
+    downloadCsv(
+      'incidents',
+      ['Created', 'Name', 'Description', 'Status', 'Severity', 'Assignee', 'Alerts'],
+      rows.map((i) => [
+        i.incidentCreatedDate,
+        i.incidentName,
+        i.incidentDescription,
+        i.incidentStatus,
+        i.incidentSeverity,
+        i.incidentAssignedTo,
+        i.alertCount,
+      ]),
+    )
+  },
   getById: (id: string) => api.get<Incident>(`/incidents/${id}`),
   create: (input: CreateIncidentInput) => api.post<Incident>('/incidents', input),
   addAlerts: (incidentId: string, alertList: AlertLinkItem[]) =>

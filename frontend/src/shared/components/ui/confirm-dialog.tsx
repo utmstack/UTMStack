@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2, X, type LucideIcon } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss'
 
 export interface ConfirmDialogProps {
   open: boolean
@@ -33,6 +34,7 @@ export function ConfirmDialog({
   const { t } = useTranslation()
   const [internalBusy, setInternalBusy] = useState(false)
   const busy = externalBusy || internalBusy
+  const backdrop = useBackdropDismiss(() => !busy && onClose())
 
   if (!open) return null
 
@@ -49,12 +51,9 @@ export function ConfirmDialog({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-      onClick={() => !busy && onClose()}
+      {...backdrop}
     >
-      <div
-        className="flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl">
         <header className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Icon size={17} strokeWidth={1.75} />

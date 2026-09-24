@@ -117,8 +117,11 @@ const visualizationSpecDoc = "Creates one chart widget on a dashboard, given its
 	"dataset (required) is \"logs\" or \"alerts\" — nothing else is valid. " +
 	"chart (required) is \"metric\" (one number), \"category\" (top values of a field), \"time\" (a series over time), or \"table\" (raw rows). " +
 	"metric.agg must be the string \"count\" — the event store only counts records, no sum/avg/cardinality. " +
-	"dimension is REQUIRED when chart is \"category\" (the field broken down by) and unused otherwise — " +
-	"call store.dataset.fields on the dataset first to get the real field name; a guessed or misspelled one returns zero buckets, not an error. " +
+	"dimension is REQUIRED when chart is \"category\" (the field broken down by) and unused otherwise. " +
+	"Field names are exact, case-sensitive paths of the dataset (dataSource, dataType, origin.host — not data_source or agent.name): " +
+	"call store.dataset.fields on the dataset first to get the real ones. " +
+	"The spec is run against the event store before the widget is saved; one the store cannot answer — an unknown field included — is refused and nothing is created. " +
+	"Preview a spec with visualizations.query before creating it. " +
 	"interval (time charts only) is one of \"1m\",\"5m\",\"15m\",\"1h\",\"1d\",\"1w\". " +
 	"columns (table charts only) lists the field paths to project. " +
 	"filters is an optional array of {field, op, value}; op is one of " +
@@ -192,6 +195,9 @@ func registerDashboardVisualizations(m *Module) {
 			if err != nil {
 				return nil, err
 			}
+			if err := m.checkWidgetSpec(ctx, in.Spec); err != nil {
+				return nil, err
+			}
 			return uc.Create(ctx, &domain.Visualization{
 				DashboardID: in.DashboardID,
 				Spec:        in.Spec, Config: cfg, Layout: in.Layout,
@@ -205,6 +211,9 @@ func registerDashboardVisualizations(m *Module) {
 		func(ctx context.Context, actor *authz.Actor, in visualizationUpsertInput) (any, error) {
 			cfg, err := withWidgetTitle(in.Spec, in.Config, in.Title)
 			if err != nil {
+				return nil, err
+			}
+			if err := m.checkWidgetSpec(ctx, in.Spec); err != nil {
 				return nil, err
 			}
 			return uc.Update(ctx, &domain.Visualization{

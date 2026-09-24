@@ -26,6 +26,8 @@ type AlertUsecase interface {
 	UpdateStatus(ctx context.Context, userEmail string, req dto.UpdateAlertStatusRequest) error
 	NotifyRaised(ctx context.Context, alertID string) error
 	UpdateNotes(ctx context.Context, userEmail string, alertID string, notes string) error
+	// RecordAssessment stores an AI assessment without touching the analyst's notes.
+	RecordAssessment(ctx context.Context, userEmail string, alertID string, assessment string) error
 	UpdateAssignee(ctx context.Context, userEmail string, alertID string, assignee string) error
 	UpdateTags(ctx context.Context, userEmail string, req dto.UpdateAlertTagsRequest) error
 	ConvertToIncident(ctx context.Context, userEmail string, req dto.ConvertToIncidentRequest) error

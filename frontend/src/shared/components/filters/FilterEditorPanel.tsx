@@ -110,9 +110,11 @@ export function FilterEditorPanel({
                         )}
                       >
                         <span className="truncate font-mono">{v.value || labels.empty}</span>
-                        <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-                          {v.count.toLocaleString()}
-                        </span>
+                        {v.count != null && (
+                          <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+                            {v.count.toLocaleString()}
+                          </span>
+                        )}
                       </button>
                     )
                   })

@@ -301,6 +301,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 			Audit:           auditMod,
 			Dashboards:      dashboardsMod,
 			LogAnalyzer:     loganalyzerMod,
+			Events:          events,
 			EventProcessing: eventProcessingMod,
 			Datasources:     datasourcesMod,
 			Integrations:    integrationsMod,

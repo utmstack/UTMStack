@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { useDateFormat } from '@/shared/lib/datetime'
-import { SEV_TONE, sevKey } from '../lib/incident-meta'
 import type { Incident } from '../types/incident.types'
 import { DescRow, Section } from './ui-primitives'
 import { IncidentAssignee } from './incident-assignee'
+import { IncidentSeverityBadge } from './incident-severity-badge'
 import { IncidentStatusPill } from './incident-status-pill'
 
 export function IncidentOverviewTab({
@@ -45,9 +45,7 @@ export function IncidentOverviewTab({
             <IncidentStatusPill status={incident.incidentStatus} />
           </DescRow>
           <DescRow k={t('incidents.drawer.details.severity')}>
-            <span className={SEV_TONE[sevKey(incident.incidentSeverity)]}>
-              {t(`incidents.sev.${sevKey(incident.incidentSeverity)}`)}
-            </span>
+            <IncidentSeverityBadge severity={incident.incidentSeverity} />
           </DescRow>
           <DescRow k={t('incidents.drawer.details.assignee')}>
             <IncidentAssignee login={incident.incidentAssignedTo} />

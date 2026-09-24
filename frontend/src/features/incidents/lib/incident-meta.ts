@@ -22,12 +22,4 @@ export function statusKey(s: IncidentStatus): string {
   return s.toLowerCase().replace(/ /g, '_')
 }
 
-export const SEV_TONE: Record<SevKey, string> = {
-  high: 'text-red-500',
-  medium: 'text-amber-500',
-  low: 'text-sky-500',
-  unknown: 'text-muted-foreground',
-}
-
 export const SELECT_CLS = 'h-9 rounded-md border border-border bg-background px-2 text-sm'
-export const TABLE_COLS = ['1fr', 120, 90, 150, 70, 110]

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { incidentsHttpService as svc } from '../services/incidents-http.service'
 import { STATUSES } from '../lib/incident-meta'
-import type { Incident, IncidentStatus } from '../types/incident.types'
+import type { Incident, IncidentSeverity, IncidentStatus } from '../types/incident.types'
 
 export interface IncidentsListFilters {
   search: string
   statusFilter: IncidentStatus | 'all'
+  severity: IncidentSeverity | 'all'
   assignee: string
+  /** ISO instants; empty for no bound. */
   dateFrom: string
   dateTo: string
   page: number // 0-based
@@ -30,7 +32,7 @@ export interface UseIncidentsListResult {
  * refresh tick so mutations propagate.
  */
 export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsListResult {
-  const { search, statusFilter, assignee, dateFrom, dateTo, page, pageSize, isBoard } = filters
+  const { search, statusFilter, severity, assignee, dateFrom, dateTo, page, pageSize, isBoard } = filters
   const [incidents, setIncidents] = useState<Incident[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -51,8 +53,9 @@ export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsLis
         incidentName: search || undefined,
         incidentStatus: statusFilter === 'all' ? undefined : statusFilter,
         incidentAssignedTo: assignee === 'all' ? undefined : assignee,
-        createdDateStart: dateFrom ? `${dateFrom}T00:00:00Z` : undefined,
-        createdDateEnd: dateTo ? `${dateTo}T23:59:59Z` : undefined,
+        incidentSeverity: severity === 'all' ? undefined : severity,
+        createdDateStart: dateFrom || undefined,
+        createdDateEnd: dateTo || undefined,
         page: reqPage,
         size: reqSize,
       })
@@ -68,7 +71,7 @@ export function useIncidentsList(filters: IncidentsListFilters): UseIncidentsLis
     return () => {
       cancelled = true
     }
-  }, [search, statusFilter, assignee, dateFrom, dateTo, reqPage, reqSize, nonce])
+  }, [search, statusFilter, severity, assignee, dateFrom, dateTo, reqPage, reqSize, nonce])
 
   useEffect(() => {
     let cancelled = false

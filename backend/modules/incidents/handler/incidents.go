@@ -137,6 +137,7 @@ func (h *IncidentHandler) Assign(c *gin.Context) {
 // @Param       incidentName       query string false "Filter by name (ILIKE)"
 // @Param       incidentStatus     query string false "Filter by status"
 // @Param       incidentAssignedTo query string false "Filter by assigned user"
+// @Param       incidentSeverity   query string false "Filter by severity (low, medium, high)"
 // @Param       page               query int    false "Page (default 1)"
 // @Param       size               query int    false "Page size (default 20)"
 // @Success     200 {array} domain.Incident
@@ -148,6 +149,7 @@ func (h *IncidentHandler) List(c *gin.Context) {
 		IncidentName:       queryString(c, "incidentName"),
 		IncidentStatus:     queryString(c, "incidentStatus"),
 		IncidentAssignedTo: queryString(c, "incidentAssignedTo"),
+		IncidentSeverity:   queryString(c, "incidentSeverity"),
 		CreatedDateStart:   queryTime(c, "createdDateStart"),
 		CreatedDateEnd:     queryTime(c, "createdDateEnd"),
 		Page:               queryInt(c, "page", 1),

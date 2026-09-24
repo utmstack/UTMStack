@@ -1,61 +1,131 @@
+import { useMemo } from 'react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { ResizableGridHeader } from '@/shared/components/ui/resizable-grid-header'
-import { colMins, useResizableColumns } from '@/shared/hooks/useResizableColumns'
-import { cn } from '@/shared/lib/utils'
+import type { TFunction } from 'i18next'
+import type { ColumnDef } from '@tanstack/react-table'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { useDateFormat } from '@/shared/lib/datetime'
-import { SEV_TONE, TABLE_COLS, sevKey } from '../lib/incident-meta'
 import type { Incident } from '../types/incident.types'
-import { IncidentStatusPill } from './incident-status-pill'
+import { IncidentSeverityBadge } from './incident-severity-badge'
+import { IncidentStatusMenu } from './incident-status-menu'
 import { IncidentAssignee } from './incident-assignee'
 
-export function IncidentsTable({ incidents, onOpen }: { incidents: Incident[]; onOpen: (i: Incident) => void }) {
+function Message({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">{children}</div>
+}
+
+const TH = 'whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium'
+const TD = 'whitespace-nowrap px-3 py-3 align-middle'
+
+const stopRowClick = (e: React.MouseEvent) => e.stopPropagation()
+
+export function IncidentsTable({
+  incidents,
+  onOpen,
+  onChanged,
+  loading,
+  error,
+  onRetry,
+}: {
+  incidents: Incident[]
+  onOpen: (i: Incident) => void
+  onChanged: (id: string) => void
+  loading: boolean
+  error: boolean
+  onRetry: () => void
+}) {
   const { t } = useTranslation()
   const df = useDateFormat()
-  const incidentsHeaders = [
-    t('incidents.table.name'),
-    t('incidents.table.status'),
-    t('incidents.table.severity'),
-    t('incidents.table.assignee'),
-    t('incidents.table.alerts'),
-    t('incidents.table.created'),
-  ]
-  const { template: tableCols, startDrag } = useResizableColumns(TABLE_COLS, {
-    min: colMins(incidentsHeaders),
-    storageKey: 'incidents-table-columns',
-  })
+  const columns = useMemo(() => buildColumns(t, df.formatDate, onChanged), [t, df.formatDate, onChanged])
   return (
-    <div className="mt-4 min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-xl border border-border">
-      <ResizableGridHeader
-        headers={incidentsHeaders}
-        tableCols={tableCols}
-        startDrag={startDrag}
-        className="bg-muted/30 py-2.5 font-medium"
-        cellClassName="[&:nth-child(5)]:text-center"
-      />
-      {incidents.map((i) => (
-        <button
-          key={i.id}
-          onClick={() => onOpen(i)}
-          className="grid w-max min-w-full items-center gap-3 border-b border-border/60 px-4 py-3 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
-          style={{ gridTemplateColumns: tableCols }}
-        >
-          <div className="min-w-0">
-            <div className="truncate font-medium">{i.incidentName}</div>
-            {i.incidentDescription && <div className="truncate text-xs text-muted-foreground">{i.incidentDescription}</div>}
-          </div>
-          <div>
-            <IncidentStatusPill status={i.incidentStatus} />
-          </div>
-          <div className={cn('text-xs font-medium', SEV_TONE[sevKey(i.incidentSeverity)])}>
-            {t(`incidents.sev.${sevKey(i.incidentSeverity)}`)}
-          </div>
-          <div className="min-w-0">
-            <IncidentAssignee login={i.incidentAssignedTo} />
-          </div>
-          <div className="text-center font-mono tabular-nums text-muted-foreground">{i.alertCount}</div>
-          <div className="font-mono text-xs text-muted-foreground">{df.formatDate(i.incidentCreatedDate)}</div>
-        </button>
-      ))}
-    </div>
+    <ResizableDataTable
+      columns={columns}
+      data={incidents}
+      flexColumnId="name"
+      storageKey="incidents-table-sizing"
+      getRowId={(i) => i.id}
+      onRowClick={onOpen}
+      rowClassName={() => 'border-border/60 last:border-b-0 hover:bg-muted/30'}
+      loading={loading && incidents.length === 0}
+      loadingContent={
+        <Message>
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </Message>
+      }
+      error={error}
+      errorContent={
+        <Message>
+          <AlertTriangle size={16} className="text-amber-500" /> {t('incidents.loadError')}
+          <button onClick={onRetry} className="ml-2 text-primary hover:underline">
+            {t('incidents.retry')}
+          </button>
+        </Message>
+      }
+      emptyContent={<Message>{t('incidents.empty')}</Message>}
+    />
   )
+}
+
+function buildColumns(
+  t: TFunction,
+  formatDate: (date: Incident['incidentCreatedDate']) => string,
+  onChanged: (id: string) => void,
+): ColumnDef<Incident>[] {
+  return [
+    {
+      id: 'name',
+      header: t('incidents.table.name'),
+      size: 320,
+      minSize: 120,
+      meta: { headerClassName: `${TH} pl-4`, cellClassName: `${TD} pl-4` },
+      cell: ({ row }) => (
+        <>
+          <div className="truncate font-medium">{row.original.incidentName}</div>
+          {row.original.incidentDescription && (
+            <div className="truncate text-xs text-muted-foreground">{row.original.incidentDescription}</div>
+          )}
+        </>
+      ),
+    },
+    {
+      id: 'status',
+      header: t('incidents.table.status'),
+      size: 120,
+      minSize: 100,
+      meta: { headerClassName: TH, cellClassName: TD, cellProps: () => ({ onClick: stopRowClick }) },
+      cell: ({ row }) => <IncidentStatusMenu incident={row.original} onChanged={onChanged} />,
+    },
+    {
+      id: 'severity',
+      header: t('incidents.table.severity'),
+      size: 100,
+      minSize: 88,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <IncidentSeverityBadge severity={row.original.incidentSeverity} />,
+    },
+    {
+      id: 'assignee',
+      header: t('incidents.table.assignee'),
+      size: 150,
+      minSize: 80,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => <IncidentAssignee login={row.original.incidentAssignedTo} />,
+    },
+    {
+      id: 'alerts',
+      header: t('incidents.table.alerts'),
+      size: 70,
+      minSize: 60,
+      meta: { headerClassName: TH, cellClassName: `${TD} font-mono tabular-nums text-muted-foreground` },
+      cell: ({ row }) => row.original.alertCount,
+    },
+    {
+      id: 'created',
+      header: t('incidents.table.created'),
+      size: 110,
+      minSize: 90,
+      meta: { headerClassName: TH, cellClassName: `${TD} font-mono text-xs text-muted-foreground` },
+      cell: ({ row }) => formatDate(row.original.incidentCreatedDate),
+    },
+  ]
 }

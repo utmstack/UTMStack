@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { presetRange, type TimeRange, resolveRange } from '@/shared/components/ui/time-range-picker'
-import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
+import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { FILTER_OPS, TS } from '../lib/alert-meta'
 import { alertToRuleConditions } from '../lib/tagging-rule-meta'
 import {
@@ -23,6 +23,7 @@ import { useAlertsList } from '../hooks/use-alerts-list'
 import { useAlertStats } from '../hooks/use-alert-stats'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { useAlertMutations } from '../hooks/use-alert-mutations'
+import { useSocAiConfigured } from '@/features/soc-ai'
 import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
 import { AlertsHeader, type AlertsView } from '../components/alerts-header'
 import { AlertsToolbar } from '../components/alerts-toolbar'
@@ -31,8 +32,7 @@ import { AlertsStatusTabs } from '../components/alerts-status-tabs'
 import { AlertsVolumeCard } from '../components/alerts-volume-card'
 import { AlertsBreakdownCard } from '../components/alerts-breakdown-card'
 import { AlertsBulkBar } from '../components/alerts-bulk-bar'
-import { AlertsTableHeader, ALERTS_TABLE_COLS, ALERTS_TABLE_COLUMN_COUNT, ALERTS_TABLE_MINS } from '../components/alerts-table-header'
-import { AlertRow } from '../components/alert-row'
+import { ALERTS_FLEX_COLUMN, buildAlertColumns } from '../components/alerts-table-columns'
 import { EchoesTimeline } from '../components/echoes-timeline'
 import { AlertDrawer } from '../components/alert-drawer'
 import { AlertIncidentModal } from '../components/alert-incident-modal'
@@ -59,14 +59,6 @@ export function AlertsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
-  const { widths: alertTableWidths, startDrag: startAlertTableDrag } = useResizableColumns(ALERTS_TABLE_COLS, {
-    min: ALERTS_TABLE_MINS,
-    storageKey: 'alerts-table-columns',
-  })
-  const alertTableWidth = alertTableWidths.reduce<number>(
-    (total, width) => total + (typeof width === 'number' ? width : 0),
-    0,
-  )
   const [incidentTargets, setIncidentTargets] = useState<Alert[] | null>(null)
   // Tagging-rule drawer is rendered here so the tag editor / rule button don't
   // have to bounce through the tagging-rules page.
@@ -187,7 +179,8 @@ export function AlertsPage() {
     refreshStats()
   }, [refreshList, refreshStats])
 
-  const { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv } = useAlertMutations({
+  const socAiConfigured = useSocAiConfigured()
+  const { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv, generateAiSummary, aiGenerating } = useAlertMutations({
     refresh,
     clearSelection: () => setSelected(new Set()),
     openAlert,
@@ -257,6 +250,20 @@ export function AlertsPage() {
       else alerts.forEach((a) => next.add(a.id))
       return next
     })
+
+  const alertColumns = buildAlertColumns({
+    t,
+    tagCatalog,
+    selected,
+    expandedEchoes,
+    allChecked,
+    onTogglePage: togglePage,
+    onToggle: toggleSel,
+    onCreateRule: (alert) => setRuleDrawer({ kind: 'create', conditions: alertToRuleConditions(alert) }),
+    onIncident: (alert) => setIncidentTargets([alert]),
+    onToggleEchoes: toggleEchoes,
+    onStatus: (alert, status, observation, fp) => void applyStatus([alert.id], status, observation, fp),
+  })
 
   const addFilter = (cf: CustomFilter) => { setCustomFilters((c) => [...c, cf]); setPage(0) }
   const updateFilter = (i: number, cf: CustomFilter) => { setCustomFilters((c) => c.map((f, idx) => (idx === i ? cf : f))); setPage(0) }
@@ -343,73 +350,36 @@ export function AlertsPage() {
           }}
           >
             <div className="min-h-0 flex-1 overflow-auto">
-              <table className="border-collapse table-fixed" style={{ width: 'max-content', minWidth: `${Math.max(alertTableWidth, 100)}px` }}>
-                <colgroup>
-                  {alertTableWidths.map((width, index) => (
-                    <col key={index} style={{ width: typeof width === 'number' ? `${width}px` : width }} />
-                  ))}
-                </colgroup>
-                <AlertsTableHeader
-                  allChecked={allChecked}
-                  widths={alertTableWidths}
-                  startDrag={startAlertTableDrag}
-                  onTogglePage={togglePage}
-                />
-                <tbody>
-                  {loading && alerts.length === 0 ? (
-                    <tr>
-                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT}>
-                        <Center>
-                          <Loader2 className="h-4 w-4 animate-spin" /> {t('alerts.list.loading')}
-                        </Center>
-                      </td>
-                    </tr>
-                  ) : error ? (
-                    <tr>
-                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT}>
-                        <Center>
-                          <AlertTriangle size={16} className="text-amber-500" /> {t('alerts.list.loadError')}
-                          <Button variant="outline" size="sm" className="ml-2" onClick={refresh}>
-                            {t('alerts.list.retry')}
-                          </Button>
-                        </Center>
-                      </td>
-                    </tr>
-                  ) : alerts.length === 0 ? (
-                    <tr>
-                      <td colSpan={ALERTS_TABLE_COLUMN_COUNT} className="px-6 py-16 text-center text-sm text-muted-foreground">
-                        {t('alerts.list.empty')}
-                      </td>
-                    </tr>
-                  ) : (
-                    alerts.map((a, index) => (
-                      <Fragment key={`${a.id}-${index}`}>
-                        <AlertRow
-                          alert={a}
-                          tagCatalog={tagCatalog}
-                          checked={selected.has(a.id)}
-                          expanded={expandedEchoes.has(a.id)}
-                          onToggle={() => toggleSel(a.id)}
-                          onOpen={() => setOpenAlert(a)}
-                          onCreateRule={(alert) =>
-                            setRuleDrawer({ kind: 'create', conditions: alertToRuleConditions(alert) })
-                          }
-                          onIncident={(alert) => setIncidentTargets([alert])}
-                          onToggleEchoes={() => toggleEchoes(a.id)}
-                          onStatus={(s, obs, fp) => void applyStatus([a.id], s, obs, fp)}
-                        />
-                        {expandedEchoes.has(a.id) && (
-                          <tr>
-                            <td colSpan={ALERTS_TABLE_COLUMN_COUNT} className="border-b border-border/50 p-0">
-                              <EchoesTimeline parentId={a.id} onClose={() => toggleEchoes(a.id)} />
-                            </td>
-                          </tr>
-                        )}
-                      </Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <ResizableDataTable
+                columns={alertColumns}
+                data={alerts}
+                flexColumnId={ALERTS_FLEX_COLUMN}
+                storageKey="alerts-table-sizing"
+                getRowId={(a, index) => `${a.id}-${index}`}
+                onRowClick={setOpenAlert}
+                rowClassName={() => 'border-border/50 text-[13px] last:border-b-0 hover:bg-muted/20'}
+                loading={loading && alerts.length === 0}
+                loadingContent={
+                  <Center>
+                    <Loader2 className="h-4 w-4 animate-spin" /> {t('alerts.list.loading')}
+                  </Center>
+                }
+                error={error}
+                errorContent={
+                  <Center>
+                    <AlertTriangle size={16} className="text-amber-500" /> {t('alerts.list.loadError')}
+                    <Button variant="outline" size="sm" className="ml-2" onClick={refresh}>
+                      {t('alerts.list.retry')}
+                    </Button>
+                  </Center>
+                }
+                emptyContent={
+                  <div className="px-6 py-16 text-center text-sm text-muted-foreground">{t('alerts.list.empty')}</div>
+                }
+                renderExpandedRow={(a) =>
+                  expandedEchoes.has(a.id) ? <EchoesTimeline parentId={a.id} onClose={() => toggleEchoes(a.id)} /> : null
+                }
+              />
               {alerts.length > 0 && (
                 <InfiniteScrollSentinel
                   onReach={() => setPage((p) => p + 1)}
@@ -437,6 +407,8 @@ export function AlertsPage() {
           onIncident={() => setIncidentTargets([openAlert])}
           onNotes={(notes) => void updateNotes(openAlert.id, notes)}
           onAssign={(assignee) => void updateAssignee(openAlert.id, assignee)}
+          onGenerateAi={socAiConfigured ? () => void generateAiSummary(openAlert) : undefined}
+          aiGenerating={aiGenerating.has(openAlert.id)}
         />
       )}
 

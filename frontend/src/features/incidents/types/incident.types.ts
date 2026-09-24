@@ -77,6 +77,7 @@ export interface IncidentListQuery {
   incidentName?: string
   incidentStatus?: IncidentStatus
   incidentAssignedTo?: string
+  incidentSeverity?: IncidentSeverity
   createdDateStart?: string
   createdDateEnd?: string
   page?: number // 1-based
