@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - deceptive-bytes
@@ -36,7 +36,9 @@ where: |
     (greaterOrEqual("log.fileSystemAnomalyScore", 92))
   ) &&
   equals("log.knownMalwareFamily", "") &&
-  exists("log.exploitTechnique")
+  exists("log.exploitTechnique") &&
+  exists("origin.ip") &&
+  exists("log.processName")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:

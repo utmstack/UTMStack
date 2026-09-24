@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - deceptive-bytes
@@ -33,7 +33,8 @@ where: |
   equals("log.threatLevel", "critical") &&
   (oneOf("log.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
   equals("log.deceptionTriggered", "true") &&
-  greaterOrEqual("log.behaviorScore", 80)
+  greaterOrEqual("log.behaviorScore", 80) &&
+  exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:

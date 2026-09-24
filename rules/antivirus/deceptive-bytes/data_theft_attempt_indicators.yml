@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - deceptive-bytes
@@ -28,7 +28,8 @@ description: |
 where: |
   equals("log.eventtype", "decoy_accessed") &&
   oneOf("log.action", ["file_read", "file_copy", "file_download"]) &&
-  equals("log.decoysensitivity", "high")
+  equals("log.decoysensitivity", "high") &&
+  exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
