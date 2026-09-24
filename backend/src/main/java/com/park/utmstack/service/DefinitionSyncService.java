@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +45,7 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmCorrelationRulesService rulesService;
     private final UtmCorrelationRulesMapper rulesMapper;
     private final UtmLogstashFilterService filterService;
+    private final Validator validator;
 
     @Override
     @Transactional
@@ -81,6 +85,10 @@ public class DefinitionSyncService implements CommandLineRunner {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
                 try {
                     String content = Files.readString(path);
+                    if (content.isBlank()) {
+                        log.warn("Skipping blank filter file: {}", path);
+                        return;
+                    }
                     java.util.regex.Matcher matcher = dataTypePattern.matcher(content);
                     if (!matcher.find()) {
                         log.warn("Skipping filter file without dataType: {}", path);
@@ -188,8 +196,8 @@ public class DefinitionSyncService implements CommandLineRunner {
                             continue;
                         }
 
-                        foundRules.add(ruleYaml.getName());
                         Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
+                        foundRules.add(ruleYaml.getName());
                         UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
                         if (ruleOpt.isPresent()) {
@@ -227,6 +235,14 @@ public class DefinitionSyncService implements CommandLineRunner {
                                 .map(Optional::get)
                                 .collect(Collectors.toSet());
                             ruleDto.setDataTypes(dataTypes);
+                        }
+
+                        Set<ConstraintViolation<UtmCorrelationRulesDTO>> violations = validator.validate(ruleDto);
+                        if (!violations.isEmpty()) {
+                            log.error("Skipping invalid rule '{}' in file {}: {}",
+                                ruleYaml.getName(), path,
+                                violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("; ")));
+                            continue;
                         }
 
                         UtmCorrelationRules entity = rulesMapper.toEntity(ruleDto);
