@@ -1,4 +1,4 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpResponse, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../app.constants';
@@ -6,7 +6,6 @@ import {
   TeamUser,
   TeamUserCreatePayload,
   TeamUserListQuery,
-  TeamUserListResponse,
   TeamUserUpdatePayload
 } from '../domain/team-user.model';
 
@@ -16,7 +15,7 @@ export class FederationTeamService {
 
   constructor(private http: HttpClient) {}
 
-  list(query: TeamUserListQuery = {}): Observable<TeamUserListResponse> {
+  list(query: TeamUserListQuery = {}): Observable<HttpResponse<TeamUser[]>> {
     let params = new HttpParams();
     if (query.page !== undefined) {
       params = params.set('page', String(query.page));
@@ -27,7 +26,7 @@ export class FederationTeamService {
     if (query.search) {
       params = params.set('search', query.search);
     }
-    return this.http.get<TeamUserListResponse>(this.endpoint, {params});
+    return this.http.get<TeamUser[]>(this.endpoint, {params, observe: 'response'});
   }
 
   get(id: number): Observable<TeamUser> {

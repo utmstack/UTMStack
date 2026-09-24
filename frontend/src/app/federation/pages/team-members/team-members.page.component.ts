@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpResponse} from '@angular/common/http';
 import {Subject} from 'rxjs';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
@@ -24,7 +25,7 @@ export class TeamMembersPageComponent implements OnInit, OnDestroy {
   searchTerm = '';
   pendingActionId: number | null = null;
 
-  private currentPage = 1;
+  private currentPage = 0;
   private readonly pageSize = DEFAULT_PAGE_SIZE;
   private destroy$ = new Subject<void>();
 
@@ -43,7 +44,7 @@ export class TeamMembersPageComponent implements OnInit, OnDestroy {
 
   onSearchChange(value: string): void {
     this.searchTerm = value;
-    this.currentPage = 1;
+    this.currentPage = 0;
     this.load();
   }
 
@@ -71,7 +72,7 @@ export class TeamMembersPageComponent implements OnInit, OnDestroy {
     ref.componentInstance.saved.subscribe(() => {
       ref.close();
       this.toast.showSuccessBottom('Invitation sent.');
-      this.currentPage = 1;
+      this.currentPage = 0;
       this.load();
     });
   }
@@ -214,10 +215,13 @@ export class TeamMembersPageComponent implements OnInit, OnDestroy {
       page_size: this.pageSize,
       search: this.searchTerm ? this.searchTerm.trim() : undefined
     }).subscribe({
-      next: response => {
+      next: (res: HttpResponse<TeamUser[]>) => {
         this.loading = false;
-        this.users = response.data || [];
-        this.pageInfo = response.page_info;
+        this.users = res.body || [];
+        const totalItems = Number(res.headers.get('X-Total-Count') || 0);
+        const totalPages = Math.ceil(totalItems / this.pageSize);
+        const page = Math.max(this.currentPage, 0);
+        this.pageInfo = {page, page_size: this.pageSize, total_items: totalItems, total_pages: totalPages, has_next: page < totalPages, has_prev: page > 1};
       },
       error: err => {
         this.loading = false;
