@@ -69,8 +69,15 @@ Three rules run a history search on `{{.origin.ip}}` (and `{{.log.tacticName}}` 
 placeholder makes the search fail, and five failures switch a rule off with a
 Circuit Breaker alert, so the data theft, advanced threat tactic and zero-day
 conditions now also require those fields, as the other seven `origin.ip` rules of
-this source already do. `ransomware_behavior_patterns` still searches on
-`{{.log.process}}` and `{{.log.source_ip}}` without requiring them; that is unchanged.
+this source already do. For the same reason `ransomware_behavior_patterns`, which
+searches on `{{.log.process}}` and `{{.log.source_ip}}`, now requires both fields. The
+history-guard test checks each of the four rules: no match without the fields it needs or
+without any one of them, a match with them, and every placeholder resolved. Without the
+ransomware guard it fails; the go-sdk v1.1.36 replay over the playground events plus two
+copies of the ransomware line that each lack one of those fields then matched both copies
+with unresolved placeholders. With the guard the same replay passes 65 of 65 checks: each
+rule matches only its intended case, and the ransomware rule only the line that carries
+both fields.
 
 The committed fabricated lines carry all 18 keys. On EventProcessor `8a3ade7` the KV
 plugin stored every one with its underscore (for example `log.event_type`,
