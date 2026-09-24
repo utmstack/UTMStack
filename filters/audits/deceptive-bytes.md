@@ -56,9 +56,10 @@ v1.1.34 that function removed underscores, so KV stored `log.eventtype` and thes
 rules could not match; an earlier revision of this draft therefore respelled the 18
 names without underscores. Since v1.1.35 the function keeps underscores, and `v11`
 now pins v1.1.36, so KV stores the vendor's own spelling and those respelled names
-would never match. This revision restores the original names. Four of the six rules
+would never match. This revision restores the original names. Three of the six rules
 are again identical to `v11`; `data_theft_attempt_indicators` keeps only its
-`origin.ip` guard and `nation_state_tactic_detection` only its `"true"` comparisons.
+`origin.ip` guard, `ransomware_behavior_patterns` only its placeholder guard (below) and
+`nation_state_tactic_detection` only its `"true"` comparisons.
 KV also stores values as strings, so ten boolean comparisons across five rules use
 `"true"`; go-sdk v1.1.36 CEL still accepts a native boolean `true` for those
 comparisons. Literal event labels, thresholds and source-IP requirements are
