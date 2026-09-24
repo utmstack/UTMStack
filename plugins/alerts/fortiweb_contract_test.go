@@ -1,11 +1,12 @@
 package main
 
 // These are offline parser/rule contracts, not the closed EventProcessor. The
-// model concatenates documented grok patterns, executes them with Go RE2, applies
-// the filter's transforms, and uses the real SDK for CEL and Event conversion.
-// KV models observed space splitting so quoted payload tokens can contaminate
-// intermediate fields; authoritative recovery must remove them. External
-// geolocation is not run, but its input addresses are checked before enrichment.
+// model consumes grok patterns in order, as the EventProcessor grok step does,
+// applies the filter's transforms, and uses the real SDK for CEL and Event
+// conversion. KV follows the EventProcessor step's space splitting, so quoted
+// payload tokens can contaminate intermediate fields; authoritative recovery must
+// remove them. External geolocation is not run, but its input addresses are
+// checked before enrichment.
 import (
 	"bytes"
 	"encoding/json"
@@ -78,21 +79,19 @@ func fwConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func fwRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+
+var fwRegexCache = map[string]*regexp.Regexp{}
+
+func fwRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
+	if r, ok := fwRegexCache[pattern]; ok {
+		return r
 	}
 	pats := map[string]string{"greedy": ".*"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -104,7 +103,33 @@ func fwRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp 
 	if e != nil {
 		t.Fatal(e)
 	}
+	fwRegexCache[pattern] = r
 	return r
+}
+
+// fwGrok follows the EventProcessor grok step: it trims the text before each
+// pattern, requires a non-empty match at the start, consumes that match, and
+// writes fields only when every pattern matched.
+func fwGrok(t *testing.T, g *plugins.Grok, str string, cfg *plugins.Config) ([][2]string, bool) {
+	t.Helper()
+	var found [][2]string
+	matched := 0
+	for _, p := range g.Patterns {
+		str = strings.TrimSpace(str)
+		if str == "" {
+			break
+		}
+		m := fwRegex(t, p.Pattern, cfg).FindString(str)
+		if m == "" || !strings.HasPrefix(str, m) {
+			break
+		}
+		matched++
+		if p.FieldName != "" {
+			found = append(found, [2]string{p.FieldName, strings.TrimSpace(m)})
+		}
+		str = strings.TrimPrefix(str, m)
+	}
+	return found, matched == len(g.Patterns)
 }
 func fwParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCache) string {
 	return fwParseSource(t, cfg, raw, "synthetic-fortiweb", cache)
@@ -160,15 +185,12 @@ func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, ca
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := fwRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, ok := fwGrok(t, g, str, cfg)
+					if !ok {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							fwPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for _, f := range found {
+						fwPut(draft, f[0], f[1], false)
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
@@ -210,12 +232,10 @@ func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, ca
 					if !ok {
 						continue
 					}
-					for _, token := range strings.Split(value.(string), " ") {
-						pair := strings.SplitN(token, "=", 2)
-						if len(pair) == 2 {
-							key := pair[0]
+					for _, token := range strings.Split(strings.TrimSpace(value.(string)), " ") {
+						if key, val, found := strings.Cut(token, "="); found {
 							utils.SanitizeField(&key)
-							fwPut(draft, "log."+key, pair[1], false)
+							fwPut(draft, "log."+key, strings.TrimSpace(val), false)
 						}
 					}
 				case "dynamic":
