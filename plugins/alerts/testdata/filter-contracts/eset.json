@@ -61,15 +61,15 @@
         "dataType": "antivirus-esmc-eset",
         "dataSource": "synthetic-relay",
         "log": {
-          "eventtype": "Unverified_Event",
           "result": "Success",
-          "severity": "Warning"
+          "severity": "Warning",
+          "event_type": "Unverified_Event"
         }
       },
       "expected": {
-        "log.eventtype": "Unverified_Event",
         "log.result": "Success",
-        "log.severity": "Warning"
+        "log.severity": "Warning",
+        "log.event_type": "Unverified_Event"
       },
       "absent": [
         "actionResult",
