@@ -12,83 +12,83 @@ pipeline:
 
       - rename:
           from:
-            - log.baseref
+            - log.base_ref
           to: log.baseRef
 
       # Parsing headCommit section
       - rename:
           from:
-            - log.headcommit.added
+            - log.head_commit.added
           to: log.headCommitAdded
 
       - rename:
           from:
-            - log.headcommit.author.email
+            - log.head_commit.author.email
           to: log.headCommitAuthorEmail
 
       - rename:
           from:
-            - log.headcommit.author.name
+            - log.head_commit.author.name
           to: log.headCommitAuthorName
 
       - rename:
           from:
-            - log.headcommit.committer.email
+            - log.head_commit.committer.email
           to: log.headCommitCommitterEmail
 
       - rename:
           from:
-            - log.headcommit.author.username
+            - log.head_commit.author.username
           to: log.headCommitAuthorUsername
 
       - rename:
           from:
-            - log.headcommit.committer.name
+            - log.head_commit.committer.name
           to: log.headCommitCommitterName
 
       - rename:
           from:
-            - log.headcommit.committer.username
+            - log.head_commit.committer.username
           to: log.headCommitCommitterUsername
 
       - rename:
           from:
-            - log.headcommit.distinct
+            - log.head_commit.distinct
           to: log.headCommitDistinct
 
       - rename:
           from:
-            - log.headcommit.id
+            - log.head_commit.id
           to: log.headCommitId
 
       - rename:
           from:
-            - log.headcommit.message
+            - log.head_commit.message
           to: log.headCommitMessage
 
       - rename:
           from:
-            - log.headcommit.modified.0
+            - log.head_commit.modified.0
           to: log.headCommitModified
 
       - rename:
           from:
-            - log.headcommit.removed
+            - log.head_commit.removed
           to: log.headCommitRemoved
 
       - rename:
           from:
-            - log.headcommit.timestamp
+            - log.head_commit.timestamp
           to: log.headCommitTimesTamp
 
       - rename:
           from:
-            - log.headcommit.tree_id
+            - log.head_commit.tree_id
           to: log.headCommitTreeId
 
       - rename:
           from:
-            - log.headcommit.url
+            - log.head_commit.url
           to: log.headCommitUrl
 
       # Parsing pusher section
@@ -665,14 +665,12 @@ pipeline:
           to: log.senderUserViewType
 
       # Adding action result
-      # The json step removes underscores from top-level keys, so the
-      # workflow_run object arrives as log.workflowrun. A completed run's
-      # conclusion is its final result: action_required waits for approval,
-      # and cancelled, neutral, skipped and stale are neither success nor
-      # failure, so they set no outcome.
+      # A completed run's conclusion is its final result: action_required
+      # waits for approval, and cancelled, neutral, skipped and stale are
+      # neither success nor failure, so they set no outcome.
       - rename:
           from:
-            - log.workflowrun.conclusion
+            - log.workflow_run.conclusion
           to: log.conclusion
       - add:
           function: string
