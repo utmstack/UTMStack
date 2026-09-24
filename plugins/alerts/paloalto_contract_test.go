@@ -2,8 +2,10 @@ package main
 
 // Offline Palo Alto extraction model, not the closed EventProcessor.
 // Explicit YAML grok/CSV/rename/cast/trim/add/delete operations are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
-// history thresholds use SDK v1.1.33. External geolocation is not executed.
+// modeled. Every field name a step writes is cleaned like the EventProcessor
+// parser plugins clean it. CEL, Event serialization, placeholder expansion,
+// query creation and history thresholds use SDK v1.1.33. External geolocation
+// is not executed.
 import (
 	"bytes"
 	"encoding/csv"
@@ -68,6 +70,21 @@ func paloaltoGet(m map[string]any, p string) (any, bool) {
 		}
 	}
 	return v, true
+}
+
+// paloaltoWriteName returns the name the EventProcessor parser plugins actually
+// write: grok, add, rename, csv, kv and json pass it through go-sdk
+// utils.SanitizeField, which keeps only letters, digits and dots, and reject a
+// reserved name. Conditions and rules look names up as written, so a filter that
+// writes "log.pa_type" and tests "log.pa_type" never matches in production and
+// must not match here either.
+func paloaltoWriteName(t *testing.T, name string, allowEmpty bool) string {
+	t.Helper()
+	utils.SanitizeField(&name)
+	if e := utils.ValidateReservedField(name, allowEmpty); e != nil {
+		t.Fatal(e)
+	}
+	return name
 }
 func paloaltoConfig(t *testing.T) *plugins.Config {
 	t.Helper()
@@ -166,8 +183,12 @@ func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						continue
 					}
 					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							paloaltoPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
+						if p.FieldName == "" {
+							continue
+						}
+						// A name made only of removed characters is not stored.
+						if name := paloaltoWriteName(t, p.FieldName, true); name != "" {
+							paloaltoPut(draft, name, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
 						}
 					}
 				case "csv":
@@ -186,14 +207,18 @@ func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						t.Fatalf("multiple CSV records: %v", err)
 					}
 					for i, field := range s.Csv.Headers {
-						if i < len(record) {
-							paloaltoPut(draft, field, record[i], false)
+						if i >= len(record) {
+							continue
+						}
+						// The CSV plugin skips a header that cleans to nothing.
+						if name := paloaltoWriteName(t, field, true); name != "" {
+							paloaltoPut(draft, name, record[i], false)
 						}
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
 						if v, ok := paloaltoGet(draft, p); ok {
-							paloaltoPut(draft, s.Rename.To, v, false)
+							paloaltoPut(draft, paloaltoWriteName(t, s.Rename.To, false), v, false)
 							paloaltoPut(draft, p, nil, true)
 							break
 						}
@@ -220,7 +245,7 @@ func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 					if s.Add.Function != "string" {
 						t.Fatalf("unsupported add function %s", s.Add.Function)
 					}
-					paloaltoPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
+					paloaltoPut(draft, paloaltoWriteName(t, s.Add.Params["key"].GetStringValue(), false), s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						paloaltoPut(draft, p, nil, true)
@@ -345,13 +370,12 @@ func paloaltoRules(t *testing.T) map[string]*plugins.Rule {
 	return out
 }
 
+// paloaltoSanitizeJSON cleans the top-level keys only, as the EventProcessor
+// JSON plugin does; keys inside nested objects keep their characters.
 func paloaltoSanitizeJSON(input map[string]any) map[string]any {
 	out := map[string]any{}
 	for key, value := range input {
 		utils.SanitizeField(&key)
-		if nested, ok := value.(map[string]any); ok {
-			value = paloaltoSanitizeJSON(nested)
-		}
 		out[key] = value
 	}
 	return out

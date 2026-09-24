@@ -17,8 +17,8 @@ description: Detects a blocked PAN-OS threat categorized as malware, command-and
   session endpoints and attack direction; a blocked event does not establish compromise. For URL-category events,
   the requested remote resource is the adversary; the request direction does not make the requesting client the
   malicious resource.
-where: equals("log.pa_type", "THREAT") && oneOf("log.thr_category", ["malware", "command-and-control", "phishing",
-  "botnet"]) && equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip") && !equals("log.pa_subtype",
+where: equals("log.paType", "THREAT") && oneOf("log.thrCategory", ["malware", "command-and-control", "phishing",
+  "botnet"]) && equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip") && !equals("log.paSubtype",
   "url") && equals("log.paDirection", "client-to-server")
 groupBy:
 - lastEvent.dataSource
@@ -26,4 +26,4 @@ groupBy:
 - lastEvent.log.paVsys
 - adversary.ip
 - target.ip
-- lastEvent.log.pa_threatid
+- lastEvent.log.paThreatid

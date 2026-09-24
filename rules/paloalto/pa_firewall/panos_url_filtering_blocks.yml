@@ -18,7 +18,7 @@ description: Detects five URL events in the configured malware, phishing, comman
   malware, and requesting a URL does not prove execution or compromise. The requested remote resource is the alert
   adversary; the requesting client is its target. Inspect the URL and action; a later continue/override is a separate
   event.
-where: equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url") && oneOf("action", ["block-url", "block-page",
+where: equals("log.paType", "THREAT") && equals("log.paSubtype", "url") && oneOf("action", ["block-url", "block-page",
   "block-continue", "block-override", "alert"]) && oneOf("log.category", ["malware", "phishing", "command-and-control",
   "grayware", "hacking"]) && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope")
   && exists("log.paVsys")

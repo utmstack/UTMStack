@@ -22,8 +22,8 @@ pipeline:
       - log.paPayload
       - log.paCefExtensions
       - log.paCefSignature
-      - log.pa_type
-      - log.pa_subtype
+      - log.paType
+      - log.paSubtype
   - grok:
       source: raw
       patterns:
@@ -82,7 +82,7 @@ pipeline:
         pattern: (?:\\.|[^|\\])*
       - fieldName: log.paSep2
         pattern: \|
-      - fieldName: log.pa_type
+      - fieldName: log.paType
         pattern: '[A-Z][A-Z0-9-]*'
       - fieldName: log.paSep3
         pattern: \|
@@ -2428,7 +2428,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?cert_sizePanOSCommonNameLength=
-      - fieldName: log.cert_sizePanOSCommonNameLength
+      - fieldName: log.certSizePanOSCommonNameLength
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2518,7 +2518,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?client_osPanOSEndpointOSVersion=
-      - fieldName: log.client_osPanOSEndpointOSVersion
+      - fieldName: log.clientOsPanOSEndpointOSVersion
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2668,7 +2668,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?connect_methodPanOSConnectionErrorID=
-      - fieldName: log.connect_methodPanOSConnectionErrorID
+      - fieldName: log.connectMethodPanOSConnectionErrorID
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2878,7 +2878,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?device_namePanOSActionFlags=
-      - fieldName: log.device_namePanOSActionFlags
+      - fieldName: log.deviceNamePanOSActionFlags
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2888,7 +2888,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dg_hier_level_1PanOSDGl2=
-      - fieldName: log.dg_hier_level_1PanOSDGl2
+      - fieldName: log.dgHierLevel1PanOSDGl2
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2898,7 +2898,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dg_hier_level_2PanOSDGl3=
-      - fieldName: log.dg_hier_level_2PanOSDGl3
+      - fieldName: log.dgHierLevel2PanOSDGl3
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2908,7 +2908,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dg_hier_level_3PanOSDGl4=
-      - fieldName: log.dg_hier_level_3PanOSDGl4
+      - fieldName: log.dgHierLevel3PanOSDGl4
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2918,7 +2918,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dg_hier_level_4PanOSVsysName=
-      - fieldName: log.dg_hier_level_4PanOSVsysName
+      - fieldName: log.dgHierLevel4PanOSVsysName
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2958,7 +2958,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_categoryPanOSDestinationDeviceProfile=
-      - fieldName: log.dst_categoryPanOSDestinationDeviceProfile
+      - fieldName: log.dstCategoryPanOSDestinationDeviceProfile
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2968,7 +2968,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_dagPanOSTimeGeneratedHighResolution=
-      - fieldName: log.dst_dagPanOSTimeGeneratedHighResolution
+      - fieldName: log.dstDagPanOSTimeGeneratedHighResolution
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2978,7 +2978,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_edlPanOSSourceDynamicAddressGroup=
-      - fieldName: log.dst_edlPanOSSourceDynamicAddressGroup
+      - fieldName: log.dstEdlPanOSSourceDynamicAddressGroup
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2988,7 +2988,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_hostPanOSDestinationDeviceMac=
-      - fieldName: log.dst_hostPanOSDestinationDeviceMac
+      - fieldName: log.dstHostPanOSDestinationDeviceMac
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -2998,7 +2998,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_macPanContainerName=
-      - fieldName: log.dst_macPanContainerName
+      - fieldName: log.dstMacPanContainerName
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3008,7 +3008,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_modelPanOSDestinationDeviceVendor=
-      - fieldName: log.dst_modelPanOSDestinationDeviceVendor
+      - fieldName: log.dstModelPanOSDestinationDeviceVendor
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3018,7 +3018,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_osfamilyPanDstDeviceOSv=
-      - fieldName: log.dst_osfamilyPanDstDeviceOSv
+      - fieldName: log.dstOsfamilyPanDstDeviceOSv
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3028,7 +3028,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_osfamilyPanOSDestinationDeviceOSVersion=
-      - fieldName: log.dst_osfamilyPanOSDestinationDeviceOSVersion
+      - fieldName: log.dstOsfamilyPanOSDestinationDeviceOSVersion
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3038,7 +3038,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_profilePanDstDeviceModel=
-      - fieldName: log.dst_profilePanDstDeviceModel
+      - fieldName: log.dstProfilePanDstDeviceModel
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3048,7 +3048,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?dst_uuidPanOSTunnelID=
-      - fieldName: log.dst_uuidPanOSTunnelID
+      - fieldName: log.dstUuidPanOSTunnelID
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3098,7 +3098,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?err_indexPanOSRootStatus=
-      - fieldName: log.err_indexPanOSRootStatus
+      - fieldName: log.errIndexPanOSRootStatus
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3278,7 +3278,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?http2_connectionPanDynamicUsrgrp=
-      - fieldName: log.http2_connectionPanDynamicUsrgrp
+      - fieldName: log.http2ConnectionPanDynamicUsrgrp
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3288,7 +3288,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?http_headersPanOSRuleUUID=
-      - fieldName: log.http_headersPanOSRuleUUID
+      - fieldName: log.httpHeadersPanOSRuleUUID
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -3298,7 +3298,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?http_headersPanOSURLCatList=
-      - fieldName: log.http_headersPanOSURLCatList
+      - fieldName: log.httpHeadersPanOSURLCatList
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5568,7 +5568,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?parent_session_idPanOSParentStartTime=
-      - fieldName: log.parent_session_idPanOSParentStartTime
+      - fieldName: log.parentSessionIdPanOSParentStartTime
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5578,7 +5578,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?partial_hashPanTimeHighRes=
-      - fieldName: log.partial_hashPanTimeHighRes
+      - fieldName: log.partialHashPanTimeHighRes
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5588,7 +5588,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?pcap_idfileHash=
-      - fieldName: log.pcap_idfileHash
+      - fieldName: log.pcapIdfileHash
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5598,7 +5598,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?pcap_idrequestMethod=
-      - fieldName: log.pcap_idrequestMethod
+      - fieldName: log.pcapIdrequestMethod
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5608,7 +5608,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?pod_namePanSrcEDL=
-      - fieldName: log.pod_namePanSrcEDL
+      - fieldName: log.podNamePanSrcEDL
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5618,7 +5618,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?pod_namespacePanOSContainerName=
-      - fieldName: log.pod_namespacePanOSContainerName
+      - fieldName: log.podNamespacePanOSContainerName
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5658,7 +5658,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?proxy_typePanOSCertificateSerial=
-      - fieldName: log.proxy_typePanOSCertificateSerial
+      - fieldName: log.proxyTypePanOSCertificateSerial
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5668,7 +5668,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?public_ipPanOSPublicIPv6=
-      - fieldName: log.public_ipPanOSPublicIPv6
+      - fieldName: log.publicIpPanOSPublicIPv6
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5698,7 +5698,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?receive_timePanOSDeviceSN=
-      - fieldName: log.receive_timePanOSDeviceSN
+      - fieldName: log.receiveTimePanOSDeviceSN
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5708,7 +5708,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?receive_timedeviceExternalId=
-      - fieldName: log.receive_timedeviceExternalId
+      - fieldName: log.receiveTimedeviceExternalId
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5768,7 +5768,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?rootcn_lenPanOSSNILength=
-      - fieldName: log.rootcn_lenPanOSSNILength
+      - fieldName: log.rootcnLenPanOSSNILength
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5788,7 +5788,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?rule_uuidPanOSClientToFirewall=
-      - fieldName: log.rule_uuidPanOSClientToFirewall
+      - fieldName: log.ruleUuidPanOSClientToFirewall
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5798,7 +5798,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?rule_uuidPanOSTimeGeneratedHighResolution=
-      - fieldName: log.rule_uuidPanOSTimeGeneratedHighResolution
+      - fieldName: log.ruleUuidPanOSTimeGeneratedHighResolution
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5818,7 +5818,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?selection_typePanOSSSLResponseTime=
-      - fieldName: log.selection_typePanOSSSLResponseTime
+      - fieldName: log.selectionTypePanOSSSLResponseTime
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5878,7 +5878,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?sni_lenPanOSErrorMessage=
-      - fieldName: log.sni_lenPanOSErrorMessage
+      - fieldName: log.sniLenPanOSErrorMessage
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5928,7 +5928,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_categoryPanOSSourceDeviceProfile=
-      - fieldName: log.src_categoryPanOSSourceDeviceProfile
+      - fieldName: log.srcCategoryPanOSSourceDeviceProfile
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5938,7 +5938,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_categoryPanSrcDeviceProf=
-      - fieldName: log.src_categoryPanSrcDeviceProf
+      - fieldName: log.srcCategoryPanSrcDeviceProf
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5948,7 +5948,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_hostPanOSSourceDeviceMac=
-      - fieldName: log.src_hostPanOSSourceDeviceMac
+      - fieldName: log.srcHostPanOSSourceDeviceMac
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5958,7 +5958,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_hostPanSrcMac=
-      - fieldName: log.src_hostPanSrcMac
+      - fieldName: log.srcHostPanSrcMac
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5968,7 +5968,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_macPanOSTrafficOriginRegion=
-      - fieldName: log.src_macPanOSTrafficOriginRegion
+      - fieldName: log.srcMacPanOSTrafficOriginRegion
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5978,7 +5978,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_modelPanOSSourceDeviceVendor=
-      - fieldName: log.src_modelPanOSSourceDeviceVendor
+      - fieldName: log.srcModelPanOSSourceDeviceVendor
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5988,7 +5988,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_modelPanSrcDeviceVendor=
-      - fieldName: log.src_modelPanSrcDeviceVendor
+      - fieldName: log.srcModelPanSrcDeviceVendor
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -5998,7 +5998,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_osfamilyPanOSSourceDeviceOSVersion=
-      - fieldName: log.src_osfamilyPanOSSourceDeviceOSVersion
+      - fieldName: log.srcOsfamilyPanOSSourceDeviceOSVersion
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6008,7 +6008,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_osversionPanSrcHostname=
-      - fieldName: log.src_osversionPanSrcHostname
+      - fieldName: log.srcOsversionPanSrcHostname
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6018,7 +6018,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_uuidPanOSDstUUID=
-      - fieldName: log.src_uuidPanOSDstUUID
+      - fieldName: log.srcUuidPanOSDstUUID
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6028,7 +6028,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?src_vendorPanSrcDeviceOS=
-      - fieldName: log.src_vendorPanSrcDeviceOS
+      - fieldName: log.srcVendorPanSrcDeviceOS
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6118,7 +6118,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?tag_namePanOSEventID=
-      - fieldName: log.tag_namePanOSEventID
+      - fieldName: log.tagNamePanOSEventID
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6128,7 +6128,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?thr_categoryPanOSContentVer=
-      - fieldName: log.thr_categoryPanOSContentVer
+      - fieldName: log.thrCategoryPanOSContentVer
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6138,7 +6138,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?tls_authPanOSPolicyName=
-      - fieldName: log.tls_authPanOSPolicyName
+      - fieldName: log.tlsAuthPanOSPolicyName
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6148,7 +6148,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?tls_versionPanOSTLSKeyExchange=
-      - fieldName: log.tls_versionPanOSTLSKeyExchange
+      - fieldName: log.tlsVersionPanOSTLSKeyExchange
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6188,7 +6188,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?url_category_listPanOSHTTP2Con=
-      - fieldName: log.url_category_listPanOSHTTP2Con
+      - fieldName: log.urlCategoryListPanOSHTTP2Con
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6218,7 +6218,7 @@ pipeline:
       patterns:
       - fieldName: log.paIgnored
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^=\\])*?[ \t]+)*?xff_ipPanSrcDeviceCat=
-      - fieldName: log.xff_ipPanSrcDeviceCat
+      - fieldName: log.xffIpPanSrcDeviceCat
         pattern: (?:\\.|[^=\\])*?
       - fieldName: log.paSuffix
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
@@ -6227,13 +6227,13 @@ pipeline:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -6245,10 +6245,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -6259,116 +6259,116 @@ pipeline:
       - log.proto
       - log.act
       - log.bytes
-      - log.bytes_sent
-      - log.bytes_received
+      - log.bytesSent
+      - log.bytesReceived
       - log.packets
       - log.start
       - log.elapsed
       - log.category
-      - log.future_use
+      - log.futureUse
       - log.seqno
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
-      - log.pkts_sent
-      - log.pkts_received
-      - log.session_end_reason
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.action_source
-      - log.src_uuid
-      - log.dst_uuid
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.futureUse
+      - log.pktsSent
+      - log.pktsReceived
+      - log.sessionEndReason
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.actionSource
+      - log.srcUuid
+      - log.dstUuid
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.assoc_id
+      - log.assocId
       - log.chunks
-      - log.chunks_sent
-      - log.chunks_received
-      - log.rule_uuid
-      - log.http2_connection
-      - log.link_change_count
-      - log.policy_id
-      - log.link_switches
-      - log.sdwan_cluster
-      - log.sdwan_device_type
-      - log.sdwan_cluster_type
-      - log.sdwan_site
-      - log.dynusergroup_name
-      - log.xff_ip
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
+      - log.chunksSent
+      - log.chunksReceived
+      - log.ruleUuid
+      - log.http2Connection
+      - log.linkChangeCount
+      - log.policyId
+      - log.linkSwitches
+      - log.sdwanCluster
+      - log.sdwanDeviceType
+      - log.sdwanClusterType
+      - log.sdwanSite
+      - log.dynusergroupName
+      - log.xffIp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
       - log.hostid
       - log.serialnumber
-      - log.src_dag
-      - log.dst_dag
-      - log.session_owner
-      - log.high_res_timestamp
-      - log.nsdsai_sst
-      - log.nsdsai_sd
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.tunneled_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
+      - log.srcDag
+      - log.dstDag
+      - log.sessionOwner
+      - log.highResTimestamp
+      - log.nsdsaiSst
+      - log.nsdsaiSd
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.tunneledApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
       - log.offloaded
-      - log.flow_type
-      - log.cluster_name
-      - log.ai_traffic
-      - log.ai_forward_error
-      - log.k8s_cluster_id
-      - log.tcp_rtt_c2s
-      - log.tcp_rtt_s2c
-      - log.total_n_ooseq_c2s
-      - log.total_n_ooseq_s2c
-      - log.tcp_retransit_cnt_c2s
-      - log.tcp_retransit_cnt_s2c
-      - log.tcp_zero_window_cnt_c2s
-      - log.tcp_zero_window_cnt_s2c
-      - log.src_adv_devid
-      - log.dst_adv_devid
+      - log.flowType
+      - log.clusterName
+      - log.aiTraffic
+      - log.aiForwardError
+      - log.k8sClusterId
+      - log.tcpRttC2s
+      - log.tcpRttS2c
+      - log.totalNOoseqC2s
+      - log.totalNOoseqS2c
+      - log.tcpRetransitCntC2s
+      - log.tcpRetransitCntS2c
+      - log.tcpZeroWindowCntC2s
+      - log.tcpZeroWindowCntS2c
+      - log.srcAdvDevid
+      - log.dstAdvDevid
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,TRAFFIC,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -6380,10 +6380,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -6394,7 +6394,7 @@ pipeline:
       - log.proto
       - log.act
       - log.misc
-      - log.pa_threatid
+      - log.paThreatid
       - log.category
       - log.severityLabel
       - log.direction
@@ -6402,13 +6402,13 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
+      - log.futureUse
       - log.contenttype
-      - log.pcap_id
+      - log.pcapId
       - log.filedigest
       - log.cloud
-      - log.url_idx
-      - log.user_agent
+      - log.urlIdx
+      - log.userAgent
       - log.filetype
       - log.xff
       - log.referer
@@ -6416,88 +6416,88 @@ pipeline:
       - log.subject
       - log.recipient
       - log.reportid
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.http_method
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.httpMethod
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.thr_category
+      - log.thrCategory
       - log.contentver
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
-      - log.http_headers
-      - log.url_category_list
-      - log.rule_uuid
-      - log.http2_connection
-      - log.dynusergroup_name
-      - log.xff_ip
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
+      - log.httpHeaders
+      - log.urlCategoryList
+      - log.ruleUuid
+      - log.http2Connection
+      - log.dynusergroupName
+      - log.xffIp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
       - log.hostid
       - log.serialnumber
-      - log.domain_edl
-      - log.src_dag
-      - log.dst_dag
-      - log.partial_hash
-      - log.high_res_timestamp
+      - log.domainEdl
+      - log.srcDag
+      - log.dstDag
+      - log.partialHash
+      - log.highResTimestamp
       - log.reason
       - log.justification
-      - log.nssai_sst
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.tunneled_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cloud_reportid
-      - log.flow_type
-      - log.cluster_name
+      - log.nssaiSst
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.tunneledApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.cloudReportid
+      - log.flowType
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,THREAT,") && !regexMatch("log.paPayload",
         "^[^,]*,[^,]*,[^,]*,THREAT,(?:url|data|dlp|dlp-non-file|file),")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -6509,10 +6509,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -6523,7 +6523,7 @@ pipeline:
       - log.proto
       - log.act
       - log.misc
-      - log.pa_threatid
+      - log.paThreatid
       - log.category
       - log.severityLabel
       - log.direction
@@ -6531,13 +6531,13 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
+      - log.futureUse
       - log.contenttype
-      - log.pcap_id
+      - log.pcapId
       - log.filedigest
       - log.cloud
-      - log.url_idx
-      - log.user_agent
+      - log.urlIdx
+      - log.userAgent
       - log.filetype
       - log.xff
       - log.referer
@@ -6545,87 +6545,87 @@ pipeline:
       - log.subject
       - log.recipient
       - log.reportid
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.http_method
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.httpMethod
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.thr_category
+      - log.thrCategory
       - log.contentver
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
-      - log.http_headers
-      - log.url_category_list
-      - log.rule_uuid
-      - log.http2_connection
-      - log.dynusergroup_name
-      - log.xff_ip
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
+      - log.httpHeaders
+      - log.urlCategoryList
+      - log.ruleUuid
+      - log.http2Connection
+      - log.dynusergroupName
+      - log.xffIp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
       - log.hostid
       - log.serialnumber
-      - log.domain_edl
-      - log.src_dag
-      - log.dst_dag
-      - log.partial_hash
-      - log.high_res_timestamp
+      - log.domainEdl
+      - log.srcDag
+      - log.dstDag
+      - log.partialHash
+      - log.highResTimestamp
       - log.reason
       - log.justification
-      - log.nssai_sst
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.tunneled_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cloud_reportid
-      - log.cluster_name
-      - log.flow_type
+      - log.nssaiSst
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.tunneledApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.cloudReportid
+      - log.clusterName
+      - log.flowType
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,THREAT,(?:data|dlp|dlp-non-file|file),")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -6637,10 +6637,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -6651,7 +6651,7 @@ pipeline:
       - log.proto
       - log.act
       - log.misc
-      - log.pa_threatid
+      - log.paThreatid
       - log.category
       - log.severityLabel
       - log.direction
@@ -6659,13 +6659,13 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
+      - log.futureUse
       - log.contenttype
-      - log.pcap_id
+      - log.pcapId
       - log.filedigest
       - log.cloud
-      - log.url_idx
-      - log.user_agent
+      - log.urlIdx
+      - log.userAgent
       - log.filetype
       - log.xff
       - log.referer
@@ -6673,27 +6673,27 @@ pipeline:
       - log.subject
       - log.recipient
       - log.reportid
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.http_method
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.httpMethod
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.thr_category
+      - log.thrCategory
       - log.contentver
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
-      - log.http_headers
+      - log.httpHeaders
       - log.paURLTail0
       - log.paURLTail1
       - log.paURLTail2
@@ -6749,13 +6749,13 @@ pipeline:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.srcuser
       - log.vsys
       - log.machinename
@@ -6764,52 +6764,52 @@ pipeline:
       - log.matchname
       - log.repeatcnt
       - log.matchtype
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
       - log.srcipv6
       - log.hostid
       - log.serialnumber
       - log.mac
-      - log.high_res_timestamp
-      - log.cluster_name
+      - log.highResTimestamp
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,HIP-MATCH,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.vsys
       - log.eventid
       - log.stage
-      - log.auth_method
-      - log.tunnel_type
+      - log.authMethod
+      - log.tunnelType
       - log.srcuser
       - log.srcregion
       - log.machinename
-      - log.public_ip
-      - log.public_ipv6
-      - log.private_ip
-      - log.private_ipv6
+      - log.publicIp
+      - log.publicIpv6
+      - log.privateIp
+      - log.privateIpv6
       - log.hostid
       - log.serialnumber
-      - log.client_ver
-      - log.client_os
-      - log.client_os_ver
+      - log.clientVer
+      - log.clientOs
+      - log.clientOsVer
       - log.repeatcnt
       - log.reason
       - log.error
@@ -6817,69 +6817,69 @@ pipeline:
       - log.status
       - log.location
       - log.PanOSLoginDuration
-      - log.connect_method
-      - log.error_code
+      - log.connectMethod
+      - log.errorCode
       - log.portal
       - log.seqno
       - log.actionflags
-      - log.high_res_timestamp
-      - log.selection_type
-      - log.response_time
+      - log.highResTimestamp
+      - log.selectionType
+      - log.responseTime
       - log.priority
-      - log.attempted_gateways
+      - log.attemptedGateways
       - log.gateway
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
-      - log.cluster_name
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,GLOBALPROTECT,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.vsys
       - log.src
-      - log.tag_name
+      - log.tagName
       - log.eventid
       - log.repeatcnt
       - log.timeout
       - log.datasourcename
-      - log.datasource_type
-      - log.datasource_subtype
+      - log.datasourceType
+      - log.datasourceSubtype
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
-      - log.high_res_timestamp
-      - log.cluster_name
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
+      - log.highResTimestamp
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,IPTAG,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.vsys
       - log.src
       - log.user
@@ -6890,38 +6890,38 @@ pipeline:
       - log.beginport
       - log.endport
       - log.datasource
-      - log.datasource_type
+      - log.datasourceType
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
       - log.factortype
       - log.factorcompletiontime
       - log.factorno
       - log.ugflags
       - log.userbysource
-      - log.tag_name
-      - log.high_res_timestamp
-      - log.origin_data_source
-      - log.future_use
-      - log.cluster_name
+      - log.tagName
+      - log.highResTimestamp
+      - log.originDataSource
+      - log.futureUse
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,USERID,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.config_ver
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.configVer
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -6933,10 +6933,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.time_received
+      - log.timeReceived
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -6947,93 +6947,93 @@ pipeline:
       - log.proto
       - log.act
       - log.tunnel
-      - log.future_use
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.rule_uuid
-      - log.hs_stage_c2f
-      - log.hs_stage_f2s
-      - log.tls_version
-      - log.tls_keyxchg
-      - log.tls_enc
-      - log.tls_auth
-      - log.policy_name
-      - log.ec_curve
-      - log.err_index
-      - log.root_status
-      - log.chain_status
-      - log.proxy_type
-      - log.cert_serial
+      - log.futureUse
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.ruleUuid
+      - log.hsStageC2f
+      - log.hsStageF2s
+      - log.tlsVersion
+      - log.tlsKeyxchg
+      - log.tlsEnc
+      - log.tlsAuth
+      - log.policyName
+      - log.ecCurve
+      - log.errIndex
+      - log.rootStatus
+      - log.chainStatus
+      - log.proxyType
+      - log.certSerial
       - log.fingerprint
       - log.notbefore
       - log.notafter
-      - log.cert_ver
-      - log.cert_size
-      - log.cn_len
-      - log.issuer_len
-      - log.rootcn_len
-      - log.sni_len
-      - log.cert_flags
+      - log.certVer
+      - log.certSize
+      - log.cnLen
+      - log.issuerLen
+      - log.rootcnLen
+      - log.sniLen
+      - log.certFlags
       - log.cn
-      - log.issuer_cn
-      - log.root_cn
+      - log.issuerCn
+      - log.rootCn
       - log.sni
       - log.error
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
-      - log.src_dag
-      - log.dst_dag
-      - log.high_res_timestamp
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
+      - log.srcDag
+      - log.dstDag
+      - log.highResTimestamp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cluster_name
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,DECRYPTION,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -7045,10 +7045,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -7063,136 +7063,136 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
       - log.tunnelid
       - log.monitortag
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
       - log.bytes
-      - log.bytes_sent
-      - log.bytes_received
+      - log.bytesSent
+      - log.bytesReceived
       - log.packets
-      - log.pkts_sent
-      - log.pkts_received
-      - log.max_encap
-      - log.unknown_proto
-      - log.strict_check
-      - log.tunnel_fragment
-      - log.sessions_created
-      - log.sessions_closed
-      - log.session_end_reason
-      - log.action_source
+      - log.pktsSent
+      - log.pktsReceived
+      - log.maxEncap
+      - log.unknownProto
+      - log.strictCheck
+      - log.tunnelFragment
+      - log.sessionsCreated
+      - log.sessionsClosed
+      - log.sessionEndReason
+      - log.actionSource
       - log.start
       - log.elapsed
-      - log.tunnel_insp_rule
-      - log.remote_user_ip
-      - log.remote_user_id
-      - log.rule_uuid
-      - log.pcap_id
-      - log.dynusergroup_name
-      - log.src_edl
-      - log.dst_edl
-      - log.high_res_timestamp
-      - log.nssai_sd
-      - log.nssai_sst
-      - log.pdu_session_id
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cluster_name
+      - log.tunnelInspRule
+      - log.remoteUserIp
+      - log.remoteUserId
+      - log.ruleUuid
+      - log.pcapId
+      - log.dynusergroupName
+      - log.srcEdl
+      - log.dstEdl
+      - log.highResTimestamp
+      - log.nssaiSd
+      - log.nssaiSst
+      - log.pduSessionId
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,(?:TUNNEL|START|END),")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.future_use
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.futureUse
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
       - log.rule
-      - log.future_use
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
       - log.dpt
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
       - log.proto
       - log.act
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
       - log.seqno
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
       - log.severityLabel
-      - log.sctp_chunk_type
-      - log.future_use
-      - log.verif_tag_1
-      - log.verif_tag_2
-      - log.sctp_cause_code
-      - log.diam_app_id
-      - log.diam_cmd_code
-      - log.diam_avp_code
-      - log.stream_id
-      - log.assoc_end_reason
-      - log.op_code
-      - log.sccp_calling_ssn
-      - log.sccp_calling_gt
-      - log.sctp_filter
+      - log.sctpChunkType
+      - log.futureUse
+      - log.verifTag1
+      - log.verifTag2
+      - log.sctpCauseCode
+      - log.diamAppId
+      - log.diamCmdCode
+      - log.diamAvpCode
+      - log.streamId
+      - log.assocEndReason
+      - log.opCode
+      - log.sccpCallingSsn
+      - log.sccpCallingGt
+      - log.sctpFilter
       - log.chunks
-      - log.chunks_sent
-      - log.chunks_received
+      - log.chunksSent
+      - log.chunksReceived
       - log.packets
-      - log.pkts_sent
-      - log.pkts_received
-      - log.rule_uuid
-      - log.high_res_timestamp
+      - log.pktsSent
+      - log.pktsReceived
+      - log.ruleUuid
+      - log.highResTimestamp
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,SCTP,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.host
       - log.vsys
       - log.cmd
@@ -7219,17 +7219,17 @@ pipeline:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.vsys
       - log.src
       - log.user
-      - log.normalize_user
+      - log.normalizeUser
       - log.object
       - log.authpolicy
       - log.repeatcnt
@@ -7243,198 +7243,198 @@ pipeline:
       - log.factorno
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
       - log.authproto
-      - log.rule_uuid
-      - log.high_res_timestamp
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
+      - log.ruleUuid
+      - log.highResTimestamp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
       - log.region
-      - log.future_use
-      - log.user_agent
+      - log.futureUse
+      - log.userAgent
       - log.sessionid
-      - log.cluster_name
+      - log.clusterName
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,AUTHENTICATION,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.vsys
       - log.eventid
       - log.object
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
       - log.module
       - log.severityLabel
       - log.opaque
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.future_use
-      - log.high_res_timestamp
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.futureUse
+      - log.highResTimestamp
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,SYSTEM,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.srcuser
       - log.vsys
       - log.category
       - log.severityLabel
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.vsys_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.vsysId
       - log.objectname
-      - log.object_id
+      - log.objectId
       - log.evidence
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,CORRELATION,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
       - log.rule
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
       - log.app
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
-      - log.future_use
+      - log.futureUse
       - log.spt
       - log.dpt
-      - log.future_use
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
       - log.proto
       - log.act
-      - log.event_type
+      - log.eventType
       - log.msisdn
       - log.apn
       - log.rat
-      - log.msg_type
-      - log.end_ip_adr
+      - log.msgType
+      - log.endIpAdr
       - log.teid1
       - log.teid2
-      - log.gtp_interface
-      - log.cause_code
+      - log.gtpInterface
+      - log.causeCode
       - log.severityLabel
       - log.mcc
       - log.mnc
-      - log.area_code
-      - log.cell_id
-      - log.event_code
-      - log.future_use
-      - log.future_use
+      - log.areaCode
+      - log.cellId
+      - log.eventCode
+      - log.futureUse
+      - log.futureUse
       - log.srcloc
       - log.dstloc
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
       - log.imsi
       - log.imei
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
-      - log.future_use
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
+      - log.futureUse
       - log.start
       - log.elapsed
-      - log.tunnel_insp_rule
-      - log.remote_user_ip
-      - log.remote_user_id
-      - log.rule_uuid
-      - log.pcap_id
-      - log.high_res_timestamp
-      - log.nssai_sst
-      - log.nssai_sd
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.saas_of_app
-      - log.sanctioned_state_of_app
+      - log.tunnelInspRule
+      - log.remoteUserIp
+      - log.remoteUserId
+      - log.ruleUuid
+      - log.pcapId
+      - log.highResTimestamp
+      - log.nssaiSst
+      - log.nssaiSd
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.saasOfApp
+      - log.sanctionedStateOfApp
       where: equals("log.paFormat", "CSV") && regexMatch("log.paPayload", "^[^,]*,[^,]*,[^,]*,GTP,")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -7446,10 +7446,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -7460,7 +7460,7 @@ pipeline:
       - log.proto
       - log.act
       - log.misc
-      - log.pa_threatid
+      - log.paThreatid
       - log.category
       - log.severityLabel
       - log.direction
@@ -7468,13 +7468,13 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
+      - log.futureUse
       - log.contenttype
-      - log.pcap_id
+      - log.pcapId
       - log.filedigest
       - log.cloud
-      - log.url_idx
-      - log.user_agent
+      - log.urlIdx
+      - log.userAgent
       - log.filetype
       - log.xff
       - log.referer
@@ -7482,90 +7482,90 @@ pipeline:
       - log.subject
       - log.recipient
       - log.reportid
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.http_method
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.httpMethod
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.thr_category
+      - log.thrCategory
       - log.contentver
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
-      - log.http_headers
-      - log.response_headers
-      - log.http_status_code
-      - log.url_category_list
-      - log.rule_uuid
-      - log.http2_connection
-      - log.dynusergroup_name
-      - log.xff_ip
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
+      - log.httpHeaders
+      - log.responseHeaders
+      - log.httpStatusCode
+      - log.urlCategoryList
+      - log.ruleUuid
+      - log.http2Connection
+      - log.dynusergroupName
+      - log.xffIp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
       - log.hostid
       - log.serialnumber
-      - log.domain_edl
-      - log.src_dag
-      - log.dst_dag
-      - log.partial_hash
-      - log.high_res_timestamp
+      - log.domainEdl
+      - log.srcDag
+      - log.dstDag
+      - log.partialHash
+      - log.highResTimestamp
       - log.reason
       - log.justification
-      - log.nssai_sst
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.tunneled_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cloud_reportid
-      - log.cluster_name
-      - log.flow_type
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
+      - log.nssaiSst
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.tunneledApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.cloudReportid
+      - log.clusterName
+      - log.flowType
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
         && regexMatch("log.paURLTail1", "^[1-5][0-9]{2}$") && regexMatch("log.paURLTail34", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.src
       - log.dst
       - log.natsrc
@@ -7577,10 +7577,10 @@ pipeline:
       - log.vsys
       - log.from
       - log.to
-      - log.inbound_if
-      - log.outbound_if
+      - log.inboundIf
+      - log.outboundIf
       - log.logset
-      - log.future_use
+      - log.futureUse
       - log.sessionid
       - log.repeatcnt
       - log.spt
@@ -7591,7 +7591,7 @@ pipeline:
       - log.proto
       - log.act
       - log.misc
-      - log.pa_threatid
+      - log.paThreatid
       - log.category
       - log.severityLabel
       - log.direction
@@ -7599,13 +7599,13 @@ pipeline:
       - log.actionflags
       - log.srcloc
       - log.dstloc
-      - log.future_use
+      - log.futureUse
       - log.contenttype
-      - log.pcap_id
+      - log.pcapId
       - log.filedigest
       - log.cloud
-      - log.url_idx
-      - log.user_agent
+      - log.urlIdx
+      - log.userAgent
       - log.filetype
       - log.xff
       - log.referer
@@ -7613,77 +7613,77 @@ pipeline:
       - log.subject
       - log.recipient
       - log.reportid
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.future_use
-      - log.src_uuid
-      - log.dst_uuid
-      - log.http_method
-      - log.tunnelid_imsi
-      - log.monitortag_imei
-      - log.parent_session_id
-      - log.parent_start_time
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.futureUse
+      - log.srcUuid
+      - log.dstUuid
+      - log.httpMethod
+      - log.tunnelidImsi
+      - log.monitortagImei
+      - log.parentSessionId
+      - log.parentStartTime
       - log.tunnel
-      - log.thr_category
+      - log.thrCategory
       - log.contentver
-      - log.future_use
-      - log.assoc_id
+      - log.futureUse
+      - log.assocId
       - log.ppid
-      - log.http_headers
-      - log.url_category_list
-      - log.rule_uuid
-      - log.http2_connection
-      - log.dynusergroup_name
-      - log.xff_ip
-      - log.src_category
-      - log.src_profile
-      - log.src_model
-      - log.src_vendor
-      - log.src_osfamily
-      - log.src_osversion
-      - log.src_host
-      - log.src_mac
-      - log.dst_category
-      - log.dst_profile
-      - log.dst_model
-      - log.dst_vendor
-      - log.dst_osfamily
-      - log.dst_osversion
-      - log.dst_host
-      - log.dst_mac
-      - log.container_id
-      - log.pod_namespace
-      - log.pod_name
-      - log.src_edl
-      - log.dst_edl
+      - log.httpHeaders
+      - log.urlCategoryList
+      - log.ruleUuid
+      - log.http2Connection
+      - log.dynusergroupName
+      - log.xffIp
+      - log.srcCategory
+      - log.srcProfile
+      - log.srcModel
+      - log.srcVendor
+      - log.srcOsfamily
+      - log.srcOsversion
+      - log.srcHost
+      - log.srcMac
+      - log.dstCategory
+      - log.dstProfile
+      - log.dstModel
+      - log.dstVendor
+      - log.dstOsfamily
+      - log.dstOsversion
+      - log.dstHost
+      - log.dstMac
+      - log.containerId
+      - log.podNamespace
+      - log.podName
+      - log.srcEdl
+      - log.dstEdl
       - log.hostid
       - log.serialnumber
-      - log.domain_edl
-      - log.src_dag
-      - log.dst_dag
-      - log.partial_hash
-      - log.high_res_timestamp
+      - log.domainEdl
+      - log.srcDag
+      - log.dstDag
+      - log.partialHash
+      - log.highResTimestamp
       - log.reason
       - log.justification
-      - log.nssai_sst
-      - log.subcategory_of_app
-      - log.category_of_app
-      - log.technology_of_app
-      - log.risk_of_app
-      - log.characteristic_of_app
-      - log.container_of_app
-      - log.tunneled_app
-      - log.is_saas_of_app
-      - log.sanctioned_state_of_app
-      - log.cloud_reportid
+      - log.nssaiSst
+      - log.subcategoryOfApp
+      - log.categoryOfApp
+      - log.technologyOfApp
+      - log.riskOfApp
+      - log.characteristicOfApp
+      - log.containerOfApp
+      - log.tunneledApp
+      - log.isSaasOfApp
+      - log.sanctionedStateOfApp
+      - log.cloudReportid
       - log.paURLLegacyTail1
       - log.paURLLegacyTail2
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
-        && !(equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
+        && !(equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
         && regexMatch("log.paURLTail1", "^[1-5][0-9]{2}$") && regexMatch("log.paURLTail34", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
         && regexMatch("log.paURLTail32", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - add:
@@ -7691,28 +7691,28 @@ pipeline:
       params:
         key: log.paURLLayout
         value: current
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
         && regexMatch("log.paURLTail1", "^[1-5][0-9]{2}$") && regexMatch("log.paURLTail34", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - add:
       function: string
       params:
         key: log.paURLLayout
         value: legacy
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
-        && !(equals("log.paFormat", "CSV") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url")
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
+        && !(equals("log.paFormat", "CSV") && equals("log.paType", "THREAT") && equals("log.paSubtype", "url")
         && regexMatch("log.paURLTail1", "^[1-5][0-9]{2}$") && regexMatch("log.paURLTail34", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
         && regexMatch("log.paURLTail32", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.host
       - log.vsys
       - log.cmd
@@ -7720,33 +7720,33 @@ pipeline:
       - log.client
       - log.result
       - log.path
-      - log.before_change_detail
-      - log.after_change_detail
+      - log.beforeChangeDetail
+      - log.afterChangeDetail
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.dg_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.dgId
       - log.comment
-      - log.future_use
-      - log.high_res_timestamp
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "CONFIG") && regexMatch("log.paConfigTail13",
+      - log.futureUse
+      - log.highResTimestamp
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "CONFIG") && regexMatch("log.paConfigTail13",
         "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - csv:
       source: log.paPayload
       separator: ','
       headers:
-      - log.future_use
-      - log.receive_time
+      - log.futureUse
+      - log.receiveTime
       - log.serial
-      - log.pa_type
-      - log.pa_subtype
-      - log.future_use
-      - log.time_generated
+      - log.paType
+      - log.paSubtype
+      - log.futureUse
+      - log.timeGenerated
       - log.host
       - log.vsys
       - log.cmd
@@ -7756,33 +7756,33 @@ pipeline:
       - log.path
       - log.seqno
       - log.actionflags
-      - log.dg_hier_level_1
-      - log.dg_hier_level_2
-      - log.dg_hier_level_3
-      - log.dg_hier_level_4
-      - log.vsys_name
-      - log.device_name
-      - log.dg_id
+      - log.dgHierLevel1
+      - log.dgHierLevel2
+      - log.dgHierLevel3
+      - log.dgHierLevel4
+      - log.vsysName
+      - log.deviceName
+      - log.dgId
       - log.comment
-      - log.future_use
-      - log.high_res_timestamp
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "CONFIG") && !(equals("log.paFormat", "CSV")
-        && equals("log.pa_type", "CONFIG") && regexMatch("log.paConfigTail13", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
+      - log.futureUse
+      - log.highResTimestamp
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "CONFIG") && !(equals("log.paFormat", "CSV")
+        && equals("log.paType", "CONFIG") && regexMatch("log.paConfigTail13", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
         && regexMatch("log.paConfigTail11", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - add:
       function: string
       params:
         key: log.paConfigLayout
         value: custom
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "CONFIG") && regexMatch("log.paConfigTail13",
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "CONFIG") && regexMatch("log.paConfigTail13",
         "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - add:
       function: string
       params:
         key: log.paConfigLayout
         value: default
-      where: equals("log.paFormat", "CSV") && equals("log.pa_type", "CONFIG") && !(equals("log.paFormat", "CSV")
-        && equals("log.pa_type", "CONFIG") && regexMatch("log.paConfigTail13", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
+      where: equals("log.paFormat", "CSV") && equals("log.paType", "CONFIG") && !(equals("log.paFormat", "CSV")
+        && equals("log.paType", "CONFIG") && regexMatch("log.paConfigTail13", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"))
         && regexMatch("log.paConfigTail11", "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - delete:
       fields:
@@ -7864,7 +7864,7 @@ pipeline:
   - grok:
       source: log.dvchost
       patterns:
-      - fieldName: log.device_name
+      - fieldName: log.deviceName
         pattern: (?s)^.+$
       where: exists("log.dvchost") && !oneOf("log.dvchost", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
   - grok:
@@ -7936,45 +7936,45 @@ pipeline:
   - grok:
       source: log.PanOSSourceHostname
       patterns:
-      - fieldName: log.src_host
+      - fieldName: log.srcHost
         pattern: (?s)^.+$
       where: exists("log.PanOSSourceHostname") && !oneOf("log.PanOSSourceHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcHost")
   - grok:
       source: log.panOSSourceHostname
       patterns:
-      - fieldName: log.src_host
+      - fieldName: log.srcHost
         pattern: (?s)^.+$
       where: exists("log.panOSSourceHostname") && !oneOf("log.panOSSourceHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcHost")
   - grok:
       source: log.PanOSSourceMac
       patterns:
-      - fieldName: log.src_mac
+      - fieldName: log.srcMac
         pattern: (?s)^.+$
       where: exists("log.PanOSSourceMac") && !oneOf("log.PanOSSourceMac", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_mac")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcMac")
   - grok:
       source: log.panOSSourceMac
       patterns:
-      - fieldName: log.src_mac
+      - fieldName: log.srcMac
         pattern: (?s)^.+$
       where: exists("log.panOSSourceMac") && !oneOf("log.panOSSourceMac", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_mac")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcMac")
   - grok:
       source: log.PanOSSourceDeviceOSFamily
       patterns:
-      - fieldName: log.src_osfamily
+      - fieldName: log.srcOsfamily
         pattern: (?s)^.+$
       where: exists("log.PanOSSourceDeviceOSFamily") && !oneOf("log.PanOSSourceDeviceOSFamily", ["", "-", "N/A"])
-        && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.src_osfamily")
+        && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.srcOsfamily")
   - grok:
       source: log.panOSSourceDeviceOSFamily
       patterns:
-      - fieldName: log.src_osfamily
+      - fieldName: log.srcOsfamily
         pattern: (?s)^.+$
       where: exists("log.panOSSourceDeviceOSFamily") && !oneOf("log.panOSSourceDeviceOSFamily", ["", "-", "N/A"])
-        && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.src_osfamily")
+        && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.srcOsfamily")
   - grok:
       source: log.PanOSEndpointMac
       patterns:
@@ -7992,31 +7992,31 @@ pipeline:
   - grok:
       source: log.PanOSPublicIPv4
       patterns:
-      - fieldName: log.public_ip
+      - fieldName: log.publicIp
         pattern: (?s)^.+$
       where: exists("log.PanOSPublicIPv4") && !oneOf("log.PanOSPublicIPv4", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.public_ip")
+        ["CEF", "LEEF-legacy"]) && !exists("log.publicIp")
   - grok:
       source: log.panOSPublicIPv4
       patterns:
-      - fieldName: log.public_ip
+      - fieldName: log.publicIp
         pattern: (?s)^.+$
       where: exists("log.panOSPublicIPv4") && !oneOf("log.panOSPublicIPv4", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.public_ip")
+        ["CEF", "LEEF-legacy"]) && !exists("log.publicIp")
   - grok:
       source: log.PanOSPublicIPv6
       patterns:
-      - fieldName: log.public_ipv6
+      - fieldName: log.publicIpv6
         pattern: (?s)^.+$
       where: exists("log.PanOSPublicIPv6") && !oneOf("log.PanOSPublicIPv6", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.public_ipv6")
+        ["CEF", "LEEF-legacy"]) && !exists("log.publicIpv6")
   - grok:
       source: log.panOSPublicIPv6
       patterns:
-      - fieldName: log.public_ipv6
+      - fieldName: log.publicIpv6
         pattern: (?s)^.+$
       where: exists("log.panOSPublicIPv6") && !oneOf("log.panOSPublicIPv6", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.public_ipv6")
+        ["CEF", "LEEF-legacy"]) && !exists("log.publicIpv6")
   - grok:
       source: log.PanOSEventID
       patterns:
@@ -8062,185 +8062,185 @@ pipeline:
   - grok:
       source: log.PanOSEndpointOSType
       patterns:
-      - fieldName: log.client_os
+      - fieldName: log.clientOs
         pattern: (?s)^.+$
       where: exists("log.PanOSEndpointOSType") && !oneOf("log.PanOSEndpointOSType", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.client_os")
+        ["CEF", "LEEF-legacy"]) && !exists("log.clientOs")
   - grok:
       source: log.panOSEndpointOSType
       patterns:
-      - fieldName: log.client_os
+      - fieldName: log.clientOs
         pattern: (?s)^.+$
       where: exists("log.panOSEndpointOSType") && !oneOf("log.panOSEndpointOSType", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.client_os")
+        ["CEF", "LEEF-legacy"]) && !exists("log.clientOs")
   - grok:
       source: log.PanOSThreatCategory
       patterns:
-      - fieldName: log.thr_category
+      - fieldName: log.thrCategory
         pattern: (?s)^.+$
       where: exists("log.PanOSThreatCategory") && !oneOf("log.PanOSThreatCategory", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.thr_category")
+        ["CEF", "LEEF-legacy"]) && !exists("log.thrCategory")
   - grok:
       source: log.panOSThreatCategory
       patterns:
-      - fieldName: log.thr_category
+      - fieldName: log.thrCategory
         pattern: (?s)^.+$
       where: exists("log.panOSThreatCategory") && !oneOf("log.panOSThreatCategory", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.thr_category")
+        ["CEF", "LEEF-legacy"]) && !exists("log.thrCategory")
   - grok:
       source: log.PanOSPacketsSent
       patterns:
-      - fieldName: log.pkts_sent
+      - fieldName: log.pktsSent
         pattern: (?s)^.+$
       where: exists("log.PanOSPacketsSent") && !oneOf("log.PanOSPacketsSent", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.pkts_sent")
+        ["CEF", "LEEF-legacy"]) && !exists("log.pktsSent")
   - grok:
       source: log.panOSPacketsSent
       patterns:
-      - fieldName: log.pkts_sent
+      - fieldName: log.pktsSent
         pattern: (?s)^.+$
       where: exists("log.panOSPacketsSent") && !oneOf("log.panOSPacketsSent", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.pkts_sent")
+        ["CEF", "LEEF-legacy"]) && !exists("log.pktsSent")
   - grok:
       source: log.PanOSPacketsReceived
       patterns:
-      - fieldName: log.pkts_received
+      - fieldName: log.pktsReceived
         pattern: (?s)^.+$
       where: exists("log.PanOSPacketsReceived") && !oneOf("log.PanOSPacketsReceived", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.pkts_received")
+        ["CEF", "LEEF-legacy"]) && !exists("log.pktsReceived")
   - grok:
       source: log.panOSPacketsReceived
       patterns:
-      - fieldName: log.pkts_received
+      - fieldName: log.pktsReceived
         pattern: (?s)^.+$
       where: exists("log.panOSPacketsReceived") && !oneOf("log.panOSPacketsReceived", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.pkts_received")
+        ["CEF", "LEEF-legacy"]) && !exists("log.pktsReceived")
   - grok:
       source: log.PanSrcHostname
       patterns:
-      - fieldName: log.src_host
+      - fieldName: log.srcHost
         pattern: (?s)^.+$
       where: exists("log.PanSrcHostname") && !oneOf("log.PanSrcHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcHost")
   - grok:
       source: log.panSrcHostname
       patterns:
-      - fieldName: log.src_host
+      - fieldName: log.srcHost
         pattern: (?s)^.+$
       where: exists("log.panSrcHostname") && !oneOf("log.panSrcHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcHost")
   - grok:
       source: log.PanDstHostname
       patterns:
-      - fieldName: log.dst_host
+      - fieldName: log.dstHost
         pattern: (?s)^.+$
       where: exists("log.PanDstHostname") && !oneOf("log.PanDstHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.dst_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.dstHost")
   - grok:
       source: log.panDstHostname
       patterns:
-      - fieldName: log.dst_host
+      - fieldName: log.dstHost
         pattern: (?s)^.+$
       where: exists("log.panDstHostname") && !oneOf("log.panDstHostname", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.dst_host")
+        ["CEF", "LEEF-legacy"]) && !exists("log.dstHost")
   - grok:
       source: log.PanSrcMac
       patterns:
-      - fieldName: log.src_mac
+      - fieldName: log.srcMac
         pattern: (?s)^.+$
       where: exists("log.PanSrcMac") && !oneOf("log.PanSrcMac", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF",
-        "LEEF-legacy"]) && !exists("log.src_mac")
+        "LEEF-legacy"]) && !exists("log.srcMac")
   - grok:
       source: log.panSrcMac
       patterns:
-      - fieldName: log.src_mac
+      - fieldName: log.srcMac
         pattern: (?s)^.+$
       where: exists("log.panSrcMac") && !oneOf("log.panSrcMac", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF",
-        "LEEF-legacy"]) && !exists("log.src_mac")
+        "LEEF-legacy"]) && !exists("log.srcMac")
   - grok:
       source: log.PanDstMac
       patterns:
-      - fieldName: log.dst_mac
+      - fieldName: log.dstMac
         pattern: (?s)^.+$
       where: exists("log.PanDstMac") && !oneOf("log.PanDstMac", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF",
-        "LEEF-legacy"]) && !exists("log.dst_mac")
+        "LEEF-legacy"]) && !exists("log.dstMac")
   - grok:
       source: log.panDstMac
       patterns:
-      - fieldName: log.dst_mac
+      - fieldName: log.dstMac
         pattern: (?s)^.+$
       where: exists("log.panDstMac") && !oneOf("log.panDstMac", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF",
-        "LEEF-legacy"]) && !exists("log.dst_mac")
+        "LEEF-legacy"]) && !exists("log.dstMac")
   - grok:
       source: log.PanSrcDeviceOS
       patterns:
-      - fieldName: log.src_osfamily
+      - fieldName: log.srcOsfamily
         pattern: (?s)^.+$
       where: exists("log.PanSrcDeviceOS") && !oneOf("log.PanSrcDeviceOS", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_osfamily")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcOsfamily")
   - grok:
       source: log.panSrcDeviceOS
       patterns:
-      - fieldName: log.src_osfamily
+      - fieldName: log.srcOsfamily
         pattern: (?s)^.+$
       where: exists("log.panSrcDeviceOS") && !oneOf("log.panSrcDeviceOS", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.src_osfamily")
+        ["CEF", "LEEF-legacy"]) && !exists("log.srcOsfamily")
   - grok:
       source: log.PanDstDeviceOS
       patterns:
-      - fieldName: log.dst_osfamily
+      - fieldName: log.dstOsfamily
         pattern: (?s)^.+$
       where: exists("log.PanDstDeviceOS") && !oneOf("log.PanDstDeviceOS", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.dst_osfamily")
+        ["CEF", "LEEF-legacy"]) && !exists("log.dstOsfamily")
   - grok:
       source: log.panDstDeviceOS
       patterns:
-      - fieldName: log.dst_osfamily
+      - fieldName: log.dstOsfamily
         pattern: (?s)^.+$
       where: exists("log.panDstDeviceOS") && !oneOf("log.panDstDeviceOS", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.dst_osfamily")
+        ["CEF", "LEEF-legacy"]) && !exists("log.dstOsfamily")
   - grok:
       source: log.PanTimeHighRes
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.PanTimeHighRes") && !oneOf("log.PanTimeHighRes", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.panTimeHighRes
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.panTimeHighRes") && !oneOf("log.panTimeHighRes", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.PanOSTimeGeneratedHighResolution
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.PanOSTimeGeneratedHighResolution") && !oneOf("log.PanOSTimeGeneratedHighResolution", ["",
-        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.panOSTimeGeneratedHighResolution
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.panOSTimeGeneratedHighResolution") && !oneOf("log.panOSTimeGeneratedHighResolution", ["",
-        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.anOSTimeGeneratedHighResolution
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.anOSTimeGeneratedHighResolution") && !oneOf("log.anOSTimeGeneratedHighResolution", ["",
-        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.anOSTimeGeneratedHighResolution
       patterns:
-      - fieldName: log.high_res_timestamp
+      - fieldName: log.highResTimestamp
         pattern: (?s)^.+$
       where: exists("log.anOSTimeGeneratedHighResolution") && !oneOf("log.anOSTimeGeneratedHighResolution", ["",
-        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.high_res_timestamp")
+        "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && !exists("log.highResTimestamp")
   - grok:
       source: log.cs3
       patterns:
@@ -8268,127 +8268,114 @@ pipeline:
       - fieldName: log.result
         pattern: (?s)^.+$
       where: exists("log.paCefSignature") && !oneOf("log.paCefSignature", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && equals("log.pa_type", "CONFIG")
+        ["CEF", "LEEF-legacy"]) && equals("log.paType", "CONFIG")
   - grok:
       source: log.shost
       patterns:
       - fieldName: log.host
         pattern: (?s)^.+$
       where: exists("log.shost") && !oneOf("log.shost", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "CONFIG")
+        && equals("log.paType", "CONFIG")
   - grok:
       source: log.duser
       patterns:
       - fieldName: log.admin
         pattern: (?s)^.+$
       where: exists("log.duser") && !oneOf("log.duser", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "CONFIG")
+        && equals("log.paType", "CONFIG")
   - grok:
       source: log.act
       patterns:
       - fieldName: log.cmd
         pattern: (?s)^.+$
       where: exists("log.act") && !oneOf("log.act", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "CONFIG")
+        && equals("log.paType", "CONFIG")
   - grok:
       source: log.msg
       patterns:
       - fieldName: log.opaque
         pattern: (?s)^.+$
       where: exists("log.msg") && !oneOf("log.msg", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "SYSTEM")
+        && equals("log.paType", "SYSTEM")
   - grok:
       source: log.msg
       patterns:
       - fieldName: log.event
         pattern: (?s)^.+$
       where: exists("log.msg") && !oneOf("log.msg", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "AUTHENTICATION")
+        && equals("log.paType", "AUTHENTICATION")
   - grok:
       source: log.reason
       patterns:
-      - fieldName: log.session_end_reason
+      - fieldName: log.sessionEndReason
         pattern: (?s)^.+$
       where: exists("log.reason") && !oneOf("log.reason", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "TRAFFIC")
+        && equals("log.paType", "TRAFFIC")
   - grok:
       source: log.cs2
       patterns:
       - fieldName: log.os
         pattern: (?s)^.+$
       where: exists("log.cs2") && !oneOf("log.cs2", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "HIP-MATCH") && equals("log.cs2Label", "Operating System")
+        && equals("log.paType", "HIP-MATCH") && equals("log.cs2Label", "Operating System")
   - grok:
       source: log.cat
       patterns:
       - fieldName: log.eventid
         pattern: (?s)^.+$
       where: exists("log.cat") && !oneOf("log.cat", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && oneOf("log.pa_type", ["SYSTEM", "USERID", "IPTAG"])
+        && oneOf("log.paType", ["SYSTEM", "USERID", "IPTAG"])
   - grok:
       source: log.paCefSignature
       patterns:
-      - fieldName: log.pa_subtype
+      - fieldName: log.paSubtype
         pattern: (?s)^.+$
       where: exists("log.paCefSignature") && !oneOf("log.paCefSignature", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && !oneOf("log.pa_type", ["THREAT", "CONFIG"])
+        ["CEF", "LEEF-legacy"]) && !oneOf("log.paType", ["THREAT", "CONFIG"])
   - grok:
       source: log.cat
       patterns:
-      - fieldName: log.pa_subtype
+      - fieldName: log.paSubtype
         pattern: (?s)^.+$
       where: exists("log.cat") && !oneOf("log.cat", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "THREAT") && oneOf("log.cat", ["url", "data", "file", "wildfire", "wildfire-virus",
+        && equals("log.paType", "THREAT") && oneOf("log.cat", ["url", "data", "file", "wildfire", "wildfire-virus",
         "virus", "ml-virus", "spyware", "vulnerability", "flood", "packet", "scan"])
   - grok:
       source: log.paCefSignature
       patterns:
-      - fieldName: log.pa_threatid
+      - fieldName: log.paThreatid
         pattern: (?s)^.+$
       where: exists("log.paCefSignature") && !oneOf("log.paCefSignature", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && equals("log.pa_type", "THREAT") && oneOf("log.cat", ["url", "data", "file", "wildfire",
+        ["CEF", "LEEF-legacy"]) && equals("log.paType", "THREAT") && oneOf("log.cat", ["url", "data", "file", "wildfire",
         "wildfire-virus", "virus", "ml-virus", "spyware", "vulnerability", "flood", "packet", "scan"])
   - grok:
       source: log.paCefSignature
       patterns:
-      - fieldName: log.pa_subtype
+      - fieldName: log.paSubtype
         pattern: (?s)^.+$
       where: exists("log.paCefSignature") && !oneOf("log.paCefSignature", ["", "-", "N/A"]) && oneOf("log.paFormat",
-        ["CEF", "LEEF-legacy"]) && equals("log.pa_type", "THREAT") && !exists("log.pa_subtype") && oneOf("log.paCefSignature",
+        ["CEF", "LEEF-legacy"]) && equals("log.paType", "THREAT") && !exists("log.paSubtype") && oneOf("log.paCefSignature",
         ["url", "data", "file", "wildfire", "wildfire-virus", "virus", "ml-virus", "spyware", "vulnerability", "flood",
         "packet", "scan"])
   - grok:
       source: log.cat
       patterns:
-      - fieldName: log.pa_threatid
+      - fieldName: log.paThreatid
         pattern: (?s)^.+$
       where: exists("log.cat") && !oneOf("log.cat", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "THREAT") && !exists("log.pa_threatid") && exists("log.pa_subtype")
-  - grok:
-      source: log.pa_type
-      patterns:
-      - fieldName: log.paType
-        pattern: (?s)^.+$
-      where: exists("log.pa_type") && !oneOf("log.pa_type", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-  - grok:
-      source: log.pa_subtype
-      patterns:
-      - fieldName: log.paSubtype
-        pattern: (?s)^.+$
-      where: exists("log.pa_subtype") && !oneOf("log.pa_subtype", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF",
-        "LEEF-legacy"])
+        && equals("log.paType", "THREAT") && !exists("log.paThreatid") && exists("log.paSubtype")
   - add:
       function: string
       params:
         key: log.embDeviceVendor
         value: Palo Alto Networks
-      where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && exists("log.pa_type")
+      where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && exists("log.paType")
   - add:
       function: string
       params:
         key: log.embDeviceProduct
         value: PAN-OS
-      where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && exists("log.pa_type")
+      where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"]) && exists("log.paType")
   - add:
       function: string
       params:
@@ -8424,25 +8411,25 @@ pipeline:
         pattern: '[0-9A-Fa-f:.]+'
       - fieldName: log.paAuthSuffix
         pattern: \.$
-      where: equals("log.pa_type", "SYSTEM") && oneOf("log.eventid", ["auth-fail", "auth-success"])
+      where: equals("log.paType", "SYSTEM") && oneOf("log.eventid", ["auth-fail", "auth-success"])
   - grok:
       source: log.host
       patterns:
       - fieldName: log.src
         pattern: (?s)^.+$
-      where: exists("log.host") && !oneOf("log.host", ["", "-", "N/A"]) && equals("log.pa_type", "CONFIG")
+      where: exists("log.host") && !oneOf("log.host", ["", "-", "N/A"]) && equals("log.paType", "CONFIG")
   - grok:
       source: log.admin
       patterns:
       - fieldName: log.srcuser
         pattern: (?s)^.+$
-      where: exists("log.admin") && !oneOf("log.admin", ["", "-", "N/A"]) && equals("log.pa_type", "CONFIG")
+      where: exists("log.admin") && !oneOf("log.admin", ["", "-", "N/A"]) && equals("log.paType", "CONFIG")
   - grok:
       source: log.user
       patterns:
       - fieldName: log.srcuser
         pattern: (?s)^.+$
-      where: exists("log.user") && !oneOf("log.user", ["", "-", "N/A"]) && oneOf("log.pa_type", ["AUTHENTICATION",
+      where: exists("log.user") && !oneOf("log.user", ["", "-", "N/A"]) && oneOf("log.paType", ["AUTHENTICATION",
         "USERID"])
   - grok:
       source: log.duser
@@ -8450,33 +8437,33 @@ pipeline:
       - fieldName: log.srcuser
         pattern: (?s)^.+$
       where: exists("log.duser") && !oneOf("log.duser", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && oneOf("log.pa_type", ["AUTHENTICATION", "USERID"])
+        && oneOf("log.paType", ["AUTHENTICATION", "USERID"])
   - grok:
       source: log.paAuthIP
       patterns:
       - fieldName: log.src
         pattern: (?s)^.+$
-      where: exists("log.paAuthIP") && !oneOf("log.paAuthIP", ["", "-", "N/A"]) && equals("log.pa_type", "SYSTEM")
+      where: exists("log.paAuthIP") && !oneOf("log.paAuthIP", ["", "-", "N/A"]) && equals("log.paType", "SYSTEM")
         && oneOf("log.eventid", ["auth-fail", "auth-success"])
   - grok:
       source: log.paAuthUser
       patterns:
       - fieldName: log.srcuser
         pattern: (?s)^.+$
-      where: exists("log.paAuthUser") && !oneOf("log.paAuthUser", ["", "-", "N/A"]) && equals("log.pa_type", "SYSTEM")
+      where: exists("log.paAuthUser") && !oneOf("log.paAuthUser", ["", "-", "N/A"]) && equals("log.paType", "SYSTEM")
         && oneOf("log.eventid", ["auth-fail", "auth-success"])
   - grok:
-      source: log.public_ip
+      source: log.publicIp
       patterns:
       - fieldName: log.src
         pattern: (?s)^.+$
-      where: exists("log.public_ip") && !oneOf("log.public_ip", ["", "-", "N/A"]) && equals("log.pa_type", "GLOBALPROTECT")
+      where: exists("log.publicIp") && !oneOf("log.publicIp", ["", "-", "N/A"]) && equals("log.paType", "GLOBALPROTECT")
   - grok:
-      source: log.public_ipv6
+      source: log.publicIpv6
       patterns:
       - fieldName: log.src
         pattern: (?s)^.+$
-      where: exists("log.public_ipv6") && !oneOf("log.public_ipv6", ["", "-", "N/A"]) && equals("log.pa_type", "GLOBALPROTECT")
+      where: exists("log.publicIpv6") && !oneOf("log.publicIpv6", ["", "-", "N/A"]) && equals("log.paType", "GLOBALPROTECT")
         && !((inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0")) && !inCIDR("log.src", "0.0.0.0/32") &&
         !inCIDR("log.src", "::/128"))
   - grok:
@@ -8484,7 +8471,7 @@ pipeline:
       patterns:
       - fieldName: log.src
         pattern: (?s)^.+$
-      where: exists("log.srcipv6") && !oneOf("log.srcipv6", ["", "-", "N/A"]) && equals("log.pa_type", "HIP-MATCH")
+      where: exists("log.srcipv6") && !oneOf("log.srcipv6", ["", "-", "N/A"]) && equals("log.paType", "HIP-MATCH")
         && !((inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0")) && !inCIDR("log.src", "0.0.0.0/32") &&
         !inCIDR("log.src", "::/128"))
   - grok:
@@ -8493,7 +8480,7 @@ pipeline:
       - fieldName: log.src
         pattern: (?s)^.+$
       where: exists("log.c6a2") && !oneOf("log.c6a2", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && equals("log.pa_type", "HIP-MATCH") && !((inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0"))
+        && equals("log.paType", "HIP-MATCH") && !((inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0"))
         && !inCIDR("log.src", "0.0.0.0/32") && !inCIDR("log.src", "::/128"))
   - grok:
       source: log.src
@@ -8514,25 +8501,25 @@ pipeline:
       params:
         key: log.paDirection
         value: client-to-server
-      where: equals("log.pa_type", "THREAT") && equals("log.direction", "client-to-server")
+      where: equals("log.paType", "THREAT") && equals("log.direction", "client-to-server")
   - add:
       function: string
       params:
         key: log.paDirection
         value: client-to-server
-      where: equals("log.pa_type", "THREAT") && equals("log.direction", "0")
+      where: equals("log.paType", "THREAT") && equals("log.direction", "0")
   - add:
       function: string
       params:
         key: log.paDirection
         value: server-to-client
-      where: equals("log.pa_type", "THREAT") && equals("log.direction", "server-to-client")
+      where: equals("log.paType", "THREAT") && equals("log.direction", "server-to-client")
   - add:
       function: string
       params:
         key: log.paDirection
         value: server-to-client
-      where: equals("log.pa_type", "THREAT") && equals("log.direction", "1")
+      where: equals("log.paType", "THREAT") && equals("log.direction", "1")
   - grok:
       source: log.srcuser
       patterns:
@@ -8544,76 +8531,76 @@ pipeline:
       patterns:
       - fieldName: target.user
         pattern: (?s)^.+$
-      where: exists("log.dstuser") && !oneOf("log.dstuser", ["", "-", "N/A"]) && !oneOf("log.pa_type", ["CONFIG",
+      where: exists("log.dstuser") && !oneOf("log.dstuser", ["", "-", "N/A"]) && !oneOf("log.paType", ["CONFIG",
         "AUTHENTICATION", "USERID"])
   - grok:
-      source: log.src_host
+      source: log.srcHost
       patterns:
       - fieldName: origin.host
         pattern: (?s)^.+$
-      where: exists("log.src_host") && !oneOf("log.src_host", ["", "-", "N/A"])
+      where: exists("log.srcHost") && !oneOf("log.srcHost", ["", "-", "N/A"])
   - grok:
-      source: log.dst_host
+      source: log.dstHost
       patterns:
       - fieldName: target.host
         pattern: (?s)^.+$
-      where: exists("log.dst_host") && !oneOf("log.dst_host", ["", "-", "N/A"])
+      where: exists("log.dstHost") && !oneOf("log.dstHost", ["", "-", "N/A"])
   - grok:
-      source: log.src_mac
+      source: log.srcMac
       patterns:
       - fieldName: origin.mac
         pattern: (?s)^.+$
-      where: exists("log.src_mac") && !oneOf("log.src_mac", ["", "-", "N/A"]) && regexMatch("log.src_mac", "^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$")
+      where: exists("log.srcMac") && !oneOf("log.srcMac", ["", "-", "N/A"]) && regexMatch("log.srcMac", "^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$")
   - grok:
-      source: log.dst_mac
+      source: log.dstMac
       patterns:
       - fieldName: target.mac
         pattern: (?s)^.+$
-      where: exists("log.dst_mac") && !oneOf("log.dst_mac", ["", "-", "N/A"]) && regexMatch("log.dst_mac", "^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$")
+      where: exists("log.dstMac") && !oneOf("log.dstMac", ["", "-", "N/A"]) && regexMatch("log.dstMac", "^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$")
   - grok:
-      source: log.src_osfamily
+      source: log.srcOsfamily
       patterns:
       - fieldName: origin.operatingSystem
         pattern: (?s)^.+$
-      where: exists("log.src_osfamily") && !oneOf("log.src_osfamily", ["", "-", "N/A"])
+      where: exists("log.srcOsfamily") && !oneOf("log.srcOsfamily", ["", "-", "N/A"])
   - grok:
-      source: log.dst_osfamily
+      source: log.dstOsfamily
       patterns:
       - fieldName: target.operatingSystem
         pattern: (?s)^.+$
-      where: exists("log.dst_osfamily") && !oneOf("log.dst_osfamily", ["", "-", "N/A"])
+      where: exists("log.dstOsfamily") && !oneOf("log.dstOsfamily", ["", "-", "N/A"])
   - grok:
       source: log.machinename
       patterns:
       - fieldName: origin.host
         pattern: (?s)^.+$
-      where: exists("log.machinename") && !oneOf("log.machinename", ["", "-", "N/A"]) && oneOf("log.pa_type", ["HIP-MATCH",
+      where: exists("log.machinename") && !oneOf("log.machinename", ["", "-", "N/A"]) && oneOf("log.paType", ["HIP-MATCH",
         "GLOBALPROTECT"])
   - grok:
       source: log.os
       patterns:
       - fieldName: origin.operatingSystem
         pattern: (?s)^.+$
-      where: exists("log.os") && !oneOf("log.os", ["", "-", "N/A"]) && equals("log.pa_type", "HIP-MATCH")
+      where: exists("log.os") && !oneOf("log.os", ["", "-", "N/A"]) && equals("log.paType", "HIP-MATCH")
   - grok:
-      source: log.client_os
+      source: log.clientOs
       patterns:
       - fieldName: origin.operatingSystem
         pattern: (?s)^.+$
-      where: exists("log.client_os") && !oneOf("log.client_os", ["", "-", "N/A"]) && equals("log.pa_type", "GLOBALPROTECT")
+      where: exists("log.clientOs") && !oneOf("log.clientOs", ["", "-", "N/A"]) && equals("log.paType", "GLOBALPROTECT")
   - grok:
       source: log.mac
       patterns:
       - fieldName: origin.mac
         pattern: (?s)^.+$
-      where: exists("log.mac") && !oneOf("log.mac", ["", "-", "N/A"]) && equals("log.pa_type", "HIP-MATCH") && regexMatch("log.mac",
+      where: exists("log.mac") && !oneOf("log.mac", ["", "-", "N/A"]) && equals("log.paType", "HIP-MATCH") && regexMatch("log.mac",
         "^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$")
   - grok:
       source: log.host
       patterns:
       - fieldName: origin.host
         pattern: (?s)^.+$
-      where: exists("log.host") && !oneOf("log.host", ["", "-", "N/A"]) && equals("log.pa_type", "CONFIG") && !((inCIDR("log.host",
+      where: exists("log.host") && !oneOf("log.host", ["", "-", "N/A"]) && equals("log.paType", "CONFIG") && !((inCIDR("log.host",
         "0.0.0.0/0") || inCIDR("log.host", "::/0")) && !inCIDR("log.host", "0.0.0.0/32") && !inCIDR("log.host",
         "::/128"))
   - grok:
@@ -8622,7 +8609,7 @@ pipeline:
       - fieldName: origin.host
         pattern: (?s)^.+$
       where: exists("log.srchost") && !oneOf("log.srchost", ["", "-", "N/A"]) && oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
-        && !equals("log.pa_type", "CONFIG")
+        && !equals("log.paType", "CONFIG")
   - grok:
       source: log.proto
       patterns:
@@ -8640,20 +8627,20 @@ pipeline:
       patterns:
       - fieldName: action
         pattern: (?s)^.+$
-      where: exists("log.cmd") && !oneOf("log.cmd", ["", "-", "N/A"]) && equals("log.pa_type", "CONFIG")
+      where: exists("log.cmd") && !oneOf("log.cmd", ["", "-", "N/A"]) && equals("log.paType", "CONFIG")
   - grok:
       source: log.eventid
       patterns:
       - fieldName: action
         pattern: (?s)^.+$
-      where: exists("log.eventid") && !oneOf("log.eventid", ["", "-", "N/A"]) && oneOf("log.pa_type", ["SYSTEM",
+      where: exists("log.eventid") && !oneOf("log.eventid", ["", "-", "N/A"]) && oneOf("log.paType", ["SYSTEM",
         "GLOBALPROTECT", "IPTAG", "USERID"])
   - grok:
       source: log.event
       patterns:
       - fieldName: action
         pattern: (?s)^.+$
-      where: exists("log.event") && !oneOf("log.event", ["", "-", "N/A"]) && equals("log.pa_type", "AUTHENTICATION")
+      where: exists("log.event") && !oneOf("log.event", ["", "-", "N/A"]) && equals("log.paType", "AUTHENTICATION")
   - grok:
       source: log.spt
       patterns:
@@ -8679,48 +8666,48 @@ pipeline:
       to: int
       where: exists("target.port")
   - grok:
-      source: log.bytes_sent
+      source: log.bytesSent
       patterns:
       - fieldName: origin.bytesSent
         pattern: (?s)^.+$
-      where: exists("log.bytes_sent") && !oneOf("log.bytes_sent", ["", "-", "N/A"]) && regexMatch("log.bytes_sent",
-        "^[0-9]{1,16}$") && !greaterThan("log.bytes_sent", 9007199254740991)
+      where: exists("log.bytesSent") && !oneOf("log.bytesSent", ["", "-", "N/A"]) && regexMatch("log.bytesSent",
+        "^[0-9]{1,16}$") && !greaterThan("log.bytesSent", 9007199254740991)
   - cast:
       fields:
       - origin.bytesSent
       to: float
       where: exists("origin.bytesSent")
   - grok:
-      source: log.bytes_received
+      source: log.bytesReceived
       patterns:
       - fieldName: origin.bytesReceived
         pattern: (?s)^.+$
-      where: exists("log.bytes_received") && !oneOf("log.bytes_received", ["", "-", "N/A"]) && regexMatch("log.bytes_received",
-        "^[0-9]{1,16}$") && !greaterThan("log.bytes_received", 9007199254740991)
+      where: exists("log.bytesReceived") && !oneOf("log.bytesReceived", ["", "-", "N/A"]) && regexMatch("log.bytesReceived",
+        "^[0-9]{1,16}$") && !greaterThan("log.bytesReceived", 9007199254740991)
   - cast:
       fields:
       - origin.bytesReceived
       to: float
       where: exists("origin.bytesReceived")
   - grok:
-      source: log.pkts_sent
+      source: log.pktsSent
       patterns:
       - fieldName: origin.packagesSent
         pattern: (?s)^.+$
-      where: exists("log.pkts_sent") && !oneOf("log.pkts_sent", ["", "-", "N/A"]) && regexMatch("log.pkts_sent",
-        "^[0-9]{1,16}$") && !greaterThan("log.pkts_sent", 9007199254740991)
+      where: exists("log.pktsSent") && !oneOf("log.pktsSent", ["", "-", "N/A"]) && regexMatch("log.pktsSent",
+        "^[0-9]{1,16}$") && !greaterThan("log.pktsSent", 9007199254740991)
   - cast:
       fields:
       - origin.packagesSent
       to: int
       where: exists("origin.packagesSent")
   - grok:
-      source: log.pkts_received
+      source: log.pktsReceived
       patterns:
       - fieldName: origin.packagesReceived
         pattern: (?s)^.+$
-      where: exists("log.pkts_received") && !oneOf("log.pkts_received", ["", "-", "N/A"]) && regexMatch("log.pkts_received",
-        "^[0-9]{1,16}$") && !greaterThan("log.pkts_received", 9007199254740991)
+      where: exists("log.pktsReceived") && !oneOf("log.pktsReceived", ["", "-", "N/A"]) && regexMatch("log.pktsReceived",
+        "^[0-9]{1,16}$") && !greaterThan("log.pktsReceived", 9007199254740991)
   - cast:
       fields:
       - origin.packagesReceived
@@ -8731,13 +8718,13 @@ pipeline:
       params:
         key: actionResult
         value: success
-      where: equals("log.pa_type", "TRAFFIC") && equalsIgnoreCase("action", "allow")
+      where: equals("log.paType", "TRAFFIC") && equalsIgnoreCase("action", "allow")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: oneOf("log.pa_type", ["TRAFFIC", "THREAT", "DECRYPTION", "SCTP", "GTP", "TUNNEL", "START", "END"])
+      where: oneOf("log.paType", ["TRAFFIC", "THREAT", "DECRYPTION", "SCTP", "GTP", "TUNNEL", "START", "END"])
         && oneOf("action", ["deny", "drop", "drop-all-packets", "reset-client", "reset-server", "reset-both", "block-url",
         "block-ip", "random-drop", "sinkhole", "block-continue", "block-override", "override-lockout"])
   - add:
@@ -8745,50 +8732,50 @@ pipeline:
       params:
         key: actionResult
         value: denied
-      where: equals("log.pa_type", "THREAT") && equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "wildfire")
+      where: equals("log.paType", "THREAT") && equals("log.paType", "THREAT") && equals("log.paSubtype", "wildfire")
         && equals("action", "block")
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: equals("log.pa_type", "CONFIG") && equals("log.result", "Succeeded")
+      where: equals("log.paType", "CONFIG") && equals("log.result", "Succeeded")
   - add:
       function: string
       params:
         key: actionResult
         value: failure
-      where: equals("log.pa_type", "CONFIG") && equals("log.result", "Failed")
+      where: equals("log.paType", "CONFIG") && equals("log.result", "Failed")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: equals("log.pa_type", "CONFIG") && equals("log.result", "Unauthorized")
+      where: equals("log.paType", "CONFIG") && equals("log.result", "Unauthorized")
   - add:
       function: string
       params:
         key: actionResult
         value: failure
-      where: equals("log.pa_type", "SYSTEM") && equals("log.eventid", "auth-fail")
+      where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail")
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: equals("log.pa_type", "SYSTEM") && equals("log.eventid", "auth-success")
+      where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-success")
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: equals("log.pa_type", "GLOBALPROTECT") && equals("log.status", "success")
+      where: equals("log.paType", "GLOBALPROTECT") && equals("log.status", "success")
   - add:
       function: string
       params:
         key: actionResult
         value: failure
-      where: equals("log.pa_type", "GLOBALPROTECT") && equals("log.status", "failure")
+      where: equals("log.paType", "GLOBALPROTECT") && equals("log.status", "failure")
   - add:
       function: string
       params:
@@ -8820,18 +8807,18 @@ pipeline:
         value: critical
       where: equals("log.severityLabel", "critical")
   - grok:
-      source: log.high_res_timestamp
+      source: log.highResTimestamp
       patterns:
       - fieldName: deviceTime
         pattern: (?s)^.+$
-      where: exists("log.high_res_timestamp") && !oneOf("log.high_res_timestamp", ["", "-", "N/A"]) && regexMatch("log.high_res_timestamp",
+      where: exists("log.highResTimestamp") && !oneOf("log.highResTimestamp", ["", "-", "N/A"]) && regexMatch("log.highResTimestamp",
         "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$")
   - grok:
-      source: log.http_status_code
+      source: log.httpStatusCode
       patterns:
       - fieldName: statusCode
         pattern: (?s)^.+$
-      where: exists("log.http_status_code") && !oneOf("log.http_status_code", ["", "-", "N/A"]) && regexMatch("log.http_status_code",
+      where: exists("log.httpStatusCode") && !oneOf("log.httpStatusCode", ["", "-", "N/A"]) && regexMatch("log.httpStatusCode",
         "^[1-5][0-9]{2}$")
   - cast:
       fields:
@@ -8843,49 +8830,49 @@ pipeline:
       patterns:
       - fieldName: target.url
         pattern: (?s)^.+$
-      where: exists("log.misc") && !oneOf("log.misc", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT") && equals("log.pa_subtype",
+      where: exists("log.misc") && !oneOf("log.misc", ["", "-", "N/A"]) && equals("log.paType", "THREAT") && equals("log.paSubtype",
         "url") && regexMatch("log.misc", "(?i)^https?://[^/?#[:space:]]+(?:[/?#][^[:space:]]*)?$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: target.md5
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "client-to-server") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{32}$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: target.sha1
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "client-to-server") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{40}$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: target.sha256
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "client-to-server") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{64}$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: origin.md5
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "server-to-client") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{32}$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: origin.sha1
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "server-to-client") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{40}$")
   - grok:
       source: log.filedigest
       patterns:
       - fieldName: origin.sha256
         pattern: (?s)^.+$
-      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.pa_type", "THREAT")
+      where: exists("log.filedigest") && !oneOf("log.filedigest", ["", "-", "N/A"]) && equals("log.paType", "THREAT")
         && equals("log.paDirection", "server-to-client") && regexMatch("log.filedigest", "^[A-Fa-f0-9]{64}$")
   - grok:
       source: log.serial
@@ -8906,25 +8893,25 @@ pipeline:
         pattern: (?s)^.+$
       where: exists("log.vsys") && !oneOf("log.vsys", ["", "-", "N/A"])
   - grok:
-      source: log.device_name
+      source: log.deviceName
       patterns:
       - fieldName: target.host
         pattern: (?s)^.+$
-      where: exists("log.device_name") && !oneOf("log.device_name", ["", "-", "N/A"]) && ((equals("log.pa_type", "SYSTEM")
-        && oneOf("log.eventid", ["auth-fail", "auth-success"])) || equals("log.pa_type", "CONFIG"))
+      where: exists("log.deviceName") && !oneOf("log.deviceName", ["", "-", "N/A"]) && ((equals("log.paType", "SYSTEM")
+        && oneOf("log.eventid", ["auth-fail", "auth-success"])) || equals("log.paType", "CONFIG"))
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: equals("log.pa_type", "TRAFFIC") && oneOf("log.session_end_reason", ["threat", "policy-deny", "decrypt-cert-validation",
+      where: equals("log.paType", "TRAFFIC") && oneOf("log.sessionEndReason", ["threat", "policy-deny", "decrypt-cert-validation",
         "decrypt-unsupport-param", "decrypt-error"])
   - add:
       function: string
       params:
         key: actionResult
         value: failure
-      where: equals("log.pa_type", "TRAFFIC") && equals("log.session_end_reason", "resources-unavailable")
+      where: equals("log.paType", "TRAFFIC") && equals("log.sessionEndReason", "resources-unavailable")
   - dynamic:
       plugin: com.utmstack.geolocation
       params:
@@ -8957,7 +8944,7 @@ pipeline:
       params:
         key: log.correlationCandidate.paloalto.authFailure
         value: match
-      where: equals("log.pa_type", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
+      where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
         && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") &&
         exists("log.paVsys")
   - add:
@@ -8965,8 +8952,8 @@ pipeline:
       params:
         key: log.correlationCandidate.paloalto.dns
         value: match
-      where: equals("log.pa_type", "THREAT") && (equals("log.pa_subtype", "dns") || (equals("log.pa_subtype", "spyware")
-        && (equals("action", "sinkhole") || oneOf("log.thr_category", ["dns-c2", "dns-malware"])))) && oneOf("action",
+      where: equals("log.paType", "THREAT") && (equals("log.paSubtype", "dns") || (equals("log.paSubtype", "spyware")
+        && (equals("action", "sinkhole") || oneOf("log.thrCategory", ["dns-c2", "dns-malware"])))) && oneOf("action",
         ["sinkhole", "block-url", "alert", "drop", "reset-both", "reset-client", "reset-server", "block-ip"]) &&
         exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") && exists("log.paVsys")
   - add:
@@ -8974,7 +8961,7 @@ pipeline:
       params:
         key: log.correlationCandidate.paloalto.url
         value: match
-      where: equals("log.pa_type", "THREAT") && equals("log.pa_subtype", "url") && oneOf("action", ["block-url",
+      where: equals("log.paType", "THREAT") && equals("log.paSubtype", "url") && oneOf("action", ["block-url",
         "block-page", "block-continue", "block-override", "alert"]) && oneOf("log.category", ["malware", "phishing",
         "command-and-control", "grayware", "hacking"]) && exists("origin.ip") && exists("dataSource") && !equals("dataSource",
         "") && exists("log.paScope") && exists("log.paVsys")
@@ -8983,7 +8970,7 @@ pipeline:
       params:
         key: log.correlationCandidate.paloalto.vulnerability
         value: match
-      where: equals("log.pa_type", "THREAT") && oneOf("log.pa_subtype", ["vulnerability", "exploit"]) && oneOf("log.severityLabel",
-        ["high", "critical"]) && (contains("log.pa_threatid", "CVE") || equals("log.category", "unknown")) && exists("target.ip")
+      where: equals("log.paType", "THREAT") && oneOf("log.paSubtype", ["vulnerability", "exploit"]) && oneOf("log.severityLabel",
+        ["high", "critical"]) && (contains("log.paThreatid", "CVE") || equals("log.category", "unknown")) && exists("target.ip")
         && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") &&
         exists("log.paVsys") && oneOf("log.paDirection", ["client-to-server", "server-to-client"])

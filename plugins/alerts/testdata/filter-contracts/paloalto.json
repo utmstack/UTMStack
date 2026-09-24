@@ -24,8 +24,8 @@
         "log": {
           "paScope": "forged",
           "paVsys": "forged",
-          "pa_type": "SYSTEM",
-          "pa_subtype": "auth",
+          "paType": "SYSTEM",
+          "paSubtype": "auth",
           "correlationCandidate": {
             "paloalto": {
               "authFailure": "match",
@@ -41,7 +41,7 @@
       },
       "absent": [
         "log.paScope",
-        "log.pa_type",
+        "log.paType",
         "log.correlationCandidate.paloalto",
         "origin.ip",
         "target.ip",

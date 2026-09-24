@@ -17,8 +17,8 @@ description: Detects three relevant DNS security events from the same observed s
   system within thirty minutes. Supports the legacy dns subtype and spyware sinkhole or dns-c2/dns-malware category
   events. A source can be a forwarding resolver rather than the original endpoint. Trace the DNS request and vendor
   action before attributing compromise; an alert action does not prove a successful connection.
-where: equals("log.pa_type", "THREAT") && (equals("log.pa_subtype", "dns") || (equals("log.pa_subtype", "spyware")
-  && (equals("action", "sinkhole") || oneOf("log.thr_category", ["dns-c2", "dns-malware"])))) && oneOf("action",
+where: equals("log.paType", "THREAT") && (equals("log.paSubtype", "dns") || (equals("log.paSubtype", "spyware")
+  && (equals("action", "sinkhole") || oneOf("log.thrCategory", ["dns-c2", "dns-malware"])))) && oneOf("action",
   ["sinkhole", "block-url", "alert", "drop", "reset-both", "reset-client", "reset-server", "block-ip"]) && exists("origin.ip")
   && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") && exists("log.paVsys")
 groupBy:

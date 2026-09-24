@@ -17,7 +17,7 @@ description: Detects ten SYSTEM auth-fail events from the same observed source, 
   system within fifteen minutes. The event can come from different authentication services; it does not by itself
   prove a management-plane login. Check the authentication profile, requested user and any subsequent successes
   before treating the sequence as an attack.
-where: equals("log.pa_type", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
+where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
   && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") && exists("log.paVsys")
 groupBy:
 - lastEvent.dataSource
