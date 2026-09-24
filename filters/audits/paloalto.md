@@ -1,9 +1,11 @@
 # Palo Alto PAN-OS filter and correlation review
 
-Replacement for historical #2614. The standard is the v11-pinned ThreatWinds go-sdk
-v1.1.33 protobuf and its official wiki. This proposal changes the PAN-OS filter and
-all seven existing detection definitions together; four direction-specific counterparts
-bring the resulting rule set to eleven. Existing impact ratings and thresholds are retained.
+Replacement for historical #2614. The standard is the ThreatWinds go-sdk protobuf that v11
+pins, v1.1.36 since official `v11` (`d2479c1a`) was merged into this branch (the review used
+v1.1.33, whose `plugins.proto` is identical), and its official wiki. This proposal changes
+the PAN-OS filter and all seven existing detection definitions together; four
+direction-specific counterparts bring the resulting rule set to eleven. Existing impact
+ratings and thresholds are retained.
 
 ## Parsing and standard fields
 
@@ -71,6 +73,48 @@ bring the resulting rule set to eleven. Existing impact ratings and thresholds a
   virtual system; vulnerability also retains both endpoints and direction. Successful or
   unrelated activity cannot satisfy the counts. Clear input-supplied candidates and scope.
 
+## Re-validation on the latest versions
+
+On 2026-09-24 official `v11` moved to `d2479c1a3705eec6a00016689c2bf5fbcc1814f2`, whose
+`plugins/alerts` pins go-sdk v1.1.36, and EventProcessor `main` moved to
+`8a3ade72bd9d12db21f6b273200588fb49540f14`, whose playground and parser, writer and CEL
+plugins all link go-sdk v1.1.36. `v11` was merged into this branch; no file overlaps this
+draft, so nothing conflicted. The newest published engine image,
+`ghcr.io/utmstack/utmstack/eventprocessor:v11.2.14` (built 2026-09-24 19:13 UTC on base image
+`eventprocessor/base:1.1.7`), embeds Go build information showing that its playground and
+plugin binaries come from the same revision `8a3ade7` with go-sdk v1.1.36, built with
+go1.26.8 for linux/amd64. The local build used here is that source revision compiled
+natively for darwin/arm64 with go1.25.7; only the Go toolchain and platform differ. Its
+`csv` plugin was built from the same clean source.
+
+What changed in the SDK, and what it means here:
+
+- Since v1.1.35, `utils.SanitizeField` keeps `_` in the field names that the `json`
+  (top-level keys), `kv`, `grok`, `csv`, `xml`, `add` and `rename` plugins write; other
+  characters are still removed. This filter writes its 784 names, including 368 CSV
+  headers, in camelCase with letters and digits only (for example `log.paType`), so every
+  version stores them unchanged and the conditions and rules find them. No name needed a
+  change.
+- v1.1.36 makes `regexMatch` match string values only again. Every `regexMatch` in this
+  filter reads a text field written by `grok` or `csv`, so no result changes.
+  `plugins.proto`, `plugins/cel.go` and `plugins/rules.go` are identical in v1.1.33 and
+  v1.1.36.
+- The only file changed for the new SDK is a test comment that still said the sanitizer
+  removes underscores.
+
+| Check on the latest versions | Result |
+|---|---|
+| Full `plugins/alerts` suite, go-sdk v1.1.36 | 46 tests pass, 12 skip, none fail. The skipped tests need private evidence (the 11 of other technologies and this draft's private records). |
+| The 34 private records, same suite | 34 of 34 pass once their expected field names are written as the camelCase names this draft now uses; the private expectation file predates that rename. With them the suite gives 47 passes, 11 skips and no failures (2,418 passing results with subtests). |
+| The 122 committed fabricated lines through the EventProcessor `8a3ade7` playground, with the filter and the eleven rules as committed | 122 events, but 75 carry the `csv` plugin error `number of headers should match the number of resulting columns`: all 28 TRAFFIC and 36 THREAT lines and 11 lines of other CSV types. The real plugin stops the pipeline when a line has fewer columns than the layout's headers (the TRAFFIC layout lists 130; the TRAFFIC line has 102), so those events keep only the envelope fields. The offline model skips missing columns instead. Of the 47 lines without errors, 16 carry every expected field and 31 do not (20 CEF, 8 SYSTEM and 3 others); for example, SYSTEM authentication lines lack `origin.ip` and `origin.user`, because the real `grok` plugin matches each pattern from the start of the remaining text, while the model searches the whole text with one expression. The same 120 lines present in an earlier run on EventProcessor `497bf53` gave identical events, so the SDK change did not cause this. |
+| go-sdk v1.1.36 rule replay over those playground events | 2 of the 38 expected rule matches. On every event that carries its expected fields, each rule gives exactly its expected result and history placeholders resolve; the misses all come from the missing fields. |
+
+So the committed Go suite passes, but the real parser plugins do not yet produce what it
+expects for most native CSV lines, most CEF lines and part of the SYSTEM lines. This is
+not a v1.1.36 change and is left to a separate correction of the CSV layouts, the SYSTEM
+authentication extraction and the offline model; the rules cannot be relied on for native
+CSV traffic until then.
+
 ## Validation and rollout limits
 
 The committed suite has **122 fabricated raw fixtures**, positive/negative assertions for all
@@ -78,7 +122,8 @@ The committed suite has **122 fabricated raw fixtures**, positive/negative asser
 real SDK history-request tests** against loopback mocks. History tests cover below/at threshold,
 expiration, irrelevant/unmarked events, wrong identities and unresolved required placeholders.
 The manifest also validates schema/conditions with the shared contract runner. These checks
-use the SDK **v1.1.33** pinned by the reviewed v11 snapshot.
+first used the SDK **v1.1.33** pinned by the reviewed v11 snapshot and now pass with
+**v1.1.36** (see above).
 
 Read-only sampling on 23 September 2026 also retrieved **34 distinct stored records** and the
 mounted filter/rules from two deployments. Twenty-two are native SYSTEM records: nine
@@ -97,13 +142,15 @@ regressions, not those SYSTEM samples. The legacy LEEF-labelled dialect has comp
 only; neither it nor standard LEEF has vendor-semantic validation here. Ambiguous CEF
 counters/severity remain unpromoted.
 
-Raw extraction uses an explicitly declared offline YAML/Go CSV model. It is not execution of the
-closed EventProcessor, geolocation service or live alert creation. Native replay and deployment
+Raw extraction in the Go suite uses an explicitly declared offline YAML/Go CSV model. It is not
+execution of the EventProcessor, geolocation service or live alert creation; the playground run
+above shows where it and the real parser plugins differ. Native replay and deployment
 identity evidence are maintained separately; no customer records or identifying metadata are
 committed. No production alert-volume result is asserted.
 
-Before rollout, exercise the closed parser with the actual appliance export profiles, measure
-throughput, and verify the resulting indexed fields and alerts. In particular:
+Before rollout, correct the parser differences described above, exercise the parser with the
+actual appliance export profiles, measure throughput, and verify the resulting indexed fields
+and alerts. In particular:
 
 - Palo Alto publishes no supported CEF guidance after PAN-OS 10.0. Its guide gives a numeric
   0–10 importance scale but no exact mapping to PAN-OS textual severity bins. Numeric-only CEF
@@ -131,7 +178,9 @@ throughput, and verify the resulting indexed fields and alerts. In particular:
 
 ## References
 
-- [SDK protobuf, pinned v1.1.33](https://github.com/threatwinds/go-sdk/blob/v1.1.33/plugins/plugins.proto)
+- [SDK protobuf, pinned v1.1.36](https://github.com/threatwinds/go-sdk/blob/v1.1.36/plugins/plugins.proto) (identical to v1.1.33)
+- [SDK field-name sanitizer, v1.1.36](https://github.com/threatwinds/go-sdk/blob/v1.1.36/utils/fields.go)
+- [EventProcessor csv plugin at 8a3ade7](https://github.com/utmstack/EventProcessor/blob/8a3ade72bd9d12db21f6b273200588fb49540f14/plugins/csv/main.go)
 - [Filter step semantics](https://github.com/threatwinds/go-sdk/wiki/Filter-Steps-Reference)
 - [Rule evaluation and history](https://github.com/threatwinds/go-sdk/wiki/Implementing-Rules)
 - [PAN-OS syslog field descriptions](https://docs.paloaltonetworks.com/pan-os/11-1/pan-os-admin/monitoring/use-syslog-for-monitoring/syslog-field-descriptions)
