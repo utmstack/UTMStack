@@ -17,13 +17,14 @@ import { MessageRow } from "./MessageRow";
 // Panel-visible scopes only — 'home' has its own inline transcript and never
 // shows here, so it needs no title/empty-state copy in this map.
 const SCOPE_TITLE_KEY: Record<
-  "panel" | "dashboard-create" | "dashboard-edit" | "soar-edit",
+  "panel" | "dashboard-create" | "dashboard-edit" | "soar-edit" | "soar-create",
   string
 > = {
   panel: "socAi.chat.title",
   "dashboard-create": "socAi.chat.dashboardCreateTitle",
   "dashboard-edit": "socAi.chat.dashboardEditTitle",
   "soar-edit": "socAi.chat.soarEditTitle",
+  "soar-create": "socAi.chat.soarCreateTitle",
 };
 
 export function SocAiPanel() {
@@ -36,6 +37,7 @@ export function SocAiPanel() {
     dashboardCreateMessages,
     dashboardEditMessages,
     soarEditMessages,
+    soarCreateMessages,
     dashboardEditTarget,
     soarEditTarget,
     focus,
@@ -66,7 +68,9 @@ export function SocAiPanel() {
         ? dashboardEditMessages
         : activeScope === "soar-edit"
           ? soarEditMessages
-          : messages;
+          : activeScope === "soar-create"
+            ? soarCreateMessages
+            : messages;
   // 'home' never opens this panel (see the comment above), so it has no
   // entry here — fall back to the general panel title if it ever does.
   const titleKey =

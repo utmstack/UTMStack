@@ -28,11 +28,16 @@ export interface SocAiMessage {
 // 'panel', 'dashboard-create' and 'dashboard-edit' all render in the floating
 // SocAiPanel (see activeScope) — separate threads, same UI. 'home' has its
 // own inline transcript (HomeChatTranscript) and never shows in the panel.
-export type SocAiScope = 'panel' | 'home' | 'dashboard-create' | 'dashboard-edit' | 'soar-edit'
+export type SocAiScope = 'panel' | 'home' | 'dashboard-create' | 'dashboard-edit' | 'soar-edit' | 'soar-create'
 
 export interface SoarEditTarget {
   relPath: string
   name: string
+}
+
+export interface SoarCreateTarget {
+  name: string
+  description: string
 }
 
 /** Which existing dashboard the 'dashboard-edit' thread is currently scoped to. */
@@ -68,12 +73,15 @@ interface SocAiContextValue {
   dashboardCreateMessages: SocAiMessage[]
   dashboardEditMessages: SocAiMessage[]
   soarEditMessages: SocAiMessage[]
+  soarCreateMessages: SocAiMessage[]
   dashboardEditTarget: DashboardEditTarget | null
   // Called right before opening the panel with scope 'dashboard-edit' so every
   // message sent in that thread carries which dashboard is being worked on.
   setDashboardEditTarget: (target: DashboardEditTarget | null) => void
   soarEditTarget: SoarEditTarget | null
   setSoarEditTarget: (target: SoarEditTarget | null) => void
+  soarCreateTarget: SoarCreateTarget | null
+  setSoarCreateTarget: (target: SoarCreateTarget | null) => void
   soarEditVersion: number
   // The open item being shared with the agent, or null when nothing is open or
   // the person removed it from the conversation.
@@ -124,8 +132,10 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const [dashboardCreateMessages, setDashboardCreateMessages] = useState<SocAiMessage[]>([])
   const [dashboardEditMessages, setDashboardEditMessages] = useState<SocAiMessage[]>([])
   const [soarEditMessages, setSoarEditMessages] = useState<SocAiMessage[]>([])
+  const [soarCreateMessages, setSoarCreateMessages] = useState<SocAiMessage[]>([])
   const [dashboardEditTarget, setDashboardEditTarget] = useState<DashboardEditTarget | null>(null)
   const [soarEditTarget, setSoarEditTarget] = useState<SoarEditTarget | null>(null)
+  const [soarCreateTarget, setSoarCreateTarget] = useState<SoarCreateTarget | null>(null)
   const [soarEditVersion, setSoarEditVersion] = useState(0)
   const [openItem, setOpenItem] = useState<SocAiFocus | null>(null)
   // The item the person chose to stop sharing. Reset when nothing is open, so
@@ -144,6 +154,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
     'dashboard-create': setDashboardCreateMessages,
     'dashboard-edit': setDashboardEditMessages,
     'soar-edit': setSoarEditMessages,
+    'soar-create': setSoarCreateMessages,
   }
   const messagesByScope: Record<SocAiScope, SocAiMessage[]> = {
     panel: messages,
@@ -151,6 +162,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
     'dashboard-create': dashboardCreateMessages,
     'dashboard-edit': dashboardEditMessages,
     'soar-edit': soarEditMessages,
+    'soar-create': soarCreateMessages,
   }
 
   const openKey = openItem ? `${openItem.kind}:${openItem.id}` : null
@@ -183,6 +195,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
     }
     if (scope === 'soar-edit' && !location.pathname.startsWith('/soar')) {
       setSoarEditTarget(null)
+      setActiveScope('panel')
+    }
+    if (scope === 'soar-create' && !location.pathname.startsWith('/soar')) {
       setActiveScope('panel')
     }
   }, [location.pathname])
@@ -227,7 +242,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
           ? `Dashboard editor — the user is editing dashboard "${dashboardEditTarget.name}" (dashboard id: ${dashboardEditTarget.id}). Use the dashboards/visualizations tools with this id to add, update, or remove its widgets; check what's already there first (dashboards.get / visualizations.list) before changing it.`
           : scope === 'soar-edit' && soarEditTarget
             ? `SOAR flow editor — user is editing flow "${soarEditTarget.name}" at ${soarEditTarget.relPath}. Call soar.rule.get first, then soar.rule.update with the FULL rule JSON (Conditions + Nodes map); preserve all unrelated nodes.`
-            : scope === 'panel'
+            : scope === 'soar-create' && soarCreateTarget
+              ? `SOAR flow creation — create a new SOAR flow named "${soarCreateTarget.name}" with soar.rule.create using FULL rule JSON (Conditions + Nodes map). What it should do: ${soarCreateTarget.description}`
+              : scope === 'panel'
             ? composePage(pageContext(location.pathname), focusRef.current)
             : pageContext(location.pathname)
       const lang = (i18n.language || 'en').split('-')[0]
@@ -269,6 +286,9 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
           if (scope === 'soar-edit' && (ev.kind === 'final' || ev.kind === 'error')) {
             setSoarEditVersion((v) => v + 1)
           }
+          if (scope === 'soar-create' && (ev.kind === 'final' || ev.kind === 'error')) {
+            setSoarEditVersion((v) => v + 1)
+          }
         },
         ac.signal,
       ).catch((err) => {
@@ -291,8 +311,10 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       dashboardCreateMessages,
       dashboardEditMessages,
       soarEditMessages,
+      soarCreateMessages,
       dashboardEditTarget,
       soarEditTarget,
+      soarCreateTarget,
       queryClient,
     ],
   )
@@ -307,10 +329,13 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       dashboardCreateMessages,
       dashboardEditMessages,
       soarEditMessages,
+      soarCreateMessages,
       dashboardEditTarget,
       setDashboardEditTarget,
       soarEditTarget,
       setSoarEditTarget,
+      soarCreateTarget,
+      setSoarCreateTarget,
       soarEditVersion,
       focus,
       setFocus,
@@ -331,8 +356,10 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
       dashboardCreateMessages,
       dashboardEditMessages,
       soarEditMessages,
+      soarCreateMessages,
       dashboardEditTarget,
       soarEditTarget,
+      soarCreateTarget,
       soarEditVersion,
       focus,
       setFocus,

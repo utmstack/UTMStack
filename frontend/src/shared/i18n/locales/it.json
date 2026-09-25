@@ -4919,7 +4919,20 @@
       "runs24h": "Esecuzioni (24h)",
       "failed24h": "Fallite (24h)"
     },
-    "neverRun": "mai"
+    "neverRun": "mai",
+    "create": {
+      "title": "Nuovo flusso",
+      "modeManual": "Crea manualmente",
+      "modeAi": "Con IA",
+      "aiLocked": "Abilita SOC-AI e configuralo per usarlo.",
+      "name": "Nome del flusso",
+      "namePlaceholder": "es. Blocca IP in caso di fallimenti ripetuti",
+      "aiDescriptionLabel": "Cosa deve fare questo flusso?",
+      "aiDescriptionPlaceholder": "es. In caso di alert critico, cerca l'IP di origine nell'intelligence sulle minacce e bloccalo sul firewall",
+      "aiCreate": "Crea con IA",
+      "manualContinue": "Continua",
+      "aiOpener": "Crea un flusso SOAR chiamato \"{{name}}\" che fa: {{description}}"
+    }
   },
   "compliance": {
     "title": "Compliance",

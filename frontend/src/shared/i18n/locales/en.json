@@ -5325,7 +5325,20 @@
       "runs24h": "Executions (24h)",
       "failed24h": "Failed (24h)"
     },
-    "neverRun": "never"
+    "neverRun": "never",
+    "create": {
+      "title": "New flow",
+      "modeManual": "Create manually",
+      "modeAi": "Using AI",
+      "aiLocked": "Enable SOC-AI and configure it to use this.",
+      "name": "Flow name",
+      "namePlaceholder": "e.g. Block IP on repeated failures",
+      "aiDescriptionLabel": "What should this flow do?",
+      "aiDescriptionPlaceholder": "e.g. On a critical alert, look up the source IP in threat intel and block it on the firewall",
+      "aiCreate": "Create with AI",
+      "manualContinue": "Continue",
+      "aiOpener": "Create a SOAR flow named \"{{name}}\" that does: {{description}}"
+    }
   },
   "compliance": {
     "title": "Compliance",
