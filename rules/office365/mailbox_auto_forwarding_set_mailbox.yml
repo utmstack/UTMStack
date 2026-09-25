@@ -1,21 +1,28 @@
-# Rule version v1.0.0
+# Rule version v1.1.2
 
 dataTypes:
-  - "o365"
-name: "O365 Mailbox Auto-Forwarding (Set-Mailbox)"
-impact:
-  confidentiality: 3
-  integrity: 2
-  availability: 1
-category: "Data Exfiltration"
-technique: "T1114.003 - Email Collection: Email Forwarding Rule"
+- o365
+name: O365 Mailbox Auto-Forwarding (Set-Mailbox)
+description: |
+  Set-Mailbox set a forwarding address on a mailbox (ForwardingSmtpAddress or ForwardingAddress). Mail delivered to the mailbox is then forwarded to that address without any inbox rule, a common step after a mailbox is taken over.
+
+  Check whether the address is outside the organization, who made the change and recent sign-ins for that account. Clearing forwarding, or changing only DeliverToMailboxAndForward, does not raise this alert. The alert does not by itself establish compromise or an external recipient.
+category: Collection
+technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
 adversary: origin
-description: "Detects when a mailbox is configured to automatically forward mail to another address via Set-Mailbox (the OWA \"Forwarding\" setting). The forwarded address appears in the ForwardingSmtpAddress parameter. Attackers set this to exfiltrate all of a mailbox's mail to an off-tenant or external address without creating an inbox rule, so legacy New-InboxRule / Set-InboxRule detections miss it. Note: this rule matches the indexed string element of the Parameters array (ForwardingSmtpAddress, value of the form smtp:<address>). Investigate whether the forwarding address is authorized and whether it is external (off-tenant)."
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 0
 references:
-  - "https://learn.microsoft.com/en-us/purview/audit-log-activities"
-  - "https://learn.microsoft.com/en-us/purview/audit-mailbox-settings"
-  - "https://attack.mitre.org/techniques/T1114/003/"
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-mailbox?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "Set-Mailbox") && contains("log.Parameters", "smtp:") && equals("actionResult", "success")
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "Set-Mailbox") && (equals("log.o365MailboxForwardingSet", "true") || regexMatch("log.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") || regexMatch("log.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
 groupBy:
-  - adversary.user
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action

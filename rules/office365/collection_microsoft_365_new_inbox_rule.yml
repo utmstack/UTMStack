@@ -1,26 +1,30 @@
-# Rule version v1.0.3
+# Rule version v1.1.2
 
 dataTypes:
-  - "o365"
-name: "Microsoft 365 New Inbox Rule Created"
-impact:
-  confidentiality: 3
-  integrity: 2
-  availability: 1
-category: "Collection"
-technique: "T1114 - Email Collection"
+- o365
+name: Office 365 Inbox Rule Changed
+description: |
+  A user or administrator created, changed, enabled, disabled or removed an inbox rule with an Exchange command, for example from Outlook on the web or PowerShell. Rules that move or delete mail can hide messages from the mailbox owner. New and modified rules with forwarding settings raise the separate forwarding alert instead.
+
+  Outlook desktop records its rule saves as UpdateInboxRules and writes them repeatedly for the same rules, usually without any rule change, so those records do not raise this alert.
+
+  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
+category: Administrative Awareness
+technique: 'T1564.008 - Hide Artifacts: Email Hiding Rules'
 adversary: origin
-description: "Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include keylogging or credential dumping. Using legitimate credentials can give adversaries access to systems, make them harder to detect, and provide the opportunity to create more accounts to help achieve their goals.<br>
-    Identifies when a new Inbox rule is created in Microsoft 365. Inbox rules process messages in the Inbox based on conditions and take actions, such as moving a message to a specified folder or deleting a message. Adequate permissions are required on the mailbox to create an Inbox rule."
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
 references:
-  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/responding-to-a-compromised-email-account?view=o365-worldwide"
-  - "https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboxrule?view=exchange-ps"
-  - "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/detect-and-remediate-outlook-rules-forms-attack?view=o365-worldwide"
-  - "https://attack.mitre.org/techniques/T1114/"
-  - "https://attack.mitre.org/techniques/T1114/003/"
-  - "https://attack.mitre.org/tactics/TA0009/"
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-inboxrule?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("action", "New-InboxRule") && oneOf("actionResult", ["success"])
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule", "Enable-InboxRule", "Disable-InboxRule", "Remove-InboxRule"]) && !(oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name")))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action

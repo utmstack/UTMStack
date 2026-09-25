@@ -1,33 +1,28 @@
-# Rule version v1.0.0
+# Rule version v1.1.2
 
 dataTypes:
-  - o365
+- o365
 name: Suspicious Mail Forwarding Rule Creation
-impact:
-  confidentiality: 3
-  integrity: 2
-  availability: 1
-category: Data Exfiltration
-technique: "T1114.001 - Email Collection: Local Email Collection"
-adversary: origin
-references:
-  - https://docs.microsoft.com/en-us/microsoft-365/compliance/auditing-troubleshooting-scenarios
-  - https://attack.mitre.org/techniques/T1114/001/
 description: |
-  Detects creation or modification of inbox rules that forward emails to external recipients, which could indicate data exfiltration attempts. This rule monitors for the creation of new inbox rules or modifications to existing rules that contain forwarding parameters.
+  An inbox rule was created or changed with a ForwardTo, ForwardAsAttachmentTo or RedirectTo setting. Rules that send a mailbox's mail to an outside address are a common sign that the mailbox has been taken over.
 
-  Next Steps:
-  1. Review the specific forwarding parameters in the log.Parameters field to identify the destination email address
-  2. Verify if the forwarding destination is a legitimate business email or an external/suspicious address
-  3. Check if the user who created the rule has legitimate business justification for email forwarding
-  4. Review recent authentication logs for the affected user account for signs of compromise
-  5. Examine the timing of the rule creation - if created outside business hours or immediately after login, investigate further
-  6. Check for other suspicious activities by the same user account around the same timeframe
-  7. If malicious, disable the forwarding rule and reset user credentials
+  Check the destination in the rule parameters, who made the change and recent sign-ins for the mailbox. Clearing a forwarding setting in an existing rule also raises this alert. The alert does not by itself establish compromise or an external recipient.
+category: Collection
+technique: 'T1114.003 - Email Collection: Email Forwarding Rule'
+adversary: origin
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 0
+references:
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-inboxrule?view=exchange-ps
 where: |
-  oneOf("action", ["New-InboxRule", "Set-InboxRule", "UpdateInboxRules"]) && 
-  equals("actionResult", "success") &&
-  (contains("log.Parameters", "ForwardTo") || contains("log.Parameters", "ForwardAsAttachmentTo") || contains("log.Parameters", "RedirectTo"))
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action
