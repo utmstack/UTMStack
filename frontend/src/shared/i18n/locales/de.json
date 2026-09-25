@@ -4911,7 +4911,20 @@
       "runs24h": "Ausführungen (24 Std.)",
       "failed24h": "Fehlgeschlagen (24 Std.)"
     },
-    "neverRun": "nie"
+    "neverRun": "nie",
+    "create": {
+      "title": "Neuer Flow",
+      "modeManual": "Manuell erstellen",
+      "modeAi": "Mit KI",
+      "aiLocked": "Aktivieren Sie SOC-AI und konfigurieren Sie es, um dies zu nutzen.",
+      "name": "Flow-Name",
+      "namePlaceholder": "z. B. IP bei wiederholten Fehlern blockieren",
+      "aiDescriptionLabel": "Was soll dieser Flow tun?",
+      "aiDescriptionPlaceholder": "z. B. Bei einem kritischen Alarm die Quell-IP in der Bedrohungsanalyse prüfen und auf der Firewall blockieren",
+      "aiCreate": "Mit KI erstellen",
+      "manualContinue": "Fortfahren",
+      "aiOpener": "Erstelle einen SOAR-Flow namens \"{{name}}\", der Folgendes tut: {{description}}"
+    }
   },
   "compliance": {
     "title": "Compliance",
@@ -5307,7 +5320,9 @@
       "errorUnreachable": "Der Assistent konnte nicht erreicht werden.",
       "compacting": "Kontext wird komprimiert…",
       "dashboardEditTitle": "Dashboard-Editor",
-      "editingDashboard": "Bearbeite: {{name}}"
+      "editingDashboard": "Bearbeite: {{name}}",
+      "soarEditTitle": "SOAR-Flow-Editor",
+      "editingFlow": "Bearbeite Flow: {{name}}"
     },
     "focus": {
       "alert": "Warnung",

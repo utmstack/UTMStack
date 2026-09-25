@@ -4705,7 +4705,20 @@
       "runs24h": "Выполнения (24 ч)",
       "failed24h": "Неудачные (24 ч)"
     },
-    "neverRun": "никогда"
+    "neverRun": "никогда",
+    "create": {
+      "title": "Новый поток",
+      "modeManual": "Создать вручную",
+      "modeAi": "С помощью ИИ",
+      "aiLocked": "Включите SOC-AI и настройте его, чтобы использовать это.",
+      "name": "Имя потока",
+      "namePlaceholder": "напр. Заблокировать IP при повторных сбоях",
+      "aiDescriptionLabel": "Что должен делать этот поток?",
+      "aiDescriptionPlaceholder": "напр. При критическом оповещении найти исходный IP в разведданных и заблокировать его на файрволе",
+      "aiCreate": "Создать с ИИ",
+      "manualContinue": "Продолжить",
+      "aiOpener": "Создайте поток SOAR с именем «{{name}}», который выполняет: {{description}}"
+    }
   },
   "compliance": {
     "title": "Compliance",
@@ -5333,7 +5346,9 @@
       "errorUnreachable": "Не удалось связаться с ассистентом.",
       "compacting": "Сжатие контекста…",
       "dashboardEditTitle": "Редактор панелей",
-      "editingDashboard": "Редактирование: {{name}}"
+      "editingDashboard": "Редактирование: {{name}}",
+      "soarEditTitle": "Редактор потоков SOAR",
+      "editingFlow": "Редактирование потока: {{name}}"
     },
     "focus": {
       "alert": "Оповещение",
