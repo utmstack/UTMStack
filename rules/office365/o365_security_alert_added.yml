@@ -21,7 +21,7 @@ description: |
   3. Triage and remediate per the alert guidance
   4. Document the incident and containment
 where: |
-  equals("action", "AlertAdded") && equals("actionResult", "success")
+  equals("action", "AlertAdded")
 groupBy:
   - lastEvent.log.Parameters
   - adversary.user
