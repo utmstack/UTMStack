@@ -5,7 +5,6 @@ package dependency
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/agent/config"
